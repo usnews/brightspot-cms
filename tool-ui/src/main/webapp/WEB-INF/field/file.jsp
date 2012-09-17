@@ -95,9 +95,13 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     StorageItem newItem = null;
 
     if ("keep".equals(action)) {
-        newItem = StorageItem.Static.createIn(wp.param(storageName));
-        newItem.setPath(wp.param(pathName));
-        newItem.setContentType(wp.param(contentTypeName));
+        if (fieldValue != null) {
+            newItem = fieldValue;
+        } else {
+            newItem = StorageItem.Static.createIn(wp.param(storageName));
+            newItem.setPath(wp.param(pathName));
+            newItem.setContentType(wp.param(contentTypeName));
+        }
 
     } else if ("newUpload".equals(action) || "newUrl".equals(action)) {
 
