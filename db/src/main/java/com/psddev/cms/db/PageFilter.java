@@ -250,7 +250,7 @@ public class PageFilter extends AbstractFilter {
         request.removeAttribute(PROFILE_CHECKED_ATTRIBUTE);
         request.removeAttribute(SITE_CHECKED_ATTRIBUTE);
 
-        doPage(request, response, chain);
+        doRequest(request, response, chain);
     }
 
     @Override
@@ -260,7 +260,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        Profile profile = getProfile(request);
+        Profile profile = Static.getProfile(request);
         Variation.Static.applyAll(TypeDefinition.getInstance(Record.class).newInstance(), profile);
 
         if (redirectIfFixedPath(request, response)) {
@@ -277,139 +277,130 @@ public class PageFilter extends AbstractFilter {
         }
 
         try {
-            doPage(request, response, chain);
+            String servletPath = request.getServletPath();
+
+            // Serve a special robots.txt file for non-production.
+            if (servletPath.equals("/robots.txt") && !Settings.isProduction()) {
+                response.setContentType("text/plain");
+                PrintWriter writer = response.getWriter();
+                writer.println("User-agent: *");
+                writer.println("Disallow: /");
+                return;
+
+            // Render a single section.
+            } else if (servletPath.startsWith("/_render")) {
+                UUID sectionId = ObjectUtils.to(UUID.class, request.getParameter("_sectionId"));
+                Section section = Query.findById(Section.class, sectionId);
+                if (section != null) {
+                    writeSection(request, response, response.getWriter(), section);
+                }
+                return;
+
+            // Strip the special directory suffix.
+            } else if (servletPath.endsWith("/index")) {
+                JspUtils.redirectPermanently(request, response, servletPath.substring(0, servletPath.length() - 5));
+                return;
+            }
+
+            // Global prefix?
+            String prefix = Settings.get(String.class, "cms/db/directoryPrefix");
+            if (!ObjectUtils.isBlank(prefix)) {
+                Static.setPath(request, StringUtils.ensureEnd(prefix, "/") + servletPath);
+            }
+
+            Site site = Static.getSite(request);
+            if (redirectIfFixedPath(request, response)) {
+                return;
+            }
+
+            Object mainObject = Static.getMainObject(request);
+            if (redirectIfFixedPath(request, response)) {
+                return;
+            } else {
+                HttpServletRequest newRequest = (HttpServletRequest) request.getAttribute(NEW_REQUEST_ATTRIBUTE);
+                if (newRequest != null) {
+                    request = newRequest;
+                }
+            }
+
+            // Not handled by the CMS.
+            if (mainObject == null) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            // If mainObject has a redirect path AND a permalink and the
+            // current request is the redirect path, then redirect to the
+            // permalink.
+            String path = Static.getPath(request);
+            Directory.Path redirectPath = null;
+            boolean isRedirect = false;
+            for (Directory.Path p : State.getInstance(mainObject).as(Directory.ObjectModification.class).getPaths()) {
+                if (p.getType() == Directory.PathType.REDIRECT && path.equals(p.getPath())) {
+                    isRedirect = true;
+                } else if (p.getType() == Directory.PathType.PERMALINK) {
+                    redirectPath = p;
+                }
+            }
+
+            if (isRedirect && redirectPath != null) {
+                JspUtils.redirectPermanently(request, response, site != null ?
+                        site.getPrimaryUrl() + redirectPath.getPath() :
+                        redirectPath.getPath());
+                return;
+            }
+
+            Page page = Static.getPage(request);
+            if (page == null) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            // Set up a profile.
+            PrintWriter writer = response.getWriter();
+            debugObject(request, writer, "Main object is", mainObject);
+
+            Map<String, Object> seo = new HashMap<String, Object>();
+            seo.put("title", Seo.Static.findTitle(mainObject));
+            seo.put("description", Seo.Static.findDescription(mainObject));
+            Set<String> keywords = Seo.Static.findKeywords(mainObject);
+            if (keywords != null) {
+                seo.put("keywords", keywords);
+                seo.put("keywordsString", keywords.toString());
+            }
+            request.setAttribute("seo", seo);
+
+            // Try to set the right content type based on the extension.
+            String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
+            response.setContentType((ObjectUtils.isBlank(contentType) ? "text/html" : contentType) + ";charset=UTF-8");
+
+            // Render the page.
+            if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
+                writer.write("<span class=\"cms-mainObject\" style=\"display: none;\">");
+                Map<String, String> map = new HashMap<String, String>();
+                State state = State.getInstance(mainObject);
+                map.put("id", state.getId().toString());
+                map.put("label", state.getLabel());
+                map.put("typeLabel", state.getType().getLabel());
+                writer.write(ObjectUtils.toJson(map));
+                writer.write("</span>");
+            }
+
+            beginPage(request, response, writer, page);
+            if (!response.isCommitted()) {
+                request.getSession();
+            }
+            Page.Layout layout = page.getLayout();
+            if (layout != null) {
+                renderSection(request, response, writer, layout.getOutermostSection());
+            }
+            endPage(request, response, writer, page);
 
         } finally {
             if (!isAuthenticated) {
                 Database.Static.setDefaultOverride(null);
             }
         }
-    }
-
-    private void doPage(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
-            throws IOException, ServletException {
-
-        String servletPath = request.getServletPath();
-
-        // Serve a special robots.txt file for non-production.
-        if (servletPath.equals("/robots.txt") && !Settings.isProduction()) {
-            response.setContentType("text/plain");
-            PrintWriter writer = response.getWriter();
-            writer.println("User-agent: *");
-            writer.println("Disallow: /");
-            return;
-
-        // Render a single section.
-        } else if (servletPath.startsWith("/_render")) {
-            UUID sectionId = ObjectUtils.to(UUID.class, request.getParameter("_sectionId"));
-            Section section = Query.findById(Section.class, sectionId);
-            if (section != null) {
-                writeSection(request, response, response.getWriter(), section);
-            }
-            return;
-
-        // Strip the special directory suffix.
-        } else if (servletPath.endsWith("/index")) {
-            JspUtils.redirectPermanently(request, response, servletPath.substring(0, servletPath.length() - 5));
-            return;
-        }
-
-        // Global prefix?
-        String prefix = Settings.get(String.class, "cms/db/directoryPrefix");
-        if (!ObjectUtils.isBlank(prefix)) {
-            Static.setPath(request, StringUtils.ensureEnd(prefix, "/") + servletPath);
-        }
-
-        Site site = Static.getSite(request);
-        if (redirectIfFixedPath(request, response)) {
-            return;
-        }
-
-        Object mainObject = Static.getMainObject(request);
-        if (redirectIfFixedPath(request, response)) {
-            return;
-        } else {
-            HttpServletRequest newRequest = (HttpServletRequest) request.getAttribute(NEW_REQUEST_ATTRIBUTE);
-            if (newRequest != null) {
-                request = newRequest;
-            }
-        }
-
-        // Not handled by the CMS.
-        if (mainObject == null) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // If mainObject has a redirect path AND a permalink and the
-        // current request is the redirect path, then redirect to the
-        // permalink.
-        String path = Static.getPath(request);
-        Directory.Path redirectPath = null;
-        boolean isRedirect = false;
-        for (Directory.Path p : State.getInstance(mainObject).as(Directory.ObjectModification.class).getPaths()) {
-            if (p.getType() == Directory.PathType.REDIRECT && path.equals(p.getPath())) {
-                isRedirect = true;
-            } else if (p.getType() == Directory.PathType.PERMALINK) {
-                redirectPath = p;
-            }
-        }
-
-        if (isRedirect && redirectPath != null) {
-            JspUtils.redirectPermanently(request, response, site != null ?
-                    site.getPrimaryUrl() + redirectPath.getPath() :
-                    redirectPath.getPath());
-            return;
-        }
-
-        Page page = Static.getPage(request);
-        if (page == null) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // Set up a profile.
-        PrintWriter writer = response.getWriter();
-        debugObject(request, writer, "Main object is", mainObject);
-
-        Map<String, Object> seo = new HashMap<String, Object>();
-        seo.put("title", Seo.Static.findTitle(mainObject));
-        seo.put("description", Seo.Static.findDescription(mainObject));
-        Set<String> keywords = Seo.Static.findKeywords(mainObject);
-        if (keywords != null) {
-            seo.put("keywords", keywords);
-            seo.put("keywordsString", keywords.toString());
-        }
-        request.setAttribute("seo", seo);
-
-        // Try to set the right content type based on the extension.
-        String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
-        response.setContentType((ObjectUtils.isBlank(contentType) ? "text/html" : contentType) + ";charset=UTF-8");
-
-        // Render the page.
-        if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
-            writer.write("<span class=\"cms-mainObject\" style=\"display: none;\">");
-            Map<String, String> map = new HashMap<String, String>();
-            State state = State.getInstance(mainObject);
-            map.put("id", state.getId().toString());
-            map.put("label", state.getLabel());
-            map.put("typeLabel", state.getType().getLabel());
-            writer.write(ObjectUtils.toJson(map));
-            writer.write("</span>");
-        }
-
-        beginPage(request, response, writer, page);
-        if (!response.isCommitted()) {
-            request.getSession();
-        }
-        Page.Layout layout = page.getLayout();
-        if (layout != null) {
-            renderSection(request, response, writer, layout.getOutermostSection());
-        }
-        endPage(request, response, writer, page);
     }
 
     /** Renders the beginning of the given {@code page}. */
