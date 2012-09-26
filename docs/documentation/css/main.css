@@ -1,0 +1,164 @@
+h3 strong {
+    font-family: Menlo,Consolas,"Courier New",monospace;
+    font-weight: normal;
+    font-size: 85%;
+    background: #fafafa;
+    padding: 3px;
+}
+
+.hero-unit {
+    background: none;
+    padding: 0;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    margin-bottom: 0px;
+}
+
+.hero-unit img {
+    padding: 5px 30px 0px 30px;
+}
+
+.hero-unit p {
+    padding-bottom: 10px;
+}
+
+h1, h2, h3, h4, h5 {
+    color: #b93e60;
+    padding-top: .25em;
+    padding-bottom: .25em;
+}
+
+h2 {
+    padding-top: 0;
+    margin-top: 0;
+    color: #000;
+}
+
+pre, code {
+    border: none;
+    background: #f5f5f5;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+code.xml span.err {
+    border: none;
+}
+
+div.alert code {
+    background: none;
+}
+
+strong code {
+    color: #777;
+}
+
+blockquote {
+    border: none;
+    margin-left: 1.25em;
+}
+
+blockquote p {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.nav-list .divider {
+    margin: 9px 0px 9px 0px;
+}
+
+.nav-list .nav-header {
+    color: #555;
+    font-size: 100%;
+}
+
+.nav-list .nav-sublist .nav-header {
+    color: #999;
+    font-size: 95%;
+}
+
+.nav-list > .active > a,  .nav-list > .active > a:hover {
+    background: #0a5a92;
+}
+
+.nav-list li {
+    font-size: 92%;
+}
+
+.blurb {
+    line-height: 25px;
+    font-size: 16px;
+    font-weight: 200;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.blurb h2 {
+    color: #b93e60;
+}
+
+.blurb li {
+    line-height: 25px;
+}
+
+footer div.blurb p {
+    font-size: 12px;
+}
+
+.navbar {
+    height: 47px;
+}
+
+.navbar-fixed-top .navbar-inner, .navbar-static-top .navbar-inner {
+    background: #b93e60;
+    border-bottom: 7px solid #f9e263;
+    min-height: 40px;
+}
+
+.navbar .nav > .active > a,
+.navbar .nav > .active > a:hover,
+.navbar .nav > .active > a:focus {
+    background: none;
+    color: #fff;
+    text-shadow: 0 1px 0 #000;
+}
+
+.navbar .nav > li > a,
+.navbar .nav > li > a:focus,
+.navbar .nav > li > a:hover {
+    color: #ccc;
+    text-shadow: 0 1px 0 #000;
+}
+
+.navbar .brand {
+    padding: 0;
+    margin: 0;
+    color: #fff;
+
+}
+
+.bs-docs-example {
+    position: relative;
+    margin: 15px 0;
+    padding: 39px 19px 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.bs-docs-example::after {
+    content: attr(title);
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #9da0a4;
+    -webkit-border-radius: 4px 0 4px 0;
+    -moz-border-radius: 4px 0 4px 0;
+    border-radius: 4px 0 4px 0;
+}

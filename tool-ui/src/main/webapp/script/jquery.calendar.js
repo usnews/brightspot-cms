@@ -1,0 +1,256 @@
+if (typeof jQuery !== 'undefined') (function($) {
+
+var options = {
+    'dayLabels': [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
+    'monthLabels': [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
+};
+
+var padZero = function(value) {
+    return value < 10 ? '0' + value : value;
+};
+
+var getCalendar;
+
+var updateCalendarView = function(viewDate) {
+
+    var $calendar = getCalendar();
+    var selectedDate = $calendar.data('selectedDate');
+    $calendar.data('viewDate', viewDate);
+
+    var viewMonth = viewDate.getMonth();
+    $calendar.find('> .month').text(options.monthLabels[viewMonth] + ' ' + viewDate.getFullYear());
+
+    var dayDate = new Date(viewDate.getTime());
+    dayDate.setDate(1);
+    dayDate.setDate(dayDate.getDate() - dayDate.getDay());
+    $calendar.find('> .week > .day').each(function() {
+
+        var $day = $(this);
+        $day.data('date', new Date(dayDate.getTime()));
+
+        var dayNumber = dayDate.getDate();
+        $day.text(dayNumber);
+
+        if (viewMonth === dayDate.getMonth()) {
+            $day.removeClass('offMonth');
+        } else {
+            $day.addClass('offMonth');
+        }
+
+        if (dayDate.getMonth() === selectedDate.getMonth() && dayNumber === selectedDate.getDate()) {
+            $day.addClass('selected');
+        } else {
+            $day.removeClass('selected');
+        }
+
+        dayDate.setDate(dayNumber + 1);
+    });
+};
+
+var updateInput = function() {
+
+    var $calendar = getCalendar();
+    var selectedDate = $calendar.data('selectedDate');
+
+    var dayNumber = padZero(selectedDate.getDate());
+    var hour = selectedDate.getHours();
+    var minute = padZero(selectedDate.getMinutes());
+    var meridiem = 'AM';
+    if (hour >= 12) {
+        hour -= 12;
+        meridiem = 'PM';
+    }
+    hour = hour === 0 ? 12 : padZero(hour);
+
+    var $input = $calendar.data('$input');
+    $input.val(
+        selectedDate.getFullYear() + '-' +
+        padZero(selectedDate.getMonth() + 1) + '-' +
+        padZero(selectedDate.getDate()) + ' ' +
+        padZero(selectedDate.getHours()) + ':' +
+        padZero(selectedDate.getMinutes()) + ':00'
+    );
+    $input.change();
+
+    $calendar.data('$calendarButton').text(
+        options.dayLabels[selectedDate.getDay()] + ', ' +
+        options.monthLabels[selectedDate.getMonth()].substring(0, 3) + ' ' +
+        dayNumber + ', ' + hour + ':' + minute + ' ' + meridiem
+    );
+};
+
+getCalendar = function() {
+
+    var $calendar = $('#calendar');
+    if ($calendar.length === 0) {
+
+        $calendar = $('<div/>', { 'id': 'calendar' });
+
+        // Month label.
+        var $month = $('<div/>', { 'class': 'month' });
+
+        // Month navigation.
+        var $previousButton = $('<span/>', { 'class': 'previousButton' });
+        $previousButton.bind('click.calendar', function() {
+            var previous = new Date($calendar.data('viewDate').getTime());
+            previous.setDate(1);
+            previous.setMonth(previous.getMonth() - 1);
+            updateCalendarView(previous);
+        });
+
+        var $nextButton = $('<span/>', { 'class': 'nextButton' });
+        $nextButton.bind('click.calendar', function() {
+            var next = new Date($calendar.data('viewDate').getTime());
+            next.setDate(1);
+            next.setMonth(next.getMonth() + 1);
+            updateCalendarView(next);
+        });
+
+        // Days.
+        var $dayLabels = $('<div/>', { 'class': 'dayLabels' });
+        $.each(options.dayLabels, function(day, label) {
+            $dayLabels.append($('<span/>', { 'class': 'day day' + day, 'text': label }));
+        });
+
+        $calendar.append($month);
+        $calendar.append($previousButton);
+        $calendar.append($nextButton);
+        $calendar.append($dayLabels);
+
+        var week, $week, day;
+        for (week = 0; week < 6; ++ week) {
+            $week = $('<div/>', { 'class': 'week week' + week });
+            for (day = 0; day < 7; ++ day) {
+                $week.append($('<span/>', { 'class': 'day day' + day }));
+            }
+            $calendar.append($week);
+        }
+
+        // Time.
+        var $time = $('<div/>', { 'class': 'time' });
+
+        var $meridiem = $('<select/>', { 'class': 'meridiem' });
+        var $hour = $('<select/>', { 'class': 'hour' });
+        var hourChange = function() {
+            $calendar.data('selectedDate').setHours(($meridiem.val() === 'PM' ? 12 : 0) + parseInt($hour.val(), 10));
+            updateInput();
+        };
+
+        $meridiem.append($('<option/>', { 'text': 'AM', 'value': 'AM' }));
+        $meridiem.append($('<option/>', { 'text': 'PM', 'value': 'PM' }));
+        $meridiem.change(hourChange);
+
+        var hour, hourString;
+        for (hour = 0; hour < 12; ++ hour) {
+            hourString = hour === 0 ? 12 : padZero(hour);
+            $hour.append($('<option/>', { 'text': hourString, 'value': hour }));
+        }
+        $hour.change(hourChange);
+
+        var $minute = $('<select/>', { 'class': 'minute' });
+        var minute, minuteString;
+        for (minute = 0; minute < 60; ++ minute) {
+            minuteString = padZero(minute);
+            $minute.append($('<option/>', { 'text': minuteString, 'value': minute }));
+        }
+        $minute.change(function() {
+            $calendar.data('selectedDate').setMinutes($minute.val());
+            updateInput();
+        });
+
+        $time.append($hour);
+        $time.append($minute);
+        $time.append($meridiem);
+        $calendar.append($time);
+
+        // For emptying out the input.
+        var $empty = $('<span/>', { 'class': 'empty' });
+        $empty.click(function() {
+            $calendar.data('selectedDate', new Date());
+            var $input = $calendar.data('$input');
+            $input.val('');
+            $input.change();
+            $calendar.data('$calendarButton').text($input.val() || $input.attr('data-emptylabel') || 'N/A');
+        });
+
+        $calendar.append($empty);
+
+        $("body").append($calendar);
+        $calendar.popup();
+        $calendar.popup('container').attr('id', 'calendarPopup');
+        $calendar.popup('close');
+
+        $calendar.find('.day').click(function() {
+            var date = $(this).data('date');
+            $calendar.data('selectedDate', date);
+            updateCalendarView(date);
+            updateInput(date);
+        });
+    }
+
+    return $calendar;
+};
+
+$.plugin('calendar', {
+
+// Initializes the calendar plugin.
+'init': function() {
+    return this.liveInit(function() {
+
+        // Replace the input with calendar button control.
+        var $input = $(this);
+        var $calendarButton = $('<span/>', {
+            'class': 'calendarButton',
+            'text': $input.val() || $input.attr('data-emptylabel') || 'N/A'
+        });
+
+        $calendarButton.click(function() {
+            var $calendar = getCalendar();
+
+            $calendar.data('$input', $input);
+            $calendar.data('$calendarButton', $calendarButton);
+
+            // Switch to the correct month using the input date.
+            var inputDateString = $input.val();
+            var inputDate = new Date();
+            if (inputDateString) {
+                var match = /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)?$/.exec(inputDateString);
+                if (match) {
+                    inputDate.setFullYear(parseInt(match[1], 10));
+                    inputDate.setMonth(parseInt(match[2], 10) - 1);
+                    inputDate.setDate(parseInt(match[3], 10));
+                    inputDate.setHours(parseInt(match[4], 10));
+                    inputDate.setMinutes(parseInt(match[5], 10));
+                    inputDate.setSeconds(parseInt(match[6], 10));
+                }
+            }
+            $calendar.data('selectedDate', inputDate);
+            updateCalendarView(inputDate);
+
+            // Set the time.
+            var hour = inputDate.getHours();
+            var meridiem = 'AM';
+            if (hour >= 12) {
+                hour -= 12;
+                meridiem = 'PM';
+            }
+            $calendar.find('select.hour').val(hour);
+            $calendar.find('select.minute').val(inputDate.getMinutes());
+            $calendar.find('select.meridiem').val(meridiem);
+
+            // Update empty label.
+            $calendar.find('.empty').text($input.attr('data-emptylabel') || 'N/A');
+
+            // Open the calendar in a popup.
+            $calendar.popup('source', $calendarButton);
+            $calendar.popup('open');
+        });
+
+        $input.hide();
+        $input.after($calendarButton);
+    });
+}
+
+})
+
+})(jQuery);
