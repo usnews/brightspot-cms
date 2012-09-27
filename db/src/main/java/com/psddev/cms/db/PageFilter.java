@@ -229,54 +229,6 @@ public class PageFilter extends AbstractFilter {
     }
     
     @Override
-    protected void doDispatch(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
-            throws Exception {
-
-        Profiler profiler = Profiler.Static.getThreadProfiler();
-
-        if (profiler == null) {
-            super.doDispatch(request, response, chain);
-
-        } else {
-            ProfilingDatabase profiling = new ProfilingDatabase();
-            profiling.setDelegate(Database.Static.getDefault());
-
-            HtmlWriter resultWriter = ProfilerFilter.Static.getResultWriter(request, response);
-            resultWriter.putOverride(Recordable.class, RECORDABLE_FORMATTER);
-
-            try {
-                Database.Static.overrideDefault(profiling);
-                super.doDispatch(request, response, chain);
-
-            } finally {
-                Database.Static.restoreDefault();
-            }
-        }
-    }
-
-    private static final HtmlFormatter<Recordable> RECORDABLE_FORMATTER = new HtmlFormatter<Recordable>() {
-        @Override
-        public void format(HtmlWriter writer, Recordable recordable) throws IOException {
-
-            State recordableState = recordable.getState();
-            ObjectType type = recordableState.getType();
-            if (type != null) {
-                writer.string(type.getLabel());
-                writer.string(": ");
-            }
-
-            writer.start("a", "href", StringUtils.addQueryParameters("/_debug/query",
-                    "where", "id = " + recordableState.getId(),
-                    "event", "Run"), "target", "query");
-                writer.string(recordableState.getLabel());
-            writer.end();
-        }
-    };
-
-    @Override
     protected void doError(
             HttpServletRequest request,
             HttpServletResponse response,
