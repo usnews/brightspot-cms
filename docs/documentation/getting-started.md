@@ -4,18 +4,63 @@ title: Getting Started
 id: getting-started
 ---
 
+
+
+## Getting Started
+
+### The Basics
+
+Once you have your CMS instance installed you can start to become familiar with the tool itself. Here are the basics:
+
+**Dashboard**
+
+Once logged into Brightspot you are brought to the Dashboard. Here you will find common widgets, your navigation to other areas of the CMS, a global search, and access to your admin and settings.
+
+Let’s explain what they do:
+
+![Dashbaord](/img/intro/dashboard.png)
+
+**Tool Hat**
+
+The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the Bookmarklet tool.
+
+**Search**
+
+The search tool can be accessed from any screen in Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change.  As a default, all content types are shown in the results, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for.
+
+**Create**
+
+Found in the Search tool, you have the ability to create new content from anywhere within Brightspot using the create drop-down. Choose from the list of existing objects.
+
+**Site Map**
+
+The Site Map is a hierarchical view of your website content, showing the structure for the entire site. It is used to either find specific content, or to get a better understanding of the various items within each section. 
+
+**Recent Activity**
+
+Using the Recent Activity, you can jump to a piece of content that has just been edited, or scroll through all edits made in one day. It can also be used to verify when content was started and finished by a user. You can also adjust results by filtering between just you and other users.
+
+**Page Builder**
+
+Create a whole new page using Page Builder. Select from a list of existing templates to get started, each one associated with a specific piece of content. These templates are created under Admin > Templates & Sections.
+
+**Schedules**
+
+Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget.
+
+**Drafts**
+
+All content that is not yet completed, but saved in a draft status, appears in the Drafts module.
+
+
 <h2 id="hello-world"> </h2>
+### Hello World!
 
-## Hello World!
+**Create Template**
 
-A simple `Hello World!` tutorial.
+Click One Off Page, found in the Page Builder section of the dashboard. One off pages are static pages, with a defined URL. Examples would be a Contact Us page, or Sitemap page.
 
-
-#### Create Template
-
-Start by accessing the CMS and creating a new page, click One Off Page in the Page Builder section of the dashboard.
-
-Add a name for the page, and a URL. In the Unnamed Section click into settings, choose Script with Content, JSP as the Engine and add a path to a JSP file, Example `/model/helloWorld.jsp`
+Add a name for the page, and a URL. URLs are added manually on one off pages. See the Template Tool section for guidelines on dynamic URL generation. In the Unnamed Section click into settings, choose Script with Content, JSP as the Engine and add a path to a JSP file, Example `/model/helloWorld.jsp`
 
 Click `Continue Editing`.
 
@@ -24,32 +69,29 @@ Click `Continue Editing`.
 
 ![](http://docs.brightspot.s3.amazonaws.com/hello-text.png)
 
-You will now have the option to add the content that is to be displayed on the page. In the `New` drop down select `Text` and add some content.
+You will now have the option to add which object / content will be displayed on the page. In the `Create` drop down select the standard `Text` object and add some content.
 
 Publish.
 
 
-#### Create JSP
+**Create JSP**
 
-You have placed a new content object, `Text` into a template section, and choosen to render the content with a JSP. Let's create that JSP.
+You have placed a new content object, `Text` into a template section, and choosen to render the content with a JSP, which we have pathed to. Let's create that JSP.
 
 Copying the path to the JSP file you have already defined, create your JSP.
 
-    cd src/main/webapp/WEB-INF
-    mkdir model
-    cd model
-    touch helloWorld.jsp
-
-Example JSP
+Example JSP:
     
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
     <h1><c:out value="${content.text}"/></h1>
     
+Using JSTL we can render `content` and the field within it `text`.
+
 Save.
 
-#### Access the Page
+**Access the Page**
 
 Once the JSP is saved access your page at the defined URL to see your content rendered.
 
@@ -59,22 +101,15 @@ Once the JSP is saved access your page at the defined URL to see your content re
 <h2 id="creating-objects"> </h2>
 
 
----
-## Creating new Objects
+Creating new Objects
 
 In the simple Hello World tutorial we chose an object that already exists within the CMS - `Text`. The next step is to create our own content type and add it to the CMS.
 
 
-#### Step 1 - Create the Class
+**Create the Class**
 
-Within your new project, start by creating a new class, call it `Article.java`. This should be saved in `/src/mainjava/com/package/name/`.   
+Within your new project, start by creating a new class, call it `Article.java`. This should be saved in `/src/main/java/com/package/name/`.   
 Objects that are to be used directly within the CMS must extend the main Content class.
-
-    package com.package.name;
-
-	import com.psddev.cms.db.Content;
-	import com.psddev.cms.db.ToolUi;
-	import com.psddev.dari.db.ReferentialText;
 
 	
 	public class Article extends Content {
@@ -83,46 +118,37 @@ Objects that are to be used directly within the CMS must extend the main Content
 		private String author;
 		private ReferentialText body;
 
-
 		// Getters and Setters
 	}
 
 
 
-As you can see from the code above, our Article has a headline, an Author and some body text. Note that the package given in the examples will need to be replaced with your own package.
+As you can see from the code above, our Article has a headline, an Author and some body text. When adding a body of text, we import the `ReferentialText` library, which comes as standard with Brightspot and provides a Rich Text Editor user interface within the CMS.
 
-When adding a body of text, we import the `ReferentialText` library, which comes as standard with Brightspot and provides a Rich Text Editor user interface within the CMS.
+Save your Article.java class.
 
-Add your Getters and Setters, and save your Article.java class.
+**Building**
 
-### Step 2 - Building your project - First Build
-
-We have created our Article, so let's see how it appears in the CMS.
-
-For the first build of your new class you will need to perform the following steps.
+We have created our Article, so let's see how it appears in the CMS. For the first build of your new class you will need to perform the following steps.
 
 Access your CMS and trigger the reloader. Add `?_reload=true` to your URL
 
 `http://localhost:8080/cms/?_reload=true`
 
-You will be promoted to install the reloader application, which will allow you to see Java code changes compiled automatically.
+You will be prompted to install the reloader application, which will allow you to see Java code changes compiled automatically. Once the application has been reloaded, click into `Search` and in the `Craete` drop-down find your next Article content type. All new objects added in the CMS appear in this drop-down.
 
-Once the application has been reloaded, click into `Search` and in the `New` drop-down find your next Article content type.
+You'll notice that in the CMS your object automatically has UI associated with it, derived from the names you have given the fields. To see all the UI elements used see the User Interface Section.
 
-
-### Associating Objects
+**Associating Objects**
 
 Our Article currently allows the user to specify an Author name via a String of text. Our next step is to create a separate `Author.java` content type, and allow the user to select one of these objects when creating their Article.
 
-#### Step 1 - Create Author.java
+**Create Author.java**
 
 Create a new class and name it `Author.java`
 
-As we did with the Article, extend Content and import the respective class. For our Author we simply require a first and last name.
+As we did with the Article, extend Content. For our Author we simply require a first and last name.
 
-	package com.package.name;
- 
-	import com.psddev.cms.db.Content;
 
 	public class Author extends Content {
 
@@ -135,15 +161,20 @@ As we did with the Article, extend Content and import the respective class. For 
 
 Save your `Author.java`. Because we have added a new class, we can trigger the reloader tool to update the CMS.
 
-#### Step 2 - Create Authors
+<div class="alert alert-block">
+    <strong>Dari Tip:</strong>
+    <p>Modeling your objects with Dari is simple, read more @ dariframework.org</p>
+</div>
 
-Before we go any further, it's time to create some authors within the CMS. We can delete these later, but for now, create three or four so we have objects to select from.
+**Create Authors**
+
+Before we go any further, it's time to create some authors within the CMS. We can delete these later, but for now, create three or four so we have objects to select from. Click into Search and `Create` - find the Author object and start publishing. You can use the `Create Another` link at the top, after you create one.
 
 Now that we have some sample authors, use the search tool to filter, and show them all. You can see that while we are able to see our authors, we can only see their first names.
 
-#### Step 3 - Define Label Fields
+**Define Label Fields**
 
-Let's fix this by specifying what information we would like displayed as a label for the `Author` content type.
+We can fix this by specifying what information we would like displayed as a label for the `Author` content type.
 
 Go back into your `Author.java` and add the following annotation above the main class:
 
@@ -156,24 +187,16 @@ Annotations are not picked up by the reloader, therefore trigger within the CMS 
 
 We are now able to see both the first and last names of our authors when we search for them in the CMS. We achieved this using the `LabelFields` annotation, specifying the fields within the object model we wanted to include as a label.
 
-#### Step 4 - Update Article.java
+**Update Article.java**
 
-Our initial `Article.java` class defined the Author as a String of text, so let's go back and update it, to allow the CMS user to select one of the authors we have just created, using our `Author.java` content type. Don't forget to update the getters and setters.
+Our initial `Article.java` class defined the Author as a String of text, so let's go back and update it, to allow the CMS user to select one of the authors we have just created, using our `Author.java` content type.
 
 
-    package com.package.name;
-
-	import com.psddev.cms.db.Content;
-	import com.psddev.cms.db.ToolUi;
-	import com.psddev.dari.db.ReferentialText;
-
-	
 	public class Article extends Content {
 	
 		private String headline;
 		private Author author;
 		private ReferentialText body;
-
 
 		// Getters and Setters
 	
@@ -182,20 +205,25 @@ Our initial `Article.java` class defined the Author as a String of text, so let'
 
 Save and refresh your CMS to see the changes.
 
-#### Step 5 - Finish and Publish
+**Finish and Publish**
 
 With the `Article.java` updated we can see that our reference to the Author content type which already exists in Brightspot was all it took to automatically offer a drop-down choice of authors.
 
 Finish this step by publishing an Article, and choosing an author. We will now move on to display this Article on the front end by building a page.
+
+<div class="alert alert-block">
+    <strong>Dari Tip:</strong>
+    <p>See your data model and associations instantly using the Dari DB Schema Tool @ _debug/db-schema</p>
+</div>
 
 
 <h2 id="page-building"> </h2>
 
 ---
 
-## Creating a Simple Page
+### Creating a Simple Page
 
-#### Step 1 - Building a Basic Test Page
+**Building a Basic Test Page**
 
 Once you have created a content type, the next step is to display it and access it via a URL.
 
@@ -207,15 +235,15 @@ We haven't created a JSP to point to, however we can add the path where we will 
 
 Once you have clicked `Continue Editing` you get the choice to Select Content. Select the Article you just created in the previous step.
 
-**Save**
+Save.
 
-#### Step 2 - URL
+**URL**
 
 In the right rail you can define a URL where the page can be accessed. For One-off pages, like this, you define a single URL. See the Template Tool section of the documentation to see how to create reusable templates (EG Blog page template) with automatic URLs.
 
-**Publish**
+Publish.
 
-#### Step 3 - Creating the JSP
+**Creating the JSP**
 
 In Step 1 and 2 we have created the most basic of template structures, to house our new Article content. The final step is to build the JSP file that renders the content on our webpage.
 
@@ -236,12 +264,12 @@ When we created our template we defined the article as the 'Content'. In doing s
     
 You can see how we have access to the fields within the Author object, as it is associated with the Article object.
 
-**Save**
+Save.
 
 To render the article body text in the JSP we have used the `<cms:render value="${}"/>` tag.
 
 
-#### Step 4 - Finish and View
+**Finish and View**
 
 Once you have saved your JSP hit the URL you have defined and view your first webpage:
 

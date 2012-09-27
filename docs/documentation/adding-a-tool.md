@@ -8,7 +8,7 @@ id: adding-a-tool
 
 You can add your own Tools or Applications to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Global and Remote Widgets.  
 
-#### Step 1 - Build a new Tool Class
+**Build a new Tool Class**
 
 Start by creating your own Tool class, and extend from the CMS Tool class. 
 
@@ -19,7 +19,7 @@ Start by creating your own Tool class, and extend from the CMS Tool class.
 
 	}
 
-#### Step 2 - Modify your settings.properties file
+**Modify your settings.properties file**
 
 Add the following, with your own GroupID and Class name, to your settings.properties file found at
 `src/main/resources/settings.properties`.
@@ -30,11 +30,11 @@ This will add a new Tool in Admin -> Settings:
 
 ![Demo Tool ](http://docs.brightspot.s3.amazonaws.com/demo-tool.png)
 
-#### Step 3 - Build your Area / Widget / Tool
+**Build your Area / Widget / Tool**
 
 While several new tools can be added, with each one extending from the Tool class, new tools that will add widgets or areas MUST all be contained with the one class, extending from Tool.
 
-#### Adding a new Main Tab (Area)
+**Adding a new Main Tab (Area)**
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/new-tab.png"/>
 
@@ -50,8 +50,7 @@ While several new tools can be added, with each one extending from the Tool clas
 
 	 }
 
-
-#### Adding an Item to the Admin Drop-Down
+**Adding an Item to the Admin Drop-Down**
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/demo-tool-new.png"/>
 
@@ -73,7 +72,7 @@ While several new tools can be added, with each one extending from the Tool clas
 
     }
 
-#### Adding a widget to content publication page
+**Adding a widget to content publication page**
 
 Note, when adding a widget, it must be done within the mainApplicationClass.
 
@@ -100,7 +99,7 @@ Widgets can also be added to the right rail, above between or below the default 
 
 `.addPosition(CmsTool.CONTENT_RIGHT_WIDGET_POSITION, 0.0, 20.0);`
 
-__Step 4 - Build your .jsp__
+**Build your JSP**
 
 See the index.jsp used for the CMS application for an example.
 
@@ -108,12 +107,12 @@ When building a complete page within the CMS, for your new tool, include the CMS
 
 Note: A Widget will only appear within the CMS if it is actively displaying text in one form or another. If your widget is not appearing, test by printing out text through your .jsp.
 
-__Step 5 - Add URL__
+**Add URL**
 
 Add designated URL. Within your new Tool, found in Admin -> Settings define your exact URL path, EG `http://localhost:8080`. 
 
 <img src="http://docs.brightspot.s3.amazonaws.com/demo-tool.png"/>
 
-__Step 6 - Init__
+**Init**
 
-Run a `_debug/init` start and stop Tomcat.
+Run a `_debug/init` to initialize the new application tool, start and stop Tomcat.

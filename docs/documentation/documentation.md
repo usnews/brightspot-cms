@@ -2,53 +2,48 @@
 layout: default
 title: Installation
 id: installation
+section: documentation
 ---
 
 ## Installation
 
-Installing BrightSpot CMS requires the following steps. We will walk through these in more detail below. Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org). This install will use both Dari and Brightspot CMS to create your new application.
+Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org). This install will create your new Brightspot CMS application.
 
-- Install Database
-- Install Application Server
+Installing BrightSpot CMS requires five main steps. We will walk through these in more detail below.
+
+- Create Database
+- Create Application Server
 - Install Solr DB
-- Use Maven to run archetype and install Dari and embed Brightspot CMS
+- Use Maven to run archetype embed Brightspot CMS
+- Start Application Server
 
----
 
+### Create Database
 
-#### Install Database
-
-##### MySQL 5.5.x
+**MySQL 5.5.x**
 
 If you don't already have MySQL [download](http://dev.mysql.com/downloads/mysql) and [install](http://dev.mysql.com/doc/refman/5.5/en/installing.html).
 
-Once installed start MySQL on the default port 3306 and create a new database. Load the [Dari DB Schema file](https://github.com/perfectsense/dari/tree/master/etc/mysql) into your newly created database.
+Start MySQL on the default port 3306 and create a new database. Load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/etc/mysql) into your newly created database.
 
-##### PostgreSQL
-
-##### Oracle
-
-##### MongoDB
-
----
+Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/etc)
 
 
-#### Install Application Server
+### Install Application Server
 
-##### Tomcat 6.x
+**Tomcat 6.x**
 
 [Download](http://tomcat.apache.org/download-60.cgi) Tomcat and unzip to a directory now referred to as $TOMCAT_HOME. 
 
 Note: For Windows users install the generic Tomcat version, NOT the Windows Version. This is required for the on-the-fly code compilation (Reloader Tool) to function correctly.
 
-##### Glassfish
+**Glassfish**
 
+Brightspot CMS (Dari) can also be run on Glassfish.
 
+### Install Solr Database
 
-#### Install Solr Database
-
-
-##### Tomcat Solr Install
+**Tomcat Solr Install**
 
 [Download](http://www.apache.org/dyn/closer.cgi/lucene/solr) Solr 3.6.0 and unzip to a directory now referred to as $SOLR_DIST.
 
@@ -74,9 +69,8 @@ Create a media directory on the Tomcat server where the CMS can store uploaded f
 
 `mkdir $TOMCAT_HOME/webapps/media`
 
----
 
-#### Configure context.xml
+### Configure context.xml
 
 This is an example `context.xml` file. Replace the default file found in $TOMCAT_HOME/conf/context.xml. 
 
@@ -119,10 +113,9 @@ This is an example `context.xml` file. Replace the default file found in $TOMCAT
 	</Context>
 
 
-
 The new file will need to be configured. Replace the values outlined below with your own.
 
-`$DB_NAME` - the name of the MySQL database you created. In this example it would be "brightspotdb"
+`$DB_NAME` - the name of the MySQL database you created.
 
 `$DB_USER` - the username to login to your MySQL database
 
@@ -132,31 +125,24 @@ The new file will need to be configured. Replace the values outlined below with 
 
 `$TOMCAT_PORT` - The port at which tomcat will run. Default is 8080. You can find this value in $TOMCAT_HOME/conf/server.xml by looking for: "&lt;Connector port="
     
----
-
-#### Maven
+### Maven
 
 [Download](http://maven.apache.org/download.html) and install Maven.
 
-You will need to create a Maven project in which we will embed the CMS application. Begin by running the `mvn archetype` script below, filling in your application's group ID and artifact ID. This will create a Maven folder structure. On your command line, cd to the directory you want to build your project within. **Note:** *This should not be within your $TOMCAT_HOME.* 
-
----
-
-#### Creating your Project, and Embedding the CMS
+You will need to create a Maven project in which we will embed the CMS application. Begin by running the `mvn archetype` script below, filling in your application's Group ID and Artifact ID. This will create a Maven folder structure. On your command line, cd to the directory you want to build your project within. **Note:** *This should not be within your $TOMCAT_HOME.* 
 
 
-MYARTIFACTID will be your project name. MYGROUP will be the directory in which your Java classes (objects) will be placed.
+### Create Project
 
-Your pom.xml will be created, along with the rest of the Maven folder structure.
-
+MYARTIFACTID will be your project name and MYGROUP will be the directory in which your Java classes (objects) will be placed. Running the archetype will create a pom.xml, along with the rest of the Maven folder structure.
 
 Once your required folder structure is in place run a `mvn clean install` within your `MYARTIFACTID` folder. *You can confirm you are in the correct location if you can see your pom.xml file.*
 
 A war file will now be created in the `target` directory. The CMS application will be embedded into your project: MYARTIFACTID -> target -> MYARTIFACTID -> CMS
 
-Next step is to create a symbolic link pointing from your Tomcat `ROOT` to your project. This only needs to be created once. The contents found within the default Apache ROOT in Tomcat must be removed before creating this new link to ROOT. This symbolic link allows you to run your application locally with updates seen instantly.
+Next step is to create a symbolic link pointing from your Tomcat `ROOT` to your project. This only needs to be created once. The contents found within the default Apache ROOT in Tomcat must be removed before creating this new link to ROOT. This symbolic link allows you to run your application locally with updates seen instantly on your local host.
 
-`ln -s /path/to/your/MYARTIFACTID/src/main/webapp /path/to/your/tomcat/webapps/ROOT`
+`ln -s path/to/your/MYARTIFACTID/src/main/webapp path/to/your/tomcat/webapps/ROOT`
 
 Note - on a Windows machine, create the Symbolic link with:
 
@@ -164,18 +150,15 @@ Note - on a Windows machine, create the Symbolic link with:
 
 Once the symbolic link is in place run a `mvn war:inplace`.
 
-`cd /path/to/your/MYARTIFACTID/`
+`cd path/to/your/MYARTIFACTID/`
 
 `mvn war:inplace`
 
-#### Start Tomcat
+### Start Tomcat
 
 `./bin/startup.sh`
 
----
-
-
-#### Access your CMS
+### Access your CMS
 
 The first time that you access your CMS you will need to perform a `_debug/init`
 
@@ -185,7 +168,7 @@ The function of the `_debug/init` is to update the CMS application that is embed
 
 <img src="http://docs.brightspot.s3.amazonaws.com/init.png"/>
 
-#### Login
+### Login
 
 Once installed, and assuming the default port is being used, you can access the CMS application at: <http://localhost:8080/cms>
 

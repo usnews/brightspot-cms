@@ -4,11 +4,10 @@ title: Template Tool
 id: template-tool
 ---
 
-### Template Tool
-
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/template-container-detail.png" alt="" /></a>
+## Template Tool
 
 There are two types of template that can be created in BrightSpot, a template for a dynamic page, or a static page. The dynamic page templates are created in Admin -> Templates & Sections. The static pages are created by selecting 'One-off Page' from the Page Builder section on the dashboard.
+
 
 ### Dynamic Template Creation
 
@@ -16,34 +15,32 @@ We will walk through the creation of an example template for an Article Page.
 
 Create a new Template, access the tool at `Admin -> Templates & Sections`.  Name it and save.
 
-#### Create Page Container
-
+**Create Page Container**
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-container-detail.png" alt="" /></a>
 
-Under the Visual **Unnamed Section** click Settings to start building. Create a `Container (Vertical)` and name is Page Container. (See Above) There is no need to define engines for rendering the container, so simply click `Continue Editing`.
+Under the Visual `Unnamed Section` click Settings to start building. Create a `Container (Vertical)` and name is Page Container. (See Above) There is no need to define engines for rendering the container, so simply click `Continue Editing`.
 
-#### Add Sections
+**Add Sections**
 
 Once the `Page Container` is in place a blue `Add Section` bar will appear, with a green plus icon for adding new sections. Because we picked a Vertical Container our sections will be added in a vertical position, below one another.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-three-sections.png" alt="" /></a>
 
-
 We want three sections within our Container, once added we can begin to define each.
 
-#### Add Section Detail
+**Add Section Detail**
 
-Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual .jsp file that will be used.
+Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual JSP file that will be used.
 
 For the header we will just be using a script. We then select JSP and path to our `header.jsp` file.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-header-detail.png" alt="" /></a>
 
-#### Sections within a section
+**Sections within a section**
 
-The Article template page will need to have the article content on the left, and a right rail with another module. Our middle section can contain both these new sections.
+We are creating an Article template page, which will need to have the article content on the left, and a right rail with another module. Our middle section can contain both these new sections.
 
-We start by clicking on Settings, and choosing the `Container (Horizontal)` type. We also add the .jsp files for the start and end of the section.
+We start by clicking on Settings, and choosing the `Container (Horizontal)` type. We also add the JSP files for the start and end of the section.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-body-detail.png" alt="" /></a>
 
@@ -51,22 +48,22 @@ By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-body.png" alt="" /></a>
 
-#### Add Article Detail
+**Add Article Detail**
 
 The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article (Which we have already created in the CMS). In the Types drop down we select `Script with Main Content`.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" /></a>
 
-#### Add RightRail Detail
+**Add RightRail Detail**
 
-The Right Rail will contain content, not provided by a script, but selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created.
+The Right Rail will contain content selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-right-detail.png" alt="" /></a>
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-rr-content.png" alt="" /></a>
 
 
-#### Choose Content Type
+**Choose Content Type**
 
 We have chosen the Article Section to contain our Main Content. We can then specify the exact Object Type we want to display within the template, this is done at the bottom of the page.
 
@@ -77,15 +74,11 @@ The `ECMA Script` is the typical choice. A path for the template can be defined 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-complete.png" alt="" /></a>
 
 
-#### One-off Template Creation
-
-<a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/one-off-template-explained.png" alt="" /></a>
-
-###  Section Options
+### Section Options
 
 When creating a new section within a template there are several options available such as making it shareable or cached.
 
-####  Shareable Sections
+**Shareable Sections**
 
 By checking the `Shareable` function within a section, you distinguish it as being able to exist on more than one template. This allows global sections, such as Header or Footer sections, to be controlled in one place, with changes being made on all shared sections.
 
@@ -104,9 +97,8 @@ If a section contains other sections, and is made `Shareable` the sections conta
 
 <a class="smaller" href="#"><img src="http://docs.brightspot.s3.amazonaws.com/share-children.png" alt="" /></a>
 
-#### Cacheable 
 
-### Type Options
+**Type Options**
 
 ![Type Options ](http://docs.brightspot.s3.amazonaws.com/type-options.png)
 
@@ -118,7 +110,7 @@ __Container (Vertical)__: A vertical container choice moves the 'Add Section' to
 
 ![Type Options ](http://docs.brightspot.s3.amazonaws.com/vertical-container.png)
 
-__Script__: Render a script (.jsp) (See an example of how this is used <a href="#scripttype">here</a>).
+__Script__: Render a script (JSP)
 
 ![Type Options ](http://docs.brightspot.s3.amazonaws.com/script-type.png)
 
