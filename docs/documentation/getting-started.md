@@ -161,10 +161,6 @@ As we did with the Article, extend Content. For our Author we simply require a f
 
 Save your `Author.java`. Because we have added a new class, we can trigger the reloader tool to update the CMS.
 
-<div class="alert alert-block">
-    <strong>Dari Tip:</strong>
-    <p>Modeling your objects with Dari is simple, read more @ dariframework.org</p>
-</div>
 
 **Create Authors**
 
