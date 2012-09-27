@@ -9,7 +9,7 @@ section: documentation
 
 Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org). This install will create your new Brightspot CMS application.
 
-Installing BrightSpot CMS requires five main steps. We will walk through these in more detail below.
+Installing Brightspot CMS requires five main steps. We will walk through these in more detail below.
 
 - Create Database
 - Create Application Server
@@ -29,7 +29,7 @@ Start MySQL on the default port 3306 and create a new database. Load the [Dari D
 Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/etc)
 
 
-### Install Application Server
+### Create Application Server
 
 **Tomcat 6.x**
 
