@@ -11,7 +11,7 @@ To learn more, take a look at the [documentation](http://perfectsense.github.com
 
 License
 =======
-Brightspot CMS is released under the [GPLv2 license](LICENSE).
+Brightspot CMS is released under the GPLv2 license.
 
 Bugs?
 =====
