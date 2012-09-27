@@ -101,7 +101,7 @@ Once the JSP is saved access your page at the defined URL to see your content re
 <h2 id="creating-objects"> </h2>
 
 
-Creating new Objects
+### Creating new Objects
 
 In the simple Hello World tutorial we chose an object that already exists within the CMS - `Text`. The next step is to create our own content type and add it to the CMS.
 
