@@ -9,6 +9,10 @@ delivers a uniquely easy-to-use and familiar editorial experience.
 
 To learn more, take a look at the [documentation](http://perfectsense.github.com/brightspot-cms/).
 
+License
+=======
+Brightspot CMS is released under the [GPLv2 license](LICENSE).
+
 Bugs?
 =====
 
