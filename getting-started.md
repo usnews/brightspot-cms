@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Getting Started
-id: getting-started
+id: documentation
 ---
 
 
@@ -18,7 +18,7 @@ Once logged into Brightspot you are brought to the Dashboard. Here you will find
 
 Let’s explain what they do:
 
-![Dashbaord](/img/intro/dashboard.png)
+![Dashboard](/img/intro/dashboard.png)
 
 **Tool Hat**
 
@@ -101,7 +101,7 @@ Once the JSP is saved access your page at the defined URL to see your content re
 <h2 id="creating-objects"> </h2>
 
 
-Creating new Objects
+### Creating new Objects
 
 In the simple Hello World tutorial we chose an object that already exists within the CMS - `Text`. The next step is to create our own content type and add it to the CMS.
 
@@ -206,11 +206,6 @@ Save and refresh your CMS to see the changes.
 With the `Article.java` updated we can see that our reference to the Author content type which already exists in Brightspot was all it took to automatically offer a drop-down choice of authors.
 
 Finish this step by publishing an Article, and choosing an author. We will now move on to display this Article on the front end by building a page.
-
-<div class="alert alert-block">
-    <strong>Dari Tip:</strong>
-    <p>See your data model and associations instantly using the Dari DB Schema Tool @ _debug/db-schema</p>
-</div>
 
 
 <h2 id="page-building"> </h2>

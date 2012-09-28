@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Installation
-id: installation
+id: documentation
 section: documentation
 ---
 
@@ -129,12 +129,155 @@ The new file will need to be configured. Replace the values outlined below with 
 
 [Download](http://maven.apache.org/download.html) and install Maven.
 
-You will need to create a Maven project in which we will embed the CMS application. Begin by running the `mvn archetype` script below, filling in your application's Group ID and Artifact ID. This will create a Maven folder structure. On your command line, cd to the directory you want to build your project within. **Note:** *This should not be within your $TOMCAT_HOME.* 
+You will need to create a Maven project in which we will embed the CMS application. Find pom.xml and web.xml guidelines below.
 
+**pom.xml** 
+
+   Dari Parent
+   
+    <parent>
+    <groupId>com.psddev</groupId>
+    <artifactId>dari-parent</artifactId>
+    <version>1.9-SNAPSHOT</version>
+    </parent>
+
+
+CMS Tool UI
+
+     <plugin>
+     <groupId>org.apache.maven.plugins</groupId>
+     <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <overlays>
+             <overlay>
+               <groupId>com.psddev</groupId>
+               <artifactId>cms-tool-ui</artifactId>
+               <targetPath>cms</targetPath>
+               <excludes/>
+             </overlay>
+          </overlays>
+        </configuration>
+      </plugin>
+
+  
+Dari Utils and DB  
+  
+
+            
+            <!-- Brightspot CMS -->
+        <dependency>
+            <groupId>com.psddev</groupId>
+            <artifactId>dari-util</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.psddev</groupId>
+            <artifactId>dari-db</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.psddev</groupId>
+            <artifactId>cms-db</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.psddev</groupId>
+            <artifactId>cms-tool-ui</artifactId>
+            <version>2.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+
+Solr
+
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+Maven Repo
+       
+    <repositories>
+        <repository>
+            <id>psddev</id>
+            <url>http://public.psddev.com/maven</url>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+
+
+**web.xml** 
+
+
+    <!-- Filters -->
+
+    <filter>
+        <filter-name>Utf8Filter</filter-name>
+        <filter-class>com.psddev.dari.util.Utf8Filter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Utf8Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>HeaderResponseFilter</filter-name>
+        <filter-class>com.psddev.dari.util.HeaderResponseFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HeaderResponseFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>LogCaptureFilter</filter-name>
+        <filter-class>com.psddev.dari.util.LogCaptureFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LogCaptureFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
+        <filter-name>DebugFilter</filter-name>
+        <filter-class>com.psddev.dari.util.DebugFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DebugFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+  
+    <filter>
+        <filter-name>PageFilter</filter-name>
+        <filter-class>com.psddev.cms.db.PageFilter</filter-class>
+    </filter>
+    <filter-mapping>
+      <filter-name>PageFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+		<dispatcher>ERROR</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    <filter>
+        <filter-name>ToolFilter</filter-name>
+        <filter-class>com.psddev.cms.tool.ToolFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ToolFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    </web-app>
 
 ### Create Project
 
-MYARTIFACTID will be your project name and MYGROUP will be the directory in which your Java classes (objects) will be placed. Running the archetype will create a pom.xml, along with the rest of the Maven folder structure.
+MYARTIFACTID will be your project name and MYGROUP will be the directory in which your Java classes (objects) will be placed. 
 
 Once your required folder structure is in place run a `mvn clean install` within your `MYARTIFACTID` folder. *You can confirm you are in the correct location if you can see your pom.xml file.*
 
