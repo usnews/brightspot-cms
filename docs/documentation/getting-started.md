@@ -207,11 +207,6 @@ With the `Article.java` updated we can see that our reference to the Author cont
 
 Finish this step by publishing an Article, and choosing an author. We will now move on to display this Article on the front end by building a page.
 
-<div class="alert alert-block">
-    <strong>Dari Tip:</strong>
-    <p>See your data model and associations instantly using the Dari DB Schema Tool @ _debug/db-schema</p>
-</div>
-
 
 <h2 id="page-building"> </h2>
 
