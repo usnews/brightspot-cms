@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Getting Started
-id: getting-started
+id: documentation
 ---
 
 
@@ -18,7 +18,7 @@ Once logged into Brightspot you are brought to the Dashboard. Here you will find
 
 Let’s explain what they do:
 
-![Dashbaord](/img/intro/dashboard.png)
+![Dashboard](/img/intro/dashboard.png)
 
 **Tool Hat**
 

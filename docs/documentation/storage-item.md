@@ -9,10 +9,6 @@ id: storage-item
 ## Storage Item
 
 
-
-<h2 id="page-building"> </h2>
-
-
 ### Uploading Files
 
 A file upload UI can be created within Brightspot by using the `StorageItem` return type. This allows a file to be stored either locally, in a database, or using a service such as Amazon S3.

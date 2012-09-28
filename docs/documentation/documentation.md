@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Installation
-id: installation
+id: documentation
 section: documentation
 ---
 
@@ -147,24 +147,24 @@ CMS Tool UI
      <plugin>
      <groupId>org.apache.maven.plugins</groupId>
      <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-                 <overlays>
-                    <overlay>
-                        <groupId>com.psddev</groupId>
-                         <artifactId>cms-tool-ui</artifactId>
-                         <targetPath>cms</targetPath>
-                         <excludes/>
-                     </overlay>
-              	 </overlays>
-         	</configuration>
+        <configuration>
+          <overlays>
+             <overlay>
+               <groupId>com.psddev</groupId>
+               <artifactId>cms-tool-ui</artifactId>
+               <targetPath>cms</targetPath>
+               <excludes/>
+             </overlay>
+          </overlays>
+        </configuration>
       </plugin>
 
   
 Dari Utils and DB  
   
-    <dependencies>
+
             
-            <!-- PSD Brightspot CMS -->
+            <!-- Brightspot CMS -->
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-util</artifactId>
@@ -203,7 +203,7 @@ Maven Repo
     <repositories>
         <repository>
             <id>psddev</id>
-            <url>http://psddev.com/maven</url>
+            <url>http://public.psddev.com/maven</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
@@ -214,13 +214,6 @@ Maven Repo
 
 **web.xml** 
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-        http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-
-    <display-name>Brightspot App</display-name>
 
     <!-- Filters -->
 
