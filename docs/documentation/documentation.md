@@ -202,13 +202,23 @@ Maven Repo
        
     <repositories>
         <repository>
-            <id>psddev</id>
+            <id>public.psddev</id>
             <url>http://public.psddev.com/maven</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>public.psddev</id>
+            <url>http://public.psddev.com/maven</url>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
 
 
