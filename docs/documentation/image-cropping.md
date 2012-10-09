@@ -45,18 +45,18 @@ The Image object .jsp file can be as simple as the example below. The size refer
     
 **Adding the Crop**
 
-From within BrightSpot, we need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. We have created a crop for use with all blog post images, the internal name is `blogCrop`.
+From within Brightspot, we need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. We have created a crop for use with all blog post images, the internal name is `blogCrop`.
 
 The simplest implementation does not require any other option to be selected.
 
-![](http://docs.brightspot.s3.amazonaws.com/new-crop.png)
+![](http://docs.Brightspot.s3.amazonaws.com/new-crop.png)
 
 
 **Creating the Blog Page JSP**
 
 We have defined a crop for our Blog Posts, and within the CMS UI, when adding an image, the crop option Blog Post Crop now appears. 
 
-![](http://docs.brightspot.s3.amazonaws.com/crop-ui-choice.png)
+![](http://docs.Brightspot.s3.amazonaws.com/crop-ui-choice.png)
 
 The .jsp file used to render the Blog post object will reference the crop that is desired directly. We use the `<cms:render` tag to render the Rich Text area `blog.body`, and any images added within it as enhancements are rendered.
 

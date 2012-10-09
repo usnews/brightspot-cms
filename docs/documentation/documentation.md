@@ -12,7 +12,7 @@ Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org)
 Installing Brightspot CMS requires five main steps. We will walk through these in more detail below.
 
 - Create Database
-- Create Application Server
+- Install Application Server
 - Install Solr DB
 - Use Maven to run archetype embed Brightspot CMS
 - Start Application Server
@@ -145,18 +145,18 @@ You will need to create a Maven project in which we will embed the CMS applicati
 CMS Tool UI
 
      <plugin>
-     <groupId>org.apache.maven.plugins</groupId>
-     <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <overlays>
-             <overlay>
-               <groupId>com.psddev</groupId>
-               <artifactId>cms-tool-ui</artifactId>
-               <targetPath>cms</targetPath>
-               <excludes/>
-             </overlay>
-          </overlays>
-        </configuration>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <overlays>
+                 <overlay>
+                   <groupId>com.psddev</groupId>
+                   <artifactId>cms-tool-ui</artifactId>
+                   <targetPath>cms</targetPath>
+                   <excludes/>
+                 </overlay>
+              </overlays>
+            </configuration>
       </plugin>
 
   
