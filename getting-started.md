@@ -18,7 +18,7 @@ Once logged into Brightspot you are brought to the Dashboard. Here you will find
 
 Let’s explain what they do:
 
-![Dashboard](/img/intro/dashboard.png)
+![Dashboard](http://docs.brightspot.s3.amazonaws.com/dashboard.png)
 
 **Tool Hat**
 
