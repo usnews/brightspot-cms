@@ -229,7 +229,7 @@ When used in a J2EE web project Dari provides a query tool that supports the Dar
 syntax. This tool can be found at `/_debug/query`.
 
 
-![Query Tool](img/query.png)
+![Query Tool](http://www.dariframework.org/img/query.png)
 
 ### Spatial Queries
 
@@ -255,14 +255,14 @@ Reston, VA we would issue the following query:
 
 {% highlight java %}
 PaginatedResult<Venue> venues = Query.from(Venue.class).
-        where("location = ?", Region.sphericalCircle(38.95854, -77.35815, 10));
+        where("location = ?", Region.sphericalCircle(38.95854, -77.35815, Region.milesToDegree(10) ));
 {% endhighlight %}
 
 Sorting venues by closest works as well:
 
 {% highlight java %}
 PaginatedResult<Venue> venues = Query.from(Venue.class).
-        where("location = ?", Region.sphericalCircle(38.95854, -77.35815, 10)).
+        where("location = ?", Region.sphericalCircle(38.95854, -77.35815, Region.milesToDegree(10) )).
         sortClosest("location", new Location(38.95854, -77.35815));
 {% endhighlight %}
 
