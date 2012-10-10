@@ -5,7 +5,9 @@ id: annotations
 ---
 
 
-## Tool UI
+
+## Annotations
+
 
 The @ToolUi Library gives you more options for controlling the UI display in BrightSpot. It must be imported from:
 
@@ -13,7 +15,7 @@ The @ToolUi Library gives you more options for controlling the UI display in Bri
 
 **@ToolUi.Note**
 
-To provide the user with an annotation for a field simply use `@ToolUi.Note`. Within the UI it will appear above the specified field.
+To provide the user with an instruction or note for a field in the CMS, simply use `@ToolUi.Note`. Within the UI it will appear above the specified field.
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/annotate.png">
 
@@ -24,6 +26,12 @@ You can also add the `@ToolUi.Note` annotation to a class, to provide a Note for
 
     @ToolUi.Note("This is an instructional note for the Content object.")
     public class Article extends Content {
+
+
+**@ToolUi.NoteHtml**
+
+Specifies the note, in raw HTML, displayed along with the target in the UI.
+
 
 **@ToolUi.Heading**
 
@@ -51,10 +59,19 @@ If you want the target field to only contain objects with a path `@ToolUi.OnlyPa
 
 Specifies that the target field is read-only.
 
+**@ToolUi.Placeholder**
+
+Specifies the target field's placeholder text.
+
+
+**@ToolUi.FieldDisplayType**
+
+Specifies the internal type used to render the target field.
+
 
 **@ToolUi.Referenceable**
 
-Adding `@ToolUi.Referenceable` specifies whether the instance of the target type can be referenced (added) by a referential text object (rich text editor).
+Adding `@ToolUi.Referenceable` specifies whether the instance of the target type can be referenced (added) by a referential text object (rich text editor). For example, an Image object that you want to be available as an Enhancement must have this annotation.
 
 **@ToolUi.CompatibleTypes** 
 
@@ -91,3 +108,15 @@ The value passed to the annotation is the limiting value.  When a user is modify
 Similarly, the indicator will disappear when the field length exceeds the specified limit.  
 
 ![Screenshot of text field shorter than suggested minimum](http://docs.brightspot.s3.amazonaws.com/cms_1.5.0_soft_validation_above_minimum.png)
+
+**@ToolUi.FieldSorted**
+
+Specifies whether the values in the target field should be sorted before being saved.
+
+**@ToolUi.InputProcessorPath**
+
+Specifies the path to the processor used to render and update the target field.
+
+**@ToolUi.InputSearcherPath**
+
+Specifies the path to the searcher used to find a value for the target field.
