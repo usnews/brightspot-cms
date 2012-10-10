@@ -6,11 +6,11 @@ id: adding-a-tool
 
 ## Adding a Tool
 
-You can add your own Tools or Applications to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Global and Remote Widgets.  
+You can add your own Tools, Applications or Settings to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Global and Remote Widgets, as well as Application specific settings, such as email addresses for form submissions etc.
 
 **Build a new Tool Class**
 
-Start by creating your own Tool class, and extend from the CMS Tool class. 
+Start by creating your own class, and extend from the CMS Tool class. 
 
 	public class DemoTool extends Tool {
 
@@ -30,9 +30,6 @@ This will add a new Tool in Admin -> Settings:
 
 ![Demo Tool ](http://docs.brightspot.s3.amazonaws.com/demo-tool.png)
 
-**Build your Area / Widget / Tool**
-
-While several new tools can be added, with each one extending from the Tool class, new tools that will add widgets or areas MUST all be contained with the one class, extending from Tool.
 
 **Adding a new Main Tab (Area)**
 

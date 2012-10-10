@@ -6,7 +6,7 @@ id: template-tool
 
 ## Template Tool
 
-There are two types of template that can be created in BrightSpot, a template for a dynamic page, or a static page. The dynamic page templates are created in Admin -> Templates & Sections. The static pages are created by selecting 'One-off Page' from the Page Builder section on the dashboard.
+There are two types of template that can be created in Brightspot, a template for a dynamic page, or a static page. The dynamic page templates are created in Admin -> Templates & Sections. The static pages are created by selecting 'One-off Page' from the Page Builder section on the dashboard.
 
 
 ### Dynamic Template Creation
@@ -18,7 +18,7 @@ Create a new Template, access the tool at `Admin -> Templates & Sections`.  Name
 **Create Page Container**
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-container-detail.png" alt="" /></a>
 
-Under the Visual `Unnamed Section` click Settings to start building. Create a `Container (Vertical)` and name is Page Container. (See Above) There is no need to define engines for rendering the container, so simply click `Continue Editing`.
+Under the Visual `Unnamed Section` click Settings to start building. Create a `Container (Vertical)` and name it Page Container. (See Above) There is no need to define engines for rendering the container, so simply click `Continue Editing`.
 
 **Add Sections**
 
@@ -30,9 +30,9 @@ We want three sections within our Container, once added we can begin to define e
 
 **Add Section Detail**
 
-Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual JSP file that will be used.
+Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual JSP file that will be used for rendering.
 
-For the header we will just be using a script. We then select JSP and path to our `header.jsp` file.
+For the header we will just be using a script. We then select JSP and path to a `header.jsp` file.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-header-detail.png" alt="" /></a>
 
@@ -50,13 +50,13 @@ By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right
 
 **Add Article Detail**
 
-The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article (Which we have already created in the CMS). In the Types drop down we select `Script with Main Content`.
+The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the Create an Object section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time this template is used, an Article object is to be used within it.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" /></a>
 
 **Add RightRail Detail**
 
-The Right Rail will contain content selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created.
+The Right Rail will contain content selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created. The object chosen can be rendered using a JSP, `<c:out value="${content.fieldName}"/>`.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-right-detail.png" alt="" /></a>
 
