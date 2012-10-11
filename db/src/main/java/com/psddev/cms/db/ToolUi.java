@@ -6,6 +6,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -30,6 +31,7 @@ public class ToolUi extends Modification<Object> {
     private String inputProcessorPath;
     private String inputSearcherPath;
     private String noteHtml;
+    private String noteRendererClassName;
     private String placeholder;
     private Boolean referenceable;
     private Boolean readOnly;
@@ -82,6 +84,27 @@ public class ToolUi extends Modification<Object> {
 
     public void setNoteHtml(String noteHtml) {
         this.noteHtml = noteHtml;
+    }
+
+    public Class<? extends NoteRenderer> getNoteRendererClass() {
+        Class<?> c = ObjectUtils.getClassByName(noteRendererClassName);
+        return c != null && NoteRenderer.class.isAssignableFrom(c) ? (Class<? extends NoteRenderer>) c : null;
+    }
+
+    public void setNoteRendererClass(Class<? extends NoteRenderer> noteRendererClass) {
+        this.noteRendererClassName = noteRendererClass != null ? noteRendererClass.getName() : null;
+    }
+
+    public String getEffectiveNoteHtml(Object object) {
+        Class<? extends NoteRenderer> noteRendererClass = getNoteRendererClass();
+
+        if (noteRendererClass == null) {
+            return getNoteHtml();
+
+        } else {
+            NoteRenderer renderer = TypeDefinition.getInstance(noteRendererClass).newInstance();
+            return renderer.render(object);
+        }
     }
 
     public String getPlaceholder() {
@@ -236,6 +259,42 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, Note annotation) {
             type.as(ToolUi.class).setNoteHtml(StringUtils.escapeHtml(annotation.value()));
+        }
+    }
+
+    /** Renders the note displayed along with a type or a field. */
+    public static interface NoteRenderer {
+
+        /** Renders the note for the given {@code object}. */
+        public String render(Object object);
+    }
+
+    /**
+     * Specifies the class that can render the note displayed along with
+     * the target in the UI.
+     */
+    @Documented
+    @Inherited
+    @ObjectField.AnnotationProcessorClass(NoteRendererClassProcessor.class)
+    @ObjectType.AnnotationProcessorClass(NoteRendererClassProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD, ElementType.TYPE })
+    public @interface NoteRendererClass {
+        Class<? extends NoteRenderer> value();
+    }
+
+    private static class NoteRendererClassProcessor implements
+            ObjectField.AnnotationProcessor<NoteRendererClass>,
+            ObjectType.AnnotationProcessor<NoteRendererClass> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, NoteRendererClass annotation) {
+            field.as(ToolUi.class).setNoteRendererClass(annotation.value());
+        }
+
+        @Override
+        public void process(ObjectType type, NoteRendererClass annotation) {
+            type.as(ToolUi.class).setNoteRendererClass(annotation.value());
         }
     }
 
