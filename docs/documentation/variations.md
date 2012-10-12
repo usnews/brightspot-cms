@@ -56,7 +56,7 @@ Once saved, the two variations are part of the object. We can use the `_debug/qu
 
 <a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/object-variation-result.png" alt="" /></a>
 
-## Creating New Operators
+### Creating New Operators
 
 Extend from class `Operation` to create a new Operator:
 
