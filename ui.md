@@ -1,7 +1,7 @@
 ---
 layout: default
 title: User Interface
-id: user-interface
+id: ui
 ---
 
 ## User Interface Creation
