@@ -12,6 +12,8 @@ com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.Settings,
+com.psddev.dari.util.SparseSet,
 com.psddev.dari.util.StorageItem,
 com.psddev.dari.util.StorageItem.Static,
 com.psddev.dari.util.StringUtils,
@@ -27,6 +29,7 @@ java.util.Iterator,
 java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
+java.util.Set,
 java.util.UUID,
 
 org.apache.commons.fileupload.FileItem,
@@ -111,6 +114,16 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (request instanceof MultipartRequest) {
                 MultipartRequest mpRequest = (MultipartRequest) request;
                 FileItem file = mpRequest.getFileItem(fileName);
+
+                // Checks to make sure the file's content type is valid
+                String groupsPattern = Settings.get(String.class, "cms/tool/fileContentTypeGroups");
+                Set<String> contentTypeGroups = new SparseSet(ObjectUtils.isBlank(groupsPattern) ? "+/" : groupsPattern);
+                if (!contentTypeGroups.contains(file.getContentType())) {
+                    state.addError(field, String.format(
+                            "Invalid content type [%s]. Must match the pattern [%s].",
+                            file.getContentType(), contentTypeGroups));
+                    return;
+                }
 
                 if (file.getSize() > 0) {
                     String idString = UUID.randomUUID().toString().replace("-", "");
