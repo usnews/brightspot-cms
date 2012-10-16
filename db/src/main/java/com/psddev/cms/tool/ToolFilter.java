@@ -224,7 +224,7 @@ public class ToolFilter extends AbstractFilter {
 
             response.sendRedirect(response.encodeRedirectURL(
                     wp.cmsUrl(LOG_IN_PATH,
-                            RETURN_PATH_PARAMETER, JspUtils.getAbsoluteUrl(request, ""))));
+                            RETURN_PATH_PARAMETER, JspUtils.getAbsolutePath(request, ""))));
 
         } finally {
             ToolUser user = getUser(request);

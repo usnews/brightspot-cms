@@ -6,8 +6,12 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Database,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.Password,
-com.psddev.dari.util.Settings
+com.psddev.dari.util.Settings,
+
+java.net.MalformedURLException,
+java.net.URL
 " %><%
 
 // --- Logic ---
@@ -48,7 +52,12 @@ if (wp.isFormPost()) {
 
     } else {
         ToolFilter.logIn(request, response, user);
-        wp.redirect(wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"));
+        try {
+            wp.redirect(new URL(JspUtils.getAbsoluteUrl(
+                    request, wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"))).toString());
+        } catch (MalformedURLException e) {
+            wp.redirect("/");
+        }
         return;
     }
 }
