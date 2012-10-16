@@ -1,13 +1,14 @@
 <%@ page import="
 
+com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolFilter,
 com.psddev.cms.tool.ToolPageContext,
 
-com.psddev.dari.db.Database,
-com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.AuthenticationFailure,
+com.psddev.dari.util.AuthenticationPolicy,
+com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
-com.psddev.dari.util.Password,
 com.psddev.dari.util.Settings,
 
 java.net.MalformedURLException,
@@ -18,40 +19,21 @@ java.net.URL
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 String email = wp.param("email");
+
+AuthenticationFailure authFailure = null;
 if (wp.isFormPost()) {
 
-    ToolUser user = Database.Static.findUnique(wp.getDatabase(), ToolUser.class, "email", email);
     String password = wp.param("password");
-    if (user != null) {
-        if (!user.getPassword().check(password)) {
-            user = null;
-        }
 
-    } else if (!ObjectUtils.isBlank(email)
-            && Settings.get(boolean.class, "cms/tool/isAutoCreateUser")) {
-        String name = email;
-        int atAt = email.indexOf("@");
-        if (atAt >= 0) {
-            name = email.substring(0, atAt);
-            if (ObjectUtils.isBlank(name)) {
-                name = email;
-            } else {
-                name = name.substring(0, 1).toUpperCase() + name.substring(1);
-            }
-        }
-
-        user = new ToolUser();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(Password.create(password));
-        user.save();
+    String policyName = Settings.get(String.class, AuthenticationPolicy.DEFAULT_AUTHENTICATION_POLICY_SETTING);
+    AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(policyName);
+    if (authPolicy == null) {
+        authPolicy = new ToolAuthenticationPolicy();
     }
 
-    if (user == null) {
-        wp.getErrors().add(new IllegalArgumentException("Oops! No user with that email and password."));
-
-    } else {
-        ToolFilter.logIn(request, response, user);
+    Object authResult = authPolicy.authenticate(email, password);
+    if (authResult instanceof ToolUser) {
+        ToolFilter.logIn(request, response, (ToolUser) authResult);
         try {
             wp.redirect(new URL(JspUtils.getAbsoluteUrl(
                     request, wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"))).toString());
@@ -59,6 +41,12 @@ if (wp.isFormPost()) {
             wp.redirect("/");
         }
         return;
+
+    } else if (authResult instanceof AuthenticationFailure) {
+        authFailure = (AuthenticationFailure) authResult;
+
+    } else {
+        authFailure = ToolAuthenticationPolicy.getDefaultAuthenticationFailure();
     }
 }
 
@@ -99,7 +87,9 @@ if (wp.isFormPost()) {
 
 <div class="widget">
     <h1>Log In</h1>
-    <% wp.include("/WEB-INF/errors.jsp"); %>
+    <% if (authFailure != null) { %>
+        <% new HtmlWriter(wp.getWriter()).object(authFailure); %>
+    <% } %>
     <form action="<%= wp.url("") %>" method="post">
 
         <div class="inputContainer">
