@@ -42,6 +42,7 @@ public class ToolFilter extends AbstractFilter {
     public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
         Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
         cookie.setPath("/");
+        cookie.setSecure(request.isSecure());
         JspUtils.setSignedCookie(response, cookie);
         request.setAttribute(USER_ATTRIBUTE, user);
     }
