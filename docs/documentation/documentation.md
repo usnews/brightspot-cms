@@ -124,73 +124,27 @@ The new file will need to be configured. Replace the values outlined below with 
 `$TOMCAT_HOME` - The directory where tomcat is installed.
 
 `$TOMCAT_PORT` - The port at which tomcat will run. Default is 8080. You can find this value in $TOMCAT_HOME/conf/server.xml by looking for: "&lt;Connector port="
+
     
 ### Maven
 
-[Download](http://maven.apache.org/download.html) and install Maven.
+If you do not already have Maven, [download](http://maven.apache.org/download.html) and install.
 
-You will need to create a Maven project in which we will embed the CMS application. Find pom.xml and web.xml guidelines below.
+You will need to create a Maven project in which we will embed the CMS application. 
 
-**pom.xml** 
+Run the following Archetype to create the project structure.
 
-   Dari Parent
-   
-    <parent>
-    <groupId>com.psddev</groupId>
-    <artifactId>dari-parent</artifactId>
-    <version>1.9-SNAPSHOT</version>
-    </parent>
+	mvn archetype:generate -B \
+    	-DarchetypeRepository=http://psddev.com/maven \
+    	-DarchetypeGroupId=com.psddev \
+    	-DarchetypeArtifactId=cms-app-archetype \
+    	-DarchetypeVersion=2.0-SNAPSHOT \
+    	-DgroupId=yourGroupID \
+    	-DartifactId=yourProject
+    	
+*Note, the GroupID and Project name must not contain spaces.*
 
-
-CMS Tool UI
-
-     <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <overlays>
-                 <overlay>
-                   <groupId>com.psddev</groupId>
-                   <artifactId>cms-tool-ui</artifactId>
-                   <targetPath>cms</targetPath>
-                   <excludes/>
-                 </overlay>
-              </overlays>
-            </configuration>
-      </plugin>
-
-  
-Dari Utils and DB  
-  
-
-            
-            <!-- Brightspot CMS -->
-        <dependency>
-            <groupId>com.psddev</groupId>
-            <artifactId>dari-util</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.psddev</groupId>
-            <artifactId>dari-db</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.psddev</groupId>
-            <artifactId>cms-db</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.psddev</groupId>
-            <artifactId>cms-tool-ui</artifactId>
-            <version>2.0-SNAPSHOT</version>
-            <type>war</type>
-        </dependency>
-
-Solr
+Once your project has been created access your new pom.xml and add the following dependency.
 
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -198,114 +152,15 @@ Solr
             <version>3.6.0</version>
         </dependency>
 
-Maven Repo
-       
-    <repositories>
-        <repository>
-            <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>public.psddev</id>
-            <url>http://public.psddev.com/maven</url>
-            <snapshots>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+### Embed CMS
 
+Once your required folder structure is in place run a `mvn clean install` within  `yourProject` folder. *You can confirm you are in the correct location if you can see your pom.xml file.*
 
+A war file will now be created in the `target` directory. The CMS application will be embedded into your project.
 
-**web.xml** 
+Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename to be `ROOT.war`
 
-
-    <!-- Filters -->
-
-    <filter>
-        <filter-name>Utf8Filter</filter-name>
-        <filter-class>com.psddev.dari.util.Utf8Filter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>Utf8Filter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>HeaderResponseFilter</filter-name>
-        <filter-class>com.psddev.dari.util.HeaderResponseFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>HeaderResponseFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>LogCaptureFilter</filter-name>
-        <filter-class>com.psddev.dari.util.LogCaptureFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>LogCaptureFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    
-    <filter>
-        <filter-name>DebugFilter</filter-name>
-        <filter-class>com.psddev.dari.util.DebugFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>DebugFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-  
-    <filter>
-        <filter-name>PageFilter</filter-name>
-        <filter-class>com.psddev.cms.db.PageFilter</filter-class>
-    </filter>
-    <filter-mapping>
-      <filter-name>PageFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-		<dispatcher>ERROR</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-		<dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-    <filter>
-        <filter-name>ToolFilter</filter-name>
-        <filter-class>com.psddev.cms.tool.ToolFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>ToolFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    </web-app>
-
-### Create Project
-
-MYARTIFACTID will be your project name and MYGROUP will be the directory in which your Java classes (objects) will be placed. 
-
-Once your required folder structure is in place run a `mvn clean install` within your `MYARTIFACTID` folder. *You can confirm you are in the correct location if you can see your pom.xml file.*
-
-A war file will now be created in the `target` directory. The CMS application will be embedded into your project: MYARTIFACTID -> target -> MYARTIFACTID -> CMS
-
-Next step is to create a symbolic link pointing from your Tomcat `ROOT` to your project. This only needs to be created once. The contents found within the default Apache ROOT in Tomcat must be removed before creating this new link to ROOT. This symbolic link allows you to run your application locally with updates seen instantly on your local host.
-
-`ln -s path/to/your/MYARTIFACTID/src/main/webapp path/to/your/tomcat/webapps/ROOT`
-
-Note - on a Windows machine, create the Symbolic link with:
-
-`mklink /d "C:\tomcat\webapps\ROOT" "C:\ProjectName\src\main\webapp"`
-
-Once the symbolic link is in place run a `mvn war:inplace`.
-
-`cd path/to/your/MYARTIFACTID/`
-
-`mvn war:inplace`
 
 ### Start Tomcat
 
