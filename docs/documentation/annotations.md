@@ -108,27 +108,21 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options for controlling the UI display in Brightspot using annotations.
 
-
-
 `@ToolUi.Note("String")`
 
 > To provide the user with an instruction or note for a field in the CMS, simply use `@ToolUi.Note`. Within the UI it will appear above the specified field. You can also add the annotation to a class, to provide a Note for that object type within the CMS.
-
 
 `@ToolUi.NoteHtml("<h1>String</h1>")`
 
 > Specifies the note, in raw HTML, displayed along with the target in the UI.
 
-
 `@ToolUi.Heading("String")`
 
 > Provides a horizontal rule within the Content Object, allowing new sections to be created with headings.
 
-
 `@ToolUi.Hidden`
 
 > A target field can be hidden from the UI.
-
 
 `@ToolUi.OnlyPathed`
 

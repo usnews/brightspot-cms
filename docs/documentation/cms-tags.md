@@ -6,7 +6,7 @@ id: cms-tags
 
 ## CMS Tags
 
-There are several unique CMS tags that can be used when building the JSP files for your project.
+There are several unique CMS tags that can be used when building the JSP files for your project. These can be included with `<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>`
 
 **cms:img**
 

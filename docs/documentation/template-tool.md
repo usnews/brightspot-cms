@@ -50,13 +50,19 @@ By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right
 
 **Add Article Detail**
 
-The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the Create an Object section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time this template is used, an Article object is to be used within it.
+The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Create an Object](/brightspot-cms/getting-started.html#creating-objects.html) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it uses this Template.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" /></a>
 
 **Add RightRail Detail**
 
-The Right Rail will contain content selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created. The object chosen can be rendered using a JSP, `<c:out value="${content.fieldName}"/>`.
+The Right Rail will contain specific content selected from the objects existing in the CMS. To do this, `Script with Content` is selected in the Types drop down. Once selected, a link to choose the content is created. The object chosen can be rendered using a JSP, `<c:out value="${content.fieldName}"/>`.
+
+On each page template you have access to the Main Content, from within any script used, by accessing:
+
+`Object mainContent = request.getAttribute("mainContent");`
+
+The full list of attributes are contained within the `PageContextFilter.class`
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-right-detail.png" alt="" /></a>
 
@@ -116,7 +122,7 @@ __Script__: Render a script (JSP)
 
 __Script (with Main Content)__: For every new template created a Main Content Type must be associated.
 
-By default, when you create a new content type in BrightSpot it becomes a Misc Content Type, however associating the content with a template as 'Main Content' will re-label the content as Main Content Type. The two different types can be seen clearly when looking in the 'New' drop-down list found within the Search Tool.
+By default, when you create a new content type in Brightspot it becomes a Misc Content Type, however associating the content with a template as 'Main Content' will re-label the content as Main Content Type. The two different types can be seen clearly when looking in the 'New' drop-down list found within the Search Tool.
 
 Once you choose 'Script (with Main Content)' you must then define which Content Type you wish to have as Main for the template. You do this at the bottom of the Template Page.
 
