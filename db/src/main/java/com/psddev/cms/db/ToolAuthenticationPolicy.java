@@ -1,34 +1,32 @@
 package com.psddev.cms.db;
 
-import java.util.Map;
-
 import com.psddev.dari.db.Query;
-import com.psddev.dari.util.AuthenticationFailure;
+import com.psddev.dari.util.AuthenticationException;
 import com.psddev.dari.util.AuthenticationPolicy;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
+import com.psddev.dari.util.PasswordException;
 import com.psddev.dari.util.PasswordPolicy;
 import com.psddev.dari.util.Settings;
 
+import java.util.Map;
+
 public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
-    public static final String NO_USER_PASS_EXISTS_FAILURE =
-            "Oops! No user with that email and password.";
-
     @Override
-    public final Object authenticate(String email, String password) {
-
+    public ToolUser authenticate(String email, String password) throws AuthenticationException {
         ToolUser user = Query.findUnique(ToolUser.class, "email", email);
 
         if (user != null) {
-            if (!user.getPassword().check(password)) {
-                return new ToolAuthenticationFailure(NO_USER_PASS_EXISTS_FAILURE);
+            if (user.getPassword().check(password)) {
+                return user;
             }
 
-        } else if (!ObjectUtils.isBlank(email)
-                && Settings.get(boolean.class, "cms/tool/isAutoCreateUser")) {
+        } else if (!ObjectUtils.isBlank(email) &&
+                Settings.get(boolean.class, "cms/tool/isAutoCreateUser")) {
             String name = email;
             int atAt = email.indexOf("@");
+
             if (atAt >= 0) {
                 name = email.substring(0, atAt);
                 if (ObjectUtils.isBlank(name)) {
@@ -38,33 +36,29 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
                 }
             }
 
+            PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
+            Password hashedPassword;
+
+            try {
+                hashedPassword = Password.validateAndCreateCustom(policy, null, null, password);
+            } catch (PasswordException error) {
+                throw new AuthenticationException(error);
+            }
+
             user = new ToolUser();
             user.setName(name);
             user.setEmail(email);
-
-            PasswordPolicy policy = PasswordPolicy.Static.getInstance(
-                    Settings.get(String.class, PasswordPolicy.DEFAULT_PASSWORD_POLICY_SETTING));
-            if (policy == null) {
-                policy = new ToolPasswordPolicy();
-            }
-            user.setPassword(Password.create(password, policy));
-
+            user.setPassword(hashedPassword);
             user.save();
 
-        } else { // user is null
-            return new ToolAuthenticationFailure(NO_USER_PASS_EXISTS_FAILURE);
+            return user;
         }
 
-        return user;
+        throw new AuthenticationException(
+                "Oops! No user with that email and password.");
     }
 
     @Override
     public void initialize(String settingsKey, Map<String, Object> settings) {
-        // nothing to do...
-    }
-
-    /** Returns a default failure for when a more specific one does not exist. */
-    public static AuthenticationFailure getDefaultAuthenticationFailure() {
-        return new ToolAuthenticationFailure(NO_USER_PASS_EXISTS_FAILURE);
     }
 }

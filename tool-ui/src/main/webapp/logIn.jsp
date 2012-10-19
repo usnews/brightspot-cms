@@ -5,7 +5,7 @@ com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolFilter,
 com.psddev.cms.tool.ToolPageContext,
 
-com.psddev.dari.util.AuthenticationFailure,
+com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
@@ -18,35 +18,28 @@ java.net.URL
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+AuthenticationException authError = null;
 String email = wp.param("email");
 
-AuthenticationFailure authFailure = null;
 if (wp.isFormPost()) {
-
     String password = wp.param("password");
+    AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
 
-    String policyName = Settings.get(String.class, AuthenticationPolicy.DEFAULT_AUTHENTICATION_POLICY_SETTING);
-    AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(policyName);
     if (authPolicy == null) {
         authPolicy = new ToolAuthenticationPolicy();
     }
 
-    Object authResult = authPolicy.authenticate(email, password);
-    if (authResult instanceof ToolUser) {
-        ToolFilter.logIn(request, response, (ToolUser) authResult);
+    try {
+        ToolFilter.logIn(request, response, (ToolUser) authPolicy.authenticate(email, password));
         try {
-            wp.redirect(new URL(JspUtils.getAbsoluteUrl(
-                    request, wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"))).toString());
+            wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"))).toString());
         } catch (MalformedURLException e) {
             wp.redirect("/");
         }
         return;
 
-    } else if (authResult instanceof AuthenticationFailure) {
-        authFailure = (AuthenticationFailure) authResult;
-
-    } else {
-        authFailure = ToolAuthenticationPolicy.getDefaultAuthenticationFailure();
+    } catch (AuthenticationException error) {
+        authError = error;
     }
 }
 
@@ -87,11 +80,14 @@ if (wp.isFormPost()) {
 
 <div class="widget">
     <h1>Log In</h1>
-    <% if (authFailure != null) { %>
-        <% new HtmlWriter(wp.getWriter()).object(authFailure); %>
-    <% } %>
-    <form action="<%= wp.url("") %>" method="post">
 
+    <%
+    if (authError != null) {
+        new HtmlWriter(wp.getWriter()).object(authError);
+    }
+    %>
+
+    <form action="<%= wp.url("") %>" method="post">
         <div class="inputContainer">
             <div class="label">
                 <label for="<%= wp.createId() %>">Email</label>
