@@ -12,6 +12,26 @@ Brightspot CMS uses [Lucene Solr](http://lucene.apache.org/solr/) to provide ful
 Within the CMS itself, the global search is powered by Solr. The Admin panel for Solr can be reached on your application at `http://localhost:8080/solr/admin/` - assuming you are running on port 8080.
 
 
+### Querying with Solr
+
+The full text search capabilities of Solr can be used with a query, by changing the syntax from a SQL to Solr query.
+
+**Search with SQL**
+
+	return Query.from(Author.class).where("firstName = 'Alex'").selectAll();
+	
+> This will return us all the Author objects where Alex is the first name.
+
+	
+**Search with Solr**
+
+	return Query.from(Author.class).where("firstName matches 'Alex'").selectAll();
+	
+> This will now match the string, using Solr, and return us all Author objects where the first name contains Alex, for example Alexander.
+
+
+**Search API**
+
 ### Using Search
 
 As well as powering the search within the CMS application, Solr can also be used for your website search. In this section we will outline how to enable these capabilities, and how to customize them.

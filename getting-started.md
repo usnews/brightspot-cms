@@ -60,7 +60,7 @@ All content that is not yet completed, but saved in a draft status, appears in t
 
 Click One Off Page, found in the Page Builder section of the dashboard. One off pages are static pages, with a defined URL. Examples would be a Contact Us page, or Sitemap page.
 
-Add a name for the page, and a URL. URLs are added manually on one off pages. See the Template Tool section for guidelines on dynamic URL generation. In the Unnamed Section click into settings, choose Script with Content, JSP as the Engine and add a path to a JSP file, Example `/model/helloWorld.jsp`
+Add a name for the page, and a URL. URLs are added manually on one off pages. See the Template Tool section for guidelines on dynamic URL generation. In the Unnamed Section click into settings, choose Script with Content, JSP as the Engine and add a path to a JSP file, Example `/model/helloWorld.jsp`.
 
 Click `Continue Editing`.
 
@@ -76,9 +76,9 @@ Publish.
 
 **Create JSP**
 
-You have placed a new content object, `Text` into a template section, and choosen to render the content with a JSP, which we have pathed to. Let's create that JSP.
+You have placed a new content object, `Text` into a template section, and chosen to render the content with a JSP, which we have pathed to. Let's create that JSP.
 
-Copying the path to the JSP file you have already defined, create your JSP.
+Copying the path to the JSP file you have already defined, create your JSP. Note, you can also place your jsp files in the WEB-INF directory.
 
 Example JSP:
     
@@ -93,9 +93,7 @@ Save.
 
 **Access the Page**
 
-Once the JSP is saved access your page at the defined URL to see your content rendered.
-
-
+Once the JSP is saved access your page at the defined URL to see your content rendered. You can also use the Preview tool within the content edit screen.
 
 
 <h2 id="creating-objects"> </h2>
@@ -129,7 +127,7 @@ Save your Article.java class.
 
 **Building**
 
-We have created our Article, so let's see how it appears in the CMS. For the first build of your new class you will need to perform the following steps.
+We have created our Article, so let's see how it appears in the CMS. For the first build of your new class you may need to perform the following steps if it does not appear.
 
 Access your CMS and trigger the reloader. Add `?_reload=true` to your URL
 

@@ -114,3 +114,18 @@ A Task will now start automatically in the Task tool - click on the link now pro
 You can refresh your Task tool until you see all items indexed.
 
 <img  src="http://docs.brightspot.s3.amazonaws.com/re-index-task.png"/>
+
+
+### Fields not Indexed
+
+`Can't query [com.psddev.brightspotApp.Author/lastName] because it's not indexed!` `(com.psddev.dari.db.Query$NoIndexException)`
+
+> If the `@Indexed` annotation has not been added to a field with your object the above error will appear. For the example query below, which caused this error, we will need to update our Author object, by adding the `@Indexed` annotation to the `lastName` field.
+
+`Query.from(Article.class).where("author/lastName = 'Anderson'").first();`
+
+Once the annotation has been added to the field, we can update all existing instances of the object, so we can query on the field data. This is done using the `db-bulk` tool in the Dari Tools.
+
+<img  src="http://docs.brightspot.s3.amazonaws.com/index-new-fields.png"/>
+
+Index all, or choose your object specifically. Once started, the task can be tracked in the Task Tool until complete.
