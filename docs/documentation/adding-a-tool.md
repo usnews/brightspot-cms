@@ -10,23 +10,18 @@ You can add your own Tools, Applications or Settings to Brightspot. By extending
 
 **Build a new Tool Class**
 
-Start by creating your own class, and extend from the CMS Tool class. 
+Start by creating your own class, and extend from the CMS Tool class. This will create a new Tool in the Admin -> Settings section of the CMS.
+
+The Tool can be given a URL, best practice is for this to be a path to a custom jsp file, kept in the WEB-INF directory.
 
 	public class DemoTool extends Tool {
 
-       @Override
-	public void initialize(Logger logger) throws Exception {
+	private static Logger LOGGER = LoggerFactory.getLogger(DemoTool.class);
 
+    private String exampleField;
+	
 	}
 
-**Modify your settings.properties file**
-
-Add the following, with your own GroupID and Class name, to your settings.properties file found at
-`src/main/resources/settings.properties`.
-
-    dari/mainApplicationClass=com.psddev.GROUPID.YOURTOOLCLASS
-
-This will add a new Tool in Admin -> Settings:
 
 ![Demo Tool ](http://docs.brightspot.s3.amazonaws.com/demo-tool.png)
 
@@ -39,7 +34,7 @@ This will add a new Tool in Admin -> Settings:
 
 	    @Override
 	    public void initialize(Logger logger) throws Exception {
-	        Area testArea = createArea("Test Area", "demo.Area", null, "/tool/index.jsp");
+	        Area testArea = createArea("Test Area", "demo.Area", null, "");
 	        introducePlugin(testArea);
 	        
 	        logger.info("Initialized the areas");
@@ -59,7 +54,7 @@ This will add a new Tool in Admin -> Settings:
 
     		for (Area area : findPlugins(Area.class)) {
     			if ("admin".equals(area.getInternalName()) && (area.getTool() instanceof CmsTool)) {
-    			introducePlugin(createArea("TestArea", "testarea.main", area, "/admin/testarea.jsp"));
+    			introducePlugin(createArea("TestArea", "testarea.main", area, ""));
 
     			}
 

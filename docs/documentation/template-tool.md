@@ -62,6 +62,10 @@ On each page template you have access to the Main Content, from within any scrip
 
 `Object mainContent = request.getAttribute("mainContent");`
 
+Even if a specific piece of content is used within a section, the mainContent of the template is accessible.
+
+*Note: Record, Object and Content, mainRecord, mainObject and mainContent are interchangeable. Best practice is to use content mainContent*
+
 The full list of attributes are contained within the `PageContextFilter.class`
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-right-detail.png" alt="" /></a>
