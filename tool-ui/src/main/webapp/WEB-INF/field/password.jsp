@@ -1,12 +1,12 @@
 <%@ page import="
 
-com.psddev.cms.db.ToolPasswordPolicy,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Password,
+com.psddev.dari.util.PasswordException,
 com.psddev.dari.util.PasswordPolicy,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.ValidationException
@@ -37,14 +37,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 state.addError(field, "Passwords don't match!");
             } else {
                 try {
-                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(
-                            Settings.get(String.class, PasswordPolicy.DEFAULT_PASSWORD_POLICY_SETTING));
-                    if (policy == null) {
-                        policy = new ToolPasswordPolicy();
-                    }
-                    state.putValue(fieldName, Password.create(password, policy).toString());
-                } catch (ValidationException e) {
-                    state.addError(field, e.getMessage());
+                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+                    state.putValue(fieldName, Password.validateAndCreateCustom(policy, null, null, password).toString());
+                } catch (PasswordException error) {
+                    state.addError(field, error.getMessage());
                 }
             }
         }
