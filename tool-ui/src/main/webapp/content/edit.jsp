@@ -22,6 +22,7 @@ com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
+com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 
@@ -317,7 +318,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 </form>
             </div>
 
-            <form action="<%= wp.getCmsTool().getPreviewUrl() %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
+            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
                 <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                 <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
             </form>
