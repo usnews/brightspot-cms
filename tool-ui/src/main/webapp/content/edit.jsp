@@ -106,7 +106,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
-<div class="edit">
+<div class="content-edit">
     <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" data-widths="1500" enctype="multipart/form-data" method="post">
         <div class="main" data-widths="600">
 
@@ -255,7 +255,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 <% if (selected.getClass() == Page.class
         || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) { %>
     <style type="text/css">
-        .preview {
+        .content-preview {
             display: none;
             position: absolute;
             overflow: hidden;
@@ -263,21 +263,21 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             right: 0;
             z-index: 5;
         }
-        .preview.loading h1:before {
+        .content-preview.loading h1:before {
             content: url(../style/icon/ajax-loader.gif);
         }
-        .preview h1 {
+        .content-preview h1 {
             cursor: pointer;
             position: fixed;
             width: 100%;
         }
-        .preview .widget {
+        .content-preview .widget {
             width: 970px;
         }
-        .preview .widget > form {
+        .content-preview .widget > form {
             margin-top: 30px;
         }
-        .preview:before {
+        .content-preview:before {
             content: '\00ab';
             font-size: 25px;
             line-height: 1;
@@ -286,13 +286,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             right: 20px;
             z-index: 1;
         }
-        .preview.expanded:before {
+        .content-preview.expanded:before {
             content: '\00bb';
         }
-        .preview .controls {
+        .content-preview .controls {
             display: none;
         }
-        .preview.expanded .controls {
+        .content-preview.expanded .controls {
             display: block;
             left: 100px;
             position: absolute;
@@ -300,7 +300,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         }
     </style>
 
-    <div class="preview">
+    <div class="content-preview">
         <div class="widget">
             <h1 class="icon-page_white_find">Preview</h1>
 
@@ -330,8 +330,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
         // Make preview peekable.
         var $window = $(window);
-        var $edit = $('.edit');
-        var $preview = $('.preview');
+        var $edit = $('.content-edit');
+        var $preview = $('.content-preview');
         var $previewHeading = $preview.find('h1');
         var $previewWidget = $preview.find('.widget');
 
