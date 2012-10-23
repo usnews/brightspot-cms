@@ -325,7 +325,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     </div>
 
     <script type="text/javascript">
-    if (typeof jQuery !== 'undefined') (function($) {
+    $(function() {
         var peekWidth = 150;
 
         // Make preview peekable.
@@ -485,9 +485,53 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         });
 
         loadPreview();
-    })(jQuery);
+    });
     </script>
 <% } %>
+
+<script type="text/javascript">
+$(function() {
+    var $publicationWidget = $('.widget-publication');
+
+    // Change save button label if scheduling.
+    var $dateInput = $publicationWidget.find('.dateInput');
+    var $saveButton = $publicationWidget.find('.saveButton');
+    var oldSaveButton = $saveButton.val();
+    var oldDate = $dateInput.val();
+    var changeLabel = function() {
+        $saveButton.val($dateInput.val() ? (oldDate ? 'Reschedule' : 'Schedule') : oldSaveButton);
+    };
+
+    changeLabel();
+    $dateInput.change(changeLabel);
+
+    // Move the publication area to the top if within aside section.
+    var $aside = $publicationWidget.closest('.aside');
+
+    if ($aside.length > 0) {
+        var asideTop = $aside.offset().top;
+
+        var positionPublicationWidget = $.throttle(500, function() {
+            var asideLeft = $aside.offset().left;
+            var width = $publicationWidget.width();
+
+            $publicationWidget.css({
+                'left': asideLeft,
+                'margin-bottom': $aside.find('.area').css('margin-bottom'),
+                'position': 'fixed',
+                'top': asideTop,
+                'width': width
+            });
+
+            // Push other areas down.
+            $aside.css('margin-top', $publicationWidget.outerHeight(true));
+        });
+
+        positionPublicationWidget();
+        $(window).resize(positionPublicationWidget);
+    }
+});
+</script>
 
 <% wp.include("/WEB-INF/footer.jsp"); %><%!
 
