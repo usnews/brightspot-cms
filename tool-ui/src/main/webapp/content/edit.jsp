@@ -6,6 +6,7 @@ com.psddev.cms.db.Directory,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
 com.psddev.cms.db.Page,
+com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
@@ -105,153 +106,388 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
-<form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" data-widths="1500" enctype="multipart/form-data" method="post">
-    <div class="main" data-widths="600">
-
-        <%
-        ToolSearch search = Query.from(ToolSearch.class).where("_id = ?", wp.uuidParam("searchId")).first();
-        if (search != null) {
-            String sortFieldName = search.getSortField().getInternalName();
-            Object previous = search.toPreviousQuery(state).first();
-            Object next = search.toNextQuery(state).first();
-
-            if (previous != null || next != null) {
-                %><ul class="pagination" style="margin-top: -5px;"><%
-                    if (previous != null) {
-                        %><li class="previous"><a href="<%= wp.url("",
-                                "id", State.getInstance(previous).getId())
-                                %>"><%= wp.objectLabel(previous) %></a></li><%
-                    }
-                    %><li class="label"><a class="icon-magnifier" href="<%= wp.url("/misc/advancedSearch.jsp",
-                            "id", search.getId())
-                            %>">Search Result</a></li><%
-                    if (next != null) {
-                        %><li class="next"><a href="<%= wp.url("",
-                                "id", State.getInstance(next).getId())
-                                %>"><%= wp.objectLabel(next) %></a></li><%
-                    }
-                %></ul><%
-            }
-        }
-        %>
-
-        <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
-
-        <div class="widget">
-            <h1 class="icon-page">
-                <%= state.isNew() ? "New " : "Edit " %>
-
-                <% if (compatibleTypes.size() < 2) {
-                    %><%= wp.objectLabel(state.getType()) %><%
-                } else {
-                    %><select name="newTypeId">
-                        <% for (ObjectType type : compatibleTypes) { %>
-                            <option<%= state.getType().equals(type) ? " selected" : "" %> value="<%= type.getId() %>"><%= wp.objectLabel(type) %></option>
-                        <% } %>
-                    </select><%
-                }
-
-                if (selected instanceof Page) {
-                    %>:
-                    <a href="<%= wp.returnableUrl("/content/editableSections.jsp") %>" target="contentPageSections-<%= state.getId() %>">
-                        <% if (sectionContent != null) { %>
-                            <%= wp.objectLabel(State.getInstance(editing).getType()) %>
-                        <% } else { %>
-                            Layout
-                        <% } %>
-                    </a>
-                <% } %>
-            </h1>
-
-            <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
-
-            <% if (sectionContent != null) { %>
-                <p><a href="<%= wp.url("", "contentId", null) %>">&larr; Back to Layout</a></p>
-            <% } %>
-
-            <% wp.include("/WEB-INF/objectForm.jsp", "object", editing); %>
-        </div>
-
-        <% renderWidgets(wp, editing, CmsTool.CONTENT_BOTTOM_WIDGET_POSITION); %>
-    </div>
-
-    <div class="aside">
-        <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
-
-        <div class="widget widget-publication">
-            <h1 class="icon-tick">Publication</h1>
+<div class="edit">
+    <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" data-widths="1500" enctype="multipart/form-data" method="post">
+        <div class="main" data-widths="600">
 
             <%
-            if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
+            ToolSearch search = Query.from(ToolSearch.class).where("_id = ?", wp.uuidParam("searchId")).first();
+            if (search != null) {
+                String sortFieldName = search.getSortField().getInternalName();
+                Object previous = search.toPreviousQuery(state).first();
+                Object next = search.toNextQuery(state).first();
 
-                List<Workflow> workflows = Query.from(Workflow.class).select();
-                if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                    wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
-                    wp.write(wp.getId());
-                    wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                    wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
-                    wp.write("\">");
-                    wp.write("<input class=\"saveButton\" name=\"action\" type=\"submit\" value=\"Publish\">");
-                }
-
-                wp.write("<div class=\"otherWorkflows\">");
-                if (draft != null) {
-                    DraftStatus status = draft.getStatus();
-                    if (status != null) {
-
-                        wp.write("<p>Current Status: ");
-                        wp.write(wp.objectLabel(status));
-                        wp.write("</p>");
-
-                        for (Workflow workflow : workflows) {
-                            if (status.equals(workflow.getSource())
-                                    && wp.hasPermission("type/" + state.getTypeId() + "/" + workflow.getPermissionId())) {
-                                wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                                wp.write(wp.objectLabel(workflow));
-                                wp.write("\"> ");
-                            }
+                if (previous != null || next != null) {
+                    %><ul class="pagination" style="margin-top: -5px;"><%
+                        if (previous != null) {
+                            %><li class="previous"><a href="<%= wp.url("",
+                                    "id", State.getInstance(previous).getId())
+                                    %>"><%= wp.objectLabel(previous) %></a></li><%
                         }
-                    }
-
-                } else if (!wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                    wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                    for (Workflow workflow : workflows) {
-                        if (workflow.getSource() == null) {
-                            wp.write(wp.h(workflow.getName()));
-                            break;
+                        %><li class="label"><a class="icon-magnifier" href="<%= wp.url("/misc/advancedSearch.jsp",
+                                "id", search.getId())
+                                %>">Search Result</a></li><%
+                        if (next != null) {
+                            %><li class="next"><a href="<%= wp.url("",
+                                    "id", State.getInstance(next).getId())
+                                    %>"><%= wp.objectLabel(next) %></a></li><%
                         }
-                    }
-                    wp.write("\">");
+                    %></ul><%
                 }
-                wp.write("</div>");
-
-                if (!state.isNew() || draft != null) {
-                    wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\">");
-                }
-
-            } else {
-                wp.write("<div class=\"warning message\"><p>You cannot edit this ");
-                wp.write(wp.typeLabel(state));
-                wp.write("!</p></div>");
             }
             %>
 
-            <% if (!state.isNew()) { %>
-                <a class="advancedButton icon-wrench" href="<%= wp.objectUrl("/content/advanced.jsp", editing) %>" target="contentAdvanced">&#9660;</a>
-            <% } %>
+            <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
 
-            <ul class="piped extraActions">
-                <% if (selected.getClass() == Page.class
-                        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) { %>
-                    <li><a class="icon-page_white_find" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
+            <div class="widget">
+                <h1 class="icon-page">
+                    <%= state.isNew() ? "New " : "Edit " %>
+
+                    <% if (compatibleTypes.size() < 2) {
+                        %><%= wp.objectLabel(state.getType()) %><%
+                    } else {
+                        %><select name="newTypeId">
+                            <% for (ObjectType type : compatibleTypes) { %>
+                                <option<%= state.getType().equals(type) ? " selected" : "" %> value="<%= type.getId() %>"><%= wp.objectLabel(type) %></option>
+                            <% } %>
+                        </select><%
+                    }
+
+                    if (selected instanceof Page) {
+                        %>:
+                        <a href="<%= wp.returnableUrl("/content/editableSections.jsp") %>" target="contentPageSections-<%= state.getId() %>">
+                            <% if (sectionContent != null) { %>
+                                <%= wp.objectLabel(State.getInstance(editing).getType()) %>
+                            <% } else { %>
+                                Layout
+                            <% } %>
+                        </a>
+                    <% } %>
+                </h1>
+
+                <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
+
+                <% if (sectionContent != null) { %>
+                    <p><a href="<%= wp.url("", "contentId", null) %>">&larr; Back to Layout</a></p>
                 <% } %>
-                <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                    <li><input class="icon-page_save link" name="action" type="submit" value="Save Draft"></li>
+
+                <% wp.include("/WEB-INF/objectForm.jsp", "object", editing); %>
+            </div>
+
+            <% renderWidgets(wp, editing, CmsTool.CONTENT_BOTTOM_WIDGET_POSITION); %>
+        </div>
+
+        <div class="aside">
+            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
+
+            <div class="widget widget-publication">
+                <h1 class="icon-tick">Publication</h1>
+
+                <%
+                if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
+
+                    List<Workflow> workflows = Query.from(Workflow.class).select();
+                    if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                        wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
+                        wp.write(wp.getId());
+                        wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
+                        wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
+                        wp.write("\">");
+                        wp.write("<input class=\"saveButton\" name=\"action\" type=\"submit\" value=\"Publish\">");
+                    }
+
+                    wp.write("<div class=\"otherWorkflows\">");
+                    if (draft != null) {
+                        DraftStatus status = draft.getStatus();
+                        if (status != null) {
+
+                            wp.write("<p>Current Status: ");
+                            wp.write(wp.objectLabel(status));
+                            wp.write("</p>");
+
+                            for (Workflow workflow : workflows) {
+                                if (status.equals(workflow.getSource())
+                                        && wp.hasPermission("type/" + state.getTypeId() + "/" + workflow.getPermissionId())) {
+                                    wp.write("<input name=\"action\" type=\"submit\" value=\"");
+                                    wp.write(wp.objectLabel(workflow));
+                                    wp.write("\"> ");
+                                }
+                            }
+                        }
+
+                    } else if (!wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                        wp.write("<input name=\"action\" type=\"submit\" value=\"");
+                        for (Workflow workflow : workflows) {
+                            if (workflow.getSource() == null) {
+                                wp.write(wp.h(workflow.getName()));
+                                break;
+                            }
+                        }
+                        wp.write("\">");
+                    }
+                    wp.write("</div>");
+
+                    if (!state.isNew() || draft != null) {
+                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\">");
+                    }
+
+                } else {
+                    wp.write("<div class=\"warning message\"><p>You cannot edit this ");
+                    wp.write(wp.typeLabel(state));
+                    wp.write("!</p></div>");
+                }
+                %>
+
+                <% if (!state.isNew()) { %>
+                    <a class="advancedButton icon-wrench" href="<%= wp.objectUrl("/content/advanced.jsp", editing) %>" target="contentAdvanced">&#9660;</a>
                 <% } %>
-            </ul>
+
+                <ul class="piped extraActions">
+                    <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
+                        <li><input class="icon-page_save link" name="action" type="submit" value="Save Draft"></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+
+<% if (selected.getClass() == Page.class
+        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) { %>
+    <style type="text/css">
+        .preview {
+            display: none;
+            position: absolute;
+            overflow: hidden;
+            padding: 10px 0 5px 5px;
+            right: 0;
+            z-index: 5;
+        }
+        .preview.loading h1:before {
+            content: url(../style/icon/ajax-loader.gif);
+        }
+        .preview h1 {
+            cursor: pointer;
+            position: fixed;
+            width: 100%;
+        }
+        .preview .widget {
+            width: 970px;
+        }
+        .preview .widget > form {
+            margin-top: 30px;
+        }
+        .preview:before {
+            content: '\00ab';
+            font-size: 25px;
+            line-height: 1;
+            margin-top: 3px;
+            position: fixed;
+            right: 20px;
+            z-index: 1;
+        }
+        .preview.expanded:before {
+            content: '\00bb';
+        }
+        .preview .controls {
+            display: none;
+        }
+        .preview.expanded .controls {
+            display: block;
+            left: 100px;
+            position: absolute;
+            top: 4px;
+        }
+    </style>
+
+    <div class="preview">
+        <div class="widget">
+            <h1 class="icon-page_white_find">Preview</h1>
+
+            <%
+            String previewFormId = wp.createId();
+            String previewTarget = wp.createId();
+            %>
+
+            <div class="controls">
+                <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= wp.param("id") %>">
+                    <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                    <input type="submit" value="Share">
+                </form>
+            </div>
+
+            <form action="<%= wp.getCmsTool().getPreviewUrl() %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
+                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= wp.param("id") %>">
+                <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+            </form>
         </div>
     </div>
-</form>
+
+    <script type="text/javascript">
+    if (typeof jQuery !== 'undefined') (function($) {
+        var peekWidth = 150;
+
+        // Make preview peekable.
+        var $window = $(window);
+        var $edit = $('.edit');
+        var $preview = $('.preview');
+        var $previewHeading = $preview.find('h1');
+        var $previewWidget = $preview.find('.widget');
+
+        $edit.css({
+            'margin-right': peekWidth,
+            'max-width': 1100
+        });
+
+        $preview.addClass('loading');
+        $preview.show();
+
+        // Make the preview expand/collapse when the heading is clicked.
+        var oldPreviewWidgetWidth;
+
+        $previewHeading.live('click', function() {
+            var editOffsetLeft = $edit.offset().left;
+            var bodyWidth = $(document.body).width();
+
+            if ($preview.is('.expanded')) {
+                $preview.removeClass('expanded');
+
+                $preview.animate({
+                    'left': editOffsetLeft + $edit.outerWidth() + 10
+                }, 300, 'easeOutBack');
+
+                $previewWidget.css({
+                    'width': oldPreviewWidgetWidth
+                });
+
+            } else {
+                $preview.addClass('expanded');
+
+                $preview.animate({
+                    'left': editOffsetLeft + 30,
+                }, 300, 'easeOutBack');
+
+                oldPreviewWidgetWidth = $previewWidget.width();
+                $previewWidget.css({
+                    'width': bodyWidth
+                });
+            }
+        });
+
+        // Make sure that the preview is correctly positioned and sized.
+        var resizePreview = $.throttle(500, function() {
+            var editOffset = $edit.offset();
+            var bodyWidth = $(document.body).width();
+
+            if ($preview.is('.expanded')) {
+                $preview.css({
+                    'left': editOffset.left + 30,
+                    'top': editOffset.top
+                });
+
+                oldPreviewWidgetWidth = $previewWidget.width();
+                $previewWidget.css({
+                    'width': bodyWidth
+                });
+
+            } else {
+                $preview.css({
+                    'left': editOffset.left + $edit.outerWidth() + 10,
+                    'top': editOffset.top
+                });
+
+                $previewWidget.css({
+                    'width': oldPreviewWidgetWidth
+                });
+
+            }
+        });
+
+        resizePreview();
+        $window.resize(resizePreview);
+
+        // Load the preview.
+        var $previewForm = $('#<%= previewFormId %>');
+        var $contentForm = $('.contentForm');
+        var action = $contentForm.attr('action');
+        var questionAt = action.indexOf('?');
+        var oldFormData = $contentForm.serialize();
+
+        var loadPreview = $.throttle(2000, function() {
+            var newFormData = $contentForm.serialize();
+
+            // If the form inputs haven't changed, try again later.
+            if (oldFormData === newFormData) {
+                setTimeout(loadPreview, 100);
+                return;
+            }
+
+            oldFormData = newFormData;
+            $preview.addClass('loading');
+
+            // Get the correct JSON from the server.
+            $.ajax({
+                'data': newFormData,
+                'type': 'post',
+                'url': CONTEXT_PATH + 'content/state.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
+                'complete': function(request) {
+
+                    // Make sure that the preview IFRAME exists.
+                    $(':input[name=<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>]').val(request.responseText);
+                    var $previewTarget = $('iframe[name=<%= previewTarget %>]');
+
+                    if ($previewTarget.length == 0) {
+                        $previewTarget = $('<iframe/>', {
+                            'name': '<%= previewTarget %>',
+                            'css': {
+                                'border-style': 'none',
+                                'height': '1000px',
+                                'margin': 0,
+                                'overflow': 'hidden',
+                                'padding': 0,
+                                'width': '100%'
+                            }
+                        });
+                        $previewForm.after($previewTarget);
+                    }
+
+                    // Resize IFRAME so that there isn't a scrollbar.
+                    var setHeightTimer;
+                    var setHeight = function() {
+                        if ($previewTarget[0]) {
+                            var $body = $($previewTarget[0].contentWindow.document.body);
+                            $body.css('overflow', 'hidden');
+                            $previewTarget.height(Math.max($edit.outerHeight(true), $body.outerHeight(true)));
+
+                        } else if (setHeightTimer) {
+                            clearInterval(setHeightTimer);
+                            setHeightTimer = null;
+                        }
+                    };
+
+                    setHeightTimer = setInterval(setHeight, 100);
+
+                    $previewTarget.load(function() {
+                        $preview.removeClass('loading');
+                        setHeight();
+                        if (setHeightTimer) {
+                            clearInterval(setHeightTimer);
+                            setHeightTimer = null;
+                        }
+                    });
+
+                    // Really load the preview.
+                    $previewForm.submit();
+                    setTimeout(loadPreview, 100);
+                }
+            });
+        });
+
+        loadPreview();
+    })(jQuery);
+    </script>
+<% } %>
 
 <% wp.include("/WEB-INF/footer.jsp"); %><%!
 
