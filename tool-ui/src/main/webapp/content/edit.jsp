@@ -311,14 +311,14 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
             <div class="controls">
                 <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
-                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= wp.param("id") %>">
+                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                     <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                     <input type="submit" value="Share">
                 </form>
             </div>
 
             <form action="<%= wp.getCmsTool().getPreviewUrl() %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
-                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= wp.param("id") %>">
+                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                 <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
             </form>
         </div>
@@ -412,7 +412,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         var $contentForm = $('.contentForm');
         var action = $contentForm.attr('action');
         var questionAt = action.indexOf('?');
-        var oldFormData = $contentForm.serialize();
+        var oldFormData;
 
         var loadPreview = $.throttle(2000, function() {
             var newFormData = $contentForm.serialize();
