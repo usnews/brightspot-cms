@@ -19,6 +19,7 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.WebPageContext;
 
@@ -657,6 +658,18 @@ public class ToolPageContext extends WebPageContext {
                 "/script/ckeditor/ckeditor.js",
                 "/script/ckeditor/adapters/jquery.js",
                 "/script/jquery.editor.js",
+                "/script/wysihtml5.min.js",
+                "/script/jquery.rte.js" }) {
+            write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");
+        }
+
+        if (Settings.get(boolean.class, "cms/tool/useWysihtml5Rte")) {
+            write("<script type=\"text/javascript\">");
+            write("jQuery.prototype.editor = jQuery.prototype.rte;");
+            write("</script>");
+        }
+
+        for (String src : new String[] {
                 "/script/global.js",
                 "/script/local.js" }) {
             write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");

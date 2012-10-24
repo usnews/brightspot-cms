@@ -5,7 +5,11 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
-com.psddev.dari.util.Password
+com.psddev.dari.util.Password,
+com.psddev.dari.util.PasswordException,
+com.psddev.dari.util.PasswordPolicy,
+com.psddev.dari.util.Settings,
+com.psddev.dari.util.ValidationException
 " %><%
 
 // --- Logic ---
@@ -32,7 +36,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (!password.equals(wp.param(password2Name))) {
                 state.addError(field, "Passwords don't match!");
             } else {
-                state.putValue(fieldName, Password.create(password).toString());
+                try {
+                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+                    state.putValue(fieldName, Password.validateAndCreateCustom(policy, null, null, password).toString());
+                } catch (PasswordException error) {
+                    state.addError(field, error.getMessage());
+                }
             }
         }
     }

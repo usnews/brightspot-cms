@@ -444,41 +444,6 @@ $('.extensionContainer').each(function() {
     });
 });
 
-// Publication widget customizations.
-$('.widget-publication').each(function() {
-    var $publicationWidget = $(this);
-
-    // Change save button label if scheduling.
-    var $dateInput = $publicationWidget.find('.dateInput');
-    var $saveButton = $publicationWidget.find('.saveButton');
-    var oldSaveButton = $saveButton.val();
-    var oldDate = $dateInput.val();
-    $dateInput.change(function() {
-        $saveButton.val($dateInput.val() ? (oldDate ? 'Reschedule' : 'Schedule') : oldSaveButton);
-    });
-    $dateInput.change();
-
-    // Move the publication area to the top if within aside section.
-    var $aside = $publicationWidget.closest('.aside');
-    if ($aside.length > 0) {
-
-        var top = $aside.offset().top;
-        var width = $publicationWidget.width();
-        var $parent = $publicationWidget.offsetParent();
-        var right = $parent.width() + $parent.offset().left - $publicationWidget.offset().left - width;
-        $publicationWidget.css({
-            'margin-bottom': $aside.find('.area').css('margin-bottom'),
-            'position': 'fixed',
-            'right': right,
-            'top': top,
-            'width': width
-        });
-
-        // Push other areas down.
-        $aside.css('margin-top', $publicationWidget.outerHeight(true));
-    }
-});
-
 // Update repeatable labels as the user edits the related sections.
 (function() {
 

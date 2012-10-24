@@ -63,7 +63,7 @@ try {
         }
 
         // Write out a helpful note if available.
-        String noteHtml = ui.getNoteHtml();
+        String noteHtml = ui.getEffectiveNoteHtml(request.getAttribute("object"));
         if (!ObjectUtils.isBlank(noteHtml)) {
             wp.write("<small class=\"note\">");
             wp.write(noteHtml);

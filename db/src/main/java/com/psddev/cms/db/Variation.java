@@ -128,10 +128,19 @@ public class Variation extends Record {
             List<Variation> applied = getApplied(object);
 
             for (Variation variation : ALL.get().get()) {
-                if (!applied.contains(variation) &&
-                        variation.getRule().evaluate(variation, profile, object)) {
-                    applied.add(variation);
-                    variation.getOperation().evaluate(variation, profile, object);
+                try {
+                    if (!applied.contains(variation) &&
+                            variation.getRule().evaluate(variation, profile, object)) {
+                        applied.add(variation);
+                        variation.getOperation().evaluate(variation, profile, object);
+                    }
+
+                } catch (Throwable error) {
+                    LOGGER.warn(String.format(
+                            "Can't apply variation [%s] to [%s]!",
+                            variation.getId(),
+                            State.getInstance(object).getId()),
+                            error);
                 }
             }
         }

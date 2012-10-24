@@ -32,8 +32,14 @@ StorageItem preview = state.getPreview();
 
 wp.writeHeader();
 wp.include("/WEB-INF/objectHeading.jsp", "object", object);
-
-%><p style="position: absolute; right: 15px; top: 8px;"><a class="icon-pencil" href="<%= wp.objectUrl("/content/edit.jsp", object) %>" target="_blank">Edit in Full</a></p>
+if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
+    wp.write("<p style=\"position: absolute; right: 15px; top: 8px;\">");
+    wp.write("<a class=\"icon-pencil\" href=\"");
+    wp.write(wp.objectUrl("/content/edit.jsp", object));
+    wp.write("\" target=\"_blank\">Edit in Full</a>");
+    wp.write("</p>");
+}
+%>
 <form action="<%= wp.objectUrl("", object) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
 
     <% wp.include("/WEB-INF/errors.jsp"); %>
@@ -58,10 +64,18 @@ wp.include("/WEB-INF/objectHeading.jsp", "object", object);
         }
         %>
     </div>
-
-    <div class="buttons">
-        <input type="submit" name="action" value="Publish" />
-    </div>
+    <%    
+        if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
+            wp.write("<div class=\"buttons\">");
+            wp.write("<input type=\"submit\" name=\"action\" value=\"Publish\" />");
+            wp.write("</div>");
+        }else{
+            wp.write("<div class=\"warning message\"><p>You cannot edit this ");
+            wp.write(wp.typeLabel(state));
+            wp.write("!</p></div>");
+        }
+        
+    %>
 </form>
 
 <script type="text/javascript">

@@ -10,6 +10,7 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class ToolFilter extends AbstractFilter {
     public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
         Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
         cookie.setPath("/");
+        cookie.setSecure(request.isSecure());
         JspUtils.setSignedCookie(response, cookie);
         request.setAttribute(USER_ATTRIBUTE, user);
     }
@@ -204,7 +206,11 @@ public class ToolFilter extends AbstractFilter {
             }
 
             // Authenticate the tool user.
-            ToolUser user = Query.findById(ToolUser.class, ObjectUtils.to(UUID.class, JspUtils.getSignedCookie(request, USER_COOKIE)));
+            ToolUser user = Query.findById(ToolUser.class, ObjectUtils.to(
+                    UUID.class, JspUtils.getSignedCookieWithExpiry(
+                            request, USER_COOKIE, Settings.get(
+                                    long.class, "cms/tool/sessionTimeout", 0L))));
+
             if (user instanceof ToolUser) {
                 logIn(request, response, user);
                 request.setAttribute(AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
@@ -224,7 +230,7 @@ public class ToolFilter extends AbstractFilter {
 
             response.sendRedirect(response.encodeRedirectURL(
                     wp.cmsUrl(LOG_IN_PATH,
-                            RETURN_PATH_PARAMETER, JspUtils.getAbsoluteUrl(request, ""))));
+                            RETURN_PATH_PARAMETER, JspUtils.getAbsolutePath(request, ""))));
 
         } finally {
             ToolUser user = getUser(request);

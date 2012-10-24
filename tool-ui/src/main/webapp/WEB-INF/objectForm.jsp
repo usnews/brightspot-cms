@@ -26,7 +26,7 @@ List<ObjectField> fields = type != null ? type.getFields() : null;
 
 // --- Presentation ---
 
-String noteHtml = type.as(ToolUi.class).getNoteHtml();
+String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 if (!ObjectUtils.isBlank(noteHtml)) {
     wp.write("<div class=\"message info\">");
     wp.write(noteHtml);

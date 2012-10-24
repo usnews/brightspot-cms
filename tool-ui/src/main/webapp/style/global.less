@@ -1468,6 +1468,137 @@ h1 select:focus {
     }
 }
 
+// --- jQuery.rte ---
+
+.rte-container {
+    border: 1px solid #b3b3b3;
+    .border-radius(5px);
+    display: block;
+    margin: 0;
+}
+
+.rte-textarea {
+    border-style: none;
+    .box-shadow(none);
+}
+
+.rte-source {
+    font-family: 'Andale Mono', 'Lucida Console', monospace;
+    font-size: 11px;
+    min-height: 10em;
+    padding: 0;
+}
+
+.rte-toolbar {
+    background-color: #ededed;
+    border-bottom: 1px solid #cfcfcf;
+    .border-top-left-radius(5px);
+    .border-top-right-radius(5px);
+    margin: 2px;
+    overflow: hidden;
+    padding: 3px 0 0 3px;
+    position: relative;
+    z-index: 1;
+}
+
+.rte-group {
+    background-color: #333;
+    color: white;
+    .border-radius(5px);
+    list-style-type: none;
+    margin: 3px;
+    overflow: hidden;
+    float: left;
+    margin: 0 3px 3px 0;
+    padding-right: 3px;
+}
+
+.rte-group-label {
+    display: block;
+    font-family: 'SilkscreenNormal', sans-serif;
+    font-size: 8px;
+    line-height: 8px;
+    margin: 2px 0 3px 3px;
+}
+
+.rte-button {
+    background-color: white;
+    background-position: center;
+    background-repeat: no-repeat;
+    .border-radius(3px);
+    color: black;
+    cursor: pointer;
+    float: left;
+    height: 20px;
+    line-height: 20px;
+    margin: 0 0 3px 3px;
+    text-align: center;
+    text-indent: -9000px;
+    width: 20px;
+
+    &.wysihtml5-command-active {
+        background-color: #76bbe0;
+    }
+}
+
+.rte-button-bold { background-image: url(icon/text_bold.png); }
+.rte-button-italic { background-image: url(icon/text_italic.png); }
+.rte-button-underline { background-image: url(icon/text_underline.png); }
+.rte-button-strike { background-image: url(icon/text_strikethrough.png); }
+.rte-button-superscript { background-image: url(icon/text_superscript.png); }
+.rte-button-subscript { background-image: url(icon/text_subscript.png); }
+.rte-button-justifyLeft { background-image: url(icon/text_align_left.png); }
+.rte-button-justifyCenter { background-image: url(icon/text_align_center.png); }
+.rte-button-justifyRight { background-image: url(icon/text_align_right.png); }
+.rte-button-insertUnorderedList { background-image: url(icon/text_list_bullets.png); }
+.rte-button-insertOrderedList { background-image: url(icon/text_list_numbers.png); }
+.rte-button-outdent { background-image: url(icon/text_indent_remove.png); }
+.rte-button-indent { background-image: url(icon/text_indent.png); }
+.rte-button-createLink { background-image: url(icon/link.png); }
+.rte-button-change_view { background-image: url(icon/html.png); }
+.rte-button-moveLeft { background-image: url(icon/arrow_left.png); }
+.rte-button-moveUp { background-image: url(icon/arrow_up.png); }
+.rte-button-moveCenter { background-image: url(icon/arrow_out.png); }
+.rte-button-moveDown { background-image: url(icon/arrow_down.png); }
+.rte-button-moveRight { background-image: url(icon/arrow_right.png); }
+.rte-button-remove { background-image: url(icon/delete.png); }
+
+.rte-button-insertEnhancement,
+.rte-button-insertMarker,
+.rte-button-editEnhancement,
+.rte-button-selectMarker {
+    font-size: 80%;
+    padding: 0 3px;
+    text-indent: 0;
+    white-space: nowrap;
+    width: auto;
+}
+
+.rte-enhancement {
+    background-color: #cecece;
+
+    .rte-toolbar {
+        background-color: transparent;
+        border-style: none;
+    }
+}
+
+.rte-enhancement-label {
+    font-size: 120%;
+    text-align: center;
+}
+
+.rte-marker {
+
+    .rte-toolbar {
+        float: left;
+    }
+
+    .rte-enhancement-label {
+        line-height: 46px;
+    }
+}
+
 /* --- jQuery.tree --- */
 
 .tree ul {
