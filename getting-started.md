@@ -263,3 +263,4 @@ To render the article body text in the JSP we have used the `<cms:render value="
 Once you have saved your JSP hit the URL you have defined and view your first webpage:
 
 Example: <http://localhost:8080/article>
+

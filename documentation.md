@@ -55,7 +55,7 @@ Copy Solr's DB directory into $TOMCAT_HOME:
 
 `cp -r $SOLR_DIST/example/solr $TOMCAT_HOME`
 
-Replace the default Solr `schema.xml` and `solrconfig.xml` files with Dari configurations downloaded from the Dari repository - [here](https://github.com/perfectsense/dari/tree/master/etc/solr)
+Replace the default Solr `schema.xml` and `solrconfig.xml` files with Dari configurations downloaded from the Dari repository - [here](https://github.com/perfectsense/dari/tree/master/etc/solr) - *Note, Make sure the filenames remain `solrconfig.xml` and `schema.xml`*
 
 `cp solrconfig.xml $TOMCAT_HOME/solr/conf/solrconfig.xml`
 
@@ -128,7 +128,7 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ### Maven
 
-If you do not already have Maven, [download](http://maven.apache.org/download.html) and install.
+If you do not already have Maven, [download](http://maven.apache.org/download.html) and install. On the command line type `mvn -v` to see your Maven Version number.
 
 You will need to create a Maven project in which we will embed the CMS application. 
 
@@ -142,9 +142,9 @@ Run the following Archetype to create the project structure.
     	-DgroupId=yourGroupID \
     	-DartifactId=yourProject
     	
-*Note, the GroupID and Project name must not contain spaces.*
+*Note, the GroupID and Project name must not contain spaces or hyphens*
 
-Once your project has been created access your new pom.xml and add the following dependency.
+Once your project has been created access your new pom.xml and add the following dependency, for Solr.
 
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -159,12 +159,13 @@ Once your required folder structure is in place run a `mvn clean install` within
 
 A war file will now be created in the `target` directory. The CMS application will be embedded into your project.
 
-Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename to be `ROOT.war`
+Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename this to be `ROOT.war`. *Note, the default Apache ROOT directory must be removed.*
 
 
 ### Start Tomcat
 
 `./bin/startup.sh`
+
 
 ### Access your CMS
 
@@ -172,7 +173,7 @@ The first time that you access your CMS you will need to perform a `_debug/init`
 
 <http://localhost:8080/_debug/init>
 
-The function of the `_debug/init` is to update the CMS application that is embedded within your project.
+The function of the `_debug/init` is to initialize the CMS Tool Application and widgets.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/init.png"/>
 
