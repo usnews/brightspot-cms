@@ -273,7 +273,7 @@ public class PageFilter extends AbstractFilter {
             VaryingDatabase varying = new VaryingDatabase();
             varying.setDelegate(Database.Static.getDefault());
             varying.setProfile(profile);
-            Database.Static.setDefaultOverride(varying);
+            Database.Static.overrideDefault(varying);
         }
 
         try {
@@ -398,7 +398,7 @@ public class PageFilter extends AbstractFilter {
 
         } finally {
             if (!isAuthenticated) {
-                Database.Static.setDefaultOverride(null);
+                Database.Static.restoreDefault();
             }
         }
     }
