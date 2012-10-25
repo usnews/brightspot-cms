@@ -6,7 +6,7 @@ id: ui
 
 ## User Interface Creation
 
-Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
+Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
 
 **Text Input Field**
 
@@ -120,6 +120,6 @@ A `List` or `Set` of embedded items can be added, simply add the `Set` or `List`
 
 ### Custom User Interface
 
-A completely custom user interface can be built for any field in Brightspot by using the `@ToolUi.InputProcessorPath()` annotation. This can be used to provide a path to the jsp you would like to render the field with. Best practice is to place these jsp files in a new directory within WEB-INF.
+A completely custom user interface can be built for any field in Brightspot by using the `@ToolUi.InputProcessorPath()` annotation. This can be used to provide a path to the jsp you would like to render the field with. Best practice is to place these jsp files in a new directory within WEB-INF. *A complete guide to custom UI is currently being documented.*
 
 
