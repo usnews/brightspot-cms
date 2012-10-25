@@ -46,17 +46,8 @@ The script below created this feature:
 	importPackage(com.psddev.dari.util);
 
 	var category = object.getState().getValue("category");
-	if (!ObjectUtils.isBlank(category)) { 
-	
+	if (!ObjectUtils.isBlank(category)) {
 	    "/article/" + StringUtils.toNormalized(category.getState().getValue("name")) + "/" + objectName;
-	
 	} else {
-		
-		"/article/" + objectName;
-		
+	    "/article/" + objectName;
 	}
-
-<!-- **Finding an object by URL**
-
-	Entry<String, Site> siteEntry = Site.Static.findByUrl(uri.getHost());
-	Site site = siteEntry != null ? siteEntry.getValue() : null; -->

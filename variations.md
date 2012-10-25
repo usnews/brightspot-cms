@@ -38,11 +38,11 @@ The new template will be an exact copy of the Default original. To test the vari
 
 **Test the new variation**
 
-Once you have saved your new template, simply access the page with your browser, and also with the device. As you can see below, access with an iPhone shows the added `Hello World` text at the bottom of the page.
+Once you have saved your new template, simply access the page with your browser, and also with the device. As you can see below, access with an iPhone shows the added `Hello World` text at the bottom of the page (Bottom right).
 
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/test-variation.png" alt="" /></a>
+<img width="300" src="http://docs.brightspot.s3.amazonaws.com/test-variation.png" alt="" />
 
-Now that we have confirmed the variation is working, we can create a completely new page template, with new .jsp files and layout, designed for mobile devices.
+Now that we have confirmed the variation is working, we can create a completely new page template, with new .jsp files and layout, designed for mobile devices, or if we have a module we don't want to be shown on mobile devices, we can remove it from the template.
 
 This is a basic example, of how to implement a variation for a page Template. Take a look around the rules, such as Browser access, to test further.
 
@@ -65,17 +65,17 @@ Extend from class `Operation` to create a new Operator:
     @Operation.DisplayName("This is a new Operation")
     public class Test extends Operation {
 
-    @Override
-    public void evaluate(
-            Variation variation, Profile profile, Object object) {
-        State state = State.getInstance(object);
-        Map<String, Object> variationData = (Map<String, Object>)
-                state.getValue("variations/" + variation.getId());
-        if (variationData != null) {
-            state.getValues().putAll(variationData);
+        @Override
+        public void evaluate (Variation variation, Profile profile, Object object) {
+            State state = State.getInstance(object);
+            Map<String, Object> variationData = (Map<String, Object>)
+            state.getValue("variations/" + variation.getId());
+        
+            if (variationData != null) {
+                state.getValues().putAll(variationData);
+            }
         }
-      }
-    }
+     }
 
 Adding your own rule is done through extending the `Rule` class:
 
@@ -85,4 +85,4 @@ Adding your own rule is done through extending the `Rule` class:
      
      public boolean evaluate(Variation variation, Profile profile, Object object){
 
-}
+	}
