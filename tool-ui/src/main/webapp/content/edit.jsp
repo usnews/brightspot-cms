@@ -275,9 +275,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         .content-preview .widget {
             width: 970px;
         }
-        .content-preview .widget > form {
-            margin-top: 30px;
-        }
         .content-preview:before {
             content: '\00ab';
             font-size: 25px;
@@ -291,13 +288,10 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             content: '\00bb';
         }
         .content-preview .controls {
-            display: none;
+            margin-top: 35px;
         }
-        .content-preview.expanded .controls {
-            display: block;
-            left: 100px;
-            position: absolute;
-            top: 4px;
+        .content-preview .controls li form {
+            display: inline;
         }
     </style>
 
@@ -310,13 +304,16 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             String previewTarget = wp.createId();
             %>
 
-            <div class="controls">
-                <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
-                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                    <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-                    <input type="submit" value="Share">
-                </form>
-            </div>
+            <ul class="piped controls">
+                <li><a href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
+                <li>
+                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                        <input class="link" type="submit" value="Share">
+                    </form>
+                </li>
+            </ul>
 
             <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
                 <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
