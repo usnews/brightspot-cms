@@ -296,7 +296,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     </style>
 
     <div class="content-preview">
-        <div class="widget">
+        <div class="widget" style="overflow: auto;">
             <h1 class="icon-page_white_find">Preview</h1>
 
             <%
@@ -304,7 +304,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             String previewTarget = wp.createId();
             %>
 
-            <ul class="piped controls">
+            <ul class="piped controls" style="float: left;">
                 <li><a href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
@@ -316,6 +316,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             </ul>
 
             <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
+                <ul class="piped" style="float: right; margin-top: 35px; margin-right: 45px;">
+                    <li>
+                        <label for="<%= wp.createId() %>">Debug?</label>
+                        <input id="<%= wp.getId() %>" type="checkbox" name="_debug" value="true" onchange="$(this).closest('form').submit();">
+                    </li>
+                </ul>
                 <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                 <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
             </form>
