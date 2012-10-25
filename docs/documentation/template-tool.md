@@ -135,7 +135,7 @@ The full list of attributes are contained within the `PageContextFilter.class`
 
 **Choose Content Type**
 
-As we  have chosen the Article Section to contain our Main Content. We can then specify the exact Object Type we want to display within the template, this is done at the bottom of the page.
+As we have chosen the Article Section to contain our Main Content. We can then specify the exact Object Type we want to display within the template, this is done at the bottom of the page.
 
 <a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-choose-type.png" alt="" /></a>
 
