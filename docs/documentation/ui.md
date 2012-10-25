@@ -116,7 +116,8 @@ A `List` or `Set` of embedded items can be added, simply add the `Set` or `List`
 
            }
     } 
-    <h2 id="custom-ui"> </h2>
+    
+<h2 id="custom-ui"> </h2>
 
 ### Custom User Interface
 
