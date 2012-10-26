@@ -5,7 +5,7 @@ import com.psddev.dari.db.Record;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Section extends Record {
+public class Section extends Content {
 
     private String name;
     private @Indexed boolean isShareable;
