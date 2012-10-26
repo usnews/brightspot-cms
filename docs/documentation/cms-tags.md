@@ -49,7 +49,7 @@ Used to display an image file added within the CMS. Objects or a URL can be pass
 
 **cms:a**
 
-A tag for creating links, much like a normal `a href`
+A tag for creating links, much like a normal `a href`. If the object has a defined URL, passing the object itself will be all that is required.
 
 `<cms:a href="${objectName}"></cms:a>`
     
@@ -71,7 +71,7 @@ Used to render areas of ReferentialText, it can be implemented in the following 
 
 `<cms:render value="${content.bodyText}" />
 
-This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine.
+This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine. This can also render any `Referencable` modules added to the RTE.
 
 **cms:cache**
 
