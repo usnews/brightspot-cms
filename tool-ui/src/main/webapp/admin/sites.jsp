@@ -12,6 +12,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminSites")) {
+    return;
+}
+
 String queryString = wp.param("query");
 Object selected = wp.findOrReserve(Site.class);
 State selectedState = State.getInstance(selected);

@@ -29,6 +29,10 @@ com.psddev.cms.tool.ToolPageContext
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Directory selectedDirectory = Query.findById(Directory.class, wp.pageParam(UUID.class, "directoryId", null));
 UUID typeId = wp.pageParam(UUID.class, "typeId", null);
 

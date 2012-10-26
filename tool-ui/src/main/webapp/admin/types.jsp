@@ -11,6 +11,10 @@ com.psddev.dari.util.ObjectUtils
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminTypes")) {
+    return;
+}
+
 String queryString = wp.param("query");
 ObjectType selected = (ObjectType) wp.findOrReserve(ObjectType.class);
 if (selected != null && !State.getInstance(selected).isNew()) {

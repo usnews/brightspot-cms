@@ -19,6 +19,10 @@ private static final String[] POSITIONS = new String[] {
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object object = wp.findOrReserve();
 if (wp.include("/WEB-INF/objectPublish.jsp", "object", object)) {
     return;

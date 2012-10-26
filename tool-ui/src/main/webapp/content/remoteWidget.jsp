@@ -14,6 +14,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object object = wp.findOrReserve();
 Widget widget = Database.Static.findById(wp.getDatabase(), Widget.class, wp.uuidParam("widgetId"));
 

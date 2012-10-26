@@ -827,6 +827,15 @@ public class ToolPageContext extends WebPageContext {
         return getUser().hasPermission(permissionId);
     }
 
+    public boolean requirePermission(String permissionId) throws IOException {
+        if (hasPermission(permissionId)) {
+            return false;
+        } else {
+            getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+            return true;
+        }
+    }
+
     // --- Content.Static bridge ---
 
     /** @see Content.Static#deleteSoftly */

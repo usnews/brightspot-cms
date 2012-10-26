@@ -13,6 +13,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminWorkflows")) {
+    return;
+}
+
 Object selected = wp.findOrReserve(DraftStatus.class, Workflow.class);
 Class<?> selectedClass = selected.getClass();
 State selectedState = State.getInstance(selected);

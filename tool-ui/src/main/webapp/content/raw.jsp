@@ -10,6 +10,10 @@ com.psddev.dari.util.ObjectUtils
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object selected = Query.findById(Object.class, wp.uuidParam("id"));
 
 // --- Presentation ---

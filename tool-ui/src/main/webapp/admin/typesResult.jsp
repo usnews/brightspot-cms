@@ -15,6 +15,10 @@ java.util.Map
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminTypes")) {
+    return;
+}
+
 ObjectType selected = (ObjectType) wp.findOrReserve(ObjectType.class);
 
 List<ObjectType> abstractTypes = new ArrayList<ObjectType>();

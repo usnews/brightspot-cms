@@ -13,6 +13,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminSites")) {
+    return;
+}
+
 Site selected = (Site) wp.findOrReserve(Site.class);
 
 Query<Site> query = Query.from(Site.class).sortAscending("name");

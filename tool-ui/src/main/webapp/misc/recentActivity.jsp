@@ -18,6 +18,9 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
 
 Query<Object> query = Query.
         fromGroup(Content.SEARCHABLE_GROUP).

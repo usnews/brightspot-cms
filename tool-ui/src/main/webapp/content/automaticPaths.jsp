@@ -19,6 +19,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object selected = wp.findOrReserve();
 State selectedState = State.getInstance(selected);
 

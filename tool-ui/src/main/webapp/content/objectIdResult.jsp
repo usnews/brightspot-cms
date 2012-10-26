@@ -12,6 +12,10 @@ java.io.IOException
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Search search = new Search(wp);
 String pageId = wp.createId();
 String removeId = wp.createId();
