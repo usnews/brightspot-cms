@@ -49,14 +49,10 @@ if (selected == null) {
 }
 
 Object editing = selected;
-Section selectedSection = null;
 if (selected instanceof Page) {
-    UUID sectionId = wp.uuidParam("sectionId");
-    if (!state.getId().equals(sectionId)) {
-        selectedSection = Query.findById(Section.class, wp.uuidParam("sectionId"));
-        if (selectedSection instanceof ContentSection) {
-            editing = ((ContentSection) selectedSection).getContent();
-        }
+    Object sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
+    if (sectionContent != null) {
+        editing = sectionContent;
     }
 }
 

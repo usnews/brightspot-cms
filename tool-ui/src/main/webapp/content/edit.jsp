@@ -414,7 +414,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         // Load the preview.
         var $previewForm = $('#<%= previewFormId %>');
         var $contentForm = $('.contentForm');
-        var action = $contentForm.attr('action');
+        var action = location.href;
         var questionAt = action.indexOf('?');
         var oldFormData;
 
@@ -434,7 +434,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             $.ajax({
                 'data': newFormData,
                 'type': 'post',
-                'url': CONTEXT_PATH + 'content/state.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
+                'url': CONTEXT_PATH + 'content/state.jsp?id=<%= state.getId() %>&' + (questionAt > -1 ? action.substring(questionAt + 1) : ''),
                 'complete': function(request) {
 
                     // Make sure that the preview IFRAME exists.
