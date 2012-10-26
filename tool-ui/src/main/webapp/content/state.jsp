@@ -66,6 +66,7 @@ try {
     wp.include("/WEB-INF/objectPost.jsp", "object", editing);
     wp.include("/WEB-INF/widgetsUpdate.jsp", "object", editing);
     wp.publish(editing);
+} catch (Exception error) {
 } finally {
     editingState.endWrites();
 }
