@@ -663,7 +663,7 @@ public class ToolPageContext extends WebPageContext {
             write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");
         }
 
-        if (Settings.get(boolean.class, "cms/tool/useWysihtml5Rte")) {
+        if (getCmsTool().isWysihtml5Rte()) {
             write("<script type=\"text/javascript\">");
             write("jQuery.prototype.editor = jQuery.prototype.rte;");
             write("</script>");

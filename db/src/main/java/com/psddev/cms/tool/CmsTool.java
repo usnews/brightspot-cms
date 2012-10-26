@@ -1,6 +1,7 @@
 package com.psddev.cms.tool;
 
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
 
 import java.net.URI;
 
@@ -17,6 +18,7 @@ public class CmsTool extends Tool {
     private String extraJavaScript;
     private String defaultSiteUrl;
     private boolean previewPopup;
+    private Boolean wysihtml5Rte;
 
     /** Returns the company name. */
     public String getCompanyName() {
@@ -64,6 +66,16 @@ public class CmsTool extends Tool {
 
     public void setPreviewPopup(boolean previewPopup) {
         this.previewPopup = previewPopup;
+    }
+
+    public boolean isWysihtml5Rte() {
+        return ObjectUtils.coalesce(
+                wysihtml5Rte,
+                Settings.get(boolean.class, "cms/tool/useWysihtml5Rte"));
+    }
+
+    public void setWysihtml5Rte(boolean wysihtml5Rte) {
+        this.wysihtml5Rte = wysihtml5Rte;
     }
 
     /** Returns the preview URL. */
