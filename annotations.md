@@ -40,6 +40,10 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 > Specifies whether the target field value is indexed.
 
+`@Indexed(Unique=true)`
+
+> Specifies whether the target field value is indexed, and whether it should be unique.
+
 `@InternalName(String)`
 
 > Specifies the target field's internal name.
@@ -70,7 +74,7 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 `@FieldUnique`
 
-> Deprecated. Use `Recordable.FieldIndexed` with isUnique instead.
+> Deprecated. Use `@Indexed(Unique=true)` instead.
 
 `@Values`
 

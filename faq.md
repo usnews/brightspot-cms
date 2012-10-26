@@ -129,3 +129,28 @@ Once the annotation has been added to the field, we can update all existing inst
 <img  src="http://docs.brightspot.s3.amazonaws.com/index-new-fields.png"/>
 
 Index all, or choose your object specifically. Once started, the task can be tracked in the Task Tool until complete.
+
+### Deleting Orphan Records
+
+If you have an object in the CMS that you no longer need, and choose to delete the class, the best practice is to remove all instances of the class, before deleting the type itself.
+
+This can be done quickly using the Code Tool.
+
+	Object object = (Object) Query.from(Object.class).where("_id = ENTER_ID_HERE").selectAll();
+	object.delete();
+	return object;
+	
+	
+If the object type has been deleted without removing all the instances we may start to see instances of the object show up in search results with an `Unknown Type` label.
+
+To recreate this situation we added a `Tag.java` object and then created three instances of it. We then deleted the class, leaving the three instances.
+
+<img src="http://docs.brightspot.s3.amazonaws.com/after-delete.png"/>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/before-delete.png"/>
+
+As you can see from the screen grabs above, the instances of the Tag object are now unknown. Again, despite not having an overall type id we can query against, they can be deleted for good using the `Code Tool`:
+
+	Record record = (Record) Query.from(Object.class).where("id = ENTER_ID_HERE").first();
+	record.delete();
+	return record;

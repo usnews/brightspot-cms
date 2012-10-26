@@ -1,0 +1,146 @@
+
+---
+layout: basic
+id: documentation
+---
+
+<div class="row">
+    <div class="span3 dari-docs-sidebar">
+        <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+                <li class="expandable collapsed nav-header"><span class="toggler" style="cursor: pointer;">Overview</span>
+                    <ul class="expandable-content">
+                        <li><a href="documentation.html">Installation</a></li>
+                        <li><a href="getting-started.html">Getting Started</a></li>
+                        <li><a href="getting-started.html#basics">Basics</a></li>
+                        <li><a href="getting-started.html#hello-world">Hello World!</a></li>
+                        <li><a href="getting-started.html#creating-objects">Create an object</a></li>
+                        <li><a href="getting-started.html#page-building">Build a Page</a></li>
+                    </ul>
+                </li>
+
+                <li class="expandable collapsed nav-header"><span class="toggler" style="cursor: pointer;">CMS Basics</span>
+                    <ul class="expandable-content">
+                        <li><a href="ui.html">User Interface</a></li>
+                        <li><a href="annotations.html">Annotations</a></li>
+                        <li><a href="template-tool.html">Templates</a></li>
+                        <li><a href="urls.html">URLs</a></li>
+                        <li><a href="querying.html">Querying</a></li>
+                        <li><a href="storage-item.html">Storage Item</a></li>
+                        <li><a href="cms-tags.html">CMS Tags</a></li>
+                        <li><a href="seo.html">SEO</a></li>
+                    </ul>
+                </li>        
+                <li class="expandable collapsed nav-header"><span class="toggler" style="cursor: pointer;">CMS Advanced</span>
+                    <ul class="expandable-content">
+                        <li><a href="adding-a-tool.html">Adding a Tool</a></li>
+                        <li><a href="image-cropping.html">Cropping Images</a></li>
+                        <li><a href="search.html">Search</a></li>
+                        <li><a href="variations.html">Variations</a></li>
+                        <li><a href="modifications.html">Modifications</a></li>
+                        <li><a href="debugging.html">Debugging</a></li>
+                        <li><a href="caching.html">Caching</a></li>
+                    </ul>
+                </li>            
+                <li class="expandable collapsed nav-header"><span class="toggler" style="cursor: pointer;">Editorial Tools</span>
+                    <ul class="expandable-content">
+                        <li><a href="editorial.html">Introduction</a></li>
+                        <li><a href="editorial.html#publishing">Publishing</a></li>
+                        <li><a href="editorial.html#finding-content">Finding Content</a></li>
+                        <li><a href="editorial.html#cms-tools">CMS Tools</a></li>
+                    </ul>
+                </li>        
+                <li class="expandable collapsed nav-header"><span class="toggler" style="cursor: pointer;">Support</span>
+                    <ul class="expandable-content">
+                        <li><a target="_blank" href="http://perfectsense.github.com/brightspot-cms/javadocs/">JavaDocs</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="license.html">License</a>
+                    </ul>        
+                </li>
+            </ul>
+        </div><!--/.well -->
+    </div><!--/span-->
+    <div class="span9">
+        {{ content }}
+    </div><!--/span-->
+</div><!--/row-->
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+$('.expandable .toggler').live('click', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var $container = $(this).closest('.expandable');
+    var runOnce = false;
+    var toggleOnce;
+    if($container.is('.collapsed')) {
+        toggleOnce = function($el) {
+            if(runOnce === false) {
+                $container.trigger('expand');
+                runOnce = true;
+            }
+        };
+    } else {
+        toggleOnce = function() {
+            if(runOnce === false) {
+                $container.trigger('collapse');
+                runOnce = true;
+            }
+        };
+    }
+    toggleOnce();
+});
+
+$('.expandable').live('expand', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var $container = $(this);
+    if($container.is('.collapsed')) {
+        $container.trigger('beforeExpand');
+        var triggeredAfterExpand = false;
+        $container.find('.expandable-content').not($container.find('.expandable-content .expandable-content')).slideToggle(function() {
+            $container.removeClass('collapsed');
+            if(!triggeredAfterExpand) {
+                $container.trigger('afterExpand');
+                triggeredAfterExpand = true;
+            }
+        });
+    }
+});
+
+$('.expandable').live('beforeExpand', function(event) {
+    event.stopPropagation();
+});
+
+$('.expandable').live('afterExpand', function(event) {
+    event.stopPropagation();
+});
+
+$('.expandable').live('collapse', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var $container = $(this);
+    if(!($container.is('.collapsed'))) {
+        $container.trigger('beforeCollapse');
+        var triggeredAfterCollapse = false;
+        $container.find('.expandable-content').not($container.find('.expandable-content .expandable-content')).slideToggle(function() {
+            $container.addClass('collapsed');
+            if(!triggeredAfterCollapse) {
+                $container.trigger('afterCollapse');
+                triggeredAfterCollapse = true;
+            }
+        });
+    }
+});
+
+$('.expandable').live('beforeCollapse', function(event) {
+    event.stopPropagation();
+});
+
+$('.expandable').live('afterCollapse', function(event) {
+    event.stopPropagation();
+});
+</script>
+
+
