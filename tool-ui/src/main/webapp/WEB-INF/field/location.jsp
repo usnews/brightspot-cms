@@ -33,7 +33,9 @@ HtmlWriter writer = new HtmlWriter(wp.getWriter());
 Location location = (Location) fieldValue;
 
 writer.start("div", "class", "smallInput");
+    writer.string("Longitude").tag("br");
     writer.tag("input", "type", "text", "name", xInputName, "value", location != null ? location.getX() : null);
+    writer.string("Latitude").tag("br");
     writer.tag("input", "type", "text", "name", yInputName, "value", location != null ? location.getY() : null);
 writer.end();
 %>
