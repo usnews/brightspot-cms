@@ -25,37 +25,16 @@ public class Tool extends Application {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Tool.class);
 
-    // Cache all plugins.
-    private static final Map<Database, PeriodicValue<List<Plugin>>>
-            ALL = new PullThroughCache<Database, PeriodicValue<List<Plugin>>>() {
-
-        @Override
-        protected PeriodicValue<List<Plugin>> produce(final Database database) {
-            return new PeriodicValue<List<Plugin>>() {
-
-                @Override
-                protected List<Plugin> update() {
-                    Query<Plugin> query = Query.from(Plugin.class).sortAscending("displayName");
-                    Date cacheUpdate = getUpdateDate();
-                    Date databaseUpdate = database.readLastUpdate(query);
-                    if (databaseUpdate == null || (cacheUpdate != null && !databaseUpdate.after(cacheUpdate))) {
-                        List<Plugin> plugins = get();
-                        return plugins != null ? plugins : Collections.<Plugin>emptyList();
-                    }
-
-                    LOGGER.info("Loading plugins");
-                    return database.readAll(query);
-                }
-            };
-        }
-    };
+    private static List<Plugin> getAllPlugins(Database database) {
+        return Query.from(Plugin.class).sortAscending("displayName").using(database).selectAll();
+    }
 
     /**
      * Returns a list of all the plugins with the given {@code pluginClass}.
      */
     public <T extends Plugin> List<T> findPlugins(Class<T> pluginClass) {
         List<T> plugins = new ArrayList<T>();
-        for (Plugin plugin : ALL.get(getState().getDatabase()).get()) {
+        for (Plugin plugin : getAllPlugins(getState().getDatabase())) {
             if (pluginClass.isInstance(plugin) && plugin.getTool() != null) {
                 plugins.add((T) plugin);
             }
@@ -139,7 +118,7 @@ public class Tool extends Application {
         Tool tool = plugin.getTool();
         String internalName = plugin.getInternalName();
 
-        for (Plugin p : ALL.get(database).get()) {
+        for (Plugin p : getAllPlugins(database)) {
             if (ObjectUtils.equals(typeId, p.getState().getTypeId())
                     && ObjectUtils.equals(tool, p.getTool())
                     && ObjectUtils.equals(internalName, p.getInternalName())) {
