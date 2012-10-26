@@ -16,6 +16,7 @@ public class CmsTool extends Tool {
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
+    private boolean previewPopup;
 
     /** Returns the company name. */
     public String getCompanyName() {
@@ -55,6 +56,14 @@ public class CmsTool extends Tool {
     /** Sets the default site URL. */
     public void setDefaultSiteUrl(String url) {
         this.defaultSiteUrl = url;
+    }
+
+    public boolean isPreviewPopup() {
+        return previewPopup;
+    }
+
+    public void setPreviewPopup(boolean previewPopup) {
+        this.previewPopup = previewPopup;
     }
 
     /** Returns the preview URL. */

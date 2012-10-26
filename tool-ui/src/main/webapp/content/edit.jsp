@@ -244,6 +244,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <% } %>
 
                 <ul class="piped extraActions">
+                    <% if (wp.getCmsTool().isPreviewPopup() && (
+                            selected.getClass() == Page.class
+                            || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
+                        <li><a class="icon-page_white_find" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
+                    <% } %>
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
                         <li><input class="icon-page_save link" name="action" type="submit" value="Save Draft"></li>
                     <% } %>
@@ -253,8 +258,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     </form>
 </div>
 
-<% if (selected.getClass() == Page.class
-        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) { %>
+<% if (!wp.getCmsTool().isPreviewPopup() &&
+        (selected.getClass() == Page.class
+        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
     <style type="text/css">
         .content-preview {
             display: none;
