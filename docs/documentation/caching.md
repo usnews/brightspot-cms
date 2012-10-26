@@ -6,7 +6,7 @@ id: caching
 
 ## Caching
 
-When using the CMS [Template Tool](brightspot-cms/template-tool.html) to build pages, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
+When using the CMS [Template Tool](/brightspot-cms/template-tool.html) to build pages, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
 
 `<cms:cache name="${}" duration="60000"> </cms:cache>`
 

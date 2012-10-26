@@ -135,7 +135,7 @@ You will need to create a Maven project in which we will embed the CMS applicati
 Run the following Archetype to create the project structure.
 
 	mvn archetype:generate -B \
-    	-DarchetypeRepository=http://psddev.com/maven \
+    	-DarchetypeRepository=http://public.psddev.com/maven \
     	-DarchetypeGroupId=com.psddev \
     	-DarchetypeArtifactId=cms-app-archetype \
     	-DarchetypeVersion=2.0-SNAPSHOT \
