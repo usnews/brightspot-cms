@@ -74,6 +74,7 @@ String newTarget = (String) request.getAttribute("newTarget");
 
             <input name="<%= Search.IS_ONLY_PATHED %>" type="hidden" value="<%= wp.boolParam(Search.IS_ONLY_PATHED) %>">
             <input name="<%= Search.ADDITIONAL_QUERY_PARAMETER %>" type="hidden" value="<%= wp.h(wp.param(Search.ADDITIONAL_QUERY_PARAMETER)) %>">
+            <input name="<%= Search.PARENT_PARAMETER %>" type="hidden" value="<%= wp.h(wp.param(Search.PARENT_PARAMETER)) %>">
 
             <span class="searchInput" style="margin-bottom: 20px;">
                 <label for="<%= wp.createId() %>">Search</label>
