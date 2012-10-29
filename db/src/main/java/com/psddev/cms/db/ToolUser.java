@@ -9,6 +9,7 @@ import java.util.Map;
 /** User that uses the CMS and other related tools. */
 public class ToolUser extends Record {
 
+    @Indexed
     @ToolUi.Note("If left blank, the user will have full access to everything.")
     private ToolRole role;
 
