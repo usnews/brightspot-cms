@@ -883,7 +883,7 @@ $('.imageEditor').liveInit(function() {
                         height = width / sizeAspectRatio;
                     }
                     x = (imageWidth - width) / 2;
-                    y = (imageHeight - height) / 2;
+                    y = 0;
                 }
 
                 var bounds = {
