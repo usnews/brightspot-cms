@@ -35,6 +35,6 @@ if (wp.isFormPost()) {
     <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
     <div class="buttons">
         <input type="submit" name="action" value="Save" />
-        <input class="delete text link" type="submit" name="action" value="Delete" />
+        <input class="delete text link" type="submit" name="action" value="Delete" onclick="return confirm('Are you sure you want to delete?');" />
     </div>
 </form>

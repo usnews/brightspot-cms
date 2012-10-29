@@ -233,7 +233,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write("</div>");
 
                     if (!state.isNew() || draft != null) {
-                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\">");
+                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">");
                     }
 
                 } else {
