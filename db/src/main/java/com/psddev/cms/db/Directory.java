@@ -305,55 +305,15 @@ public class Directory extends Record {
             path = pathMatcher.group(1);
 
             Directory dir = Query.findUnique(Directory.class, "path", path);
-            while (dir == null) {
+            if (dir == null) {
                 dir = new Directory();
                 dir.setPath(path);
-
-                Database database = Database.Static.getDefault();
-                database.beginIsolatedWrites();
-
-                try {
-                    dir.save();
-                    database.commitWrites();
-
-                } catch (ValidationException ex) {
-                    dir = Query.findUnique(Directory.class, "path", path);
-
-                } finally {
-                    database.endWrites();
-                }
+                dir.save();
             }
 
             String rawPath = dir.getRawPath() + pathMatcher.group(2);
             if (site != null) {
                 rawPath = site.getRawPath() + rawPath;
-            }
-
-            Object duplicate = Query.
-                    from(Object.class).
-                    and("_id != ?", getId()).
-                    and(PATHS_FIELD + " = ?", rawPath).
-                    referenceOnly().
-                    first();
-            if (duplicate != null) {
-                rawPath += "-";
-                Object last = Query.
-                        from(Object.class).
-                        and("_id != ?", getId()).
-                        and(PATHS_FIELD + " ^= ?", rawPath).
-                        sortDescending(PATHS_FIELD).
-                        resolveToReferenceOnly().
-                        first();
-                if (last == null) {
-                    rawPath += "002";
-                } else {
-                    for (String p : State.getInstance(last).as(ObjectModification.class).getRawPaths()) {
-                        if (p.startsWith(rawPath)) {
-                            rawPath += String.format("%03d", ObjectUtils.to(int.class, p.substring(rawPath.length())) + 1);
-                            break;
-                        }
-                    }
-                }
             }
 
             return rawPath;

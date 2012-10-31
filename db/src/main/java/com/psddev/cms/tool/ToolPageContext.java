@@ -663,7 +663,7 @@ public class ToolPageContext extends WebPageContext {
             write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");
         }
 
-        if (Settings.get(boolean.class, "cms/tool/useWysihtml5Rte")) {
+        if (getCmsTool().isWysihtml5Rte()) {
             write("<script type=\"text/javascript\">");
             write("jQuery.prototype.editor = jQuery.prototype.rte;");
             write("</script>");
@@ -825,6 +825,15 @@ public class ToolPageContext extends WebPageContext {
      */
     public boolean hasPermission(String permissionId) {
         return getUser().hasPermission(permissionId);
+    }
+
+    public boolean requirePermission(String permissionId) throws IOException {
+        if (hasPermission(permissionId)) {
+            return false;
+        } else {
+            getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+            return true;
+        }
     }
 
     // --- Content.Static bridge ---

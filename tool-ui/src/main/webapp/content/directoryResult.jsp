@@ -18,6 +18,10 @@ com.psddev.cms.tool.ToolPageContext
 
 // --- logic ---
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Directory directory = Query.findById(Directory.class, wp.uuidParam("id"));
 Record record = Query.findById(Record.class, wp.uuidParam("recordId"));
 

@@ -9,6 +9,10 @@ com.psddev.dari.db.Query
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 History history = Query.findById(History.class, wp.uuidParam("id"));
 if (wp.isFormPost()) {
     try {

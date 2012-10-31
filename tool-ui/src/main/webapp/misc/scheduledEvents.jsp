@@ -25,6 +25,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 PaginatedResult<Schedule> result = Query
         .from(Schedule.class)
         .sortAscending("triggerDate")

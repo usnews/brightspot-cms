@@ -15,6 +15,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminUsers")) {
+    return;
+}
+
 ToolUser selectedUser = null;
 Object selected = wp.findOrReserve(ToolUser.class, ToolRole.class);
 if (selected instanceof ToolUser) {

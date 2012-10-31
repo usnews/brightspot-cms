@@ -19,6 +19,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminSettings")) {
+    return;
+}
+
 Object selected = Query.findById(Object.class, wp.uuidParam("id"));
 if (selected == null) {
     if (wp.uuidParam("typeId") != null) {

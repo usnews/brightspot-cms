@@ -20,6 +20,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object selected = wp.findOrReserve();
 State state = State.getInstance(selected);
 
@@ -49,14 +53,10 @@ if (selected == null) {
 }
 
 Object editing = selected;
-Section selectedSection = null;
 if (selected instanceof Page) {
-    UUID sectionId = wp.uuidParam("sectionId");
-    if (!state.getId().equals(sectionId)) {
-        selectedSection = Query.findById(Section.class, wp.uuidParam("sectionId"));
-        if (selectedSection instanceof ContentSection) {
-            editing = ((ContentSection) selectedSection).getContent();
-        }
+    Object sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
+    if (sectionContent != null) {
+        editing = sectionContent;
     }
 }
 
@@ -66,6 +66,7 @@ try {
     wp.include("/WEB-INF/objectPost.jsp", "object", editing);
     wp.include("/WEB-INF/widgetsUpdate.jsp", "object", editing);
     wp.publish(editing);
+} catch (Exception error) {
 } finally {
     editingState.endWrites();
 }

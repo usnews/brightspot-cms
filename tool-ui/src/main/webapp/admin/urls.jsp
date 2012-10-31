@@ -14,6 +14,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminUrls")) {
+    return;
+}
+
 Directory selected = (Directory) wp.findOrReserve(Directory.class);
 State state = State.getInstance(selected);
 

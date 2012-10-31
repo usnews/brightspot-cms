@@ -6,6 +6,10 @@ com.psddev.cms.tool.ToolPageContext
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object object = wp.findOrReserve();
 if (wp.isFormPost()) {
     try {
@@ -31,6 +35,6 @@ if (wp.isFormPost()) {
     <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
     <div class="buttons">
         <input type="submit" name="action" value="Save" />
-        <input class="delete text link" type="submit" name="action" value="Delete" />
+        <input class="delete text link" type="submit" name="action" value="Delete" onclick="return confirm('Are you sure you want to delete?');" />
     </div>
 </form>

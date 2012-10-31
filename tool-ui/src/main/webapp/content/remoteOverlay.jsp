@@ -13,6 +13,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object object = Query.findById(Object.class, wp.uuidParam("id"));
 String url = wp.param("url");
 

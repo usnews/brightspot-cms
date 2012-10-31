@@ -16,6 +16,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Map<String, String> labels = new HashMap<String, String>();
 
 UUID[] ids = wp.uuidParams("id");

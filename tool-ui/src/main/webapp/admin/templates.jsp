@@ -18,6 +18,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminTemplates")) {
+    return;
+}
+
 Object selected = wp.findOrReserve(Template.class, ContentSection.class, HorizontalContainerSection.class, MainSection.class, ScriptSection.class, VerticalContainerSection.class);
 State selectedState = State.getInstance(selected);
 if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {

@@ -13,6 +13,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 ToolUser user = wp.getUser();
 if (wp.isFormPost()) {
     Site newCurrentSite = Query.findById(Site.class, wp.uuidParam("id"));

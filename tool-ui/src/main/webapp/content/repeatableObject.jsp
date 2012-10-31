@@ -9,6 +9,10 @@ com.psddev.dari.db.State
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 String inputName = wp.param("inputName");
 ObjectType type = ObjectType.getInstance(wp.uuidParam("typeId"));
 Object object = type.createObject(null);

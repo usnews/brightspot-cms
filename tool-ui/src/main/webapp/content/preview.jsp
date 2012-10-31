@@ -7,6 +7,10 @@ com.psddev.cms.tool.ToolPageContext
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 String previewFormId = wp.createId();
 String previewTarget = wp.createId();
 

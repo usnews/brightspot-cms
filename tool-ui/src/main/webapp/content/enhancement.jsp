@@ -15,6 +15,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 String pageId = wp.createId();
 
 Object object = wp.findOrReserve();

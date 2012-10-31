@@ -13,6 +13,10 @@ java.util.List
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/admin/adminVariations")) {
+    return;
+}
+
 List<Variation> variations = Query.from(Variation.class).sortAscending("position").select();
 Object selected = wp.findOrReserve(Variation.class, Profile.class);
 Class<?> selectedClass = selected.getClass();

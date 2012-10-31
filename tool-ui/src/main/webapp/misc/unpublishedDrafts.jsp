@@ -12,6 +12,9 @@ com.psddev.dari.util.PaginatedResult
 " %><%
 
 final ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
 
 new HtmlWriter(out) {{
     PaginatedResult<Draft> drafts = Query.

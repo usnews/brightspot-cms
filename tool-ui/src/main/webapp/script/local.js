@@ -524,9 +524,12 @@ $('[class!=template] > :input.objectId').liveInit(function() {
         var searcherPath = $input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp');
         var typeIds = $input.attr('data-typeIds');
 
+        var formAction = $input.closest('form').attr('action');
+        var id = formAction.substring(formAction.indexOf('id=') + 3);
+
         $selectButton = $('<a/>', {
             'class': 'selectObjectId',
-            'href': searcherPath + '?p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || ''),
+            'href': searcherPath + '?pt=' + encodeURIComponent(id) + '&p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || ''),
             'target': target
         });
 
@@ -880,7 +883,7 @@ $('.imageEditor').liveInit(function() {
                         height = width / sizeAspectRatio;
                     }
                     x = (imageWidth - width) / 2;
-                    y = (imageHeight - height) / 2;
+                    y = 0;
                 }
 
                 var bounds = {

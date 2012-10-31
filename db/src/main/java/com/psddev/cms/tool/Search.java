@@ -31,6 +31,7 @@ public class Search {
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SORT_PARAMETER = "s";
     public static final String ADDITIONAL_QUERY_PARAMETER = "aq";
+    public static final String PARENT_PARAMETER = "pt";
 
     private final Set<ObjectType> requestedTypes;
     private final Set<ObjectType> validTypes;
@@ -175,7 +176,7 @@ public class Search {
 
         String additionalQuery = wp.param(ADDITIONAL_QUERY_PARAMETER);
         if (!ObjectUtils.isBlank(additionalQuery)) {
-            query.and(additionalQuery);
+            query.and(additionalQuery, Query.from(Object.class).where("_id = ?", wp.uuidParam(PARENT_PARAMETER)).first());
         }
 
         query.and(wp.siteItemsPredicate());

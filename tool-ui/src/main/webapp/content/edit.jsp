@@ -37,6 +37,10 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
+
 Object selected = wp.findOrReserve();
 State state = State.getInstance(selected);
 
@@ -229,7 +233,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write("</div>");
 
                     if (!state.isNew() || draft != null) {
-                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\">");
+                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">");
                     }
 
                 } else {
@@ -244,6 +248,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <% } %>
 
                 <ul class="piped extraActions">
+                    <% if (wp.getCmsTool().isPreviewPopup() && (
+                            selected.getClass() == Page.class
+                            || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
+                        <li><a class="icon-page_white_find" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
+                    <% } %>
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
                         <li><input class="icon-page_save link" name="action" type="submit" value="Save Draft"></li>
                     <% } %>
@@ -253,8 +262,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     </form>
 </div>
 
-<% if (selected.getClass() == Page.class
-        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) { %>
+<% if (!wp.getCmsTool().isPreviewPopup() &&
+        (selected.getClass() == Page.class
+        || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
     <style type="text/css">
         .content-preview {
             display: none;
@@ -414,7 +424,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         // Load the preview.
         var $previewForm = $('#<%= previewFormId %>');
         var $contentForm = $('.contentForm');
-        var action = $contentForm.attr('action');
+        var action = location.href;
         var questionAt = action.indexOf('?');
         var oldFormData;
 
@@ -434,7 +444,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             $.ajax({
                 'data': newFormData,
                 'type': 'post',
-                'url': CONTEXT_PATH + 'content/state.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
+                'url': CONTEXT_PATH + 'content/state.jsp?id=<%= state.getId() %>&' + (questionAt > -1 ? action.substring(questionAt + 1) : ''),
                 'complete': function(request) {
 
                     // Make sure that the preview IFRAME exists.

@@ -9,6 +9,9 @@ com.psddev.dari.util.JspUtils
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
 
 // --- Presentation ---
 

@@ -11,6 +11,9 @@ com.psddev.dari.db.Query
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+if (wp.requirePermission("area/dashboard")) {
+    return;
+}
 
 // --- Presentation ---
 
