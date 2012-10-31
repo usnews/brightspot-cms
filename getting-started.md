@@ -112,13 +112,12 @@ Objects that are to be used directly within the CMS must extend the main Content
 	
 	public class Article extends Content {
 	
-		private String headline;
-		private String author;
-		private ReferentialText body;
+	    private String headline;
+	    private String author;
+	    private ReferentialText body;
 
-		// Getters and Setters
+	    // Getters and Setters
 	}
-
 
 
 As you can see from the code above, our Article has a headline, an Author and some body text. When adding a body of text, we import the `ReferentialText` library, which comes as standard with Brightspot and provides a Rich Text Editor user interface within the CMS.
@@ -133,7 +132,7 @@ Access your CMS and trigger the reloader. Add `?_reload=true` to your URL
 
 `http://localhost:8080/cms/?_reload=true`
 
-You will be prompted to install the reloader application, which will allow you to see Java code changes compiled automatically. Once the application has been reloaded, click into `Search` and in the `Craete` drop-down find your next Article content type. All new objects added in the CMS appear in this drop-down.
+You will be prompted to install the reloader application, which will allow you to see Java code changes compiled automatically. Once the application has been reloaded, click into `Search` and in the `Create` drop-down find your next Article content type. All new objects added in the CMS appear in this drop-down.
 
 You'll notice that in the CMS your object automatically has UI associated with it, derived from the names you have given the fields. To see all the UI elements used see the User Interface Section.
 
