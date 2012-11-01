@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+
+<link href="../bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+p { font-family: inherit; font-size: inherit; }
+</style>
+
+</head>
+<body style="background: transparent; overflow: hidden;">
+
+<script type="text/javascript">
+(function() {
+    var alertMessage = parent.document.getElementById(/[?&]id=([^&]*)(&|$)/.exec(location.search)[1]);
+
+    if (alertMessage) {
+        var body = document.body;
+        var documentElement = document.documentElement;
+
+        body.innerHTML = alertMessage.innerHTML;
+        alertMessage.parentNode.removeChild(alertMessage);
+        window.frameElement.style.height = Math.max(
+                Math.max(body.scrollHeight, documentElement.scrollHeight),
+                Math.max(body.offsetHeight, documentElement.offsetHeight),
+                Math.max(body.clientHeight, documentElement.clientHeight)) +
+                'px';
+    }
+})();
+</script>
+
+</body>
+</html>
