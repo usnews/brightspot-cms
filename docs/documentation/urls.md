@@ -9,7 +9,7 @@ id: urls
 
 **Basic URL creation**
 
-In the [Template Tool](/template-tool.html) section we looked at how to construct URLs when creating dynamic templates. These URLs are then automatically generated, based on editor input for each object name. The basic example is to prefix all content with a directory structure, and then attach the specific `objectName` field as the unique URL path. *Note `objectName` is the first `String` field within any Java object you create.*
+In the [Template Tool](/brightspot-cms/template-tool.html) section we looked at how to construct URLs when creating dynamic templates. These URLs are then automatically generated, based on editor input for each object name. The basic example is to prefix all content with a directory structure, and then attach the specific `objectName` field as the unique URL path. *Note `objectName` is the first `String` field within any Java object you create.*
 
 Brightspot automatically follows SEO practices, lowercasing all words, and adding hyphens where spaces are used by the editor. If a duplicate URL exists a number is added to the end of the URL as a default
 

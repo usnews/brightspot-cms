@@ -6,7 +6,7 @@ id: ui
 
 ## User Interface Creation
 
-Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](/ui.html#custom-ui) section, or refer to the [Annotations](/annotations.html) section.
+Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](/brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
 
 **Text Input Field**
 

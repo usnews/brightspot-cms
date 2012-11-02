@@ -50,7 +50,7 @@ By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right
 
 **Add Article Detail**
 
-The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Create an Object](/getting-started.html#creating-objects.html) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it associates it with this Template.
+The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Create an Object](/brightspot-cms/getting-started.html#creating-objects) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it associates it with this Template.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" />
 

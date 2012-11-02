@@ -17,11 +17,11 @@ This editorial guide will walk through the basic publishing workflow, as well as
 
 **Tool Hat**
 
-The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the [Bookmarklet tool](/editorial.html#cms-tools).
+The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the [Bookmarklet tool](/brightspot-cms/editorial.html#cms-tools).
 
 **Search**
 
-The search tool can be accessed from any screen in Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. There is a dedicated section [here](/editorial.html#finding-content), which walks through searching for content in Brightspot.
+The search tool can be accessed from any screen in Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. There is a dedicated section [here](/brightspot-cms/editorial.html#finding-content), which walks through searching for content in Brightspot.
 
 **Create**
 
@@ -41,7 +41,7 @@ Create a whole new page using Page Builder. Select from a list of existing templ
 
 **Schedules** 
 
-Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/editorial.html#scheduling) here. <h2 id="publishing"> </h2>
+Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. <h2 id="publishing"> </h2>
 
 **Drafts**
 
