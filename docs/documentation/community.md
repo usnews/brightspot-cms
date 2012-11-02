@@ -8,8 +8,8 @@ id: community
 
 ### Report Bugs
 
-Report bugs using the [Github issue tracker](https://github.com/perfectsense/brightspot-cms/issues).
+Report bugs using the [Github issue tracker](https://github.com/perfectsense/issues).
 
 ### Get Involved
 
-Fork the source code from [Github](https://github.com/perfectsense/brightspot-cms/) and send us a pull request!
+Fork the source code from [Github](https://github.com/perfectsense/brightspot-cms) and send us a pull request!

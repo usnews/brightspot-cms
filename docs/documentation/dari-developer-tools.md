@@ -9,7 +9,7 @@ id: dari-developer-tools
 
 Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org), an open source Java Framework also created by [Perfect Sense Digital](http://perfectsensedigital.com/products/dari). Full documentation for Dari is available [here](http://www.dariframework.org/documentation.html).
 
-By leveraging Dari, a full set of developer tools are available within your Brightspot project. This section will look at each tool in detail. Please see the [Debugging Section](/brightspot-cms/debugging.html) for more information on the Contextual Debug Tool also available through Dari.
+By leveraging Dari, a full set of developer tools are available within your Brightspot project. This section will look at each tool in detail. Please see the [Debugging Section](/debugging.html) for more information on the Contextual Debug Tool also available through Dari.
 
 ### Build Tool
 
