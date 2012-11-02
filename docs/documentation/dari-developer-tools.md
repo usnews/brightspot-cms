@@ -30,7 +30,7 @@ Within your Maven project POM.xml file, add the following to configure the build
         <url>https://github.com/GITHUB_NAME_HERE/REPO_NAME_HERE</url>
     </scm>
 
-**Code Tool**
+### Code Tool
 
 The Code Tool provides you with a playground leveraging the on-the-fly code compiling from Dari. Here you can see instant results for your Java code in your browser. 
 
@@ -50,7 +50,7 @@ You can also select the New Class option in the drop down to create an entirely 
 
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/code_tool_create_objects.png"/></a>
 
-**DB-Bulk Tool**
+### DB-Bulk Tool
 
 The DB-Bulk Tool is predominately used to re-index content. The `@Indexed` annotation is often added retrospectively, to already existing objects. In order to update content that you now want to index, you can use the db-bulk tool. You can re-index on a single type, or all types. The status of this process once started, can be seen in the Task Tool.
 
@@ -60,7 +60,7 @@ When importing an updated, or new database Solr will also need to be indexed, wh
 
 The Copy tool, also seen here, is used to copy data from one database to another. For example, SQL to Solr. New databases can be added in the `context.xml` configurations.
 
-**Database Schema**
+### Database Schema
 
 A unique view of your data model is available through the Dari Schema tool. All content types within your project are listed. Simply select the type you want to view, or type to find from the list.
 
@@ -70,7 +70,7 @@ The schema outlines the model, showing all fields and associated content types. 
 
 When working on your local machine the objects listed are click-able, opening the Code Tool directly so changes can be made.
 
-**SQL / Solr Databases**
+### SQL / Solr Databases
 
 The `db-solr` and `db-sql` tools provide direct access to the respective databases.
 
@@ -80,13 +80,13 @@ For the `db-sql` tool access to the SQL tables is provided, again, normal SQL sy
 
 <a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/sql-query.png"/></a>
 
-**Database Storage**
+### Database Storage
 
 CDN Storage for resources are referenced within this `db-storage` tool. It allows the bulk movement of `StorageItem` objects. If naming conventions dictate a new name is defined on the objects, relative to the new location, check the `Save Object` option. *Note: this is results in a slower process.*
 
 <a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/db-storage.png"/></a>
 
-**Web Database**
+### Web Database
 
 The web database feature allows data from other instances of Brightspot to be ingested quickly and easily. It does not require the object to exist in the instance being copied to. It is utilized from within the Code Tool.
 
@@ -105,7 +105,7 @@ Moving objects from one database to the other:
     record.save();
     return record;
 
-**Query Tool**
+### Query Tool
 
 ![](http://docs.brightspot.s3.amazonaws.com/query-tool-basic.png)
 
@@ -135,17 +135,17 @@ Clicking on a result shows the `JSON`, `Raw JSON` and `Fielded` view that allows
 ![](http://docs.brightspot.s3.amazonaws.com/query-tool-fielded.png)
 
 
-**Settings**
+### Settings
 
 The Settings section of the _debug tool gives the developer an overall view of their application, with information taken from the JVM, server, Tomcat,`context.xml`, and the application, `web.xml` and `pom.xml`. It is not editable from within this view.
 
-**Stats**
+### Stats
 
 The status tool provides insight into the performance of Dari when running inside a servlet container. It provides information on SQL and Solr Throughput and Latency as well as JSP includes, averages and HTTP Response Throughput and Latency.
 
 ![](http://docs.brightspot.s3.amazonaws.com/stats-tool.png)
 
-**Task Tool**
+### Task Tool
 
 The Task Tool shows all background tasks being implemented on the server. New tasks that are created show up within the interface, including Database Manager tasks carried out through the `_debug/db-managertool`.
 

@@ -33,6 +33,12 @@ Here's an example of an Image object:
 
 By defining a renderer script for the file it can be rendered within the Rich Text Editor. The `@ToolUi.Referenceable` annotation allows the Image class to be added to a `ReferentialText` area within the CMS.
 
+**Creating the Image JSP**
+
+The Image object .jsp file can be as simple as the example below.
+
+    <cms:img src="${content}" alt="${content.altText}" />
+
 ### Storage Item Configuration
 
 The `com.psddev.dari.util.StorageItem` class provides a mechanism for storing
