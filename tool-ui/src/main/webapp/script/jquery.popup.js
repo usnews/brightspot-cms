@@ -122,9 +122,9 @@ $.plugin('popup', {
             var scrollLeft = $original.data('popup-scrollLeft');
             var scrollTop = $original.data('popup-scrollTop');
             if (typeof scrollLeft !== 'number' && typeof scrollTop !== 'number') {
-                var $body = $(document.body);
-                $original.data('popup-scrollLeft', $body.scrollLeft());
-                $original.data('popup-scrollTop', $body.scrollTop());
+                var $window = $(window);
+                $original.data('popup-scrollLeft', $window.scrollLeft());
+                $original.data('popup-scrollTop', $window.scrollTop());
             }
             $original.show();
         });
@@ -136,11 +136,9 @@ $.plugin('popup', {
             $original.removeData('popup-scrollLeft');
             $original.removeData('popup-scrollTop');
             if (typeof scrollLeft === 'number' && typeof scrollTop === 'number') {
-                var $body = $(document.body);
-                $body.animate({
-                    'scrollLeft': scrollLeft,
-                    'scrollTop': scrollTop
-                }, 300);
+                var $window = $(window);
+                $window.scrollLeft(scrollLeft);
+                $window.scrollTop(scrollTop);
             }
         });
 
