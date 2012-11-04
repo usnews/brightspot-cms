@@ -17,6 +17,11 @@ $.plugin('popup', {
     return this;
 },
 
+'restoreOriginalPosition': function() {
+    this.popup('container').trigger('restoreOriginalPosition');
+    return this;
+},
+
 // Closes the popup.
 'close': function() {
     this.popup('container').trigger('close');
@@ -113,11 +118,35 @@ $.plugin('popup', {
 
         // Bind open and close events.
         $container.bind('open.popup', function() {
-            $(this).show();
+            var $original = $(this);
+            var scrollLeft = $original.data('popup-scrollLeft');
+            var scrollTop = $original.data('popup-scrollTop');
+            if (typeof scrollLeft !== 'number' && typeof scrollTop !== 'number') {
+                var $body = $(document.body);
+                $original.data('popup-scrollLeft', $body.scrollLeft());
+                $original.data('popup-scrollTop', $body.scrollTop());
+            }
+            $original.fadeIn(300);
         });
+
+        $container.bind('restoreOriginalPosition.popup', function() {
+            var $original = $(this);
+            var scrollLeft = $original.data('popup-scrollLeft');
+            var scrollTop = $original.data('popup-scrollTop');
+            $original.removeData('popup-scrollLeft');
+            $original.removeData('popup-scrollTop');
+            if (typeof scrollLeft === 'number' && typeof scrollTop === 'number') {
+                var $body = $(document.body);
+                $body.animate({
+                    'scrollLeft': scrollLeft,
+                    'scrollTop': scrollTop
+                }, 300);
+            }
+        });
+
         $container.bind('close.popup', function() {
             var $original = $(this);
-            $original.hide();
+            $original.fadeOut(300);
             $('.popup').each(function() {
                 var $popup = $(this);
                 var $source = $popup.popup('source');
@@ -126,6 +155,7 @@ $.plugin('popup', {
                 }
             });
         });
+
         $closeButton.bind('click.popup', function() {
             $(this).popup('close');
         });

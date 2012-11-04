@@ -94,7 +94,8 @@ if (typeof jQuery !== 'undefined') jQuery(function($) {
         $input.change();
     <% } %>
 
-    <% if (wp.isFormPost() && wp.getErrors().size() == 0) { %>
+    <% if (wp.param("published") != null) { %>
+        $page.popup('restoreOriginalPosition');
         $page.popup('close');
     <% } %>
 });
