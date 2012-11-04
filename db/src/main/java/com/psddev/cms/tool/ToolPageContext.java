@@ -23,8 +23,11 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.WebPageContext;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -605,6 +608,37 @@ public class ToolPageContext extends WebPageContext {
         return null;
     }
 
+    private String cmsResource(String path, Object... parameters) {
+        ServletContext context = getServletContext();
+        path = cmsUrl(path);
+        long lastModified = 0;
+
+        try {
+            URL resource = context.getResource(path);
+
+            if (resource != null) {
+                URLConnection resourceConnection = resource.openConnection();
+                InputStream resourceInput = resourceConnection.getInputStream();
+
+                try {
+                    lastModified = resourceConnection.getLastModified();
+                } finally {
+                    resourceInput.close();
+                }
+            }
+
+        } catch (IOException error) {
+        }
+
+        if (lastModified == 0) {
+            lastModified = (long) (Math.random() * Long.MAX_VALUE);
+        }
+
+        return StringUtils.addQueryParameters(
+                StringUtils.addQueryParameters(path, parameters),
+                "_", lastModified);
+    }
+
     /** Writes the tool header. */
     public void writeHeader() throws IOException {
         if (isAjaxRequest() || boolParam("_isFrame")) {
@@ -622,14 +656,14 @@ public class ToolPageContext extends WebPageContext {
         for (String href : new String[] {
                 "/style/global.less",
                 "/style/local.less" }) {
-            write("<link href=\"", cmsUrl(href), "\" rel=\"stylesheet\" type=\"text/less\">");
+            write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
         }
 
-        write("<script src=\"", cmsUrl("/script/less-1.1.3.min.js"), "\" type=\"text/javascript\"></script>");
+        write("<script src=\"", cmsResource("/script/less-1.1.3.min.js"), "\" type=\"text/javascript\"></script>");
 
         for (String href : new String[] {
                 "/style/icon.jsp" }) {
-            write("<link href=\"", cmsUrl(href), "\" rel=\"stylesheet\" type=\"text/css\">");
+            write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/css\">");
         }
 
         String extraCss = cmsTool.getExtraCss();
@@ -660,7 +694,7 @@ public class ToolPageContext extends WebPageContext {
                 "/script/jquery.editor.js",
                 "/script/wysihtml5.min.js",
                 "/script/jquery.rte.js" }) {
-            write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");
+            write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
         }
 
         if (getCmsTool().isWysihtml5Rte()) {
@@ -672,7 +706,7 @@ public class ToolPageContext extends WebPageContext {
         for (String src : new String[] {
                 "/script/global.js",
                 "/script/local.js" }) {
-            write("<script src=\"", cmsUrl(src), "\" type=\"text/javascript\"></script>");
+            write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
         }
 
         String extraJavaScript = cmsTool.getExtraJavaScript();
