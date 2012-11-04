@@ -126,7 +126,7 @@ $.plugin('popup', {
                 $original.data('popup-scrollLeft', $body.scrollLeft());
                 $original.data('popup-scrollTop', $body.scrollTop());
             }
-            $original.fadeIn(300);
+            $original.show();
         });
 
         $container.bind('restoreOriginalPosition.popup', function() {
@@ -146,7 +146,7 @@ $.plugin('popup', {
 
         $container.bind('close.popup', function() {
             var $original = $(this);
-            $original.fadeOut(300);
+            $original.hide();
             $('.popup').each(function() {
                 var $popup = $(this);
                 var $source = $popup.popup('source');
