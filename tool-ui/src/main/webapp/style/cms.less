@@ -1,17 +1,21 @@
-// --- Variables ---
-
-@linkColor: #29c;
-
 @font-face {
     font-family: 'AauxNextMedium';
     src: url('aauxnext-md-webfont.eot');
     src: local('☺'), url('aauxnext-md-webfont.woff') format('woff'), url('aauxnext-md-webfont.ttf') format('truetype'), url('aauxnext-md-webfont.svg#webfontfLsPAukW') format('svg');
 }
+
 @font-face {
     font-family: 'SilkscreenNormal';
     src: url('slkscr-webfont.eot');
     src: local('☺'), url('slkscr-webfont.woff') format('woff'), url('slkscr-webfont.ttf') format('truetype'), url('slkscr-webfont.svg#webfont') format('svg');
 }
+
+// --- Variables ---
+
+@fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
+@fontFamily-default: 'Helvetica Neue', 'Arial', sans-serif;
+@fontFamily-label: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+@linkColor: #29c;
 
 // --- Functions ---
 
@@ -183,7 +187,7 @@
 }
 
 .code {
-    font-family: 'Andale Mono', 'Lucida Console', monospace;
+    font-family: @fontFamily-code;
     font-size: 11px;
     white-space: pre-wrap;
 }
@@ -625,7 +629,7 @@ b {
 body {
     background-color: white;
     color: #333;
-    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-default;
     font-size: 13px;
     font-style: normal;
     font-weight: normal;
@@ -666,7 +670,7 @@ form {
 
 h1 {
     .block;
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     font-size: 120%;
     margin: 0 0 10px 0;
     padding: 0;
@@ -676,7 +680,7 @@ h2 {
     .block;
     border-bottom: 1px solid #e3e3e3;
     color: #888;
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     font-size: 80%;
     text-transform: uppercase;
     margin: 0 0 5px 0;
@@ -918,7 +922,7 @@ input[type=text].expandable { min-width: 5em; }
 
 .toolHeader-title {
     float: left;
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     font-size: 25px;
     line-height: 43px;
     margin-left: 20px;
@@ -1282,7 +1286,7 @@ h1 select:focus {
     background-color: #ececec;
     color: #333;
     cursor: pointer;
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     left: 0;
     margin: 0 -6px 6px -6px;
     min-height: 22px;
@@ -1550,7 +1554,7 @@ h1 select:focus {
 }
 
 .rte-source {
-    font-family: 'Andale Mono', 'Lucida Console', monospace;
+    font-family: @fontFamily-code;
     font-size: 11px;
     min-height: 10em;
     padding: 0;
@@ -1904,7 +1908,7 @@ table.links {
 .focusLabel {
     background: #55b4e4;
     display: none;
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     left: 30px;
     min-height: 22px;
     min-width: 130px;
@@ -2086,7 +2090,7 @@ table.links {
 
 /* JSON textarea. */
 .pageLayout {
-    font-family: 'Andale Mono', 'Lucida Console', monospace;
+    font-family: @fontFamily-code;
     font-size: 11px;
     white-space: pre-wrap;
 }
@@ -2177,7 +2181,7 @@ table.links {
 
 /* Heading contains the section name and other section-specific controls. */
 .visualPageLayout .section > .heading > .name {
-    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: @fontFamily-label;
     font-size: 150%;
     margin-bottom: 4px;
 }
