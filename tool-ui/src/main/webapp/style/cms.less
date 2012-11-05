@@ -169,7 +169,7 @@
     }
 }
 
-.button-xl {
+.button-extraLarge {
     font-size: 19.5px;
     height: 39px;
     line-height: 29px;
@@ -888,14 +888,17 @@ input[type=text].expandable { min-width: 5em; }
     top: 0;
     width: 100%;
     z-index: 100;
+
+    a {
+        color: #7be;
+    }
 }
-.toolHat a {
-    color: #7be;
-}
-.toolHat > .profile {
+
+.toolHat-profile {
     margin-left: 20px;
 }
-.toolHat > .toolbar {
+
+.toolHat-toolbar {
     position: absolute;
     right: 20px;
     top: 0;
@@ -904,9 +907,7 @@ input[type=text].expandable { min-width: 5em; }
 .toolHeader {
     background-color: #ececec;
     border-bottom: 1px solid #cecece;
-    box-shadow: 0 8px 15px rgba(255, 255, 255, 1);
-    -moz-box-shadow: 0 8px 15px rgba(255, 255, 255, 1);
-    -webkit-box-shadow: 0 8px 15px rgba(255, 255, 255, 1);
+    .box-shadow(rgba(255, 255, 255, 1) 0 8px 15px);
     height: 43px;
     left: 0;
     position: fixed;
@@ -914,34 +915,40 @@ input[type=text].expandable { min-width: 5em; }
     width: 100%;
     z-index: 100;
 }
-.toolHeader > .title {
+
+.toolHeader-title {
     float: left;
     font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
     font-size: 25px;
     line-height: 43px;
     margin-left: 20px;
+
+    a {
+        color: #333;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
 }
-.toolHeader > .title > a {
-    color: #333;
-}
-.toolHeader > .title > a:hover {
-    text-decoration: none;
-}
-.toolHeader > .title > .cobrand {
+
+.toolHeader-title-companyName {
     color: #d31e13;
 }
-.toolHeader > .search {
+
+.toolHeader-search {
     font-size: 15px;
     line-height: 43px;
     position: absolute;
     right: 20px;
     top: 0;
-}
-.toolHeader > .search > .searchInput > input[type=text] {
-    width: 300px;
+
+    .searchInput input[type=text] {
+        width: 300px;
+    }
 }
 
-.toolHeader > .mainNav {
+.toolHeader-mainNav {
     .tabs;
     margin-left: 20px;
     margin-top: 12px;
@@ -984,7 +991,8 @@ input[type=text].expandable { min-width: 5em; }
     margin-top: 20px;
     padding-top: 10px;
 }
-.toolFooter .build {
+
+.toolFooter-build {
     background: url(brightspot.png) no-repeat top right;
     color: #777;
     font-family: 'SilkscreenNormal', monospace;
@@ -998,40 +1006,50 @@ input[type=text].expandable { min-width: 5em; }
     margin: -5px;
     padding: 5px;
 }
-.searchForm > .filters {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
+
+.searchForm-filters {
+    .box-sizing(border-box);
     float: left;
     padding-right: 15px;
     width: 25%;
+
+    select,
+    .searchInput {
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    input[type=text] {
+        width: 100%;
+    }
 }
-.searchForm > .filters .searchInput,
-.searchForm > .filters select {
-    margin-bottom: 5px;
-    width: 100%;
+
+.searchForm-filters-new {
+    input[type=submit] {
+        padding-left: 10px;
+        padding-right: 10px;
+        width: 30%;
+    }
+
+    select {
+        width: 65%;
+    }
 }
-.searchForm > .filters .searchInput > input[type=text] {
-    width: 100%;
-}
-.searchForm > .filters .new select {
-    width: 65%;
-}
-.searchForm > .filters .new input[type=submit] {
-    padding-left: 10px;
-    padding-right: 10px;
-    width: 30%;
-}
-.searchForm > .result {
+
+.searchForm-result {
     margin-left: 25%;
 }
-.searchForm .images + table {
-    border-top: 1px solid #cecece;
-}
-.searchForm .images img {
-    float: left;
-    height: 80px;
-    margin: 0 5px 5px 0;
+
+.searchForm-images {
+    + table {
+        border-top: 1px solid #cecece;
+    }
+
+    img {
+        float: left;
+        height: 80px;
+        margin: 0 5px 5px 0;
+    }
 }
 
 /* --- Standard layouts --- */
@@ -1181,19 +1199,17 @@ h1 select:focus {
     width: 40%;
     z-index: 50;
 }
-.popup > .content {
+
+.popup-content {
     background-color: white;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    box-shadow: 0 0 10px #333;
-    -moz-box-shadow: 0 0 10px #333;
-    -webkit-box-shadow: 0 0 10px #333;
+    .border-radius(5px);
+    .box-shadow(#333 0 0 10px);
     padding: 10px;
     position: relative;
     top: 10px;
 }
-.popup > .content > .marker {
+
+.popup-marker {
     border-color: transparent transparent white transparent;
     border-style: solid;
     border-width: 10px;
@@ -1201,12 +1217,11 @@ h1 select:focus {
     position: absolute;
     top: -20px;
 }
-.popup > .content > .closeButton {
+
+.popup-closeButton {
     background-color: white;
     border: 2px solid #333;
-    border-radius: 20px;
-    -moz-border-radius: 20px;
-    -webkit-border-radius: 20px;
+    .border-radius(20px);
     cursor: pointer;
     height: 20px;
     right: -11px;
@@ -1216,17 +1231,20 @@ h1 select:focus {
     top: -11px;
     width: 20px;
     z-index: 1;
-}
-.popup > .content > .closeButton:after {
-    color: #333;
-    content: '\2716';
-}
-.popup.loading > .content > .closeButton:not(:hover):after {
-    content: url(icon/ajax-loader.gif);
-    display: block;
-    height: 16px;
-    margin: 2px 0 0 2px;
-    width: 16px;
+
+    &:after {
+        color: #333;
+        content: '\2716';
+    }
+
+    .popup.popup-loading &:not(:hover):after,
+    .popup.loading &:not(:hover):after {
+        content: url(icon/ajax-loader.gif);
+        display: block;
+        height: 16px;
+        margin: 2px 0 0 2px;
+        width: 16px;
+    }
 }
 
 /* --- jQuery.repeatable --- */
@@ -1744,6 +1762,26 @@ table.links {
 .piped > li { .piped-item; }
 .piped > li.selected { .piped-selected; }
 
+.popup > .content { .popup-content; }
+.popup > .content > .marker { .popup-marker; }
+.popup > .content > .closeButton { .popup-closeButton; }
+
+.searchForm > .filters { .searchForm-filters; }
+.searchForm > .filters .new { .searchForm-filters-new; }
+.searchForm > .result { .searchForm-result; }
+.searchForm .images { .searchForm-images; }
+
+.toolHat > .profile { .toolHat-profile; }
+.toolHat > .toolbar { .toolHat-toolbar; }
+
+.toolHeader > .title { .toolHeader-title; }
+.toolHeader > .title > .cobrand,
+.toolHeader > .title > .companyName { .toolHeader-title-companyName; }
+.toolHeader > .search { .toolHeader-search; }
+.toolHeader > .mainNav { .toolHeader-mainNav; }
+
+.toolFooter .build { .toolFooter-build; }
+
 .widget > h1 { .widget-heading; }
 
 // --- Bootstrap support ---
@@ -1908,7 +1946,7 @@ table.links {
 }
 .widget-publication .saveButton,
 .widget-publication .saveButton:hover {
-    .button-xl;
+    .button-extraLarge;
 
     background: #ee6;
     background: -moz-linear-gradient(top, #ff7, #dd5);

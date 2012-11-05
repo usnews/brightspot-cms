@@ -658,7 +658,7 @@ public class ToolPageContext extends WebPageContext {
             write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
         }
 
-        write("<script src=\"", cmsResource("/script/less-1.1.3.min.js"), "\" type=\"text/javascript\"></script>");
+        write("<script src=\"", cmsResource("/script/less-1.3.1.min.js"), "\" type=\"text/javascript\"></script>");
 
         for (String href : new String[] {
                 "/style/icon.jsp" }) {
