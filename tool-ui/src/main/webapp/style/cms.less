@@ -26,7 +26,6 @@
     background-image: -moz-linear-gradient(@gradient);
     background-image: -ms-linear-gradient(@gradient);
     background-image: -o-linear-gradient(@gradient);
-    background-image: linear-gradient(@gradient);
 }
 
 .border-radius(@radius) {
@@ -149,6 +148,31 @@
 }
 
 .button {
+    background: #efefef;
+    .background-image-linear-gradient(~'top, #fff, #ececec');
+    border: 1px solid #bcbcbc;
+    .border-radius(5px);
+    .box-sizing(border-box);
+    color: #1f89c4;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    height: 26px;
+    line-height: 16px;
+    margin: 0;
+    padding: 4px 15px;
+
+    &:hover {
+        background: #d7d4ec;
+        .background-image-linear-gradient(~'top, #e6eef1, #c8d9e4');
+        text-decoration: none;
+    }
+}
+
+.button-xl {
+    font-size: 19.5px;
+    height: 39px;
+    line-height: 29px;
 }
 
 .buttons {
@@ -171,6 +195,27 @@
 .help {
     border-bottom: 1px dotted #333;
     cursor: help;
+}
+
+.input {
+    background-color: white;
+    border: 1px solid #bcbcbc;
+    .border-radius(5px);
+    .box-sizing(border-box);
+    display: inline-block;
+    height: 26px;
+    line-height: 16px;
+    margin: 0;
+    padding: 4px;
+
+    &:focus {
+        border-color: #5cb3e5;
+        .box-shadow(rgba(92, 179, 229, 1) 0 0 4px);
+    }
+
+    &[disabled] {
+        background-color: #f9dcdc;
+    }
 }
 
 .inputContainer {
@@ -226,6 +271,7 @@
     color: @linkColor;
     cursor: pointer;
     display: inline;
+    font-weight: normal;
     height: auto;
     line-height: inherit;
     margin: 0;
@@ -531,7 +577,7 @@
 
 .widget-heading {
     background: #f5f5f5;
-    .background-image-linear-gradient(~'270deg, #fff, #ececec');
+    .background-image-linear-gradient(~'top, #fff, #ececec');
     border-bottom: 1px solid #e3e3e3;
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
@@ -564,27 +610,15 @@ a {
     .link;
 }
 
-abbr,
+abbr {
+    .help;
+}
+
 acronym {
     .help;
 }
 
-article,
-dl,
-footer,
-form,
-header,
-nav,
-ol,
-p,
-section,
-table,
-ul {
-    .block;
-}
-
-b,
-strong {
+b {
     .strong;
 }
 
@@ -602,24 +636,36 @@ body {
     word-wrap: break-word;
 }
 
-code,
-pre,
-tt {
+button {
+    .button;
+}
+
+button.link {
+    .link;
+}
+
+code {
     .code;
 }
 
-dd,
-ol,
-ul {
+dd {
     margin-left: 25px;
 }
 
-em,
-i {
+dl {
+    .block;
+}
+
+em {
     .em;
 }
 
+form {
+    .block;
+}
+
 h1 {
+    .block;
     font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
     font-size: 120%;
     margin: 0 0 10px 0;
@@ -627,6 +673,7 @@ h1 {
 }
 
 h2 {
+    .block;
     border-bottom: 1px solid #e3e3e3;
     color: #888;
     font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
@@ -641,6 +688,35 @@ hr {
     border-bottom: 1px solid #333;
 }
 
+i {
+    .em;
+}
+
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+input {
+    &[type=password],
+    &[type=text] {
+        .input
+    }
+
+    &[type=submit] {
+        .button;
+    }
+
+    &[type=submit].link {
+        .link;
+    }
+}
+
+ol {
+    .block;
+    margin-left: 25px;
+}
+
 optgroup {
     font-weight: bold;
 
@@ -649,7 +725,16 @@ optgroup {
     }
 }
 
+p {
+    .block;
+}
+
+pre {
+    .code;
+}
+
 select {
+    .input;
     word-wrap: normal;
 
     &[multiple] {
@@ -661,79 +746,43 @@ small {
     .small;
 }
 
-sub,
+strong {
+    .strong;
+}
+
+sub {
+    line-height: 0;
+}
+
 sup {
     line-height: 0;
 }
 
+table {
+    .block;
+}
+
 textarea {
+    .input;
     height: 4em;
     resize: none;
     width: 100%;
 }
 
-/* =form */
-input::-moz-focus-inner { border: 0; padding: 0; }
-button, input, select, textarea { margin: 0; }
-
-a.button, button, input[type=password], input[type=submit],
-        input[type=text], select, textarea { background-color: white;
-        border: 1px solid #bcbcbc; -moz-border-radius: 5px;
-        -webkit-border-radius: 5px; -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box; display: inline-block;
-        line-height: /* 16.3667/13 */ normal; padding: 4px; }
-    a.button:hover { text-decoration: none; }
-
-a.button, button, input[type=password], input[type=submit],
-        input[type=text], select { height: 2.028em; }
-
-a.button, button, input[type=submit] {
-        background: #efefef; background: -moz-linear-gradient(top, white,
-        #ececec); background: -webkit-gradient(linear, left top, left bottom,
-        from(white), to(#ececec)); color: #1f89c4; cursor: pointer;
-        font-weight: bold; padding-left: 15px; padding-right: 15px; }
-
-a.button:hover, button:hover, input[type=submit]:hover {
-        background: #d7d4ec;
-        background: -moz-linear-gradient(top, #e6eef1, #c8d9e4);
-        background: -webkit-gradient(linear, left top, left bottom,
-        from(#e6eef1), to(#c8d9e4)); }
-
-a.button:focus, button:focus, input[type=password]:focus,
-        input[type=submit]:focus, input[type=text]:focus,
-        select:focus, textarea:focus { border-color: #5cb3e5;
-        -moz-box-shadow: rgba(92, 179, 229, 1) 0 0 4px;
-        -webkit-box-shadow: rgba(92, 179, 229, 1) 0 0 4px; }
-
-input[type=password].changed, input[type=text].changed, select.changed,
-        textarea.changed { background-color: #fcfae2; }
-
-input[type=password][disabled], input[type=text][disabled],
-        select[disabled], textarea[disabled] { background-color: #f9dcdc; }
-
-button.link,
-input[type=submit].link {
-    background: transparent;
-    border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    border-style: none;
-    display: inline;
-    font-weight: normal;
-    height: auto;
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
+tt {
+    .code;
 }
+
+ul {
+    .block;
+    margin-left: 25px;
+}
+
 button.link.delete,
 input[type=submit].link.delete {
     background: transparent url(icon/cross.png) no-repeat left center;
     color: #c00;
     padding-left: 20px;
-}
-button.link:hover,
-input[type=submit].link:hover {
-    text-decoration: underline;
 }
 
 .repeatableForm > ol > li > .label > .smallInput,
@@ -1703,3 +1752,666 @@ table.links {
 .alert-error { .message-error; }
 .alert-info { .message-info; }
 .alert-success { .message-success; }
+
+// --- Local ---
+
+.widget > .variation {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+}
+
+/* --- Object ID selector --- */
+
+.selectObjectId {
+    background-color: white;
+    border: 1px solid #bcbcbc;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    color: #333;
+    cursor: default;
+    display: inline-block;
+    margin-right: 5px;
+    min-height: 19px;
+    min-width: 5em;
+    overflow: hidden;
+    padding: 3px 28px 3px 4px;
+    position: relative;
+    vertical-align: middle;
+    width: 50%;
+    white-space: normal;
+}
+.selectObjectId:hover {
+    text-decoration: none;
+}
+.selectObjectId:before {
+    background: #efefef;
+    background: -moz-linear-gradient(top, white, #ececec);
+    background: -webkit-gradient(linear, left top, left bottom, from(white), to(#ececec));
+    border: 1px solid #bcbcbc;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    content: ' ';
+    display: inline-block;
+    height: 19px;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 19px;
+}
+.selectObjectId:after {
+    color: #1f89c4;
+    content: '\25bc';
+    font-size: 70%;
+    display: inline-block;
+    line-height: normal;
+    position: absolute;
+    top: 7px;
+    right: 8px;
+}
+.selectObjectId img {
+    max-width: 100%;
+}
+.selectObjectId.toBeRemoved {
+    background-color: #fdd;
+    color: #c00;
+    text-decoration: line-through;
+}
+.selectObjectId.toBeRemoved img {
+    opacity: 0.5;
+}
+.selectObjectId.toBeRemoved:before,
+.selectObjectId.toBeRemoved:after {
+    visibility: hidden !important;
+}
+.editObjectId {
+    background: transparent url(icon/pencil.png) no-repeat left center;
+    padding-left: 20px;
+}
+.editObjectId.toBeRemoved {
+    color: #c00;
+    text-decoration: line-through;
+}
+.clearObjectId {
+    background: transparent url(icon/delete.png) no-repeat 10px center;
+    border-left: 1px solid #cecece;
+    margin-left: 10px;
+    padding-left: 30px;
+}
+.clearObjectId.restore {
+    background-image: url(icon/add.png);
+}
+.repeatableObjectId > ol > li.toBeRemoved .selectObjectId,
+.repeatableObjectId > ul > li.toBeRemoved .selectObjectId {
+    background-color: #fdd;
+    color: #c00;
+    text-decoration: line-through;
+}
+.repeatableObjectId > ol > li.toBeRemoved .selectObjectId:before,
+.repeatableObjectId > ul > li.toBeRemoved .selectObjectId:before,
+.repeatableObjectId > ol > li.toBeRemoved .selectObjectId:after,
+.repeatableObjectId > ul > li.toBeRemoved .selectObjectId:after {
+    visibility: hidden !important;
+}
+.repeatableObjectId > ol > li.toBeRemoved .editObjectId,
+.repeatableObjectId > ul > li.toBeRemoved .editObjectId {
+    color: #c00;
+    text-decoration: line-through;
+}
+
+/* --- Hovering focus label --- */
+
+.focusLabel {
+    background: #55b4e4;
+    display: none;
+    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    left: 30px;
+    min-height: 22px;
+    min-width: 130px;
+    padding: 5px;
+    position: fixed;
+    top: 80px;
+    z-index: 1;
+}
+
+/* --- Content form --- */
+
+.contentForm {
+    margin: -10px -10px 0 -10px;
+    overflow: hidden;
+    padding: 10px 265px 0 10px;
+}
+.contentForm > .main {
+    float: left;
+    width: 100%;
+}
+.contentForm > .main > .pagination {
+    margin-bottom: 15px;
+    text-align: left;
+}
+.contentForm > .aside {
+    float: left;
+    margin: 0 -265px 0 15px;
+    width: 240px;
+}
+
+.widget-publication {
+    -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px white;
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px white;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px white;
+    margin-bottom: 10px;
+}
+.widget-publication > h1 {
+    display: none;
+}
+.widget-publication .saveButton,
+.widget-publication .saveButton:hover {
+    .button-xl;
+
+    background: #ee6;
+    background: -moz-linear-gradient(top, #ff7, #dd5);
+    background: -webkit-gradient(linear, left top, left bottom, from(#ff7), to(#dd5));
+    border-style: none;
+    box-shadow: rgba(0, 0, 0, 0.5) 0 1px 1px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 1px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 1px;
+    color: #333;
+    float: left;
+    margin-bottom: 15px;
+    margin-top: 5px;
+    text-shadow: #fff 0px 0px 2px;
+}
+.widget-publication .saveButton[value=Publish] {
+    background: #9c2;
+    background: -moz-linear-gradient(top, #ad3, #7a0);
+    background: -webkit-gradient(linear, left top, left bottom, from(#ad3), to(#7a0));
+}
+.widget-publication input[type=submit].deleteButton {
+    background: transparent url(icon/cross.png) no-repeat left center;
+    bottom: 40px;
+    color: #c00;
+    padding-left: 18px;
+    position: absolute;
+    right: 10px;
+}
+.widget-publication .otherWorkflows {
+    clear: both;
+    margin-bottom: 15px;
+}
+.widget-publication .otherWorkflows p {
+    margin-bottom: 2px;
+}
+.widget-publication .extraActions {
+    border-top: 1px solid #cecece;
+    clear: both;
+    padding-top: 5px;
+}
+.widget-publication .advancedButton {
+    bottom: 10px;
+    padding-left: 18px;
+    position: absolute;
+    right: 10px;
+}
+.widget-publication .advancedButton:hover {
+    text-decoration: none;
+}
+
+.contentWidgets {
+    margin-bottom: 10px;
+    position: relative;
+}
+    .contentWidgets .placeholder {
+            background-color: rgba(0, 0, 0, 0.4); border-radius: 5px;
+            -moz-border-radius: 5px; -webkit-border-radius: 5px;
+            margin: 0 0 10px 10px; }
+
+.widget { position: relative; }
+    .widget .area > h1 { cursor: move; }
+    .widget .collapseToggle {
+            color: #a8a9ad; cursor: default; font-size: 80%; height: 24px;
+            line-height: 24px; position: absolute; right: 0; top: 4px;
+            width: 20px; }
+        #toolContent .widget .collapseToggle { right: 10px; }
+        .widget .collapseToggle:after { content: '\25bc'; }
+        .widget .collapseToggle:hover { color: #2989c0; }
+            .collapsed.widget .collapseToggle:after { content: '\25c0'; }
+    .collapsed.widget .area { height: 10px; overflow: hidden; }
+        .collapsed.widget .area > h1 {
+                -moz-border-radius: 5px; -webkit-border-radius: 5px;
+                border-bottom-style: none; }
+
+.layout .section {
+    left: 0;
+    position: relative;
+    top: 0;
+}
+.layout .vertical > .section:not(:last-child) {
+    margin-bottom: 10px;
+}
+.layout .horizontal {
+    min-height: 150px;
+}
+.layout .horizontal:after {
+    clear: both;
+    content: ' ';
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+.layout .horizontal > .section {
+    float: left;
+}
+.layout .horizontal > .section:not(:last-child) {
+    margin-right: 10px;
+}
+
+/* --- Visual page layout editor --- */
+
+/* Tabs for switching between different modes. */
+.pageLayoutTabs > .visualButton,
+.pageLayoutTabs > .jsonButton {
+    color: #29c;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 10px 5px 1px;
+}
+.pageLayoutTabs > .visualButton:not(.selected):hover,
+.pageLayoutTabs > .jsonButton:not(.selected):hover {
+    text-decoration: underline;
+}
+.pageLayoutTabs > .visualButton.selected,
+.pageLayoutTabs > .jsonButton.selected {
+    color: #333;
+    font-weight: bold;
+    position: relative;
+}
+.pageLayoutTabs > .visualButton.selected:after {
+    border-color: transparent transparent #eee transparent;
+    border-style: solid;
+    border-width: 6px;
+    bottom: 0;
+    content: ' ';
+    position: absolute;
+    left: 1em;
+}
+.pageLayoutTabs > .jsonButton.selected:after {
+    border-color: transparent transparent #bcbcbc transparent;
+    border-style: solid;
+    border-width: 6px;
+    bottom: -1px;
+    content: ' ';
+    position: absolute;
+    left: 1em;
+}
+
+/* JSON textarea. */
+.pageLayout {
+    font-family: 'Andale Mono', 'Lucida Console', monospace;
+    font-size: 11px;
+    white-space: pre-wrap;
+}
+
+/* Sections get darker as they nest. */
+.visualPageLayout .section {
+    background-color: #eee;
+    margin-bottom: 10px;
+    min-height: 30px;
+    padding: 10px;
+    position: relative;
+}
+.visualPageLayout .section .section { background-color: #ddd; }
+.visualPageLayout .section .section .section { background-color: #ccc; }
+.visualPageLayout .section .section .section .section { background-color: #bbb; }
+.visualPageLayout .section .section .section .section .section { background-color: #aaa; }
+.visualPageLayout .section .section .section .section .section .contentButton { color: #12526d; }
+.visualPageLayout .section .section .section .section .section .section { background-color: #999; }
+.visualPageLayout .section .section .section .section .section .section .section { background-color: #888; }
+.visualPageLayout .section .section .section .section .section .section .section .section { background-color: #777; }
+.visualPageLayout .section .section .section .section .section .section .section .section .section { background-color: #666; }
+
+/* Hide contents if the section is set to be removed. */
+.visualPageLayout .section.toBeRemoved {
+    background-color: #fdd !important;
+}
+.visualPageLayout .section.toBeRemoved .section,
+.visualPageLayout .section.toBeRemoved > .hat > .moveUpButton,
+.visualPageLayout .section.toBeRemoved > .hat > .moveDownButton,
+.visualPageLayout .section.toBeRemoved > .hat > .moveLeftButton,
+.visualPageLayout .section.toBeRemoved > .hat > .moveRightButton,
+.visualPageLayout .section.toBeRemoved > .hat > .settingsButton,
+.visualPageLayout .section.toBeRemoved > .heading > .addButton {
+    visibility: hidden;
+}
+.visualPageLayout .section.toBeRemoved > .heading > .name {
+    color: #c00;
+    text-decoration: line-through;
+}
+
+/* Hat contains controls for editing general section settings. */
+.visualPageLayout .section > .hat {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    left: 5px;
+    overflow: hidden;
+    padding: 0 5px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    z-index: 1;
+}
+.visualPageLayout .section > .hat a {
+    color: #7be;
+}
+.visualPageLayout .section > .hat > .moveUpButton,
+.visualPageLayout .section > .hat > .moveDownButton,
+.visualPageLayout .section > .hat > .moveLeftButton,
+.visualPageLayout .section > .hat > .moveRightButton {
+    cursor: pointer;
+    display: none;
+    float: left;
+    margin-top: 2px;
+    margin-right: 4px;
+}
+.visualPageLayout .horizontal > .content > .section > .hat > .moveLeftButton,
+.visualPageLayout .horizontal > .content > .section > .hat > .moveRightButton {
+    display: inline;
+}
+.visualPageLayout .vertical > .content > .section > .hat > .moveUpButton,
+.visualPageLayout .vertical > .content > .section > .hat > .moveDownButton {
+    display: inline;
+}
+.visualPageLayout .section > .hat > .settingsButton {
+    background: transparent url(icon/wrench.png) no-repeat left center;
+    float: left;
+    height: 20px;
+    line-height: 20px;
+    padding-left: 20px;
+}
+.visualPageLayout .section > .hat > .removeButton {
+    cursor: pointer;
+    float: right;
+    margin-top: 2px;
+}
+
+/* Heading contains the section name and other section-specific controls. */
+.visualPageLayout .section > .heading > .name {
+    font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 150%;
+    margin-bottom: 4px;
+}
+.visualPageLayout .section > .heading > .name.anonymous {
+    opacity: 0.3;
+}
+.visualPageLayout .horizontal > .heading .name,
+.visualPageLayout .vertical > .heading .name {
+    font-size: 100%;
+}
+.visualPageLayout .section > .heading > .contentButton {
+    background: transparent url(icon/page_edit.png) no-repeat left center;
+    padding-left: 20px;
+}
+.visualPageLayout .section > .heading > .removeContentButton {
+    background: transparent url(icon/delete.png) no-repeat left center;
+    color: #900;
+    margin-left: 10px;
+    padding-left: 20px;
+}
+.visualPageLayout .section > .heading > .addButton {
+    background: #55b4e4;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.visualPageLayout .section > .heading > .addButton:before {
+    content: url(icon/add.png);
+    left: 50%;
+    margin-left: -50px;
+    position: absolute;
+    top: 2px;
+}
+.visualPageLayout .section > .heading > .addButton:after {
+    content: 'Add Section';
+    margin-left: -30px;
+    left: 50%;
+    position: absolute;
+    top: 0;
+}
+.visualPageLayout .section.vertical {
+    padding-bottom: 30px;
+}
+.visualPageLayout .vertical > .heading > .addButton {
+    bottom: 10px;
+    height: 20px;
+    left: 10px;
+    line-height: 20px;
+    position: absolute;
+    right: 10px;
+}
+
+/* Stack contents in a horizontal section sideways. */
+.visualPageLayout .content.horizontal {
+    min-height: 120px;
+    overflow: hidden;
+    padding-right: 20px;
+}
+.visualPageLayout .horizontal > .content > .section {
+    float: left;
+    margin-right: 10px;
+    width: 150px;
+}
+.visualPageLayout .horizontal > .heading > .addButton {
+    bottom: 10px;
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    width: 20px;
+}
+.visualPageLayout .horizontal > .heading > .addButton:before {
+    left: auto;
+    margin-top: 32px;
+    top: 50%;
+    right: 2px;
+}
+.visualPageLayout .horizontal > .heading > .addButton:after {
+    left: auto;
+    margin-top: -63px;
+    top: 50%;
+    right: 0;
+    white-space: nowrap;
+    transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform-origin: bottom right;
+    -moz-transform-origin: bottom right;
+    -webkit-transform-origin: bottom right;
+}
+
+/* Main section heading name is larger so that it stands out a little. */
+.visualPageLayout .main > .heading > .name {
+    font-size: 200%;
+}
+
+/* Subtle pattern for shared sections. */
+.visualPageLayout .shared {
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right bottom,
+        color-stop(0, transparent),
+        color-stop(0.25, transparent),
+        color-stop(0.25, rgba(0, 0, 0, 0.04)),
+        color-stop(0.5, rgba(0, 0, 0, 0.04)),
+        color-stop(0.5, transparent),
+        color-stop(0.75, transparent),
+        color-stop(0.75, rgba(0, 0, 0, 0.04)),
+        color-stop(1.0, rgba(0, 0, 0, 0.04))
+    );
+	background: -moz-repeating-linear-gradient(
+		left top -45deg,
+		transparent,
+		transparent 23px,
+		rgba(0, 0, 0, 0.07) 23px,
+		rgba(0, 0, 0, 0.07) 46px
+	) repeat scroll 0 0 transparent;
+    -webkit-background-size: 5em 5em;
+}
+
+.pages { list-style-type: none; margin-left: 0; overflow: hidden; }
+    .pages canvas { display: block; }
+    .pages > li {
+            float: left; height: 200px; margin-right: 1em; overflow: hidden;
+            width: 100px; }
+
+/* --- Popup window customizations --- */
+
+/* Preview window should cover most of the window. */
+.popup[name^=contentPreview-] {
+    background-color: rgba(0, 0, 0, 0.5);
+    height: 100% !important;
+    left: 0 !important;
+    overflow: auto !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 2000 !important;
+}
+.popup[name^=contentPreview-] > .content {
+    margin: 40px;
+}
+.popup[name^=contentPreview-] > .content > .marker {
+    display: none;
+}
+
+/* General search input is in the header so no need to display it again. */
+.popup[name=miscSearch] .searchInput {
+    display: none;
+}
+
+/* These contain content forms so make them bigger. */
+.popup[name=contentEnhancement],
+.popup[name=contentImageMetadata],
+.popup[name^=objectId-],
+.popup[name=contentRaw],
+.popup[name=contentSectionContent],
+.popup[name=miscSearch] {
+    width: 70%;
+}
+
+/* Small popups. */
+.popup[name=pageBuilderTemplateTypes] {
+    width: 20em;
+}
+
+/* --- Image editor --- */
+
+.filePreview {
+    margin-top: 5px;
+}
+.imageEditor {
+    display: inline-block;
+    max-width: 100%;
+    position: relative;
+}
+.imageEditor > .toolbar {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    color: white;
+    left: 5px;
+    padding: 0 5px;
+    position: absolute;
+    top: 5px;
+    z-index: 1;
+}
+.imageEditor > .toolbar li {
+    height: 20px;
+    line-height: 20px;
+}
+.imageEditor > .toolbar a {
+    color: #7be;
+}
+.imageEditor > img {
+    width: 100%;
+}
+.imageEditor .cropButton {
+    color: #7be;
+    cursor: pointer;
+}
+.imageEditor .cropButton:hover {
+    text-decoration: underline;
+}
+.imageEditor .cropButton:not(:last-child):after {
+    content: ', '
+}
+.imageEditor > .cropBox {
+    outline: 1px dashed white;
+    cursor: move;
+}
+.imageEditor > .cropBox > .cropResizer {
+    background-color: #29c;
+    border: 1px solid white;
+    height: 8px;
+    width: 8px;
+    position: absolute;
+}
+.imageEditor > .cropBox > .cropResizer-topLeft {
+    cursor: nw-resize;
+    left: -5px;
+    top: -5px;
+}
+.imageEditor > .cropBox > .cropResizer-topRight {
+    cursor: ne-resize;
+    right: -5px;
+    top: -5px;
+}
+.imageEditor > .cropBox > .cropResizer-bottomLeft {
+    bottom: -5px;
+    cursor: sw-resize;
+    left: -5px;
+}
+.imageEditor > .cropBox > .cropResizer-bottomRight {
+    bottom: -5px;
+    cursor: se-resize;
+    right: -5px;
+}
+.imageEditor .cropCover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.inputContainer .permissions select {
+    height: 1.5;
+    line-height: 1.5;
+}
+
+/* Soft validation based on suggested values. */
+.inputContainer .smallInput {
+    position: relative;
+}
+.inputContainer .suggestedSize:after {
+    background-color: #e90;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+    border: 3px solid white;
+    color: white;
+    font-family: 'SilkscreenNormal', sans-serif;
+    font-size: 8px;
+    padding: 2px;
+    position: absolute;
+    right: 3px;
+    text-transform: uppercase;
+    top: 3px;
+}
+.inputContainer .suggestedSize-tooShort:after {
+    content: 'Too Short';
+}
+.inputContainer .suggestedSize-tooLong:after {
+    content: 'Too Long';
+}

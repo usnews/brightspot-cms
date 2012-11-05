@@ -654,8 +654,7 @@ public class ToolPageContext extends WebPageContext {
         write("<title>", h(companyName), " CMS</title>");
 
         for (String href : new String[] {
-                "/style/global.less",
-                "/style/local.less" }) {
+                "/style/cms.less" }) {
             write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
         }
 
