@@ -46,12 +46,11 @@ public class ToolFormWriter extends FormWriter {
             HtmlWriter html = new HtmlWriter(string);
 
             try {
-                JspUtils.includeEmbedded(
-                        page.getServletContext(),
+                JspUtils.include(
                         page.getRequest(),
                         page.getResponse(),
                         html,
-                        "/WEB-INF/field.jsp",
+                        page.cmsUrl("/WEB-INF/field.jsp"),
                         "object", state.getOriginalObject(),
                         "field", field,
                         "inputName", state.getId() + "/" + field.getInternalName(),
@@ -80,12 +79,11 @@ public class ToolFormWriter extends FormWriter {
             HtmlWriter html = new HtmlWriter(string);
 
             try {
-                JspUtils.includeEmbedded(
-                        page.getServletContext(),
+                JspUtils.include(
                         page.getRequest(),
                         page.getResponse(),
                         html,
-                        "/WEB-INF/field.jsp",
+                        page.cmsUrl("/WEB-INF/field.jsp"),
                         "object", state.getOriginalObject(),
                         "field", field,
                         "inputName", state.getId() + "/" + field.getInternalName(),

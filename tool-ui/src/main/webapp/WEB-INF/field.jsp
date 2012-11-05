@@ -79,10 +79,10 @@ try {
 
     // Look for class/field-specific handler.
     // TODO - There should be some type of a hook for external plugins.
-    String prefix = "/WEB-INF/field/";
+    String prefix = wp.cmsUrl("/WEB-INF/field/");
     String path = prefix + field.getJavaDeclaringClassName() + "." + field.getInternalName() + ".jsp";
-    if (application.getResource(JspUtils.resolvePath(application, request, path)) != null) {
-        wp.include(path);
+    if (application.getResource(path) != null) {
+        JspUtils.include(request, response, out, path);
         return;
     }
 
@@ -99,8 +99,8 @@ try {
     while (true) {
 
         path = prefix + displayType + ".jsp";
-        if (application.getResource(JspUtils.resolvePath(application, request, path)) != null) {
-            wp.include(path);
+        if (application.getResource(path) != null) {
+            JspUtils.include(request, response, out, path);
             return;
         }
 
@@ -112,7 +112,7 @@ try {
         }
     }
 
-    wp.include(prefix + "default.jsp");
+    JspUtils.include(request, response, out, prefix + "default.jsp");
 
 } finally {
 
