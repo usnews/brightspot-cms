@@ -1044,141 +1044,158 @@ public class PageFilter extends AbstractFilter {
                 return request.getAttribute(MAIN_OBJECT_ATTRIBUTE);
             }
 
-            request.setAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            Database originalDefault = Database.Static.getDefault();
+            boolean isAuthenticated = ToolFilter.Static.isAuthenticated(request);
 
-            Object mainObject = null;
-            String servletPath = request.getServletPath();
-            String path = getPath(request);
-            Site site = getSite(request);
+            if (!isAuthenticated) {
+                VaryingDatabase varying = new VaryingDatabase();
+                varying.setDelegate(originalDefault);
+                varying.setProfile(getProfile(request));
+                Database.Static.setDefaultOverride(varying);
+            }
 
-            // On preview request, manually create the main object based on
-            // the post data.
-            if (path.startsWith("/_preview")) {
-                UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
-                if (previewId != null) {
+            try {
+                request.setAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE, Boolean.TRUE);
 
-                    String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
-                    Map<UUID, Object> substitutions = getSubstitutions(request);
-                    if (objectStrings != null) {
-                        for (String objectString : objectStrings) {
-                            if (!ObjectUtils.isBlank(objectString)) {
-                                @SuppressWarnings("unchecked")
-                                Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
-                                ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
-                                if (type != null) {
-                                    Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
-                                    State objectState = State.getInstance(object);
-                                    objectState.setValues(objectMap);
-                                    substitutions.put(objectState.getId(), object);
+                Object mainObject = null;
+                String servletPath = request.getServletPath();
+                String path = getPath(request);
+                Site site = getSite(request);
+
+                // On preview request, manually create the main object based on
+                // the post data.
+                if (path.startsWith("/_preview")) {
+                    UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
+                    if (previewId != null) {
+
+                        String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
+                        Map<UUID, Object> substitutions = getSubstitutions(request);
+                        if (objectStrings != null) {
+                            for (String objectString : objectStrings) {
+                                if (!ObjectUtils.isBlank(objectString)) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
+                                    ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
+                                    if (type != null) {
+                                        Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
+                                        State objectState = State.getInstance(object);
+                                        objectState.setValues(objectMap);
+                                        substitutions.put(objectState.getId(), object);
+                                    }
                                 }
+                            }
+                        }
+
+                        Preview preview = Query.findById(Preview.class, previewId);
+                        if (preview != null) {
+                            mainObject = preview.getObject();
+
+                        } else {
+                            mainObject = substitutions.get(previewId);
+                            if (mainObject == null) {
+                                mainObject = Query.findById(Object.class, previewId);
                             }
                         }
                     }
 
-                    Preview preview = Query.findById(Preview.class, previewId);
-                    if (preview != null) {
-                        mainObject = preview.getObject();
+                    if (mainObject != null) {
+                        setSite(request, State.getInstance(mainObject).as(Site.ObjectModification.class).getOwner());
+                    }
 
-                    } else {
-                        mainObject = substitutions.get(previewId);
-                        if (mainObject == null) {
-                            mainObject = Query.findById(Object.class, previewId);
+                } else {
+                    mainObject = Directory.Static.findObject(site, path);
+                    if (mainObject != null) {
+
+                        // Directories should have a trailing slash and objects
+                        // should not.
+                        if (mainObject instanceof Directory) {
+                            if (!path.endsWith("/")) {
+                                fixPath(request, servletPath + "/");
+                            }
+                            mainObject = Directory.Static.findObject(site, path + "/index");
+
+                        } else if (path.endsWith("/")) {
+                            fixPath(request, servletPath.substring(0, servletPath.length() - 1));
                         }
                     }
                 }
 
-                if (mainObject != null) {
-                    setSite(request, State.getInstance(mainObject).as(Site.ObjectModification.class).getOwner());
+                // Case-insensitive path look-up.
+                for (int i = 0, length = path.length(); i < length; ++ i) {
+                    if (Character.isUpperCase(path.charAt(i))) {
+                        String pathLc = path.toLowerCase(Locale.ENGLISH);
+                        if (Directory.Static.findObject(site, pathLc) != null) {
+                            fixPath(request, pathLc);
+                        }
+                        break;
+                    }
                 }
 
-            } else {
-                mainObject = Directory.Static.findObject(site, path);
-                if (mainObject != null) {
+                // Special fallback names. For example, given /path/to/file,
+                // the following are checked:
+                //
+                // - /path/to/file/*
+                // - /path/to/file/**
+                // - /path/to/*
+                // - /path/to/**
+                // - /path/**
+                // - /**
+                String checkPath;
+                int endMarker;
 
-                    // Directories should have a trailing slash and objects
-                    // should not.
+                if (path.endsWith("/")) {
+                    checkPath = path;
+                    endMarker = 0;
+
+                } else {
+                    checkPath = path + "/";
+                    endMarker = 1;
+                }
+
+                for (int i = 0; mainObject == null; ++ i) {
+                    int slashAt = checkPath.lastIndexOf("/");
+
+                    if (slashAt < 0) {
+                        break;
+                    } else {
+                        checkPath = checkPath.substring(0, slashAt);
+                    }
+
+                    if (i <= endMarker) {
+                        mainObject = Directory.Static.findObject(site, checkPath + "/*");
+                    }
+
+                    if (mainObject == null) {
+                        mainObject = Directory.Static.findObject(site, checkPath + "/**");
+                    }
+
                     if (mainObject instanceof Directory) {
-                        if (!path.endsWith("/")) {
+                        mainObject = null;
+                    }
+
+                    if (mainObject != null) {
+                        final String pathInfo = path.substring(checkPath.length());
+                        if (pathInfo.length() < 1) {
                             fixPath(request, servletPath + "/");
                         }
-                        mainObject = Directory.Static.findObject(site, path + "/index");
 
-                    } else if (path.endsWith("/")) {
-                        fixPath(request, servletPath.substring(0, servletPath.length() - 1));
+                        request.setAttribute(NEW_REQUEST_ATTRIBUTE, new HttpServletRequestWrapper(request) {
+                            @Override
+                            public String getPathInfo() {
+                                return pathInfo;
+                            }
+                        });
                     }
                 }
-            }
 
-            // Case-insensitive path look-up.
-            for (int i = 0, length = path.length(); i < length; ++ i) {
-                if (Character.isUpperCase(path.charAt(i))) {
-                    String pathLc = path.toLowerCase(Locale.ENGLISH);
-                    if (Directory.Static.findObject(site, pathLc) != null) {
-                        fixPath(request, pathLc);
-                    }
-                    break;
+                setMainObject(request, mainObject);
+                return mainObject;
+
+            } finally {
+                if (!isAuthenticated) {
+                    Database.Static.setDefaultOverride(originalDefault);
                 }
             }
-
-            // Special fallback names. For example, given /path/to/file,
-            // the following are checked:
-            //
-            // - /path/to/file/*
-            // - /path/to/file/**
-            // - /path/to/*
-            // - /path/to/**
-            // - /path/**
-            // - /**
-            String checkPath;
-            int endMarker;
-
-            if (path.endsWith("/")) {
-                checkPath = path;
-                endMarker = 0;
-
-            } else {
-                checkPath = path + "/";
-                endMarker = 1;
-            }
-
-            for (int i = 0; mainObject == null; ++ i) {
-                int slashAt = checkPath.lastIndexOf("/");
-
-                if (slashAt < 0) {
-                    break;
-                } else {
-                    checkPath = checkPath.substring(0, slashAt);
-                }
-
-                if (i <= endMarker) {
-                    mainObject = Directory.Static.findObject(site, checkPath + "/*");
-                }
-
-                if (mainObject == null) {
-                    mainObject = Directory.Static.findObject(site, checkPath + "/**");
-                }
-
-                if (mainObject instanceof Directory) {
-                    mainObject = null;
-                }
-
-                if (mainObject != null) {
-                    final String pathInfo = path.substring(checkPath.length());
-                    if (pathInfo.length() < 1) {
-                        fixPath(request, servletPath + "/");
-                    }
-
-                    request.setAttribute(NEW_REQUEST_ATTRIBUTE, new HttpServletRequestWrapper(request) {
-                        @Override
-                        public String getPathInfo() {
-                            return pathInfo;
-                        }
-                    });
-                }
-            }
-
-            setMainObject(request, mainObject);
-            return mainObject;
         }
 
         /** Sets the main object associated with the given {@code request}. */

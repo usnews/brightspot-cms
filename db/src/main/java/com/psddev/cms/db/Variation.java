@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -98,7 +99,7 @@ public class Variation extends Record {
 
                     @Override
                     protected List<Variation> update() {
-                        Query<Variation> query = Query.from(Variation.class).sortAscending("position");
+                        Query<Variation> query = Query.from(Variation.class).sortAscending("position").using(Database.Static.getDefaultOriginal());
                         Date cacheUpdate = getUpdateDate();
                         Date databaseUpdate = query.lastUpdate();
 
