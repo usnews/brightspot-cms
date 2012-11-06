@@ -138,6 +138,59 @@ var createEnhancementId = function() {
     return enhancementId;
 }
 
+$(window).bind('resize scroll', $.throttle(100, function() {
+    $.each(rtes, function(item) {
+        var $toolbar = $(this.config.toolbar);
+
+        if ($toolbar.is(':visible')) {
+            var $header = $('.toolHeader');
+            var headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $(window).scrollTop() : 0);
+            var oldCss = $toolbar.data('rte-oldCss');
+
+            var $container = $(this.container);
+            var containerTop = $container.offset().top;
+
+            // Completely in view.
+            if (oldCss) {
+                var windowTop = $(window).scrollTop() + headerBottom;
+
+                if (windowTop < containerTop) {
+                    $container.css('padding-top', 0);
+                    $toolbar.removeData('rte-oldCss');
+                    $toolbar.css(oldCss);
+
+                // Completely out of view.
+                } else if (windowTop > containerTop + $container.height()) {
+                    $container.css('padding-top', 0);
+                    $toolbar.css(oldCss);
+                }
+
+            // Partially in view.
+            } else if (headerBottom + $(window).scrollTop() > containerTop) {
+                $container.css({
+                    'padding-top': $toolbar.outerHeight()
+                });
+                $toolbar.data('rte-oldCss', {
+                    'left': $toolbar.css('left'),
+                    'position': $toolbar.css('position'),
+                    'top': $toolbar.css('top'),
+                    'width': $toolbar.css('width'),
+                    'z-index': $toolbar.zIndex()
+                });
+                $toolbar.css({
+                    'left': $toolbar.offset().left,
+                    'position': 'fixed',
+                    'top': headerBottom,
+                    'width': $toolbar.width(),
+                    'z-index': $container.zIndex() + 1
+                });
+            }
+
+            return;
+        }
+    });
+}));
+
 var Rte = wysihtml5.Editor.extend({
 
     'constructor': function(originalTextarea, config) {
@@ -282,7 +335,7 @@ var Rte = wysihtml5.Editor.extend({
 
             setInterval(function() {
                 rte.updateOverlay();
-            }, 100)
+            }, 100);
         });
     },
 
