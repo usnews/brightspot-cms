@@ -134,6 +134,8 @@ Access your CMS and trigger the reloader. Add `?_reload=true` to your URL
 
 You will be prompted to install the reloader application, which will allow you to see Java code changes compiled automatically. Once the application has been reloaded, click into `Search` and in the `Create` drop-down find your next Article content type. All new objects added in the CMS appear in this drop-down.
 
+If the reloader is not prompted, run `mvn clean install` to rebuild your project. This should only have to be done for your first time class creation - the reloader will handle subsequent changes.
+
 You'll notice that in the CMS your object automatically has UI associated with it, derived from the names you have given the fields. To see all the UI elements used see the User Interface Section.
 
 **Associating Objects**
