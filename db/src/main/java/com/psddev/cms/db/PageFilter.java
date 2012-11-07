@@ -741,33 +741,33 @@ public class PageFilter extends AbstractFilter {
 
             html.start("div", "id", id);
                 html.start("div", "style", "border: 1px solid black; padding: 1em;");
-                    html.start("h1").string(section.getName()).end();
+                    html.start("h1").html(section.getName()).end();
 
                     if (object != null) {
                         String className = object.getClass().getName();
                         File source = CodeUtils.getSource(className);
 
                         html.start("p", "class", "alert alert-error");
-                            html.string("No renderer! Add ");
-                            html.start("code").string("@Renderer.Script").end();
-                            html.string(" to the ");
+                            html.html("No renderer! Add ");
+                            html.start("code").html("@Renderer.Script").end();
+                            html.html(" to the ");
 
                             if (source == null) {
-                                html.string(className);
+                                html.html(className);
 
                             } else {
                                 html.start("a",
                                         "href", DebugFilter.Static.getServletPath(request, "code", "file", source),
                                         "target", "code");
-                                    html.string(className);
+                                    html.html(className);
                                 html.end();
                             }
 
-                            html.string(" class.");
+                            html.html(" class.");
                         html.end();
 
                         html.start("p");
-                            html.start("code").string("${content}").end();
+                            html.start("code").html("${content}").end();
                         html.end();
 
                         html.object(object);
@@ -776,13 +776,13 @@ public class PageFilter extends AbstractFilter {
                         Page page = getPage(request);
 
                         html.start("p", "class", "alert alert-error");
-                            html.string("No renderer! Specify it in the ");
+                            html.html("No renderer! Specify it in the ");
                             html.start("a",
                                     "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", page.getId()),
                                     "target", "cms");
-                                html.string(page.getName());
+                                html.html(page.getName());
                             html.end();
-                            html.string(" ").string(page.getClass().getSimpleName().toLowerCase()).string(".");
+                            html.html(" ").html(page.getClass().getSimpleName().toLowerCase()).html(".");
                         html.end();
                     }
 
@@ -858,23 +858,23 @@ public class PageFilter extends AbstractFilter {
                     label.append(state.getLabel());
 
                     if (ObjectUtils.isBlank(permalink)) {
-                        writer.string(label);
+                        writer.html(label);
 
                     } else {
                         writer.start("a",
                                 "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
                                 "target", "cms");
-                            writer.string(label);
+                            writer.html(label);
                         writer.end();
                     }
 
                     if (!type.isEmbedded()) {
-                        writer.string(" - ");
+                        writer.html(" - ");
 
                         writer.start("a",
                                 "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
                                 "target", "cms");
-                            writer.string("Edit");
+                            writer.html("Edit");
                         writer.end();
                     }
 
@@ -885,26 +885,26 @@ public class PageFilter extends AbstractFilter {
                         writer.start("tbody");
 
                             writer.start("tr");
-                                writer.start("th").string("Permalink").end();
+                                writer.start("th").html("Permalink").end();
                                 writer.start("td");
 
                                     if (ObjectUtils.isBlank(permalink)) {
-                                        writer.string("N/A");
+                                        writer.html("N/A");
 
                                     } else {
                                         writer.start("a",
                                                 "href", permalink,
                                                 "target", "_top");
-                                            writer.string(permalink);
+                                            writer.html(permalink);
                                         writer.end();
                                     }
 
-                                    writer.string(" - ");
+                                    writer.html(" - ");
 
                                     writer.start("a",
                                             "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
                                             "target", "cms");
-                                        writer.string("Edit");
+                                        writer.html("Edit");
                                     writer.end();
 
                                 writer.end();
@@ -918,7 +918,7 @@ public class PageFilter extends AbstractFilter {
                                 }
 
                                 writer.start("tr");
-                                    writer.start("th").string(field.getDisplayName()).end();
+                                    writer.start("th").html(field.getDisplayName()).end();
                                     writer.start("td").object(value).end();
                                 writer.end();
                             }
@@ -1044,14 +1044,13 @@ public class PageFilter extends AbstractFilter {
                 return request.getAttribute(MAIN_OBJECT_ATTRIBUTE);
             }
 
-            Database originalDefault = Database.Static.getDefault();
             boolean isAuthenticated = ToolFilter.Static.isAuthenticated(request);
 
             if (!isAuthenticated) {
                 VaryingDatabase varying = new VaryingDatabase();
-                varying.setDelegate(originalDefault);
+                varying.setDelegate(Database.Static.getDefault());
                 varying.setProfile(getProfile(request));
-                Database.Static.setDefaultOverride(varying);
+                Database.Static.overrideDefault(varying);
             }
 
             try {
@@ -1193,7 +1192,7 @@ public class PageFilter extends AbstractFilter {
 
             } finally {
                 if (!isAuthenticated) {
-                    Database.Static.setDefaultOverride(originalDefault);
+                    Database.Static.restoreDefault();
                 }
             }
         }
