@@ -36,7 +36,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
                 }
             }
 
-            PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
+            PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
             Password hashedPassword;
 
             try {

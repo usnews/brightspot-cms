@@ -5,12 +5,15 @@ import com.psddev.cms.tool.ToolFilter;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.ProfilingDatabase;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.CodeUtils;
+import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.HtmlFormatter;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
@@ -24,6 +27,7 @@ import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.TypeDefinition;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -403,6 +407,11 @@ public class PageFilter extends AbstractFilter {
         }
     }
 
+    private static boolean isWireframe(HttpServletRequest request) {
+        return !Settings.isProduction() &&
+                ObjectUtils.to(boolean.class, request.getParameter("_wireframe"));
+    }
+
     /** Renders the beginning of the given {@code page}. */
     protected static void beginPage(
             HttpServletRequest request,
@@ -679,7 +688,7 @@ public class PageFilter extends AbstractFilter {
         }
     }
 
-    /** Renders the given {@code script} using the given {@code engine}. */
+    // Renders the given script using the given engine.
     private static void renderScript(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -689,29 +698,122 @@ public class PageFilter extends AbstractFilter {
             throws IOException, ServletException {
 
         long startTime = System.nanoTime();
-        try {
 
+        try {
             debugMessage(request, writer, "Engine is [%s]", engine);
             debugMessage(request, writer, "Script is [%s]", script);
 
-            if (!ObjectUtils.isBlank(engine)) {
-                if ("JSP".equals(engine)) {
-                    JspUtils.include(request, response, writer, "/" + script);
+            if (!isWireframe(request)) {
+                if (!ObjectUtils.isBlank(engine)) {
+                    if ("JSP".equals(engine)) {
+                        if (!ObjectUtils.isBlank(script)) {
+                            JspUtils.include(request, response, writer, StringUtils.ensureStart(script, "/"));
+                            return;
+                        }
 
-                } else if ("RawText".equals(engine)) {
-                    writer.write(script);
+                    } else if ("RawText".equals(engine)) {
+                        writer.write(script);
+                        return;
 
-                } else {
-                    throw new IllegalArgumentException(String.format(
-                            "[%s] is not a valid rendering engine!", engine));
+                    } else {
+                        throw new IllegalArgumentException(String.format(
+                                "[%s] is not a valid rendering engine!", engine));
+                    }
+                }
+
+                if (Settings.isProduction()) {
+                    return;
                 }
             }
+
+            Section section = getCurrentSection(request);
+
+            if (!(section instanceof ScriptSection)) {
+                return;
+            }
+
+            HtmlWriter html = new HtmlWriter(writer);
+            html.putAllStandardDefaults();
+            html.putOverride(Recordable.class, new RecordableFormatter());
+
+            String id = JspUtils.createId(request);
+            Object object = getCurrentObject(request);
+
+            html.start("div", "id", id);
+                html.start("div", "style", "border: 1px solid black; padding: 1em;");
+                    html.start("h1").html(section.getName()).end();
+
+                    if (object != null) {
+                        String className = object.getClass().getName();
+                        File source = CodeUtils.getSource(className);
+
+                        html.start("p", "class", "alert alert-error");
+                            html.html("No renderer! Add ");
+                            html.start("code").html("@Renderer.Script").end();
+                            html.html(" to the ");
+
+                            if (source == null) {
+                                html.html(className);
+
+                            } else {
+                                html.start("a",
+                                        "href", DebugFilter.Static.getServletPath(request, "code", "file", source),
+                                        "target", "code");
+                                    html.html(className);
+                                html.end();
+                            }
+
+                            html.html(" class.");
+                        html.end();
+
+                        html.start("p");
+                            html.start("code").html("${content}").end();
+                        html.end();
+
+                        html.object(object);
+
+                    } else {
+                        Page page = getPage(request);
+
+                        html.start("p", "class", "alert alert-error");
+                            html.html("No renderer! Specify it in the ");
+                            html.start("a",
+                                    "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", page.getId()),
+                                    "target", "cms");
+                                html.html(page.getName());
+                            html.end();
+                            html.html(" ").html(page.getClass().getSimpleName().toLowerCase()).html(".");
+                        html.end();
+                    }
+
+                html.end();
+            html.end();
+
+            html.start("script", "type", "text/javascript");
+                html.write("(function() {");
+                    html.write("var f = document.createElement('iframe');");
+                    html.write("f.frameBorder = '0';");
+                    html.write("var fs = f.style;");
+                    html.write("fs.background = 'transparent';");
+                    html.write("fs.border = 'none';");
+                    html.write("fs.overflow = 'hidden';");
+                    html.write("fs.width = '100%';");
+                    html.write("f.src = '");
+                    html.write(JspUtils.getAbsolutePath(request, "/_resource/cms/section.html", "id", id));
+                    html.write("';");
+                    html.write("var a = document.getElementById('");
+                    html.write(id);
+                    html.write("');");
+                    html.write("a.parentNode.insertBefore(f, a.nextSibling);");
+                html.write("})();");
+            html.end();
 
         // Always catch the error so the page never looks broken
         // in production.
         } catch (Throwable ex) {
             if (Settings.isProduction()) {
                 LOGGER.warn(String.format("Can't render [%s]!", script), ex);
+
             } else if (ex instanceof IOException) {
                 throw (IOException) ex;
             } else if (ex instanceof ServletException) {
@@ -730,6 +832,106 @@ public class PageFilter extends AbstractFilter {
                     engine,
                     script,
                     (System.nanoTime() - startTime) / 1000000.0);
+        }
+    }
+
+    private static class RecordableFormatter implements HtmlFormatter<Recordable> {
+
+        private final ThreadLocal<Boolean> nestedLocal = new ThreadLocal<Boolean>();
+
+        @Override
+        public void format(HtmlWriter writer, Recordable recordable) throws IOException {
+            Boolean nested = nestedLocal.get();
+
+            try {
+                State state = recordable.getState();
+                String permalink = state.as(Directory.ObjectModification.class).getPermalink();
+                ObjectType type = state.getType();
+
+                if (nested != null) {
+                    StringBuilder label = new StringBuilder();
+
+                    if (type != null) {
+                        label.append(type.getLabel());
+                        label.append(": ");
+                    }
+                    label.append(state.getLabel());
+
+                    if (ObjectUtils.isBlank(permalink)) {
+                        writer.html(label);
+
+                    } else {
+                        writer.start("a",
+                                "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
+                                "target", "cms");
+                            writer.html(label);
+                        writer.end();
+                    }
+
+                    if (!type.isEmbedded()) {
+                        writer.html(" - ");
+
+                        writer.start("a",
+                                "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
+                                "target", "cms");
+                            writer.html("Edit");
+                        writer.end();
+                    }
+
+                } else {
+                    nestedLocal.set(Boolean.TRUE);
+
+                    writer.start("table", "class", "table table-condensed");
+                        writer.start("tbody");
+
+                            writer.start("tr");
+                                writer.start("th").html("Permalink").end();
+                                writer.start("td");
+
+                                    if (ObjectUtils.isBlank(permalink)) {
+                                        writer.html("N/A");
+
+                                    } else {
+                                        writer.start("a",
+                                                "href", permalink,
+                                                "target", "_top");
+                                            writer.html(permalink);
+                                        writer.end();
+                                    }
+
+                                    writer.html(" - ");
+
+                                    writer.start("a",
+                                            "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
+                                            "target", "cms");
+                                        writer.html("Edit");
+                                    writer.end();
+
+                                writer.end();
+                            writer.end();
+
+                            for (ObjectField field : type.getFields()) {
+                                Object value = state.get(field.getInternalName());
+
+                                if (ObjectUtils.isBlank(value)) {
+                                    continue;
+                                }
+
+                                writer.start("tr");
+                                    writer.start("th").html(field.getDisplayName()).end();
+                                    writer.start("td").object(value).end();
+                                writer.end();
+                            }
+
+                        writer.end();
+                    writer.end();
+                }
+
+            } finally {
+                if (nested == null) {
+                    nestedLocal.remove();
+                }
+            }
         }
     }
 
@@ -842,141 +1044,157 @@ public class PageFilter extends AbstractFilter {
                 return request.getAttribute(MAIN_OBJECT_ATTRIBUTE);
             }
 
-            request.setAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            boolean isAuthenticated = ToolFilter.Static.isAuthenticated(request);
 
-            Object mainObject = null;
-            String servletPath = request.getServletPath();
-            String path = getPath(request);
-            Site site = getSite(request);
+            if (!isAuthenticated) {
+                VaryingDatabase varying = new VaryingDatabase();
+                varying.setDelegate(Database.Static.getDefault());
+                varying.setProfile(getProfile(request));
+                Database.Static.overrideDefault(varying);
+            }
 
-            // On preview request, manually create the main object based on
-            // the post data.
-            if (path.startsWith("/_preview")) {
-                UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
-                if (previewId != null) {
+            try {
+                request.setAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE, Boolean.TRUE);
 
-                    String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
-                    Map<UUID, Object> substitutions = getSubstitutions(request);
-                    if (objectStrings != null) {
-                        for (String objectString : objectStrings) {
-                            if (!ObjectUtils.isBlank(objectString)) {
-                                @SuppressWarnings("unchecked")
-                                Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
-                                ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
-                                if (type != null) {
-                                    Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
-                                    State objectState = State.getInstance(object);
-                                    objectState.setValues(objectMap);
-                                    substitutions.put(objectState.getId(), object);
+                Object mainObject = null;
+                String servletPath = request.getServletPath();
+                String path = getPath(request);
+                Site site = getSite(request);
+
+                // On preview request, manually create the main object based on
+                // the post data.
+                if (path.startsWith("/_preview")) {
+                    UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
+                    if (previewId != null) {
+
+                        String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
+                        Map<UUID, Object> substitutions = getSubstitutions(request);
+                        if (objectStrings != null) {
+                            for (String objectString : objectStrings) {
+                                if (!ObjectUtils.isBlank(objectString)) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
+                                    ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
+                                    if (type != null) {
+                                        Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
+                                        State objectState = State.getInstance(object);
+                                        objectState.setValues(objectMap);
+                                        substitutions.put(objectState.getId(), object);
+                                    }
                                 }
+                            }
+                        }
+
+                        Preview preview = Query.findById(Preview.class, previewId);
+                        if (preview != null) {
+                            mainObject = preview.getObject();
+
+                        } else {
+                            mainObject = substitutions.get(previewId);
+                            if (mainObject == null) {
+                                mainObject = Query.findById(Object.class, previewId);
                             }
                         }
                     }
 
-                    Preview preview = Query.findById(Preview.class, previewId);
-                    if (preview != null) {
-                        mainObject = preview.getObject();
+                    if (mainObject != null) {
+                        setSite(request, State.getInstance(mainObject).as(Site.ObjectModification.class).getOwner());
+                    }
 
-                    } else {
-                        mainObject = substitutions.get(previewId);
-                        if (mainObject == null) {
-                            mainObject = Query.findById(Object.class, previewId);
+                } else {
+                    mainObject = Directory.Static.findObject(site, path);
+                    if (mainObject != null) {
+
+                        // Directories should have a trailing slash and objects
+                        // should not.
+                        if (mainObject instanceof Directory) {
+                            if (!path.endsWith("/")) {
+                                fixPath(request, servletPath + "/");
+                            }
+                            mainObject = Directory.Static.findObject(site, path + "/index");
+
+                        } else if (path.endsWith("/")) {
+                            fixPath(request, servletPath.substring(0, servletPath.length() - 1));
                         }
                     }
                 }
 
-                if (mainObject != null) {
-                    setSite(request, State.getInstance(mainObject).as(Site.ObjectModification.class).getOwner());
+                // Case-insensitive path look-up.
+                for (int i = 0, length = path.length(); i < length; ++ i) {
+                    if (Character.isUpperCase(path.charAt(i))) {
+                        String pathLc = path.toLowerCase(Locale.ENGLISH);
+                        if (Directory.Static.findObject(site, pathLc) != null) {
+                            fixPath(request, pathLc);
+                        }
+                        break;
+                    }
                 }
 
-            } else {
-                mainObject = Directory.Static.findObject(site, path);
-                if (mainObject != null) {
+                // Special fallback names. For example, given /path/to/file,
+                // the following are checked:
+                //
+                // - /path/to/file/*
+                // - /path/to/file/**
+                // - /path/to/*
+                // - /path/to/**
+                // - /path/**
+                // - /**
+                String checkPath;
+                int endMarker;
 
-                    // Directories should have a trailing slash and objects
-                    // should not.
+                if (path.endsWith("/")) {
+                    checkPath = path;
+                    endMarker = 0;
+
+                } else {
+                    checkPath = path + "/";
+                    endMarker = 1;
+                }
+
+                for (int i = 0; mainObject == null; ++ i) {
+                    int slashAt = checkPath.lastIndexOf("/");
+
+                    if (slashAt < 0) {
+                        break;
+                    } else {
+                        checkPath = checkPath.substring(0, slashAt);
+                    }
+
+                    if (i <= endMarker) {
+                        mainObject = Directory.Static.findObject(site, checkPath + "/*");
+                    }
+
+                    if (mainObject == null) {
+                        mainObject = Directory.Static.findObject(site, checkPath + "/**");
+                    }
+
                     if (mainObject instanceof Directory) {
-                        if (!path.endsWith("/")) {
+                        mainObject = null;
+                    }
+
+                    if (mainObject != null) {
+                        final String pathInfo = path.substring(checkPath.length());
+                        if (pathInfo.length() < 1) {
                             fixPath(request, servletPath + "/");
                         }
-                        mainObject = Directory.Static.findObject(site, path + "/index");
 
-                    } else if (path.endsWith("/")) {
-                        fixPath(request, servletPath.substring(0, servletPath.length() - 1));
+                        request.setAttribute(NEW_REQUEST_ATTRIBUTE, new HttpServletRequestWrapper(request) {
+                            @Override
+                            public String getPathInfo() {
+                                return pathInfo;
+                            }
+                        });
                     }
                 }
-            }
 
-            // Case-insensitive path look-up.
-            for (int i = 0, length = path.length(); i < length; ++ i) {
-                if (Character.isUpperCase(path.charAt(i))) {
-                    String pathLc = path.toLowerCase(Locale.ENGLISH);
-                    if (Directory.Static.findObject(site, pathLc) != null) {
-                        fixPath(request, pathLc);
-                    }
-                    break;
+                setMainObject(request, mainObject);
+                return mainObject;
+
+            } finally {
+                if (!isAuthenticated) {
+                    Database.Static.restoreDefault();
                 }
             }
-
-            // Special fallback names. For example, given /path/to/file,
-            // the following are checked:
-            //
-            // - /path/to/file/*
-            // - /path/to/file/**
-            // - /path/to/*
-            // - /path/to/**
-            // - /path/**
-            // - /**
-            String checkPath;
-            int endMarker;
-
-            if (path.endsWith("/")) {
-                checkPath = path;
-                endMarker = 0;
-
-            } else {
-                checkPath = path + "/";
-                endMarker = 1;
-            }
-
-            for (int i = 0; mainObject == null; ++ i) {
-                int slashAt = checkPath.lastIndexOf("/");
-
-                if (slashAt < 0) {
-                    break;
-                } else {
-                    checkPath = checkPath.substring(0, slashAt);
-                }
-
-                if (i <= endMarker) {
-                    mainObject = Directory.Static.findObject(site, checkPath + "/*");
-                }
-
-                if (mainObject == null) {
-                    mainObject = Directory.Static.findObject(site, checkPath + "/**");
-                }
-
-                if (mainObject instanceof Directory) {
-                    mainObject = null;
-                }
-
-                if (mainObject != null) {
-                    final String pathInfo = path.substring(checkPath.length());
-                    if (pathInfo.length() < 1) {
-                        fixPath(request, servletPath + "/");
-                    }
-
-                    request.setAttribute(NEW_REQUEST_ATTRIBUTE, new HttpServletRequestWrapper(request) {
-                        @Override
-                        public String getPathInfo() {
-                            return pathInfo;
-                        }
-                    });
-                }
-            }
-
-            setMainObject(request, mainObject);
-            return mainObject;
         }
 
         /** Sets the main object associated with the given {@code request}. */

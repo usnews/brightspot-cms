@@ -22,7 +22,9 @@ $.plugin('repeatable', {
             var label = $item.attr('data-label');
             var $labelHtml = $item.find(" > .label");
             $labelHtml.removeClass('label');
-            $item.addClass('collapsed');
+            if ($item.find('.error.message').length === 0) {
+                $item.addClass('collapsed');
+            }
             var $label = $('<div/>', {
                 'class': 'label',
                 'text': type + (label ? ': ' + label : ''),

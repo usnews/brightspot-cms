@@ -17,6 +17,11 @@ $.plugin('popup', {
     return this;
 },
 
+'restoreOriginalPosition': function() {
+    this.popup('container').trigger('restoreOriginalPosition');
+    return this;
+},
+
 // Closes the popup.
 'close': function() {
     this.popup('container').trigger('close');
@@ -113,8 +118,30 @@ $.plugin('popup', {
 
         // Bind open and close events.
         $container.bind('open.popup', function() {
-            $(this).show();
+            var $original = $(this);
+            var scrollLeft = $original.data('popup-scrollLeft');
+            var scrollTop = $original.data('popup-scrollTop');
+            if (typeof scrollLeft !== 'number' && typeof scrollTop !== 'number') {
+                var $window = $(window);
+                $original.data('popup-scrollLeft', $window.scrollLeft());
+                $original.data('popup-scrollTop', $window.scrollTop());
+            }
+            $original.show();
         });
+
+        $container.bind('restoreOriginalPosition.popup', function() {
+            var $original = $(this);
+            var scrollLeft = $original.data('popup-scrollLeft');
+            var scrollTop = $original.data('popup-scrollTop');
+            $original.removeData('popup-scrollLeft');
+            $original.removeData('popup-scrollTop');
+            if (typeof scrollLeft === 'number' && typeof scrollTop === 'number') {
+                var $window = $(window);
+                $window.scrollLeft(scrollLeft);
+                $window.scrollTop(scrollTop);
+            }
+        });
+
         $container.bind('close.popup', function() {
             var $original = $(this);
             $original.hide();
@@ -126,6 +153,7 @@ $.plugin('popup', {
                 }
             });
         });
+
         $closeButton.bind('click.popup', function() {
             $(this).popup('close');
         });

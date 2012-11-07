@@ -50,11 +50,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 || src instanceof URI
                 || src instanceof URL) {
 
-            tagBuilder.setItem(StorageItem.Static.createUrl(
-                    JspUtils.getEmbeddedAbsolutePath(
-                            wp.getServletContext(),
-                            wp.getRequest(),
-                            src.toString())));
+            String path = JspUtils.resolvePath(wp.getServletContext(), wp.getRequest(), src.toString());
+            StorageItem pathItem;
+            if (path.startsWith("/")) {
+                pathItem = StorageItem.Static.createUrl(JspUtils.getAbsoluteUrl(wp.getRequest(), path));
+            } else {
+                pathItem = StorageItem.Static.createUrl(path);
+            }
+            tagBuilder.setItem(pathItem);
 
         } else if (src instanceof StorageItem) {
             tagBuilder.setItem((StorageItem) src);
