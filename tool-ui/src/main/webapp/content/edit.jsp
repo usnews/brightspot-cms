@@ -356,6 +356,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
         $preview.addClass('loading');
         $preview.show();
+        $window.resize();
 
         // Make the preview expand/collapse when the heading is clicked.
         var oldPreviewWidgetWidth;
