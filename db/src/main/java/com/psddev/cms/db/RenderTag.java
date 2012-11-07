@@ -1,5 +1,10 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,15 +19,33 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import com.psddev.dari.db.Reference;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-
 /**
- * Renders the given {@code value}, which may be a {@linkplain String
- * string}, {@linkplain ReferentialText referential text}, or a Dari
- * object.
+ * Renders the given {@code value} safely in HTML context.
+ *
+ * <p>If the value is blank, the expression inside the tag is evaluated.
+ * For example, given the following script where <code>${foo}</code> is
+ * {@code null}:</p>
+ *
+ * <blockquote><pre><code data-type="java">{@literal
+ *<cms:render value="${foo}">
+ *    This is the fallback text.
+ *</cms:render>
+ * }</code></pre></blockquote>
+ *
+ * <p>The output would be {@code This is the fallback text.}</p>
+ *
+ * <p>If the value is an instance of {@link Iterable}, each item in it is
+ * rendered in order.</p>
+ *
+ * <p>If the value is an instance of {@link ReferentialText}, the text is
+ * written to the output as-is, and the objects in the references are rendered
+ * according to the rules here.</p>
+ *
+ * <p>If the value is an instance of {@link String}, unsafe characters are
+ * escaped, and the result is written to the output.</p>
+ *
+ * <p>Otherwise, the value is rendered using {@link PageFilter#renderObject}.
+ * </p>
  */
 @SuppressWarnings("serial")
 public class RenderTag extends BodyTagSupport {
@@ -31,9 +54,9 @@ public class RenderTag extends BodyTagSupport {
 
     private Object value;
     private String beginMarker;
-    private int beginOffset = 0;
+    private int beginOffset;
     private String endMarker;
-    private int endOffset = 0;
+    private int endOffset;
 
     public void setValue(Object value) {
         this.value = value;
@@ -57,124 +80,152 @@ public class RenderTag extends BodyTagSupport {
 
     // --- TagSupport support ---
 
-    /**
-     * Finds the offset to the {@linkplain ReferentialTextMarker marker}
-     * with the given {@code internalName} and {@code offset} in the given
-     * {@code items}.
-     */
-    private int findMarker(List<Object> items, String internalName, int offset) {
-        int itemIndex = 0;
-        int markerIndex = 0;
-        for (Object item : items) {
-            if (item instanceof Reference) {
-                Object referenced = ((Reference) item).getObject();
-                if (referenced instanceof ReferentialTextMarker) {
-                    if (internalName.equals(((ReferentialTextMarker) referenced).getInternalName())) {
-                        if (offset == markerIndex) {
-                            return itemIndex;
-                        } else {
-                            ++ markerIndex;
-                        }
-                    }
-                }
-            }
-            ++ itemIndex;
-        }
-        return -1;
-    }
-
     @Override
     public int doStartTag() throws JspException {
-        if (value != null) {
-            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-            JspWriter writer = pageContext.getOut();
+        try {
+            Integer action = writeValue(value);
 
-            try {
-                if (value instanceof ReferentialText) {
-                    List<Object> items = new ArrayList<Object>();
-                    items.addAll((ReferentialText) value);
-                    // handle text marker
-                    if (!(items.isEmpty() || (ObjectUtils.isBlank(beginMarker) && ObjectUtils.isBlank(endMarker)))) {
-                        int beginIndex = 0;
-                        int endIndex = items.size();
-                        if (!ObjectUtils.isBlank(beginMarker)) {
-                            beginIndex = findMarker(items, beginMarker, beginOffset);
-                        }
-                        if (!ObjectUtils.isBlank(endMarker)) {
-                            endIndex = findMarker(items, endMarker, endOffset);
-                        }
-                        if (beginIndex < 0 || endIndex < 0 || beginIndex >= endIndex) {
-                            items.clear();
-                        } else {
-                            items = items.subList(beginIndex, endIndex);
-                        }
-                    }
-
-                    if (items.isEmpty()) {
-                        return EVAL_BODY_BUFFERED;
-                    }
-
-                    for (Object item : items) {
-                        if (item instanceof String) {
-                            writer.write(EMPTY_PARAGRAPH_PATTERN.matcher((String) item).replaceAll(""));
-
-                        } else if (item instanceof Reference) {
-                            Map<String, Object> oldAttributes = new LinkedHashMap<String, Object>();
-                            try {
-
-                                Reference itemReference = (Reference) item;
-                                Object object = itemReference.getObject();
-                                if (object != null && !(object instanceof ReferentialTextMarker)) {
-                                    for (Map.Entry<String, Object> e : itemReference.entrySet()) {
-                                        String key = e.getKey();
-                                        if (key != null && !key.startsWith("_")) {
-                                            oldAttributes.put(key, request.getAttribute(key));
-                                            request.setAttribute(key, e.getValue());
-                                        }
-                                    }
-                                    PageFilter.renderObject(request, response, writer, object);
-                                }
-
-                            } finally {
-                                for (Map.Entry<String, Object> entry : oldAttributes.entrySet()) {
-                                    request.setAttribute(entry.getKey(), entry.getValue());
-                                }
-                            }
-                        }
-                    }
-
-                } else if (value instanceof String) {
-                    writer.write(StringUtils.escapeHtml((String) value));
-
-                } else {
-                    PageFilter.renderObject(request, response, writer, value);
-                }
-
-            } catch (IOException ex) {
-                throw new JspException(ex);
-
-            } catch (ServletException ex) {
-                throw new JspException(ex);
+            if (action != null) {
+                return action;
             }
+
+        } catch (IOException error) {
+            throw new JspException(error);
+
+        } catch (ServletException error) {
+            throw new JspException(error);
         }
 
         setBodyContent(null);
         return SKIP_BODY;
     }
 
+    // Finds the offset to the marker with the given internalName and offset
+    // in the given items.
+    private int findMarker(List<Object> items, String internalName, int offset) {
+        int itemIndex = 0;
+        int markerIndex = 0;
+
+        for (Object item : items) {
+            if (item instanceof Reference) {
+                Object referenced = ((Reference) item).getObject();
+
+                if (referenced instanceof ReferentialTextMarker &&
+                        internalName.equals(((ReferentialTextMarker) referenced).getInternalName())) {
+                    if (offset == markerIndex) {
+                        return itemIndex;
+                    } else {
+                        ++ markerIndex;
+                    }
+                }
+            }
+
+            ++ itemIndex;
+        }
+
+        return -1;
+    }
+
+    // Writes the given value to the response.
+    private Integer writeValue(Object value) throws IOException, ServletException {
+        if (ObjectUtils.isBlank(value)) {
+            return EVAL_BODY_BUFFERED;
+        }
+
+        if (value instanceof Iterable) {
+            for (Object item : (Iterable<?>) value) {
+                writeValue(item);
+            }
+            return null;
+        }
+
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
+        JspWriter writer = pageContext.getOut();
+
+        if (value instanceof ReferentialText) {
+            List<Object> items = new ArrayList<Object>((ReferentialText) value);
+
+            // Slice items based on markers.
+            if (!(items.isEmpty() || (ObjectUtils.isBlank(beginMarker) && ObjectUtils.isBlank(endMarker)))) {
+                int beginIndex = 0;
+                int endIndex = items.size();
+
+                if (!ObjectUtils.isBlank(beginMarker)) {
+                    beginIndex = findMarker(items, beginMarker, beginOffset);
+                }
+
+                if (!ObjectUtils.isBlank(endMarker)) {
+                    endIndex = findMarker(items, endMarker, endOffset);
+                }
+
+                if (beginIndex < 0 || endIndex < 0 || beginIndex >= endIndex) {
+                    items.clear();
+                } else {
+                    items = items.subList(beginIndex, endIndex);
+                }
+            }
+
+            if (items.isEmpty()) {
+                return EVAL_BODY_BUFFERED;
+            }
+
+            for (Object item : items) {
+                if (item instanceof String) {
+                    writer.write(EMPTY_PARAGRAPH_PATTERN.matcher((String) item).replaceAll(""));
+
+                } else if (item instanceof Reference) {
+                    Map<String, Object> oldAttributes = new LinkedHashMap<String, Object>();
+
+                    try {
+                        Reference itemReference = (Reference) item;
+                        Object object = itemReference.getObject();
+
+                        if (object != null && !(object instanceof ReferentialTextMarker)) {
+                            for (Map.Entry<String, Object> entry : itemReference.entrySet()) {
+                                String key = entry.getKey();
+                                if (key != null && !key.startsWith("_")) {
+                                    oldAttributes.put(key, request.getAttribute(key));
+                                    request.setAttribute(key, entry.getValue());
+                                }
+                            }
+
+                            PageFilter.renderObject(request, response, writer, object);
+                        }
+
+                    } finally {
+                        for (Map.Entry<String, Object> entry : oldAttributes.entrySet()) {
+                            request.setAttribute(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+
+        } else if (value instanceof String) {
+            writer.write(StringUtils.escapeHtml((String) value));
+
+        } else {
+            PageFilter.renderObject(request, response, writer, value);
+        }
+
+        return null;
+    }
+
     @Override
     public int doEndTag() throws JspException {
         if (bodyContent != null) {
             String body = bodyContent.getString();
+
             if (!ObjectUtils.isBlank(body)) {
                 try {
                     pageContext.getOut().print(body);
+
                 } catch (IOException ex) {
                     throw new JspException(ex);
                 }
             }
         }
+
         return EVAL_PAGE;
     }
 }
