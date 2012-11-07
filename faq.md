@@ -69,7 +69,29 @@ The build error above is produced when the following Plugin snippet is not inclu
         </pluginRepository>
     </pluginRepositories>
     
+### Java Heap Size
+
+To configure the memory allocation for Tomcat, when using Brightspot, add the following to your catalina.sh file, found at `$TOMCAT_HOME/bin/catalina.sh`. This can be added directly above the `# OS specific support` config.
+
+	# ----- Adding more Memory
+	CATALINA_OPTS="-Xmx1024m -XX:MaxPermSize=256M -Djava.awt.headless=true "
     
+### File upload issues
+
+When attempting to store uploaded files using the Dari `AmazonStorageItem` the error below will appear if the correct dependency is missing from your `pom.xml`
+
+Add the following Jets3t dependency to resolve this issue:
+
+        <dependency>
+            <groupId>net.java.dev.jets3t</groupId>
+            <artifactId>jets3t</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+
+<img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/file-upload-issue.png"/>
+
+
+
 ### Reloader not working
 
 The majority of changes made to classes are auto-compiled and a simple refresh of the CMS will update the objects, fields and UI.
