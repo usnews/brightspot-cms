@@ -4,12 +4,10 @@ import com.psddev.cms.tool.ToolFilter;
 
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.ProfilingDatabase;
-import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.CodeUtils;
@@ -20,28 +18,32 @@ import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Profiler;
-import com.psddev.dari.util.ProfilerFilter;
 import com.psddev.dari.util.PullThroughCache;
 import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +60,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PageFilter extends AbstractFilter {
+
+    public static final String WIREFRAME_PARAMETER = "_wireframe";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PageFilter.class);
 
@@ -390,26 +394,40 @@ public class PageFilter extends AbstractFilter {
                 writer.write("</span>");
             }
 
-            beginPage(request, response, writer, page);
+            HtmlWriter html = new HtmlWriter(writer);
+            html.putAllStandardDefaults();
+            html.putOverride(Recordable.class, new RecordableFormatter());
+
+            boolean wireframe = isWireframe(request);
+            String id = null;
+
+            if (wireframe) {
+                id = writeWireframeWrapperBegin(request, html);
+            }
+
+            beginPage(request, response, html, page);
+
             if (!response.isCommitted()) {
                 request.getSession();
             }
+
             Page.Layout layout = page.getLayout();
+
             if (layout != null) {
-                renderSection(request, response, writer, layout.getOutermostSection());
+                renderSection(request, response, html, layout.getOutermostSection());
             }
-            endPage(request, response, writer, page);
+
+            endPage(request, response, html, page);
+
+            if (wireframe) {
+                writeWireframeWrapperEnd(request, html, id);
+            }
 
         } finally {
             if (!isAuthenticated) {
                 Database.Static.restoreDefault();
             }
         }
-    }
-
-    private static boolean isWireframe(HttpServletRequest request) {
-        return !Settings.isProduction() &&
-                ObjectUtils.to(boolean.class, request.getParameter("_wireframe"));
     }
 
     /** Renders the beginning of the given {@code page}. */
@@ -522,19 +540,30 @@ public class PageFilter extends AbstractFilter {
             Section section)
             throws IOException, ServletException {
 
+        boolean wireframe = isWireframe(request);
+
+        if (wireframe) {
+            writeWireframeSectionBegin(writer, section);
+        }
+
         // Container section - begin, child sections, then end.
         if (section instanceof ContainerSection) {
             ContainerSection container = (ContainerSection) section;
-            addParentSection(request, container);
+            List<Section> children = container.getChildren();
+
             try {
+                addParentSection(request, container);
                 beginContainer(request, response, writer, container);
-                for (Section child : container.getChildren()) {
+
+                for (Section child : children) {
                     renderSection(request, response, writer, child);
                     if (isAborted(request)) {
                         return;
                     }
                 }
+
                 endContainer(request, response, writer, container);
+
             } finally {
                 removeLastParentSection(request);
             }
@@ -551,6 +580,225 @@ public class PageFilter extends AbstractFilter {
             }
             renderObjectWithSection(request, response, writer, object, (ScriptSection) section);
         }
+
+        if (wireframe) {
+            writeWireframeSectionEnd(writer, section);
+        }
+    }
+
+    private static boolean isWireframe(HttpServletRequest request) {
+        return !Settings.isProduction() &&
+                ObjectUtils.to(boolean.class, request.getParameter(WIREFRAME_PARAMETER));
+    }
+
+    private static String writeWireframeWrapperBegin(HttpServletRequest request, Writer writer) throws IOException {
+        HtmlWriter html = (HtmlWriter) writer;
+        String id = JspUtils.createId(request);
+
+        html.start("div", "id", id);
+
+        return id;
+    }
+
+    private static void writeWireframeWrapperEnd(HttpServletRequest request, Writer writer, String id) throws IOException {
+        HtmlWriter html = (HtmlWriter) writer;
+
+        html.end();
+
+        html.start("script", "type", "text/javascript");
+            html.write("(function() {");
+                html.write("var f = document.createElement('iframe');");
+                html.write("f.frameBorder = '0';");
+                html.write("var fs = f.style;");
+                html.write("fs.background = 'transparent';");
+                html.write("fs.border = 'none';");
+                html.write("fs.overflow = 'hidden';");
+                html.write("fs.width = '100%';");
+                html.write("f.src = '");
+                html.write(JspUtils.getAbsolutePath(request, "/_resource/cms/section.html", "id", id));
+                html.write("';");
+                html.write("var a = document.getElementById('");
+                html.write(id);
+                html.write("');");
+                html.write("a.parentNode.insertBefore(f, a.nextSibling);");
+            html.write("})();");
+        html.end();
+    }
+
+    private static void writeWireframeSectionBegin(Writer writer, Section section) throws IOException {
+        HtmlWriter html = (HtmlWriter) writer;
+        String sectionName = section.getName();
+
+        StringBuilder className = new StringBuilder();
+        className.append("cms-section cms-section-transform");
+        className.append((int) (Math.random() * 4));
+
+        if (section instanceof ContainerSection) {
+            className.append(" cms-section-container");
+
+            if (section instanceof HorizontalContainerSection) {
+                className.append(" cms-section-horizontal");
+            }
+        }
+
+        html.start("div", "class", className);
+        html.start("h2");
+
+            if (ObjectUtils.isBlank(sectionName)) {
+                html.html("Unnamed ");
+                html.html(section.getState().getType().getLabel());
+
+            } else {
+                html.html(sectionName);
+            }
+
+        html.end();
+
+        if (section instanceof HorizontalContainerSection) {
+            html.start("div", "class", "cms-section-horizontal-table");
+        }
+    }
+
+    private static void writeWireframeSectionEnd(Writer writer, Section section) throws IOException {
+        HtmlWriter html = (HtmlWriter) writer;
+
+        if (section instanceof HorizontalContainerSection) {
+            html.end();
+        }
+
+        html.end();
+    }
+
+    private static void writeWireframeSection(HttpServletRequest request, HtmlWriter html, String script) throws Exception {
+        if (!ObjectUtils.isBlank(script)) {
+            html.start("p");
+                html.html("Rendered using ");
+                html.start("code").html(script).end();
+                html.html(".");
+            html.end();
+
+        } else {
+            Object object = getCurrentObject(request);
+
+            if (object != null) {
+                String className = object.getClass().getName();
+                File source = CodeUtils.getSource(className);
+
+                html.start("p", "class", "alert alert-error");
+                    html.html("No renderer! Add ");
+                    html.start("code").html("@Renderer.Script").end();
+                    html.html(" to the ");
+
+                    if (source == null) {
+                        html.html(className);
+
+                    } else {
+                        html.start("a",
+                                "href", DebugFilter.Static.getServletPath(request, "code", "file", source),
+                                "target", "code");
+                            html.html(className);
+                        html.end();
+                    }
+
+                    html.html(" class.");
+                html.end();
+
+            } else {
+                Page page = getPage(request);
+
+                if (ObjectUtils.isBlank(script)) {
+                    html.start("p", "class", "alert alert-error");
+                        html.html("No renderer! Specify it in the ");
+                        html.start("a",
+                                "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", page.getId()),
+                                "target", "cms");
+                            html.html(page.getName());
+                        html.end();
+                        html.html(" ").html(page.getClass().getSimpleName().toLowerCase()).html(".");
+                    html.end();
+                }
+            }
+        }
+
+        String classId = JspUtils.createId(request);
+        Map<String, String> names = new TreeMap<String, String>();
+
+        for (
+                @SuppressWarnings("unchecked")
+                Enumeration<String> e = request.getAttributeNames();
+                e.hasMoreElements(); ) {
+            String name = e.nextElement();
+            if (!name.contains(".")) {
+                names.put(name, JspUtils.createId(request));
+            }
+        }
+
+        names.remove("mainObject");
+        names.remove("mainRecord");
+        names.remove("object");
+        names.remove("record");
+
+        html.start("form");
+            html.start("select", "name", "name", "onchange", "$('." + classId + "').hide(); $('#' + $(this).find(':selected').data('jstl-id')).show();");
+                html.start("option", "value", "").html("Available JSTL Expressions").end();
+                for (Map.Entry<String, String> entry : names.entrySet()) {
+                    String name = entry.getKey();
+                    html.start("option", "value", name, "data-jstl-id", entry.getValue());
+                        html.html("${").html(name).html("}");
+                    html.end();
+                }
+            html.end();
+
+            for (Map.Entry<String, String> entry : names.entrySet()) {
+                String name = entry.getKey();
+                Object value = request.getAttribute(name);
+
+                html.start("div",
+                        "class", classId,
+                        "id", entry.getValue(),
+                        "style", "display: none;");
+
+                    html.start("h3").html(value.getClass().getName()).end();
+
+                    html.start("dl");
+
+                        if (value instanceof Map) {
+                            for (Map.Entry<?, ?> entry2 : ((Map<?, ?>) value).entrySet()) {
+                                html.start("dt").start("code").html("${").html(name).html("['").html(entry2.getKey()).html("']}").end().end();
+                                html.start("dd").object(entry2.getValue()).end();
+                            }
+
+                        } else if (value instanceof List) {
+                            List<?> valueList = (List<?>) value;
+
+                            for (int i = 0, size = valueList.size(); i < size; ++ i) {
+                                html.start("dt").start("code").html("${").html(name).html("[").html(i).html("]}").end().end();
+                                html.start("dd").object(valueList.get(i)).end();
+                            }
+
+                        } else {
+                            for (PropertyDescriptor propDesc : Introspector.getBeanInfo(value.getClass()).getPropertyDescriptors()) {
+                                String getterName = propDesc.getName();
+                                Method getterMethod = propDesc.getReadMethod();
+
+                                if (getterMethod == null ||
+                                        "class".equals(getterName) ||
+                                        "state".equals(getterName) ||
+                                        "modifications".equals(getterName) ||
+                                        getterMethod.isAnnotationPresent(Deprecated.class)) {
+                                    continue;
+                                }
+
+                                html.start("dt").start("code").html("${").html(name).html(".").html(getterName).html("}").end().end();
+                                html.start("dd").object(getterMethod.invoke(value)).end();
+                            }
+                        }
+
+                    html.end();
+
+                html.end();
+            }
+        html.end();
     }
 
     /**
@@ -703,7 +951,9 @@ public class PageFilter extends AbstractFilter {
             debugMessage(request, writer, "Engine is [%s]", engine);
             debugMessage(request, writer, "Script is [%s]", script);
 
-            if (!isWireframe(request)) {
+            boolean wireframe = isWireframe(request);
+
+            if (!wireframe) {
                 if (!ObjectUtils.isBlank(engine)) {
                     if ("JSP".equals(engine)) {
                         if (!ObjectUtils.isBlank(script)) {
@@ -732,81 +982,18 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
-            HtmlWriter html = new HtmlWriter(writer);
-            html.putAllStandardDefaults();
-            html.putOverride(Recordable.class, new RecordableFormatter());
+            HtmlWriter html = (HtmlWriter) writer;
 
-            String id = JspUtils.createId(request);
-            Object object = getCurrentObject(request);
+            if (wireframe) {
+                writeWireframeSection(request, html, script);
 
-            html.start("div", "id", id);
-                html.start("div", "style", "border: 1px solid black; padding: 1em;");
-                    html.start("h1").html(section.getName()).end();
-
-                    if (object != null) {
-                        String className = object.getClass().getName();
-                        File source = CodeUtils.getSource(className);
-
-                        html.start("p", "class", "alert alert-error");
-                            html.html("No renderer! Add ");
-                            html.start("code").html("@Renderer.Script").end();
-                            html.html(" to the ");
-
-                            if (source == null) {
-                                html.html(className);
-
-                            } else {
-                                html.start("a",
-                                        "href", DebugFilter.Static.getServletPath(request, "code", "file", source),
-                                        "target", "code");
-                                    html.html(className);
-                                html.end();
-                            }
-
-                            html.html(" class.");
-                        html.end();
-
-                        html.start("p");
-                            html.start("code").html("${content}").end();
-                        html.end();
-
-                        html.object(object);
-
-                    } else {
-                        Page page = getPage(request);
-
-                        html.start("p", "class", "alert alert-error");
-                            html.html("No renderer! Specify it in the ");
-                            html.start("a",
-                                    "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", page.getId()),
-                                    "target", "cms");
-                                html.html(page.getName());
-                            html.end();
-                            html.html(" ").html(page.getClass().getSimpleName().toLowerCase()).html(".");
-                        html.end();
-                    }
-
-                html.end();
-            html.end();
-
-            html.start("script", "type", "text/javascript");
-                html.write("(function() {");
-                    html.write("var f = document.createElement('iframe');");
-                    html.write("f.frameBorder = '0';");
-                    html.write("var fs = f.style;");
-                    html.write("fs.background = 'transparent';");
-                    html.write("fs.border = 'none';");
-                    html.write("fs.overflow = 'hidden';");
-                    html.write("fs.width = '100%';");
-                    html.write("f.src = '");
-                    html.write(JspUtils.getAbsolutePath(request, "/_resource/cms/section.html", "id", id));
-                    html.write("';");
-                    html.write("var a = document.getElementById('");
-                    html.write(id);
-                    html.write("');");
-                    html.write("a.parentNode.insertBefore(f, a.nextSibling);");
-                html.write("})();");
-            html.end();
+            } else {
+                String id = writeWireframeWrapperBegin(request, writer);
+                    writeWireframeSectionBegin(writer, section);
+                        writeWireframeSection(request, html, script);
+                    writeWireframeSectionEnd(writer, section);
+                writeWireframeWrapperEnd(request, writer, id);
+            }
 
         // Always catch the error so the page never looks broken
         // in production.
@@ -837,100 +1024,38 @@ public class PageFilter extends AbstractFilter {
 
     private static class RecordableFormatter implements HtmlFormatter<Recordable> {
 
-        private final ThreadLocal<Boolean> nestedLocal = new ThreadLocal<Boolean>();
-
         @Override
         public void format(HtmlWriter writer, Recordable recordable) throws IOException {
-            Boolean nested = nestedLocal.get();
+            State state = recordable.getState();
+            String permalink = state.as(Directory.ObjectModification.class).getPermalink();
+            ObjectType type = state.getType();
+            StringBuilder label = new StringBuilder();
 
-            try {
-                State state = recordable.getState();
-                String permalink = state.as(Directory.ObjectModification.class).getPermalink();
-                ObjectType type = state.getType();
+            if (type != null) {
+                label.append(type.getLabel());
+                label.append(": ");
+            }
+            label.append(state.getLabel());
 
-                if (nested != null) {
-                    StringBuilder label = new StringBuilder();
+            if (ObjectUtils.isBlank(permalink)) {
+                writer.html(label);
 
-                    if (type != null) {
-                        label.append(type.getLabel());
-                        label.append(": ");
-                    }
-                    label.append(state.getLabel());
+            } else {
+                writer.start("a",
+                        "href", StringUtils.addQueryParameters(permalink, "_wireframe", true),
+                        "target", "cms");
+                    writer.html(label);
+                writer.end();
+            }
 
-                    if (ObjectUtils.isBlank(permalink)) {
-                        writer.html(label);
+            if (!type.isEmbedded()) {
+                writer.html(" - ");
 
-                    } else {
-                        writer.start("a",
-                                "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
-                                "target", "cms");
-                            writer.html(label);
-                        writer.end();
-                    }
-
-                    if (!type.isEmbedded()) {
-                        writer.html(" - ");
-
-                        writer.start("a",
-                                "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
-                                "target", "cms");
-                            writer.html("Edit");
-                        writer.end();
-                    }
-
-                } else {
-                    nestedLocal.set(Boolean.TRUE);
-
-                    writer.start("table", "class", "table table-condensed");
-                        writer.start("tbody");
-
-                            writer.start("tr");
-                                writer.start("th").html("Permalink").end();
-                                writer.start("td");
-
-                                    if (ObjectUtils.isBlank(permalink)) {
-                                        writer.html("N/A");
-
-                                    } else {
-                                        writer.start("a",
-                                                "href", permalink,
-                                                "target", "_top");
-                                            writer.html(permalink);
-                                        writer.end();
-                                    }
-
-                                    writer.html(" - ");
-
-                                    writer.start("a",
-                                            "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
-                                            "target", "cms");
-                                        writer.html("Edit");
-                                    writer.end();
-
-                                writer.end();
-                            writer.end();
-
-                            for (ObjectField field : type.getFields()) {
-                                Object value = state.get(field.getInternalName());
-
-                                if (ObjectUtils.isBlank(value)) {
-                                    continue;
-                                }
-
-                                writer.start("tr");
-                                    writer.start("th").html(field.getDisplayName()).end();
-                                    writer.start("td").object(value).end();
-                                writer.end();
-                            }
-
-                        writer.end();
-                    writer.end();
-                }
-
-            } finally {
-                if (nested == null) {
-                    nestedLocal.remove();
-                }
+                writer.start("a",
+                        "href", StringUtils.addQueryParameters("/cms/content/edit.jsp", "id", state.getId()),
+                        "target", "cms");
+                    writer.html("Edit");
+                writer.end();
             }
         }
     }
@@ -1231,6 +1356,7 @@ public class PageFilter extends AbstractFilter {
         public static void setPage(HttpServletRequest request, Page page) {
             request.setAttribute(PAGE_CHECKED_ATTRIBUTE, Boolean.TRUE);
             request.setAttribute(PAGE_ATTRIBUTE, page);
+            request.setAttribute("template", page);
         }
 
         /** Returns the profile used to process the given {@code request}. */
@@ -1252,6 +1378,7 @@ public class PageFilter extends AbstractFilter {
         public static void setProfile(HttpServletRequest request, Profile profile) {
             request.setAttribute(PROFILE_CHECKED_ATTRIBUTE, Boolean.TRUE);
             request.setAttribute(PROFILE_ATTRIBUTE, profile);
+            request.setAttribute("profile", profile);
         }
 
         // --- EL functions ---

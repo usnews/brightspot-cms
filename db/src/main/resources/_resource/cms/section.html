@@ -3,12 +3,123 @@
 <head>
 
 <link href="../bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Coming+Soon" rel="stylesheet" type="text/css">
+
 <style type="text/css">
-p { font-family: inherit; font-size: inherit; }
+* {
+    word-wrap: break-word;
+}
+
+body {
+    background: transparent;
+    margin: 10px;
+    overflow: hidden;
+}
+
+dd {
+    margin-bottom: 10px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Coming Soon', cursive;
+}
+
+p {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.cms-section {
+    background-image: -moz-linear-gradient(50deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 100%);
+    background-image: -webkit-linear-gradient(50deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 100%);
+    background-image: linear-gradient(50deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 100%);
+    -moz-background-size: 5px 5px;
+    -webkit-background-size: 5px 5px;
+    background-size: 5px 5px;
+    border: 1px solid black;
+    margin-bottom: 10px;
+    padding: 10px 10px 0 10px;
+}
+
+.cms-section-transform0 {
+    border-width: 1.2px;
+    -moz-transform: rotate(0.1deg);
+    -webkit-transform: rotate(0.1deg);
+    transform: rotate(0.1deg);
+}
+
+.cms-section-transform1 {
+    border-width: 1.3px;
+    -moz-transform: rotate(-0.2deg);
+    -webkit-transform: rotate(-0.2deg);
+    transform: rotate(-0.2deg);
+}
+
+.cms-section-transform2 {
+    border-width: 1.1px;
+    -moz-transform: scale(1.003);
+    -webkit-transform: scale(1.003);
+    transform: scale(1.003);
+}
+
+.cms-section-transform3 {
+    border-width: 1.1px;
+    -moz-transform: skew(-0.15deg, -0.15deg);
+    -webkit-transform: skew(-0.15deg, -0.15deg);
+    transform: skew(-0.15deg, -0.15deg);
+}
+
+.cms-section:last-child {
+    margin-bottom: 0;
+}
+
+.cms-section form {
+    margin-bottom: 10px;
+}
+
+.cms-section-container {
+    border-color: #bbb;
+    padding-bottom: 10px;
+}
+
+.cms-section-container > h2 {
+    color: #bbb;
+    font-size: 100%;
+    line-height: 1.5;
+}
+
+.cms-section-horizontal {
+    padding: 0;
+}
+
+.cms-section-horizontal > h2 {
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.cms-section-horizontal-table {
+    border-spacing: 10px;
+    display: table;
+    margin-top: -10px;
+    width: 100%;
+}
+
+.cms-section-horizontal-table > .cms-section {
+    display: table-cell;
+    vertical-align: top;
+}
 </style>
 
+<script type="text/javascript" src="../jquery/jquery-1.7.1.min.js"></script>
+
 </head>
-<body style="background: transparent; overflow: hidden;">
+<body>
 
 <script type="text/javascript">
 (function() {
@@ -20,11 +131,10 @@ p { font-family: inherit; font-size: inherit; }
 
         body.innerHTML = alertMessage.innerHTML;
         alertMessage.parentNode.removeChild(alertMessage);
-        window.frameElement.style.height = Math.max(
-                Math.max(body.scrollHeight, documentElement.scrollHeight),
-                Math.max(body.offsetHeight, documentElement.offsetHeight),
-                Math.max(body.clientHeight, documentElement.clientHeight)) +
-                'px';
+
+        setInterval(function() {
+            $(window.frameElement).height($(body).outerHeight(true));
+        }, 200);
     }
 })();
 </script>
