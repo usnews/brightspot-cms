@@ -312,6 +312,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <%
             String previewFormId = wp.createId();
             String previewTarget = wp.createId();
+            String modeId = wp.createId();
             %>
 
             <ul class="piped controls" style="float: left;">
@@ -325,13 +326,18 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 </li>
             </ul>
 
-            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>">
-                <ul class="piped" style="float: right; margin-top: 35px; margin-right: 45px;">
-                    <li>
-                        <label for="<%= wp.createId() %>">Debug?</label>
-                        <input id="<%= wp.getId() %>" type="checkbox" name="_debug" value="true" onchange="$(this).closest('form').submit();">
-                    </li>
-                </ul>
+            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
+                <input type="hidden" id="<%= modeId %>" name="_" value="true">
+                <label for="<%= wp.createId() %>">Mode:</label>
+                <select id="<%= wp.getId() %>" onchange="
+                        var $select = $(this);
+                        $('#<%= modeId %>').attr('name', $select.val());
+                        $select.closest('form').submit();">
+                    <option value="_">Default</option>
+                    <option value="_prod">Production</option>
+                    <option value="_debug">Debug</option>
+                    <option value="_wireframe">Wireframe</option>
+                </select>
                 <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                 <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
             </form>
