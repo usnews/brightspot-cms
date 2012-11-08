@@ -87,7 +87,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 boolean containsValue = false;
                 if (fieldValue != null) {
                     for (Object fieldValueItem : fieldValue) {
-                        if (fieldValueItem.getClass().isEnum()) {
+                        if (fieldValueItem == null) {
+
+                        } else if (fieldValueItem.getClass().isEnum()) {
                             Enum<?> e = (Enum<?>) fieldValueItem;
                             if (e.name().equals(value.getValue())) {
                                 containsValue = true;
