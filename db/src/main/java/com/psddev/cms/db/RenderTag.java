@@ -132,13 +132,6 @@ public class RenderTag extends BodyTagSupport {
             return EVAL_BODY_BUFFERED;
         }
 
-        if (value instanceof Iterable) {
-            for (Object item : (Iterable<?>) value) {
-                writeValue(item);
-            }
-            return null;
-        }
-
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
         JspWriter writer = pageContext.getOut();
@@ -199,6 +192,11 @@ public class RenderTag extends BodyTagSupport {
                         }
                     }
                 }
+            }
+
+        } else if (value instanceof Iterable) {
+            for (Object item : (Iterable<?>) value) {
+                writeValue(item);
             }
 
         } else if (value instanceof String) {
