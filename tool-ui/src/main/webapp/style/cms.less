@@ -2356,76 +2356,82 @@ table.links {
 .filePreview {
     margin-top: 5px;
 }
+
 .imageEditor {
     display: inline-block;
     max-width: 100%;
     position: relative;
 }
-.imageEditor > .toolbar {
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    color: white;
-    left: 5px;
-    padding: 0 5px;
+
+.imageEditor-controls {
     position: absolute;
-    top: 5px;
-    z-index: 1;
+    right: 0;
+    top: 0;
+    width: 150px;
 }
-.imageEditor > .toolbar li {
-    height: 20px;
-    line-height: 20px;
+
+.imageEditor-edits {
+    margin-bottom: 10px;
+
+    ul {
+        list-style-type: none;
+        margin-left: 0;
+    }
 }
-.imageEditor > .toolbar a {
-    color: #7be;
+
+.imageEditor-image {
+    margin-right: 160px; 
+
+    img {
+        width: 100%;
+    }
 }
-.imageEditor > img {
-    width: 100%;
+
+.imageEditor-cover {
+    background-color: rgba(0, 0, 0, 0.7);
 }
-.imageEditor .cropButton {
-    color: #7be;
-    cursor: pointer;
+
+.imageEditor-sizeSelectors {
+    .links;
+
+    li {
+        .links-item;
+
+        &:hover {
+            .links-hover;
+        }
+
+        &.imageEditor-sizeSelected {
+            .links-selected;
+        }
+    }
 }
-.imageEditor .cropButton:hover {
-    text-decoration: underline;
-}
-.imageEditor .cropButton:not(:last-child):after {
-    content: ', '
-}
-.imageEditor > .cropBox {
-    outline: 1px dashed white;
+
+.imageEditor-sizeBox {
+    border: 1px dashed white;
     cursor: move;
+    margin-left: -1px;
+    margin-top: -1px;
 }
-.imageEditor > .cropBox > .cropResizer {
-    background-color: #29c;
+
+.imageEditor-resizer {
+    background-color: @linkColor;
     border: 1px solid white;
     height: 8px;
     width: 8px;
     position: absolute;
 }
-.imageEditor > .cropBox > .cropResizer-topLeft {
+
+.imageEditor-resizer-topLeft {
     cursor: nw-resize;
     left: -5px;
     top: -5px;
 }
-.imageEditor > .cropBox > .cropResizer-topRight {
-    cursor: ne-resize;
-    right: -5px;
-    top: -5px;
-}
-.imageEditor > .cropBox > .cropResizer-bottomLeft {
-    bottom: -5px;
-    cursor: sw-resize;
-    left: -5px;
-}
-.imageEditor > .cropBox > .cropResizer-bottomRight {
+
+.imageEditor-resizer-bottomRight {
     bottom: -5px;
     cursor: se-resize;
     right: -5px;
-}
-.imageEditor .cropCover {
-    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .inputContainer .permissions select {

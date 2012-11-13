@@ -235,7 +235,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
     }
 
-    // Crops.
+    // Standard sizes.
     for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext(); ) {
         Map.Entry<String, ImageCrop> e = i.next();
         String cropId = e.getKey();
@@ -313,11 +313,18 @@ String existingClass = wp.createId();
 
             <% if (contentType != null && contentType.startsWith("image/")) { %>
                 <div class="imageEditor">
-                    <ul class="toolbar piped">
-                        <li><a class="icon-table" href="<%= wp.url("/content/imageMetadata.jsp", "id", id, "field", fieldName) %>" target="contentImageMetadata">Metadata</a></li>
+
+                    <div class="imageEditor-controls">
+                        <div class="imageEditor-edits">
+                            <ul>
+                                <li><a class="icon-table" href="<%= wp.url("/content/imageMetadata.jsp", "id", id, "field", fieldName) %>" target="contentImageMetadata">View Metadata</a></li>
+                            </ul>
+                        </div>
+
                         <% if (!crops.isEmpty()) { %>
-                            <li>Crops:
-                                <table class="crops"><tbody>
+                            <div class="imageEditor-sizes">
+                                <h2>Standard Sizes</h2>
+                                <table><tbody>
                                     <%
                                     for (Map.Entry<String, ImageCrop> e : crops.entrySet()) {
                                         String cropId = e.getKey();
@@ -341,11 +348,16 @@ String existingClass = wp.createId();
                                         </tr>
                                     <% } %>
                                 </tbody></table>
-                            </li>
+                            </div>
                         <% } %>
-                    </ul>
-                    <img src="<%= wp.h(fieldValue.getUrl()) %>">
+                    </div>
+
+                    <div class="imageEditor-image">
+                        <img alt="" src="<%= wp.h(fieldValue.getUrl()) %>">
+                    </div>
+
                 </div>
+
             <% } else if(fieldValue instanceof BrightcoveStorageItem) { %>
 
                 <% String playerKey = ((BrightcoveStorageItem) fieldValue).getPreviewPlayerKey(); %>

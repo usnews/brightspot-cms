@@ -673,41 +673,19 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 
 // Image editor.
 $('.imageEditor').liveInit(function() {
-
     var $editor = $(this);
-    var $image = $editor.find('> img');
-
-    $editor.find('.width').hide();
-    $editor.find('.height').hide();
-
-    var $imageCopy = $('<img/>', {
-        'css': { 'display': 'none' },
-        'load': function() {
-            var $image = $(this);
-            $editor.find('.width > :input').val($image.width());
-            $editor.find('.height > :input').val($image.height());
-            $image.remove();
-        }
-    });
-    $('body').append($imageCopy);
-    $imageCopy.attr('src', $image.attr('src'));
+    var $image = $editor.find('.imageEditor-image img');
 
     var $coverTop = $('<div/>', {
-        'class': 'cropCover',
+        'class': 'imageEditor-cover',
         'css': {
             'display': 'none',
             'left': '0',
             'position': 'absolute',
             'top': '0'
-        },
-        'click': function() {
-            $editor.find('.cropBox').hide();
-            $coverTop.hide();
-            $coverLeft.hide();
-            $coverRight.hide();
-            $coverBottom.hide();
         }
     });
+
     var $coverLeft = $coverTop.clone(true);
     var $coverRight = $coverTop.clone(true);
     var $coverBottom = $coverTop.clone(true);
@@ -718,37 +696,41 @@ $('.imageEditor').liveInit(function() {
     $editor.append($coverBottom);
 
     var updateCover = function(bounds) {
+        var imageWidth = $image.width();
+        var imageHeight = $image.height();
+        var boundsRight = bounds.left + bounds.width;
+        var boundsBottom = bounds.top + bounds.height;
+
         $coverTop.css({
             'display': 'block',
-            'height': bounds.top + 'px',
-            'right': 0
+            'height': bounds.top,
+            'width': imageWidth
         });
         $coverLeft.css({
             'display': 'block',
-            'height': bounds.height + 'px',
-            'top': bounds.top + 'px',
-            'width': bounds.left + 'px'
+            'height': bounds.height,
+            'top': bounds.top,
+            'width': bounds.left
         });
         $coverRight.css({
             'display': 'block',
-            'height': bounds.height + 'px',
-            'left': (bounds.left + bounds.width) + 'px',
-            'right': 0,
-            'top': bounds.top + 'px'
+            'height': bounds.height,
+            'left': boundsRight,
+            'top': bounds.top,
+            'width': imageWidth - boundsRight
         });
         $coverBottom.css({
             'display': 'block',
-            'bottom': 0,
-            'top': (bounds.top + bounds.height) + 'px',
-            'right': 0
+            'height': imageHeight - boundsBottom,
+            'top': boundsBottom,
+            'width': imageWidth
         });
     };
 
-    var $crops = $editor.find('.crops');
-    var $cropSelector = $('<span/>', { 'class': 'cropSelector' });
+    var $sizes = $editor.find('.imageEditor-sizes table');
+    var $sizeSelectors = $('<ul/>', { 'class': 'imageEditor-sizeSelectors' });
 
-    $crops.find('th').each(function() {
-
+    $sizes.find('th').each(function() {
         var $th = $(this);
         var $tr = $th.closest('tr');
 
@@ -761,23 +743,22 @@ $('.imageEditor').liveInit(function() {
         var $width = $tr.find(':input[name$=.width]');
         var $height = $tr.find(':input[name$=.height]');
 
-        var $cropBox = $('<div/>', {
-            'class': 'cropBox',
+        var $sizeBox = $('<div/>', {
+            'class': 'imageEditor-sizeBox',
             'css': { 'position': 'absolute' }
         });
 
-        $cropBox.hide();
-        $editor.append($cropBox);
+        $sizeBox.hide();
+        $editor.append($sizeBox);
 
-        var updateCropBox = function(callback) {
+        var updateSizeBox = function(callback) {
             return function(event) {
-
-                var cropBoxPosition = $cropBox.position();
+                var sizeBoxPosition = $sizeBox.position();
                 var original = {
-                    'left': cropBoxPosition.left,
-                    'top': cropBoxPosition.top,
-                    'width': $cropBox.width(),
-                    'height': $cropBox.height(),
+                    'left': sizeBoxPosition.left,
+                    'top': sizeBoxPosition.top,
+                    'width': $sizeBox.width(),
+                    'height': $sizeBox.height(),
                     'pageX': event.pageX,
                     'pageY': event.pageY
                 };
@@ -800,49 +781,100 @@ $('.imageEditor').liveInit(function() {
                         bounds[key] = bounds[key] || original[key];
                     }
 
-                    // Make sure bounds isn't outside of the image.
-                    if (bounds.left < 0) {
-                        bounds.left = 0;
-                    } else if (bounds.left + bounds.width > imageWidth) {
-                        bounds.left = imageWidth - bounds.width;
-                    }
-                    if (bounds.top < 0) {
-                        bounds.top = 0;
-                    } else if (bounds.top + bounds.height > imageHeight) {
-                        bounds.top = imageHeight - bounds.height;
+                    var overflow;
+
+                    // When moving, don't let it go outside the image.
+                    if (bounds.moving) {
+                        if (bounds.left < 0) {
+                            bounds.left = 0;
+                        }
+
+                        if (bounds.top < 0) {
+                            bounds.top = 0;
+                        }
+
+                        overflow = bounds.left + bounds.width - imageWidth;
+                        if (overflow > 0) {
+                            bounds.left -= overflow;
+                        }
+
+                        overflow = bounds.top + bounds.height - imageHeight;
+                        if (overflow > 0) {
+                            bounds.top -= overflow;
+                        }
+
+                    // Resizing...
+                    } else {
+                        if (bounds.width < 10 || bounds.height < 10) {
+                            if (sizeAspectRatio > 1.0) {
+                                bounds.width = sizeAspectRatio * 10;
+                                bounds.height = 10;
+                            } else {
+                                bounds.width = 10;
+                                bounds.height = 10 / sizeAspectRatio;
+                            }
+                        }
+
+                        if (bounds.left < 0) {
+                            bounds.width += bounds.left;
+                            bounds.height = bounds.width / sizeAspectRatio;
+                            bounds.top -= bounds.left / sizeAspectRatio;
+                            bounds.left = 0;
+                        }
+
+                        if (bounds.top < 0) {
+                            bounds.height += bounds.top;
+                            bounds.width = bounds.height * sizeAspectRatio;
+                            bounds.left -= bounds.top * sizeAspectRatio;
+                            bounds.top = 0;
+                        }
+
+                        overflow = bounds.left + bounds.width - imageWidth;
+                        if (overflow > 0) {
+                            bounds.width -= overflow;
+                            bounds.height = bounds.width / sizeAspectRatio;
+                        }
+
+                        overflow = bounds.top + bounds.height - imageHeight;
+                        if (overflow > 0) {
+                            bounds.height -= overflow;
+                            bounds.width = bounds.height * sizeAspectRatio;
+                        }
                     }
 
                     updateCover(bounds);
-                    $cropBox.css(bounds);
+                    $sizeBox.css(bounds);
 
                 // Set the hidden inputs to the current bounds.
                 }, function() {
-                    var cropBoxPosition = $cropBox.position();
-                    var cropBoxWidth = $cropBox.width();
-                    var cropBoxHeight = $cropBox.height();
-                    $x.val(cropBoxPosition.left / imageWidth);
-                    $y.val(cropBoxPosition.top / imageHeight);
-                    $width.val(cropBoxWidth / imageWidth);
-                    $height.val(cropBoxWidth / sizeAspectRatio / imageHeight);
+                    var sizeBoxPosition = $sizeBox.position();
+                    var sizeBoxWidth = $sizeBox.width();
+                    var sizeBoxHeight = $sizeBox.height();
+
+                    $x.val(sizeBoxPosition.left / imageWidth);
+                    $y.val(sizeBoxPosition.top / imageHeight);
+                    $width.val(sizeBoxWidth / imageWidth);
+                    $height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
                 });
 
                 return false;
             };
         };
 
-        $cropBox.mousedown(updateCropBox(function(event, original, delta) {
+        $sizeBox.mousedown(updateSizeBox(function(event, original, delta) {
             return {
+                'moving': true,
                 'left': original.left + delta.x,
                 'top': original.top + delta.y
             };
         }));
 
-        $cropBox.hide();
-        $editor.append($cropBox);
+        $sizeBox.hide();
+        $editor.append($sizeBox);
 
-        $cropBox.append($('<div/>', {
-            'class': 'cropResizer cropResizer-topLeft',
-            'mousedown': updateCropBox(function(event, original, delta) {
+        $sizeBox.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-topLeft',
+            'mousedown': updateSizeBox(function(event, original, delta) {
                 return {
                     'left': original.left + delta.constrainedX,
                     'top': original.top + delta.constrainedY,
@@ -851,9 +883,9 @@ $('.imageEditor').liveInit(function() {
                 };
             })
         }));
-        $cropBox.append($('<div/>', {
-            'class': 'cropResizer cropResizer-bottomRight',
-            'mousedown': updateCropBox(function(event, original, delta) {
+        $sizeBox.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
+            'mousedown': updateSizeBox(function(event, original, delta) {
                 return {
                     'width': original.width + delta.constrainedX,
                     'height': original.height + delta.constrainedY
@@ -861,48 +893,72 @@ $('.imageEditor').liveInit(function() {
             })
         }));
 
-        var $cropButton = $('<span/>', {
-            'class': 'cropButton',
-            'text': $th.text(),
-            'click': function() {
+        var $sizeButton = $('<li/>', {
+            'html': $('<a/>', {
+                'href': '#',
+                'text': $th.text(),
+                'click': function() {
+                    var $item = $(this).closest('li');
 
-                var imageWidth = $image.width();
-                var imageHeight = $image.height();
-                $editor.find('.cropBox').hide();
+                    if ($item.is('.imageEditor-sizeSelected')) {
+                        $item.removeClass('imageEditor-sizeSelected');
+                        $sizeBox.hide();
+                        $coverTop.hide();
+                        $coverLeft.hide();
+                        $coverRight.hide();
+                        $coverBottom.hide();
+                        return false;
 
-                var x = (parseFloat($x.val()) || 0) * imageWidth;
-                var y = (parseFloat($y.val()) || 0) * imageHeight;
-                var width = (parseFloat($width.val()) || 0) * imageWidth;
-                var height = (parseFloat($height.val()) || 0) * imageHeight;
-                if (width === 0.0 || height === 0.0) {
-                    width = imageHeight * sizeAspectRatio,
-                    height = imageWidth / sizeAspectRatio
-                    if (width > imageWidth) {
-                        width = height * sizeAspectRatio;
                     } else {
-                        height = width / sizeAspectRatio;
+                        $item.closest('ul').find('li').removeClass('imageEditor-sizeSelected');
+                        $item.addClass('imageEditor-sizeSelected');
                     }
-                    x = (imageWidth - width) / 2;
-                    y = 0;
-                }
 
-                var bounds = {
-                    'left': x,
-                    'top': y,
-                    'width': width,
-                    'height': height
-                };
-                updateCover(bounds);
-                $cropBox.css(bounds);
-                $cropBox.show();
-            }
+                    var imageWidth = $image.width();
+                    var imageHeight = $image.height();
+
+                    $editor.find('.imageEditor-sizeBox').hide();
+
+                    var x = (parseFloat($x.val()) || 0) * imageWidth;
+                    var y = (parseFloat($y.val()) || 0) * imageHeight;
+                    var width = (parseFloat($width.val()) || 0) * imageWidth;
+                    var height = (parseFloat($height.val()) || 0) * imageHeight;
+
+                    if (width === 0.0 || height === 0.0) {
+                        width = imageHeight * sizeAspectRatio;
+                        height = imageWidth / sizeAspectRatio;
+
+                        if (width > imageWidth) {
+                            width = height * sizeAspectRatio;
+                        } else {
+                            height = width / sizeAspectRatio;
+                        }
+
+                        x = (imageWidth - width) / 2;
+                        y = 0;
+                    }
+
+                    var bounds = {
+                        'left': x,
+                        'top': y,
+                        'width': width,
+                        'height': height
+                    };
+
+                    updateCover(bounds);
+                    $sizeBox.css(bounds);
+                    $sizeBox.show();
+
+                    return false;
+                }
+            })
         });
 
-        $cropSelector.append($cropButton);
+        $sizeSelectors.append($sizeButton);
     });
 
-    $crops.before($cropSelector);
-    $crops.hide();
+    $sizes.before($sizeSelectors);
+    $sizes.hide();
 });
 
 // Make sure that most elements are always in view.
