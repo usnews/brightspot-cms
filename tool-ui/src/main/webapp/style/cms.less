@@ -2364,6 +2364,8 @@ table.links {
 }
 
 .imageEditor-aside {
+    height: 100%;
+    overflow: auto;
     position: absolute;
     right: 0;
     top: 0;
@@ -2410,18 +2412,29 @@ table.links {
 }
 
 .imageEditor-sizeSelectors {
-    .links;
+    list-style-type: none;
+    margin: 0;
+}
 
-    li {
-        .links-item;
+.imageEditor-sizeButton {
+    cursor: pointer;
+    overflow: hidden;
+}
 
-        &:hover {
-            .links-hover;
-        }
+.imageEditor-sizePreview {
+    canvas,
+    img {
+        width: 100%;
+    }
+}
 
-        &.imageEditor-sizeSelected {
-            .links-selected;
-        }
+.imageEditor-sizeLabel {
+    background-color: #ececec;
+    display: block;
+    padding: 3px;
+
+    .imageEditor-sizeSelected & {
+        background-color: #5cb3e5;
     }
 }
 

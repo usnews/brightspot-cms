@@ -690,6 +690,7 @@ public class ToolPageContext extends WebPageContext {
                 "/script/json2.min.js",
                 "/script/pixastic/pixastic.core.js",
                 "/script/pixastic/actions/brightness.js",
+                "/script/pixastic/actions/crop.js",
                 "/script/pixastic/actions/desaturate.js",
                 "/script/pixastic/actions/fliph.js",
                 "/script/pixastic/actions/flipv.js",

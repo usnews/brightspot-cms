@@ -676,7 +676,8 @@ $('.imageEditor').liveInit(function() {
     var $editor = $(this);
     var $image = $editor.find('.imageEditor-image img');
     var $originalImage = $image;
-    var imageClone = $image.clone()[0];
+    var $imageClone = $image.clone();
+    var imageClone = $imageClone[0];
 
     var $tools = $editor.find('.imageEditor-tools ul');
     var $edit = $editor.find('.imageEditor-edit');
@@ -915,6 +916,88 @@ $('.imageEditor').liveInit(function() {
         $sizeBox.hide();
         $editor.append($sizeBox);
 
+        var getSizeBounds = function($image) {
+            var imageWidth = $image.width();
+            var imageHeight = $image.height();
+
+            var left = parseFloat($x.val()) || 0.0;
+            var top = parseFloat($y.val()) || 0.0;
+            var width = parseFloat($width.val()) || 0.0;
+            var height = parseFloat($height.val()) || 0.0;
+
+            if (width === 0.0 || height === 0.0) {
+                width = imageHeight * sizeAspectRatio;
+                height = imageWidth / sizeAspectRatio;
+
+                if (width > imageWidth) {
+                    width = height * sizeAspectRatio;
+                } else {
+                    height = width / sizeAspectRatio;
+                }
+
+                left = (imageWidth - width) / 2;
+                top = 0;
+
+            } else {
+                left *= imageWidth;
+                top *= imageHeight;
+                width *= imageWidth;
+                height *= imageHeight;
+            }
+
+            return {
+                'left': left,
+                'top': top,
+                'width': width,
+                'height': height
+            };
+        };
+
+        var $sizeButton = $('<li/>', {
+            'class': 'imageEditor-sizeButton',
+            'click': function() {
+                var $item = $(this).closest('li');
+
+                if ($item.is('.imageEditor-sizeSelected')) {
+                    $item.removeClass('imageEditor-sizeSelected');
+                    $sizeBox.hide();
+                    $coverTop.hide();
+                    $coverLeft.hide();
+                    $coverRight.hide();
+                    $coverBottom.hide();
+                    return false;
+
+                } else {
+                    $item.closest('ul').find('li').removeClass('imageEditor-sizeSelected');
+                    $item.addClass('imageEditor-sizeSelected');
+                }
+
+                $editor.find('.imageEditor-sizeBox').hide();
+
+                var bounds = getSizeBounds($image);
+
+                updateCover(bounds);
+                $sizeBox.css(bounds);
+                $sizeBox.show();
+
+                return false;
+            }
+        });
+
+        $sizeSelectors.append($sizeButton);
+
+        var updatePreview = function() {
+            var $body = $(document.body);
+            $body.append($imageClone);
+            var bounds = getSizeBounds($imageClone);
+            $imageClone.remove();
+            Pixastic.process(imageClone, 'crop', bounds, function(newImage) {
+                var $preview = $sizeButton.find('.imageEditor-sizePreview');
+                $preview.empty();
+                $preview.append(newImage);
+            });
+        };
+
         var updateSizeBox = function(callback) {
             return function(event) {
                 var sizeBoxPosition = $sizeBox.position();
@@ -1019,6 +1102,8 @@ $('.imageEditor').liveInit(function() {
                     $y.val(sizeBoxPosition.top / imageHeight);
                     $width.val(sizeBoxWidth / imageWidth);
                     $height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
+
+                    updatePreview();
                 });
 
                 return false;
@@ -1057,68 +1142,25 @@ $('.imageEditor').liveInit(function() {
             })
         }));
 
-        var $sizeButton = $('<li/>', {
-            'html': $('<a/>', {
-                'href': '#',
-                'text': $th.text(),
-                'click': function() {
-                    var $item = $(this).closest('li');
+        var $sizeLabel = $('<span/>', {
+            'class': 'imageEditor-sizeLabel',
+            'text': $th.text()
+        });
 
-                    if ($item.is('.imageEditor-sizeSelected')) {
-                        $item.removeClass('imageEditor-sizeSelected');
-                        $sizeBox.hide();
-                        $coverTop.hide();
-                        $coverLeft.hide();
-                        $coverRight.hide();
-                        $coverBottom.hide();
-                        return false;
+        $sizeButton.append($sizeLabel);
 
-                    } else {
-                        $item.closest('ul').find('li').removeClass('imageEditor-sizeSelected');
-                        $item.addClass('imageEditor-sizeSelected');
-                    }
-
-                    var imageWidth = $image.width();
-                    var imageHeight = $image.height();
-
-                    $editor.find('.imageEditor-sizeBox').hide();
-
-                    var x = (parseFloat($x.val()) || 0) * imageWidth;
-                    var y = (parseFloat($y.val()) || 0) * imageHeight;
-                    var width = (parseFloat($width.val()) || 0) * imageWidth;
-                    var height = (parseFloat($height.val()) || 0) * imageHeight;
-
-                    if (width === 0.0 || height === 0.0) {
-                        width = imageHeight * sizeAspectRatio;
-                        height = imageWidth / sizeAspectRatio;
-
-                        if (width > imageWidth) {
-                            width = height * sizeAspectRatio;
-                        } else {
-                            height = width / sizeAspectRatio;
-                        }
-
-                        x = (imageWidth - width) / 2;
-                        y = 0;
-                    }
-
-                    var bounds = {
-                        'left': x,
-                        'top': y,
-                        'width': width,
-                        'height': height
-                    };
-
-                    updateCover(bounds);
-                    $sizeBox.css(bounds);
-                    $sizeBox.show();
-
-                    return false;
+        var $sizePreview = $('<div/>', {
+            'class': 'imageEditor-sizePreview',
+            'html': $('<img/>', {
+                'alt': $th.text(),
+                'src': $image.attr('src'),
+                'load': function() {
+                    updatePreview();
                 }
             })
         });
 
-        $sizeSelectors.append($sizeButton);
+        $sizeButton.append($sizePreview);
     });
 
     $sizes.before($sizeSelectors);
