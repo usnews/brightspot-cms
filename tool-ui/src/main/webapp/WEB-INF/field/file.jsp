@@ -62,6 +62,15 @@ String fileName = inputName + ".file";
 String urlName = inputName + ".url";
 String cropsName = inputName + ".crops.";
 
+String brightnessName = inputName + ".brightness";
+String contrastName = inputName + ".contrast";
+String flipHName = inputName + ".flipH";
+String flipVName = inputName + ".flipV";
+String grayscaleName = inputName + ".grayscale";
+String invertName = inputName + ".invert";
+String rotateName = inputName + ".rotate";
+String sepiaName = inputName + ".sepia";
+
 String metadataFieldName = fieldName + ".metadata";
 String widthFieldName = fieldName + ".width";
 String heightFieldName = fieldName + ".height";
@@ -75,6 +84,22 @@ if (fieldValue != null) {
 if (fieldValueMetadata == null) {
     fieldValueMetadata = new LinkedHashMap<String, Object>();
 }
+
+Map<String, Object> edits = (Map<String, Object>) fieldValueMetadata.get("cms.edits");
+
+if (edits == null) {
+    edits = new HashMap<String, Object>();
+    fieldValueMetadata.put("cms.edits", edits);
+}
+
+double brightness = ObjectUtils.to(double.class, edits.get("brightness"));
+double contrast = ObjectUtils.to(double.class, edits.get("contrast"));
+boolean flipH = ObjectUtils.to(boolean.class, edits.get("flipH"));
+boolean flipV = ObjectUtils.to(boolean.class, edits.get("flipV"));
+boolean grayscale = ObjectUtils.to(boolean.class, edits.get("grayscale"));
+boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
+int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
+boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
 
 Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, fieldValueMetadata.get("cms.crops"));
 if (crops == null) {
@@ -97,6 +122,44 @@ for (StandardImageSize size : StandardImageSize.findAll()) {
 if ((Boolean) request.getAttribute("isFormPost")) {
     String action = wp.param(actionName);
     StorageItem newItem = null;
+
+    brightness = wp.param(double.class, brightnessName);
+    contrast = wp.param(double.class, contrastName);
+    flipH = wp.param(boolean.class, flipHName);
+    flipV = wp.param(boolean.class, flipVName);
+    grayscale = wp.param(boolean.class, grayscaleName);
+    invert = wp.param(boolean.class, invertName);
+    rotate = wp.param(int.class, rotateName);
+    sepia = wp.param(boolean.class, sepiaName);
+
+    edits = new HashMap<String, Object>();
+
+    if (brightness != 0.0) {
+        edits.put("brightness", brightness);
+    }
+    if (contrast != 0.0) {
+        edits.put("contrast", contrast);
+    }
+    if (flipH) {
+        edits.put("flipH", flipH);
+    }
+    if (flipV) {
+        edits.put("flipV", flipV);
+    }
+    if (invert) {
+        edits.put("invert", invert);
+    }
+    if (rotate != 0) {
+        edits.put("rotate", rotate);
+    }
+    if (grayscale) {
+        edits.put("grayscale", grayscale);
+    }
+    if (sepia) {
+        edits.put("sepia", sepia);
+    }
+
+    fieldValueMetadata.put("cms.edits", edits);
 
     if ("keep".equals(action)) {
         if (fieldValue != null) {
@@ -314,11 +377,50 @@ String existingClass = wp.createId();
             <% if (contentType != null && contentType.startsWith("image/")) { %>
                 <div class="imageEditor">
 
-                    <div class="imageEditor-controls">
-                        <div class="imageEditor-edits">
+                    <div class="imageEditor-aside">
+                        <div class="imageEditor-tools">
+                            <h2>Tools</h2>
                             <ul>
                                 <li><a class="icon-table" href="<%= wp.url("/content/imageMetadata.jsp", "id", id, "field", fieldName) %>" target="contentImageMetadata">View Metadata</a></li>
                             </ul>
+                        </div>
+
+                        <div class="imageEditor-edit">
+                            <h2>Filters</h2>
+                            <table><tbody>
+                                <tr>
+                                    <th>Brightness</th>
+                                    <td><input type="range" name="<%= brightnessName %>" value="<%= brightness %>" min="-1.0" max="1.0" step="0.01"></td>
+                                </tr>
+                                <tr>
+                                    <th>Contrast</th>
+                                    <td><input type="range" name="<%= contrastName %>" value="<%= contrast %>" min="-1.0" max="1.0" step="0.01"></td>
+                                </tr>
+                                <tr>
+                                    <th>Flip H</th>
+                                    <td><input type="checkbox" name="<%= flipHName %>" value="true"<%= flipH ? " checked" : "" %>></td>
+                                </tr>
+                                <tr>
+                                    <th>Flip V</th>
+                                    <td><input type="checkbox" name="<%= flipVName %>" value="true"<%= flipV ? " checked" : "" %>></td>
+                                </tr>
+                                <tr>
+                                    <th>Invert</th>
+                                    <td><input type="checkbox" name="<%= invertName %>" value="true"<%= invert ? " checked" : "" %>></td>
+                                </tr>
+                                <tr>
+                                    <th>Grayscale</th>
+                                    <td><input type="checkbox" name="<%= grayscaleName %>" value="true"<%= grayscale ? " checked" : "" %>></td>
+                                </tr>
+                                <tr>
+                                    <th>Rotate</th>
+                                    <td><input type="range" name="<%= rotateName %>" value="<%= rotate %>" min="-90" max="90" step="90"></td>
+                                </tr>
+                                <tr>
+                                    <th>Sepia</th>
+                                    <td><input type="checkbox" name="<%= sepiaName %>" value="true"<%= sepia ? " checked" : "" %>></td>
+                                </tr>
+                            </tbody></table>
                         </div>
 
                         <% if (!crops.isEmpty()) { %>
@@ -353,7 +455,7 @@ String existingClass = wp.createId();
                     </div>
 
                     <div class="imageEditor-image">
-                        <img alt="" src="<%= wp.h(fieldValue.getUrl()) %>">
+                        <img alt="" src="<%= wp.url("/misc/proxy.jsp", "url", fieldValue.getUrl()) %>">
                     </div>
 
                 </div>

@@ -675,6 +675,170 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 $('.imageEditor').liveInit(function() {
     var $editor = $(this);
     var $image = $editor.find('.imageEditor-image img');
+    var $originalImage = $image;
+    var imageClone = $image.clone()[0];
+
+    var $tools = $editor.find('.imageEditor-tools ul');
+    var $edit = $editor.find('.imageEditor-edit');
+
+    var $editButton = $('<li/>', {
+        'html': $('<a/>', {
+            'class': 'icon-pencil',
+            'text': 'Edit Image',
+            'click': function() {
+                $edit.popup('source', $(this));
+                $edit.popup('open');
+                return false;
+            }
+        })
+    });
+
+    $tools.prepend($editButton);
+
+    var $editInputs = $('<div/>');
+
+    $editButton.append($editInputs);
+
+    var previousOperations;
+    var processImageTimer;
+
+    var processImage = function() {
+        var operations = { };
+
+        $edit.find(':input').each(function() {
+            var $input = $(this);
+            var value = $input.is(':checkbox') ? $input.is(':checked') : parseFloat($input.val());
+
+            if (value === false || isNaN(value)) {
+                return;
+            }
+
+            var name = /.([^.]+)$/.exec($input.attr('name'));
+            name = name ? name[1] : null;
+
+            if (name === 'brightness') {
+                operations.brightness = operations.brightness || { };
+                operations.brightness.brightness = value * 150;
+                operations.brightness.legacy = true;
+
+            } else if (name === 'contrast') {
+                operations.brightness = operations.brightness || { };
+                operations.brightness.contrast = value < 0 ? value : value * 3;
+
+            } else if (name === 'flipH') {
+                operations.fliph = operations.fliph || { };
+
+            } else if (name === 'flipV') {
+                operations.flipv = operations.flipv || { };
+
+            } else if (name === 'grayscale') {
+                operations.desaturate = operations.desaturate || { };
+
+            } else if (name === 'invert') {
+                operations.invert = operations.invert || { };
+
+            } else if (name === 'rotate') {
+                operations.rotate = operations.rotate|| { };
+                operations.rotate.angle = -value;
+
+            } else if (name === 'sepia') {
+                operations.sepia = operations.sepia || { };
+            }
+        });
+
+        var serialized = JSON.stringify(operations);
+
+        if (serialized !== previousOperations) {
+            previousOperations = serialized;
+
+            $editInputs.empty();
+            $edit.find(':input').each(function() {
+                var $input = $(this);
+
+                if (!$input.is(':checkbox') || $input.is(':checked')) {
+                    $editInputs.append($('<input/>', {
+                        'type': 'hidden',
+                        'name': $input.attr('name'),
+                        'value': $input.val()
+                    }));
+                }
+            });
+
+            var operationKeys = [ ];
+            var operationKeyIndex = 0;
+
+            for (var key in operations) {
+                if (operations.hasOwnProperty(key)) {
+                    operationKeys[operationKeys.length] = key;
+                }
+            }
+
+            var operate = function(processedImage, index) {
+                if (index < operationKeys.length) {
+                    var key = operationKeys[index];
+
+                    Pixastic.process(processedImage, key, operations[key], function(newImage) {
+                        ++ index;
+                        operate(newImage, index);
+                    });
+
+                } else {
+                    if ($image !== $originalImage) {
+                        $image.remove();
+                    }
+
+                    $originalImage.before(processedImage);
+                    $originalImage.hide();
+                    $image = $(processedImage);
+
+                    processImageTimer = setTimeout(processImage, 100);
+                }
+            };
+
+            operate(imageClone, 0);
+
+        } else {
+            processImageTimer = setTimeout(processImage, 100);
+        }
+    };
+
+    processImage();
+
+    $edit.popup('container').bind('open', function() {
+        processImage();
+    });
+
+    $edit.popup('container').bind('close', function() {
+        if (processImageTimer) {
+            clearTimeout(processImageTimer);
+        }
+    });
+
+    var $resetButton = $('<button/>', {
+        'text': 'Reset',
+        'click': function() {
+            $edit.find(':input').each(function() {
+                var $input = $(this);
+
+                if ($input.is(':checkbox')) {
+                    $input.removeAttr('checked');
+
+                } else {
+                    $input.val(0);
+                }
+            });
+
+            processImage();
+
+            return false;
+        }
+    });
+
+    $edit.append($resetButton);
+
+    $edit.popup();
+    $edit.popup('container').addClass('imageEditor-editPopup');
+    $edit.popup('close');
 
     var $coverTop = $('<div/>', {
         'class': 'imageEditor-cover',

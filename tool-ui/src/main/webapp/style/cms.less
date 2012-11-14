@@ -2363,14 +2363,14 @@ table.links {
     position: relative;
 }
 
-.imageEditor-controls {
+.imageEditor-aside {
     position: absolute;
     right: 0;
     top: 0;
     width: 150px;
 }
 
-.imageEditor-edits {
+.imageEditor-tools {
     margin-bottom: 10px;
 
     ul {
@@ -2379,9 +2379,27 @@ table.links {
     }
 }
 
+.imageEditor-edit table tr {
+    background-color: transparent;
+}
+
+.imageEditor-editPopup {
+    width: 250px;
+
+    > .content {
+        left: 75px;
+        position: relative;
+
+        > .marker {
+            left: 50px !important;
+        }
+    }
+}
+
 .imageEditor-image {
     margin-right: 160px; 
 
+    canvas,
     img {
         width: 100%;
     }

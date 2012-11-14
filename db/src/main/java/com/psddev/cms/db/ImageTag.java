@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -739,6 +740,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     options.put(ImageEditor.RESIZE_OPTION, resizeOption.getImageEditorOption());
                 }
 
+                @SuppressWarnings("unchecked")
+                Map<String, Object> edits = (Map<String, Object>) item.getMetadata().get("cms.edits");
+
                 // Requires at least the width and height to perform a crop
                 if (cropWidth != null && cropHeight != null) {
                     item = ImageEditor.Static.crop(editor, item, options, cropX, cropY, cropWidth, cropHeight);
@@ -747,6 +751,16 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 // Requires only one of either the width or the height to perform a resize
                 if (width != null || height != null) {
                     item = ImageEditor.Static.resize(editor, item, options, width, height);
+                }
+
+                if (edits != null) {
+                    ImageEditor realEditor = editor;
+                    if (realEditor == null) {
+                        realEditor = ImageEditor.Static.getDefault();
+                    }
+                    for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
+                        item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+                    }
                 }
 
                 String url = item.getPublicUrl();
