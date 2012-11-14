@@ -31,6 +31,7 @@ java.util.List,
 java.util.Locale,
 java.util.Map,
 java.util.Set,
+java.util.TreeMap,
 java.util.UUID,
 
 org.apache.commons.fileupload.FileItem,
@@ -109,6 +110,8 @@ if (crops == null) {
 if (crops == null) {
     crops = new HashMap<String, ImageCrop>();
 }
+
+crops = new TreeMap<String, ImageCrop>(crops);
 
 Map<String, StandardImageSize> sizes = new HashMap<String, StandardImageSize>();
 for (StandardImageSize size : StandardImageSize.findAll()) {
