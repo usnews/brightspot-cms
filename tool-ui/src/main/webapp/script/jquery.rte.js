@@ -538,6 +538,7 @@ $.plugin('rte', {
             'enhancement': createEnhancement,
             'marker': createMarker,
             'spacerUrl': 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+            'style': false,
             'stylesheets': CONTEXT_PATH + '/style/rte-content.css',
             'toolbar': createToolbar,
             'useLineBreaks': false
