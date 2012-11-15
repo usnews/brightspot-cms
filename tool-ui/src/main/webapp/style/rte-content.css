@@ -1,9 +1,68 @@
-p {
-    margin-top: 0;
+* {
+    font-family: inherit;
+    font-size: 100%;
+    font-style: inherit;
+    font-weight: inherit;
+    text-decoration: inherit;
+    vertical-align: inherit;
 }
 
-.wysiwyg-text-align-right {
-  text-align: right;
+*:focus {
+    outline-style: none;
+}
+
+*:last-child {
+    margin-bottom: 0;
+}
+
+b,
+strong {
+    font-weight: bold;
+}
+
+body {
+    color: #333;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 16px;
+    margin: 3px;
+    padding: 0;
+    vertical-align: baseline;
+    word-wrap: break-word;
+}
+
+em,
+i {
+    font-style: italic;
+}
+
+ol,
+p,
+ul {
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+strike {
+    text-decoration: line-through;
+}
+
+sub {
+    font-size: 0.83em;
+    line-height: 0;
+    vertical-align: sub;
+}
+
+sup {
+    font-size: 0.83em;
+    line-height: 0;
+    vertical-align: super;
+}
+
+u {
+    text-decoration: underline;
 }
 
 .wysiwyg-text-align-center {
@@ -14,8 +73,8 @@ p {
   text-align: left;
 }
 
-.wysiwyg-text-align-justify {
-  text-align: justify;
+.wysiwyg-text-align-right {
+  text-align: right;
 }
 
 .enhancement {
