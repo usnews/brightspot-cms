@@ -425,8 +425,8 @@ var Rte = wysihtml5.Editor.extend({
 
             $enhancement.css({
                 'height': $placeholder.outerHeight(),
-                'left': placeholderOffset.left - $window.scrollLeft() + 4,
-                'top': placeholderOffset.top - $window.scrollTop() + 4,
+                'left': placeholderOffset.left - $window.scrollLeft(),
+                'top': placeholderOffset.top - $window.scrollTop(),
                 'width': $placeholder.outerWidth()
             });
 
