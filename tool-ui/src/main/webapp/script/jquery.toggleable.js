@@ -19,6 +19,7 @@ $.plugin('toggleable', {
             var $toBeShown = $(showSelector);
             $toBeShown.show();
             $toBeShown.find(':input').removeAttr('disabled');
+            $toBeShown.rte('enable');
         }
     };
 

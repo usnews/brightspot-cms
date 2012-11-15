@@ -546,6 +546,18 @@ $.plugin('rte', {
     });
 },
 
+'enable': function() {
+    var container = this[0];
+    if (container) {
+        $.each(rtes, function() {
+            var textarea = this.textareaElement;
+            if (textarea && $.contains(container, textarea)) {
+                this.enable();
+            }
+        });
+    }
+},
+
 // Sets data related to the enhancement.
 'enhancement': function(data) {
     var $enhancement = this.closest('.rte-enhancement');
