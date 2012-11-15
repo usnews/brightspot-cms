@@ -12,122 +12,152 @@ var $createToolbarCommand = function(label, command) {
     return $('<span/>', {
         'class': 'rte-button rte-button-' + command,
         'data-wysihtml5-command': command,
-        'text': label,
+        'text': label
     });
 };
 
 var createToolbar = function() {
-    return ($('<div/>', { 'class': 'rte-toolbar-container' })
-        .append($('<div/>', { 'class': 'rte-toolbar' })
-            .append($createToolbarGroup('Font')
-                .append($createToolbarCommand('Bold', 'bold'))
-                .append($createToolbarCommand('Italic', 'italic'))
-                .append($createToolbarCommand('Underline', 'underline'))
-                .append($createToolbarCommand('Strike', 'strike'))
-                .append($createToolbarCommand('Superscript', 'superscript'))
-                .append($createToolbarCommand('Subscript', 'subscript'))
-            )
-            .append($createToolbarGroup('Alignment')
-                .append($createToolbarCommand('Justify Left', 'justifyLeft'))
-                .append($createToolbarCommand('Justify Center', 'justifyCenter'))
-                .append($createToolbarCommand('Justify Right', 'justifyRight'))
-            )
-            .append($createToolbarGroup('List')
-                .append($createToolbarCommand('Unordered List', 'insertUnorderedList'))
-                .append($createToolbarCommand('Ordered List', 'insertOrderedList'))
-                .append($createToolbarCommand('Decrease Indent', 'outdent'))
-                .append($createToolbarCommand('Increase Insent', 'indent'))
-            )
-            .append($createToolbarGroup('Enhancement')
-                .append($createToolbarCommand('Link', 'createLink'))
-                .append($createToolbarCommand('Add Enhancement', 'insertEnhancement'))
-                .append($createToolbarCommand('Add Marker', 'insertMarker'))
-            )
-            .append($createToolbarGroup('Misc')
-                .append($('<span/>', {
-                    'class': 'rte-button rte-button-change_view',
-                    'data-wysihtml5-action': 'change_view',
-                    'text': 'Source',
-                }))
-            )
-        )
-        .append($(
-            '<div data-wysihtml5-dialog="createLink" style="display: none;">' +
-                '<b>Link:</b><br/><br/>' +
-                '<label>' +
-                'URL:' +
-                '<input data-wysihtml5-dialog-field="href" value="http://">' +
-                'Title:' +
-                '<input data-wysihtml5-dialog-field="title" value="">' +
-                'Target:' +
-                '<select data-wysihtml5-dialog-field="target">' +
-                    '<option value=""></option>' +
-                    '<option value="_blank">New Window (_blank)</option>' +
-                    '<option value="_top">Top-most Window (_top)</option>' +
-                    '<option value="_self">Same Window (_self)</option>' +
-                    '<option value="_parent">Parent Window (_parent)</option>' +
-                '</select>        ' +
-                '</label>' +
-                '<a data-wysihtml5-dialog-action="save">OK</a>&nbsp;' +
-                '<a data-wysihtml5-dialog-action="cancel">Cancel</a>' +
-            '</div>'
-        ))
-    )[0];
+    var $container = $('<div/>', { 'class': 'rte-toolbar-container' });
+
+    var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
+    $container.append($toolbar);
+
+    var $font = $createToolbarGroup('Font');
+    $toolbar.append($font);
+
+    $font.append($createToolbarCommand('Bold', 'bold'));
+    $font.append($createToolbarCommand('Italic', 'italic'));
+    $font.append($createToolbarCommand('Underline', 'underline'));
+    $font.append($createToolbarCommand('Strike', 'strike'));
+    $font.append($createToolbarCommand('Superscript', 'superscript'));
+    $font.append($createToolbarCommand('Subscript', 'subscript'));
+
+    var $alignment = $createToolbarGroup('Alignment') ;
+    $toolbar.append($alignment);
+
+    $alignment.append($createToolbarCommand('Justify Left', 'justifyLeft'));
+    $alignment.append($createToolbarCommand('Justify Center', 'justifyCenter'));
+    $alignment.append($createToolbarCommand('Justify Right', 'justifyRight'));
+
+    var $list = $createToolbarGroup('List');
+    $toolbar.append($list);
+
+    $list.append($createToolbarCommand('Unordered List', 'insertUnorderedList'));
+    $list.append($createToolbarCommand('Ordered List', 'insertOrderedList'));
+    $list.append($createToolbarCommand('Decrease Indent', 'outdent'));
+    $list.append($createToolbarCommand('Increase Insent', 'indent'));
+
+    var $enhancement = $createToolbarGroup('Enhancement');
+    $toolbar.append($enhancement);
+
+    $enhancement.append($createToolbarCommand('Link', 'createLink'));
+    $enhancement.append($createToolbarCommand('Add Enhancement', 'insertEnhancement'));
+    $enhancement.append($createToolbarCommand('Add Marker', 'insertMarker'));
+
+    var $misc = $createToolbarGroup('Misc');
+    $toolbar.append($misc);
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-change_view',
+        'data-wysihtml5-action': 'change_view',
+        'text': 'Source'
+    }));
+
+    $toolbar.append($(
+        '<div data-wysihtml5-dialog="createLink" style="display: none;">' +
+            '<b>Link:</b><br/><br/>' +
+            '<label>' +
+            'URL:' +
+            '<input data-wysihtml5-dialog-field="href" value="http://">' +
+            'Title:' +
+            '<input data-wysihtml5-dialog-field="title" value="">' +
+            'Target:' +
+            '<select data-wysihtml5-dialog-field="target">' +
+                '<option value=""></option>' +
+                '<option value="_blank">New Window (_blank)</option>' +
+                '<option value="_top">Top-most Window (_top)</option>' +
+                '<option value="_self">Same Window (_self)</option>' +
+                '<option value="_parent">Parent Window (_parent)</option>' +
+            '</select>        ' +
+            '</label>' +
+            '<a data-wysihtml5-dialog-action="save">OK</a>&nbsp;' +
+            '<a data-wysihtml5-dialog-action="cancel">Cancel</a>' +
+        '</div>'));
+
+    return $container[0];
 };
 
 var $createEnhancementAction = function(label, action) {
     return $('<span/>', {
         'class': 'rte-button rte-button-' + action,
         'data-action': action,
-        'text': label,
+        'text': label
     });
 };
 
 var createEnhancement = function() {
-    return ($('<div/>', { 'class': 'rte-enhancement' })
-        .append($('<div/>', { 'class': 'rte-toolbar' })
-            .append($createToolbarGroup('Position')
-                .append($createEnhancementAction('Move Left', 'moveLeft'))
-                .append($createEnhancementAction('Move Up', 'moveUp'))
-                .append($createEnhancementAction('Move Center', 'moveCenter'))
-                .append($createEnhancementAction('Move Down', 'moveDown'))
-                .append($createEnhancementAction('Move Right', 'moveRight'))
-            )
-            .append($createToolbarGroup('Misc')
-                .append($('<span/>', { 'class': 'rte-button rte-button-editEnhancement' })
-                    .append($('<a/>', {
-                        'href': CONTEXT_PATH + '/content/enhancement.jsp?id=',
-                        'target': 'contentEnhancement',
-                        'text': 'Edit'
-                    }))
-                )
-                .append($createEnhancementAction('Remove', 'remove'))
-            )
-        )
-        .append($('<div/>', { 'class': 'rte-enhancement-label' }))
-    )[0];
+    var $enhancement = $('<div/>', { 'class': 'rte-enhancement' });
+
+    var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
+    $enhancement.append($toolbar);
+
+    var $position = $createToolbarGroup('Position');
+    $toolbar.append($position);
+
+    $position.append($createEnhancementAction('Move Left', 'moveLeft'));
+    $position.append($createEnhancementAction('Move Up', 'moveUp'));
+    $position.append($createEnhancementAction('Move Center', 'moveCenter'));
+    $position.append($createEnhancementAction('Move Down', 'moveDown'));
+    $position.append($createEnhancementAction('Move Right', 'moveRight'));
+
+    var $misc = $createToolbarGroup('Misc');
+    $toolbar.append($misc);
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-editEnhancement',
+        'html': $('<a/>', {
+            'href': CONTEXT_PATH + '/content/enhancement.jsp?id=',
+            'target': 'contentEnhancement',
+            'text': 'Edit'
+        })
+    }));
+
+    $misc.append($createEnhancementAction('Remove', 'remove'));
+
+    $enhancement.append($('<div/>', { 'class': 'rte-enhancement-label' }));
+
+    return $enhancement[0];
 };
 
 var createMarker = function() {
-    return ($('<div/>', { 'class': 'rte-enhancement rte-marker' })
-        .append($('<div/>', { 'class': 'rte-toolbar' })
-            .append($createToolbarGroup('Position')
-                .append($createEnhancementAction('Move Up', 'moveUp'))
-                .append($createEnhancementAction('Move Down', 'moveDown'))
-            )
-            .append($createToolbarGroup('Misc')
-                .append($('<span/>', { 'class': 'rte-button rte-button-selectMarker' })
-                    .append($('<a/>', {
-                        'href': CONTEXT_PATH + '/content/marker.jsp',
-                        'target': 'contentEnhancement',
-                        'text': 'Select'
-                    }))
-                )
-                .append($createEnhancementAction('Remove', 'remove'))
-            )
-        )
-        .append($('<div/>', { 'class': 'rte-enhancement-label' }))
-    )[0];
+    var $marker = $('<div/>', { 'class': 'rte-enhancement rte-marker' });
+
+    var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
+    $marker.append($toolbar);
+
+    var $position = $createToolbarGroup('Position');
+    $toolbar.append($position);
+
+    $position.append($createEnhancementAction('Move Up', 'moveUp'));
+    $position.append($createEnhancementAction('Move Down', 'moveDown'));
+
+    var $misc = $createToolbarGroup('Misc');
+    $toolbar.append($misc);
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-selectMarker',
+        'html': $('<a/>', {
+            'href': CONTEXT_PATH + '/content/marker.jsp',
+            'target': 'contentEnhancement',
+            'text': 'Select'
+        })
+    }));
+
+    $misc.append($createEnhancementAction('Remove', 'remove'));
+
+    $marker.append($('<div/>', { 'class': 'rte-enhancement-label' }));
+
+    return $marker[0];
 };
 
 // Wrap wysihtml5 to add functionality.
@@ -136,7 +166,7 @@ var enhancementId = 0;
 var createEnhancementId = function() {
     ++ enhancementId;
     return enhancementId;
-}
+};
 
 $(window).bind('resize scroll', $.throttle(100, function() {
     $.each(rtes, function(item) {
@@ -221,8 +251,8 @@ var Rte = wysihtml5.Editor.extend({
             var $placeholder = $button.closest('.rte-enhancement').data('$rte-placeholder');
             var action = $button.attr('data-action');
 
-            if (action === 'moveRight') {
-                $placeholder.attr('data-alignment', 'right');
+            if (action == 'remove') {
+                $placeholder.remove();
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
@@ -230,20 +260,21 @@ var Rte = wysihtml5.Editor.extend({
             } else if (action === 'moveLeft') {
                 $placeholder.attr('data-alignment', 'left');
 
-            } else if (action === 'moveUp') {
-                var oldTop = $placeholder.offset().top;
-                var $window = $(window);
-                $placeholder.parents().andSelf().filter('body > *').prev().before($placeholder);
-                $window.scrollTop($window.scrollTop() + $placeholder.offset().top - oldTop);
+            } else if (action === 'moveRight') {
+                $placeholder.attr('data-alignment', 'right');
 
-            } else if (action == 'moveDown') {
+            } else {
                 var oldTop = $placeholder.offset().top;
-                var $window = $(window);
-                $placeholder.parents().andSelf().filter('body > *').next().after($placeholder);
-                $window.scrollTop($window.scrollTop() + $placeholder.offset().top - oldTop);
+                var $win = $(window);
 
-            } else if (action == 'remove') {
-                $placeholder.remove();
+                if (action === 'moveDown') {
+                    $placeholder.parents().andSelf().filter('body > *').next().after($placeholder);
+                    $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+
+                } else if (action === 'moveUp') {
+                    $placeholder.parents().andSelf().filter('body > *').prev().before($placeholder);
+                    $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+                }
             }
 
             rte.updateOverlay();
@@ -331,7 +362,7 @@ var Rte = wysihtml5.Editor.extend({
                     rtes[i].toolbar.hide();
                 }
                 this.toolbar.show();
-            })
+            });
 
             setInterval(function() {
                 rte.updateOverlay();
@@ -377,7 +408,7 @@ var Rte = wysihtml5.Editor.extend({
             var $enhancement = $('#rte-enhancement-' + id);
             var isMarker = wysihtml5.dom.hasClass($placeholder[0], 'marker');
 
-            if ($enhancement.length == 0) {
+            if ($enhancement.length === 0) {
                 var newEnhancement = rte.config[isMarker ? 'marker' : 'enhancement']();
                 newEnhancement.style.position = 'absolute';
                 newEnhancement.setAttribute('id', 'rte-enhancement-' + id);
