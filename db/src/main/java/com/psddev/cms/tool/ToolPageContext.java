@@ -713,8 +713,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         for (String src : new String[] {
-                "/script/global.js",
-                "/script/local.js" }) {
+                "/script/cms.js" }) {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
         }
 
