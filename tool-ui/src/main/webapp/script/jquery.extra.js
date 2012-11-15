@@ -23,7 +23,7 @@ $.plugin = function(name, methods) {
         } else if (!method || typeof method === 'object') {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('[' + method + '] method does not exist on [' + name + '] plugin!');
+            return $.error('[' + method + '] method does not exist on [' + name + '] plugin!');
         }
     };
 };
@@ -122,7 +122,7 @@ $.fn.zIndex = function() {
     var zIndex;
     for (var $parent = this; $parent.length > 0; $parent = $parent.parent()) {
         try {
-            zIndex = parseInt($parent.css('z-index'));
+            zIndex = parseInt($parent.css('z-index'), 10);
         } catch (error) {
             break;
         }

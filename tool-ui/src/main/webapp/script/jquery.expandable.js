@@ -45,7 +45,7 @@ $.plugin('expandable', {
                 'display': 'inline-block',
                 'white-space': 'nowrap',
                 'width': 'auto'
-            })
+            });
             $input.data('expandable-checker', $checker);
             $input.after($checker);
         }

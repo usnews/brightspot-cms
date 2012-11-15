@@ -9,8 +9,8 @@ if (typeof jQuery !== 'undefined') (function($) {
         $.fn[type] = function(size) {
             if (typeof size === 'number') {
                 var $elem = $(this);
-                if ('border-box' == ($elem.css('-moz-box-sizing')
-                        || $elem.css('-webkit-box-sizing'))) {
+                if ('border-box' == ($elem.css('-moz-box-sizing') ||
+                        $elem.css('-webkit-box-sizing'))) {
                     size += $elem['outer' + name]() - $elem[type]();
                 }
             }
@@ -128,8 +128,7 @@ $.fn.dropDown = function(config) {
         $select.find('> option').each(function() {
             var $option = $(this);
             var $item = $('<li/>', {
-                'class': $option.is('[selected]')
-                        ? config.listItemSelectedClass : '',
+                'class': $option.is('[selected]') ? config.listItemSelectedClass : '',
                 'click': $select.is('[multiple]') ? function(e) {
                     if($option.is('[selected]')) {
                         $option.removeAttr('selected');

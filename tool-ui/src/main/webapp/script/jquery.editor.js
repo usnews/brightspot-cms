@@ -18,7 +18,7 @@ $.plugin('editor', {
         $.each(data, function(key, value) {
 
             var name = 'data-' + key;
-            if (value != null) {
+            if (value !== null) {
                 $original.attr(name, value);
                 $enhancement.attr(name, value);
             } else {
@@ -46,7 +46,7 @@ $.plugin('editor', {
 
         // Main toolbar that's shared across multiple editors.
         var $mainToolbar = $('#editorMainToolbar');
-        if ($mainToolbar.length == 0) {
+        if ($mainToolbar.length === 0) {
             $mainToolbar = $('<div/>', { 'id': 'editorMainToolbar' });
             $mainToolbar.hide();
             $(document.body).append($mainToolbar);
@@ -209,7 +209,7 @@ CKEDITOR.plugins.add('enhancement', {
                             }
                         });
                     }
-                    return element
+                    return element;
                 }
             }
         }, 5);
@@ -282,7 +282,7 @@ CKEDITOR.editor.prototype.updateEnhancements = function() {
 
     // Create an overlay container used for positioning if one doesn't already exist.
     var $overlayContainer = $content.find('> .overlayContainer');
-    if ($overlayContainer.length == 0) {
+    if ($overlayContainer.length === 0) {
         $overlayContainer = $('<div/>', { 'class': 'overlayContainer' });
         $content.prepend($overlayContainer);
     }

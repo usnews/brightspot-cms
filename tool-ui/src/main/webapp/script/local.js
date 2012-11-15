@@ -240,62 +240,61 @@ $('textarea.pageLayout').liveInit(function() {
     openSettings = function($button, definition) {
 
         var $settings = $('#sectionSettings');
-        if ($settings.length == 0) {
+        if ($settings.length === 0) {
             var engines = '<option value=""></option><option value="JSP">JSP</option><option value="RawText">Raw Text</option>';
             $settings = $(
-                '<div id="sectionSettings">' +
-                    '<h1>Section: <strong class="name"></strong></h1>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Shareable?</div>' +
-                        '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Cache Duration (in Milliseconds)</div>' +
-                        '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Type</div>' +
-                        '<div class="smallInput"><select class="toggleable" name="_type">' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .c" value="com.psddev.cms.db.ContentSection">Script (with Content)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.MainSection">Script (with Main Content)</option>' +
-                        '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc s c">' +
-                        '<div class="label">Name</div>' +
-                        '<div class="smallInput"><input name="name" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i s c">' +
-                        '<div class="label">Engine</div>' +
-                        '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i s c">' +
-                        '<div class="label">Script</div>' +
-                        '<div class="smallInput"><input name="script" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">Begin Engine</div>' +
-                        '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">Begin Script</div>' +
-                        '<div class="smallInput"><input name="beginScript" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">End Engine</div>' +
-                        '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">End Script</div>' +
-                        '<div class="smallInput"><input name="endScript" type="text"></div>' +
-                    '</div>' +
-                    '<div class="buttons">' +
-                        '<a class="button continueButton" href="#">Continue Editing</a>' +
-                    '</div>' +
-                '</div>'
-            );
+                    '<div id="sectionSettings">' +
+                        '<h1>Section: <strong class="name"></strong></h1>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Shareable?</div>' +
+                            '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Cache Duration (in Milliseconds)</div>' +
+                            '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Type</div>' +
+                            '<div class="smallInput"><select class="toggleable" name="_type">' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .c" value="com.psddev.cms.db.ContentSection">Script (with Content)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.MainSection">Script (with Main Content)</option>' +
+                            '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc s c">' +
+                            '<div class="label">Name</div>' +
+                            '<div class="smallInput"><input name="name" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i s c">' +
+                            '<div class="label">Engine</div>' +
+                            '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i s c">' +
+                            '<div class="label">Script</div>' +
+                            '<div class="smallInput"><input name="script" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">Begin Engine</div>' +
+                            '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">Begin Script</div>' +
+                            '<div class="smallInput"><input name="beginScript" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">End Engine</div>' +
+                            '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">End Script</div>' +
+                            '<div class="smallInput"><input name="endScript" type="text"></div>' +
+                        '</div>' +
+                        '<div class="buttons">' +
+                            '<a class="button continueButton" href="#">Continue Editing</a>' +
+                        '</div>' +
+                    '</div>');
 
             $settings.find('.continueButton').click(function() {
                 $settings.popup('close');
@@ -389,7 +388,7 @@ $('textarea.pageLayout').liveInit(function() {
         $form.attr('autocomplete', 'off');
 
         var $targetFrame = $('.frame[name=' + $form.attr('target') + ']');
-        if ($targetFrame.length == 0) {
+        if ($targetFrame.length === 0) {
             $form.submit();
 
         } else {
@@ -449,7 +448,7 @@ $('.extensionContainer').each(function() {
 
     var $form = $('.contentForm');
     var $repeatables = $form.find('.repeatableForm');
-    if ($repeatables.length == 0) {
+    if ($repeatables.length === 0) {
         return;
     }
 
@@ -552,7 +551,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 
         // Add clear button when not part of repeatable (which provides
         // the functionally equivalent remove button).
-        if ($input.closest('.repeatableObjectId').length == 0) {
+        if ($input.closest('.repeatableObjectId').length === 0) {
             var previousValue;
             $clearButton = $('<a/>', {
                 'class': 'clearObjectId',
@@ -640,7 +639,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
                         var parentPosition = $parent.position();
                         $label.text(labelText);
                         $label.show();
-                        return
+                        return;
                     } else {
                         break;
                     }
@@ -1250,8 +1249,8 @@ $('.inputContainer .smallInput').liveInit(function() {
     var $container = $(this);
     $container.find('textarea').each(function() {
         var $input = $(this);
-        var suggestedMinimum = parseInt($input.attr('data-suggested-minimum'));
-        var suggestedMaximum = parseInt($input.attr('data-suggested-maximum'));
+        var suggestedMinimum = parseInt($input.attr('data-suggested-minimum'), 10);
+        var suggestedMaximum = parseInt($input.attr('data-suggested-maximum'), 10);
         if (suggestedMinimum || suggestedMaximum) {
             $input.keyup($.throttle(100, function() {
                 setTimeout(function() {

@@ -37,7 +37,7 @@ $.plugin('frame', {
                     $frame = $element.closest('.frame').parent().closest('.frame');
                 } else if (target) {
                     $frame = $body.find('.frame[name=' + target + ']');
-                    if ($frame.length == 0) {
+                    if ($frame.length === 0) {
                         $frame = $('<div/>', { 'class': 'frame', 'name': target });
                         $body.append($frame);
                         $frame.popup();
@@ -120,7 +120,7 @@ $.plugin('frame', {
                 }
 
                 var $isFrame = $form.find(':hidden[name=_isFrame]');
-                if ($isFrame.length == 0) {
+                if ($isFrame.length === 0) {
                     $isFrame = $('<input name="_isFrame" type="hidden" value="true"/>');
                     $form.prepend($isFrame);
                 }
@@ -136,7 +136,7 @@ $.plugin('frame', {
                 }
 
                 var $submitFrame = $('iframe[name=' + target + ']');
-                if ($submitFrame.length == 0) {
+                if ($submitFrame.length === 0) {
                     $submitFrame = $('<iframe/>', { 'name': target });
                     $submitFrame.hide();
                     $body.append($submitFrame);
@@ -148,7 +148,7 @@ $.plugin('frame', {
                     endLoad($frame, version, $submitFrame.contents().find('body').html());
                     if (!hasTarget) {
                         $form.removeAttr('target');
-                        setTimeout(function() { $submitFrame.remove() }, 0);
+                        setTimeout(function() { $submitFrame.remove(); }, 0);
                     }
                 });
 
