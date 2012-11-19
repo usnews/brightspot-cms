@@ -169,6 +169,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         tagBuilder.setResizeOption(resizeOption);
     }
 
+    public void setTagName(String tagName) {
+        tagBuilder.setTagName(tagName);
+    }
+
     /**
      * Overrides the default attribute (src) used to place the image URL. This
      * is usually used in the conjunction with lazy loading scripts that copy
@@ -216,10 +220,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return SKIP_BODY;
     }
 
-    private static String convertAttributesToHtml(Map<String, String> attributes) {
+    private static String convertAttributesToHtml(String tagName, Map<String, String> attributes) {
         StringBuilder builder = new StringBuilder();
         if (!attributes.isEmpty()) {
-            builder.append("<img");
+            if (tagName == null) {
+                tagName = "img";
+            }
+            builder.append("<");
+            builder.append(tagName);
             for (Map.Entry<String, String> e : attributes.entrySet()) {
                 String key = e.getKey();
                 String value = e.getValue();
@@ -451,6 +459,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         private CropOption cropOption;
         private ResizeOption resizeOption;
 
+        private String tagName;
         private String srcAttribute;
         private boolean hideDimensions;
         private boolean overlay;
@@ -486,6 +495,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             height = null;
             cropOption = null;
             resizeOption = null;
+            tagName = null;
             srcAttribute = null;
             hideDimensions = false;
             attributes.clear();
@@ -555,6 +565,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
          */
         public Builder setResizeOption(ResizeOption resizeOption) {
             this.resizeOption = resizeOption;
+            return this;
+        }
+
+        public Builder setTagName(String tagName) {
+            this.tagName = tagName;
             return this;
         }
 
@@ -633,7 +648,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
          * @return the HTML for an img tag constructed by this Builder.
          */
         public String toHtml() {
-            String html = convertAttributesToHtml(toAttributes());
+            String html = convertAttributesToHtml(tagName, toAttributes());
 
             if (isOverlay()) {
                 StorageItem item = null;
@@ -998,7 +1013,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             Map<String, String> attributes = getAttributes(wp,
                     object, field, editor, standardSize, width, height, cropOption, resizeOption, srcAttr, dynamicAttributes);
 
-            return convertAttributesToHtml(attributes);
+            return convertAttributesToHtml(null, attributes);
         }
 
         /**

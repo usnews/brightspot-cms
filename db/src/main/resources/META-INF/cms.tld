@@ -79,6 +79,10 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>tagName</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>srcAttr</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
