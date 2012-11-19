@@ -33,6 +33,10 @@ body {
     word-wrap: break-word;
 }
 
+body.imageEditor-textOverlayInput {
+    word-wrap: normal;
+}
+
 em,
 i {
     font-style: italic;
@@ -65,16 +69,16 @@ u {
     text-decoration: underline;
 }
 
-.wysiwyg-text-align-center {
-  text-align: center;
+.cms-textAlign-center {
+    text-align: center;
 }
 
-.wysiwyg-text-align-left {
-  text-align: left;
+.cms-textAlign-left {
+    text-align: left;
 }
 
-.wysiwyg-text-align-right {
-  text-align: right;
+.cms-textAlign-right {
+    text-align: right;
 }
 
 .enhancement {

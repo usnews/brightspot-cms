@@ -915,6 +915,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 // Image editor.
 $('.imageEditor').liveInit(function() {
     var $editor = $(this);
+    var $form = $editor.closest('form');
     var $image = $editor.find('.imageEditor-image img');
     var $originalImage = $image;
     var $imageClone = $image.clone();
@@ -1108,29 +1109,30 @@ $('.imageEditor').liveInit(function() {
         var boundsBottom = bounds.top + bounds.height;
 
         $coverTop.css({
-            'display': 'block',
             'height': bounds.top,
             'width': imageWidth
         });
         $coverLeft.css({
-            'display': 'block',
             'height': bounds.height,
             'top': bounds.top,
             'width': bounds.left
         });
         $coverRight.css({
-            'display': 'block',
             'height': bounds.height,
             'left': boundsRight,
             'top': bounds.top,
             'width': imageWidth - boundsRight
         });
         $coverBottom.css({
-            'display': 'block',
             'height': imageHeight - boundsBottom,
             'top': boundsBottom,
             'width': imageWidth
         });
+
+        $coverTop.show();
+        $coverLeft.show();
+        $coverRight.show();
+        $coverBottom.show();
     };
 
     var $sizes = $editor.find('.imageEditor-sizes table');
@@ -1148,6 +1150,12 @@ $('.imageEditor').liveInit(function() {
         var $y = $tr.find(':input[name$=.y]');
         var $width = $tr.find(':input[name$=.width]');
         var $height = $tr.find(':input[name$=.height]');
+
+        var $text = $tr.find(':input[name$=.text]');
+        var $textSize = $tr.find(':input[name$=.textSize]');
+        var $textX = $tr.find(':input[name$=.textX]');
+        var $textY = $tr.find(':input[name$=.textY]');
+        var $textWidth = $tr.find(':input[name$=.textWidth]');
 
         var $sizeBox = $('<div/>', {
             'class': 'imageEditor-sizeBox',
@@ -1201,11 +1209,12 @@ $('.imageEditor').liveInit(function() {
 
                 if ($item.is('.imageEditor-sizeSelected')) {
                     $item.removeClass('imageEditor-sizeSelected');
-                    $sizeBox.hide();
                     $coverTop.hide();
                     $coverLeft.hide();
                     $coverRight.hide();
                     $coverBottom.hide();
+                    $sizeBox.hide();
+                    $textOverlay.hide();
                     return false;
 
                 } else {
@@ -1220,6 +1229,21 @@ $('.imageEditor').liveInit(function() {
                 updateCover(bounds);
                 $sizeBox.css(bounds);
                 $sizeBox.show();
+                $textOverlay.show();
+                resizeTextOverlayFont();
+
+                var textWidth = parseFloat($textWidth.val()) || 0.0;
+
+                if (textWidth !== 0.0) {
+                    var textX = parseFloat($textX.val()) || 0.0;
+                    var textY = parseFloat($textY.val()) || 0.0;
+
+                    $textOverlay.css({
+                        'left': (textX * 100) + '%',
+                        'top': (textY * 100) + '%',
+                        'width': (textWidth * 100) + '%'
+                    });
+                }
 
                 return false;
             }
@@ -1241,6 +1265,8 @@ $('.imageEditor').liveInit(function() {
 
         var updateSizeBox = function(callback) {
             return function(event) {
+                $textOverlayShim.show();
+
                 var sizeBoxPosition = $sizeBox.position();
                 var original = {
                     'left': sizeBoxPosition.left,
@@ -1332,9 +1358,12 @@ $('.imageEditor').liveInit(function() {
 
                     updateCover(bounds);
                     $sizeBox.css(bounds);
+                    resizeTextOverlayFont();
 
                 // Set the hidden inputs to the current bounds.
                 }, function() {
+                    $textOverlayShim.hide();
+
                     var sizeBoxPosition = $sizeBox.position();
                     var sizeBoxWidth = $sizeBox.width();
                     var sizeBoxHeight = $sizeBox.height();
@@ -1345,6 +1374,7 @@ $('.imageEditor').liveInit(function() {
                     $height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
 
                     updatePreview();
+                    resizeTextOverlayFont();
                 });
 
                 return false;
@@ -1402,6 +1432,147 @@ $('.imageEditor').liveInit(function() {
         });
 
         $sizeButton.append($sizePreview);
+
+        var $textOverlay = $('<div/>', {
+            'class': 'imageEditor-textOverlay',
+            'css': {
+                'display': 'none',
+                'left': '0%',
+                'position': 'absolute',
+                'top': '0%',
+                'width': '100%',
+                'z-index': 1
+            }
+        });
+
+        $sizeBox.append($textOverlay);
+
+        var $textOverlayLabel = $('<div/>', {
+            'class': 'imageEditor-textOverlayLabel',
+            'text': 'Text Overlay'
+        });
+
+        var resizeTextOverlayFont = function() {
+            $textSize.val(sizeHeight / 8);
+            $($textOverlay.find('.rte-container iframe')[0].contentDocument.body).css({
+                'font-size': ($sizeBox.height() / 8) + 'px',
+                'line-height': 1
+            });
+        };
+
+        var $textOverlayShim = $('<div/>', {
+            'css': {
+                'bottom': -10,
+                'display': 'none',
+                'left': -10,
+                'position': 'absolute',
+                'right': -10,
+                'top': -10,
+                'z-index': 1
+            }
+        });
+
+        $textOverlay.append($textOverlayShim);
+
+        var updateTextOverlay = function(callback) {
+            return function(event) {
+                resizeTextOverlayFont();
+                $textOverlayShim.show();
+
+                var textOverlayPosition = $textOverlay.position();
+                var original = {
+                    'left': textOverlayPosition.left,
+                    'top': textOverlayPosition.top,
+                    'width': $textOverlay.width(),
+                    'height': $textOverlay.height(),
+                    'pageX': event.pageX,
+                    'pageY': event.pageY
+                };
+
+                var sizeBoxWidth = $sizeBox.width();
+                var sizeBoxHeight = $sizeBox.height();
+
+                $.drag(function(event) {
+                    var deltaX = event.pageX - original.pageX;
+                    var deltaY = event.pageY - original.pageY;
+                    var bounds = callback(event, original, {
+                        'x': deltaX,
+                        'y': deltaY
+                    });
+
+                    // Fill out the missing bounds.
+                    for (key in original) {
+                        bounds[key] = bounds[key] || original[key];
+                    }
+
+                    bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
+                    bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
+                    bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
+                    bounds.height = 'auto';
+
+                    $textOverlay.css(bounds);
+
+                // Set the hidden inputs to the current bounds.
+                }, function() {
+                    $textOverlayShim.hide();
+
+                    var textOverlayPosition = $textOverlay.position();
+                    var textOverlayWidth = $textOverlay.width();
+                    var textOverlayHeight = $textOverlay.height();
+
+                    $text.val($textOverlayInput.val());
+                    $textX.val(textOverlayPosition.left / sizeBoxWidth);
+                    $textY.val(textOverlayPosition.top / sizeBoxHeight);
+                    $textWidth.val(textOverlayWidth / sizeBoxWidth);
+                });
+
+                return false;
+            };
+        };
+
+        $textOverlayLabel.mousedown(updateTextOverlay(function(event, original, delta) {
+            return {
+                'moving': true,
+                'left': original.left + delta.x,
+                'top': original.top + delta.y
+            };
+        }));
+
+        $textOverlay.append($textOverlayLabel);
+
+        $textOverlay.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-left',
+            'mousedown': updateTextOverlay(function(event, original, delta) {
+                return {
+                    'left': original.left + delta.x,
+                    'width': original.width - delta.x
+                };
+            })
+        }));
+        $textOverlay.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-right',
+            'mousedown': updateTextOverlay(function(event, original, delta) {
+                return {
+                    'left': original.left,
+                    'width': original.width + delta.x
+                };
+            })
+        }));
+
+        var $textOverlayInput = $('<input/>', {
+            'class': 'imageEditor-textOverlayInput',
+            'type': 'text',
+            'value': $text.val()
+        });
+
+        $textOverlay.append($textOverlayInput);
+        $textOverlayInput.rte({
+            'useLineBreaks': true
+        });
+
+        $form.submit(function() {
+            $text.val($textOverlayInput.val());
+        });
     });
 
     $sizes.before($sizeSelectors);

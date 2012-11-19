@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -17,6 +18,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.tool.CmsTool;
+
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
@@ -183,6 +187,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         if (ObjectUtils.to(boolean.class, hideDimensions)) {
             tagBuilder.hideDimensions();
         }
+    }
+
+    public void setOverlay(Object overlay) {
+        tagBuilder.setOverlay(ObjectUtils.to(boolean.class, overlay));
     }
 
     // --- DynamicAttribute support ---
@@ -445,6 +453,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         private String srcAttribute;
         private boolean hideDimensions;
+        private boolean overlay;
 
         private final Map<String, String> attributes = new LinkedHashMap<String, String>();
 
@@ -569,6 +578,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             return this;
         }
 
+        public boolean isOverlay() {
+            return overlay;
+        }
+
+        public void setOverlay(boolean overlay) {
+            this.overlay = overlay;
+        }
+
         /**
          * Adds an attribute to be placed on the tag.
          */
@@ -616,7 +633,98 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
          * @return the HTML for an img tag constructed by this Builder.
          */
         public String toHtml() {
-            return convertAttributesToHtml(toAttributes());
+            String html = convertAttributesToHtml(toAttributes());
+
+            if (isOverlay()) {
+                StorageItem item = null;
+                Map<String, ImageCrop> crops = null;
+
+                if (this.state != null) {
+                    State objectState = this.state;
+                    String field = this.field;
+
+                    if (ObjectUtils.isBlank(field)) {
+                        field = findStorageItemField(objectState);
+                    }
+
+                    item = findStorageItem(objectState, field);
+
+                    if (item != null) {
+                        crops = findImageCrops(objectState, field);
+                    }
+
+                } else {
+                    item = this.item;
+
+                    if (item != null) {
+                        crops = findImageCrops(item);
+                    }
+                }
+
+                if (item != null && crops != null) {
+                    ImageCrop crop = crops.get(standardImageSize.getId().toString());
+
+                    if (crop != null) {
+                        String text = crop.getText();
+
+                        if (!ObjectUtils.isBlank(text)) {
+                            StringBuilder overlay = new StringBuilder();
+
+                            String id = "i" + UUID.randomUUID().toString().replace("-", "");
+                            CmsTool cms = Application.Static.getInstance(CmsTool.class);
+                            String defaultCss = cms.getDefaultTextOverlayCss();
+
+                            overlay.append("<style type=\"text/css\">");
+                            if (!ObjectUtils.isBlank(defaultCss)) {
+                                overlay.append("#");
+                                overlay.append(id);
+                                overlay.append("{font-size:");
+                                overlay.append(crop.getTextSize());
+                                overlay.append("px;line-height:1;white-space:pre;}");
+
+                                overlay.append("#");
+                                overlay.append(id);
+                                overlay.append(" span{");
+                                overlay.append(defaultCss);
+                                overlay.append("}");
+                            }
+                            for (CmsTool.CssClassGroup group : cms.getTextOverlayCssClassGroups()) {
+                                String groupName = group.getInternalName();
+                                for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                                    overlay.append("#");
+                                    overlay.append(id);
+                                    overlay.append(" .cms-");
+                                    overlay.append(groupName);
+                                    overlay.append("-");
+                                    overlay.append(cssClass.getInternalName());
+                                    overlay.append("{");
+                                    overlay.append(cssClass.getCss());
+                                    overlay.append("}");
+                                }
+                            }
+                            overlay.append("</style>");
+
+                            overlay.append("<span id=\"");
+                            overlay.append(id);
+                            overlay.append("\" style=\"display: inline-block; position: relative;\">");
+                            overlay.append(html);
+                            overlay.append("<span style=\"left: ");
+                            overlay.append(crop.getTextX() * 100);
+                            overlay.append("%; position: absolute; top: ");
+                            overlay.append(crop.getTextY() * 100);
+                            overlay.append("%; width: ");
+                            overlay.append(crop.getTextWidth() * 100);
+                            overlay.append("%;\">");
+                            overlay.append(text);
+                            overlay.append("</span>");
+                            overlay.append("</span>");
+                            html = overlay.toString();
+                        }
+                    }
+                }
+            }
+
+            return html;
         }
 
         /**
