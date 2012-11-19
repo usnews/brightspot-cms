@@ -678,13 +678,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                             if (!ObjectUtils.isBlank(defaultCss)) {
                                 overlay.append("#");
                                 overlay.append(id);
-                                overlay.append("{font-size:");
-                                overlay.append(crop.getTextSize());
-                                overlay.append("px;line-height:1;white-space:pre;}");
-
-                                overlay.append("#");
-                                overlay.append(id);
-                                overlay.append(" span{");
+                                overlay.append("{display:inline-block;position:relative;");
                                 overlay.append(defaultCss);
                                 overlay.append("}");
                             }
@@ -706,7 +700,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                             overlay.append("<span id=\"");
                             overlay.append(id);
-                            overlay.append("\" style=\"display: inline-block; position: relative;\">");
+                            overlay.append("\">");
                             overlay.append(html);
                             overlay.append("<span style=\"left: ");
                             overlay.append(crop.getTextX() * 100);

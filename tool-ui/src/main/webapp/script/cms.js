@@ -1452,12 +1452,16 @@ $('.imageEditor').liveInit(function() {
             'text': 'Text Overlay'
         });
 
+        var originalFontSize;
         var resizeTextOverlayFont = function() {
-            $textSize.val(sizeHeight / 8);
-            $($textOverlay.find('.rte-container iframe')[0].contentDocument.body).css({
-                'font-size': ($sizeBox.height() / 8) + 'px',
-                'line-height': 1
-            });
+            var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body);
+
+            if (!originalFontSize) {
+                originalFontSize = parseFloat($body.css('font-size'));
+            }
+
+            $textSize.val(originalFontSize);
+            $body.css('font-size', $sizeBox.height() / sizeHeight * originalFontSize);
         };
 
         var $textOverlayShim = $('<div/>', {
