@@ -272,7 +272,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             overflow: hidden;
             padding: 10px 0 5px 5px;
             right: 0;
-            z-index: 5;
         }
         .content-preview.loading h1:before {
             content: url(../style/icon/ajax-loader.gif);
