@@ -70,6 +70,11 @@ StorageItem implementation that stores files on local disk.
 
 > URL to the document root defined by `rootPath`.
 
+
+	<Environment name="dari/storage/local/class" override="false" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
+	<Environment name="dari/storage/local/rootPath" override="false" type="java.lang.String" value="PATH/webapps/media" />
+	<Environment name="dari/storage/local/baseUrl" override="false" type="java.lang.String" value="http://localhost:8080/media" />
+
 #### Amazon S3 StorageItem
 
 StorageItem implementation that stores files on Amazon S3.
@@ -96,6 +101,13 @@ StorageItem implementation that stores files on Amazon S3.
 **Key:** `dari/storage/{storageName}/baseUrl` **Type:** `java.lang.String`
 
 > URL to the bucket root defined by `bucket`.
+
+	<Environment name="dari/storage/STORAGE_NAME/class" override="false" type="java.lang.String" value="com.psddev.dari.util.AmazonStorageItem" />
+	<Environment name="dari/storage/STORAGE_NAME/baseUrl" override="false" type="java.lang.String" value="CDN_URL" />
+	<Environment name="dari/storage/STORAGE_NAME/access" override="false" type="java.lang.String" value="AWS_KEY" />
+	<Environment name="dari/storage/STORAGE_NAME/secret" override="false" type="java.lang.String" value="AWS_SECRET" />
+	<Environment name="dari/storage/STORAGE_NAME/bucket" override="false" type="java.lang.String" value="BASE_URL" />
+
 
 #### Brightcove StorageItem
 
