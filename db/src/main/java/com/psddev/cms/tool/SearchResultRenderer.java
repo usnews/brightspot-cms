@@ -1,6 +1,7 @@
 package com.psddev.cms.tool;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 
 import com.psddev.dari.db.SolrDatabase;
@@ -175,6 +176,10 @@ public class SearchResultRenderer {
         renderBeforeItem(item);
         wp.write(wp.objectLabel(item));
         renderAfterItem(item);
+        wp.write("</td>");
+
+        wp.write("<td>");
+        wp.write(wp.h(State.getInstance(item).as(Directory.ObjectModification.class).getPermalink()));
         wp.write("</td>");
 
         if (search.getSort() == SearchSort.RELEVANT) {
