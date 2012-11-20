@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.Page,
 com.psddev.cms.db.Template,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchSort,
@@ -47,6 +48,7 @@ ObjectType selectedType = search.getSelectedType();
 
 // Segregate the valid types into main and misc.
 List<ObjectType> templatedTypes = Template.Static.findUsedTypes(wp.getSite());
+templatedTypes.add(ObjectType.getInstance(Page.class));
 List<ObjectType> mainTypes = new ArrayList<ObjectType>(validTypes);
 List<ObjectType> miscTypes = new ArrayList<ObjectType>();
 for (Iterator<ObjectType> i = mainTypes.iterator(); i.hasNext(); ) {
