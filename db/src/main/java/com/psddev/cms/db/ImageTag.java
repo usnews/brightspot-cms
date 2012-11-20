@@ -693,7 +693,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                             if (!ObjectUtils.isBlank(defaultCss)) {
                                 overlay.append("#");
                                 overlay.append(id);
-                                overlay.append("{display:inline-block;position:relative;");
+                                overlay.append("{display:inline-block;overflow:hidden;position:relative;");
                                 overlay.append(defaultCss);
                                 overlay.append("}");
                             }
