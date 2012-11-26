@@ -53,9 +53,9 @@ $.plugin('repeatable', {
 
         // List of inputs is contained in ul or ol (latter is sortable).
         var $list = $container.find('> ul:first');
-        if ($list.length == 0) {
+        if ($list.length === 0) {
             $list = $container.find('> ol:first');
-            if ($list.length == 0) {
+            if ($list.length === 0) {
                 return;
             } else {
                 $list.sortable(options.sortableOptions);
@@ -136,7 +136,7 @@ $.plugin('repeatable', {
 
                     // Load an external form if the template consists of a single link without any other inputs.
                     var $templateLink;
-                    if ($addedItem.find(':input').length == 0 && ($templateLink = $addedItem.find('a')).length > 0) {
+                    if ($addedItem.find(':input').length === 0 && ($templateLink = $addedItem.find('a')).length > 0) {
                         $.ajax({
                             'cache': false,
                             'url': $templateLink.attr('href'),
@@ -150,6 +150,8 @@ $.plugin('repeatable', {
                     }
 
                     $(window).resize();
+
+                    return false;
                 }
             }));
         });

@@ -670,7 +670,27 @@ public class ToolPageContext extends WebPageContext {
             write("<style type=\"text/css\">", extraCss, "</style>");
         }
 
-        write("<script type=\"text/javascript\">var CONTEXT_PATH = '", cmsUrl("/"), "';</script>");
+        List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
+        for (CmsTool.CssClassGroup group : cmsTool.getTextOverlayCssClassGroups()) {
+            Map<String, Object> groupDef = new HashMap<String, Object>();
+            cssClassGroups.add(groupDef);
+            groupDef.put("internalName", group.getInternalName());
+            groupDef.put("displayName", group.getDisplayName());
+
+            List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
+            groupDef.put("cssClasses", cssClasses);
+            for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                Map<String, String> cssDef = new HashMap<String, String>();
+                cssDef.put("internalName", cssClass.getInternalName());
+                cssDef.put("displayName", cssClass.getDisplayName());
+                cssClasses.add(cssDef);
+            }
+        }
+
+        write("<script type=\"text/javascript\">");
+        write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
+        write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
+        write("</script>");
 
         for (String src : new String[] {
                 "/script/jquery-1.4.2.min.js",
@@ -713,8 +733,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         for (String src : new String[] {
-                "/script/global.js",
-                "/script/local.js" }) {
+                "/script/cms.js" }) {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
         }
 

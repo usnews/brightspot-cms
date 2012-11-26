@@ -27,10 +27,14 @@ body {
     font-style: normal;
     font-weight: normal;
     line-height: 16px;
-    margin: 3px;
+    margin: 4px;
     padding: 0;
     vertical-align: baseline;
     word-wrap: break-word;
+}
+
+body.imageEditor-textOverlayInput {
+    word-wrap: normal;
 }
 
 em,
@@ -65,16 +69,16 @@ u {
     text-decoration: underline;
 }
 
-.wysiwyg-text-align-center {
-  text-align: center;
+.cms-textAlign-center {
+    text-align: center;
 }
 
-.wysiwyg-text-align-left {
-  text-align: left;
+.cms-textAlign-left {
+    text-align: left;
 }
 
-.wysiwyg-text-align-right {
-  text-align: right;
+.cms-textAlign-right {
+    text-align: right;
 }
 
 .enhancement {

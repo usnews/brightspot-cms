@@ -1,8 +1,24 @@
 // Rich text editor.
 if (typeof jQuery !== 'undefined') (function($) {
 
+$.each(CSS_CLASS_GROUPS, function() {
+    var command = 'cms-' + this.internalName;
+    var prefix = command + '-';
+    var regex = new RegExp(prefix + '[0-9a-z\-]+', 'g');
+
+    wysihtml5.commands[command] = {
+        'exec': function(composer, command, className) {
+            return wysihtml5.commands.formatInline.exec(composer, command, 'span', prefix + className, regex);
+        },
+
+        'state': function(composer, command, className) {
+            return wysihtml5.commands.formatInline.state(composer, command, 'span', prefix + className, regex);
+        }
+    };
+});
+
 var $createToolbarGroup = function(label) {
-    var $group = $('<span/>', { 'class': 'rte-group' });
+    var $group = $('<span/>', { 'class': 'rte-group', 'data-group-name': label });
     var $label = $('<span/>', { 'class': 'rte-group-label', 'text': label });
     $group.append($label);
     return $group;
@@ -32,12 +48,25 @@ var createToolbar = function() {
     $font.append($createToolbarCommand('Superscript', 'superscript'));
     $font.append($createToolbarCommand('Subscript', 'subscript'));
 
+    $.each(CSS_CLASS_GROUPS, function() {
+        var $group = $createToolbarGroup(this.displayName);
+        var command = 'cms-' + this.internalName;
+        $group.addClass('rte-group-cssClass');
+        $toolbar.append($group);
+
+        $.each(this.cssClasses, function() {
+            var $cssClass = $createToolbarCommand(this.displayName, command);
+            $cssClass.attr('data-wysihtml5-command-value', this.internalName);
+            $group.append($cssClass);
+        });
+    });
+
     var $alignment = $createToolbarGroup('Alignment') ;
     $toolbar.append($alignment);
 
-    $alignment.append($createToolbarCommand('Justify Left', 'justifyLeft'));
-    $alignment.append($createToolbarCommand('Justify Center', 'justifyCenter'));
-    $alignment.append($createToolbarCommand('Justify Right', 'justifyRight'));
+    $alignment.append($createToolbarCommand('Justify Left', 'textAlign').attr('data-wysihtml5-command-value', 'left'));
+    $alignment.append($createToolbarCommand('Justify Center', 'textAlign').attr('data-wysihtml5-command-value', 'center'));
+    $alignment.append($createToolbarCommand('Justify Right', 'textAlign').attr('data-wysihtml5-command-value', 'right'));
 
     var $list = $createToolbarGroup('List');
     $toolbar.append($list);
@@ -458,6 +487,18 @@ wysihtml5.commands.strike = {
     }
 };
 
+var textAlignRegex = /cms-textAlign-[0-9a-z\-]+/g;
+wysihtml5.commands.textAlign = {
+
+    'exec': function(composer, command, alignment) {
+        return wysihtml5.commands.formatBlock.exec(composer, command, null, 'cms-textAlign-' + alignment, textAlignRegex);
+    },
+
+    'state': function(composer, command, alignment) {
+        return wysihtml5.commands.formatBlock.state(composer, command, null, 'cms-textAlign-' + alignment, textAlignRegex);
+    }
+};
+
 // Remove support for insertImage so that it can't be used accidentantly,
 // since insertEnhancement supercedes its functionality.
 delete wysihtml5.commands.insertImage;
@@ -532,17 +573,19 @@ wysihtml5.commands.insertMarker = {
 $.plugin('rte', {
 
 // Initializes the rich text editor.
-'init': function() {
+'init': function(options) {
+    options = $.extend(true, {
+        'enhancement': createEnhancement,
+        'marker': createMarker,
+        'spacerUrl': 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+        'style': false,
+        'stylesheets': [ CONTEXT_PATH + '/style/rte-content.css', CONTEXT_PATH + '/style/rte-cssClasses.jsp' ],
+        'toolbar': createToolbar,
+        'useLineBreaks': false
+    }, options);
+
     return this.liveInit(function() {
-        var rte = new Rte(this, {
-            'enhancement': createEnhancement,
-            'marker': createMarker,
-            'spacerUrl': 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-            'style': false,
-            'stylesheets': CONTEXT_PATH + '/style/rte-content.css',
-            'toolbar': createToolbar,
-            'useLineBreaks': false
-        });
+        new Rte(this, options);
     });
 },
 

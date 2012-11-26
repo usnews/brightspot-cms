@@ -69,15 +69,15 @@ $.plugin('popup', {
         // Create a arrow-like marker.
         var $content = $container.popup('content');
         var $marker = $content.find('> .marker');
-        if ($marker.length == 0) {
+        if ($marker.length === 0) {
             $marker = $('<div/>', { 'class': 'marker' });
             $content.append($marker);
         }
-        var markerLeft = (popupWidth  - $marker.outerWidth()) / 2 + markerDelta
+        var markerLeft = (popupWidth  - $marker.outerWidth()) / 2 + markerDelta;
         $marker.css('left', markerLeft < 5 ? 5 : markerLeft);
 
         // Make sure top is within bounds.
-        var top = sourceOffset.top + $newSource.outerHeight();
+        var top = sourceOffset.top + $newSource.outerHeight() / 2;
         if (top < 30) {
             top = 30;
         }
@@ -172,7 +172,7 @@ $.plugin('popup', {
 var $window = $(window);
 $window.click(function(event) {
     var target = event.target;
-    if ($(target).closest('#editorMainToolbar').length == 0 && $(target).popup('container').length == 0) {
+    if ($(target).closest('#editorMainToolbar').length === 0 && $(target).popup('container').length === 0) {
         $('.popup').each(function() {
             var $container = $(this);
 

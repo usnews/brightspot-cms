@@ -12,6 +12,11 @@ public class ImageCrop extends Record {
     private double y;
     private double width;
     private double height;
+    private String text;
+    private double textSize;
+    private double textX;
+    private double textY;
+    private double textWidth;
 
     public ImageCrop() {
     }
@@ -21,6 +26,11 @@ public class ImageCrop extends Record {
         y = ObjectUtils.to(double.class, map.get("y"));
         width = ObjectUtils.to(double.class, map.get("width"));
         height = ObjectUtils.to(double.class, map.get("height"));
+        text = ObjectUtils.to(String.class, map.get("text"));
+        textSize = ObjectUtils.to(double.class, map.get("textSize"));
+        textX = ObjectUtils.to(double.class, map.get("textX"));
+        textY = ObjectUtils.to(double.class, map.get("textY"));
+        textWidth = ObjectUtils.to(double.class, map.get("textWidth"));
     }
 
     public double getX() {
@@ -53,5 +63,45 @@ public class ImageCrop extends Record {
 
     public void setHeight(double height) {
         this.height = height;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public double getTextSize() {
+        return textSize;
+    }
+
+    public void setTextSize(double textSize) {
+        this.textSize = textSize;
+    }
+
+    public double getTextX() {
+        return textX;
+    }
+
+    public void setTextX(double textX) {
+        this.textX = textX;
+    }
+
+    public double getTextY() {
+        return textY;
+    }
+
+    public void setTextY(double textY) {
+        this.textY = textY;
+    }
+
+    public double getTextWidth() {
+        return textWidth;
+    }
+
+    public void setTextWidth(double textWidth) {
+        this.textWidth = textWidth;
     }
 }

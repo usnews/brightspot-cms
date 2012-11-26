@@ -79,11 +79,19 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>tagName</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>srcAttr</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <name>hideDimensions</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>overlay</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

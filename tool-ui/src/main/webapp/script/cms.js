@@ -1,3 +1,245 @@
+(function() {
+
+if (typeof jQuery !== 'undefined') (function($) {
+
+// replace the height/width function to take box-sizing into account
+(function() {
+    var old = { };
+    $.each([ 'Height', 'Width' ], function(i, name) {
+        var type = name.toLowerCase();
+        old[type] = $.fn[type];
+        $.fn[type] = function(size) {
+            if (typeof size === 'number') {
+                var $elem = $(this);
+                if ('border-box' == ($elem.css('-moz-box-sizing') ||
+                        $elem.css('-webkit-box-sizing'))) {
+                    size += $elem['outer' + name]() - $elem[type]();
+                }
+            }
+            return old[type].call(this, size);
+        };
+    });
+})();
+
+(function() {
+    var oldPosition = $.fn.position;
+    $.fn.position = function(options) {
+        if (options && options.of) {
+            $(this).css('position',
+                    $(options.of).offsetParent().css('position'));
+        }
+        return oldPosition.apply(this, arguments);
+    };
+})();
+
+/* */
+(function() {
+    var requests = { };
+    var calls = { };
+    $.queuedAjax = function(options) {
+        var queue = options.url;
+        requests[queue] = requests[queue] || [ ];
+        var originalComplete = options.complete;
+        options = $.extend({ }, options);
+        options.complete = function(request, status) {
+            if (originalComplete) {
+                originalComplete(request, status);
+            }
+            var nextOptions = requests[queue].shift();
+            calls[queue] = nextOptions ? $.ajax(nextOptions) : null;
+        };
+
+        if (!calls[queue]) {
+            calls[queue] = $.ajax(options);
+        } else {
+            requests[queue].push(options);
+        }
+    };
+})();
+
+// drop down list replacement
+$.fn.dropDown = function(config) {
+
+    config = $.extend(config, {
+        'listClass': 'dropDownList',
+        'listItemSelectedClass': 'selected',
+        'inputClass': 'dropDownInput',
+        'inputFocusedClass': 'focused',
+        'inputIconClass': 'dropDownInputIcon'
+    });
+
+    return this.liveInit(function() {
+        var $select = $(this);
+        if (!$select.is('select')) {
+            return;
+        }
+
+        // init all replacement control elements
+        var $listContainer = $('<div/>', {
+            'css': { 'position': 'absolute' }
+        });
+        var $list = $('<ul/>', { 'class': config.listClass });
+        var $inputContainer = $('<span/>', {
+            'css': { 'position': 'relative' }
+        });
+        var $input = $('<span/>', { 'class': config.inputClass });
+        var $inputIcon = $('<span/>', { 'class': config.inputIconClass });
+
+        // helper to move the drop down list under the input
+        var moveList = function() {
+            var o = $inputContainer.offset();
+            $listContainer.css({
+                'left': o.left,
+                'top': o.top + $inputContainer.outerHeight(true)
+            });
+        };
+
+        // helper to hide the drop down list
+        var hideList = function() {
+            $input.removeClass(config.inputFocusedClass);
+            $listContainer.hide();
+            $select.blur();
+        };
+
+        // register in window object so that click outside the input
+        // can be detected to close the drop down list
+        $(document).click(function(e) {
+            if ($listContainer.is(':visible')) {
+                if (!$.contains($listContainer[0], e.target)) {
+                    hideList();
+                }
+            } else {
+                if ($.contains($inputContainer[0], e.target)) {
+                    $input.addClass(config.inputFocusedClass);
+                    moveList();
+                    $listContainer.show();
+                    $select.focus();
+                }
+            }
+        });
+
+        // helper to update the input
+        var updateInput = function() {
+            $input.html($.map($select.find('> option[selected]'), function(o) {
+                return $(o).text();
+            }).join(', ') || '&nbsp;');
+        };
+        updateInput();
+
+        // create the drop down based on the options within select input
+        $select.find('> option').each(function() {
+            var $option = $(this);
+            var $item = $('<li/>', {
+                'class': $option.is('[selected]') ? config.listItemSelectedClass : '',
+                'click': $select.is('[multiple]') ? function(e) {
+                    if($option.is('[selected]')) {
+                        $option.removeAttr('selected');
+                        $item.removeClass(config.listItemSelectedClass);
+                        $item.find(':checkbox').removeAttr('checked');
+                    } else {
+                        $option.attr('selected', 'selected');
+                        $item.addClass(config.listItemSelectedClass);
+                        $item.find(':checkbox').attr('checked', 'checked');
+                    }
+                    updateInput();
+                    $select.change();
+                } : function(e) {
+                    if (!$option.is('[selected]')) {
+                        $select.find('> option').removeAttr('selected');
+                        $list.find('> li').removeClass(
+                                config.listItemSelectedClass);
+                        $listContainer.find(':checkbox').removeAttr('checked');
+                        $option.attr('selected', 'selected');
+                        $item.addClass(config.listItemSelectedClass);
+                        $item.find(':checkbox').attr('checked', 'checked');
+                        updateInput();
+                        hideList();
+                        $select.change();
+                    }
+                },
+                'html': $option.text() || '&nbsp;'
+            });
+
+            var $check = $('<input/>', { 'type': 'checkbox' });
+            if ($item.is('.' + config.listItemSelectedClass)) {
+                $check.attr('checked', 'checked');
+            }
+
+            $item.prepend(' ');
+            $item.prepend($check);
+            $list.append($item);
+        });
+
+        // replace select input with custom control
+        $listContainer.append($list).hide();
+        $(document.body).append($listContainer);
+        $inputContainer.append($input);
+        $inputContainer.append($inputIcon);
+        $select.before($inputContainer).hide();
+    });
+};
+
+$(function() {
+
+$('body').frame();
+$('.autoSubmit').autoSubmit();
+$('.tree').tree();
+
+// Show stack trace when clicking on the exception message.
+$('.exception > *').live('click', function() {
+    $(this).find('> .stackTrace').toggle();
+});
+
+// Show selected nested item on the main tab.
+$('.mainNav .selected').each(function() {
+    var $item = $(this);
+    var $list = $item.find('> ul');
+    var $child = $list.find('> .selected > a');
+    if ($child.length > 0) {
+        var $link = $item.find('> a');
+        $link.text($link.text() + ' \u2192 ' + $child.text());
+    }
+    $list.css('min-width', $item.width() - 9);
+});
+
+// Don't allow area links to be clickable if they have any children.
+$('.mainNav li.isNested > a').click(function() {
+    return false;
+});
+
+// Remove placeholder text over search text input on focus.
+$('.searchInput').liveInit(function() {
+    var $container = $(this);
+    var $label = $container.find('> label');
+    var $input = $container.find('> :text');
+    $input.keydown(function() {
+        setTimeout(function() {
+            if ($input.val()) {
+                $label.hide();
+            } else {
+                $label.show();
+            }
+        }, 0);
+    });
+    $input.keydown();
+});
+
+// Automatically focus on the specified element.
+$('.autoFocus').liveInit(function() {
+    var focused = document.activeElement;
+    if (!focused || focused == document || focused == document.body) {
+        $(this).focus();
+    }
+});
+
+});
+
+})(jQuery);
+
+})();
+
+(function() {
+
 if (typeof jQuery !== 'undefined') jQuery(function($) {
 
 $('.repeatableForm:visible, .repeatableInputs:visible').repeatable({
@@ -240,62 +482,61 @@ $('textarea.pageLayout').liveInit(function() {
     openSettings = function($button, definition) {
 
         var $settings = $('#sectionSettings');
-        if ($settings.length == 0) {
+        if ($settings.length === 0) {
             var engines = '<option value=""></option><option value="JSP">JSP</option><option value="RawText">Raw Text</option>';
             $settings = $(
-                '<div id="sectionSettings">' +
-                    '<h1>Section: <strong class="name"></strong></h1>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Shareable?</div>' +
-                        '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Cache Duration (in Milliseconds)</div>' +
-                        '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer">' +
-                        '<div class="label">Type</div>' +
-                        '<div class="smallInput"><select class="toggleable" name="_type">' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .c" value="com.psddev.cms.db.ContentSection">Script (with Content)</option>' +
-                            '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.MainSection">Script (with Main Content)</option>' +
-                        '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc s c">' +
-                        '<div class="label">Name</div>' +
-                        '<div class="smallInput"><input name="name" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i s c">' +
-                        '<div class="label">Engine</div>' +
-                        '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i s c">' +
-                        '<div class="label">Script</div>' +
-                        '<div class="smallInput"><input name="script" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">Begin Engine</div>' +
-                        '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">Begin Script</div>' +
-                        '<div class="smallInput"><input name="beginScript" type="text"></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">End Engine</div>' +
-                        '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
-                    '</div>' +
-                    '<div class="inputContainer i hc vc">' +
-                        '<div class="label">End Script</div>' +
-                        '<div class="smallInput"><input name="endScript" type="text"></div>' +
-                    '</div>' +
-                    '<div class="buttons">' +
-                        '<a class="button continueButton" href="#">Continue Editing</a>' +
-                    '</div>' +
-                '</div>'
-            );
+                    '<div id="sectionSettings">' +
+                        '<h1>Section: <strong class="name"></strong></h1>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Shareable?</div>' +
+                            '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Cache Duration (in Milliseconds)</div>' +
+                            '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer">' +
+                            '<div class="label">Type</div>' +
+                            '<div class="smallInput"><select class="toggleable" name="_type">' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .c" value="com.psddev.cms.db.ContentSection">Script (with Content)</option>' +
+                                '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.MainSection">Script (with Main Content)</option>' +
+                            '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc s c">' +
+                            '<div class="label">Name</div>' +
+                            '<div class="smallInput"><input name="name" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i s c">' +
+                            '<div class="label">Engine</div>' +
+                            '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i s c">' +
+                            '<div class="label">Script</div>' +
+                            '<div class="smallInput"><input name="script" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">Begin Engine</div>' +
+                            '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">Begin Script</div>' +
+                            '<div class="smallInput"><input name="beginScript" type="text"></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">End Engine</div>' +
+                            '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
+                        '</div>' +
+                        '<div class="inputContainer i hc vc">' +
+                            '<div class="label">End Script</div>' +
+                            '<div class="smallInput"><input name="endScript" type="text"></div>' +
+                        '</div>' +
+                        '<div class="buttons">' +
+                            '<a class="button continueButton" href="#">Continue Editing</a>' +
+                        '</div>' +
+                    '</div>');
 
             $settings.find('.continueButton').click(function() {
                 $settings.popup('close');
@@ -389,7 +630,7 @@ $('textarea.pageLayout').liveInit(function() {
         $form.attr('autocomplete', 'off');
 
         var $targetFrame = $('.frame[name=' + $form.attr('target') + ']');
-        if ($targetFrame.length == 0) {
+        if ($targetFrame.length === 0) {
             $form.submit();
 
         } else {
@@ -449,7 +690,7 @@ $('.extensionContainer').each(function() {
 
     var $form = $('.contentForm');
     var $repeatables = $form.find('.repeatableForm');
-    if ($repeatables.length == 0) {
+    if ($repeatables.length === 0) {
         return;
     }
 
@@ -552,7 +793,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 
         // Add clear button when not part of repeatable (which provides
         // the functionally equivalent remove button).
-        if ($input.closest('.repeatableObjectId').length == 0) {
+        if ($input.closest('.repeatableObjectId').length === 0) {
             var previousValue;
             $clearButton = $('<a/>', {
                 'class': 'clearObjectId',
@@ -640,7 +881,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
                         var parentPosition = $parent.position();
                         $label.text(labelText);
                         $label.show();
-                        return
+                        return;
                     } else {
                         break;
                     }
@@ -674,6 +915,7 @@ $('[class!=template] > :input.objectId').liveInit(function() {
 // Image editor.
 $('.imageEditor').liveInit(function() {
     var $editor = $(this);
+    var $form = $editor.closest('form');
     var $image = $editor.find('.imageEditor-image img');
     var $originalImage = $image;
     var $imageClone = $image.clone();
@@ -867,29 +1109,30 @@ $('.imageEditor').liveInit(function() {
         var boundsBottom = bounds.top + bounds.height;
 
         $coverTop.css({
-            'display': 'block',
             'height': bounds.top,
             'width': imageWidth
         });
         $coverLeft.css({
-            'display': 'block',
             'height': bounds.height,
             'top': bounds.top,
             'width': bounds.left
         });
         $coverRight.css({
-            'display': 'block',
             'height': bounds.height,
             'left': boundsRight,
             'top': bounds.top,
             'width': imageWidth - boundsRight
         });
         $coverBottom.css({
-            'display': 'block',
             'height': imageHeight - boundsBottom,
             'top': boundsBottom,
             'width': imageWidth
         });
+
+        $coverTop.show();
+        $coverLeft.show();
+        $coverRight.show();
+        $coverBottom.show();
     };
 
     var $sizes = $editor.find('.imageEditor-sizes table');
@@ -907,6 +1150,12 @@ $('.imageEditor').liveInit(function() {
         var $y = $tr.find(':input[name$=.y]');
         var $width = $tr.find(':input[name$=.width]');
         var $height = $tr.find(':input[name$=.height]');
+
+        var $text = $tr.find(':input[name$=.text]');
+        var $textSize = $tr.find(':input[name$=.textSize]');
+        var $textX = $tr.find(':input[name$=.textX]');
+        var $textY = $tr.find(':input[name$=.textY]');
+        var $textWidth = $tr.find(':input[name$=.textWidth]');
 
         var $sizeBox = $('<div/>', {
             'class': 'imageEditor-sizeBox',
@@ -960,11 +1209,12 @@ $('.imageEditor').liveInit(function() {
 
                 if ($item.is('.imageEditor-sizeSelected')) {
                     $item.removeClass('imageEditor-sizeSelected');
-                    $sizeBox.hide();
                     $coverTop.hide();
                     $coverLeft.hide();
                     $coverRight.hide();
                     $coverBottom.hide();
+                    $sizeBox.hide();
+                    $textOverlay.hide();
                     return false;
 
                 } else {
@@ -979,6 +1229,21 @@ $('.imageEditor').liveInit(function() {
                 updateCover(bounds);
                 $sizeBox.css(bounds);
                 $sizeBox.show();
+                $textOverlay.show();
+                resizeTextOverlayFont();
+
+                var textWidth = parseFloat($textWidth.val()) || 0.0;
+
+                if (textWidth !== 0.0) {
+                    var textX = parseFloat($textX.val()) || 0.0;
+                    var textY = parseFloat($textY.val()) || 0.0;
+
+                    $textOverlay.css({
+                        'left': (textX * 100) + '%',
+                        'top': (textY * 100) + '%',
+                        'width': (textWidth * 100) + '%'
+                    });
+                }
 
                 return false;
             }
@@ -1000,6 +1265,8 @@ $('.imageEditor').liveInit(function() {
 
         var updateSizeBox = function(callback) {
             return function(event) {
+                $textOverlayShim.show();
+
                 var sizeBoxPosition = $sizeBox.position();
                 var original = {
                     'left': sizeBoxPosition.left,
@@ -1091,9 +1358,12 @@ $('.imageEditor').liveInit(function() {
 
                     updateCover(bounds);
                     $sizeBox.css(bounds);
+                    resizeTextOverlayFont();
 
                 // Set the hidden inputs to the current bounds.
                 }, function() {
+                    $textOverlayShim.hide();
+
                     var sizeBoxPosition = $sizeBox.position();
                     var sizeBoxWidth = $sizeBox.width();
                     var sizeBoxHeight = $sizeBox.height();
@@ -1104,6 +1374,7 @@ $('.imageEditor').liveInit(function() {
                     $height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
 
                     updatePreview();
+                    resizeTextOverlayFont();
                 });
 
                 return false;
@@ -1161,6 +1432,151 @@ $('.imageEditor').liveInit(function() {
         });
 
         $sizeButton.append($sizePreview);
+
+        var $textOverlay = $('<div/>', {
+            'class': 'imageEditor-textOverlay',
+            'css': {
+                'display': 'none',
+                'left': '0%',
+                'position': 'absolute',
+                'top': '0%',
+                'width': '100%',
+                'z-index': 1
+            }
+        });
+
+        $sizeBox.append($textOverlay);
+
+        var $textOverlayLabel = $('<div/>', {
+            'class': 'imageEditor-textOverlayLabel',
+            'text': 'Text Overlay'
+        });
+
+        var originalFontSize;
+        var resizeTextOverlayFont = function() {
+            var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body);
+
+            if (!originalFontSize) {
+                originalFontSize = parseFloat($body.css('font-size'));
+            }
+
+            $textSize.val(originalFontSize);
+            $body.css('font-size', $sizeBox.height() / sizeHeight * originalFontSize);
+        };
+
+        var $textOverlayShim = $('<div/>', {
+            'css': {
+                'bottom': -10,
+                'display': 'none',
+                'left': -10,
+                'position': 'absolute',
+                'right': -10,
+                'top': -10,
+                'z-index': 1
+            }
+        });
+
+        $textOverlay.append($textOverlayShim);
+
+        var updateTextOverlay = function(callback) {
+            return function(event) {
+                resizeTextOverlayFont();
+                $textOverlayShim.show();
+
+                var textOverlayPosition = $textOverlay.position();
+                var original = {
+                    'left': textOverlayPosition.left,
+                    'top': textOverlayPosition.top,
+                    'width': $textOverlay.width(),
+                    'height': $textOverlay.height(),
+                    'pageX': event.pageX,
+                    'pageY': event.pageY
+                };
+
+                var sizeBoxWidth = $sizeBox.width();
+                var sizeBoxHeight = $sizeBox.height();
+
+                $.drag(function(event) {
+                    var deltaX = event.pageX - original.pageX;
+                    var deltaY = event.pageY - original.pageY;
+                    var bounds = callback(event, original, {
+                        'x': deltaX,
+                        'y': deltaY
+                    });
+
+                    // Fill out the missing bounds.
+                    for (key in original) {
+                        bounds[key] = bounds[key] || original[key];
+                    }
+
+                    bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
+                    bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
+                    bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
+                    bounds.height = 'auto';
+
+                    $textOverlay.css(bounds);
+
+                // Set the hidden inputs to the current bounds.
+                }, function() {
+                    $textOverlayShim.hide();
+
+                    var textOverlayPosition = $textOverlay.position();
+                    var textOverlayWidth = $textOverlay.width();
+                    var textOverlayHeight = $textOverlay.height();
+
+                    $text.val($textOverlayInput.val());
+                    $textX.val(textOverlayPosition.left / sizeBoxWidth);
+                    $textY.val(textOverlayPosition.top / sizeBoxHeight);
+                    $textWidth.val(textOverlayWidth / sizeBoxWidth);
+                });
+
+                return false;
+            };
+        };
+
+        $textOverlayLabel.mousedown(updateTextOverlay(function(event, original, delta) {
+            return {
+                'moving': true,
+                'left': original.left + delta.x,
+                'top': original.top + delta.y
+            };
+        }));
+
+        $textOverlay.append($textOverlayLabel);
+
+        $textOverlay.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-left',
+            'mousedown': updateTextOverlay(function(event, original, delta) {
+                return {
+                    'left': original.left + delta.x,
+                    'width': original.width - delta.x
+                };
+            })
+        }));
+        $textOverlay.append($('<div/>', {
+            'class': 'imageEditor-resizer imageEditor-resizer-right',
+            'mousedown': updateTextOverlay(function(event, original, delta) {
+                return {
+                    'left': original.left,
+                    'width': original.width + delta.x
+                };
+            })
+        }));
+
+        var $textOverlayInput = $('<input/>', {
+            'class': 'imageEditor-textOverlayInput',
+            'type': 'text',
+            'value': $text.val()
+        });
+
+        $textOverlay.append($textOverlayInput);
+        $textOverlayInput.rte({
+            'useLineBreaks': true
+        });
+
+        $form.submit(function() {
+            $text.val($textOverlayInput.val());
+        });
     });
 
     $sizes.before($sizeSelectors);
@@ -1250,8 +1666,8 @@ $('.inputContainer .smallInput').liveInit(function() {
     var $container = $(this);
     $container.find('textarea').each(function() {
         var $input = $(this);
-        var suggestedMinimum = parseInt($input.attr('data-suggested-minimum'));
-        var suggestedMaximum = parseInt($input.attr('data-suggested-maximum'));
+        var suggestedMinimum = parseInt($input.attr('data-suggested-minimum'), 10);
+        var suggestedMaximum = parseInt($input.attr('data-suggested-maximum'), 10);
         if (suggestedMinimum || suggestedMaximum) {
             $input.keyup($.throttle(100, function() {
                 setTimeout(function() {
@@ -1271,3 +1687,5 @@ $('.inputContainer .smallInput').liveInit(function() {
 });
 
 });
+
+})();

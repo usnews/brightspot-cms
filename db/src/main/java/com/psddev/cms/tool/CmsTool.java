@@ -1,9 +1,12 @@
 package com.psddev.cms.tool;
 
+import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 
@@ -19,6 +22,83 @@ public class CmsTool extends Tool {
     private String defaultSiteUrl;
     private boolean previewPopup;
     private Boolean wysihtml5Rte;
+    private String defaultTextOverlayCss;
+    private List<CssClassGroup> textOverlayCssClassGroups;
+
+    @Embedded
+    public static class CssClassGroup extends Record {
+
+        @Required
+        private String displayName;
+
+        @Required
+        private String internalName;
+
+        private List<CssClass> cssClasses;
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getInternalName() {
+            return internalName;
+        }
+
+        public void setInternalName(String internalName) {
+            this.internalName = internalName;
+        }
+
+        public List<CssClass> getCssClasses() {
+            if (cssClasses == null) {
+                cssClasses = new ArrayList<CssClass>();
+            }
+            return cssClasses;
+        }
+
+        public void setCssClasses(List<CssClass> cssClasses) {
+            this.cssClasses = cssClasses;
+        }
+    }
+
+    @Embedded
+    public static class CssClass extends Record {
+
+        @Required
+        private String displayName;
+
+        @Required
+        private String internalName;
+
+        @Required
+        private String css;
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getInternalName() {
+            return internalName;
+        }
+
+        public void setInternalName(String internalName) {
+            this.internalName = internalName;
+        }
+
+        public String getCss() {
+            return css;
+        }
+
+        public void setCss(String css) {
+        }
+    }
 
     /** Returns the company name. */
     public String getCompanyName() {
@@ -76,6 +156,25 @@ public class CmsTool extends Tool {
 
     public void setWysihtml5Rte(boolean wysihtml5Rte) {
         this.wysihtml5Rte = wysihtml5Rte;
+    }
+
+    public String getDefaultTextOverlayCss() {
+        return defaultTextOverlayCss;
+    }
+
+    public void setDefaultTextOverlayCss(String defaultTextOverlayCss) {
+        this.defaultTextOverlayCss = defaultTextOverlayCss;
+    }
+
+    public List<CssClassGroup> getTextOverlayCssClassGroups() {
+        if (textOverlayCssClassGroups == null) {
+            textOverlayCssClassGroups = new ArrayList<CssClassGroup>();
+        }
+        return textOverlayCssClassGroups;
+    }
+
+    public void setTextOverlayCssClassGroups(List<CssClassGroup> textOverlayCssClassGroups) {
+        this.textOverlayCssClassGroups = textOverlayCssClassGroups;
     }
 
     /** Returns the preview URL. */
