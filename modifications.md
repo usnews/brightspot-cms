@@ -44,7 +44,7 @@ The User interface that is created in Brightspot when extending a parent class i
 **Example of a Modification, using a common Interface
 **
 
-A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore we have no means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
+A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore we have no quick means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
 
 **Step 1. Create Common Interface**
 
@@ -100,5 +100,5 @@ We have three objects, `Blog`, `Video` and `News`, none of which have a common c
 
 With a modification, a `RecentItems` interface could be created, and the modification could contain the property on which the query would be run, however the limitation is that the interface, which groups them cannot be queried directly. Namely, `Query.from(RecentItems.class).sortDescending('date').selectAll();` will not work. In order for it to work, the methods from your modification would need to be moved into your interface.
 
-At this point, the 
+At this point, the modification becomes a bad practice for achieving the desired result, and a parent and subclass structure is recommended.
 	

@@ -86,24 +86,6 @@ CDN Storage for resources are referenced within this `db-storage` tool. It allow
 
 <a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/db-storage.png"/></a>
 
-### Web Database
-
-The web database feature allows data from other instances of Brightspot to be ingested quickly and easily. It does not require the object to exist in the instance being copied to. It is utilized from within the Code Tool.
-
-From within the code tool:       
-
-    WebDatabase web = new WebDatabase();
-    web.setRemoteUrl(http://localhost:8080/_debug/db-web);
-    return Query.from(Article.class).where.("title startsWith foo").using(web).select(0,10);
-
-Moving objects from one database to the other:
-
-    WebDatabase web = new WebDatabase();
-    web.setRemoteUrl("http://your.site.com/_debug/db-web");
-    Record record = Query.from(Article.class).where("_id = xxxxxx-xxxx-xxx-xxxx-xxxxxxxxxx").using(web).first();
-    record.getState().setDatabase(Database.Static.getDefault());
-    record.save();
-    return record;
 
 ### Query Tool
 
@@ -151,3 +133,22 @@ The Task Tool shows all background tasks being implemented on the server. New ta
 
 ![](http://docs.brightspot.s3.amazonaws.com/task-tool.png)
 
+### Web Database Tool
+
+The Web Database tool allows data from other instances of Brightspot to be accessed. From within the code tool you can query objects that exist in other Brightspot instances. Below we return Article objects from another instance.
+
+        WebDatabase web = new WebDatabase();
+        web.setRemoteUrl(http://localhost:8080/_debug/db-web);
+        return Query.from(Article.class).where.("title startsWith foo").using(web).select(0,10);
+
+Moving objects from one database to the other is also possible. Once returned, the required Type Id is set. This works for when instances of objects are to be moved into the same model, example from a dev to qa instance of a site:
+
+        WebDatabase web = new WebDatabase();
+        web.setRemoteUrl("http://localhost:8080/_debug/db-web");
+        Article article = Query.from(Article.class).where("_id = ID_HERE").using(web).first();
+        article.getState().setDatabase(Database.Static.getDefault()); 
+        State articleState = article.getState();
+        ObjectType objectType = ObjectType.getInstance(Article.class);
+        articleState.setTypeId(objectType.getId());
+        articleState.save();   
+        return article;
