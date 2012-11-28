@@ -6,7 +6,10 @@ com.psddev.dari.util.IoUtils,
 com.psddev.dari.util.ObjectUtils,
 
 java.io.InputStream,
-java.net.URL
+java.net.URL,
+java.net.URLConnection,
+java.util.List,
+java.util.Map
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -16,10 +19,17 @@ if (wp.requirePermission("misc")) {
 }
 
 URL url = wp.param(URL.class, "url");
-InputStream urlInput = url.openStream();
+URLConnection urlConnection = url.openConnection();
+InputStream urlInput = urlConnection.getInputStream();
 
 try {
-    response.setContentType(ObjectUtils.getContentType(url.toString()));
+    for (Map.Entry<String, List<String>> entry : urlConnection.getHeaderFields().entrySet()) {
+        String name = entry.getKey();
+        for (String value : entry.getValue()) {
+            response.addHeader(name, value);
+        }
+    }
+
     IoUtils.copy(urlInput, response.getOutputStream());
 
 } finally {
