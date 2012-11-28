@@ -1,36 +1,33 @@
-if (typeof jQuery !== 'undefined') (function($) {
+/** Toggle display of other areas. */
+(function($, win, undef) {
 
-// Select drop-down that can toggle other areas.
-$.plugin('toggleable', {
+$.plugin2('toggleable', {
+    '_create': function(element) {
+        $(element).trigger('toggle');
+    },
 
-'init': function() {
-    var $selects = this; // .filter('select');
+    '_init': function(selector) {
+        this.$caller.delegate(selector, 'toggle.toggleable change', function() {
+            var $option = $(this).find(':selected'),
+                    hideSelector = $option.attr('data-hide'),
+                    showSelector = $option.attr('data-show'),
+                    $toBeHidden,
+                    $toBeShown;
 
-    var toggle = function() {
-        var $option = $(this).find(':selected');
-        var hideSelector = $option.attr('data-hide');
-        if (hideSelector) {
-            var $toBeHidden = $(hideSelector);
-            $toBeHidden.hide();
-            $toBeHidden.find(':input').attr('disabled', 'disabled');
-        }
-        var showSelector = $option.attr('data-show');
-        if (showSelector) {
-            var $toBeShown = $(showSelector);
-            $toBeShown.show();
-            $toBeShown.find(':input').removeAttr('disabled');
-            $toBeShown.rte('enable');
-        }
-    };
+            if (hideSelector) {
+                $toBeHidden = $(hideSelector);
+                $toBeHidden.hide();
+                $toBeHidden.find(':input').attr('disabled', 'disabled');
+            }
 
-    $selects.live('change', toggle);
-    $selects.liveInit(function() {
-        toggle.call(this);
-    });
-
-    return this;
-}
-
+            if (showSelector) {
+                $toBeShown = $(showSelector);
+                $toBeShown.show();
+                $toBeShown.find(':input').removeAttr('disabled');
+                $toBeShown.rte('enable');
+            }
+        });
+    }
 });
 
-})(jQuery);
+}(jQuery, window));

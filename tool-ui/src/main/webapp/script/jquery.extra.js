@@ -1,69 +1,117 @@
-if (typeof jQuery !== 'undefined') (function($) {
+(function($, win, undef) {
+
+var $win = $(win),
+        doc = win.document;
 
 // Standard plugin structure.
-$.plugin = function(name, methods) {
+$.plugin2 = function(name, methods) {
+    var CLASS_NAME= '_' + name,
+            OPTIONS_DATA_KEY = name + '-options';
 
-    methods.data = function(attribute, value) {
-        var data = this.data(name);
-        if (!data) {
-            data = { };
-            this.data(name, data);
-        }
-        if (typeof value === 'undefined') {
-            return data[attribute];
+    methods._mergeOptions = function(options) {
+        return $.extend(true, { }, this._defaultOptions, options);
+    };
+
+    methods._initElement = function(element, options) {
+        $.data(element, OPTIONS_DATA_KEY, options);
+        $(element).addClass(CLASS_NAME);
+    };
+
+    methods.option = function(key, value) {
+        var first;
+
+        if (typeof key === 'undefined') {
+            first = this.$init[0];
+            return first ? $.data(first, OPTIONS_DATA_KEY) : null;
+
+        } else if (typeof value === 'undefined') {
+            first = this.$init[0];
+            return first ? $.data(first, OPTIONS_DATA_KEY)[key] : null;
+
         } else {
-            data[attribute] = value;
-            return this;
+            this.$init.each(function() {
+                $.data(this, OPTIONS_DATA_KEY)[key] = value;
+            });
+            return this.$init;
         }
     };
 
+    methods.live = function(selector, options) {
+        var plugin = this,
+                $caller = plugin.$caller;
+
+        options = plugin._mergeOptions(options);
+
+        $caller.onCreate(selector, function() {
+            plugin._initElement(this, options);
+
+            if (plugin._create) {
+                plugin._create(this, options);
+            }
+        });
+
+        if (plugin._init) {
+            plugin._init(selector, options);
+        }
+
+        return $caller;
+    };
+
+    methods.init = function(options) {
+        return this.live(null, options);
+    };
+
     $.fn[name] = function(method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (!method || typeof method === 'object') {
-            return methods.init.apply(this, arguments);
+        var plugin = $.extend({ }, methods, {
+            '$caller': this,
+            '$init': this.closest('.' + CLASS_NAME)
+        });
+
+        if (!method || typeof method === 'object') {
+            return plugin.init(method);
+        }
+
+        method = '' + method;
+
+        if (method.substr(0, 1) !== '_' && plugin[method]) {
+            return plugin[method].apply(plugin, Array.prototype.slice.call(arguments, 1));
+
         } else {
-            return $.error('[' + method + '] method does not exist on [' + name + '] plugin!');
+            return $.error('[' + method + '] method doesn\'t exist on [' + name + '] plugin!');
         }
     };
 };
 
-// Executes a function at most once per context.
-$.once = function(onceFunction) {
-    var cache = [ ];
-    return function() {
-        for (var i = 0, s = cache.length; i < s; ++ i) {
-            var item = cache[i];
-            if (item[0] === this) {
-                return item[1];
-            }
-        }
-        var value = onceFunction.apply(this, arguments);
-        cache.push([ this, value]);
-        return value;
-    };
+// Runs the function and returns it instead of the result.
+$.run = function(runFunction) {
+    runFunction();
+    return runFunction;
 };
 
 // Throttles the excution of a function to run at most every set interval.
 $.throttle = function(interval, throttledFunction) {
+    var lastTrigger = 0,
+            timeout,
+            lastArguments;
 
     if (interval <= 0) {
         return throttledFunction;
     }
 
-    var lastTrigger = 0;
-    var timeout;
-    var lastArguments;
     return function() {
+        var context,
+                now,
+                delay;
 
         lastArguments = arguments;
+
         if (timeout) {
             return;
         }
 
-        var context = this;
-        var now = +new Date();
-        var delay = interval - now + lastTrigger;
+        context = this;
+        now = +new Date();
+        delay = interval - now + lastTrigger;
 
         if (delay <= 0) {
             lastTrigger = now;
@@ -80,42 +128,124 @@ $.throttle = function(interval, throttledFunction) {
 };
 
 // Handles mouse dragging movements.
-var dragMoveCallback;
-var dragEndCallback;
-$.drag = function(moveCallback, endCallback) {
-    if (dragMoveCallback && dragEndCallback) {
-        dragEndCallback();
-    }
-    dragMoveCallback = $.throttle(50, moveCallback);
-    dragEndCallback = endCallback;
-};
+(function() {
+    var $dragCover,
+            endDrag,
+            $dragElement,
+            startDrag,
+            dragStartTimeout,
+            startPageX,
+            startPageY,
+            lastPageX,
+            lastPageY,
+            dragMoveCallback,
+            dragEndCallback;
 
-$(function() {
-    var $window = $(window);
-    $window.mousemove(function(event) {
+    $dragCover = $('<div/>', {
+        'css': {
+            'height': '100%',
+            'left': 0,
+            'position': 'fixed',
+            'top': 0,
+            'user-select': 'none',
+            'width': '100%',
+            'z-index': 1000000
+        }
+    });
+
+    endDrag = function(event) {
+        if (dragStartTimeout) {
+            clearTimeout(dragStartTimeout);
+            dragStartTimeout = null;
+        }
+
+        dragMoveCallback = null;
+
+        $(doc.body).css('user-select', '');
+
+        if ($dragElement) {
+            $dragElement.unbind('.drag');
+            $dragElement = null;
+        }
+
+        if (dragEndCallback) {
+            dragEndCallback(event);
+            dragEndCallback = null;
+        }
+    };
+
+    $.drag = function(element, event, startCallback, moveCallback, endCallback) {
+        var data;
+
+        // Skip unless left click.
+        if (event.which !== 1 ||
+                event.altKey ||
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey) {
+            return;
+        }
+
+        data = {
+            '$dragCover': $dragCover
+        };
+
+        // Reset in case we're in a bad state.
+        endDrag(event);
+
+        // Suppress native browser drag behaviors.
+        $(doc.body).css('user-select', 'none');
+
+        $dragElement = $(element);
+        $dragElement.bind('dragstart.drag', function() {
+            return false;
+        });
+
+        startPageX = lastPageX = event.pageX;
+        startPageY = lastPageY = event.pageY;
+
+        startDrag = function() {
+            dragStartTimeout = setTimeout(function() {
+                var deltaX = lastPageX - startPageX,
+                        deltaY = lastPageY - startPageY;
+
+                if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) < (event.dragDistance || 5)) {
+                    startDrag();
+                    return;
+                }
+
+                dragMoveCallback = function(event) {
+                    return moveCallback.call(element, event, data);
+                };
+
+                dragEndCallback = function(event) {
+                    return endCallback.call(element, event, data);
+                };
+
+                $(doc.body).append($dragCover);
+                startCallback.call(element, event, data);
+            }, (event.dragDelay || 100));
+        };
+
+        startDrag();
+    };
+
+    $win.mousemove($.throttle(50, function(event) {
+        if (dragStartTimeout) {
+            lastPageX = event.pageX;
+            lastPageY = event.pageY;
+        }
+
         if (dragMoveCallback) {
             dragMoveCallback(event);
         }
-    });
-    $window.mouseup(function(event) {
-        if (dragEndCallback) {
-            dragEndCallback();
-        }
-        dragMoveCallback = null;
-        dragEndCallback = null;
-    });
-});
+    }));
 
-// Similar to jQuery.livequery except it works on loaded elements and never runs more than once per element.
-$.fn.liveInit = function() {
-    if (!$.isFunction(arguments[0]) || arguments.length != 1) {
-        $.fn.livequery.apply(this, arguments);
-    } else if (this.selector) {
-        $.fn.livequery.call(this, $.once(arguments[0]));
-    } else {
-        $.fn.each.apply(this, arguments);
-    }
-};
+    $win.mouseup(function(event) {
+        endDrag(event);
+        $dragCover.remove();
+    });
+}());
 
 // Returns an accurate CSS z-index, taking all the parents into account.
 $.fn.zIndex = function() {
@@ -133,4 +263,94 @@ $.fn.zIndex = function() {
     return zIndex;
 };
 
-})(jQuery);
+// Patch $.fn.delegate to call $.fn.bind if called without a selector.
+(function() {
+    var oldDelegate = $.fn.delegate;
+
+    $.fn.delegate = function() {
+        if (arguments[0]) {
+            oldDelegate.apply(this, arguments);
+        } else {
+            $.fn.bind.apply(this, Array.prototype.slice.call(arguments, 1));
+        }
+    };
+}());
+
+// Polyfill for HTML5 input event.
+(function() {
+    var CHECK_INTERVAL_DATA = 'input-checkInterval';
+
+    if (!('oninput' in doc.createElement('input'))) {
+        $.event.special.input = {
+            'add': function(handleObject) {
+                var $root = $(this),
+                        selector = handleObject.selector,
+                        handler,
+                        clearCheckInterval;
+
+                // Don't trigger the handler too often.
+                handler = $.throttle(50, function() {
+                    $(this).trigger('input');
+                });
+
+                // The keyup event is pretty close to the input event...
+                $root.delegate(selector, 'keyup', function() {
+                    setTimeout(handler, 0);
+                });
+
+                // Call the handler periodically for corners cases.
+                clearCheckInterval = function() {
+                    var interval = $.data(this, CHECK_INTERVAL_DATA);
+
+                    if (interval) {
+                        clearInterval(interval);
+                        $.removeData(this, CHECK_INTERVAL_DATA);
+                    }
+                };
+
+                $root.delegate(selector, 'focus', function() {
+                    clearCheckInterval.call(this);
+                    $.data(this, CHECK_INTERVAL_DATA, setInterval(handler, 50));
+                });
+
+                $root.delegate(selector, 'blur', clearCheckInterval);
+            }
+        };
+    }
+}());
+
+// Wrapper around document.elementFromPoint to make it easier to use.
+$.elementFromPoint = function(x, y) {
+    var element = doc.elementFromPoint(x, y);
+
+    if (element) {
+        if (element.nodeType === 3) {
+            element = element.parentNode;
+        }
+        if (element) {
+            return $(element);
+        }
+    }
+
+    return $();
+};
+
+$.fn.onCreate = function(selector, handler) {
+    if (selector) {
+        this.bind('create', function(event) {
+            $(event.target).find(selector).each(handler);
+        });
+
+    } else {
+        this.each(handler);
+    }
+};
+
+$.easing.easeOutBack = function (x, t, b, c, d, s) {
+    if (s === undefined) {
+        s = 1.70158;
+    }
+    return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+};
+
+}(jQuery, window));

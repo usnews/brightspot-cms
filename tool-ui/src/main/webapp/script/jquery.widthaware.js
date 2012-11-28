@@ -1,11 +1,11 @@
-if (typeof jQuery !== 'undefined') (function($) {
+/** Width-aware elements. */
+(function($, win, undef) {
 
-// Width-aware elements.
-$.plugin('widthAware', {
+var $win = $(win);
 
-'init': function() {
-    return this.liveInit(function() {
-        var $element = $(this);
+$.plugin2('widthAware', {
+    '_create': function(element) {
+        var $element = $(element);
         var addWidthClasses = $.throttle(100, function() {
             var elementWidth = $element.width();
             $.each($element.attr('data-widths').split(/[,\s]/), function(index, width) {
@@ -24,10 +24,8 @@ $.plugin('widthAware', {
             });
         });
         addWidthClasses();
-        $(window).resize(addWidthClasses);
-    });
-}
-
+        $win.resize(addWidthClasses);
+    }
 });
 
-})(jQuery);
+}(jQuery, window));

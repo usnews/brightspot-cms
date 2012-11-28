@@ -1,32 +1,26 @@
-if (typeof jQuery !== 'undefined') (function($) {
+/** Automatic form submission on any input change. */
+(function($, win, undef) {
 
-// Automatic form submission on any input change.
-$.plugin('autoSubmit', {
+$.plugin2('autoSubmit', {
+    '_create': function(input) {
+        var $form = $(input).closest('form'),
+                lastInputs,
+                submitFunction;
 
-'submit': function() {
-    this.closest('form').autoSubmit('data', 'submitFunction')();
-    return this;
-},
-
-// Initializes the automatic form submission.
-'init': function() {
-    return this.liveInit(function() {
-
-        var $form = $(this).closest('form');
-        var lastInputs;
-        var submitFunction = $.throttle(500, function() {
+        submitFunction = $.throttle(500, function() {
             var inputs = $form.serialize();
+
             if (lastInputs !== inputs) {
                 lastInputs = inputs;
                 $form.submit();
             }
         });
 
-        $form.autoSubmit('data', 'submitFunction', submitFunction);
+        $form.data('autoSubmit-submitFunction', submitFunction);
         $form.attr('autocomplete', 'off');
-        $form.find(':input').live('change', submitFunction);
-        $form.find(':text').live('keyup', submitFunction);
-        $form.find(':text').live('focus', function() {
+        $form.delegate(':input', 'change', submitFunction);
+        $form.delegate(':text', 'keyup', submitFunction);
+        $form.delegate(':text', 'focus', function() {
             $('.frame[name=' + $form.attr('target') + ']').popup('open');
             submitFunction.apply(this, arguments);
         });
@@ -35,9 +29,13 @@ $.plugin('autoSubmit', {
         if ($targetFrame.length > 0) {
             $form.autoSubmit('submit');
         }
-    });
-}
+    },
 
+    'submit': function() {
+        return this.$init.each(function() {
+            $(this).closest('form').data('autoSubmit-submitFunction')();
+        });
+    }
 });
 
-})(jQuery);
+}(jQuery, window));

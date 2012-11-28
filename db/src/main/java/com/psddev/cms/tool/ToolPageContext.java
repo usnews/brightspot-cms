@@ -693,20 +693,22 @@ public class ToolPageContext extends WebPageContext {
         write("</script>");
 
         for (String src : new String[] {
-                "/script/jquery-1.4.2.min.js",
-                "/script/jquery.livequery.js",
+                "/script/jquery-1.8.3.min.js",
                 "/script/jquery.extra.js",
                 "/script/jquery.autosubmit.js",
                 "/script/jquery.calendar.js",
+                "/script/jquery.dropdown.js",
                 "/script/jquery.expandable.js",
                 "/script/jquery.popup.js",
                 "/script/jquery.frame.js",
+                "/script/jquery.imageeditor.js",
                 "/script/jquery.layout.js",
+                "/script/jquery.objectid.js",
+                "/script/jquery.pagelayout.js",
                 "/script/jquery.repeatable.js",
+                "/script/jquery.sortable.js",
                 "/script/jquery.toggleable.js",
-                "/script/jquery.tree.js",
                 "/script/jquery.widthaware.js",
-                "/script/jquery-ui-1.8.4.custom.min.js",
                 "/script/json2.min.js",
                 "/script/pixastic/pixastic.core.js",
                 "/script/pixastic/actions/brightness.js",
@@ -718,18 +720,9 @@ public class ToolPageContext extends WebPageContext {
                 "/script/pixastic/actions/rotate.js",
                 "/script/pixastic/actions/sepia.js",
                 "/script/html5slider.js",
-                "/script/ckeditor/ckeditor.js",
-                "/script/ckeditor/adapters/jquery.js",
-                "/script/jquery.editor.js",
                 "/script/wysihtml5.min.js",
                 "/script/jquery.rte.js" }) {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
-        }
-
-        if (getCmsTool().isWysihtml5Rte()) {
-            write("<script type=\"text/javascript\">");
-            write("jQuery.prototype.editor = jQuery.prototype.rte;");
-            write("</script>");
         }
 
         for (String src : new String[] {

@@ -2238,10 +2238,15 @@ table.links {
     overflow: hidden;
     padding-right: 20px;
 }
+.visualPageLayout .horizontal > .content {
+    border-spacing: 10px;
+    display: table;
+    margin: -10px;
+    padding: 0 10px 0 0;
+    width: 100%;
+}
 .visualPageLayout .horizontal > .content > .section {
-    float: left;
-    margin-right: 10px;
-    width: 150px;
+    display: table-cell;
 }
 .visualPageLayout .horizontal > .heading > .addButton {
     bottom: 10px;
@@ -2519,17 +2524,18 @@ table.links {
     line-height: 1.5;
 }
 
-/* Soft validation based on suggested values. */
 .inputContainer .smallInput {
     position: relative;
 }
-.inputContainer .suggestedSize:after {
+
+// Soft validation based on suggested sizes.
+.suggestedSize-tooShort:after,
+.suggestedSize-tooLong:after {
     background-color: #e90;
-    -moz-border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border-radius: 7px;
+    .border-radius(7px);
     border: 3px solid white;
     color: white;
+    content: 'Too Short';
     font-family: 'SilkscreenNormal', sans-serif;
     font-size: 8px;
     padding: 2px;
@@ -2538,9 +2544,7 @@ table.links {
     text-transform: uppercase;
     top: 3px;
 }
-.inputContainer .suggestedSize-tooShort:after {
-    content: 'Too Short';
-}
-.inputContainer .suggestedSize-tooLong:after {
+
+.suggestedSize-tooLong:after {
     content: 'Too Long';
 }

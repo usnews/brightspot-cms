@@ -1,11 +1,11 @@
-if (typeof jQuery !== 'undefined') (function($) {
+/** Layout manager. */
+(function($, win, undef) {
 
-// Layout manager.
-$.plugin('layout', {
+var $win = $(win);
 
-'init': function() {
-    return this.liveInit(function() {
-        var $layout = $(this);
+$.plugin2('layout', {
+    '_create': function(layout) {
+        var $layout = $(layout);
         $layout.bind('resize.layout', function() {
 
             var getFlex = function($section) {
@@ -46,13 +46,11 @@ $.plugin('layout', {
         $layout.resize();
 
         // Recalculate everything on window resize.
-        $(window).bind('resize.layout', $.throttle(100, function() {
+        $win.bind('resize.layout', $.throttle(100, function() {
             $layout.resize();
             $layout.resize();
         }));
-    });
-}
-
+    }
 });
 
-})(jQuery);
+}(jQuery, window));

@@ -1,4 +1,4 @@
-if (typeof jQuery !== 'undefined') (function($) {
+(function($, win, undef) {
 
 var options = {
     'dayLabels': [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
@@ -189,14 +189,9 @@ getCalendar = function() {
     return $calendar;
 };
 
-$.plugin('calendar', {
-
-// Initializes the calendar plugin.
-'init': function() {
-    return this.liveInit(function() {
-
-        // Replace the input with calendar button control.
-        var $input = $(this);
+$.plugin2('calendar', {
+    '_create': function(input) {
+        var $input = $(input);
         var $calendarButton = $('<span/>', {
             'class': 'calendarButton',
             'text': $input.val() || $input.attr('data-emptylabel') || 'N/A'
@@ -246,9 +241,7 @@ $.plugin('calendar', {
 
         $input.hide();
         $input.after($calendarButton);
-    });
-}
-
+    }
 });
 
-})(jQuery);
+}(jQuery, window));

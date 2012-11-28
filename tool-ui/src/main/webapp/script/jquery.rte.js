@@ -1,5 +1,8 @@
-// Rich text editor.
-if (typeof jQuery !== 'undefined') (function($) {
+/** Rich text editor based on wysihtml5. */
+(function($, win, undef) {
+
+var $win = $(win),
+        doc = win.document;
 
 $.each(CSS_CLASS_GROUPS, function() {
     var command = 'cms-' + this.internalName;
@@ -197,66 +200,13 @@ var createEnhancementId = function() {
     return enhancementId;
 };
 
-$(window).bind('resize scroll', $.throttle(100, function() {
-    $.each(rtes, function(item) {
-        var $toolbar = $(this.config.toolbar);
-
-        if ($toolbar.is(':visible')) {
-            var $header = $('.toolHeader');
-            var headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $(window).scrollTop() : 0);
-            var oldCss = $toolbar.data('rte-oldCss');
-
-            var $container = $(this.container);
-            var containerTop = $container.offset().top;
-
-            // Completely in view.
-            if (oldCss) {
-                var windowTop = $(window).scrollTop() + headerBottom;
-
-                if (windowTop < containerTop) {
-                    $container.css('padding-top', 0);
-                    $toolbar.removeData('rte-oldCss');
-                    $toolbar.css(oldCss);
-
-                // Completely out of view.
-                } else if (windowTop > containerTop + $container.height()) {
-                    $container.css('padding-top', 0);
-                    $toolbar.css(oldCss);
-                }
-
-            // Partially in view.
-            } else if (headerBottom + $(window).scrollTop() > containerTop) {
-                $container.css({
-                    'padding-top': $toolbar.outerHeight()
-                });
-                $toolbar.data('rte-oldCss', {
-                    'left': $toolbar.css('left'),
-                    'position': $toolbar.css('position'),
-                    'top': $toolbar.css('top'),
-                    'width': $toolbar.css('width'),
-                    'z-index': $toolbar.zIndex()
-                });
-                $toolbar.css({
-                    'left': $toolbar.offset().left,
-                    'position': 'fixed',
-                    'top': headerBottom,
-                    'width': $toolbar.width(),
-                    'z-index': $container.zIndex() + 1
-                });
-            }
-
-            return;
-        }
-    });
-}));
-
 var Rte = wysihtml5.Editor.extend({
 
     'constructor': function(originalTextarea, config) {
         var rte = this;
 
         // Create container.
-        var container = this.container = document.createElement('div');
+        var container = this.container = doc.createElement('div');
         container.className = 'rte-container';
         originalTextarea.parentNode.insertBefore(container, originalTextarea);
 
@@ -267,7 +217,7 @@ var Rte = wysihtml5.Editor.extend({
         }
 
         // Create overlay.
-        var overlay = this.overlay = document.createElement('div');
+        var overlay = this.overlay = doc.createElement('div');
         overlay.className = 'rte-overlay';
         overlay.style.position = 'relative';
         overlay.style.left = '0px';
@@ -275,7 +225,7 @@ var Rte = wysihtml5.Editor.extend({
         container.appendChild(overlay);
 
         // Handle toolbar action clicks.
-        $(overlay).find('[data-action]').live('click', function() {
+        $(overlay).delegate('[data-action]', 'click', function() {
             var $button = $(this);
             var $placeholder = $button.closest('.rte-enhancement').data('$rte-placeholder');
             var action = $button.attr('data-action');
@@ -294,7 +244,6 @@ var Rte = wysihtml5.Editor.extend({
 
             } else {
                 var oldTop = $placeholder.offset().top;
-                var $win = $(window);
 
                 if (action === 'moveDown') {
                     $placeholder.parents().andSelf().filter('body > *').next().after($placeholder);
@@ -449,13 +398,12 @@ var Rte = wysihtml5.Editor.extend({
             $enhancement.data('rte-visited', true);
 
             // Position enhancement to cover the placeholder.
-            var $window = $(window);
             var placeholderOffset = $placeholder.offset();
 
             $enhancement.css({
                 'height': $placeholder.outerHeight(),
-                'left': placeholderOffset.left - $window.scrollLeft(),
-                'top': placeholderOffset.top - $window.scrollTop(),
+                'left': placeholderOffset.left,
+                'top': placeholderOffset.top,
                 'width': $placeholder.outerWidth()
             });
 
@@ -570,11 +518,8 @@ wysihtml5.commands.insertMarker = {
 };
 
 // Expose as a jQuery plugin.
-$.plugin('rte', {
-
-// Initializes the rich text editor.
-'init': function(options) {
-    options = $.extend(true, {
+$.plugin2('rte', {
+    '_defaultOptions': {
         'enhancement': createEnhancement,
         'marker': createMarker,
         'spacerUrl': 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
@@ -582,49 +527,98 @@ $.plugin('rte', {
         'stylesheets': [ CONTEXT_PATH + '/style/rte-content.css', CONTEXT_PATH + '/style/rte-cssClasses.jsp' ],
         'toolbar': createToolbar,
         'useLineBreaks': false
-    }, options);
+    },
 
-    return this.liveInit(function() {
-        new Rte(this, options);
-    });
-},
+    '_create': function(element, options) {
+        new Rte(element, options);
+    },
 
-'enable': function() {
-    var container = this[0];
-    if (container) {
-        $.each(rtes, function() {
-            var textarea = this.textareaElement;
-            if (textarea && $.contains(container, textarea)) {
-                this.enable();
-            }
-        });
+    'enable': function() {
+        var container = this[0];
+
+        if (container) {
+            $.each(rtes, function() {
+                var textarea = this.textareaElement;
+                if (textarea && $.contains(container, textarea)) {
+                    this.enable();
+                }
+            });
+        }
+
+        return this;
+    },
+
+    // Sets data related to the enhancement.
+    'enhancement': function(plugin, data) {
+        var $enhancement = this.closest('.rte-enhancement');
+        var $placeholder = $enhancement.data('$rte-placeholder');
+
+        if ($placeholder) {
+            $.each(data, function(key, value) {
+                var name = 'data-' + key;
+                if (value === null || value === undef) {
+                    $placeholder.removeAttr(name);
+                } else {
+                    $placeholder.attr(name, value);
+                }
+            });
+        }
+
+        var label = data.label;
+        if (label) {
+            $enhancement.find('.rte-enhancement-label').text(label);
+        }
+
+        return this;
     }
-},
-
-// Sets data related to the enhancement.
-'enhancement': function(data) {
-    var $enhancement = this.closest('.rte-enhancement');
-    var $placeholder = $enhancement.data('$rte-placeholder');
-
-    if ($placeholder) {
-        $.each(data, function(key, value) {
-            var name = 'data-' + key;
-            if (value === null || value === undefined) {
-                $placeholder.removeAttr(name);
-            } else {
-                $placeholder.attr(name, value);
-            }
-        });
-    }
-
-    var label = data.label;
-    if (label) {
-        $enhancement.find('.rte-enhancement-label').text(label);
-    }
-
-    return this;
-}
-
 });
 
-})(jQuery);
+// Make sure that the editorial toolbar is visible as long as possible.
+$win.bind('resize.rte scroll.rte', $.throttle(100, function() {
+    $.each(rtes, function() {
+        var $toolbar = $(this.config.toolbar),
+                $header,
+                headerBottom,
+                $container,
+                containerTop,
+                windowTop;
+
+        if (!$toolbar.is(':visible')) {
+            return;
+        }
+
+        $header = $('.toolHeader');
+        headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
+        $container = $(this.container);
+        containerTop = $container.offset().top;
+
+        // Completely in view.
+        if (this._toolbarOldStyle) {
+            windowTop = $win.scrollTop() + headerBottom;
+
+            if (windowTop < containerTop) {
+                $container.css('padding-top', 0);
+                $toolbar.show().attr('style', this._toolbarOldStyle);
+                this._toolbarOldStyle = null;
+
+            // Completely out of view.
+            } else if (windowTop > containerTop + $container.height()) {
+                $toolbar.hide();
+            }
+
+        // Partially in view.
+        } else if (headerBottom + $win.scrollTop() > containerTop) {
+            $container.css('padding-top', $toolbar.outerHeight());
+            this._toolbarOldStyle = this._toolbarOldStyle || $toolbar.attr('style') || ' ';
+            $toolbar.show().css({
+                'left': $toolbar.offset().left,
+                'position': 'fixed',
+                'top': headerBottom,
+                'width': $toolbar.width(),
+                'z-index': $container.zIndex() + 1
+            });
+        }
+    });
+}));
+
+}(jQuery, window));

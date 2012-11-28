@@ -114,7 +114,7 @@ if (pathsMode == null) {
         <ul>
             <% for (Directory.Path path : objectAsDirMod.getSitePaths(site)) { %>
                 <li><div style="margin-bottom: 10px;">
-                    <textarea name="<%= wp.h(addName) %>"><%= wp.h(path.getPath()) %></textarea>
+                    <textarea name="<%= wp.h(addName) %>" style="display: block; margin-bottom: 5px;"><%= wp.h(path.getPath()) %></textarea>
                     <select name="<%= wp.h(typeName) %>">
                         <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
                             <option value="<%= wp.h(pathType.name()) %>"<%= pathType.equals(path.getType()) ? " selected" : "" %>><%= wp.h(pathType) %></option>
@@ -124,7 +124,7 @@ if (pathsMode == null) {
             <% } %>
 
             <li class="template"><div style="margin-bottom: 10px;">
-                <textarea name="<%= wp.h(addName) %>"></textarea>
+                <textarea name="<%= wp.h(addName) %>" style="display: block; margin-bottom: 5px;"></textarea>
                 <select name="<%= wp.h(typeName) %>">
                     <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
                         <option value="<%= wp.h(pathType.name()) %>"><%= wp.h(pathType) %></option>
