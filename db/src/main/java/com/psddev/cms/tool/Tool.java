@@ -48,7 +48,7 @@ public abstract class Tool extends Application {
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
                 Class<?> objectClass = type.getObjectClass();
 
-                if (Tool.class.isAssignableFrom(objectClass)) {
+                if (objectClass != null && Tool.class.isAssignableFrom(objectClass)) {
                     Tool tool = Application.Static.getInstance((Class<? extends Tool>) objectClass);
                     List<Plugin> toolPlugins = tool.getPlugins();
 
