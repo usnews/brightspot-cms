@@ -4,12 +4,6 @@
     src: local('☺'), url('aauxnext-md-webfont.woff') format('woff'), url('aauxnext-md-webfont.ttf') format('truetype'), url('aauxnext-md-webfont.svg#webfontfLsPAukW') format('svg');
 }
 
-@font-face {
-    font-family: 'SilkscreenNormal';
-    src: url('slkscr-webfont.eot');
-    src: local('☺'), url('slkscr-webfont.woff') format('woff'), url('slkscr-webfont.ttf') format('truetype'), url('slkscr-webfont.svg#webfont') format('svg');
-}
-
 // --- Variables ---
 
 @fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
@@ -1038,10 +1032,11 @@ input[type=text].expandable { min-width: 5em; }
 .toolFooter-build {
     background: url(brightspot.png) no-repeat top right;
     color: #777;
-    font-family: 'SilkscreenNormal', monospace;
-    font-size: 8px;
+    font-family: @fontFamily-label;
+    font-size: 80%;
     padding: 20px 0 10px 0;
     text-align: right;
+    text-transform: uppercase;
 }
 
 .searchForm {
@@ -1633,10 +1628,11 @@ h1 select:focus {
 
 .rte-group-label {
     display: block;
-    font-family: 'SilkscreenNormal', sans-serif;
-    font-size: 8px;
+    font-family: @fontFamily-label;
+    font-size: 80%;
     line-height: 8px;
     margin: 2px 0 3px 3px;
+    text-transform: uppercase;
 }
 
 .rte-button {
@@ -2536,8 +2532,8 @@ table.links {
     border: 3px solid white;
     color: white;
     content: 'Too Short';
-    font-family: 'SilkscreenNormal', sans-serif;
-    font-size: 8px;
+    font-family: @fontFamily-label;
+    font-size: 80%;
     padding: 2px;
     position: absolute;
     right: 3px;
