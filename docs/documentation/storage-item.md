@@ -108,6 +108,16 @@ StorageItem implementation that stores files on Amazon S3.
 	<Environment name="dari/storage/STORAGE_NAME/secret" override="false" type="java.lang.String" value="AWS_SECRET" />
 	<Environment name="dari/storage/STORAGE_NAME/bucket" override="false" type="java.lang.String" value="BASE_URL" />
 
+When attempting to store uploaded files using the Dari `AmazonStorageItem` an error: ClassNotFounfException, `org.jets3t.service.ServiceException`  will appear if the correct dependency is missing from your `pom.xml`.
+
+Add the following Jets3t dependency to resolve this issue:
+
+        <dependency>
+            <groupId>net.java.dev.jets3t</groupId>
+            <artifactId>jets3t</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+
 
 #### Brightcove StorageItem
 

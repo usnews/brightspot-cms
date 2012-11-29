@@ -15,6 +15,8 @@ By leveraging Dari, a full set of developer tools are available within your Brig
 
 The Build tool gives you access to the build history for your application, showing commits, and other information. You can configure external services, for example GitHub, Hudson and JIRA, allowing developers to reference bugs they have fixed, and code they have changed.
 
+When fixing a JIRA bug, a reference to the bug code, EG ABC-123 should be added to the commit message. This is then linked automatically in the Build tool. Multiple bug references can be added to one commit, all will be linked individually.
+
 **Build Tool Configuration:**
 
 Within your Maven project POM.xml file, add the following to configure the build tool:
