@@ -78,7 +78,7 @@ To configure the memory allocation for Tomcat, when using Brightspot, add the fo
     
 ### File upload issues
 
-When attempting to store uploaded files using the Dari `AmazonStorageItem` the error below will appear if the correct dependency is missing from your `pom.xml`
+When attempting to store uploaded files using the Dari `AmazonStorageItem` the error below will appear if the correct dependency is missing from your `pom.xml`. Note this is a dependency only when `AmazonStorageItem` is being used.
 
 Add the following Jets3t dependency to resolve this issue:
 
