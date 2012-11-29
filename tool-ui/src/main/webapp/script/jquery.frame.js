@@ -14,115 +14,20 @@ $.plugin2('frame', {
                 endLoad,
                 loadPage;
 
-        // Finds the target frame, creating one if necessary.
-        findTargetFrame = function(element, callback) {
-            var $element = $(element),
-                    target = $element.attr('target'),
-                    $frame;
-
-            // Standard HTML elements that can handle the target.
-            if (target && $('frame[name="' + target + '"], iframe[name="' + target + '"]').length > 0) {
-                return true;
-            }
-
-            // Skip processing on special target names.
-            if (target !== '_top' && target !== '_blank') {
-                if (target === '_parent') {
-                    $frame = $element.frame('container').parent().frame('container');
-
-                } else if (target) {
-                    $frame = $('.frame[name="' + target + '"]');
-
-                    if ($frame.length === 0) {
-                        $frame = $('<div/>', { 'class': 'frame', 'name': target });
-                        $(doc.body).append($frame);
-                        $frame.popup();
-                    }
-
-                } else {
-                    $frame = $element.frame('container');
-                }
-
-                if ($frame.length > 0) {
-                    return callback($element, $frame);
-                }
-            }
-
-            // Natural browser event.
-            return true;
-        };
-
-        // Begins loading $frame using $source.
-        beginLoad = function($frame, $source) {
-            var version = ($frame.data('frame-loadVersion') || 0) + 1,
-                    $popup = $frame.popup('container'),
-                    $oldSource;
-
-            $frame.add($popup).removeClass('loaded').addClass('loading');
-            $frame.data('frame-loadVersion', version);
-            $frame.data('frame-$source', $source);
-
-            // Source change on popup?
-            $oldSource = $frame.popup('source');
-
-            if ($popup[0] && (!$oldSource || $oldSource[0] != $source[0]) && (!$source[0] || !$.contains($popup[0], $source[0]))) {
-                $frame.popup('source', $source);
-                $frame.empty();
-            }
-
-            $frame.popup('open');
-
-            return version;
-        };
-
-        // Ends loading $frame by setting it using data.
-        endLoad = function($frame, version, data) {
-            var $popup;
-
-            if (version >= $frame.data('frame-loadVersion')) {
-                $popup = $frame.popup('container');
-
-                $frame.add($popup).removeClass('loading').addClass('loaded');
-
-                if (typeof data === 'string') {
-                    data = data.replace(/^.*?<body[^>]*>/ig, '');
-                    data = data.replace(/<\/body>.*?$/ig, '');
-                }
-
-                $frame.html(data);
-                $frame.trigger('load');
-                $frame.trigger('create');
-                $win.resize();
-            }
-        };
-
-        // Loads the page at url into the $frame.
-        loadPage = function($frame, $source, url) {
-            var version = beginLoad($frame, $source);
-
-            $.ajax({
-                'cache': false,
-                'url': url,
-                'complete': function(response) {
-                    endLoad($frame, version, response.responseText);
-                }
-            });
-        };
-
         // Intercept anchor clicks to see if it's targeted.
         $caller.delegate('a', 'click.frame', function() {
-            return findTargetFrame(this, function($anchor, $frame) {
-                loadPage($frame, $anchor, $anchor.attr('href'));
+            return plugin._findTargetFrame(this, function($anchor, $frame) {
+                plugin._loadPage($frame, $anchor, $anchor.attr('href'));
                 return false;
             });
         });
 
         // Intercept form submits to see if it's targeted.
         $caller.delegate('form', 'submit.frame', function() {
-            return findTargetFrame(this, function($form, $frame) {
+            return plugin._findTargetFrame(this, function($form, $frame) {
                 if ($form.attr('method') === 'get') {
                     var action = $form.attr('action');
-                    loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize());
+                    plugin._loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize());
                     return false;
                 }
 
@@ -149,10 +54,10 @@ $.plugin2('frame', {
                     $(doc.body).append($submitFrame);
                 }
 
-                var version = beginLoad($frame, $form);
+                var version = plugin._beginLoad($frame, $form);
                 $submitFrame.unbind('.frame');
                 $submitFrame.bind('load.frame', function() {
-                    endLoad($frame, version, $submitFrame.contents().find('body').html());
+                    plugin._endLoad($frame, version, $submitFrame.contents().find('body').html());
                     if (!hasTarget) {
                         $form.removeAttr('target');
                         setTimeout(function() { $submitFrame.remove(); }, 0);
@@ -183,6 +88,103 @@ $.plugin2('frame', {
         });
 
         return $caller;
+    },
+
+    // Finds the target frame, creating one if necessary.
+    '_findTargetFrame': function(element, callback) {
+        var $element = $(element),
+                target = $element.attr('target'),
+                $frame;
+
+        // Standard HTML elements that can handle the target.
+        if (target && $('frame[name="' + target + '"], iframe[name="' + target + '"]').length > 0) {
+            return true;
+        }
+
+        // Skip processing on special target names.
+        if (target !== '_top' && target !== '_blank') {
+            if (target === '_parent') {
+                $frame = $element.frame('container').parent().frame('container');
+
+            } else if (target) {
+                $frame = $('.frame[name="' + target + '"]');
+
+                if ($frame.length === 0) {
+                    $frame = $('<div/>', { 'class': 'frame', 'name': target });
+                    $(doc.body).append($frame);
+                    $frame.popup();
+                }
+
+            } else {
+                $frame = $element.frame('container');
+            }
+
+            if ($frame.length > 0) {
+                return callback($element, $frame);
+            }
+        }
+
+        // Natural browser event.
+        return true;
+    },
+
+    // Begins loading $frame using $source.
+    '_beginLoad': function($frame, $source) {
+        var version = ($frame.data('frame-loadVersion') || 0) + 1,
+                $popup = $frame.popup('container'),
+                $oldSource;
+
+        $frame.add($popup).removeClass('loaded').addClass('loading');
+        $frame.data('frame-loadVersion', version);
+        $frame.data('frame-$source', $source);
+
+        // Source change on popup?
+        $oldSource = $frame.popup('source');
+
+        if ($popup[0] && (!$oldSource || $oldSource[0] != $source[0]) && (!$source[0] || !$.contains($popup[0], $source[0]))) {
+            $frame.popup('source', $source);
+            $frame.empty();
+        }
+
+        $frame.popup('open');
+
+        return version;
+    },
+
+    // Ends loading $frame by setting it using data.
+    '_endLoad': function($frame, version, data) {
+        var $popup;
+
+        if (version >= $frame.data('frame-loadVersion')) {
+            $popup = $frame.popup('container');
+
+            $frame.add($popup).removeClass('loading').addClass('loaded');
+
+            if (typeof data === 'string') {
+                data = data.replace(/^.*?<body[^>]*>/ig, '');
+                data = data.replace(/<\/body>.*?$/ig, '');
+            }
+
+            $frame.html(data);
+            $frame.trigger('load');
+            $frame.trigger('create');
+            $win.resize();
+        }
+    },
+
+    // Loads the page at url into the $frame.
+    '_loadPage': function($frame, $source, url) {
+        var plugin = this,
+                version = plugin._beginLoad($frame, $source),
+                formData = $frame.attr('data-extra-form-data');
+
+        $.ajax({
+            'cache': false,
+            'url': url + (url.indexOf('?') < 0 ? '?' : '&') + formData,
+            'complete': function(response) {
+                plugin._endLoad($frame, version, response.responseText);
+            }
+        });
     },
 
     // Returns the enclosing element that contains the frame.
