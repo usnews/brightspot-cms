@@ -250,13 +250,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 if (file.getSize() > 0) {
                     String idString = UUID.randomUUID().toString().replace("-", "");
                     StringBuilder pathBuilder = new StringBuilder();
+
                     pathBuilder.append(idString.substring(0, 2));
                     pathBuilder.append('/');
                     pathBuilder.append(idString.substring(2, 4));
                     pathBuilder.append('/');
                     pathBuilder.append(idString.substring(4));
                     pathBuilder.append('/');
-                    pathBuilder.append(file.getName());
+                    pathBuilder.append(StringUtils.toNormalized(state.getLabel()));
 
                     newItem = StorageItem.Static.create();
                     newItem.setPath(pathBuilder.toString());
