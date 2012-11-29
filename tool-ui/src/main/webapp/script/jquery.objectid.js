@@ -107,7 +107,7 @@ $.plugin2('objectId', {
         }
 
         // Update visual whenever input changes.
-        $input.change(function() {
+        $input.change($.run(function() {
             if ($selectButton) {
                 $selectButton.trigger('updatePreview');
             }
@@ -127,8 +127,7 @@ $.plugin2('objectId', {
             } else if (!$clearButton) {
                 $editButton.hide();
             }
-        });
-        $input.change();
+        }));
     }
 });
 
