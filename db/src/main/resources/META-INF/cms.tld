@@ -41,6 +41,21 @@
     </tag>
 
     <tag>
+        <name>frame</name>
+        <tag-class>com.psddev.dari.util.FrameTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>name</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>lazy</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>img</name>
         <tag-class>com.psddev.cms.db.ImageTag</tag-class>
         <body-content>empty</body-content>
