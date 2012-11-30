@@ -46,23 +46,29 @@ public abstract class Tool extends Application {
             List<Plugin> plugins = new ArrayList<Plugin>();
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
+                if (type.isAbstract() || type.isEmbedded()) {
+                    continue;
+                }
+
                 Class<?> objectClass = type.getObjectClass();
 
-                if (objectClass != null && Tool.class.isAssignableFrom(objectClass)) {
-                    Tool tool = Application.Static.getInstance((Class<? extends Tool>) objectClass);
-                    List<Plugin> toolPlugins = tool.getPlugins();
+                if (objectClass == null || !Tool.class.isAssignableFrom(objectClass)) {
+                    continue;
+                }
 
-                    if (toolPlugins != null && !toolPlugins.isEmpty()) {
-                        for (Plugin plugin : toolPlugins) {
-                            plugin.setTool(tool);
+                Tool tool = Application.Static.getInstance((Class<? extends Tool>) objectClass);
+                List<Plugin> toolPlugins = tool.getPlugins();
+
+                if (toolPlugins != null && !toolPlugins.isEmpty()) {
+                    for (Plugin plugin : toolPlugins) {
+                        plugin.setTool(tool);
+                        plugins.add(plugin);
+                    }
+
+                } else {
+                    for (Plugin plugin : databasePlugins) {
+                        if (tool.equals(plugin.getTool())) {
                             plugins.add(plugin);
-                        }
-
-                    } else {
-                        for (Plugin plugin : databasePlugins) {
-                            if (tool.equals(plugin.getTool())) {
-                                plugins.add(plugin);
-                            }
                         }
                     }
                 }
