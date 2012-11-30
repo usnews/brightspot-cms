@@ -549,8 +549,8 @@ $.plugin2('rte', {
     },
 
     // Sets data related to the enhancement.
-    'enhancement': function(plugin, data) {
-        var $enhancement = this.closest('.rte-enhancement');
+    'enhancement': function(data) {
+        var $enhancement = this.$caller.closest('.rte-enhancement');
         var $placeholder = $enhancement.data('$rte-placeholder');
 
         if ($placeholder) {

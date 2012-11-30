@@ -38,7 +38,7 @@ if (object != null) {
         if (typeof jQuery !== 'undefined') (function($) {
             var $page = $('#<%= pageId %>');
             var $source = $page.popup('source');
-            $source.editor('enhancement', {
+            $source.rte('enhancement', {
                 'id': '<%= state.getId() %>',
                 'label': '<%= wp.js(state.getLabel()) %>'
             });

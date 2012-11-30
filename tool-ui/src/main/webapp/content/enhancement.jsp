@@ -73,7 +73,7 @@ if (object == null) {
             href = href.replace(/([?&])id=[^&]*/, '$1');
             href += '&id=<%= state.getId() %>';
             $source.attr('href', href);
-            $source.editor('enhancement', {
+            $source.rte('enhancement', {
                 'id': '<%= state.getId() %>',
                 'label': '<%= wp.js(state.getLabel()) %>'
             });
