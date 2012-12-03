@@ -13,8 +13,9 @@ $.plugin2('popup', {
         }
     },
     
-    '_create': function(element, options) {
+    '_create': function(element) {
         var $inner = $(element);
+        var options = this.option();
         var $container = $('<div/>', { 'class': 'popup' });
         var $content = $('<div/>', { 'class': 'content' });
         var $closeButton = $('<div/>', { 'class': 'closeButton' });

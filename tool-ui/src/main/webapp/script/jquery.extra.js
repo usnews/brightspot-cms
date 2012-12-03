@@ -13,26 +13,39 @@ $.plugin2 = function(name, methods) {
     };
 
     methods._initElement = function(element, options) {
+        var $element = $(element);
+
         $.data(element, OPTIONS_DATA_KEY, options);
-        $(element).addClass(CLASS_NAME);
+        $element.addClass(CLASS_NAME);
+        this['$caller'] = $element;
+    };
+
+    methods._isInit = function(element) {
+        return !!$.data(element, OPTIONS_DATA_KEY);
+    };
+
+    methods.closestInit = function() {
+        var $init = this.$caller.closest('.' + CLASS_NAME);
+        return $init.length > 0 ? $init : $(doc);
     };
 
     methods.option = function(key, value) {
-        var first;
+        var $init = this.closestInit(),
+                first;
 
         if (typeof key === 'undefined') {
-            first = this.$init[0];
+            first = $init[0];
             return first ? $.data(first, OPTIONS_DATA_KEY) : null;
 
         } else if (typeof value === 'undefined') {
-            first = this.$init[0];
+            first = $init[0];
             return first ? $.data(first, OPTIONS_DATA_KEY)[key] : null;
 
         } else {
-            this.$init.each(function() {
+            $init.each(function() {
                 $.data(this, OPTIONS_DATA_KEY)[key] = value;
             });
-            return this.$init;
+            return this.$caller;
         }
     };
 
@@ -43,15 +56,23 @@ $.plugin2 = function(name, methods) {
         options = plugin._mergeOptions(options);
 
         $caller.onCreate(selector, function() {
-            plugin._initElement(this, options);
+            if (!plugin._isInit(this)) {
+                plugin._initElement(this, options);
 
-            if (plugin._create) {
-                plugin._create(this, options);
+                if (plugin._create) {
+                    plugin._create(this);
+                }
             }
         });
 
-        if (plugin._init) {
-            plugin._init(selector, options);
+        if (!plugin._isInit(this)) {
+            $caller.each(function() {
+                plugin._initElement(this, options);
+            });
+
+            if (plugin._init) {
+                plugin._init(selector);
+            }
         }
 
         return $caller;
@@ -62,10 +83,7 @@ $.plugin2 = function(name, methods) {
     };
 
     $.fn[name] = function(method) {
-        var plugin = $.extend({ }, methods, {
-            '$caller': this,
-            '$init': this.closest('.' + CLASS_NAME)
-        });
+        var plugin = $.extend({ }, methods, { '$caller': this });
 
         if (!method || typeof method === 'object') {
             return plugin.init(method);

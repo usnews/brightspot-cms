@@ -8,8 +8,9 @@ $.plugin2('sortable', {
         'itemSelector': '> *'
     },
 
-    '_create': function(container, options) {
-        var $container = $(container);
+    '_create': function(container) {
+        var $container = $(container),
+                options = this.option();
 
         $container.addClass('_sortable');
         $container.find(options.itemSelector).addClass('_sortable-item');

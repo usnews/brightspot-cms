@@ -529,8 +529,8 @@ $.plugin2('rte', {
         'useLineBreaks': false
     },
 
-    '_create': function(element, options) {
-        new Rte(element, options);
+    '_create': function(element) {
+        new Rte(element, this.option());
     },
 
     'enable': function() {

@@ -32,7 +32,7 @@ $.plugin2('autoSubmit', {
     },
 
     'submit': function() {
-        return this.$init.each(function() {
+        return this.closestInit().each(function() {
             $(this).closest('form').data('autoSubmit-submitFunction')();
         });
     }

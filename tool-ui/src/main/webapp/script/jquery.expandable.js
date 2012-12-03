@@ -23,7 +23,9 @@ $.plugin2('expandable', {
         $input.trigger('expand');
     },
 
-    '_init': function(selector, options) {
+    '_init': function(selector) {
+        var options = this.option();
+
         this.$caller.delegate(selector, 'expand.expandable input.expandable', function() {
             var $input = $(this),
                     $checker = $input.prevAll('.expandable-checker'),

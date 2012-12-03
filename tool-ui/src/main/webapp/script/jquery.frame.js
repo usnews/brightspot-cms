@@ -16,9 +16,10 @@ $.plugin2('frame', {
         }
     },
 
-    '_init': function(selector, options) {
+    '_init': function(selector) {
         var plugin = this,
                 $caller = plugin.$caller,
+                options = plugin.option(),
                 frameClassName = options.frameClassName,
                 loadingClassName = options.loadingClassName,
                 loadedClassName = options.loadedClassName,
@@ -57,7 +58,7 @@ $.plugin2('frame', {
                     $frame = $element.frame('container');
                 }
 
-                if ($frame.length > 0) {
+                if ($frame.length > 0 && $frame[0] !== doc) {
                     return callback($element, $frame);
                 }
             }
@@ -217,7 +218,7 @@ $.plugin2('frame', {
 
     // Returns the enclosing element that contains the frame.
     'container': function() {
-        return this.$init;
+        return this.closestInit();
     },
 
     // Returns the source element that triggered the frame to be populated.

@@ -13,8 +13,9 @@ $.plugin2('dropDown', {
         'inputIconClass': 'dropDownInputIcon'
     },
 
-    '_create': function(select, options) {
-        var $select = $(select);
+    '_create': function(select) {
+        var $select = $(select),
+                options = this.option();
 
         // init all replacement control elements
         var $listContainer = $('<div/>', {
