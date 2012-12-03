@@ -99,14 +99,21 @@ $.plugin2('frame', {
 
             if (version >= $frame.data('frame-loadVersion')) {
                 $popup = $frame.popup('container');
-                $wrapper = $('<div/>', { 'html': data });
-                $bodyContainer = $wrapper.find('.' + bodyClassName + '[name="' + $frame.attr('name') + '"]');
 
-                if ($bodyContainer.length > 0) {
-                    body = $bodyContainer.text();
+                // Wrapped in try/catch because setting HTML within the
+                // wrapper will fail if the data contains any JavaScript.
+                try {
+                    $wrapper = $('<div/>', { 'html': data });
+                    $bodyContainer = $wrapper.find('.' + bodyClassName + '[name="' + $frame.attr('name') + '"]');
 
-                } else {
-                    body = $wrapper.html();
+                    if ($bodyContainer.length > 0) {
+                        body = $bodyContainer.text();
+                    }
+                } catch (error) {
+                }
+
+                if (!body) {
+                    body = $wrapper ? $wrapper.html() : data;
                     body = body.replace(/^.*?<body[^>]*>/ig, '');
                     body = body.replace(/<\/body>.*?$/ig, '');
                 }
