@@ -16,7 +16,13 @@ $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
 $doc.dropDown('live', 'select[multiple]');
 $doc.expandable('live', ':text.expandable, textarea:not(.richtext)');
-$doc.frame();
+
+$doc.frame({
+    'frameClassName': 'frame',
+    'loadingClassName': 'loading',
+    'loadedClassName': 'loaded'
+});
+
 $doc.layout('live', '.layout');
 $doc.imageEditor('live', '.imageEditor');
 $doc.objectId('live', ':input.objectId');

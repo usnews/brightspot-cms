@@ -5,7 +5,7 @@ var $win = $(win),
 
 // Standard plugin structure.
 $.plugin2 = function(name, methods) {
-    var CLASS_NAME= '_' + name,
+    var CLASS_NAME= 'plugin-' + name,
             OPTIONS_DATA_KEY = name + '-options';
 
     methods._mergeOptions = function(options) {
