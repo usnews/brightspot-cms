@@ -163,7 +163,7 @@ $.plugin2('frame', {
 
                 $form.attr('action', action + (action.indexOf('?') < 0 ? '?' : '&') + extraFormData);
 
-                var $isFrame = $form.find(':hidden[name=_isFrame]');
+                var $isFrame = $form.find(':hidden[name="_isFrame"]');
                 if ($isFrame.length === 0) {
                     $isFrame = $('<input name="_isFrame" type="hidden" value="true"/>');
                     $form.prepend($isFrame);

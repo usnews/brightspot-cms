@@ -273,9 +273,9 @@ $doc.ready(function() {
         if ($container.data('repeatableLabels-lastInputs') !== inputs) {
             $container.data('repeatableLabels-lastInputs', inputs);
 
-            id = $container.find('> :hidden[name$=.id]').val();
+            id = $container.find('> :hidden[name$=".id"]').val();
             inputs += '&id=' + id;
-            inputs += '&typeId=' + $container.find('> :hidden[name$=.typeId]').val();
+            inputs += '&typeId=' + $container.find('> :hidden[name$=".typeId"]').val();
 
             $.ajax({
                 'data': inputs,
