@@ -58,7 +58,7 @@ if (object == null) {
     %>
 
     <form action="<%= wp.url("", "typeId", state.getTypeId(), "id", state.getId()) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
-        <p><a class="icon-arrow_switch" href="<%= wp.url("", "typeId", null, "id", null) %>">Change Enhancement</a></p>
+        <p><a class="action-switch" href="<%= wp.url("", "typeId", null, "id", null) %>">Change Enhancement</a></p>
         <% wp.include("/WEB-INF/errors.jsp"); %>
         <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
         <div class="buttons">

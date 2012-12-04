@@ -90,9 +90,9 @@ var createToolbar = function() {
     $toolbar.append($misc);
 
     $misc.append($('<span/>', {
-        'class': 'rte-button rte-button-change_view',
+        'class': 'rte-button rte-button-html',
         'data-wysihtml5-action': 'change_view',
-        'text': 'Source'
+        'text': 'HTML'
     }));
 
     $toolbar.append($(

@@ -17,7 +17,7 @@ $.plugin2('imageEditor', {
 
         var $editButton = $('<li/>', {
             'html': $('<a/>', {
-                'class': 'icon-pencil',
+                'class': 'action-image-edit',
                 'text': 'Edit Image',
                 'click': function() {
                     $edit.popup('source', $(this));

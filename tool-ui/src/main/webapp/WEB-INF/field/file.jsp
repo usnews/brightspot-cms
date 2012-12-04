@@ -395,7 +395,7 @@ String existingClass = wp.createId();
                         <div class="imageEditor-tools">
                             <h2>Tools</h2>
                             <ul>
-                                <li><a class="icon-table" href="<%= wp.url("/content/imageMetadata.jsp", "id", id, "field", fieldName) %>" target="contentImageMetadata">View Metadata</a></li>
+                                <li><a class="action-image-viewMetadata" href="<%= wp.url("/content/imageMetadata.jsp", "id", id, "field", fieldName) %>" target="contentImageMetadata">View Metadata</a></li>
                             </ul>
                         </div>
 

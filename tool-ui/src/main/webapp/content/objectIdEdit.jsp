@@ -38,7 +38,7 @@ wp.writeHeader();
 wp.include("/WEB-INF/objectHeading.jsp", "object", object);
 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
     wp.write("<p style=\"position: absolute; right: 15px; top: 8px;\">");
-    wp.write("<a class=\"icon-pencil\" href=\"");
+    wp.write("<a class=\"action-edit\" href=\"");
     wp.write(wp.objectUrl("/content/edit.jsp", object));
     wp.write("\" target=\"_blank\">Edit in Full</a>");
     wp.write("</p>");

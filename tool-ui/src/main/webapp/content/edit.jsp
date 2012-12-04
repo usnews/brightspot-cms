@@ -129,7 +129,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                     "id", State.getInstance(previous).getId())
                                     %>"><%= wp.objectLabel(previous) %></a></li><%
                         }
-                        %><li class="label"><a class="icon-magnifier" href="<%= wp.url("/misc/advancedSearch.jsp",
+                        %><li class="label"><a class="action-search" href="<%= wp.url("/misc/advancedSearch.jsp",
                                 "id", search.getId())
                                 %>">Search Result</a></li><%
                         if (next != null) {
@@ -144,8 +144,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
             <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
 
-            <div class="widget">
-                <h1 class="icon-page">
+            <div class="widget widget-content">
+                <h1>
                     <%= state.isNew() ? "New " : "Edit " %>
 
                     <% if (compatibleTypes.size() < 2) {
@@ -186,7 +186,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
             <div class="widget widget-publication">
-                <h1 class="icon-tick">Publication</h1>
+                <h1>Publication</h1>
 
                 <%
                 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
@@ -198,7 +198,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
                         wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
                         wp.write("\">");
-                        wp.write("<input class=\"saveButton\" name=\"action\" type=\"submit\" value=\"Publish\">");
+                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
                     }
 
                     wp.write("<div class=\"otherWorkflows\">");
@@ -233,7 +233,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write("</div>");
 
                     if (!state.isNew() || draft != null) {
-                        wp.write("<input class=\"link deleteButton\" name=\"action\" type=\"submit\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">");
+                        wp.write("<button class=\"action-delete\" name=\"action\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">Delete</button>");
                     }
 
                 } else {
@@ -244,17 +244,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 %>
 
                 <% if (!state.isNew()) { %>
-                    <a class="advancedButton icon-wrench" href="<%= wp.objectUrl("/content/advanced.jsp", editing) %>" target="contentAdvanced">&#9660;</a>
+                    <a class="action-tools" href="<%= wp.objectUrl("/content/advanced.jsp", editing) %>" target="contentAdvanced">Advanced</a>
                 <% } %>
 
-                <ul class="piped extraActions">
+                <ul class="extraActions">
                     <% if (wp.getCmsTool().isPreviewPopup() && (
                             selected.getClass() == Page.class
                             || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
-                        <li><a class="icon-page_white_find" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
+                        <li><a class="action-preview" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
                     <% } %>
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                        <li><input class="icon-page_save link" name="action" type="submit" value="Save Draft"></li>
+                        <li><button class="action-draft" name="action">Save Draft</button></li>
                     <% } %>
                 </ul>
             </div>
@@ -266,81 +266,75 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         (selected.getClass() == Page.class
         || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
     <style type="text/css">
-        .content-preview {
+        .widget-preview {
             display: none;
+            margin-top: 10px;
             position: absolute;
             overflow: hidden;
-            padding: 10px 0 5px 5px;
             right: 0;
+            width: 970px;
         }
-        .content-preview.loading h1:before {
+
+        .widget-preview.loading h1:before {
             content: url(../style/icon/ajax-loader.gif);
         }
-        .content-preview h1 {
+
+        .widget-preview h1 {
             cursor: pointer;
             position: fixed;
             width: 100%;
         }
-        .content-preview .widget {
-            width: 970px;
-        }
-        .content-preview:before {
+
+        .widget-preview:before {
             content: '\00ab';
             font-size: 25px;
             line-height: 1;
-            margin-top: 3px;
+            margin-top: -8px;
             position: fixed;
             right: 20px;
             z-index: 1;
         }
-        .content-preview.expanded:before {
+
+        .widget-preview.expanded:before {
             content: '\00bb';
-        }
-        .content-preview .controls {
-            margin-top: 35px;
-        }
-        .content-preview .controls li form {
-            display: inline;
         }
     </style>
 
-    <div class="content-preview">
-        <div class="widget" style="overflow: auto;">
-            <h1 class="icon-page_white_find">Preview</h1>
+    <div class="widget widget-preview" style="overflow: auto;">
+        <h1>Preview</h1>
 
-            <%
-            String previewFormId = wp.createId();
-            String previewTarget = wp.createId();
-            String modeId = wp.createId();
-            %>
+        <%
+        String previewFormId = wp.createId();
+        String previewTarget = wp.createId();
+        String modeId = wp.createId();
+        %>
 
-            <ul class="piped controls" style="float: left;">
-                <li><a href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
-                <li>
-                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
-                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-                        <input class="link" type="submit" value="Share">
-                    </form>
-                </li>
-            </ul>
+        <ul class="widget-preview-controls">
+            <li><a href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
+            <li>
+                <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                    <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                    <button class="action-share">Share</button>
+                </form>
+            </li>
+        </ul>
 
-            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
-                <input type="hidden" id="<%= modeId %>" name="_" value="true">
-                <label for="<%= wp.createId() %>">Mode:</label>
-                <select id="<%= wp.getId() %>" onchange="
-                        var $select = $(this);
-                        $('#<%= modeId %>').attr('name', $select.val());
-                        $select.closest('form').submit();">
-                    <option value="_">Default</option>
-                    <option value="_prod">Production</option>
-                    <option value="_debug">Debug</option>
-                    <option value="_wireframe">Wireframe</option>
-                </select>
-                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-            </form>
-        </div>
+        <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
+            <input type="hidden" id="<%= modeId %>" name="_" value="true">
+            <label for="<%= wp.createId() %>">Mode:</label>
+            <select id="<%= wp.getId() %>" onchange="
+                    var $select = $(this);
+                    $('#<%= modeId %>').attr('name', $select.val());
+                    $select.closest('form').submit();">
+                <option value="_">Default</option>
+                <option value="_prod">Production</option>
+                <option value="_debug">Debug</option>
+                <option value="_wireframe">Wireframe</option>
+            </select>
+            <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+            <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+        </form>
     </div>
 
     <script type="text/javascript">
@@ -350,9 +344,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         // Make preview peekable.
         var $window = $(window);
         var $edit = $('.content-edit');
-        var $preview = $('.content-preview');
+        var $preview = $('.widget-preview');
         var $previewHeading = $preview.find('h1');
-        var $previewWidget = $preview.find('.widget');
 
         $edit.css({
             'margin-right': peekWidth,
@@ -364,7 +357,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         $window.resize();
 
         // Make the preview expand/collapse when the heading is clicked.
-        var oldPreviewWidgetWidth;
+        var oldPreviewWidth;
 
         $previewHeading.live('click', function() {
             var editOffsetLeft = $edit.offset().left;
@@ -377,8 +370,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'left': editOffsetLeft + $edit.outerWidth() + 10
                 }, 300, 'easeOutBack');
 
-                $previewWidget.css({
-                    'width': oldPreviewWidgetWidth
+                $preview.css({
+                    'width': oldPreviewWidth
                 });
 
             } else {
@@ -388,8 +381,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'left': editOffsetLeft + 30,
                 }, 300, 'easeOutBack');
 
-                oldPreviewWidgetWidth = $previewWidget.width();
-                $previewWidget.css({
+                oldPreviewWidth = $preview.width();
+                $preview.css({
                     'width': bodyWidth
                 });
             }
@@ -406,8 +399,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'top': editOffset.top
                 });
 
-                oldPreviewWidgetWidth = $previewWidget.width();
-                $previewWidget.css({
+                oldPreviewWidth = $preview.width();
+                $preview.css({
                     'width': bodyWidth
                 });
 
@@ -417,8 +410,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'top': editOffset.top
                 });
 
-                $previewWidget.css({
-                    'width': oldPreviewWidgetWidth
+                $preview.css({
+                    'width': oldPreviewWidth
                 });
 
             }
@@ -515,7 +508,7 @@ $(function() {
 
     // Change save button label if scheduling.
     var $dateInput = $publicationWidget.find('.dateInput');
-    var $saveButton = $publicationWidget.find('.saveButton');
+    var $saveButton = $publicationWidget.find('.action-save');
     var oldSaveButton = $saveButton.val();
     var oldDate = $dateInput.val();
     var changeLabel = function() {
@@ -591,14 +584,9 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
                 }
 
                 if (!ObjectUtils.isBlank(display)) {
-                    wp.write("<div class=\"widget\"><h1");
-                    String iconName = widget.getIconName();
-                    if (!ObjectUtils.isBlank(iconName)) {
-                        wp.write(" class=\"icon-");
-                        wp.write(iconName);
-                        wp.write("\"");
-                    }
-                    wp.write(">");
+                    wp.write("<div class=\"widget widget-");
+                    wp.write(wp.h(widget.getInternalName()));
+                    wp.write("\"><h1>");
                     wp.write(wp.objectLabel(widget));
                     wp.write("</h1>");
                     wp.write(display);

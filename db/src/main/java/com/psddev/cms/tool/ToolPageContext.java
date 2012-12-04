@@ -660,11 +660,6 @@ public class ToolPageContext extends WebPageContext {
 
         write("<script src=\"", cmsResource("/script/less-1.3.1.min.js"), "\" type=\"text/javascript\"></script>");
 
-        for (String href : new String[] {
-                "/style/icon.jsp" }) {
-            write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/css\">");
-        }
-
         String extraCss = cmsTool.getExtraCss();
         if (!ObjectUtils.isBlank(extraCss)) {
             write("<style type=\"text/css\">", extraCss, "</style>");
@@ -754,9 +749,9 @@ public class ToolPageContext extends WebPageContext {
                 write("</a></li>");
             }
 
-            write("<li><a href=\"", cmsUrl("/misc/settings.jsp"), "\" target=\"misc\">Settings</a></li>");
-            write("<li><a href=\"", cmsUrl("/misc/moreTools.jsp"), "\" target=\"misc\">More Tools</a></li>");
-            write("<li><a href=\"", cmsUrl("/misc/logOut.jsp"), "\">Log Out</a></li>");
+            write("<li><a class=\"action-settings\" href=\"", cmsUrl("/misc/settings.jsp"), "\" target=\"misc\">Settings</a></li>");
+            write("<li><a class=\"action-tools\" href=\"", cmsUrl("/misc/moreTools.jsp"), "\" target=\"misc\">More Tools</a></li>");
+            write("<li><a class=\"action-logOut\" href=\"", cmsUrl("/misc/logOut.jsp"), "\">Log Out</a></li>");
             write("</ul>");
         }
 
