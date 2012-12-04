@@ -697,7 +697,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 overlay.append(defaultCss);
                                 overlay.append("}");
                             }
-                            for (CmsTool.CssClassGroup group : cms.getTextOverlayCssClassGroups()) {
+                            for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
                                 String groupName = group.getInternalName();
                                 for (CmsTool.CssClass cssClass : group.getCssClasses()) {
                                     overlay.append("#");
