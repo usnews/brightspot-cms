@@ -225,7 +225,7 @@ $.plugin2('frame', {
 
     // Returns the enclosing element that contains the frame.
     'container': function() {
-        return this.closestInit();
+        return this.$caller.closest('.' + this.option('frameClassName'));
     },
 
     // Returns the source element that triggered the frame to be populated.
