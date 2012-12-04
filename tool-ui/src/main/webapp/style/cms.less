@@ -1287,95 +1287,115 @@ h1 select:focus {
     }
 }
 
-/* --- jQuery.repeatable --- */
+// --- $.repeatable ---
 
-.repeatableForm > ol,
-.repeatableForm > ul {
-    margin-bottom: 6px;
+.repeatableForm {
+    > ul {
+        margin-left: 0;
+    }
+
+    > ol,
+    > ul {
+        margin-bottom: 6px;
+
+        > li {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid #ececec;
+            .border-radius(5px);
+            margin-bottom: 6px;
+            padding: 0 6px;
+            position: relative;
+
+            > .label {
+                background-color: #ececec;
+                color: #333;
+                cursor: pointer;
+                font-family: @fontFamily-label;
+                left: 0;
+                margin: 0 -6px 6px -6px;
+                min-height: 22px;
+                padding: 5px;
+
+                &:before {
+                    color: rgba(0, 0, 0, 0.3);
+                    content: '\25bc';
+                    font-size: 80%;
+                    margin-right: 5px;
+                }
+
+                &:hover:before {
+                    color: rgba(0, 0, 0, 0.8);
+                }
+            }
+
+            > .removeButton {
+                .link;
+                background: transparent url(icon/delete.png) no-repeat left center;
+                color: #c00;
+                padding-left: 20px;
+                position: absolute;
+                right: 6px;
+                top: 6px;
+            }
+
+            &.focus {
+                border-color: #5cb3e5;
+
+                > .label {
+                    background-color: #5cb3e5;
+                }
+            }
+
+            &.collapsed {
+                padding-bottom: 0;
+
+                > .label {
+                    border-bottom-style: none;
+                    margin-bottom: 0;
+
+                    &:before {
+                        content: '\25ba';
+                        margin-right: 5px;
+                    }
+                }
+            }
+
+            &.toBeRemoved {
+                border-color: #fdd;
+                padding-bottom: 0;
+
+                > .label {
+                    background-color: #fdd;
+                    border-bottom-style: none;
+                    color: #c00;
+                    margin-bottom: 0;
+                    text-decoration: line-through;
+
+                    &:before {
+                        visibility: hidden;
+                    }
+                }
+
+                > .removeButton {
+                    background-image: url(icon/add.png);
+                    color: #29c;
+                }
+            }
+        }
+    }
+
+    > .addButtonContainer > .addButton {
+        .link;
+        background: transparent url(icon/add.png) no-repeat left center;
+        color: #29c;
+        margin-right: 15px;
+        padding-left: 20px;
+    }
 }
-.repeatableForm > ol,
-.repeatableForm > ul {
-    list-style: none;
-    margin-left: 0;
-}
-.repeatableForm > ol > li,
-.repeatableForm > ul > li {
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 1px solid #ececec;
-    .border-radius(5px);
-    margin-bottom: 6px;
-    padding: 0 6px;
-    position: relative;
-}
-.repeatableForm > .addButtonContainer > .addButton {
-    background: transparent url(icon/add.png) no-repeat left center;
-    color: #29c;
-    cursor: pointer;
-    margin-right: 15px;
-    padding-left: 20px;
-}
-.repeatableForm > .addButtonContainer > .addButton:hover {
-    text-decoration: underline;
-}
-.repeatableForm > ol > li > .label,
-.repeatableForm > ul > li > .label {
-    background-color: #ececec;
-    color: #333;
-    cursor: pointer;
-    font-family: @fontFamily-label;
-    left: 0;
-    margin: 0 -6px 6px -6px;
-    min-height: 22px;
-    padding: 5px;
-}
-.repeatableForm > ol > li > .label:before,
-.repeatableForm > ul > li > .label:before {
-    color: rgba(0, 0, 0, 0.3);
-    content: '\25bc';
-    font-size: 80%;
-    margin-right: 5px;
-}
-.repeatableForm > ol > li > .label:hover:before,
-.repeatableForm > ul > li > .label:hover:before {
-    color: rgba(0, 0, 0, 0.8);
-}
-.repeatableForm > ol > li.collapsed > .label:before,
-.repeatableForm > ul > li.collapsed > .label:before {
-    content: '\25ba';
-    margin-right: 5px;
-}
+
 .repeatableForm > ol > li.collapsed > .frame,
 .repeatableForm > ul > li.collapsed > .frame {
     min-height: 0;
-}
-
-.repeatableForm > ol > li > .removeButton,
-.repeatableForm > ul > li > .removeButton {
-    background: transparent url(icon/delete.png) no-repeat left center;
-    color: #c00;
-    cursor: pointer;
-    padding-left: 20px;
-    position: absolute;
-    right: 6px;
-    top: 6px;
-}
-.repeatableForm > ol > li > .removeButton:hover,
-.repeatableForm > ul > li > .removeButton:hover {
-    text-decoration: underline;
-}
-.repeatableForm > ol > li.focused,
-.repeatableForm > ul > li.focused {
-    border-color: #5cb3e5;
-}
-.repeatableForm > ol > li.focused > .label,
-.repeatableForm > ul > li.focused > .label {
-    background-color: #5cb3e5;
-}
-.repeatableForm > ol > li.collapsed,
-.repeatableForm > ul > li.collapsed,
-.repeatableForm > ol > li.toBeRemoved,
-.repeatableForm > ul > li.toBeRemoved {
-    padding-bottom: 0;
 }
 .repeatableForm > ol > li.collapsed .message,
 .repeatableForm > ul > li.collapsed .message,
@@ -1387,125 +1407,92 @@ h1 select:focus {
 .repeatableForm > ul > li.toBeRemoved .inputContainer {
     display: none;
 }
-.repeatableForm > ol > li.collapsed > .label,
-.repeatableForm > ul > li.collapsed > .label,
-.repeatableForm > ol > li.toBeRemoved > .label,
-.repeatableForm > ul > li.toBeRemoved > .label {
-    border-bottom-style: none;
-    margin-bottom: 0;
-}
-.repeatableForm > ol > li.toBeRemoved,
-.repeatableForm > ul > li.toBeRemoved {
-    border-color: #fdd;
-}
-.repeatableForm > ol > li.toBeRemoved > .label,
-.repeatableForm > ul > li.toBeRemoved > .label {
-    background-color: #fdd;
-    color: #c00;
-    text-decoration: line-through;
-}
-.repeatableForm > ol > li.toBeRemoved > .label:before,
-.repeatableForm > ul > li.toBeRemoved > .label:before {
-    visibility: hidden;
-}
-.repeatableForm > ol > li.toBeRemoved > .removeButton,
-.repeatableForm > ul > li.toBeRemoved > .removeButton {
-    background-image: url(icon/add.png);
-    color: #29c;
+
+.repeatableInputs {
+    > ul {
+        list-style: none;
+        margin-left: 0;
+    }
+
+    > ol,
+    > ul {
+        margin-bottom: 0;
+
+        > li {
+            background-color: white;
+            border-bottom: 1px solid #cecece;
+            margin-bottom: 10px;
+            position: relative;
+
+            > .removeButton {
+                .link;
+                background: transparent url(icon/delete.png) no-repeat left center;
+                bottom: 0;
+                color: #c00;
+                padding-left: 20px;
+                position: absolute;
+                right: 0;
+            }
+
+            &.toBeRemoved > .removeButton {
+                background-image: url(icon/add.png);
+                color: #29c;
+            }
+        }
+    }
+
+    .addButtonContainer {
+        margin-top: 5px;
+
+        > .addButton {
+            .link;
+            background: transparent url(icon/add.png) no-repeat left center;
+            color: #29c;
+            margin-right: 15px;
+            padding-left: 20px;
+        }
+    }
 }
 
-.repeatableInputs > ol,
-.repeatableInputs > ul {
-    margin-bottom: 0;
-}
-.repeatableInputs > ul {
-    list-style: none;
-    margin-left: 0;
-}
-.repeatableInputs > ol > li,
-.repeatableInputs > ul > li {
-    background-color: white;
-    border-bottom: 1px solid #cecece;
-    margin-bottom: 10px;
-    position: relative;
-}
-.repeatableInputs > .addButtonContainer {
-    margin-top: 5px;
-}
-.repeatableInputs > .addButtonContainer > .addButton {
-    background: transparent url(icon/add.png) no-repeat left center;
-    color: #29c;
-    cursor: pointer;
-    margin-right: 15px;
-    padding-left: 20px;
-}
-.repeatableInputs > .addButtonContainer > .addButton:hover {
-    text-decoration: underline;
-}
-.repeatableInputs > ol > li > .removeButton,
-.repeatableInputs > ul > li > .removeButton {
-    background: transparent url(icon/delete.png) no-repeat left center;
-    bottom: 0;
-    color: #c00;
-    cursor: pointer;
-    padding-left: 20px;
-    position: absolute;
-    right: 0;
-}
-.repeatableInputs > ol > li > .removeButton:hover,
-.repeatableInputs > ul > li > .removeButton:hover {
-    text-decoration: underline;
-}
-.repeatableInputs > ol > li.toBeRemoved > .removeButton,
-.repeatableInputs > ul > li.toBeRemoved > .removeButton {
-    background-image: url(icon/add.png);
-    color: #29c;
+.repeatableObjectId {
+    > ol,
+    > ul {
+        margin-bottom: 0;
+
+        > li {
+            margin-bottom: 5px;
+            white-space: nowrap;
+
+            > .removeButton {
+                .link;
+                background: transparent url(icon/delete.png) no-repeat left center;
+                color: #c00;
+                margin-left: 10px;
+                padding-left: 20px;
+            }
+
+            &.toBeRemoved > .removeButton {
+                background-image: url(icon/add.png);
+                color: #29c;
+            }
+        }
+    }
+
+    > .addButtonContainer {
+        margin-top: 5px;
+
+        .addButton {
+            .link;
+            background: transparent url(icon/add.png) no-repeat left center;
+            padding-left: 20px;
+        }
+    }
 }
 
-.repeatableObjectId > ol,
-.repeatableObjectId > ul {
-    margin-bottom: 0;
-}
-.repeatableObjectId > ol > li,
-.repeatableObjectId > ul > li {
-    margin-bottom: 5px;
-    white-space: nowrap;
-}
 .repeatableObjectId > ol > li > input[type=text],
 .repeatableObjectId > ul > li > input[type=text],
 .repeatableObjectId > .addButtonContainer > input[type=text] {
     padding-right: 20px;
-}
-.repeatableObjectId > .addButtonContainer {
-    margin-top: 5px;
-}
-.repeatableObjectId > .addButtonContainer > .addButton,
-.repeatableObjectId > ol > li > .removeButton,
-.repeatableObjectId > ul > li > .removeButton {
-    background: transparent url(icon/add.png) no-repeat left center;
-    cursor: pointer;
-    padding-left: 20px;
-}
-.repeatableObjectId > .addButtonContainer > .addButton {
-    color: #29c;
-}
-.repeatableObjectId > .addButtonContainer > .addButton:hover {
-    text-decoration: underline;
-}
-.repeatableObjectId > ol > li > .removeButton,
-.repeatableObjectId > ul > li > .removeButton {
-    background-image: url(icon/delete.png);
-    color: #c00;
-    margin-left: 10px;
-}
-.repeatableObjectId > ol > li > .removeButton:hover,
-.repeatableObjectId > ul > li > .removeButton:hover {
-    text-decoration: underline;
-}
-.repeatableObjectId > ol > li.toBeRemoved > .removeButton,
-.repeatableObjectId > ul > li.toBeRemoved > .removeButton {
-    background-image: url(icon/add.png);
-    color: #29c;
 }
 
 .repeatableText {
