@@ -16,7 +16,7 @@ if (!ObjectUtils.isBlank(defaultCss)) {
     wp.write(" }\n");
 }
 
-for (CmsTool.CssClassGroup group : cms.getTextOverlayCssClassGroups()) {
+for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
     String groupName = group.getInternalName();
 
     for (CmsTool.CssClass c : group.getCssClasses()) {

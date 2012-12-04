@@ -23,7 +23,7 @@ public class CmsTool extends Tool {
     private boolean previewPopup;
     private Boolean wysihtml5Rte;
     private String defaultTextOverlayCss;
-    private List<CssClassGroup> textOverlayCssClassGroups;
+    private List<CssClassGroup> textCssClassGroups;
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -166,15 +166,15 @@ public class CmsTool extends Tool {
         this.defaultTextOverlayCss = defaultTextOverlayCss;
     }
 
-    public List<CssClassGroup> getTextOverlayCssClassGroups() {
-        if (textOverlayCssClassGroups == null) {
-            textOverlayCssClassGroups = new ArrayList<CssClassGroup>();
+    public List<CssClassGroup> getTextCssClassGroups() {
+        if (textCssClassGroups == null) {
+            textCssClassGroups = new ArrayList<CssClassGroup>();
         }
-        return textOverlayCssClassGroups;
+        return textCssClassGroups;
     }
 
-    public void setTextOverlayCssClassGroups(List<CssClassGroup> textOverlayCssClassGroups) {
-        this.textOverlayCssClassGroups = textOverlayCssClassGroups;
+    public void setTextCssClassGroups(List<CssClassGroup> textCssClassGroups) {
+        this.textCssClassGroups = textCssClassGroups;
     }
 
     /** Returns the preview URL. */

@@ -671,7 +671,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
-        for (CmsTool.CssClassGroup group : cmsTool.getTextOverlayCssClassGroups()) {
+        for (CmsTool.CssClassGroup group : cmsTool.getTextCssClassGroups()) {
             Map<String, Object> groupDef = new HashMap<String, Object>();
             cssClassGroups.add(groupDef);
             groupDef.put("internalName", group.getInternalName());
