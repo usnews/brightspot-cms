@@ -286,6 +286,41 @@ $doc.ready(function() {
             });
         }
     }));
+
+    // Publication widget behaviors.
+    $('.widget-publication').each(function() {
+        var $widget = $(this),
+                $dateInput = $widget.find('.dateInput'),
+                $saveButton = $widget.find('.action-save'),
+                oldSaveButton = $saveButton.val(),
+                oldDate = $dateInput.val();
+
+        // Change the save button label if scheduling.
+        $dateInput.change($.run(function() {
+            $saveButton.val($dateInput.val() ?
+                    (oldDate ? 'Reschedule' : 'Schedule') :
+                    oldSaveButton);
+        }));
+
+        // Move the widget to the top if within aside section.
+        $widget.closest('.contentForm-aside').each(function() {
+            var $aside = $(this);
+
+            $win.resize($.throttle(100, $.run(function() {
+                var asideOffset = $aside.offset();
+
+                $widget.css({
+                    'left': asideOffset.left,
+                    'position': 'fixed',
+                    'top': asideOffset.top,
+                    'width': $widget.width()
+                });
+
+                // Push other areas down.
+                $aside.css('padding-top', $widget.outerHeight(true));
+            })));
+        });
+    });
 });
 
 }(jQuery, window));

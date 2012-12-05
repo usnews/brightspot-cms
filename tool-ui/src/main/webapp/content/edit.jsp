@@ -269,12 +269,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         (selected.getClass() == Page.class
         || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
     <style type="text/css">
-        .widget-preview {
+        .content-preview {
             display: none;
-            margin-top: 10px;
-            position: absolute;
             overflow: hidden;
+            margin: -10px 0 -10px -10px;
+            padding: 10px 0 10px 10px;
+            position: absolute;
             right: 0;
+        }
+
+        .widget-preview {
+            margin-top: 10px;
             width: 970px;
         }
 
@@ -303,61 +308,64 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         }
     </style>
 
-    <div class="widget widget-preview" style="overflow: auto;">
-        <h1>Preview</h1>
+    <div class="content-preview">
+        <div class="widget widget-preview">
+            <h1>Preview</h1>
 
-        <%
-        String previewFormId = wp.createId();
-        String previewTarget = wp.createId();
-        String modeId = wp.createId();
-        %>
+            <%
+            String previewFormId = wp.createId();
+            String previewTarget = wp.createId();
+            String modeId = wp.createId();
+            %>
 
-        <ul class="widget-preview-controls">
-            <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
-            <li>
-                <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
-                    <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                    <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-                    <button class="action-share">Share</button>
-                </form>
-            </li>
-        </ul>
+            <ul class="widget-preview-controls">
+                <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
+                <li>
+                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                        <button class="action-share">Share</button>
+                    </form>
+                </li>
+            </ul>
 
-        <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
-            <input type="hidden" id="<%= modeId %>" name="_" value="true">
-            <label for="<%= wp.createId() %>">Mode:</label>
-            <select id="<%= wp.getId() %>" onchange="
-                    var $select = $(this);
-                    $('#<%= modeId %>').attr('name', $select.val());
-                    $select.closest('form').submit();">
-                <option value="_">Default</option>
-                <option value="_prod">Production</option>
-                <option value="_debug">Debug</option>
-                <option value="_wireframe">Wireframe</option>
-            </select>
-            <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-            <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-        </form>
+            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
+                <input type="hidden" id="<%= modeId %>" name="_" value="true">
+                <label for="<%= wp.createId() %>">Mode:</label>
+                <select id="<%= wp.getId() %>" onchange="
+                        var $select = $(this);
+                        $('#<%= modeId %>').attr('name', $select.val());
+                        $select.closest('form').submit();">
+                    <option value="_">Default</option>
+                    <option value="_prod">Production</option>
+                    <option value="_debug">Debug</option>
+                    <option value="_wireframe">Wireframe</option>
+                </select>
+                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+            </form>
+        </div>
     </div>
 
     <script type="text/javascript">
-    $(function() {
-        var peekWidth = 150;
 
-        // Make preview peekable.
-        var $window = $(window);
-        var $edit = $('.content-edit');
-        var $preview = $('.widget-preview');
-        var $previewHeading = $preview.find('h1');
+    // Make preview peekable.
+    $(function() {
+        var PEEK_WIDTH = 150,
+                $win = $(window),
+                $edit = $('.content-edit'),
+                $preview = $('.content-preview'),
+                $previewWidget = $preview.find('.widget-preview'),
+                $previewHeading = $preview.find('h1');
 
         $edit.css({
-            'margin-right': peekWidth,
+            'margin-right': PEEK_WIDTH,
             'max-width': 1100
         });
 
         $preview.addClass('loading');
         $preview.show();
-        $window.resize();
+        $win.resize();
 
         // Make the preview expand/collapse when the heading is clicked.
         var oldPreviewWidth;
@@ -373,7 +381,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'left': editOffsetLeft + $edit.outerWidth() + 10
                 }, 300, 'easeOutBack');
 
-                $preview.css({
+                $previewWidget.css({
                     'width': oldPreviewWidth
                 });
 
@@ -381,11 +389,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 $preview.addClass('expanded');
 
                 $preview.animate({
-                    'left': editOffsetLeft + 30,
+                    'left': editOffsetLeft + 30
                 }, 300, 'easeOutBack');
 
                 oldPreviewWidth = $preview.width();
-                $preview.css({
+                $previewWidget.css({
                     'width': bodyWidth
                 });
             }
@@ -421,7 +429,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         });
 
         resizePreview();
-        $window.resize(resizePreview);
+        $win.resize(resizePreview);
 
         // Load the preview.
         var $previewForm = $('#<%= previewFormId %>');
@@ -453,7 +461,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     $(':input[name=<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>]').val(request.responseText);
                     var $previewTarget = $('iframe[name=<%= previewTarget %>]');
 
-                    if ($previewTarget.length == 0) {
+                    if ($previewTarget.length === 0) {
                         $previewTarget = $('<iframe/>', {
                             'name': '<%= previewTarget %>',
                             'css': {
@@ -504,50 +512,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     });
     </script>
 <% } %>
-
-<script type="text/javascript">
-$(function() {
-    var $publicationWidget = $('.widget-publication');
-
-    // Change save button label if scheduling.
-    var $dateInput = $publicationWidget.find('.dateInput');
-    var $saveButton = $publicationWidget.find('.action-save');
-    var oldSaveButton = $saveButton.val();
-    var oldDate = $dateInput.val();
-    var changeLabel = function() {
-        $saveButton.val($dateInput.val() ? (oldDate ? 'Reschedule' : 'Schedule') : oldSaveButton);
-    };
-
-    changeLabel();
-    $dateInput.change(changeLabel);
-
-    // Move the publication area to the top if within aside section.
-    var $aside = $publicationWidget.closest('.contentForm-aside');
-
-    if ($aside.length > 0) {
-        var asideTop = $aside.offset().top;
-
-        var positionPublicationWidget = $.throttle(500, function() {
-            var asideLeft = $aside.offset().left;
-            var width = $publicationWidget.width();
-
-            $publicationWidget.css({
-                'left': asideLeft,
-                'margin-bottom': $aside.find('.area').css('margin-bottom'),
-                'position': 'fixed',
-                'top': asideTop,
-                'width': width
-            });
-
-            // Push other areas down.
-            $aside.css('margin-top', $publicationWidget.outerHeight(true));
-        });
-
-        positionPublicationWidget();
-        $(window).resize(positionPublicationWidget);
-    }
-});
-</script>
 
 <% wp.include("/WEB-INF/footer.jsp"); %><%!
 
