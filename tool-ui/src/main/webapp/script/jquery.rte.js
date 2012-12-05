@@ -210,12 +210,6 @@ var Rte = wysihtml5.Editor.extend({
         container.className = 'rte-container';
         originalTextarea.parentNode.insertBefore(container, originalTextarea);
 
-        // Create toolbar?
-        if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar();
-            container.appendChild(config.toolbar);
-        }
-
         // Create overlay.
         var overlay = this.overlay = doc.createElement('div');
         overlay.className = 'rte-overlay';
@@ -223,6 +217,12 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.left = '0px';
         overlay.style.top = '0px';
         container.appendChild(overlay);
+
+        // Create toolbar?
+        if (typeof config.toolbar === 'function') {
+            config.toolbar = config.toolbar();
+            container.appendChild(config.toolbar);
+        }
 
         // Handle toolbar action clicks.
         $(overlay).delegate('[data-action]', 'click', function() {
@@ -591,32 +591,35 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
         $container = $(this.container);
         containerTop = $container.offset().top;
+        windowTop = $win.scrollTop() + headerBottom;
 
         // Completely in view.
-        if (this._toolbarOldStyle) {
-            windowTop = $win.scrollTop() + headerBottom;
+        if (windowTop < containerTop) {
+            $container.css('padding-top', 0);
+            $toolbar.attr('style', this._toolbarOldStyle);
+            this._toolbarOldStyle = null;
 
-            if (windowTop < containerTop) {
-                $container.css('padding-top', 0);
-                $toolbar.show().attr('style', this._toolbarOldStyle);
-                this._toolbarOldStyle = null;
+        } else {
+            this._toolbarOldStyle = this._toolbarOldStyle || $toolbar.attr('style') || ' ';
+
+            // Partially in view.
+            if (windowTop < containerTop + $container.height()) {
+                $container.css('padding-top', $toolbar.outerHeight());
+                $toolbar.css({
+                    'left': $toolbar.offset().left,
+                    'position': 'fixed',
+                    'top': headerBottom,
+                    'width': $toolbar.width(),
+                    'z-index': $container.zIndex() + 1
+                });
 
             // Completely out of view.
-            } else if (windowTop > containerTop + $container.height()) {
-                $toolbar.hide();
+            } else {
+                $toolbar.css({
+                    'top': -10000,
+                    'position': 'fixed'
+                });
             }
-
-        // Partially in view.
-        } else if (headerBottom + $win.scrollTop() > containerTop) {
-            $container.css('padding-top', $toolbar.outerHeight());
-            this._toolbarOldStyle = this._toolbarOldStyle || $toolbar.attr('style') || ' ';
-            $toolbar.show().css({
-                'left': $toolbar.offset().left,
-                'position': 'fixed',
-                'top': headerBottom,
-                'width': $toolbar.width(),
-                'z-index': $container.zIndex() + 1
-            });
         }
     });
 }));
