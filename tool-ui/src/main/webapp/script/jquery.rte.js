@@ -530,7 +530,7 @@ $.plugin2('rte', {
     },
 
     '_create': function(element) {
-        new Rte(element, this.option());
+        new Rte(element, $.extend(true, { }, this.option()));
     },
 
     'enable': function() {
