@@ -210,6 +210,12 @@ var Rte = wysihtml5.Editor.extend({
         container.className = 'rte-container';
         originalTextarea.parentNode.insertBefore(container, originalTextarea);
 
+        // Create toolbar?
+        if (typeof config.toolbar === 'function') {
+            config.toolbar = config.toolbar();
+            container.appendChild(config.toolbar);
+        }
+
         // Create overlay.
         var overlay = this.overlay = doc.createElement('div');
         overlay.className = 'rte-overlay';
@@ -217,12 +223,6 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.left = '0px';
         overlay.style.top = '0px';
         container.appendChild(overlay);
-
-        // Create toolbar?
-        if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar();
-            container.appendChild(config.toolbar);
-        }
 
         // Handle toolbar action clicks.
         $(overlay).delegate('[data-action]', 'click', function() {
