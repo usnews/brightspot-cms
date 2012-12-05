@@ -97,7 +97,7 @@ PaginatedResult<Object> items = Query
 
                 <form method="post" action="<%= wp.objectUrl(null, selected) %>">
 
-                    <table><tbody>
+                    <table class="table-striped"><tbody>
                         <%
                         int i = 0;
                         for (Object item : items.getItems()) {

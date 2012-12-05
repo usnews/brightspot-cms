@@ -107,7 +107,7 @@ if (selectedDirectory != null) {
             </ul>
         <% } %>
 
-        <table class="links">
+        <table class="table-striped links">
             <tbody>
                 <%
                 int i = 0;

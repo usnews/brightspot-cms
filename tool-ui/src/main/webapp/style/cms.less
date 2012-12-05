@@ -1074,6 +1074,36 @@ sup {
 
 table {
     .block;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-style: none;
+    display: table;
+    width: 100%;
+
+    &.table-striped {
+        tbody tr:nth-child(2n+1) {
+            background-color: #e6e5e1;
+        }
+    }
+
+    td,
+    th {
+        border-style: none;
+        padding: 0.25em 0.5em;
+    }
+
+    th {
+        background-color: #e6e5e1;
+    }
+
+    thead th {
+        white-space: nowrap;
+    }
+
+    tbody th {
+        text-align: right;
+    }
 }
 
 textarea {
@@ -1126,16 +1156,8 @@ input[type=submit].link.delete {
     margin-left: 12px;
 }
 
-/* =table */
-table { border-collapse: collapse; border-spacing: 0; border-style: none;
-        display: table; vertical-align: middle; width: 100%; }
-    tbody tr:nth-child(2n) { background-color: #e6e5e1; }
-    td, th { border-style: none; padding: 0.25em 0.5em; }
-    th { background-color: #e6e5e1; }
-        thead th { white-space: nowrap; }
-        tbody th { text-align: right; }
-    table .date { text-align: right; width: 7em; }
-    table .time { text-align: right; width: 5em; }
+table .date { text-align: right; width: 7em; }
+table .time { text-align: right; width: 5em; }
 
 .date, .time { white-space: nowrap; }
 
@@ -1565,10 +1587,6 @@ h1 select:focus {
         list-style-type: none;
         margin-left: 0;
     }
-}
-
-.imageEditor-edit table tr {
-    background-color: transparent;
 }
 
 .imageEditor-editPopup {

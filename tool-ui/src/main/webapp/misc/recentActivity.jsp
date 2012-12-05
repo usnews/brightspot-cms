@@ -67,7 +67,7 @@ PaginatedResult<Object> result = query.select(wp.longParam("offset"), wp.intPara
         </ul>
     <% } %>
 
-    <table class="links"><tbody>
+    <table class="table-striped links"><tbody>
         <%
         String oldDate = null;
         for (Object item : result.getItems()) {
