@@ -16,7 +16,6 @@ public class CmsTool extends Tool {
     private String extraJavaScript;
     private String defaultSiteUrl;
     private boolean previewPopup;
-    private Boolean wysihtml5Rte;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
 
@@ -141,16 +140,6 @@ public class CmsTool extends Tool {
 
     public void setPreviewPopup(boolean previewPopup) {
         this.previewPopup = previewPopup;
-    }
-
-    public boolean isWysihtml5Rte() {
-        return ObjectUtils.coalesce(
-                wysihtml5Rte,
-                Settings.get(boolean.class, "cms/tool/useWysihtml5Rte"));
-    }
-
-    public void setWysihtml5Rte(boolean wysihtml5Rte) {
-        this.wysihtml5Rte = wysihtml5Rte;
     }
 
     public String getDefaultTextOverlayCss() {
