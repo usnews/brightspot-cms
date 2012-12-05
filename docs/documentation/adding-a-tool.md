@@ -6,13 +6,11 @@ id: adding-a-tool
 
 ## Adding a Tool
 
-You can add your own Tools, Applications or Settings to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Global and Remote Widgets, as well as Application specific settings, such as email addresses for form submissions etc.
+You can add your own Tools, Applications or Settings to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Global and Remote Widgets, as well as Application specific settings, such as email addresses for form submissions, Analytics IDs etc.
 
 **Build a new Tool Class**
 
-Start by creating your own class, and extend from the CMS Tool class. This will create a new Tool in the Admin -> Settings section of the CMS.
-
-The Tool can be given a URL, best practice is for this to be a path to a custom jsp file, kept in the WEB-INF directory.
+Start by creating your own class that extends the CMS Tool class. This will create a new Tool in the Admin -> Settings section of the CMS.
 
 	public class DemoTool extends Tool {
 
@@ -64,9 +62,24 @@ The Tool can be given a URL, best practice is for this to be a path to a custom 
 
     }
 
+
+Note, when adding a widget, it must be done within the mainApplicationClass. This is defined in either a `settings.properties` file (src/main/resources/settings.properties), or your web.xml (WEB-INF/web.xml)
+
+**web.xml**
+
+	<env-entry>
+     <env-entry-name>dari/mainApplicationClass</env-entry-name>
+     <env-entry-type>java.lang.String</env-entry-type>
+     <env-entry-value>com.package.tool.Name</env-entry-value>
+    </env-entry>
+    
+**settings.properties**
+
+	dari/mainApplicationClass=com.package.tool.DemoTool
+	
 **Adding a widget to content publication page**
 
-Note, when adding a widget, it must be done within the mainApplicationClass.
+Each widget will have a `setJsp` which points to the jsp being used to render.
 
     JspWidget example = createWidget(JspWidget.class, "Example", "example", null);
 	example.setJsp("/WEB-INF/widget/example.jsp");
@@ -107,4 +120,6 @@ Add designated URL. Within your new Tool, found in Admin -> Settings define your
 
 **Init**
 
-Run a `_debug/init` to initialize the new application tool, start and stop Tomcat.
+Run a `_debug/init` to initialize the new application tool, stop and start Tomcat.
+
+Note, you can add as many extra tools as you wish from the same initialize function.
