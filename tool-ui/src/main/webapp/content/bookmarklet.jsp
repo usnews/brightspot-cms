@@ -6,57 +6,64 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.util.JspUtils
 " %><%
 
-// --- Logic ---
-
 ToolPageContext wp = new ToolPageContext(pageContext);
+
 if (wp.requirePermission("area/dashboard")) {
     return;
 }
 
-// --- Presentation ---
-
 response.setContentType("text/javascript");
-%>(function() {
 
-var existingLibrary = window.jQuery;
-var myLibraryScript = document.createElement('script');
-myLibraryScript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js';
-myLibraryScript.onload = function() {
-    var myLibrary = window.jQuery;
-    window.jQuery = existingLibrary;
-    myLibrary(function($) {
+%>(function(win, undef) {
 
-        var $body = $('body');
-        var overflow = $body.css('overflow');
+var doc = win.document,
+        oldJQuery = win.jQuery,
+        newJQueryScript = doc.createElement('script');
+
+// Load a known version of jQuery without creating a conflict with possibly
+// an existing version of jQuery already loaded in the page.
+newJQueryScript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js';
+newJQueryScript.onload = function() {
+    var newJQuery = win.jQuery;
+    win.jQuery = oldJQuery;
+
+    newJQuery(function($) {
+        var $win = $(win),
+                $body = $(doc.body),
+                bodyOverflow,
+                bodyWidth,
+                loc = win.location;
+
+        bodyOverflow = $body.css('overflow');
         $body.css('overflow', 'hidden');
-        var width = $body.width();
-        $body.css('overflow', overflow);
+        bodyWidth = $body.width();
+        $body.css('overflow', bodyOverflow);
 
         // Create a duplicate of the current page with overlay flag on.
         var $duplicate = $('<iframe/>', {
-            'src': location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + '<%= PageFilter.OVERLAY_PARAMETER %>=true',
+            'src': loc.href + (loc.href.indexOf('?') > -1 ? '&' : '?') + '<%= PageFilter.OVERLAY_PARAMETER %>=true',
             'css': {
                 'background-color': 'white',
                 'border': 'none',
-                'height': $(window).height(),
+                'height': $win.height(),
                 'left': -10000,
                 'overflow': 'auto',
                 'position': 'absolute',
                 'top': 0,
-                'width': width
+                'width': bodyWidth
             }
         });
 
         $duplicate.load(function() {
+            var $duplicateBody = $duplicate.contents().find('body'),
+                    mainObjectData = $.parseJSON($duplicateBody.find('.cms-mainObject').text()),
+                    $overlay;
 
-            var $duplicateBody = $duplicate.contents().find('body');
-            var mainObjectData = $.parseJSON($duplicateBody.find('.cms-mainObject').text());
-
-            // Create an overlay that contains all the edit controls.
-            var $overlay = $('<iframe/>', {
+            // Create an overlay that contains all editable sections.
+            $overlay = $('<iframe/>', {
                 'src': '<%= wp.js(JspUtils.getAbsoluteUrl(application, request, "/content/remoteOverlay.jsp")) %>' +
                         '?id=' + encodeURIComponent(mainObjectData.id) +
-                        '&url' + encodeURIComponent(location.href),
+                        '&url' + encodeURIComponent(loc.href),
                 'css': {
                     'border': 'none',
                     'height': 10000,
@@ -72,23 +79,31 @@ myLibraryScript.onload = function() {
                 var $overlayBody = $overlay.contents().find('body');
 
                 $duplicateBody.find('span.cms-overlayBegin').each(function() {
-                    var $begin = $(this);
-                    var data = $.parseJSON($begin.text());
+                    var $begin = $(this),
+                            data = $.parseJSON($begin.text()),
+                            found = false,
+                            minX = Number.MAX_VALUE,
+                            maxX = 0,
+                            minY = Number.MAX_VALUE,
+                            maxY = 0,
+                            $section,
+                            $edit;
 
-                    var isFound = false;
-                    var minX = Number.MAX_VALUE;
-                    var maxX = 0;
-                    var minY = Number.MAX_VALUE;
-                    var maxY = 0;
+                    // Editable?
+                    if (typeof data.id === 'undefined') {
+                        return;
+                    }
+
+                    // Calculate the section size using the marker SPANs.
                     $begin.nextUntil('span.cms-overlayEnd').filter(':visible').each(function() {
-                        var $item = $(this);
-                        isFound = true;
+                        var $item = $(this),
+                                itemOffset = $item.offset(),
+                                itemMinX = itemOffset.left,
+                                itemMaxX = itemMinX + $item.outerWidth(),
+                                itemMinY = itemOffset.top,
+                                itemMaxY = itemMinY + $item.outerHeight();
 
-                        var itemOffset = $item.offset();
-                        var itemMinX = itemOffset.left;
-                        var itemMaxX = itemMinX + $item.outerWidth();
-                        var itemMinY = itemOffset.top;
-                        var itemMaxY = itemMinY + $item.outerHeight();
+                        found = true;
 
                         if (minX > itemMinX) {
                             minX = itemMinX;
@@ -104,10 +119,9 @@ myLibraryScript.onload = function() {
                         }
                     });
 
-                    if (isFound) {
-                        var hasObject = data.id;
-                        var $section = $('<div/>', {
-                            'class': 'overlay' + (hasObject ? ' hasObject' : '') + (maxY - minY < 30 ? ' short' : ''),
+                    if (found) {
+                        $section = $('<a/>', {
+                            'class': 'remoteOverlay-section',
                             'css': {
                                 'height': maxY - minY,
                                 'left': minX,
@@ -117,21 +131,14 @@ myLibraryScript.onload = function() {
                             }
                         });
 
-                        var $content = $('<div/>', { 'class': 'content' });
-                        var $heading = $('<h1/>', { 'text': data.sectionName || data.typeLabel + ': ' + data.label });
-                        $content.append($heading);
+                        $edit = $('<a/>', {
+                            'class': 'remoteOverlay-edit',
+                            'href': '<%= wp.js(JspUtils.getAbsoluteUrl(application, request, "/content/remoteOverlayEdit.jsp")) %>?id=' + data.id,
+                            'target': 'contentRemoteOverlayEdit',
+                            'text': 'Edit ' + (data.sectionName || data.typeLabel + ': ' + data.label)
+                        });
 
-                        if (hasObject) {
-                            var $editButton = $('<a/>', {
-                                'class': 'editButton',
-                                'href': '<%= wp.js(JspUtils.getAbsoluteUrl(application, request, "/content/remoteOverlayEdit.jsp")) %>?id=' + data.id,
-                                'target': 'contentRemoteOverlayEdit',
-                                'text': 'Edit'
-                            });
-                            $content.append($editButton);
-                        }
-
-                        $section.append($content);
+                        $section.append($edit);
                         $overlayBody.append($section);
                     }
                 });
@@ -143,6 +150,7 @@ myLibraryScript.onload = function() {
         $body.append($duplicate);
     });
 };
-document.body.appendChild(myLibraryScript)
 
-})();
+doc.body.appendChild(newJQueryScript)
+
+}(window));

@@ -15,5 +15,5 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 %><h1>More Tools</h1>
 <p>
     Bookmarklet:<br>
-    <a href="javascript:<%= StringUtils.encodeUri("(function(){document.body.appendChild(document.createElement('script')).src='" + JspUtils.getAbsoluteUrl(application, request, "/content/bookmarklet.jsp") + "';})();") %>"><%= wp.h(wp.getCmsTool().getCompanyName()) %> CMS</a>
+    <a href="javascript:<%= StringUtils.encodeUri("(function(){document.body.appendChild(document.createElement('script')).src='" + JspUtils.getAbsolutePath(application, request, "/content/bookmarklet.jsp") + "';}());") %>">Brightspot</a>
 </p>
