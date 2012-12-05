@@ -17,7 +17,13 @@
 @fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
 @fontFamily-default: 'Helvetica Neue', 'Arial', sans-serif;
 @fontFamily-label: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
-@linkColor: #29c;
+
+@color-alert: #c20;
+@color-alert-darker: darken(@color-alert, 10%);
+@color-alert-lighter: lighten(@color-alert, 30%);
+@color-link: #29c;
+@color-link-darker: darken(@color-link, 10%);
+@color-link-lighter: lighten(@color-link, 25%);
 
 // --- Functions ---
 
@@ -230,7 +236,7 @@
 .icon-only {
     overflow: hidden;
     white-space: nowrap;
-    width: 20px;
+    width: 19px;
 }
 
 .icon-pullRight {
@@ -527,7 +533,7 @@
     background: transparent;
     .border-radius(0);
     border-style: none;
-    color: @linkColor;
+    color: @color-link;
     cursor: pointer;
     display: inline;
     font-weight: normal;
@@ -590,7 +596,7 @@
 .links-new {
     > a {
         .icon-plus-sign;
-        padding-left: 6px;
+        padding-left: (@links-marginLeft - 19px);
     }
 }
 
@@ -764,7 +770,7 @@
 
     &.toBeRemoved {
         background-color: #fdd;
-        color: #c00;
+        color: @color-alert;
         text-decoration: line-through;
 
         img {
@@ -779,7 +785,7 @@
 
 .small {
     font-size: 90%;
-    opacity: 0.7;
+    .opacity(0.7);
 }
 
 .tabs {
@@ -1090,7 +1096,7 @@ ul {
 button.link.delete,
 input[type=submit].link.delete {
     background: transparent url(icon/cross.png) no-repeat left center;
-    color: #c00;
+    color: @color-alert;
     padding-left: 20px;
 }
 
@@ -1162,7 +1168,7 @@ input[type=text].expandable { min-width: 5em; }
     .text.warn { color: orange; }
     .text.note, .text.schedule { color: yellow; }
 
-/* --- Global tool styles --- */
+// --- Tool ---
 
 .toolHat {
     background-color: #333;
@@ -1177,7 +1183,7 @@ input[type=text].expandable { min-width: 5em; }
     z-index: 100;
 
     a {
-        color: #7be;
+        color: @color-link-lighter;
     }
 
     [class^="action-"],
@@ -1348,7 +1354,60 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-/* --- Standard layouts --- */
+// --- Standard layouts ---
+
+.dashboard {
+    overflow: hidden;
+    margin: -10px;
+    padding: 10px;
+    width: 100%;
+}
+
+.dashboard-column {
+    float: left;
+}
+
+.dashboard-1 {
+    .dashboard-column { width: 100%; }
+}
+
+.dashboard-2 {
+    .dashboard-column:nth-child(1) { width: 60%; }
+    .dashboard-column:nth-child(2) { width: 40%; }
+}
+
+.dashboard-3 {
+    .dashboard-column:nth-child(1) { width: 40%; }
+    .dashboard-column:nth-child(2) { width: 30%; }
+    .dashboard-column:nth-child(3) { width: 30%; }
+}
+
+.dashboard-4 {
+    .dashboard-column:nth-child(1) { width: 30%; }
+    .dashboard-column:nth-child(2) { width: 30%; }
+    .dashboard-column:nth-child(3) { width: 20%; }
+    .dashboard-column:nth-child(4) { width: 20%; }
+}
+
+.dashboard-cell {
+    padding: 5px;
+
+    &:first-child {
+        padding-top: 0;
+    }
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+
+    .dashboard-column:first-child & {
+        padding-left: 0;
+    }
+
+    .dashboard-column:last-child & {
+        padding-right: 0;
+    }
+}
 
 .withLeftNav {
     margin: -10px;
@@ -1376,7 +1435,7 @@ h1 select:focus {
     -webkit-box-shadow: none;
 }
 
-/* --- jQuery.calendar --- */
+// --- $.calendar ---
 
 #calendarPopup {
     width: auto;
@@ -1455,7 +1514,7 @@ h1 select:focus {
     padding-right: 0;
 }
 
-/* --- jQuery.frame --- */
+// --- $.frame ---
 
 .frame {
     min-height: 20px;
@@ -1478,7 +1537,491 @@ h1 select:focus {
     display: none;
 }
 
-/* --- jQuery.popup --- */
+// --- $.imageEditor ---
+
+.filePreview {
+    margin-top: 5px;
+}
+
+.imageEditor {
+    display: inline-block;
+    max-width: 100%;
+    position: relative;
+}
+
+.imageEditor-aside {
+    height: 100%;
+    overflow: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 150px;
+}
+
+.imageEditor-tools {
+    margin-bottom: 10px;
+
+    ul {
+        list-style-type: none;
+        margin-left: 0;
+    }
+}
+
+.imageEditor-edit table tr {
+    background-color: transparent;
+}
+
+.imageEditor-editPopup {
+    width: 250px;
+
+    > .content {
+        left: 75px;
+        position: relative;
+
+        > .marker {
+            left: 50px !important;
+        }
+    }
+}
+
+.imageEditor-image {
+    margin-right: 160px; 
+
+    canvas,
+    img {
+        width: 100%;
+    }
+}
+
+.imageEditor-cover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.imageEditor-sizeSelectors {
+    list-style-type: none;
+    margin: 0;
+}
+
+.imageEditor-sizeButton {
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.imageEditor-sizePreview {
+    canvas,
+    img {
+        width: 100%;
+    }
+}
+
+.imageEditor-sizeLabel {
+    background-color: #ececec;
+    display: block;
+    padding: 3px;
+
+    .imageEditor-sizeSelected & {
+        background-color: #5cb3e5;
+    }
+}
+
+.imageEditor-sizeBox {
+    cursor: move;
+    outline: 1px dashed white;
+}
+
+.imageEditor-resizer {
+    background-color: @color-link;
+    border: 1px solid white;
+    height: 8px;
+    width: 8px;
+    position: absolute;
+    z-index: 2;
+}
+
+.imageEditor-resizer-topLeft {
+    cursor: nw-resize;
+    left: -5px;
+    top: -5px;
+}
+
+.imageEditor-resizer-bottomRight {
+    bottom: -5px;
+    cursor: se-resize;
+    right: -5px;
+}
+
+.imageEditor-textOverlay {
+    .rte-container {
+        border: none;
+        margin: -4px;
+        outline: 1px dashed black;
+    }
+
+    .rte-toolbar {
+        background-color: rgba(0, 0, 0, 0.5);
+        .border-top-left-radius(0);
+        .border-top-right-radius(5px);
+        .border-bottom-left-radius(5px);
+        .border-bottom-right-radius(5px);
+        border: none;
+        position: absolute;
+        right: -108px;
+        top: -7px;
+        width: 98px;
+    }
+
+    .rte-group {
+        width: 92px;
+    }
+
+    .rte-group[data-group-name=List],
+    .rte-group[data-group-name=Enhancement],
+    .rte-group[data-group-name=Misc] {
+        display: none;
+    }
+}
+
+.imageEditor-textOverlayLabel {
+    background-color: rgba(0, 0, 0, 0.5);
+    .border-bottom-left-radius(5px);
+    color: white;
+    cursor: move;
+    padding: 1px 5px;
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    .user-select(none);
+}
+
+.imageEditor-resizer-left {
+    cursor: w-resize;
+    left: -10px;
+    top: 50%;
+}
+
+.imageEditor-resizer-right {
+    cursor: e-resize;
+    right: -10px;
+    top: 50%;
+}
+
+// --- $.objectId ---
+
+.objectId-select {
+    .select;
+
+    white-space: normal;
+    width: 50%;
+}
+
+.objectId-edit {
+    .icon-pencil;
+    margin-left: 10px;
+
+    &.toBeRemoved {
+        color: @color-alert;
+        text-decoration: line-through;
+    }
+}
+
+.objectId-clear {
+    .icon-remove-sign;
+    color: @color-alert;
+    margin-left: 10px;
+
+    &.restore {
+        .icon-undo;
+        color: @color-link;
+    }
+}
+
+.repeatableObjectId {
+    > ol,
+    > ul {
+        li.toBeRemoved {
+            .objectId-select {
+                background-color: #fdd;
+                color: @color-alert;
+                text-decoration: line-through;
+
+                &:before,
+                &:after {
+                    visibility: hidden !important;
+                }
+            }
+
+            .objectId-edit {
+                color: @color-alert;
+                text-decoration: line-through;
+            }
+        }
+    }
+}
+
+// --- $.pageLayout ---
+
+// Tabs for switching between different modes.
+.pageLayout-tabs {
+    > .visualButton,
+    > .jsonButton {
+        .link;
+
+        display: inline-block;
+        padding: 0 10px 5px 1px;
+
+        &.selected {
+            color: #333;
+            font-weight: bold;
+            position: relative;
+
+            &:after {
+                border-color: transparent transparent #eee transparent;
+                border-style: solid;
+                border-width: 6px;
+                bottom: 0;
+                content: ' ';
+                position: absolute;
+                left: 1em;
+            }
+        }
+    }
+
+    > .jsonButton.selected:after {
+        border-bottom-color: #bcbcbc;
+        bottom: -1px;
+    }
+}
+
+// JSON textarea.
+.pageLayout {
+    .code;
+}
+
+// Visual representation.
+.pageLayout-visual {
+    .section {
+        background-color: #eee;
+        margin-bottom: 10px;
+        min-height: 30px;
+        padding: 10px;
+        position: relative;
+
+        // Sections get darker as they nest.
+        .section { background-color: #ddd;
+            .section { background-color: #ccc;
+                .section { background-color: #bbb;
+                    .section { background-color: #aaa;
+                        .section { background-color: #999;
+                            .section { background-color: #888;
+                                .section { background-color: #777;
+                                    .section { background-color: #666;
+        } } } } } } } }
+
+        // Hide contents if the section is set to be removed.
+        &.toBeRemoved {
+            background-color: #fdd !important;
+
+            .section,
+            > .hat > .moveUpButton,
+            > .hat > .moveDownButton,
+            > .hat > .moveLeftButton,
+            > .hat > .moveRightButton,
+            > .hat > .settingsButton,
+            > .heading > .addButton {
+                visibility: hidden;
+            }
+
+            > .heading > .name {
+                color: @color-alert;
+                text-decoration: line-through;
+            }
+        }
+
+        // Hat contains controls for editing general section settings.
+        > .hat {
+            background-color: rgba(0, 0, 0, 0.7);
+            .border-radius(5px);
+            left: 5px;
+            overflow: hidden;
+            padding: 0 5px;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            z-index: 1;
+
+            > .moveUpButton,
+            > .moveDownButton,
+            > .moveLeftButton,
+            > .moveRightButton {
+                .icon-only;
+                .link;
+
+                color: @color-link-lighter;
+                float: left;
+                margin-top: 2px;
+                margin-right: 4px;
+            }
+
+            > .moveUpButton { .icon-arrow-up; }
+            > .moveDownButton { .icon-arrow-down; }
+            > .moveLeftButton { .icon-arrow-left; }
+            > .moveRightButton { .icon-arrow-right; }
+
+            > .settingsButton {
+                .icon-cogs;
+
+                color: @color-link-lighter;
+                float: left;
+                margin-top: 2px;
+            }
+
+            > .removeButton {
+                .icon-remove-sign;
+                .icon-only;
+                .link;
+
+                color: @color-alert-lighter;
+                float: right;
+                margin-top: 2px;
+            }
+        }
+
+        // Heading contains the section name and other section-specific
+        // controls.
+        > .heading {
+            > .name {
+                font-family: @fontFamily-label;
+                font-size: 150%;
+                margin-bottom: 4px;
+
+                &.anonymous {
+                    .opacity(0.3);
+                }
+            }
+
+            > .contentButton {
+                .icon-pencil;
+
+                color: @color-link-darker;
+            }
+
+            > .removeContentButton {
+                .icon-remove-sign;
+
+                color: @color-alert-darker;
+                margin-left: 10px;
+            }
+
+            > .addButton {
+                .icon-plus-sign;
+
+                background: @color-link-lighter;
+                .border-radius(5px);
+                cursor: pointer;
+                text-align: center;
+
+                &:after {
+                    content: 'Add Section';
+                }
+            }
+        }
+
+        // Subtle pattern for shared sections.
+        &.shared {
+            background-image: -webkit-gradient(
+                linear,
+                left top,
+                right bottom,
+                color-stop(0, transparent),
+                color-stop(0.25, transparent),
+                color-stop(0.25, rgba(0, 0, 0, 0.04)),
+                color-stop(0.5, rgba(0, 0, 0, 0.04)),
+                color-stop(0.5, transparent),
+                color-stop(0.75, transparent),
+                color-stop(0.75, rgba(0, 0, 0, 0.04)),
+                color-stop(1.0, rgba(0, 0, 0, 0.04))
+            );
+            background: -moz-repeating-linear-gradient(
+                left top -45deg,
+                transparent,
+                transparent 23px,
+                rgba(0, 0, 0, 0.07) 23px,
+                rgba(0, 0, 0, 0.07) 46px
+            ) repeat scroll 0 0 transparent;
+            -webkit-background-size: 5em 5em;
+        }
+
+        &.horizontal {
+            > .content {
+                border-spacing: 10px;
+                display: table;
+                margin: -10px;
+                padding: 0 10px 0 0;
+                width: 100%;
+
+                > .section {
+                    display: table-cell;
+                }
+            }
+
+            > .heading > .addButton {
+                bottom: 10px;
+                position: absolute;
+                right: 10px;
+                top: 32px;
+                width: 20px;
+
+                &:before {
+                    left: 2px;
+                    position: absolute;
+                    top: 50%;
+                }
+
+                &:after {
+                    content: '';
+                }
+            }
+        }
+    }
+}
+
+.pageLayout-visual .horizontal > .section > .hat > .moveUpButton,
+.pageLayout-visual .horizontal > .section > .hat > .moveDownButton,
+.pageLayout-visual .vertical > .section > .hat > .moveLeftButton,
+.pageLayout-visual .vertical > .section > .hat > .moveRightButton {
+    display: none;
+}
+
+.pageLayout-visual .horizontal > .heading .name,
+.pageLayout-visual .vertical > .heading .name {
+    font-size: 100%;
+}
+
+.pageLayout-visual .section.vertical {
+    padding-bottom: 30px;
+}
+.pageLayout-visual .vertical > .heading > .addButton {
+    bottom: 10px;
+    height: 20px;
+    left: 10px;
+    line-height: 20px;
+    position: absolute;
+    right: 10px;
+}
+
+/* Stack contents in a horizontal section sideways. */
+.pageLayout-visual .content.horizontal {
+    min-height: 120px;
+    overflow: hidden;
+    padding-right: 20px;
+}
+
+/* Main section heading name is larger so that it stands out a little. */
+.pageLayout-visual .main > .heading > .name {
+    font-size: 200%;
+}
+
+// --- $.popup ---
 
 .popup {
     left: 50%;
@@ -1541,6 +2084,46 @@ h1 select:focus {
     }
 }
 
+// Preview window should cover most of the window.
+.popup[name^=contentPreview-] {
+    background-color: rgba(0, 0, 0, 0.5);
+    height: 100% !important;
+    left: 0 !important;
+    overflow: auto !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 2000 !important;
+
+    > .content {
+        margin: 40px;
+
+        > .marker {
+            display: none;
+        }
+    }
+}
+
+// General search input is in the header so no need to display it again.
+.popup[name=miscSearch] .searchInput {
+    display: none;
+}
+
+// These contain content forms so make them bigger.
+.popup[name=contentEnhancement],
+.popup[name=contentImageMetadata],
+.popup[name^=objectId-],
+.popup[name=contentRaw],
+.popup[name=contentSectionContent],
+.popup[name=miscSearch] {
+    width: 70%;
+}
+
+// Small popups.
+.popup[name=pageBuilderTemplateTypes] {
+    width: 20em;
+}
+
 // --- $.repeatable ---
 
 .repeatableForm {
@@ -1585,10 +2168,11 @@ h1 select:focus {
             > .removeButton {
                 .icon-minus-sign;
                 .link;
-                color: #c00;
+                color: @color-alert;
+                left: 100%;
+                margin-left: -5.8em;
                 position: absolute;
-                right: 6px;
-                top: 4px;
+                top: 7px;
             }
 
             &.focus {
@@ -1620,7 +2204,7 @@ h1 select:focus {
                 > .label {
                     background-color: #fdd;
                     border-bottom-style: none;
-                    color: #c00;
+                    color: @color-alert;
                     margin-bottom: 0;
                     text-decoration: line-through;
 
@@ -1631,7 +2215,7 @@ h1 select:focus {
 
                 > .removeButton {
                     .icon-plus-sign;
-                    color: #29c;
+                    color: @color-link;
                 }
             }
         }
@@ -1640,7 +2224,6 @@ h1 select:focus {
     > .addButtonContainer > .addButton {
         .icon-plus-sign;
         .link;
-        color: #29c;
         margin-right: 15px;
     }
 }
@@ -1680,14 +2263,14 @@ h1 select:focus {
                 .icon-minus-sign;
                 .link;
                 bottom: 0;
-                color: #c00;
+                color: @color-alert;
                 position: absolute;
                 right: 0;
             }
 
             &.toBeRemoved > .removeButton {
                 .icon-plus-sign;
-                color: #29c;
+                color: @color-link;
             }
         }
     }
@@ -1698,7 +2281,6 @@ h1 select:focus {
         > .addButton {
             .icon-plus-sign;
             .link;
-            color: #29c;
             margin-right: 15px;
         }
     }
@@ -1716,13 +2298,13 @@ h1 select:focus {
             > .removeButton {
                 .icon-minus-sign;
                 .link;
-                color: #c00;
+                color: @color-alert;
                 margin-left: 10px;
             }
 
             &.toBeRemoved > .removeButton {
                 .icon-plus-sign;
-                color: #29c;
+                color: @color-link;
             }
         }
     }
@@ -1759,7 +2341,7 @@ h1 select:focus {
             > .removeButton {
                 .icon-minus-sign;
                 .link;
-                color: #c00;
+                color: @color-alert;
                 position: absolute;
                 right: 1px;
                 top: 5px;
@@ -1767,7 +2349,7 @@ h1 select:focus {
 
             &.toBeRemoved > .removeButton {
                 .icon-plus-sign;
-                color: #29c;
+                color: @color-link;
             }
         }
     }
@@ -1910,7 +2492,7 @@ h1 select:focus {
 .rte-button-moveCenter { .icon-fullscreen; }
 .rte-button-moveDown { .icon-arrow-down; }
 .rte-button-moveRight { .icon-arrow-right; }
-.rte-button-remove { .icon-remove-sign; color: #c00; }
+.rte-button-remove { .icon-remove-sign; color: @color-alert; }
 
 .rte-group-cssClass .rte-button,
 .rte-button-insertEnhancement,
@@ -1950,35 +2532,6 @@ h1 select:focus {
     .rte-enhancement-label {
         line-height: 46px;
     }
-}
-
-/* --- jQuery.tree --- */
-
-.tree ul {
-    list-style-type: none;
-}
-.tree li {
-    padding-left: 1em;
-    position: relative;
-}
-.tree li:before {
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 1em;
-}
-.tree li.open:before {
-    content: '\25bc';
-}
-.tree li.closed:before {
-    content: '\25b6';
-}
-.tree li.closed > ul {
-    display: none;
-}
-.tree > ul {
-    margin-left: 0;
-    padding-left: 0;
 }
 
 // --- Legacy support ---
@@ -2085,54 +2638,6 @@ table.links {
     top: 6px;
 }
 
-/* --- Object ID selector --- */
-
-.selectObjectId {
-    .select;
-
-    white-space: normal;
-    width: 50%;
-}
-
-.editObjectId {
-    .icon-edit;
-    margin-left: 10px;
-
-    &.toBeRemoved {
-        color: #c00;
-        text-decoration: line-through;
-    }
-}
-
-.clearObjectId {
-    .icon-remove-sign;
-    color: #c00;
-    margin-left: 10px;
-
-    &.restore {
-        .icon-undo;
-        color: @linkColor;
-    }
-}
-
-.repeatableObjectId > ol > li.toBeRemoved .selectObjectId,
-.repeatableObjectId > ul > li.toBeRemoved .selectObjectId {
-    background-color: #fdd;
-    color: #c00;
-    text-decoration: line-through;
-}
-.repeatableObjectId > ol > li.toBeRemoved .selectObjectId:before,
-.repeatableObjectId > ul > li.toBeRemoved .selectObjectId:before,
-.repeatableObjectId > ol > li.toBeRemoved .selectObjectId:after,
-.repeatableObjectId > ul > li.toBeRemoved .selectObjectId:after {
-    visibility: hidden !important;
-}
-.repeatableObjectId > ol > li.toBeRemoved .editObjectId,
-.repeatableObjectId > ul > li.toBeRemoved .editObjectId {
-    color: #c00;
-    text-decoration: line-through;
-}
-
 /* --- Hovering focus label --- */
 
 .focusLabel {
@@ -2148,25 +2653,65 @@ table.links {
     z-index: 1;
 }
 
-/* --- Content form --- */
+// --- Content form ---
 
 .contentForm {
-    margin: -10px -10px 0 -10px;
+    margin: -10px;
     overflow: hidden;
-    padding: 10px 265px 0 10px;
+    padding: 10px 260px 10px 10px;
 }
-.contentForm > .main {
+
+.contentForm-main {
     float: left;
     width: 100%;
+
+    > .pagination {
+        margin-bottom: 15px;
+        text-align: left;
+    }
 }
-.contentForm > .main > .pagination {
-    margin-bottom: 15px;
-    text-align: left;
-}
-.contentForm > .aside {
+
+.contentForm-aside {
     float: left;
-    margin: 0 -265px 0 15px;
+    margin: 0 -250px 0 10px;
     width: 240px;
+}
+
+// --- Widgets ---
+
+.widget-content h1 { .icon-file; }
+.widget-drafts h1 { .icon-edit; }
+.widget-history h1 { .icon-copy; }
+.widget-references h1 { .icon-book; }
+.widget-schedules h1 { .icon-calendar; }
+.widget-seo h1 { .icon-tags; }
+.widget-template h1 { .icon-th; }
+.widget-urls h1 { .icon-sitemap; }
+
+.widget-preview {
+    > h1 {
+        .icon-eye-open;
+    }
+
+    .action-share {
+        .icon-share;
+        .link;
+    }
+}
+
+.widget-preview-controls {
+    .piped;
+
+    float: left;
+    margin-top: 35px;
+
+    form {
+        display: inline;
+    }
+
+    li {
+        .piped-item;
+    }
 }
 
 .widget-publication {
@@ -2184,6 +2729,10 @@ table.links {
         border-top: 1px solid #cecece;
         clear: both;
         padding-top: 5px;
+
+        li {
+            .piped-item;
+        }
     }
 
     .action-save,
@@ -2212,7 +2761,7 @@ table.links {
         .link;
 
         bottom: 40px;
-        color: #c00;
+        color: @color-alert;
         padding-left: 18px;
         position: absolute;
         right: 10px;
@@ -2231,558 +2780,12 @@ table.links {
     }
 }
 
-.widget-preview {
-    > h1 {
-        .icon-eye-open;
-    }
-
-    .action-share {
-        .icon-share;
-        .link;
-    }
-}
-
-.widget-preview-controls {
-    .piped;
-
-    float: left;
-    margin-top: 35px;
-
-    form {
-        display: inline;
-    }
-
-    li {
-        .piped-item;
-    }
-}
-
-.widget-content h1 { .icon-file; }
-.widget-history h1 { .icon-copy; }
-.widget-seo h1 { .icon-tags; }
-.widget-template h1 { .icon-paste; }
-.widget-urls h1 { .icon-sitemap; }
-
 .widget-publication .otherWorkflows {
     clear: both;
     margin-bottom: 15px;
 }
 .widget-publication .otherWorkflows p {
     margin-bottom: 2px;
-}
-
-.widget { position: relative; }
-    .widget .area > h1 { cursor: move; }
-    .widget .collapseToggle {
-            color: #a8a9ad; cursor: default; font-size: 80%; height: 24px;
-            line-height: 24px; position: absolute; right: 0; top: 4px;
-            width: 20px; }
-        #toolContent .widget .collapseToggle { right: 10px; }
-        .widget .collapseToggle:after { content: '\25bc'; }
-        .widget .collapseToggle:hover { color: #2989c0; }
-            .collapsed.widget .collapseToggle:after { content: '\25c0'; }
-    .collapsed.widget .area { height: 10px; overflow: hidden; }
-        .collapsed.widget .area > h1 {
-                -moz-border-radius: 5px; -webkit-border-radius: 5px;
-                border-bottom-style: none; }
-
-.layout .section {
-    left: 0;
-    position: relative;
-    top: 0;
-}
-.layout .vertical > .section:not(:last-child) {
-    margin-bottom: 10px;
-}
-.layout .horizontal {
-    min-height: 150px;
-}
-.layout .horizontal:after {
-    clear: both;
-    content: ' ';
-    display: block;
-    height: 0;
-    visibility: hidden;
-}
-.layout .horizontal > .section {
-    float: left;
-}
-.layout .horizontal > .section:not(:last-child) {
-    margin-right: 10px;
-}
-
-/* --- Visual page layout editor --- */
-
-/* Tabs for switching between different modes. */
-.pageLayoutTabs > .visualButton,
-.pageLayoutTabs > .jsonButton {
-    color: #29c;
-    cursor: pointer;
-    display: inline-block;
-    padding: 0 10px 5px 1px;
-}
-.pageLayoutTabs > .visualButton:not(.selected):hover,
-.pageLayoutTabs > .jsonButton:not(.selected):hover {
-    text-decoration: underline;
-}
-.pageLayoutTabs > .visualButton.selected,
-.pageLayoutTabs > .jsonButton.selected {
-    color: #333;
-    font-weight: bold;
-    position: relative;
-}
-.pageLayoutTabs > .visualButton.selected:after {
-    border-color: transparent transparent #eee transparent;
-    border-style: solid;
-    border-width: 6px;
-    bottom: 0;
-    content: ' ';
-    position: absolute;
-    left: 1em;
-}
-.pageLayoutTabs > .jsonButton.selected:after {
-    border-color: transparent transparent #bcbcbc transparent;
-    border-style: solid;
-    border-width: 6px;
-    bottom: -1px;
-    content: ' ';
-    position: absolute;
-    left: 1em;
-}
-
-/* JSON textarea. */
-.pageLayout {
-    font-family: @fontFamily-code;
-    font-size: 11px;
-    white-space: pre-wrap;
-}
-
-/* Sections get darker as they nest. */
-.visualPageLayout .section {
-    background-color: #eee;
-    margin-bottom: 10px;
-    min-height: 30px;
-    padding: 10px;
-    position: relative;
-}
-.visualPageLayout .section .section { background-color: #ddd; }
-.visualPageLayout .section .section .section { background-color: #ccc; }
-.visualPageLayout .section .section .section .section { background-color: #bbb; }
-.visualPageLayout .section .section .section .section .section { background-color: #aaa; }
-.visualPageLayout .section .section .section .section .section .contentButton { color: #12526d; }
-.visualPageLayout .section .section .section .section .section .section { background-color: #999; }
-.visualPageLayout .section .section .section .section .section .section .section { background-color: #888; }
-.visualPageLayout .section .section .section .section .section .section .section .section { background-color: #777; }
-.visualPageLayout .section .section .section .section .section .section .section .section .section { background-color: #666; }
-
-/* Hide contents if the section is set to be removed. */
-.visualPageLayout .section.toBeRemoved {
-    background-color: #fdd !important;
-}
-.visualPageLayout .section.toBeRemoved .section,
-.visualPageLayout .section.toBeRemoved > .hat > .moveUpButton,
-.visualPageLayout .section.toBeRemoved > .hat > .moveDownButton,
-.visualPageLayout .section.toBeRemoved > .hat > .moveLeftButton,
-.visualPageLayout .section.toBeRemoved > .hat > .moveRightButton,
-.visualPageLayout .section.toBeRemoved > .hat > .settingsButton,
-.visualPageLayout .section.toBeRemoved > .heading > .addButton {
-    visibility: hidden;
-}
-.visualPageLayout .section.toBeRemoved > .heading > .name {
-    color: #c00;
-    text-decoration: line-through;
-}
-
-/* Hat contains controls for editing general section settings. */
-.visualPageLayout .section > .hat {
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    left: 5px;
-    overflow: hidden;
-    padding: 0 5px;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    z-index: 1;
-}
-.visualPageLayout .section > .hat a {
-    color: #7be;
-}
-.visualPageLayout .section > .hat > .moveUpButton,
-.visualPageLayout .section > .hat > .moveDownButton,
-.visualPageLayout .section > .hat > .moveLeftButton,
-.visualPageLayout .section > .hat > .moveRightButton {
-    cursor: pointer;
-    display: none;
-    float: left;
-    margin-top: 2px;
-    margin-right: 4px;
-}
-.visualPageLayout .horizontal > .content > .section > .hat > .moveLeftButton,
-.visualPageLayout .horizontal > .content > .section > .hat > .moveRightButton {
-    display: inline;
-}
-.visualPageLayout .vertical > .content > .section > .hat > .moveUpButton,
-.visualPageLayout .vertical > .content > .section > .hat > .moveDownButton {
-    display: inline;
-}
-.visualPageLayout .section > .hat > .settingsButton {
-    .icon-cogs;
-    float: left;
-    height: 20px;
-    line-height: 20px;
-}
-.visualPageLayout .section > .hat > .removeButton {
-    cursor: pointer;
-    float: right;
-    margin-top: 2px;
-}
-
-/* Heading contains the section name and other section-specific controls. */
-.visualPageLayout .section > .heading > .name {
-    font-family: @fontFamily-label;
-    font-size: 150%;
-    margin-bottom: 4px;
-}
-.visualPageLayout .section > .heading > .name.anonymous {
-    opacity: 0.3;
-}
-.visualPageLayout .horizontal > .heading .name,
-.visualPageLayout .vertical > .heading .name {
-    font-size: 100%;
-}
-.visualPageLayout .section > .heading > .contentButton {
-    .icon-edit;
-}
-.visualPageLayout .section > .heading > .removeContentButton {
-    .icon-remove-sign;
-    color: #900;
-    margin-left: 10px;
-}
-
-.visualPageLayout .section > .heading > .addButton {
-    .icon-plus-sign;
-    background: #55b4e4;
-    .border-radius(5px);
-    cursor: pointer;
-    text-align: center;
-
-    &:after {
-        content: 'Add Section';
-    }
-}
-
-.visualPageLayout .section.vertical {
-    padding-bottom: 30px;
-}
-.visualPageLayout .vertical > .heading > .addButton {
-    bottom: 10px;
-    height: 20px;
-    left: 10px;
-    line-height: 20px;
-    position: absolute;
-    right: 10px;
-}
-
-/* Stack contents in a horizontal section sideways. */
-.visualPageLayout .content.horizontal {
-    min-height: 120px;
-    overflow: hidden;
-    padding-right: 20px;
-}
-.visualPageLayout .horizontal > .content {
-    border-spacing: 10px;
-    display: table;
-    margin: -10px;
-    padding: 0 10px 0 0;
-    width: 100%;
-}
-.visualPageLayout .horizontal > .content > .section {
-    display: table-cell;
-}
-.visualPageLayout .horizontal > .heading > .addButton {
-    bottom: 10px;
-    position: absolute;
-    right: 10px;
-    top: 32px;
-    width: 20px;
-
-    &:before {
-        left: 2px;
-        position: absolute;
-        top: 50%;
-    }
-
-    &:after {
-        content: '';
-    }
-}
-/*
-.visualPageLayout .horizontal > .heading > .addButton:before {
-    left: auto;
-    margin-top: 32px;
-    top: 50%;
-    right: 2px;
-}
-.visualPageLayout .horizontal > .heading > .addButton:after {
-    left: auto;
-    margin-top: -63px;
-    top: 50%;
-    right: 0;
-    white-space: nowrap;
-    transform: rotate(-90deg);
-    -moz-transform: rotate(-90deg);
-    -webkit-transform: rotate(-90deg);
-    transform-origin: bottom right;
-    -moz-transform-origin: bottom right;
-    -webkit-transform-origin: bottom right;
-}
-*/
-
-/* Main section heading name is larger so that it stands out a little. */
-.visualPageLayout .main > .heading > .name {
-    font-size: 200%;
-}
-
-/* Subtle pattern for shared sections. */
-.visualPageLayout .shared {
-    background-image: -webkit-gradient(
-        linear,
-        left top,
-        right bottom,
-        color-stop(0, transparent),
-        color-stop(0.25, transparent),
-        color-stop(0.25, rgba(0, 0, 0, 0.04)),
-        color-stop(0.5, rgba(0, 0, 0, 0.04)),
-        color-stop(0.5, transparent),
-        color-stop(0.75, transparent),
-        color-stop(0.75, rgba(0, 0, 0, 0.04)),
-        color-stop(1.0, rgba(0, 0, 0, 0.04))
-    );
-	background: -moz-repeating-linear-gradient(
-		left top -45deg,
-		transparent,
-		transparent 23px,
-		rgba(0, 0, 0, 0.07) 23px,
-		rgba(0, 0, 0, 0.07) 46px
-	) repeat scroll 0 0 transparent;
-    -webkit-background-size: 5em 5em;
-}
-
-.pages { list-style-type: none; margin-left: 0; overflow: hidden; }
-    .pages canvas { display: block; }
-    .pages > li {
-            float: left; height: 200px; margin-right: 1em; overflow: hidden;
-            width: 100px; }
-
-/* --- Popup window customizations --- */
-
-/* Preview window should cover most of the window. */
-.popup[name^=contentPreview-] {
-    background-color: rgba(0, 0, 0, 0.5);
-    height: 100% !important;
-    left: 0 !important;
-    overflow: auto !important;
-    position: fixed !important;
-    top: 0 !important;
-    width: 100% !important;
-    z-index: 2000 !important;
-}
-.popup[name^=contentPreview-] > .content {
-    margin: 40px;
-}
-.popup[name^=contentPreview-] > .content > .marker {
-    display: none;
-}
-
-/* General search input is in the header so no need to display it again. */
-.popup[name=miscSearch] .searchInput {
-    display: none;
-}
-
-/* These contain content forms so make them bigger. */
-.popup[name=contentEnhancement],
-.popup[name=contentImageMetadata],
-.popup[name^=objectId-],
-.popup[name=contentRaw],
-.popup[name=contentSectionContent],
-.popup[name=miscSearch] {
-    width: 70%;
-}
-
-/* Small popups. */
-.popup[name=pageBuilderTemplateTypes] {
-    width: 20em;
-}
-
-/* --- Image editor --- */
-
-.filePreview {
-    margin-top: 5px;
-}
-
-.imageEditor {
-    display: inline-block;
-    max-width: 100%;
-    position: relative;
-}
-
-.imageEditor-aside {
-    height: 100%;
-    overflow: auto;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 150px;
-}
-
-.imageEditor-tools {
-    margin-bottom: 10px;
-
-    ul {
-        list-style-type: none;
-        margin-left: 0;
-    }
-}
-
-.imageEditor-edit table tr {
-    background-color: transparent;
-}
-
-.imageEditor-editPopup {
-    width: 250px;
-
-    > .content {
-        left: 75px;
-        position: relative;
-
-        > .marker {
-            left: 50px !important;
-        }
-    }
-}
-
-.imageEditor-image {
-    margin-right: 160px; 
-
-    canvas,
-    img {
-        width: 100%;
-    }
-}
-
-.imageEditor-cover {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.imageEditor-sizeSelectors {
-    list-style-type: none;
-    margin: 0;
-}
-
-.imageEditor-sizeButton {
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.imageEditor-sizePreview {
-    canvas,
-    img {
-        width: 100%;
-    }
-}
-
-.imageEditor-sizeLabel {
-    background-color: #ececec;
-    display: block;
-    padding: 3px;
-
-    .imageEditor-sizeSelected & {
-        background-color: #5cb3e5;
-    }
-}
-
-.imageEditor-sizeBox {
-    cursor: move;
-    outline: 1px dashed white;
-}
-
-.imageEditor-resizer {
-    background-color: @linkColor;
-    border: 1px solid white;
-    height: 8px;
-    width: 8px;
-    position: absolute;
-    z-index: 2;
-}
-
-.imageEditor-resizer-topLeft {
-    cursor: nw-resize;
-    left: -5px;
-    top: -5px;
-}
-
-.imageEditor-resizer-bottomRight {
-    bottom: -5px;
-    cursor: se-resize;
-    right: -5px;
-}
-
-.imageEditor-textOverlay {
-    .rte-container {
-        border: none;
-        margin: -4px;
-        outline: 1px dashed black;
-    }
-
-    .rte-toolbar {
-        background-color: rgba(0, 0, 0, 0.5);
-        .border-top-left-radius(0);
-        .border-top-right-radius(5px);
-        .border-bottom-left-radius(5px);
-        .border-bottom-right-radius(5px);
-        border: none;
-        position: absolute;
-        right: -108px;
-        top: -7px;
-        width: 98px;
-    }
-
-    .rte-group {
-        width: 92px;
-    }
-
-    .rte-group[data-group-name=List],
-    .rte-group[data-group-name=Enhancement],
-    .rte-group[data-group-name=Misc] {
-        display: none;
-    }
-}
-
-.imageEditor-textOverlayLabel {
-    background-color: rgba(0, 0, 0, 0.5);
-    .border-bottom-left-radius(5px);
-    color: white;
-    cursor: move;
-    padding: 1px 5px;
-    position: absolute;
-    right: -5px;
-    top: -5px;
-    .user-select(none);
-}
-
-.imageEditor-resizer-left {
-    cursor: w-resize;
-    left: -10px;
-    top: 50%;
-}
-
-.imageEditor-resizer-right {
-    cursor: e-resize;
-    right: -10px;
-    top: 50%;
 }
 
 .inputContainer .permissions select {
@@ -2817,11 +2820,13 @@ table.links {
 
 // --- Actions ---
 
-.action-edit { .icon-edit; }
+.action-back { .icon-arrow-left; }
+.action-edit { .icon-pencil; }
 .action-delete { .icon-trash; }
 .action-draft { .icon-save; }
 .action-image-edit { .icon-magic; }
 .action-image-viewMetadata { .icon-table; }
+.action-live { .icon-bullhorn; }
 .action-logOut { .icon-signout; }
 .action-preview { .icon-eye-open; }
 .action-search { .icon-search; }

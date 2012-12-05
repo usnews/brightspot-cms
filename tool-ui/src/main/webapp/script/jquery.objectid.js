@@ -19,7 +19,7 @@ $.plugin2('objectId', {
         var $selectButton;
         var $clearButton;
         var $editButton = $('<a/>', {
-            'class': 'editObjectId',
+            'class': 'objectId-edit',
             'target': target,
             'text': 'Edit',
             'click': function() {
@@ -44,7 +44,7 @@ $.plugin2('objectId', {
             var id = formAction.substring(formAction.indexOf('id=') + 3);
 
             $selectButton = $('<a/>', {
-                'class': 'selectObjectId',
+                'class': 'objectId-select',
                 'href': searcherPath + '?pt=' + encodeURIComponent(id) + '&p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || ''),
                 'target': target
             });
@@ -71,7 +71,7 @@ $.plugin2('objectId', {
             if ($input.closest('.repeatableObjectId').length === 0) {
                 var previousValue;
                 $clearButton = $('<a/>', {
-                    'class': 'clearObjectId',
+                    'class': 'objectId-clear',
                     'text': 'Clear',
                     'click': function() {
 

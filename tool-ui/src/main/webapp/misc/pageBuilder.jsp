@@ -17,7 +17,9 @@ if (wp.requirePermission("area/dashboard")) {
 
 // --- Presentation ---
 
-%><h1>Page Builder</h1>
+%><div class="widget">
+
+<h1 class="icon-file">Page Builder</h1>
 <h2>Create New</h2>
 <ul class="links">
 
@@ -44,3 +46,5 @@ if (wp.requirePermission("area/dashboard")) {
             "typeId", ObjectType.getInstance(Page.class).getId())
             %>" id="<%= wp.createId() %>" target="_top">One-off Page</a></li>
 </ul>
+
+</div>

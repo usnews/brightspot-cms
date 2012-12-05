@@ -23,7 +23,6 @@ $doc.frame({
     'loadedClassName': 'loaded'
 });
 
-$doc.layout('live', '.layout');
 $doc.imageEditor('live', '.imageEditor');
 $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');

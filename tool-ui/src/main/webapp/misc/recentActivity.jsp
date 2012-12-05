@@ -37,12 +37,14 @@ PaginatedResult<Object> result = query.select(wp.longParam("offset"), wp.intPara
 
 // --- Presentation ---
 
-%><style type="text/css">
+%><div class="widget">
+
+<style type="text/css">
 .widget-recentActivity .userSelector { float: left; }
 .widget-recentActivity table { clear: both; margin-top: 12px; }
 </style>
 
-<h1>Recent Activity</h1>
+<h1 class="icon-list">Recent Activity</h1>
 <div class="widget-recentActivity">
 
     <form action="<%= wp.url(null) %>" class="userSelector autoSubmit" method="get">
@@ -88,4 +90,6 @@ PaginatedResult<Object> result = query.select(wp.longParam("offset"), wp.intPara
             </tr>
         <% } %>
     </tbody></table>
+</div>
+
 </div>

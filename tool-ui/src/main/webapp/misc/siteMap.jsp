@@ -56,7 +56,9 @@ if (selectedDirectory != null) {
 
 // --- Presentation ---
 
-%><h1>Site Map</h1>
+%><div class="widget">
+
+<h1 class="icon-sitemap">Site Map</h1>
 
 <form action="<%= wp.url(null) %>" class="autoSubmit" method="get">
     <select name="directoryId" style="max-width: 100%;">
@@ -135,3 +137,5 @@ if (selectedDirectory != null) {
         </table>
     <% } %>
 <% } %>
+
+</div>

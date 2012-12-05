@@ -113,7 +113,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
 <div class="content-edit">
     <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" data-widths="1500" enctype="multipart/form-data" method="post">
-        <div class="main" data-widths="600">
+        <div class="contentForm-main" data-widths="600">
 
             <%
             ToolSearch search = Query.from(ToolSearch.class).where("_id = ?", wp.uuidParam("searchId")).first();
@@ -173,7 +173,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
 
                 <% if (sectionContent != null) { %>
-                    <p><a href="<%= wp.url("", "contentId", null) %>">&larr; Back to Layout</a></p>
+                    <p><a class="action-back" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
                 <% } %>
 
                 <% wp.include("/WEB-INF/objectForm.jsp", "object", editing); %>
@@ -182,7 +182,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% renderWidgets(wp, editing, CmsTool.CONTENT_BOTTOM_WIDGET_POSITION); %>
         </div>
 
-        <div class="aside">
+        <div class="contentForm-aside">
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
             <div class="widget widget-publication">
@@ -190,23 +190,14 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 <%
                 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-
                     List<Workflow> workflows = Query.from(Workflow.class).select();
-                    if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                        wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
-                        wp.write(wp.getId());
-                        wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                        wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
-                        wp.write("\">");
-                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
-                    }
 
-                    wp.write("<div class=\"otherWorkflows\">");
                     if (draft != null) {
                         DraftStatus status = draft.getStatus();
                         if (status != null) {
 
-                            wp.write("<p>Current Status: ");
+                            wp.write("<div class=\"otherWorkflows\">");
+                            wp.write("<p>Status: ");
                             wp.write(wp.objectLabel(status));
                             wp.write("</p>");
 
@@ -218,9 +209,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                     wp.write("\"> ");
                                 }
                             }
+
+                            wp.write("</div>");
                         }
 
                     } else if (!wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                        wp.write("<div class=\"otherWorkflows\">");
                         wp.write("<input name=\"action\" type=\"submit\" value=\"");
                         for (Workflow workflow : workflows) {
                             if (workflow.getSource() == null) {
@@ -229,8 +223,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         }
                         wp.write("\">");
+                        wp.write("</div>");
                     }
-                    wp.write("</div>");
+
+                    if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                        wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
+                        wp.write(wp.getId());
+                        wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
+                        wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
+                        wp.write("\">");
+                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
+                    }
 
                     if (!state.isNew() || draft != null) {
                         wp.write("<button class=\"action-delete\" name=\"action\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">Delete</button>");
@@ -248,13 +251,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <% } %>
 
                 <ul class="extraActions">
+                    <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
+                        <li><button class="action-draft" name="action">Save Draft</button></li>
+                    <% } %>
                     <% if (wp.getCmsTool().isPreviewPopup() && (
                             selected.getClass() == Page.class
                             || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
                         <li><a class="action-preview" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
-                    <% } %>
-                    <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                        <li><button class="action-draft" name="action">Save Draft</button></li>
                     <% } %>
                 </ul>
             </div>
@@ -310,7 +313,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         %>
 
         <ul class="widget-preview-controls">
-            <li><a href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
+            <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
             <li>
                 <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                     <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
@@ -519,7 +522,7 @@ $(function() {
     $dateInput.change(changeLabel);
 
     // Move the publication area to the top if within aside section.
-    var $aside = $publicationWidget.closest('.aside');
+    var $aside = $publicationWidget.closest('.contentForm-aside');
 
     if ($aside.length > 0) {
         var asideTop = $aside.offset().top;

@@ -697,7 +697,6 @@ public class ToolPageContext extends WebPageContext {
                 "/script/jquery.popup.js",
                 "/script/jquery.frame.js",
                 "/script/jquery.imageeditor.js",
-                "/script/jquery.layout.js",
                 "/script/jquery.objectid.js",
                 "/script/jquery.pagelayout.js",
                 "/script/jquery.repeatable.js",

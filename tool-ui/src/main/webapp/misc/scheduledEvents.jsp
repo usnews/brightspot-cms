@@ -35,7 +35,9 @@ PaginatedResult<Schedule> result = Query
         .select(wp.longParam("offset"), wp.intParam("limit", 10));
 
 // --- Presentation --- 
-%><h1>Schedules</h1>
+%><div class="widget">
+
+<h1 class="icon-calendar">Schedules</h1>
 <div class="widget-recentActivity">
     <% if (result.hasPrevious() || result.hasNext()) { %>
         <ul class="pagination">
@@ -72,4 +74,6 @@ PaginatedResult<Schedule> result = Query
             <% } %>
         <% } %>
     </ul>
+</div>
+
 </div>

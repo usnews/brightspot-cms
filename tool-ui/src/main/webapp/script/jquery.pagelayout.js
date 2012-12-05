@@ -13,7 +13,7 @@ $.plugin2('pageLayout', {
         var isSettingsOpen = false;
         var updateSection;
 
-        var $visual = $('<div/>', { 'class': 'visualPageLayout' });
+        var $visual = $('<div/>', { 'class': 'pageLayout-visual' });
         $visual.bind('updateJson', function() {
             $textarea.val(JSON.stringify(layout, null, 2));
         });
@@ -60,9 +60,9 @@ $.plugin2('pageLayout', {
 
                         var moveButtons = { };
                         $.each([ 'Up', 'Down', 'Left', 'Right' ], function(index, direction) {
-                            $hat.append(moveButtons[direction] = $('<img/>', {
+                            $hat.append(moveButtons[direction] = $('<span/>', {
                                 'class': 'move' + direction + 'Button',
-                                'src': CONTEXT_PATH + 'style/icon/arrow_' + direction.toLowerCase() + '.png'
+                                'text': direction
                             }));
                         });
 
@@ -102,9 +102,8 @@ $.plugin2('pageLayout', {
                 }
             }));
 
-            var $removeButton = $('<img/>', {
+            var $removeButton = $('<span/>', {
                 'class': 'removeButton',
-                'src': CONTEXT_PATH + 'style/icon/delete.png',
                 'text': 'Remove',
                 'click': function() {
                     if ($section.is('.toBeRemoved')) {
@@ -203,7 +202,7 @@ $.plugin2('pageLayout', {
             }
 
             if (definition._type === 'com.psddev.cms.db.MainSection') {
-                $section.parentsUntil('.visualPageLayout').add($section).filter('[data-flex]').attr('data-flex', 2.5);
+                $section.parentsUntil('.pageLayout-visual').add($section).filter('[data-flex]').attr('data-flex', 2.5);
             }
         };
 
@@ -313,7 +312,7 @@ $.plugin2('pageLayout', {
             });
         };
 
-        var $tabs = $('<div/>', { 'class': 'pageLayoutTabs' });
+        var $tabs = $('<div/>', { 'class': 'pageLayout-tabs' });
         var $visualButton = $('<span/>', {
             'class': 'visualButton',
             'text': 'Visual',
