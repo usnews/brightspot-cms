@@ -393,6 +393,16 @@ var Rte = wysihtml5.Editor.extend({
                 $enhancement = $(newEnhancement);
                 $enhancement.data('$rte-placeholder', $placeholder);
                 $overlay.append($enhancement);
+
+                $enhancement.find('.rte-button-editEnhancement a').each(function() {
+                    var $anchor = $(this),
+                            href = $anchor.attr('href');
+
+                    href = href.replace(/([?&])id=[^&]*/, '$1');
+                    href += '&id=' + $placeholder.attr('data-id');
+
+                    $anchor.attr('href', href);
+                });
             }
 
             $enhancement.data('rte-visited', true);
