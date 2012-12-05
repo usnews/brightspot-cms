@@ -2,7 +2,6 @@ package com.psddev.cms.tool;
 
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.Settings;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -180,16 +179,16 @@ public class CmsTool extends Tool {
         List<Plugin> plugins = new ArrayList<Plugin>();
 
         // Areas.
-        plugins.add(createArea("Pages & Content", "dashboard", "dashboard", "/"));
-        plugins.add(createArea("Admin", "admin", "admin", "/admin/"));
-        plugins.add(createArea("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
-        plugins.add(createArea("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
-        plugins.add(createArea("Templates & Sections", "adminTemplates", "admin/adminTemplates", "/admin/templates.jsp"));
-        plugins.add(createArea("Types", "adminTypes", "admin/adminTypes", "/admin/types.jsp"));
-        plugins.add(createArea("URLs", "adminUrls", "admin/adminUrls", "/admin/urls.jsp"));
-        plugins.add(createArea("Users & Roles", "adminUsers", "admin/adminUsers", "/admin/users.jsp"));
-        plugins.add(createArea("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));
-        plugins.add(createArea("Workflows", "adminWorkflows", "admin/adminWorkflows", "/admin/workflows.jsp"));
+        plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
+        plugins.add(createArea2("Admin", "admin", "admin", "/admin/"));
+        plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
+        plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
+        plugins.add(createArea2("Templates & Sections", "adminTemplates", "admin/adminTemplates", "/admin/templates.jsp"));
+        plugins.add(createArea2("Types", "adminTypes", "admin/adminTypes", "/admin/types.jsp"));
+        plugins.add(createArea2("URLs", "adminUrls", "admin/adminUrls", "/admin/urls.jsp"));
+        plugins.add(createArea2("Users & Roles", "adminUsers", "admin/adminUsers", "/admin/users.jsp"));
+        plugins.add(createArea2("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));
+        plugins.add(createArea2("Workflows", "adminWorkflows", "admin/adminWorkflows", "/admin/workflows.jsp"));
 
         // Dashboard widgets.
         double dashboardColumn = 0.0;

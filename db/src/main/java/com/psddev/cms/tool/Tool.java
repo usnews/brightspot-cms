@@ -38,7 +38,7 @@ public abstract class Tool extends Application {
      *
      * @return Never {@code null}.
      */
-    protected Area createArea(String displayName, String internalName, String hierarchy, String url) {
+    protected Area createArea2(String displayName, String internalName, String hierarchy, String url) {
         Area area = new Area();
         area.setDisplayName(displayName);
         area.setInternalName(internalName);
