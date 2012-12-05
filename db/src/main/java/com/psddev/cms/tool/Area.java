@@ -7,20 +7,36 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/** Areas within the CMS. */
+/** An areas within the tool UI. */
 public class Area extends Plugin {
 
-    private Area parent;
+    private String hierarchy;
     private String url;
 
-    /** Returns the parent. */
-    public Area getParent() {
-        return parent;
+    /**
+     * Returns the {@code /}-delimited hierarchy used to display the
+     * navigation.
+     */
+    public String getHierarchy() {
+        if (hierarchy == null) {
+            String path = getInternalName();
+
+            for (Area parent = this; (parent = parent.getParent()) != null; ) {
+                path = parent.getInternalName() + "/" + path;
+            }
+
+            hierarchy = path;
+        }
+
+        return hierarchy;
     }
 
-    /** Sets the parent. */
-    public void setParent(Area parent) {
-        this.parent = parent;
+    /**
+     * Sets the {@code /}-delimited hierarchy used to display the
+     * navigation.
+     */
+    public void setHierarchy(String hierarchy) {
+        this.hierarchy = hierarchy;
     }
 
     /** Returns the URL. */
@@ -38,25 +54,22 @@ public class Area extends Plugin {
      * permissions.
      */
     public String getPermissionId() {
-        String key = getInternalName();
-        for (Area parent = this; (parent = parent.getParent()) != null; ) {
-            key = parent.getInternalName() + "/" + key;
-        }
-        return "area/" + key;
+        return "area/" + getHierarchy();
     }
 
     /**
-     * Returns {@code true} if this area or any of its children is associated
-     * with the given {@code path}.
+     * Returns {@code true} if this area or any of its children are
+     * associated with the given {@code tool} and {@code path}.
      */
     public boolean isSelected(Tool tool, String path) {
         Tool areaTool = getTool();
+
         if (!ObjectUtils.equals(areaTool, tool)) {
             return false;
         }
 
         Area selected = null;
-        List<Area> areas = areaTool.findPlugins(Area.class);
+        List<Area> areas = Tool.Static.getPluginsByClass(Area.class);
 
         for (Area area : areas) {
             if (ObjectUtils.equals(area.getUrl(), path)) {
@@ -85,13 +98,13 @@ public class Area extends Plugin {
         }
 
         if (selected == null) {
-            for (Area area : areaTool.findTopAreas()) {
+            for (Area area : Tool.Static.getTopAreas()) {
                 selected = area;
                 break;
             }
         }
 
-        if (equals(selected)) {
+        if (getInternalName().equals(selected.getInternalName())) {
             return true;
         }
 
@@ -106,22 +119,28 @@ public class Area extends Plugin {
 
     /** Returns {@code true} if this area has any children. */
     public boolean hasChildren() {
-        for (Area area : getTool().findPlugins(Area.class)) {
-            if (equals(area.getParent())) {
+        String hierarchy = getHierarchy() + "/";
+
+        for (Area area : Tool.Static.getPluginsByClass(Area.class)) {
+            if (area.getHierarchy().startsWith(hierarchy)) {
                 return true;
             }
         }
+
         return false;
     }
 
-    /** Finds the child areas. */
-    public List<Area> findChildren() {
+    /** Returns all child areas. */
+    public List<Area> getChildren() {
+        String hierarchy = getHierarchy() + "/";
         List<Area> children = new ArrayList<Area>();
-        for (Area area : getTool().findPlugins(Area.class)) {
-            if (equals(area.getParent())) {
+
+        for (Area area : Tool.Static.getPluginsByClass(Area.class)) {
+            if (area.getHierarchy().startsWith(hierarchy)) {
                 children.add(area);
             }
         }
+
         return children;
     }
 
@@ -131,5 +150,26 @@ public class Area extends Plugin {
     @Deprecated
     public boolean isSelected(String path) {
         return false;
+    }
+
+    @Deprecated
+    private Area parent;
+
+    /** @deprecated Use {@link #getHierarchy} instead. */
+    @Deprecated
+    public Area getParent() {
+        return parent;
+    }
+
+    /** @deprecated Use {@link #setHierarchy} instead. */
+    @Deprecated
+    public void setParent(Area parent) {
+        this.parent = parent;
+    }
+
+    /** @deprecated Use {@link #getChildren} instead. */
+    @Deprecated
+    public List<Area> findChildren() {
+        return getChildren();
     }
 }

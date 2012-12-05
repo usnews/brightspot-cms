@@ -775,24 +775,32 @@ public class ToolPageContext extends WebPageContext {
 
             write("<ul class=\"mainNav\">");
             String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
-            for (Area top : cmsTool.findTopAreas()) {
-                if (hasPermission(top.getPermissionId())) {
-                    write("<li class=\"", top.hasChildren() ? " isNested" : "", top.isSelected(getTool(), servletPath) ? " selected" : "", "\">");
-                    write("<a href=\"", toolUrl(top.getTool(), top.getUrl()), "\">", objectLabel(top), "</a>");
-                    if (top.hasChildren()) {
-                        write("<ul>");
-                        for (Area child : top.findChildren()) {
-                            if (hasPermission(child.getPermissionId())) {
-                                write("<li", child.isSelected(getTool(), servletPath) ? " class=\"selected\"" : "", ">");
-                                write("<a href=\"", toolUrl(child.getTool(), child.getUrl()), "\">", objectLabel(child), "</a>");
-                                write("</li>");
-                            }
-                        }
-                        write("</ul>");
-                    }
-                    write("</li>");
+
+            for (Area top : Tool.Static.getTopAreas()) {
+                if (!hasPermission(top.getPermissionId())) {
+                    continue;
                 }
+
+                write("<li class=\"", top.hasChildren() ? " isNested" : "", top.isSelected(getTool(), servletPath) ? " selected" : "", "\">");
+                write("<a href=\"", toolUrl(top.getTool(), top.getUrl()), "\">", objectLabel(top), "</a>");
+
+                if (top.hasChildren()) {
+                    write("<ul>");
+                    for (Area child : top.getChildren()) {
+                        if (!hasPermission(child.getPermissionId())) {
+                            continue;
+                        }
+
+                        write("<li", child.isSelected(getTool(), servletPath) ? " class=\"selected\"" : "", ">");
+                        write("<a href=\"", toolUrl(child.getTool(), child.getUrl()), "\">", objectLabel(child), "</a>");
+                        write("</li>");
+                    }
+                    write("</ul>");
+                }
+
+                write("</li>");
             }
+
             write("</ul>");
         }
 

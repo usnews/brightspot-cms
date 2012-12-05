@@ -20,6 +20,10 @@ import java.util.UUID;
 /** Brightspot application, typically used by the internal staff. */
 public abstract class Tool extends Application {
 
+    public static final String CONTENT_BOTTOM_WIDGET_POSITION = "cms.contentBottom";
+    public static final String CONTENT_RIGHT_WIDGET_POSITION = "cms.contentRight";
+    public static final String DASHBOARD_WIDGET_POSITION = "cms.dashboard";
+
     /**
      * Returns plugins provided by this tool.
      *
@@ -27,6 +31,34 @@ public abstract class Tool extends Application {
      */
     public List<Plugin> getPlugins() {
         return null;
+    }
+
+    /**
+     * Creates an area with the given parameters.
+     *
+     * @return Never {@code null}.
+     */
+    protected Area createArea(String displayName, String internalName, String hierarchy, String url) {
+        Area area = new Area();
+        area.setDisplayName(displayName);
+        area.setInternalName(internalName);
+        area.setHierarchy(hierarchy);
+        area.setUrl(url);
+        return area;
+    }
+
+    /**
+     * Creates a JSP widget with the given parameters.
+     *
+     * @return Never {@code null}.
+     */
+    protected JspWidget createJspWidget(String displayName, String internalName, String jsp, String positionName, double positionColumn, double positionRow) {
+        JspWidget widget = new JspWidget();
+        widget.setDisplayName(displayName);
+        widget.setInternalName(internalName);
+        widget.setJsp(jsp);
+        widget.addPosition(positionName, positionColumn, positionRow);
+        return widget;
     }
 
     /** {@link Tool} utility methods. */
@@ -107,7 +139,7 @@ public abstract class Tool extends Application {
             Area last = null;
 
             for (Area area : getPluginsByClass(Area.class)) {
-                if (area.getParent() != null) {
+                if (area.getHierarchy().contains("/")) {
                     continue;
                 }
 
