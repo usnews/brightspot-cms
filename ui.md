@@ -6,7 +6,7 @@ id: ui
 
 ## User Interface Creation
 
-Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created from your Java code. For a guide to custom solutions see the [Custom UI](/brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
+Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](/brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
 
 **Text Input Field**
 
@@ -40,7 +40,7 @@ A find drop down is provided automatically when an existing object is to be sele
 
 **Abstract Class**
 
-Referencing an abstract class, in this example a Link class, `public abstract class Link extends Content` will display the abstract class indented in the UI. See the Embedded section for more on such references.
+Referencing an abstract class, in this example a Link class, `public abstract class Link extends Content` will display the abstract class indented in the UI.
 
 ![Abstract Class ](http://docs.brightspot.s3.amazonaws.com/abstract-class-ui.png)
 
@@ -121,26 +121,6 @@ A `List` or `Set` of embedded items can be added, simply add the `Set` or `List`
 
 ### Custom User Interface
 
-A completely custom user interface can be built for any field or element in Brightspot by using the `@ToolUi.InputProcessorPath()` annotation. This can be used to provide a path to the jsp you would like to render the field with. Best practice is to place these jsp files in a new directory within `webapp`.
-
-**Java Class**
-
-In your Java class add the annotation above the field you would like to add custom UI for. Below we are creating a custom field for the Twitter handle to be added to:
-
-    public class Blog extends Content {
-
-	    private String name;
-	    private ReferentialText body;
-	    @ToolUi.InputProcessorPath("/customInterface/twitter/twitterField.jsp")
-	    private String twitterHandle;
-    
-    	// Getters & Setters
-    } 
-    
-**JSP File**
-
-The jsp file that we have pathed to in our Java class must now be created within the `webapp` directory. A basic customization can be seen below:
-
-
+A completely custom user interface can be built for any field in Brightspot by using the `@ToolUi.InputProcessorPath()` annotation. This can be used to provide a path to the jsp you would like to render the field with. Best practice is to place these jsp files in a new directory within WEB-INF. *A complete guide to custom UI is currently being documented.*
 
 
