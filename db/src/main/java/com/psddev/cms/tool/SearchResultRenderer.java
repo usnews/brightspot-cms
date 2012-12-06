@@ -112,7 +112,7 @@ public class SearchResultRenderer {
         }
 
         if (!items.isEmpty()) {
-            wp.write("<table class=\"links\"><tbody>");
+            wp.write("<table class=\"links table-striped\"><tbody>");
             for (Object item : items) {
                 renderRow(item);
             }
