@@ -252,7 +252,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 <ul class="extraActions">
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                        <li><button class="action-draft" name="action">Save Draft</button></li>
+                        <li><button class="action-draft" name="action" value="Save Draft">Save Draft</button></li>
                     <% } %>
                     <% if (wp.getCmsTool().isPreviewPopup() && (
                             selected.getClass() == Page.class
