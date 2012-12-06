@@ -124,7 +124,7 @@ $.plugin2('popup', {
                 markerDelta = left - options.padding.left;
                 left = options.padding.left;
             } else {
-                var leftDelta = left + popupWidth - $(window).width() + options.padding.right;
+                var leftDelta = left + popupWidth - $(doc).width() + options.padding.right;
                 if (leftDelta > 0) {
                     markerDelta = leftDelta;
                     left -= leftDelta;
