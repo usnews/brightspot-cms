@@ -100,7 +100,7 @@ $.plugin2('popup', {
     },
 
     // Returns the source element that triggered the popup to open.
-    'source': function($newSource) {
+    'source': function($newSource, event) {
         var options = this.option();
 
         if (typeof $newSource === 'undefined') {
@@ -119,7 +119,7 @@ $.plugin2('popup', {
 
             // Make sure left is within bounds.
             var markerDelta = 0;
-            var left = sourceOffset.left + ($newSource.outerWidth() - popupWidth) / 2;
+            var left = event ? event.pageX - popupWidth / 2 : sourceOffset.left + ($newSource.outerWidth() - popupWidth) / 2;
             if (left < options.padding.left) {
                 markerDelta = left - options.padding.left;
                 left = options.padding.left;
@@ -142,7 +142,7 @@ $.plugin2('popup', {
             $marker.css('left', markerLeft < 5 ? 5 : markerLeft);
 
             // Make sure top is within bounds.
-            var top = sourceOffset.top + $newSource.outerHeight() / 2;
+            var top = event ? event.pageY : sourceOffset.top + $newSource.outerHeight() / 2;
             if (top < 30) {
                 top = 30;
             }

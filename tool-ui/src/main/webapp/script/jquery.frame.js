@@ -68,7 +68,7 @@ $.plugin2('frame', {
         };
 
         // Begins loading $frame using $source.
-        beginLoad = function($frame, $source) {
+        beginLoad = function($frame, $source, event) {
             var version = ($frame.data('frame-loadVersion') || 0) + 1,
                     $popup = $frame.popup('container'),
                     $oldSource;
@@ -81,7 +81,7 @@ $.plugin2('frame', {
             $oldSource = $frame.popup('source');
 
             if ($popup[0] && (!$oldSource || $oldSource[0] != $source[0]) && (!$source[0] || !$.contains($popup[0], $source[0]))) {
-                $frame.popup('source', $source);
+                $frame.popup('source', $source, event);
                 $frame.empty();
             }
 
@@ -128,9 +128,9 @@ $.plugin2('frame', {
         };
 
         // Loads the page at url into the $frame.
-        loadPage = function($frame, $source, url) {
+        loadPage = function($frame, $source, url, event) {
             var plugin = this,
-                    version = beginLoad($frame, $source),
+                    version = beginLoad($frame, $source, event),
                     extraFormData = $frame.attr('data-extra-form-data');
 
             $.ajax({
@@ -145,7 +145,7 @@ $.plugin2('frame', {
         // Intercept anchor clicks to see if it's targeted.
         $caller.delegate('a', 'click.frame', function(event) {
             return findTargetFrame(this, function($anchor, $frame) {
-                loadPage($frame, $anchor, $anchor.attr('href'));
+                loadPage($frame, $anchor, $anchor.attr('href'), event);
                 return false;
             });
         });
