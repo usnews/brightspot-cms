@@ -174,7 +174,7 @@ public class CmsTool extends Tool {
 
     // --- Tool support ---
 
-    @Override
+    /*@Override
     public List<Plugin> getPlugins() {
         List<Plugin> plugins = new ArrayList<Plugin>();
 
@@ -226,5 +226,5 @@ public class CmsTool extends Tool {
         plugins.add(createJspWidget("Search Engine Optimization", "seo", "/WEB-INF/widget/seo.jsp", CONTENT_BOTTOM_WIDGET_POSITION, bottomColumn, bottomRow ++));
 
         return plugins;
-    }
+    }*/
 }
