@@ -70,7 +70,7 @@ if (state != null && wp.isFormPost()) {
                 definition.contentTypeLabel = '<%= wp.js(state.getType().getLabel()) %>';
                 definition.contentLabel = '<%= wp.js(state.getLabel()) %>';
                 $source.text(definition.contentTypeLabel + ': ' + definition.contentLabel);
-                $source.closest('.visualPageLayout').trigger('updateJson');
+                $source.closest('.pageLayout-visual').trigger('updateJson');
             }
         })(jQuery);
     </script>
