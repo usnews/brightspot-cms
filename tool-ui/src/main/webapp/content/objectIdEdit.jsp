@@ -83,7 +83,7 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
 </form>
 
 <script type="text/javascript">
-if (typeof jQuery !== 'undefined') (function($, win, undef) {
+if (typeof jQuery !== 'undefined') jQuery(function($) {
     var $page = $('#<%= pageId %>');
 
     <% if (!state.isNew()) { %>
@@ -102,7 +102,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
         $page.popup('restoreOriginalPosition');
         $page.popup('close');
     <% } %>
-}(jQuery, window));
+});
 </script>
 
 <% wp.writeFooter(); %>
