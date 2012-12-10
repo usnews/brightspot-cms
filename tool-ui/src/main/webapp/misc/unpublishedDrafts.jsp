@@ -63,7 +63,7 @@ new HtmlWriter(out) {{
                 end();
             }
 
-            start("table", "class", "links").start("tbody");
+            start("table", "class", "links table-striped").start("tbody");
                 for (Draft draft : drafts.getItems()) {
 
                     Object object = draft.getObject();
