@@ -90,7 +90,7 @@ $doc.delegate(':input[data-suggested-maximum]', 'input.suggested', function() {
     $win.scroll($.throttle(100, function() {
         var scrollTop = $win.scrollTop();
 
-        $('.leftNav, .withLeftNav > .main, .aside').each(function() {
+        $('.leftNav, .withLeftNav > .main, .contentForm-aside').each(function() {
             var $element = $(this),
                     elementTop = $element.offset().top,
                     initialElementTop = $element.data('initialElementTop'),
