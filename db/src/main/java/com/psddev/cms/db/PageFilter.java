@@ -983,6 +983,10 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
+            if (!(writer instanceof HtmlWriter)) {
+                return;
+            }
+
             HtmlWriter html = (HtmlWriter) writer;
 
             if (wireframe) {
