@@ -304,15 +304,14 @@ $doc.ready(function() {
 
         // Move the widget to the top if within aside section.
         $widget.closest('.contentForm-aside').each(function() {
-            var $aside = $(this);
+            var $aside = $(this),
+                    asideTop = $aside.offset().top;
 
             $win.resize($.throttle(100, $.run(function() {
-                var asideOffset = $aside.offset();
-
                 $widget.css({
-                    'left': asideOffset.left,
+                    'left': $aside.offset().left,
                     'position': 'fixed',
-                    'top': asideOffset.top,
+                    'top': asideTop,
                     'width': $widget.width()
                 });
 
