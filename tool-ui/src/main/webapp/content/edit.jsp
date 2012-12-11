@@ -145,30 +145,39 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
 
             <div class="widget widget-content">
-                <h1>
-                    <%= state.isNew() ? "New " : "Edit " %>
+                <h1><%
+                    wp.write(state.isNew() ? "New " : "Edit ");
 
-                    <% if (compatibleTypes.size() < 2) {
-                        %><%= wp.objectLabel(state.getType()) %><%
+                    if (compatibleTypes.size() < 2) {
+                        wp.write(wp.objectLabel(state.getType()));
                     } else {
-                        %><select name="newTypeId">
-                            <% for (ObjectType type : compatibleTypes) { %>
-                                <option<%= state.getType().equals(type) ? " selected" : "" %> value="<%= type.getId() %>"><%= wp.objectLabel(type) %></option>
-                            <% } %>
-                        </select><%
+                        wp.write("<select name=\"newTypeId\">");
+                            for (ObjectType type : compatibleTypes) {
+                                wp.write("<option");
+                                wp.write(state.getType().equals(type) ? " selected" : "");
+                                wp.write(" value=\"");
+                                wp.write(type.getId());
+                                wp.write("\">");
+                                wp.write(wp.objectLabel(type));
+                                wp.write("</option>");
+                            }
+                        wp.write("</select>");
                     }
 
                     if (selected instanceof Page) {
-                        %>:
-                        <a href="<%= wp.returnableUrl("/content/editableSections.jsp") %>" target="contentPageSections-<%= state.getId() %>">
-                            <% if (sectionContent != null) { %>
-                                <%= wp.objectLabel(State.getInstance(editing).getType()) %>
-                            <% } else { %>
-                                Layout
-                            <% } %>
-                        </a>
-                    <% } %>
-                </h1>
+                        wp.write("<a href=\"");
+                        wp.write(wp.returnableUrl("/content/editableSections.jsp"));
+                        wp.write("\" target=\"contentPageSections-");
+                        wp.write(state.getId());
+                        wp.write("\">");
+                            if (sectionContent != null) {
+                                wp.write(wp.objectLabel(State.getInstance(editing).getType()));
+                            } else {
+                                wp.write("Layout");
+                            }
+                        wp.write("</a>");
+                    }
+                %></h1>
 
                 <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
 
