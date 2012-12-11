@@ -16,6 +16,10 @@ $.plugin2('sortable', {
         $container.find(options.itemSelector).addClass('_sortable-item');
 
         $container.delegate(options.itemSelector, 'mousedown.sortable', function(event) {
+            if ($(event.target).is(':input')) {
+                return;
+            }
+
             $.drag(this, event, function(event, data) {
                 var $selected = $(this),
                         selectedOffset = $selected.offset();
