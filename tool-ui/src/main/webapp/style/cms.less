@@ -24,6 +24,10 @@
 @color-link: #29c;
 @color-link-darker: darken(@color-link, 10%);
 @color-link-lighter: lighten(@color-link, 25%);
+@color-note: #bbb;
+@color-note-darker: darken(@color-note, 20%);
+@color-note-lighter: lighten(@color-note, 20%);
+@color-text: #333;
 
 // --- Functions ---
 
@@ -38,6 +42,11 @@
     background-image: -moz-linear-gradient(@gradient);
     background-image: -ms-linear-gradient(@gradient);
     background-image: -o-linear-gradient(@gradient);
+}
+
+.background-image-vertical-gradient(@from, @to) {
+    background: (@from + @to) / 2;
+    .background-image-linear-gradient(~'top, @{from}, @{to}');
 }
 
 .border-radius(@radius) {
@@ -157,7 +166,7 @@
     display: inline;
 
     &:not(:last-child):after {
-        color: #a4a39f;
+        color: @color-note;
         content: '\2192';
         padding: 0 0.5em;
     }
@@ -168,12 +177,12 @@
 }
 
 .button {
-    background: #efefef;
-    .background-image-linear-gradient(~'top, #fff, #ececec');
-    border: 1px solid #bcbcbc;
+    .background-image-vertical-gradient(white, @color-note-lighter);
+    border: 1px solid @color-note;
     .border-radius(5px);
+    .box-shadow(~'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05)');
     .box-sizing(border-box);
-    color: #1f89c4;
+    color: @color-link;
     cursor: pointer;
     display: inline-block;
     font-weight: bold;
@@ -183,8 +192,7 @@
     padding: 4px 15px;
 
     &:hover {
-        background: #d7d4ec;
-        .background-image-linear-gradient(~'top, #e6eef1, #c8d9e4');
+        background: @color-note-lighter;
         text-decoration: none;
     }
 }
@@ -196,7 +204,7 @@
 }
 
 .buttons {
-    background: #ececec;
+    background: @color-note-lighter;
     margin: 6px 0 15px 0;
     overflow: hidden;
     padding: 10px;
@@ -213,7 +221,7 @@
 }
 
 .help {
-    border-bottom: 1px dotted #333;
+    border-bottom: 1px dotted @color-text;
     cursor: help;
 }
 
@@ -462,7 +470,7 @@
 
 .input {
     background-color: white;
-    border: 1px solid #bcbcbc;
+    border: 1px solid @color-note;
     .border-radius(5px);
     .box-sizing(border-box);
     display: inline-block;
@@ -473,8 +481,8 @@
     white-space: pre-wrap;
 
     &:focus {
-        border-color: #5cb3e5;
-        .box-shadow(rgba(92, 179, 229, 1) 0 0 4px);
+        border-color: @color-link-lighter;
+        .box-shadow(@color-link-lighter 0 0 4px);
     }
 
     &[disabled] {
@@ -486,10 +494,14 @@
     margin-bottom: 6px;
     min-height: 30px;
     overflow: hidden;
+
+    .message {
+        margin-bottom: 5px;
+    }
 }
 
 .inputContainer-label {
-    background-color: #ececec;
+    background-color: @color-note-lighter;
     float: left;
     font-family: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
     margin: 0 0 -30000px 0;
@@ -497,11 +509,16 @@
     padding: 5px 5px 30005px 5px;
     width: 130px;
     z-index: -1;
+
+    > label {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
 }
 
 .inputContainer-error {
     margin-left: 145px;
-    margin-bottom: 5px;
 }
 
 .inputContainer-smallInput {
@@ -581,14 +598,14 @@
 
 .links-hover {
     > a {
-        background-color: #1f89c4;
+        background-color: @color-link;
         color: white;
     }
 }
 
 .links-selected {
     > a {
-        background-color: #333;
+        background-color: @color-text;
         color: white;
     }
 }
@@ -600,12 +617,22 @@
     }
 }
 
-.message {
-    background-color: #ee6;
+.message,
+.message-info {
+    .icon-info-sign;
+
+    background-color: @color-note-lighter;
     .border-radius(5px);
-    color: black;
+    color: @color-text;
     margin-bottom: 15px;
-    padding: 10px;
+    padding: 10px 10px 10px 33px;
+    position: relative;
+
+    &:before {
+        left: 10px;
+        position: absolute;
+        top: 21px;
+    }
 
     > *:last-child {
         margin-bottom: 0;
@@ -613,23 +640,22 @@
 }
 
 .message-error {
-    background-color: #a10;
-    color: white;
-}
+    .icon-exclamation-sign;
 
-.message-info {
-    background-color: #ececec;
-    color: black;
+    background-color: @color-alert-darker;
+    color: white;
 }
 
 .message-success {
+    .icon-ok-sign;
+
     background-color: #9c2;
-    color: black;
 }
 
 .message-warning {
-    background-color: #e90;
-    color: white;
+    .icon-exclamation-sign;
+
+    background-color: #ed9;
 }
 
 .pagination {
@@ -644,7 +670,7 @@
     display: inline;
 
     &:not(:last-child):after {
-        color: #a4a39f;
+        color: @color-note;
         content: ' | ';
         padding: 0 2px;
     }
@@ -685,7 +711,7 @@
     display: inline;
 
     &:not(:last-child):after {
-        color: #a4a39f;
+        color: @color-note;
         content: ' | ';
         padding: 0 2px;
     }
@@ -701,7 +727,7 @@
     white-space: nowrap;
 
     > label {
-        color: #999;
+        color: @color-note-darker;
         left: 0.7em;
         line-height: 1;
         margin-top: -0.5em;
@@ -734,7 +760,7 @@
     .icon-caret-down;
     .input;
 
-    color: #333;
+    color: @color-text;
     cursor: default;
     display: inline-block;
     height: auto;
@@ -756,7 +782,7 @@
 
         .border-radius(3px);
         bottom: 2px;
-        color: black;
+        color: @color-text;
         font-size: 1em;
         height: auto;
         line-height: 22px;
@@ -784,8 +810,8 @@
 }
 
 .small {
+    color: @color-note-darker;
     font-size: 90%;
-    .opacity(0.7);
 }
 
 .tabs {
@@ -802,7 +828,7 @@
 
     > a {
         background-color: white;
-        border: 1px solid #cecece;
+        border: 1px solid @color-note;
         .border-top-left-radius(5px);
         .border-top-right-radius(5px);
         display: block;
@@ -822,7 +848,7 @@
     > a {
         background: white;
         border-bottom-color: white;
-        color: #333;
+        color: @color-text;
         position: relative;
     }
 }
@@ -866,7 +892,7 @@
         white-space: nowrap;
 
         &:hover {
-            background-color: #1f89c4;
+            background-color: @color-link;
             color: white;
             text-decoration: none;
         }
@@ -875,7 +901,7 @@
 
 .tabs-dropDown-selected {
     > a {
-        background-color: #333;
+        background-color: @color-text;
         color: white;
     }
 }
@@ -890,12 +916,11 @@
 }
 
 .widget-heading {
-    background: #f5f5f5;
-    .background-image-linear-gradient(~'top, #fff, #ececec');
-    border-bottom: 1px solid #e3e3e3;
+    .background-image-vertical-gradient(white, @color-note-lighter);
+    border-bottom: 1px solid darken(@color-note-lighter, 5%);
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
-    color: #333;
+    color: @color-text;
     margin: -10px -10px 10px -10px;
     padding: 4px 10px;
     text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
@@ -938,7 +963,7 @@ b {
 
 body {
     background-color: white;
-    color: #333;
+    color: @color-text;
     font-family: @fontFamily-default;
     font-size: 13px;
     font-style: normal;
@@ -988,18 +1013,18 @@ h1 {
 
 h2 {
     .block;
-    border-bottom: 1px solid #e3e3e3;
-    color: #888;
+    border-bottom: 1px solid @color-note;
+    color: @color-note-darker;
     font-family: @fontFamily-label;
     font-size: 80%;
     text-transform: uppercase;
-    margin: 0 0 5px 0;
+    margin: 0 0 10px 0;
     padding: 0;
 }
 
 hr {
     .block;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid @color-text;
 }
 
 i {
@@ -1083,7 +1108,7 @@ table {
 
     &.table-striped {
         tbody tr:nth-child(2n+1) {
-            background-color: #e6e5e1;
+            background-color: @color-note-lighter;
         }
     }
 
@@ -1094,7 +1119,7 @@ table {
     }
 
     th {
-        background-color: #e6e5e1;
+        background-color: @color-note;
     }
 
     thead th {
@@ -1137,7 +1162,7 @@ input[type=submit].link.delete {
     padding: 0 2px 0 6px;
 }
 .inputContainer.focused > .label {
-    background-color: #5cb3e5;
+    background-color: @color-link-lighter;
 }
 .lt-600 .inputContainer > .label {
     background-color: transparent;
@@ -1161,24 +1186,6 @@ table .time { text-align: right; width: 5em; }
 
 .date, .time { white-space: nowrap; }
 
-.dropDownInput {
-    .select;
-}
-
-.dropDownList {
-        background-color: white;
-        -moz-border-radius-bottomleft: 5px;
-        -moz-border-radius-bottomright: 5px;
-        -webkit-border-bottom-left-radius: 5px;
-        -webkit-border-bottom-right-radius: 5px;
-        -moz-box-shadow: rgba(0, 0, 0, 0.5) 0 2px 2px;
-        -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 2px 2px;
-        left: 1px; list-style-type: none; margin: 0; max-height: 300px;
-        overflow: auto; padding: 0 0 5px 0; position: relative; top: 5px;
-        z-index: 500; }
-    .dropDownList li { cursor: default; padding: 1px 15px 1px 5px; }
-    .dropDownList li:hover { background-color: #1f89c4; color: white; }
-
 input[type=text].expandable { min-width: 5em; }
 
 .number { text-align: right; white-space: nowrap; }
@@ -1193,7 +1200,7 @@ input[type=text].expandable { min-width: 5em; }
 // --- Tool ---
 
 .toolHat {
-    background-color: #333;
+    background-color: @color-text;
     color: white;
     font-size: 11px;
     height: 21px;
@@ -1227,9 +1234,9 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .toolHeader {
-    background-color: #ececec;
-    border-bottom: 1px solid #cecece;
-    .box-shadow(rgba(255, 255, 255, 1) 0 8px 15px);
+    background-color: @color-note-lighter;
+    border-bottom: 1px solid @color-note;
+    .box-shadow(white 0 8px 15px);
     height: 43px;
     left: 0;
     position: fixed;
@@ -1246,7 +1253,7 @@ input[type=text].expandable { min-width: 5em; }
     margin-left: 20px;
 
     a {
-        color: #333;
+        color: @color-text;
 
         &:hover {
             text-decoration: none;
@@ -1310,14 +1317,14 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .toolFooter {
-    border-top: 1px solid #cecece;
+    border-top: 1px solid @color-note;
     margin-top: 20px;
     padding-top: 10px;
 }
 
 .toolFooter-build {
     background: url(brightspot.png) no-repeat top right;
-    color: #777;
+    color: @color-note-darker;
     font-family: @fontFamily-label;
     font-size: 80%;
     padding: 20px 0 10px 0;
@@ -1366,7 +1373,7 @@ input[type=text].expandable { min-width: 5em; }
 
 .searchForm-images {
     + table {
-        border-top: 1px solid #cecece;
+        border-top: 1px solid @color-note;
     }
 
     img {
@@ -1497,14 +1504,14 @@ h1 select:focus {
 }
 #calendar > * > .day0,
 #calendar > * > .day6 {
-    background-color: #ececec;
+    background-color: @color-note-lighter;
 }
 #calendar > .week > .day:hover {
-    background-color: #1f89c4;
+    background-color: @color-link;
     color: white;
 }
 #calendar > .week > .day.selected {
-    background-color: #333;
+    background-color: @color-text;
     color: white;
 }
 #calendar > .dayLabels > .day {
@@ -1534,6 +1541,42 @@ h1 select:focus {
 
     min-width: 12em;
     padding-right: 0;
+}
+
+// --- $.dropDown ---
+
+.dropDown-input {
+    .select;
+
+    &.focus {
+        .border-bottom-left-radius(0);
+    }
+}
+
+.dropDown-list {
+    background-color: white;
+    .border-bottom-left-radius(5px);
+    .border-bottom-right-radius(5px);
+    .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
+    left: 1px;
+    list-style-type: none;
+    margin: 0;
+    max-height: 300px;
+    overflow: auto;
+    padding: 0 0 5px 0;
+    position: relative;
+    top: 5px;
+    z-index: 1;
+
+    li {
+        cursor: default;
+        padding: 1px 15px 1px 5px;
+
+        &:hover {
+            background-color: @color-link;
+            color: white;
+        }
+    }
 }
 
 // --- $.frame ---
@@ -1633,12 +1676,12 @@ h1 select:focus {
 }
 
 .imageEditor-sizeLabel {
-    background-color: #ececec;
+    background-color: @color-note-lighter;
     display: block;
     padding: 3px;
 
     .imageEditor-sizeSelected & {
-        background-color: #5cb3e5;
+        background-color: @color-link-lighter;
     }
 }
 
@@ -1672,7 +1715,7 @@ h1 select:focus {
     .rte-container {
         border: none;
         margin: -4px;
-        outline: 1px dashed black;
+        outline: 1px dashed @color-text;
     }
 
     .rte-toolbar {
@@ -1788,12 +1831,12 @@ h1 select:focus {
         padding: 0 10px 5px 1px;
 
         &.selected {
-            color: #333;
+            color: @color-text;
             font-weight: bold;
             position: relative;
 
             &:after {
-                border-color: transparent transparent #eee transparent;
+                border-color: transparent transparent @color-note-lighter transparent;
                 border-style: solid;
                 border-width: 6px;
                 bottom: 0;
@@ -1805,7 +1848,7 @@ h1 select:focus {
     }
 
     > .jsonButton.selected:after {
-        border-bottom-color: #bcbcbc;
+        border-bottom-color: @color-note;
         bottom: -1px;
     }
 }
@@ -1818,21 +1861,21 @@ h1 select:focus {
 // Visual representation.
 .pageLayout-visual {
     .section {
-        background-color: #eee;
+        background-color: @color-note-lighter;
         margin-bottom: 10px;
         min-height: 30px;
         padding: 10px;
         position: relative;
 
         // Sections get darker as they nest.
-        .section { background-color: #ddd;
-            .section { background-color: #ccc;
-                .section { background-color: #bbb;
-                    .section { background-color: #aaa;
-                        .section { background-color: #999;
-                            .section { background-color: #888;
-                                .section { background-color: #777;
-                                    .section { background-color: #666;
+        .section { background-color: darken(@color-note-lighter, 5%);
+            .section { background-color: darken(@color-note-lighter, 10%);
+                .section { background-color: darken(@color-note-lighter, 15%);
+                    .section { background-color: darken(@color-note-lighter, 20%);
+                        .section { background-color: darken(@color-note-lighter, 25%);
+                            .section { background-color: darken(@color-note-lighter, 30%);
+                                .section { background-color: darken(@color-note-lighter, 35%);
+                                    .section { background-color: darken(@color-note-lighter, 40%);
         } } } } } } } }
 
         // Hide contents if the section is set to be removed.
@@ -2053,7 +2096,7 @@ h1 select:focus {
 .popup-content {
     background-color: white;
     .border-radius(5px);
-    .box-shadow(#333 0 0 10px);
+    .box-shadow(@color-text 0 0 10px);
     padding: 10px;
     position: relative;
     top: 10px;
@@ -2072,7 +2115,7 @@ h1 select:focus {
     .icon-remove;
 
     background-color: white;
-    border: 2px solid #333;
+    border: 2px solid @color-text;
     .border-radius(20px);
     cursor: pointer;
     height: 20px;
@@ -2159,15 +2202,15 @@ h1 select:focus {
 
         > li {
             background-color: rgba(255, 255, 255, 0.5);
-            border: 1px solid #ececec;
+            border: 1px solid @color-note-lighter;
             .border-radius(5px);
             margin-bottom: 6px;
             padding: 0 6px;
             position: relative;
 
             > .label {
-                background-color: #ececec;
-                color: #333;
+                background-color: @color-note-lighter;
+                color: @color-text;
                 cursor: pointer;
                 font-family: @fontFamily-label;
                 left: 0;
@@ -2198,10 +2241,10 @@ h1 select:focus {
             }
 
             &.focus {
-                border-color: #5cb3e5;
+                border-color: @color-link-lighter;
 
                 > .label {
-                    background-color: #5cb3e5;
+                    background-color: @color-link-lighter;
                 }
             }
 
@@ -2277,7 +2320,7 @@ h1 select:focus {
 
         > li {
             background-color: white;
-            border-bottom: 1px solid #cecece;
+            border-bottom: 1px solid @color-note;
             margin-bottom: 10px;
             position: relative;
 
@@ -2417,7 +2460,7 @@ h1 select:focus {
 // --- jQuery.rte ---
 
 .rte-container {
-    border: 1px solid #b3b3b3;
+    border: 1px solid @color-note;
     .border-radius(5px);
     display: block;
     margin: 0;
@@ -2440,8 +2483,8 @@ h1 select:focus {
 }
 
 .rte-toolbar {
-    background-color: #ededed;
-    border-bottom: 1px solid #cfcfcf;
+    background-color: @color-note-lighter;
+    border-bottom: 1px solid @color-note;
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
     margin: 2px;
@@ -2452,7 +2495,7 @@ h1 select:focus {
 }
 
 .rte-group {
-    background-color: #333;
+    background-color: @color-text;
     color: white;
     .border-radius(5px);
     list-style-type: none;
@@ -2477,7 +2520,7 @@ h1 select:focus {
     background-position: center;
     background-repeat: no-repeat;
     .border-radius(3px);
-    color: black;
+    color: @color-text;
     cursor: pointer;
     float: left;
     font-size: 80%;
@@ -2491,7 +2534,7 @@ h1 select:focus {
     }
 
     &.wysihtml5-command-active {
-        background-color: #76bbe0;
+        background-color: @color-link-lighter;
     }
 }
 
@@ -2532,7 +2575,7 @@ h1 select:focus {
 }
 
 .rte-enhancement {
-    background-color: #cecece;
+    background-color: @color-note;
 
     .rte-toolbar {
         background-color: transparent;
@@ -2610,7 +2653,6 @@ table.links {
 }
 
 .message.error { .message-error; }
-.message.info { .message-info; }
 .message.success { .message-success; }
 .message.warning { .message-warning; }
 
@@ -2647,7 +2689,7 @@ table.links {
 
 // --- Bootstrap support ---
 
-.alert { .message; .message-warning; }
+.alert { .message-warning; }
 .alert-error { .message-error; }
 .alert-info { .message-info; }
 .alert-success { .message-success; }
@@ -2663,7 +2705,7 @@ table.links {
 /* --- Hovering focus label --- */
 
 .focusLabel {
-    background: #55b4e4;
+    background: @color-link-lighter;
     display: none;
     font-family: @fontFamily-label;
     left: 30px;
@@ -2748,7 +2790,7 @@ table.links {
     .extraActions {
         .piped;
 
-        border-top: 1px solid #cecece;
+        border-top: 1px solid @color-note;
         clear: both;
         padding-top: 5px;
 
@@ -2766,7 +2808,7 @@ table.links {
         background: -webkit-gradient(linear, left top, left bottom, from(#ff7), to(#dd5));
         border-style: none;
         .box-shadow(~'rgba(0, 0, 0, 0.5) 0 1px 1px');
-        color: #333;
+        color: @color-text;
         float: left;
         margin-bottom: 15px;
         margin-top: 5px;

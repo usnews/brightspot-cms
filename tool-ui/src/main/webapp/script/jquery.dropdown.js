@@ -6,11 +6,9 @@ var doc = win.document,
 
 $.plugin2('dropDown', {
     '_defaultOptions': {
-        'listClass': 'dropDownList',
+        'listClass': 'dropDown-list',
         'listItemSelectedClass': 'selected',
-        'inputClass': 'dropDownInput',
-        'inputFocusedClass': 'focused',
-        'inputIconClass': 'dropDownInputIcon'
+        'inputClass': 'dropDown-input'
     },
 
     '_create': function(select) {
@@ -26,7 +24,6 @@ $.plugin2('dropDown', {
             'css': { 'position': 'relative' }
         });
         var $input = $('<span/>', { 'class': options.inputClass });
-        var $inputIcon = $('<span/>', { 'class': options.inputIconClass });
 
         // helper to move the drop down list under the input
         var moveList = function() {
@@ -39,7 +36,7 @@ $.plugin2('dropDown', {
 
         // helper to hide the drop down list
         var hideList = function() {
-            $input.removeClass(options.inputFocusedClass);
+            $input.removeClass('focus');
             $listContainer.hide();
             $select.blur();
         };
@@ -53,7 +50,7 @@ $.plugin2('dropDown', {
                 }
             } else {
                 if ($.contains($inputContainer[0], e.target)) {
-                    $input.addClass(options.inputFocusedClass);
+                    $input.addClass('focus');
                     moveList();
                     $listContainer.show();
                     $select.focus();
@@ -117,7 +114,6 @@ $.plugin2('dropDown', {
         $listContainer.append($list).hide();
         $(doc.body).append($listContainer);
         $inputContainer.append($input);
-        $inputContainer.append($inputIcon);
         $select.before($inputContainer).hide();
     }
 });
