@@ -245,10 +245,16 @@
 }
 
 .icon-only {
+    display: inline-block;
+    height: 19.5px;
     overflow: hidden;
     vertical-align: middle;
     white-space: nowrap;
     width: 19.5px;
+
+    &:before {
+        padding-right: 20px;
+    }
 }
 
 .icon-pullRight {
@@ -1799,7 +1805,6 @@ h1 select:focus {
 .objectId-edit {
     .icon-pencil;
 
-    display: inline-block;
     margin-left: 10px;
 
     &.toBeRemoved {
@@ -1816,7 +1821,6 @@ h1 select:focus {
     .icon-remove-sign;
 
     color: @color-alert;
-    display: inline-block;
     margin-left: 10px;
 
     &.restore {
@@ -2399,7 +2403,6 @@ h1 select:focus {
                 .icon-minus-sign;
                 .link;
                 color: @color-alert;
-                display: inline-block;
                 margin-left: 10px;
 
                 @media @media-tablet {
@@ -2627,8 +2630,6 @@ h1 select:focus {
     [data-wysihtml5-dialog-action=save] {
         .icon-ok;
         .icon-only;
-
-        display: inline-block;
     }
 
     [data-wysihtml5-dialog-action=cancel] {
@@ -2636,7 +2637,6 @@ h1 select:focus {
         .icon-only;
 
         color: @color-alert;
-        display: inline-block;
     }
 }
 
