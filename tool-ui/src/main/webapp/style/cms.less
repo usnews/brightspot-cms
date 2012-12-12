@@ -236,6 +236,8 @@
         line-height: 0;
         margin-right: 4px;
         .opacity(0.8);
+        position: relative;
+        top: 1px;
         vertical-align: middle;
 
         &:hover {
@@ -263,7 +265,7 @@
     &:before {
         float: right;
         margin-left: 4px;
-        margin-top: 11px;
+        margin-top: 10px;
     }
 }
 
@@ -597,51 +599,78 @@
     }
 }
 
-@links-marginLeft: 25px;
+ol.links,
+ul.links {
+    @marginLeft: 25px;
 
-.links {
-    margin-left: @links-marginLeft;
-}
+    margin-left: @marginLeft;
 
-.links-item {
-    > a {
-        display: block;
-        padding: 1px 0;
-        position: relative;
+    > li {
+        > .link,
+        > a {
+            display: block;
+            padding: 1px 0;
+            position: relative;
+            text-decoration: none;
+        }
+
+        &:hover,
+        &.links-selected,
+        &.selected {
+            list-style-type: none;
+
+            > a {
+                background-color: inherit;
+                color: inherit;
+                left: -@marginLeft;
+                margin-right: -@marginLeft;
+                padding-left: @marginLeft;
+            }
+        }
+
+        &:hover {
+            background-color: @color-link;
+            color: white;
+        }
+
+        &.links-selected,
+        &.selected {
+            background-color: @color-text;
+            color: white;
+        }
+
+        &.links-new,
+        &.new {
+            list-style-type: none;
+
+            > a {
+                .icon-plus-sign;
+
+                left: -@marginLeft;
+                margin-right: -@marginLeft;
+                padding-left: (@marginLeft - 20px);
+            }
+        }
     }
 }
 
-.links-hover,
-.links-new,
-.links-selected {
-    list-style-type: none;
+table.links,
+table.links.table-striped {
+    > tbody > tr {
+        &:hover {
+            background-color: @color-link;
+            color: white;
+            cursor: pointer;
 
-    > a {
-        left: -@links-marginLeft;
-        margin-right: -@links-marginLeft;
-        padding-left: @links-marginLeft;
-        text-decoration: none;
-    }
-}
+            .link,
+            a {
+                color: white;
 
-.links-hover {
-    > a {
-        background-color: @color-link;
-        color: white;
-    }
-}
-
-.links-selected {
-    > a {
-        background-color: @color-text;
-        color: white;
-    }
-}
-
-.links-new {
-    > a {
-        .icon-plus-sign;
-        padding-left: (@links-marginLeft - 19px);
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
     }
 }
 
@@ -813,7 +842,7 @@
         color: @color-text;
         font-size: 1em;
         height: auto;
-        line-height: 22px;
+        line-height: 21px;
         padding: 0 0 0 1px;
         position: absolute;
         text-align: center;
@@ -1127,16 +1156,15 @@ sup {
 }
 
 table {
-    .block;
-
     border-collapse: collapse;
     border-spacing: 0;
     border-style: none;
-    display: table;
+    margin: 0 0 15px 0;
+    padding: 0;
     width: 100%;
 
     &.table-striped {
-        tbody tr:nth-child(2n+1) {
+        > tbody > tr:nth-child(2n+1) {
             background-color: @color-note-lighter;
         }
     }
@@ -2454,7 +2482,7 @@ h1 select:focus {
                 color: @color-alert;
                 position: absolute;
                 right: 1px;
-                top: 5px;
+                top: 4px;
             }
 
             &.toBeRemoved > .removeButton {
@@ -2497,7 +2525,7 @@ h1 select:focus {
             .link;
             position: absolute;
             right: 1px;
-            top: 5px;
+            top: 4px;
         }
     }
 }
@@ -2699,13 +2727,6 @@ h1 select:focus {
 .inputContainer > .smallInput { .inputContainer-smallInput; }
 .inputContainer > .largeInput { .inputContainer-largeInput; }
 .inputContainer > .note { .inputContainer-note; }
-
-.links > li { .links-item; }
-.links > li:hover { .links-hover; }
-.links > li.selected { .links-selected; }
-.links > li.new { .links-new; }
-
-table.links { margin-left: 0; }
 
 .message.error { .message-error; }
 .message.success { .message-success; }
