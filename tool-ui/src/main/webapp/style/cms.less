@@ -2551,7 +2551,7 @@ h1 select:focus {
 .rte-group-label {
     display: block;
     font-family: @fontFamily-label;
-    font-size: 80%;
+    font-size: 60%;
     line-height: 8px;
     margin: 2px 0 3px 3px;
     text-transform: uppercase;
@@ -2614,6 +2614,30 @@ h1 select:focus {
 
 .rte-button:before {
     font-size: 15px !important;
+}
+
+.rte-dialog {
+    clear: left;
+    margin-bottom: 3px;
+
+    [data-wysihtml5-dialog-field=href] {
+        width: 50%;
+    }
+
+    [data-wysihtml5-dialog-action=save] {
+        .icon-ok;
+        .icon-only;
+
+        display: inline-block;
+    }
+
+    [data-wysihtml5-dialog-action=cancel] {
+        .icon-remove;
+        .icon-only;
+
+        color: @color-alert;
+        display: inline-block;
+    }
 }
 
 .rte-enhancement {

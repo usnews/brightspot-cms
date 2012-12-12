@@ -96,24 +96,16 @@ var createToolbar = function() {
     }));
 
     $toolbar.append($(
-        '<div data-wysihtml5-dialog="createLink" style="display: none;">' +
-            '<b>Link:</b><br/><br/>' +
-            '<label>' +
-            'URL:' +
-            '<input data-wysihtml5-dialog-field="href" value="http://">' +
-            'Title:' +
-            '<input data-wysihtml5-dialog-field="title" value="">' +
-            'Target:' +
-            '<select data-wysihtml5-dialog-field="target">' +
-                '<option value=""></option>' +
-                '<option value="_blank">New Window (_blank)</option>' +
-                '<option value="_top">Top-most Window (_top)</option>' +
-                '<option value="_self">Same Window (_self)</option>' +
-                '<option value="_parent">Parent Window (_parent)</option>' +
-            '</select>        ' +
-            '</label>' +
-            '<a data-wysihtml5-dialog-action="save">OK</a>&nbsp;' +
-            '<a data-wysihtml5-dialog-action="cancel">Cancel</a>' +
+        '<div class="rte-dialog" data-wysihtml5-dialog="createLink" style="display: none;">' +
+            ' <label>URL:' +
+            ' <input type="text" data-wysihtml5-dialog-field="href" value="http://"></label>' +
+            ' <label>Window:' +
+            ' <select data-wysihtml5-dialog-field="target">' +
+                '<option value="_self">Same</option>' +
+                '<option value="_blank">New</option>' +
+            '</select></label>' +
+            ' <a data-wysihtml5-dialog-action="save">OK</a>' +
+            ' <a data-wysihtml5-dialog-action="cancel">Cancel</a>' +
         '</div>'));
 
     return $container[0];
