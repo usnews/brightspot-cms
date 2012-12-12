@@ -28,7 +28,6 @@ $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
 $doc.rte('live', '.richtext');
 $doc.toggleable('live', '.toggleable');
-$doc.widthAware('live', '[data-widths]');
 
 // Remove placeholder text over search input when there's text.
 $doc.onCreate('.searchInput', function() {

@@ -702,7 +702,6 @@ public class ToolPageContext extends WebPageContext {
                 "/script/jquery.repeatable.js",
                 "/script/jquery.sortable.js",
                 "/script/jquery.toggleable.js",
-                "/script/jquery.widthaware.js",
                 "/script/json2.min.js",
                 "/script/pixastic/pixastic.core.js",
                 "/script/pixastic/actions/brightness.js",
