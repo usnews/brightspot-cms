@@ -326,13 +326,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 $previewWidget = $preview.find('.widget-preview'),
                 $previewHeading = $preview.find('h1');
 
-        $edit.css({
-            'margin-right': $preview.width(),
-            'max-width': 1100
-        });
-
         $previewWidget.addClass('loading');
         $preview.show();
+
+        $edit.css({
+            'margin-right': $preview.outerWidth(true),
+            'max-width': 1100
+        });
 
         // Preview should be roughly the same width as the window.
         $win.resize($.throttle(500, function() {
