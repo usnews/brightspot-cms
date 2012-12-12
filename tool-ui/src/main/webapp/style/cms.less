@@ -29,6 +29,9 @@
 @color-note-lighter: lighten(@color-note, 20%);
 @color-text: #333;
 
+@media-tablet: ~'only screen and (max-width: 979px)';
+@media-phone: ~'only screen and (max-width: 767px)';
+
 // --- Functions ---
 
 .background-clip(@clip) {
@@ -243,8 +246,9 @@
 
 .icon-only {
     overflow: hidden;
+    vertical-align: middle;
     white-space: nowrap;
-    width: 19px;
+    width: 19.5px;
 }
 
 .icon-pullRight {
@@ -515,6 +519,14 @@
         height: 100%;
         width: 100%;
     }
+
+    @media @media-tablet {
+        display: block;
+        float: none;
+        margin: 0 0 5px 0;
+        padding: 5px;
+        width: auto;
+    }
 }
 
 .inputContainer-error {
@@ -531,6 +543,12 @@
         display: block;
         width: 100%;
     }
+
+    @media @media-tablet {
+        margin-bottom: 5px;
+        margin-left: 0;
+        padding-left: 2px;
+    }
 }
 
 .inputContainer-largeInput {
@@ -544,6 +562,10 @@
 .inputContainer-note {
     display: block;
     margin-left: 146px;
+
+    @media @media-tablet {
+        margin-left: 2px;
+    }
 }
 
 .link {
@@ -1164,22 +1186,6 @@ input[type=submit].link.delete {
 .inputContainer.focused > .label {
     background-color: @color-link-lighter;
 }
-.lt-600 .inputContainer > .label {
-    background-color: transparent;
-    display: block;
-    float: none;
-    margin: 0;
-    padding: 0;
-    width: auto;
-}
-.lt-600 .inputContainer > .smallInput {
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding-left: 10px;
-}
-.lt-600 .inputContainer > .note {
-    margin-left: 12px;
-}
 
 table .date { text-align: right; width: 7em; }
 table .time { text-align: right; width: 5em; }
@@ -1259,6 +1265,10 @@ input[type=text].expandable { min-width: 5em; }
             text-decoration: none;
         }
     }
+
+    @media @media-tablet {
+        display: none;
+    }
 }
 
 .toolHeader-title-companyName {
@@ -1268,13 +1278,19 @@ input[type=text].expandable { min-width: 5em; }
 .toolHeader-search {
     font-size: 15px;
     line-height: 43px;
+    max-width: 300px;
     position: absolute;
     right: 20px;
     top: 0;
+    width: 25%;
 
-    .searchInput input[type=text] {
-        height: 30px;
-        width: 300px;
+    .searchInput {
+        width: 100%;
+
+        input[type=text] {
+            height: 30px;
+            width: 100%;
+        }
     }
 }
 
@@ -1773,26 +1789,44 @@ h1 select:focus {
 
     white-space: normal;
     width: 50%;
+
+    @media @media-tablet {
+        width: 70%;
+    }
 }
 
 .objectId-edit {
     .icon-pencil;
+
+    display: inline-block;
     margin-left: 10px;
 
     &.toBeRemoved {
         color: @color-alert;
         text-decoration: line-through;
     }
+
+    @media @media-tablet {
+        .icon-only;
+    }
 }
 
 .objectId-clear {
     .icon-remove-sign;
+
     color: @color-alert;
+    display: inline-block;
     margin-left: 10px;
 
     &.restore {
         .icon-undo;
         color: @color-link;
+    }
+
+    @media @media-tablet {
+        .icon-only;
+
+        margin-left: 5px;
     }
 }
 
@@ -2364,7 +2398,14 @@ h1 select:focus {
                 .icon-minus-sign;
                 .link;
                 color: @color-alert;
+                display: inline-block;
                 margin-left: 10px;
+
+                @media @media-tablet {
+                    .icon-only;
+
+                    margin-left: 5px;
+                }
             }
 
             &.toBeRemoved > .removeButton {
@@ -2723,6 +2764,10 @@ table.links {
     margin: -10px;
     overflow: hidden;
     padding: 10px 260px 10px 10px;
+
+    @media @media-tablet {
+        padding-right: 210px;
+    }
 }
 
 .contentForm-main {
@@ -2739,6 +2784,11 @@ table.links {
     float: left;
     margin: 0 -250px 0 10px;
     width: 240px;
+
+    @media @media-tablet {
+        margin-right: -200px;
+        width: 190px;
+    }
 }
 
 // --- Widgets ---
