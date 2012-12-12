@@ -2791,6 +2791,19 @@ table.links {
     }
 }
 
+.content-preview {
+    display: none;
+    overflow: hidden;
+    margin: -10px 0 -10px -10px;
+    padding: 10px 0 10px 10px;
+    position: absolute;
+    width: 150px;
+
+    @media @media-tablet {
+        width: 85px;
+    }
+}
+
 // --- Widgets ---
 
 .widget-content h1 { .icon-file; }
@@ -2803,13 +2816,33 @@ table.links {
 .widget-urls h1 { .icon-sitemap; }
 
 .widget-preview {
+    margin-top: 10px;
+
     > h1 {
         .icon-eye-open;
+
+        cursor: pointer;
+        position: fixed;
+        width: 100%;
     }
 
     .action-share {
         .icon-share;
         .link;
+    }
+
+    &.loading > h1:before {
+        content: url(../style/icon/ajax-loader.gif);
+    }
+
+    &.widget-expanded:before {
+        content: '\00bb';
+        font-size: 25px;
+        line-height: 1;
+        margin-top: -8px;
+        position: fixed;
+        right: 20px;
+        z-index: 1;
     }
 }
 

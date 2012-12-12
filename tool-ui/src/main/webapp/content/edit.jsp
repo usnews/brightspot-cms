@@ -277,46 +277,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 <% if (!wp.getCmsTool().isPreviewPopup() &&
         (selected.getClass() == Page.class
         || Template.Static.findUsedTypes(wp.getSite()).contains(state.getType()))) { %>
-    <style type="text/css">
-        .content-preview {
-            display: none;
-            overflow: hidden;
-            margin: -10px 0 -10px -10px;
-            padding: 10px 0 10px 10px;
-            position: absolute;
-            right: 0;
-        }
-
-        .widget-preview {
-            margin-top: 10px;
-            width: 970px;
-        }
-
-        .widget-preview.loading h1:before {
-            content: url(../style/icon/ajax-loader.gif);
-        }
-
-        .widget-preview h1 {
-            cursor: pointer;
-            position: fixed;
-            width: 100%;
-        }
-
-        .widget-preview:before {
-            content: '\00ab';
-            font-size: 25px;
-            line-height: 1;
-            margin-top: -8px;
-            position: fixed;
-            right: 20px;
-            z-index: 1;
-        }
-
-        .widget-preview.expanded:before {
-            content: '\00bb';
-        }
-    </style>
-
     <div class="content-preview">
         <div class="widget widget-preview">
             <h1>Preview</h1>
@@ -360,85 +320,46 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
     // Make preview peekable.
     $(function() {
-        var PEEK_WIDTH = 150,
-                $win = $(window),
+        var $win = $(window),
                 $edit = $('.content-edit'),
                 $preview = $('.content-preview'),
                 $previewWidget = $preview.find('.widget-preview'),
                 $previewHeading = $preview.find('h1');
 
         $edit.css({
-            'margin-right': PEEK_WIDTH,
+            'margin-right': $preview.width(),
             'max-width': 1100
         });
 
-        $preview.addClass('loading');
+        $previewWidget.addClass('loading');
         $preview.show();
+
+        // Preview should be roughly the same width as the window.
+        $win.resize($.throttle(500, function() {
+            var offset = $edit.offset();
+
+            offset.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
+            $preview.css(offset);
+            $previewWidget.css('width', $win.outerWidth(true) - 30);
+        }));
+
         $win.resize();
 
         // Make the preview expand/collapse when the heading is clicked.
-        var oldPreviewWidth;
+        $previewHeading.click(function() {
+            var editLeft = $edit.offset().left;
 
-        $previewHeading.live('click', function() {
-            var editOffsetLeft = $edit.offset().left;
-            var bodyWidth = $(document.body).width();
-
-            if ($preview.is('.expanded')) {
-                $preview.removeClass('expanded');
-
-                $preview.animate({
-                    'left': editOffsetLeft + $edit.outerWidth() + 10
-                }, 300, 'easeOutBack');
-
-                $previewWidget.css({
-                    'width': oldPreviewWidth
-                });
+            if ($previewWidget.is('.widget-expanded')) {
+                $previewWidget.removeClass('widget-expanded');
+                $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
+                $preview.css('width', '');
 
             } else {
-                $preview.addClass('expanded');
-
-                $preview.animate({
-                    'left': editOffsetLeft + 30
-                }, 300, 'easeOutBack');
-
-                oldPreviewWidth = $preview.width();
-                $previewWidget.css({
-                    'width': bodyWidth
-                });
+                $previewWidget.addClass('widget-expanded');
+                $preview.animate({ 'left': editLeft + 30 }, 300, 'easeOutBack');
+                $preview.css('width', '100%');
             }
         });
-
-        // Make sure that the preview is correctly positioned and sized.
-        var resizePreview = $.throttle(500, function() {
-            var editOffset = $edit.offset();
-            var bodyWidth = $(document.body).width();
-
-            if ($preview.is('.expanded')) {
-                $preview.css({
-                    'left': editOffset.left + 30,
-                    'top': editOffset.top
-                });
-
-                oldPreviewWidth = $preview.width();
-                $preview.css({
-                    'width': bodyWidth
-                });
-
-            } else {
-                $preview.css({
-                    'left': editOffset.left + $edit.outerWidth() + 10,
-                    'top': editOffset.top
-                });
-
-                $preview.css({
-                    'width': oldPreviewWidth
-                });
-
-            }
-        });
-
-        resizePreview();
-        $win.resize(resizePreview);
 
         // Load the preview.
         var $previewForm = $('#<%= previewFormId %>');
@@ -457,7 +378,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             }
 
             oldFormData = newFormData;
-            $preview.addClass('loading');
+            $previewWidget.addClass('loading');
 
             // Get the correct JSON from the server.
             $.ajax({
@@ -502,7 +423,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     setHeightTimer = setInterval(setHeight, 100);
 
                     $previewTarget.load(function() {
-                        $preview.removeClass('loading');
+                        $previewWidget.removeClass('loading');
                         setHeight();
                         if (setHeightTimer) {
                             clearInterval(setHeightTimer);
