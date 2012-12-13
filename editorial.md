@@ -73,13 +73,15 @@ There are lots of options here, but for now, let’s focus on creating our first
 
 **Preview Content**
 
-Now we have our content in place, we can make sure it is looking ok by clicking ‘Preview’, located on the right hand side.
+Now we have our content in place, we can make sure it is looking ok by clicking ‘Preview’, located on the right hand side. If you are using the inline preview, click on the preview bar to slide out the live preview. 
 
-This provides a preview of our content positioned on the blog area of the site, and allows us to check and then make edits before the content goes live. *Note: Preview is available on content with an assigned Template*
+The preview feature provides a preview of our content positioned on our site, and allows us to check and then make edits before the content goes live. *Note: Preview is available on content with an assigned Template, and a URL*
+
+![](http://docs.brightspot.s3.amazonaws.com/preview_tool_inline.png)
 
 **URL**
 
-If everything is as it should be we can close our preview window. The URL is automatically generated, visible in the right rail widget.  The logic at play grabs the headline “Our Latest Blog Post” and creates a URL. Our current headline is too long for our desired URL, so we can select 'Manual' and add item, a simple URL 'demo-blog'. A slash is automatically added before the word demo.
+If everything is as it should be we can close our preview window, or slide out the preview tool. The URL is automatically generated, visible in the right rail widget.  The logic at play grabs the headline “Our Latest Blog Post” and creates a URL. Our current headline is too long for our desired URL, so we can select 'Manual' and add item, a simple URL 'demo-blog'. A slash is automatically added before the word demo.
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/change-url.png"/>
 
@@ -96,7 +98,7 @@ Also, notice the ‘Create Another’ button that appeared in the top green bar.
 **Saving as Draft**
 
 If you are not ready to publish, you have the option to 'Save as Draft', which saves a version for you to access later.
-<h2 id="finding-content"> </h2>
+<h2 id="images"> </h2>
 Our content is now published. Let’s return to the Dashboard by clicking the ‘Pages & Content’ tab.
 
 **Adding Images**
@@ -117,14 +119,25 @@ We can search for an image already in the CMS, or upload a new one. Click on it 
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/added-enhancement.png"/></a>
 
 
-Once an enhancement has been added, we can use the same menu to position it within our content. The green arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
+Once an enhancement has been added, we can use the same menu to position it within our content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
 
-Use the preview tool to view your newly added image in place. If it looks good, exit the preview and click publish.
+Use the preview tool to view your newly added image in place. If it looks good, click publish.
+
+**Editing Images**
+
+With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed.
+
+![](http://docs.brightspot.s3.amazonaws.com/advanced_image_editing.png)
+
+A new text overlay tool has also been added, allowing rich text to be added to any image and moved to where the editor desires. The text overlay is shown when a crop size has been selected for a given image.
+
+![](http://docs.brightspot.s3.amazonaws.com/text_overlay.png)
+
 
 
 ### Finding Content
 
-
+<h2 id="finding-content"> </h2>
 Once content has been published, we can use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page.
 
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/find-blog.png"/></a>
@@ -137,7 +150,7 @@ Start typing the name of your content, for us it's our new blog post “Our Late
 
 Our mock website homepage has three featured projects presented in a dynamic module. If we want to update this module, we have several options on how to locate it within the CMS.
 
-**1) Find the Module.**
+**1) Find the Module**
 
 Modules may exist as individual items, with only one instance on the entire website, or with multiple versions. For the homepage example there is only one instance of the Featured Projects Module. Using the search tool we can see it appear.
 
@@ -148,7 +161,7 @@ Clicking into the Module allows us to edit it. If we want to swap out the Indiew
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/dl-view.png"/></a>
 
 
-**2) Find the page.**
+**2) Find the page**
 
 Because there are often multiple versions of a module, on various pages, EG SlideShows, finding the required page, and then narrowing down the module is often a great way to locate content. Note, you can also filter by the type "Slideshow" and use a search term to find which instance of it you are looking for.
 
