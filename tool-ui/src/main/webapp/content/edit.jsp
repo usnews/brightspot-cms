@@ -142,8 +142,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             }
             %>
 
-            <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
-
             <div class="widget widget-content">
                 <h1><%
                     wp.write(state.isNew() ? "New " : "Edit ");
@@ -185,6 +183,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     <p><a class="action-back" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
                 <% } %>
 
+                <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
                 <% wp.include("/WEB-INF/objectForm.jsp", "object", editing); %>
             </div>
 
