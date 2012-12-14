@@ -240,6 +240,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 }
             }
             builder.append(">");
+            if (!"img".equalsIgnoreCase(tagName)) {
+                builder.append("</");
+                builder.append(tagName);
+                builder.append(">");
+            }
         }
         return builder.toString();
     }
