@@ -658,6 +658,7 @@ public class ToolPageContext extends WebPageContext {
             write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
         }
 
+        write("<script type=\"text/javascript\">(window.less = window.less || { }).env = 'production';</script>");
         write("<script src=\"", cmsResource("/script/less-1.3.1.min.js"), "\" type=\"text/javascript\"></script>");
 
         String extraCss = cmsTool.getExtraCss();
