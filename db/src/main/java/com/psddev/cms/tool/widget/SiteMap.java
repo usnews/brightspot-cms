@@ -123,13 +123,13 @@ public class SiteMap extends ToolPage {
 
                                 writer.start("tr");
 
-                                    writer.start("td").html(page.objectLabel(itemState.getType())).end();
+                                    writer.start("td").html(page.typeLabel2(item)).end();
 
                                     writer.start("td");
                                         writer.start("a",
                                                 "target", "_top",
                                                 "href", page.objectUrl("/content/edit.jsp", item));
-                                            writer.html(page.objectLabel(item));
+                                            writer.html(page.objectLabel2(item));
                                         writer.end();
                                     writer.end();
 

@@ -375,42 +375,51 @@ public class ToolPageContext extends WebPageContext {
         return url(returnUrl, parameters);
     }
 
-    /** Returns an HTML-escaped label, or the given {@code defaultLabel} if
-     *  one can't be found, for the type of the given {@code object}. */
-    public String typeLabel(Object object, String defaultLabel) {
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the type of the given {@code object}.
+     */
+    public String typeLabelOrDefault(Object object, String defaultLabel) {
         State state = State.getInstance(object);
+
         if (state != null) {
             ObjectType type = state.getType();
+
             if (type != null) {
                 return objectLabel(type);
             }
         }
-        return h(defaultLabel);
+
+        return defaultLabel;
     }
 
-    /** Returns an HTML-escaped label for the type of the given
-     *  {@code object}. */
-    public String typeLabel(Object object) {
-        return typeLabel(object, "Unknown Type");
+    /** Returns a label for the type of the given {@code object}. */
+    public String typeLabel2(Object object) {
+        return typeLabelOrDefault(object, "Unknown Type");
     }
 
-    /** Returns an HTML-escaped label, or the given {@code defaultLabel} if
-     *  one can't be found, for the given {@code object}. */
-    public String objectLabel(Object object, String defaultLabel) {
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the given {@code object}.
+     */
+    public String objectLabelOrDefault(Object object, String defaultLabel) {
         State state = State.getInstance(object);
+
         if (state != null) {
             String label = state.getLabel();
+
             if (ObjectUtils.to(UUID.class, label) == null) {
-                return h(label);
+                return label;
             }
         }
+
         return h(defaultLabel);
     }
 
-    /** Returns an HTML-escaped label for the given {@code object}. */
-    public String objectLabel(Object object) {
+    /** Returns a label for the given {@code object}. */
+    public String objectLabel2(Object object) {
         State state = State.getInstance(object);
-        return state != null ? h(state.getLabel()) : "Not Available";
+        return state != null ? state.getLabel() : "Not Available";
     }
 
     /** Returns a modifiable list of all the errors in this page. */
@@ -915,5 +924,58 @@ public class ToolPageContext extends WebPageContext {
     /** @see Content.Static#purge */
     public void purge(Object object) {
         Content.Static.purge(object, getSite(), getUser());
+    }
+
+    // --- Deprecated ---
+
+    /**
+     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
+     * one can't be found, for the type of the given {@code object}.
+     *
+     * @deprecated Use {@link #typeLabelOrDefault} and {@link #h} instead.
+     */
+    @Deprecated
+    public String typeLabel(Object object, String defaultLabel) {
+        return h(typeLabelOrDefault(object, defaultLabel));
+    }
+
+    /**
+     * Returns an HTML-escaped label for the type of the given
+     * {@code object}.
+     *
+     * @deprecated Use {@link #typeLabel2} and {@link #h} instead.
+     */
+    @Deprecated
+    public String typeLabel(Object object) {
+        return h(typeLabel2(object));
+    }
+
+    /**
+     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
+     * one can't be found, for the given {@code object}.
+     *
+     * @deprecated Use {@link #objectLabelOrDefault} and {@link #h} instead.
+     */
+    @Deprecated
+    public String objectLabel(Object object, String defaultLabel) {
+        State state = State.getInstance(object);
+        if (state != null) {
+            String label = state.getLabel();
+            if (ObjectUtils.to(UUID.class, label) == null) {
+                return h(label);
+            }
+        }
+        return h(defaultLabel);
+    }
+
+    /**
+     * Returns an HTML-escaped label for the given {@code object}.
+     *
+     * @deprecated Use {@link #objectLabel2} and {@link #h} instead.
+     */
+    @Deprecated
+    public String objectLabel(Object object) {
+        State state = State.getInstance(object);
+        return state != null ? h(state.getLabel()) : "Not Available";
     }
 }
