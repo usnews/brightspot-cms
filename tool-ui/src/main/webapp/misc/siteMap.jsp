@@ -107,7 +107,7 @@ if (selectedDirectory != null) {
             </ul>
         <% } %>
 
-        <table class="table-striped links">
+        <table class="table-striped links pageThumbnails">
             <tbody>
                 <%
                 int i = 0;
@@ -122,7 +122,9 @@ if (selectedDirectory != null) {
                             String prefix = selectedDirectory.getPath();
                             for (Directory.Path pathObject : itemState.as(Directory.ObjectModification.class).getPaths()) {
                                 String path = pathObject.getPath();
-                                wp.write("<li>");
+                                wp.write("<li data-preview-url=\"");
+                                wp.write(wp.h(path));
+                                wp.write("\">");
                                 wp.write(wp.h(path.startsWith(prefix) ? path.substring(prefix.length()) : path));
                                 wp.write("</li>");
                             }

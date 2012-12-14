@@ -105,6 +105,20 @@
     filter: alpha(opacity=@ieOpacity);
 }
 
+.transform(@transform) {
+    -ms-transform: @transform;
+    -moz-transform: @transform;
+    -webkit-transform: @transform;
+    transform: @transform;
+}
+
+.transform-origin(@origin) {
+    -ms-transform-origin: @origin;
+    -moz-transform-origin: @origin;
+    -webkit-transform-origin: @origin;
+    transform-origin: @origin;
+}
+
 .transition(@transition) {
     -webkit-transition: @transition;
     -moz-transition: @transition;
@@ -2154,6 +2168,38 @@ h1 select:focus {
 /* Main section heading name is larger so that it stands out a little. */
 .pageLayout-visual .main > .heading > .name {
     font-size: 200%;
+}
+
+// --- $.pageThumbnails ---
+
+.pageThumbnails-preview {
+    background-color: white;
+    border-color: @color-link;
+    border-style: solid;
+    border-width: 0 1px;
+    bottom: 0;
+    min-height: 480px;
+    overflow: hidden;
+    padding: 5px;
+    position: fixed;
+    top: 0;
+    width: 300px;
+    z-index: 5000;
+}
+
+.pageThumbnails-previewLink {
+    .icon-eye-open;
+}
+
+.pageThumbnails-previewFrame {
+    border-style: none;
+    height: 4800px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 1200px;
+    .transform(scale(0.25));
+    .transform-origin(0 0);
 }
 
 // --- $.popup ---

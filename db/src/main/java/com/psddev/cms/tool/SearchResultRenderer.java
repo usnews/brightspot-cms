@@ -112,7 +112,7 @@ public class SearchResultRenderer {
         }
 
         if (!items.isEmpty()) {
-            wp.write("<table class=\"links table-striped\"><tbody>");
+            wp.write("<table class=\"links table-striped pageThumbnails\"><tbody>");
             for (Object item : items) {
                 renderRow(item);
             }
@@ -145,10 +145,11 @@ public class SearchResultRenderer {
     }
 
     protected void renderRow(Object item) throws IOException {
-
         ToolPageContext wp = getToolPageContext();
         Search search = getSearch();
         HttpServletRequest request = wp.getRequest();
+        String permalink = State.getInstance(item).as(Directory.ObjectModification.class).getPermalink();
+
         wp.write("<tr>");
 
         if (search.getSort() == SearchSort.NEWEST) {
@@ -178,8 +179,10 @@ public class SearchResultRenderer {
         renderAfterItem(item);
         wp.write("</td>");
 
-        wp.write("<td>");
-        wp.write(wp.h(State.getInstance(item).as(Directory.ObjectModification.class).getPermalink()));
+        wp.write("<td data-preview-url=\"");
+        wp.write(wp.h(permalink));
+        wp.write("\">");
+        wp.write(wp.h(permalink));
         wp.write("</td>");
 
         if (search.getSort() == SearchSort.RELEVANT) {

@@ -699,6 +699,7 @@ public class ToolPageContext extends WebPageContext {
                 "/script/jquery.imageeditor.js",
                 "/script/jquery.objectid.js",
                 "/script/jquery.pagelayout.js",
+                "/script/jquery.pagethumbnails.js",
                 "/script/jquery.repeatable.js",
                 "/script/jquery.sortable.js",
                 "/script/jquery.toggleable.js",
@@ -716,6 +717,12 @@ public class ToolPageContext extends WebPageContext {
                 "/script/wysihtml5.min.js",
                 "/script/jquery.rte.js" }) {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
+        }
+
+        if (getCmsTool().isPageThumbnails()) {
+            write("<script type=\"text/javascript\">");
+            write("$(window.document).pageThumbnails('live', '.pageThumbnails');");
+            write("</script>");
         }
 
         for (String src : new String[] {

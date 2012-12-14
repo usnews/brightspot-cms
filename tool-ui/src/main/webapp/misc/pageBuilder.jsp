@@ -1,11 +1,13 @@
 <%@ page import="
 
+com.psddev.cms.db.Directory,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.Template,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectType,
-com.psddev.dari.db.Query
+com.psddev.dari.db.Query,
+com.psddev.dari.db.State
 " %><%
 
 // --- Logic ---
@@ -21,15 +23,23 @@ if (wp.requirePermission("area/dashboard")) {
 
 <h1 class="icon-file">Page Builder</h1>
 <h2>Create New</h2>
-<ul class="links">
+<ul class="links pageThumbnails">
 
-    <% for (Template template : Query.
+    <%
+    for (Template template : Query.
             from(Template.class).
             where(wp.siteItemsPredicate()).
             sortAscending("name").
-            select()) { %>
+            select()) {
+        State itemState = State.getInstance(Query.from(Object.class).where("cms.template.default = ?", template).first());
+        String itemPermalink = null;
 
-        <li>
+        if (itemState != null) {
+            itemPermalink = itemState.as(Directory.ObjectModification.class).getPermalink();
+        }
+        %>
+
+        <li data-preview-url="<%= wp.h(itemPermalink) %>">
             <% if (template.getContentTypes().size() == 1) { %>
                 <a href="<%= wp.url("/content/edit.jsp",
                         "templateId", template.getId())

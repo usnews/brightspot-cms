@@ -17,6 +17,7 @@ public class CmsTool extends Tool {
     private String extraJavaScript;
     private String defaultSiteUrl;
     private boolean previewPopup;
+    private boolean pageThumbnails;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
 
@@ -141,6 +142,14 @@ public class CmsTool extends Tool {
 
     public void setPreviewPopup(boolean previewPopup) {
         this.previewPopup = previewPopup;
+    }
+
+    public boolean isPageThumbnails() {
+        return pageThumbnails;
+    }
+
+    public void setPageThumbnails(boolean pageThumbnails) {
+        this.pageThumbnails = pageThumbnails;
     }
 
     public String getDefaultTextOverlayCss() {
