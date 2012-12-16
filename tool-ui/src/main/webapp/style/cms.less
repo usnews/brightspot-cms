@@ -1884,29 +1884,6 @@ h1 select:focus {
     }
 }
 
-.repeatableObjectId {
-    > ol,
-    > ul {
-        li.toBeRemoved {
-            .objectId-select {
-                background-color: #fdd;
-                color: @color-alert;
-                text-decoration: line-through;
-
-                &:before,
-                &:after {
-                    visibility: hidden !important;
-                }
-            }
-
-            .objectId-edit {
-                color: @color-alert;
-                text-decoration: line-through;
-            }
-        }
-    }
-}
-
 // --- $.pageLayout ---
 
 // Tabs for switching between different modes.
@@ -2493,9 +2470,31 @@ h1 select:focus {
                 }
             }
 
-            &.toBeRemoved > .removeButton {
-                .icon-plus-sign;
-                color: @color-link;
+            &.toBeRemoved {
+                > .removeButton {
+                    .icon-plus-sign;
+                    color: @color-link;
+                }
+
+                .objectId-select {
+                    background-color: #fdd;
+                    color: @color-alert;
+                    text-decoration: line-through;
+
+                    &:before,
+                    &:after {
+                        visibility: hidden !important;
+                    }
+
+                    img {
+                        .opacity(0.5);
+                    }
+                }
+
+                .objectId-edit {
+                    color: @color-alert;
+                    text-decoration: line-through;
+                }
             }
         }
     }
@@ -2508,12 +2507,63 @@ h1 select:focus {
             .link;
         }
     }
-}
 
-.repeatableObjectId > ol > li > input[type=text],
-.repeatableObjectId > ul > li > input[type=text],
-.repeatableObjectId > .addButtonContainer > input[type=text] {
-    padding-right: 20px;
+    &.repeatableObjectId-previewable {
+        > ol,
+        > ul {
+            list-style-type: none;
+            margin-left: 0;
+            overflow: hidden;
+
+            > li {
+                .box-sizing(border-box);
+                float: left;
+                max-width: 180px;
+                padding: 0 10px 10px 0;
+                position: relative;
+                width: 33%;
+
+                .objectId-select {
+                    display: block;
+                    height: 120px;
+                    margin-bottom: 5px;
+                    width: 100%;
+
+                    img {
+                        height: 100%;
+                    }
+                }
+
+                .objectId-edit {
+                    margin-left: 0;
+                }
+
+                .objectId-clear {
+                }
+            }
+        }
+
+        > ol {
+            counter-reset: item;
+
+            > li:before {
+                background-color: rgba(0, 0, 0, 0.7);
+                .border-bottom-right-radius(5px);
+                .border-top-left-radius(5px);
+                color: white;
+                counter-increment: item;
+                content: counter(item);
+                height: 20px;
+                left: 0;
+                line-height: 20px;
+                padding: 0 6px;
+                position: absolute;
+                text-align: center;
+                top: 0;
+                z-index: 1;
+            }
+        }
+    }
 }
 
 .repeatableText {

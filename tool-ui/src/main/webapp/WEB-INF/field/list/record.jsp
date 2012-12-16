@@ -115,18 +115,27 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 } else {
     Set<ObjectType> valueTypes = field.getTypes();
     String validTypeIds;
+    boolean previewable = false;
+
     if (ObjectUtils.isBlank(valueTypes)) {
         validTypeIds = "";
+
     } else {
         StringBuilder sb = new StringBuilder();
+
         for (ObjectType type : valueTypes) {
             sb.append(type.getId()).append(",");
+
+            if (!ObjectUtils.isBlank(type.getPreviewField())) {
+                previewable = true;
+            }
         }
+
         sb.setLength(sb.length() - 1);
         validTypeIds = sb.toString();
     }
     %>
-    <div class="smallInput repeatableObjectId">
+    <div class="smallInput repeatableObjectId<%= previewable ? " repeatableObjectId-previewable" : "" %>">
         <ol>
             <%
             if (fieldValue != null) {
