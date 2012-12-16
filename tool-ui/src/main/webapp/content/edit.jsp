@@ -163,7 +163,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
 
                     if (selected instanceof Page) {
-                        wp.write("<a href=\"");
+                        wp.write(": <a href=\"");
                         wp.write(wp.returnableUrl("/content/editableSections.jsp"));
                         wp.write("\" target=\"contentPageSections-");
                         wp.write(state.getId());
