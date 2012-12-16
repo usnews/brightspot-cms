@@ -127,7 +127,7 @@ public class SearchResultRenderer {
         String url = null;
         if (editor != null) {
             // 80px height
-            url = new ImageTag.Builder(image).setHeight(80).toUrl();
+            url = new ImageTag.Builder(image).setHeight(100).toUrl();
         }
         if (url == null) {
             url = image.getPublicUrl();
