@@ -146,7 +146,7 @@ $.plugin2('popup', {
             $marker.css('left', markerLeft < 5 ? 5 : markerLeft);
 
             // Make sure top is within bounds.
-            var top = event ? event.pageY : sourceOffset.top + $newSource.outerHeight() / 2;
+            var top = event ? event.pageY : sourceOffset.top + $newSource.outerHeight();
             if (top < 30) {
                 top = 30;
             }
