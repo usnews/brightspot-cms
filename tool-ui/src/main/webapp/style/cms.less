@@ -235,6 +235,11 @@
     white-space: pre-wrap;
 }
 
+.date {
+    width: 80px;
+    white-space: nowrap;
+}
+
 .em {
     font-style: italic;
 }
@@ -993,6 +998,12 @@ table.links.table-striped {
     }
 }
 
+.time {
+    text-align: right;
+    width: 55px;
+    white-space: nowrap;
+}
+
 .widget {
     background-color: @color-background;
     .border-radius(5px);
@@ -1253,11 +1264,6 @@ input[type=submit].link.delete {
 .inputContainer.focused > .label {
     background-color: @color-link-lighter;
 }
-
-table .date { text-align: right; width: 7em; }
-table .time { text-align: right; width: 5em; }
-
-.date, .time { white-space: nowrap; }
 
 input[type=text].expandable { min-width: 5em; }
 
