@@ -354,6 +354,7 @@ $doc.delegate('table.links tr', 'click', function(event) {
                         $file = $popup.find(':file');
 
                 $cover.hide();
+                $droppable.hide();
 
                 $popup.bind('close', function() {
                     $cover.trigger('dragleave');
