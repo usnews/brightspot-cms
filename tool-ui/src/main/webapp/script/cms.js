@@ -226,6 +226,150 @@ $doc.delegate('table.links tr', 'click', function(event) {
     }
 });
 
+// Handle file uploads from drag-and-drop.
+(function() {
+    var docEntered,
+            preventDefault,
+            $cover;
+
+    preventDefault = function(handler) {
+        return function() {
+            arguments[0].preventDefault();
+            handler.apply(this, arguments);
+            return false;
+        };
+    };
+
+    // Show drop zones when the user initiates a drag-and-drop from outside.
+    $doc.bind('dragenter', preventDefault(function() {
+        var $body;
+
+        if (docEntered) {
+            return;
+        }
+
+        docEntered = true;
+
+        // Cover is required to detect mouse leaving the window.
+        if (!$cover) {
+            $cover = $('<div/>', {
+                'class': 'upload-cover',
+                'css': {
+                    'left': 0,
+                    'height': '100%',
+                    'position': 'fixed',
+                    'top': 0,
+                    'width': '100%',
+                    'z-index': 1999999
+                }
+            });
+
+            $cover.bind('dragenter dragover', preventDefault(function() {
+            }));
+
+            $cover.bind('dragleave', function() {
+                docEntered = false;
+                $cover.hide();
+                $('.upload-action').hide();
+                $('.upload-droppable').hide();
+            });
+
+            // Don't do anything unless dropped in a valid zone.
+            $cover.bind('drop', preventDefault(function() {
+                $cover.trigger('dragleave');
+            }));
+        }
+
+        $body = $(doc.body);
+        $cover.show();
+        $body.append($cover);
+
+        // Valid file drop zones.
+        $('.inputContainer .action-upload').each(function() {
+            var $upload = $(this),
+                    $container = $upload.closest('.inputContainer'),
+                    overlayCss,
+                    $action = $.data(this, 'upload-$action'),
+                    $droppable = $.data(this, 'upload-$droppable'),
+                    droppableEntered;
+
+            overlayCss = $.extend($container.offset(), {
+                'height': $container.outerHeight(),
+                'position': 'absolute',
+                'width': $container.outerWidth()
+            });
+
+            if (!$action) {
+                $action = $('<div/>', {
+                    'class': 'upload-action',
+                    'css': overlayCss
+                });
+
+                $action.append($upload.clone().text("Drop Files Here"));
+                $body.append($action);
+                $.data(this, 'upload-$action', $action);
+            }
+
+            if (!$droppable) {
+                $droppable = $('<div/>', {
+                    'class': 'upload-droppable',
+                    'css': $.extend(overlayCss, {
+                        'z-index': 2000000
+                    })
+                });
+
+                $body.append($droppable);
+                $.data(this, 'upload-$droppable', $droppable);
+            }
+
+            $action.show();
+            $droppable.show();
+
+            // Show popup that handles the actual file upload.
+            $droppable.bind('dragenter', preventDefault(function() {
+                var $clone;
+
+                if (!droppableEntered) {
+                    droppableEntered = true;
+                    $clone = $action.find('a');
+                    $clone.click();
+                    $('.popup[name="' + $clone.attr('target') + '"]').popup('source', $upload);
+                }
+            }));
+
+            $droppable.bind('dragover', preventDefault(function() {
+            }));
+
+            // Hide popup that handles the actual file upload.
+            $droppable.bind('dragleave', function() {
+                if (droppableEntered) {
+                    droppableEntered = false;
+                    $('.popup[name="' + $action.find('a').attr('target') + '"]').popup('close');
+                }
+            });
+
+            // On file drop, copy the file to the appropriate input.
+            $droppable.bind('drop', preventDefault(function(event) {
+                var $popup = $('.popup[name="' + $action.find('a').attr('target') + '"]'),
+                        $file = $popup.find(':file');
+
+                $cover.hide();
+
+                $popup.bind('close', function() {
+                    $cover.trigger('dragleave');
+                });
+
+                if ($file.length > 0) {
+                    $file[0].files = event.originalEvent.dataTransfer.files;
+                    $file.change();
+                }
+
+                return false;
+            }));
+        });
+    }));
+})();
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });

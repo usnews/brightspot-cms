@@ -2506,7 +2506,14 @@ h1 select:focus {
         }
     }
 
+    > [class^="action-"],
+    > [class*=" action-"] {
+        float: left;
+        margin: 5px 10px 0 0;
+    }
+
     > .addButtonContainer {
+        float: left;
         margin-top: 5px;
 
         .addButton {
@@ -3137,6 +3144,7 @@ h1 select:focus {
 .action-share { .icon-share; }
 .action-switch { .icon-random; }
 .action-tools { .icon-wrench; }
+.action-upload { .icon-upload-alt; }
 
 // --- Bookmarklet ---
 
@@ -3203,5 +3211,29 @@ h1 select:focus {
         overflow: auto;
         padding: 4px;
         width: 100%;
+    }
+}
+
+.upload-action {
+    background-color: fade(@color-background, 80%);
+    text-align: center;
+    outline: 3px dashed @color-text;
+
+    a {
+        color: @color-text;
+        display: inline-block;
+        font-size: @fontSize-default * 2;
+        line-height: @lineHeight-default * 2;
+        left: 0;
+        margin-top: -@lineHeight-default;
+        position: absolute;
+        top: 50%;
+        width: 100%;
+
+        &:before {
+            font-size: @fontSize-icon * 2;
+            margin-right: 10px;
+            .opacity(1);
+        }
     }
 }
