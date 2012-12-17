@@ -103,6 +103,10 @@ $.plugin2('popup', {
     'source': function($newSource, event) {
         var options = this.option();
 
+        if (event && (typeof event.pageX !== 'number' || typeof event.pageY !== 'number')) {
+            event = undef;
+        }
+
         if (typeof $newSource === 'undefined') {
             var container = this.$caller.popup('container')[0];
             return container ? $.data(container, 'popup-$source') : null;
