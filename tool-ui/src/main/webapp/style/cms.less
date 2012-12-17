@@ -1195,12 +1195,6 @@ table {
     padding: 0;
     width: 100%;
 
-    &.table-striped {
-        > tbody > tr:nth-child(2n+1) {
-            background-color: @color-note-lighter;
-        }
-    }
-
     td,
     th {
         border-style: none;
@@ -1217,6 +1211,12 @@ table {
 
     tbody th {
         text-align: right;
+    }
+}
+
+.table-striped {
+    > tbody > tr:nth-child(2n+1) {
+        background-color: @color-note-lighter;
     }
 }
 
