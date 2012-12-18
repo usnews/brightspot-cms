@@ -3220,10 +3220,22 @@ h1 select:focus {
     }
 }
 
-.upload-action {
+.upload-fileInput {
+    overflow: hidden;
+
+    input[type=file] {
+        font-size: 5000px;
+        height: 100%;
+        .opacity(0);
+        width: 100%;
+    }
+}
+
+.upload-dropZone {
     background-color: fade(@color-background, 80%);
     text-align: center;
     outline: 3px dashed @color-text;
+    .user-select(none);
 
     a {
         color: @color-text;
@@ -3235,6 +3247,10 @@ h1 select:focus {
         position: absolute;
         top: 50%;
         width: 100%;
+
+        &:hover {
+            text-decoration: none;
+        }
 
         &:before {
             font-size: @fontSize-icon * 2;
