@@ -158,18 +158,18 @@ public class ScheduledEvents extends ToolPage {
 
             @Override
             public void display(ToolPageContext page, HtmlWriter writer, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
-                writer.start("table", "class", "calendar calendar-week").start("tbody");
+                writer.start("div", "class", "calendar calendar-week");
                     for (Map.Entry<DateTime, List<Schedule>> entry : schedulesByDate.entrySet()) {
                         DateTime date = entry.getKey();
                         List<Schedule> schedules = entry.getValue();
 
-                        writer.start("tr");
-                            writer.start("td", "class", "calendarDay" + (date.equals(new DateTime().toDateMidnight()) ? " calendarDay-today" : ""));
-                                writer.start("span", "class", "calendarDay-week").html(date.dayOfWeek().getAsShortText()).end();
-                                writer.start("span", "class", "calendarDay-month").html(date.dayOfMonth().get()).end();
+                        writer.start("div", "class", "calendarRow");
+                            writer.start("div", "class", "calendarDay" + (date.equals(new DateTime().toDateMidnight()) ? " calendarDay-today" : ""));
+                                writer.start("span", "class", "calendarDayOfWeek").html(date.dayOfWeek().getAsShortText()).end();
+                                writer.start("span", "class", "calendarDayOfMonth").html(date.dayOfMonth().get()).end();
                             writer.end();
 
-                            writer.start("td").start("table").start("tbody");
+                            writer.start("div", "class", "calendarCell").start("table", "class", "links table-striped").start("tbody");
                                 for (Schedule schedule : schedules) {
                                     DateTime triggerDate = new DateTime(schedule.getTriggerDate());
                                     List<Draft> drafts = Query.from(Draft.class).where("schedule = ?", schedule).selectAll();
@@ -198,7 +198,7 @@ public class ScheduledEvents extends ToolPage {
                             writer.end().end().end();
                         writer.end();
                     }
-                writer.end().end();
+                writer.end();
             }
         },
 

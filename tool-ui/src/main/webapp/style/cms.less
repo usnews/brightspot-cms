@@ -229,29 +229,48 @@
     padding: 10px;
 }
 
-.calendar.calendar-week {
-    .table-striped;
-}
+.calendar {
+    &.calendar-week {
+        .calendarRow {
+            @padding-cell: 5px;
+            @width-day: 38px;
 
-.calendarDay {
-    text-align: center;
-    width: 32px;
+            overflow: hidden;
 
-    &.calendarDay-today {
-        background-color: @color-text;
-        color: @color-background;
-    }
+            &:not(:first-child) {
+                border-top: 1px solid @color-note-lighter;
+                margin-top: @padding-cell;
+                padding-top: @padding-cell;
+            }
 
-    .calendarDay-week {
-        .small;
+            .calendarDay {
+                float: left;
+                margin-right: @padding-cell;
+                text-align: center;
+                width: @width-day;
 
-        display: block;
-        text-transform: uppercase;
-    }
+                &.calendarDay-today {
+                    background-color: @color-text;
+                    color: @color-background;
+                }
 
-    .calendarDay-month {
-        font-size: 22px;
-        line-height: 22px;
+                .calendarDayOfWeek {
+                    .small;
+
+                    display: block;
+                    text-transform: uppercase;
+                }
+
+                .calendarDayOfMonth {
+                    font-size: @width-day * 0.6;
+                    line-height: @width-day * 0.6;
+                }
+            }
+
+            .calendarCell {
+                margin-left: @width-day + @padding-cell;
+            }
+        }
     }
 }
 
