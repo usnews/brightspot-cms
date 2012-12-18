@@ -119,9 +119,13 @@ $.plugin2('frame', {
                     version = beginLoad($frame, $source, event),
                     extraFormData = $frame.attr('data-extra-form-data');
 
+            if (extraFormData) {
+                url += (url.indexOf('?') < 0 ? '?' : '&') + extraFormData;
+            }
+
             $.ajax({
                 'cache': false,
-                'url': url + (url.indexOf('?') < 0 ? '?' : '&') + extraFormData,
+                'url': url,
                 'complete': function(response) {
                     endLoad($frame, version, response.responseText);
                 }
