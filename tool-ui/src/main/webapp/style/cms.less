@@ -229,6 +229,32 @@
     padding: 10px;
 }
 
+.calendar.calendar-week {
+    .table-striped;
+}
+
+.calendarDay {
+    text-align: center;
+    width: 32px;
+
+    &.calendarDay-today {
+        background-color: @color-text;
+        color: @color-background;
+    }
+
+    .calendarDay-week {
+        .small;
+
+        display: block;
+        text-transform: uppercase;
+    }
+
+    .calendarDay-month {
+        font-size: 22px;
+        line-height: 22px;
+    }
+}
+
 .code {
     font-family: @fontFamily-code;
     font-size: 11px;
