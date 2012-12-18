@@ -727,7 +727,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                             overlay.append("%; position: absolute; top: ");
                             overlay.append(crop.getTextY() * 100);
                             overlay.append("%; width: ");
-                            overlay.append(crop.getTextWidth() * 100);
+                            overlay.append(crop.getTextWidth() != 0.0 ? crop.getTextWidth() * 100 : 100.0);
                             overlay.append("%;\">");
                             overlay.append(text);
                             overlay.append("</span>");
