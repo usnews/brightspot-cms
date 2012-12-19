@@ -180,20 +180,31 @@ public class ScheduledEvents extends ToolPage {
                                     }
 
                                     writer.start("tr");
-                                        writer.start("td", "class", "time");
-                                            writer.html(triggerDate.toString("hh:mm a"));
-                                        writer.end();
+                                        boolean first = true;
 
-                                        writer.start("td");
-                                            for (Draft draft : drafts) {
+                                        for (Draft draft : drafts) {
+                                            Object draftObject = draft.getObject();
+
+                                            writer.start("td", "class", "time");
+                                                if (first) {
+                                                    writer.html(triggerDate.toString("hh:mm a"));
+                                                    first = false;
+                                                }
+                                            writer.end();
+
+                                            writer.start("td");
+                                                writer.typeLabel(draftObject);
+                                            writer.end();
+
+                                            writer.start("td");
                                                 writer.start("a",
                                                         "href", page.objectUrl("/content/edit.jsp", draft),
                                                         "target", "_top");
-                                                    writer.objectLabel(draft.getObject());
+                                                    writer.objectLabel(draftObject);
                                                 writer.end();
                                                 writer.tag("br");
-                                            }
-                                        writer.end();
+                                            writer.end();
+                                        }
                                     writer.end();
                                 }
                             writer.end().end().end();

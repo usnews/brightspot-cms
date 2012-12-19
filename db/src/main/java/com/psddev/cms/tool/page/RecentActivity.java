@@ -136,6 +136,10 @@ public class RecentActivity extends ToolPage {
                         writer.end();
 
                         writer.start("td");
+                            writer.typeLabel(content);
+                        writer.end();
+
+                        writer.start("td");
                             writer.start("a",
                                     "href", page.objectUrl("/content/edit.jsp", content),
                                     "target", "_top");
