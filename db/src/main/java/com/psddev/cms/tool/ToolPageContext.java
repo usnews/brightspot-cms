@@ -881,15 +881,15 @@ public class ToolPageContext extends WebPageContext {
 
     // --- WebPageContext support ---
 
-    private ToolPageWriter toolPageWriter;
+    private PageWriter pageWriter;
 
     @Override
-    public ToolPageWriter getWriter() throws IOException {
-        if (toolPageWriter == null) {
-            toolPageWriter = new ToolPageWriter(super.getWriter());
+    public PageWriter getWriter() throws IOException {
+        if (pageWriter == null) {
+            pageWriter = new PageWriter(super.getWriter());
         }
 
-        return toolPageWriter;
+        return pageWriter;
     }
 
     // --- Deprecated ---
@@ -898,7 +898,7 @@ public class ToolPageContext extends WebPageContext {
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the type of the given {@code object}.
      *
-     * @deprecated Use {@link ToolPageWriter#typeLabelOrDefault} instead.
+     * @deprecated Use {@link PageWriter#typeLabelOrDefault} instead.
      */
     @Deprecated
     public String typeLabel(Object object, String defaultLabel) {
@@ -919,7 +919,7 @@ public class ToolPageContext extends WebPageContext {
      * Returns an HTML-escaped label for the type of the given
      * {@code object}.
      *
-     * @deprecated Use {@link ToolPageWriter#typeLabel} instead.
+     * @deprecated Use {@link PageWriter#typeLabel} instead.
      */
     @Deprecated
     public String typeLabel(Object object) {
@@ -930,7 +930,7 @@ public class ToolPageContext extends WebPageContext {
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the given {@code object}.
      *
-     * @deprecated Use {@link ToolPageWriter#objectLabelOrDefault} instead.
+     * @deprecated Use {@link PageWriter#objectLabelOrDefault} instead.
      */
     @Deprecated
     public String objectLabel(Object object, String defaultLabel) {
@@ -950,7 +950,7 @@ public class ToolPageContext extends WebPageContext {
     /**
      * Returns an HTML-escaped label for the given {@code object}.
      *
-     * @deprecated Use {@link ToolPageWriter#objectLabel} instead.
+     * @deprecated Use {@link PageWriter#objectLabel} instead.
      */
     @Deprecated
     public String objectLabel(Object object) {

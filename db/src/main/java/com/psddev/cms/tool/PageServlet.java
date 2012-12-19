@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public abstract class ToolPage extends HttpServlet {
+public abstract class PageServlet extends HttpServlet {
 
     protected abstract String getPermissionId();
 

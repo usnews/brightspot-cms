@@ -10,16 +10,16 @@ import org.joda.time.DateTime;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.tool.ToolPage;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.ToolPageWriter;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "/misc/recentActivity.jsp")
 @SuppressWarnings("serial")
-public class RecentActivity extends ToolPage {
+public class RecentActivity extends PageServlet {
 
     @Override
     protected String getPermissionId() {
@@ -28,7 +28,6 @@ public class RecentActivity extends ToolPage {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-
         DateTime date = new DateTime(page.param(Date.class, "date"));
         UUID userId = page.pageParam(UUID.class, "userId", null);
         long offset = page.param(long.class, "offset");
@@ -46,7 +45,7 @@ public class RecentActivity extends ToolPage {
         }
 
         PaginatedResult<Content> contents = contentQuery.select(offset, limit);
-        ToolPageWriter writer = page.getWriter();
+        PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-recentActivity");
 

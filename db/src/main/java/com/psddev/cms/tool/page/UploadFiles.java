@@ -1,8 +1,8 @@
 package com.psddev.cms.tool.page;
 
-import com.psddev.cms.tool.ToolPage;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -33,7 +33,7 @@ import org.apache.commons.fileupload.FileItem;
 
 @RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
 @SuppressWarnings("serial")
-public class UploadFiles extends ToolPage {
+public class UploadFiles extends PageServlet {
 
     @Override
     protected String getPermissionId() {
@@ -43,7 +43,7 @@ public class UploadFiles extends ToolPage {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
-        ToolPageWriter writer = page.getWriter();
+        PageWriter writer = page.getWriter();
         Exception postError = null;
 
         if (page.isFormPost()) {

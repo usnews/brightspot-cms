@@ -1,9 +1,9 @@
 package com.psddev.cms.tool.page;
 
 import com.psddev.cms.db.Directory;
-import com.psddev.cms.tool.ToolPage;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
@@ -18,7 +18,7 @@ import javax.servlet.ServletException;
 
 @RoutingFilter.Path(application = "cms", value = "/misc/siteMap.jsp")
 @SuppressWarnings("serial")
-public class SiteMap extends ToolPage {
+public class SiteMap extends PageServlet {
 
     @Override
     protected String getPermissionId() {
@@ -27,7 +27,6 @@ public class SiteMap extends ToolPage {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-
         Directory selected = Query.findById(Directory.class, page.pageParam(UUID.class, "directoryId", null));
 
         if (selected == null) {
@@ -45,7 +44,7 @@ public class SiteMap extends ToolPage {
                     select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 20));
         }
 
-        ToolPageWriter writer = page.getWriter();
+        PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget");
             writer.start("h1", "class", "icon-sitemap").html("Site Map").end();

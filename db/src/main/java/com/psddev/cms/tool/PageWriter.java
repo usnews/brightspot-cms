@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.UUID;
 
-public class ToolPageWriter extends HtmlWriter {
+public class PageWriter extends HtmlWriter {
 
-    public ToolPageWriter(Writer writer) {
+    public PageWriter(Writer writer) {
         super(writer);
     }
 

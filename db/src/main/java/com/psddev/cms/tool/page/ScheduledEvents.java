@@ -2,9 +2,9 @@ package com.psddev.cms.tool.page;
 
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Schedule;
-import com.psddev.cms.tool.ToolPage;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.RoutingFilter;
@@ -22,7 +22,7 @@ import org.joda.time.DateTime;
 
 @RoutingFilter.Path(application = "cms", value = "/misc/scheduledEvents.jsp")
 @SuppressWarnings("serial")
-public class ScheduledEvents extends ToolPage {
+public class ScheduledEvents extends PageServlet {
 
     @Override
     protected String getPermissionId() {
@@ -31,7 +31,6 @@ public class ScheduledEvents extends ToolPage {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
         DateTime date = new DateTime(page.param(Date.class, "date"));
         DateTime begin = mode.getBegin(date);
@@ -55,7 +54,7 @@ public class ScheduledEvents extends ToolPage {
             }
         }
 
-        ToolPageWriter writer = page.getWriter();
+        PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-scheduledEvents");
             writer.start("h1", "class", "icon-calendar");
@@ -157,7 +156,7 @@ public class ScheduledEvents extends ToolPage {
 
             @Override
             public void display(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
-                ToolPageWriter writer = page.getWriter();
+                PageWriter writer = page.getWriter();
 
                 writer.start("div", "class", "calendar calendar-week");
                     for (Map.Entry<DateTime, List<Schedule>> entry : schedulesByDate.entrySet()) {
