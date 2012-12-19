@@ -33,7 +33,7 @@ public class ScheduledEvents extends ToolPage {
     protected void doService(ToolPageContext page) throws IOException, ServletException {
 
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
-        DateTime date = new DateTime(page.pageParam(Date.class, "date", new Date()));
+        DateTime date = new DateTime(page.param(Date.class, "date"));
         DateTime begin = mode.getBegin(date);
         DateTime end = mode.getEnd(date);
         Map<DateTime, List<Schedule>> schedulesByDate = new TreeMap<DateTime, List<Schedule>>();
