@@ -113,16 +113,17 @@ public class RecentActivity extends PageServlet {
 
             writer.end();
 
-            writer.start("table", "class", "links table-striped").start("tbody");
+            writer.start("table", "class", "links table-striped pageThumbnails").start("tbody");
 
                 String lastDateString = null;
 
                 for (Content content : contents.getItems()) {
+                    String permalink = content.getPermalink();
                     DateTime updateDate = new DateTime(content.getUpdateDate());
                     ToolUser updateUser = content.getUpdateUser();
                     String dateString = updateDate.toString("E, MMM d, yyyy");
 
-                    writer.start("tr");
+                    writer.start("tr", "data-preview-url", permalink);
                         writer.start("td", "class", "date");
                             if (!dateString.equals(lastDateString)) {
                                 writer.html(dateString);

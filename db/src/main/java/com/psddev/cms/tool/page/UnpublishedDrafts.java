@@ -78,7 +78,7 @@ public class UnpublishedDrafts extends PageServlet {
                 writer.end();
             }
 
-            writer.start("table", "class", "links table-striped").start("tbody");
+            writer.start("table", "class", "links table-striped pageThumbnails").start("tbody");
                 for (Draft draft : drafts.getItems()) {
                     Object object = draft.getObject();
 
@@ -92,7 +92,7 @@ public class UnpublishedDrafts extends PageServlet {
                         continue;
                     }
 
-                    writer.start("tr");
+                    writer.start("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draft.getId());
                         writer.start("td");
                             DraftStatus status = draft.getStatus();
                             if (status != null) {

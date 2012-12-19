@@ -150,7 +150,9 @@ public class SearchResultRenderer {
         HttpServletRequest request = wp.getRequest();
         String permalink = State.getInstance(item).as(Directory.ObjectModification.class).getPermalink();
 
-        wp.write("<tr>");
+        wp.write("<tr data-preview-url=\"");
+        wp.write(wp.h(permalink));
+        wp.write("\">");
 
         if (search.getSort() == SearchSort.NEWEST) {
             Date updateDate = State.getInstance(item).as(Content.ObjectModification.class).getUpdateDate();
@@ -179,9 +181,7 @@ public class SearchResultRenderer {
         renderAfterItem(item);
         wp.write("</td>");
 
-        wp.write("<td data-preview-url=\"");
-        wp.write(wp.h(permalink));
-        wp.write("\">");
+        wp.write("<td>");
         wp.write(wp.h(permalink));
         wp.write("</td>");
 

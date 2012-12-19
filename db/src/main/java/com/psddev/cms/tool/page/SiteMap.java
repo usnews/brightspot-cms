@@ -119,7 +119,7 @@ public class SiteMap extends PageServlet {
                                     }
                                 }
 
-                                writer.start("tr");
+                                writer.start("tr", "data-preview-url", permalink);
 
                                     writer.start("td");
                                         writer.typeLabel(item);
@@ -137,7 +137,7 @@ public class SiteMap extends PageServlet {
                                         writer.start("td").end();
 
                                     } else {
-                                        writer.start("td", "data-preview-url", permalink);
+                                        writer.start("td");
                                             writer.html(permalink.substring(selectedPath.length()));
                                         writer.end();
                                     }

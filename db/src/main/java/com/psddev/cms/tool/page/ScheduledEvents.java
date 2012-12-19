@@ -169,7 +169,7 @@ public class ScheduledEvents extends PageServlet {
                                 writer.start("span", "class", "calendarDayOfMonth").html(date.dayOfMonth().get()).end();
                             writer.end();
 
-                            writer.start("div", "class", "calendarCell").start("table", "class", "links table-striped").start("tbody");
+                            writer.start("div", "class", "calendarCell").start("table", "class", "links table-striped pageThumbnails").start("tbody");
                                 for (Schedule schedule : schedules) {
                                     DateTime triggerDate = new DateTime(schedule.getTriggerDate());
                                     List<Draft> drafts = Query.from(Draft.class).where("schedule = ?", schedule).selectAll();
@@ -178,12 +178,12 @@ public class ScheduledEvents extends PageServlet {
                                         continue;
                                     }
 
-                                    writer.start("tr");
-                                        boolean first = true;
+                                    boolean first = true;
 
-                                        for (Draft draft : drafts) {
-                                            Object draftObject = draft.getObject();
+                                    for (Draft draft : drafts) {
+                                        Object draftObject = draft.getObject();
 
+                                        writer.start("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draft.getId());
                                             writer.start("td", "class", "time");
                                                 if (first) {
                                                     writer.html(triggerDate.toString("hh:mm a"));
@@ -201,10 +201,9 @@ public class ScheduledEvents extends PageServlet {
                                                         "target", "_top");
                                                     writer.objectLabel(draftObject);
                                                 writer.end();
-                                                writer.tag("br");
                                             writer.end();
-                                        }
-                                    writer.end();
+                                        writer.end();
+                                    }
                                 }
                             writer.end().end().end();
                         writer.end();

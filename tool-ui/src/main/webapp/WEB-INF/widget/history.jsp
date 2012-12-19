@@ -52,10 +52,10 @@ if (histories == null || histories.getCount() == 0) {
     </ul>
     <h2>Recent</h2>
 <% } %>
-<ul class="links">
+<ul class="links pageThumbnails">
     <% for (History history : histories.getItems()) { %>
         <li<%= history.equals(overlaidHistory) ? " class=\"selected\""
-                : "" %>><a href="<%= wp.objectUrl(null, history) %>"><%=
+                : "" %> data-preview-url="/_preview?_cms.db.previewId=<%= history.getId() %>"><a href="<%= wp.objectUrl(null, history) %>"><%=
                 history.getUpdateDate() %> by <%=
                 wp.objectLabel(history.getUpdateUser()) %></a></li>
     <% } %>
