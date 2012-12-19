@@ -1216,14 +1216,22 @@ public class PageFilter extends AbstractFilter {
                             }
                         }
 
-                        Preview preview = Query.findById(Preview.class, previewId);
-                        if (preview != null) {
-                            mainObject = preview.getObject();
+                        Object preview = Query.findById(Object.class, previewId);
+
+                        if (preview instanceof Draft) {
+                            mainObject = ((Draft) preview).getObject();
+
+                        } else if (preview instanceof History) {
+                            mainObject = ((History) preview).getObject();
+
+                        } else if (preview instanceof Preview) {
+                            mainObject = ((Preview) preview).getObject();
 
                         } else {
                             mainObject = substitutions.get(previewId);
+
                             if (mainObject == null) {
-                                mainObject = Query.findById(Object.class, previewId);
+                                mainObject = preview;
                             }
                         }
                     }
