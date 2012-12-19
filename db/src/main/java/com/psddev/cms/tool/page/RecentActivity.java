@@ -12,8 +12,8 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.ToolPage;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.ToolPageWriter;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 
@@ -27,10 +27,7 @@ public class RecentActivity extends ToolPage {
     }
 
     @Override
-    protected void doService(
-            ToolPageContext page,
-            HtmlWriter writer)
-            throws IOException, ServletException {
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
 
         DateTime date = new DateTime(page.param(Date.class, "date"));
         UUID userId = page.pageParam(UUID.class, "userId", null);
@@ -49,6 +46,7 @@ public class RecentActivity extends ToolPage {
         }
 
         PaginatedResult<Content> contents = contentQuery.select(offset, limit);
+        ToolPageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-recentActivity");
 
@@ -141,12 +139,12 @@ public class RecentActivity extends ToolPage {
                             writer.start("a",
                                     "href", page.objectUrl("/content/edit.jsp", content),
                                     "target", "_top");
-                                writer.html(page.objectLabel2(content));
+                                writer.objectLabel(content);
                             writer.end();
                         writer.end();
 
                         writer.start("td");
-                            writer.html(page.objectLabel2(updateUser));
+                            writer.objectLabel(updateUser);
                         writer.end();
                     writer.end();
                 }

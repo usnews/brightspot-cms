@@ -3,10 +3,10 @@ package com.psddev.cms.tool.page;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.tool.ToolPage;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
@@ -26,10 +26,7 @@ public class SiteMap extends ToolPage {
     }
 
     @Override
-    protected void doService(
-            ToolPageContext page,
-            HtmlWriter writer)
-            throws IOException, ServletException {
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
 
         Directory selected = Query.findById(Directory.class, page.pageParam(UUID.class, "directoryId", null));
 
@@ -47,6 +44,8 @@ public class SiteMap extends ToolPage {
                     sortAscending(Directory.PATHS_FIELD).
                     select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 20));
         }
+
+        ToolPageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget");
             writer.start("h1", "class", "icon-sitemap").html("Site Map").end();
@@ -123,13 +122,15 @@ public class SiteMap extends ToolPage {
 
                                 writer.start("tr");
 
-                                    writer.start("td").html(page.typeLabel2(item)).end();
+                                    writer.start("td");
+                                        writer.typeLabel(item);
+                                    writer.end();
 
                                     writer.start("td");
                                         writer.start("a",
                                                 "target", "_top",
                                                 "href", page.objectUrl("/content/edit.jsp", item));
-                                            writer.html(page.objectLabel2(item));
+                                            writer.objectLabel(item);
                                         writer.end();
                                     writer.end();
 

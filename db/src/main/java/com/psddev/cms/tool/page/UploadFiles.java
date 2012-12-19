@@ -2,6 +2,7 @@ package com.psddev.cms.tool.page;
 
 import com.psddev.cms.tool.ToolPage;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -10,7 +11,6 @@ import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ErrorUtils;
-import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.RoutingFilter;
@@ -41,12 +41,9 @@ public class UploadFiles extends ToolPage {
     }
 
     @Override
-    protected void doService(
-            ToolPageContext page,
-            HtmlWriter writer)
-            throws IOException, ServletException {
-
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+        ToolPageWriter writer = page.getWriter();
         Exception postError = null;
 
         if (page.isFormPost()) {

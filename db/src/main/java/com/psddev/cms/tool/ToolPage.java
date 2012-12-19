@@ -2,8 +2,6 @@ package com.psddev.cms.tool;
 
 import com.psddev.cms.tool.ToolPageContext;
 
-import com.psddev.dari.util.HtmlWriter;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -16,10 +14,7 @@ public abstract class ToolPage extends HttpServlet {
 
     protected abstract String getPermissionId();
 
-    protected abstract void doService(
-            ToolPageContext page,
-            HtmlWriter writer)
-            throws IOException, ServletException;
+    protected abstract void doService(ToolPageContext page) throws IOException, ServletException;
 
     @Override
     protected final void service(
@@ -33,6 +28,6 @@ public abstract class ToolPage extends HttpServlet {
             return;
         }
 
-        doService(page, new HtmlWriter(page.getWriter()));
+        doService(page);
     }
 }

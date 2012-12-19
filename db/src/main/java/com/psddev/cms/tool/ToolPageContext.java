@@ -375,53 +375,6 @@ public class ToolPageContext extends WebPageContext {
         return url(returnUrl, parameters);
     }
 
-    /**
-     * Returns a label, or the given {@code defaultLabel} if one can't be
-     * found, for the type of the given {@code object}.
-     */
-    public String typeLabelOrDefault(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            ObjectType type = state.getType();
-
-            if (type != null) {
-                return objectLabel(type);
-            }
-        }
-
-        return defaultLabel;
-    }
-
-    /** Returns a label for the type of the given {@code object}. */
-    public String typeLabel2(Object object) {
-        return typeLabelOrDefault(object, "Unknown Type");
-    }
-
-    /**
-     * Returns a label, or the given {@code defaultLabel} if one can't be
-     * found, for the given {@code object}.
-     */
-    public String objectLabelOrDefault(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            String label = state.getLabel();
-
-            if (ObjectUtils.to(UUID.class, label) == null) {
-                return label;
-            }
-        }
-
-        return h(defaultLabel);
-    }
-
-    /** Returns a label for the given {@code object}. */
-    public String objectLabel2(Object object) {
-        State state = State.getInstance(object);
-        return state != null ? state.getLabel() : "Not Available";
-    }
-
     /** Returns a modifiable list of all the errors in this page. */
     public List<Throwable> getErrors() {
         @SuppressWarnings("unchecked")
@@ -926,56 +879,83 @@ public class ToolPageContext extends WebPageContext {
         Content.Static.purge(object, getSite(), getUser());
     }
 
+    // --- WebPageContext support ---
+
+    private ToolPageWriter toolPageWriter;
+
+    @Override
+    public ToolPageWriter getWriter() throws IOException {
+        if (toolPageWriter == null) {
+            toolPageWriter = new ToolPageWriter(super.getWriter());
+        }
+
+        return toolPageWriter;
+    }
+
     // --- Deprecated ---
 
     /**
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the type of the given {@code object}.
      *
-     * @deprecated Use {@link #typeLabelOrDefault} and {@link #h} instead.
+     * @deprecated Use {@link ToolPageWriter#typeLabelOrDefault} instead.
      */
     @Deprecated
     public String typeLabel(Object object, String defaultLabel) {
-        return h(typeLabelOrDefault(object, defaultLabel));
+        State state = State.getInstance(object);
+
+        if (state != null) {
+            ObjectType type = state.getType();
+
+            if (type != null) {
+                return objectLabel(type);
+            }
+        }
+
+        return h(defaultLabel);
     }
 
     /**
      * Returns an HTML-escaped label for the type of the given
      * {@code object}.
      *
-     * @deprecated Use {@link #typeLabel2} and {@link #h} instead.
+     * @deprecated Use {@link ToolPageWriter#typeLabel} instead.
      */
     @Deprecated
     public String typeLabel(Object object) {
-        return h(typeLabel2(object));
+        return typeLabel(object, "Unknown Type");
     }
 
     /**
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the given {@code object}.
      *
-     * @deprecated Use {@link #objectLabelOrDefault} and {@link #h} instead.
+     * @deprecated Use {@link ToolPageWriter#objectLabelOrDefault} instead.
      */
     @Deprecated
     public String objectLabel(Object object, String defaultLabel) {
         State state = State.getInstance(object);
+
         if (state != null) {
             String label = state.getLabel();
+
             if (ObjectUtils.to(UUID.class, label) == null) {
                 return h(label);
             }
         }
+
         return h(defaultLabel);
     }
 
     /**
      * Returns an HTML-escaped label for the given {@code object}.
      *
-     * @deprecated Use {@link #objectLabel2} and {@link #h} instead.
+     * @deprecated Use {@link ToolPageWriter#objectLabel} instead.
      */
     @Deprecated
     public String objectLabel(Object object) {
         State state = State.getInstance(object);
+
         return state != null ? h(state.getLabel()) : "Not Available";
     }
 }

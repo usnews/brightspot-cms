@@ -4,9 +4,9 @@ import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.tool.ToolPage;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.ToolPageWriter;
 
 import com.psddev.dari.db.Query;
-import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.RoutingFilter;
 
 import java.io.IOException;
@@ -30,10 +30,7 @@ public class ScheduledEvents extends ToolPage {
     }
 
     @Override
-    protected void doService(
-            ToolPageContext page,
-            HtmlWriter writer)
-            throws IOException, ServletException {
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
 
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
         DateTime date = new DateTime(page.pageParam(Date.class, "date", new Date()));
@@ -57,6 +54,8 @@ public class ScheduledEvents extends ToolPage {
                 schedules.add(schedule);
             }
         }
+
+        ToolPageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-scheduledEvents");
             writer.start("h1", "class", "icon-calendar");
@@ -129,7 +128,7 @@ public class ScheduledEvents extends ToolPage {
 
             writer.end();
 
-            mode.display(page, writer, schedulesByDate);
+            mode.display(page, schedulesByDate);
         writer.end();
     }
 
@@ -157,7 +156,9 @@ public class ScheduledEvents extends ToolPage {
             }
 
             @Override
-            public void display(ToolPageContext page, HtmlWriter writer, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
+            public void display(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
+                ToolPageWriter writer = page.getWriter();
+
                 writer.start("div", "class", "calendar calendar-week");
                     for (Map.Entry<DateTime, List<Schedule>> entry : schedulesByDate.entrySet()) {
                         DateTime date = entry.getKey();
@@ -188,7 +189,7 @@ public class ScheduledEvents extends ToolPage {
                                                 writer.start("a",
                                                         "href", page.objectUrl("/content/edit.jsp", draft),
                                                         "target", "_top");
-                                                    writer.html(page.objectLabel2(draft.getObject()));
+                                                    writer.objectLabel(draft.getObject());
                                                 writer.end();
                                                 writer.tag("br");
                                             }
@@ -225,7 +226,7 @@ public class ScheduledEvents extends ToolPage {
             }
 
             @Override
-            public void display(ToolPageContext page, HtmlWriter writer, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
+            public void display(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
             }
         };
 
@@ -243,7 +244,7 @@ public class ScheduledEvents extends ToolPage {
 
         public abstract DateTime getNext(DateTime date);
 
-        public abstract void display(ToolPageContext page, HtmlWriter writer, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException;
+        public abstract void display(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException;
 
         @Override
         public String toString() {
