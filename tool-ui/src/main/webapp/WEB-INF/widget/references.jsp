@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.Directory,
 com.psddev.cms.tool.Widget,
 com.psddev.cms.tool.JspWidget,
 com.psddev.cms.tool.ToolPageContext,
@@ -54,8 +55,10 @@ if (!result.hasItems()) {
     <% } %>
 </ul>
 
-<ul class="links">
+<ul class="links pageThumbnails">
     <% for (Object item : result.getItems()) { %>
-        <li><a href="<%= wp.objectUrl("/content/edit.jsp", item) %>"><%= wp.typeLabel(item) %>: <%= wp.objectLabel(item) %></a></li>
+        <li data-preview-url="<%= wp.h(State.getInstance(item).as(Directory.ObjectModification.class).getPermalink()) %>">
+            <a href="<%= wp.objectUrl("/content/edit.jsp", item) %>"><%= wp.typeLabel(item) %>: <%= wp.objectLabel(item) %></a>
+        </li>
     <% } %>
 </ul>
