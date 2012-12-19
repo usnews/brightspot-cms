@@ -35,8 +35,8 @@ if (fieldValue == null) {
 }
 
 List<ObjectType> validTypes = new ArrayList<ObjectType>(field.findConcreteTypes());
-boolean isValueExternal = true;
-if (validTypes != null && validTypes.size() > 0) {
+boolean isValueExternal = !field.isEmbedded();
+if (isValueExternal && validTypes != null && validTypes.size() > 0) {
     isValueExternal = false;
     for (ObjectType type : validTypes) {
         if (!type.isEmbedded()) {
