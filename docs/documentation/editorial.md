@@ -15,6 +15,9 @@ The beauty of the platform is the manner in which it is tailored to suit each cl
 
 This editorial guide will walk through the basic publishing workflow, as well as the tools present in the CMS that make editorial tasks easier.
 
+<img src="http://docs.brightspot.s3.amazonaws.com/latest_dashboard.png"/>
+
+
 **Tool Hat**
 
 The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the [Bookmarklet tool](/brightspot-cms/editorial.html#cms-tools).
@@ -41,11 +44,18 @@ Create a whole new page using Page Builder. Select from a list of existing templ
 
 **Schedules** 
 
-Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. <h2 id="publishing"> </h2>
+Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. 
 
 **Drafts**
 
-All content that is not yet completed, but saved in a draft status, appears in the Drafts module. 
+All content that is not yet completed, but saved in a draft status, appears in the Drafts module.
+
+**Page Thunbnails**
+
+Hovering over any content on the dashboard that is an individual page allows you to see a quick inline preview of the page. This allows editors to get a visual idea of what they want to create or edit. Hovering over the eye preview symbol toggles the view.<h2 id="publishing"> </h2>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/page_thumbs.png"/>
+
 
 
 ### Publishing
@@ -53,12 +63,12 @@ All content that is not yet completed, but saved in a draft status, appears in t
 
 **Creating Content**
 
-For the following publisher tasks, we will be using a Demo Brightspot instance as an example. That example CMS powers a mock version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same items, but these examples should give you an understanding of how to carry out basic editorial tasks.
+For the following publisher tasks, we will be using a Demo Brightspot instance as an example. This example CMS powers a mock version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same items, but these examples should give you an understanding of how to carry out basic editorial tasks.
 
 
-We are going to start by creating a new a blog post, which will update the Blog Page. From the Dashboard we select ‘Blog Post’, found in the Page Builder section on the right. *(Note, Content that has an assigned Template will appear in the Page Builder section.)*
+We are going to start by creating a new a blog post, which will update the Blog Page. From the Dashboard we select ‘Blog Post’, found in the Page Builder section on the right. *(Note, Content that has an assigned Template will appear in the Page Builder section. Creating content from here results in a new page, with a dedicated URL)*
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/select-blog.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/select_blog_newdash.png"/></a>
 
 
 
