@@ -35,7 +35,7 @@ var $createToolbarCommand = function(label, command) {
     });
 };
 
-var createToolbar = function() {
+var createToolbar = function(inline) {
     var $container = $('<div/>', { 'class': 'rte-toolbar-container' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -64,27 +64,32 @@ var createToolbar = function() {
         });
     });
 
-    var $alignment = $createToolbarGroup('Alignment') ;
-    $toolbar.append($alignment);
+    if (!inline) {
+        var $alignment = $createToolbarGroup('Alignment') ;
+        $toolbar.append($alignment);
 
-    $alignment.append($createToolbarCommand('Justify Left', 'textAlign').attr('data-wysihtml5-command-value', 'left'));
-    $alignment.append($createToolbarCommand('Justify Center', 'textAlign').attr('data-wysihtml5-command-value', 'center'));
-    $alignment.append($createToolbarCommand('Justify Right', 'textAlign').attr('data-wysihtml5-command-value', 'right'));
+        $alignment.append($createToolbarCommand('Justify Left', 'textAlign').attr('data-wysihtml5-command-value', 'left'));
+        $alignment.append($createToolbarCommand('Justify Center', 'textAlign').attr('data-wysihtml5-command-value', 'center'));
+        $alignment.append($createToolbarCommand('Justify Right', 'textAlign').attr('data-wysihtml5-command-value', 'right'));
 
-    var $list = $createToolbarGroup('List');
-    $toolbar.append($list);
+        var $list = $createToolbarGroup('List');
+        $toolbar.append($list);
 
-    $list.append($createToolbarCommand('Unordered List', 'insertUnorderedList'));
-    $list.append($createToolbarCommand('Ordered List', 'insertOrderedList'));
-    $list.append($createToolbarCommand('Decrease Indent', 'outdent'));
-    $list.append($createToolbarCommand('Increase Insent', 'indent'));
+        $list.append($createToolbarCommand('Unordered List', 'insertUnorderedList'));
+        $list.append($createToolbarCommand('Ordered List', 'insertOrderedList'));
+        $list.append($createToolbarCommand('Decrease Indent', 'outdent'));
+        $list.append($createToolbarCommand('Increase Insent', 'indent'));
+    }
 
     var $enhancement = $createToolbarGroup('Enhancement');
     $toolbar.append($enhancement);
 
     $enhancement.append($createToolbarCommand('Link', 'createLink'));
-    $enhancement.append($createToolbarCommand('Add Enhancement', 'insertEnhancement'));
-    $enhancement.append($createToolbarCommand('Add Marker', 'insertMarker'));
+
+    if (!inline) {
+        $enhancement.append($createToolbarCommand('Add Enhancement', 'insertEnhancement'));
+        $enhancement.append($createToolbarCommand('Add Marker', 'insertMarker'));
+    }
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
@@ -204,7 +209,7 @@ var Rte = wysihtml5.Editor.extend({
 
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar();
+            config.toolbar = config.toolbar(config.useLineBreaks);
             container.appendChild(config.toolbar);
         }
 
@@ -356,7 +361,7 @@ var Rte = wysihtml5.Editor.extend({
         var composerIframe = composer.iframe;
         var composerIframeWindow = composerIframe.contentWindow;
 
-        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + 40);
+        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 2 : 40));
         $(composerIframeWindow).scrollTop(0);
 
         // Create enhancements based on the underlying placeholders.
@@ -532,7 +537,11 @@ $.plugin2('rte', {
     },
 
     '_create': function(element) {
-        new Rte(element, $.extend(true, { }, this.option()));
+        var options = $.extend(true, { }, this.option());
+
+        options.useLineBreaks = !!$(element).attr('data-use-line-breaks');
+
+        new Rte(element, options);
     },
 
     'enable': function() {

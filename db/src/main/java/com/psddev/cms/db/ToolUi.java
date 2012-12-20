@@ -35,6 +35,7 @@ public class ToolUi extends Modification<Object> {
     private String placeholder;
     private Boolean referenceable;
     private Boolean readOnly;
+    private boolean richText;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
 
@@ -124,6 +125,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public boolean isRichText() {
+        return richText;
+    }
+
+    public void setRichText(boolean richText) {
+        this.richText = richText;
     }
 
     public boolean isReferenceable() {
@@ -388,6 +397,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, Referenceable annotation) {
             type.as(ToolUi.class).setReferenceable(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should offer rich-text editing
+     * options.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(RichTextProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface RichText {
+        boolean value() default true;
+    }
+
+    private static class RichTextProcessor implements ObjectField.AnnotationProcessor<RichText> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, RichText annotation) {
+            field.as(ToolUi.class).setRichText(annotation.value());
         }
     }
 

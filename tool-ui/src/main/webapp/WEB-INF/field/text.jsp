@@ -71,7 +71,13 @@ if (validValues != null) {
         wp.write("\" data-suggested-maximum=\"", suggestedMaximum.intValue());
     }
     wp.write("\" name=\"", wp.h(inputName));
-    wp.write("\">");
+    wp.write("\"");
+
+    if (ui.isRichText()) {
+        wp.write(" class=\"richtext\" data-use-line-breaks=\"true\"");
+    }
+
+    wp.write(">");
     wp.write(wp.h(fieldValue));
     wp.write("</textarea>");
 }
