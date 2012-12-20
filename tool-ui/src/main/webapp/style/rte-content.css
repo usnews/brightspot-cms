@@ -42,6 +42,10 @@ body.imageEditor-textOverlayInput {
     word-wrap: normal;
 }
 
+body.placeholder {
+    color: #888;
+}
+
 em,
 i {
     font-style: italic;
