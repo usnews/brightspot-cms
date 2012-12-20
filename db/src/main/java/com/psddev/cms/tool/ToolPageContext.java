@@ -3,7 +3,10 @@ package com.psddev.cms.tool;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
+import com.psddev.cms.db.Page;
+import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
@@ -130,6 +133,26 @@ public class ToolPageContext extends WebPageContext {
         Query<T> query = Query.from(objectClass);
         query.setDatabase(getDatabase());
         return query;
+    }
+
+    /** Returns {@code true} is the given {@code object} is previewable. */
+    public boolean isPreviewable(Object object) {
+        if (object != null) {
+            if (object.getClass() == Page.class) {
+                return true;
+
+            } else {
+                State state = State.getInstance(object);
+                ObjectType type = state.getType();
+
+                if (type != null) {
+                    return Template.Static.findUsedTypes(getSite()).contains(type) ||
+                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getScript());
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

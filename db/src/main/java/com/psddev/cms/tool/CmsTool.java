@@ -1,5 +1,7 @@
 package com.psddev.cms.tool;
 
+import com.psddev.cms.db.Template;
+
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -20,6 +22,9 @@ public class CmsTool extends Tool {
     private boolean pageThumbnails;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
+
+    @Embedded
+    private Template modulePreviewTemplate;
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -169,6 +174,14 @@ public class CmsTool extends Tool {
 
     public void setTextCssClassGroups(List<CssClassGroup> textCssClassGroups) {
         this.textCssClassGroups = textCssClassGroups;
+    }
+
+    public Template getModulePreviewTemplate() {
+        return modulePreviewTemplate;
+    }
+
+    public void setModulePreviewTemplate(Template modulePreviewTemplate) {
+        this.modulePreviewTemplate = modulePreviewTemplate;
     }
 
     /** Returns the preview URL. */

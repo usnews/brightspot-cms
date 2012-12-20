@@ -1,7 +1,9 @@
 package com.psddev.cms.db;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.ToolFilter;
 
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
@@ -363,18 +365,26 @@ public class PageFilter extends AbstractFilter {
             Page page = Static.getPage(request);
 
             if (page == null) {
-                if (Settings.isProduction()) {
-                    chain.doFilter(request, response);
-                    return;
+                State state = State.getInstance(mainObject);
+                ObjectType type = state.getType();
+                String script = type.as(Renderer.TypeModification.class).getScript();
 
-                } else {
-                    State state = State.getInstance(mainObject);
+                if (!ObjectUtils.isBlank(script)) {
+                    page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
+                }
 
-                    throw new IllegalStateException(String.format(
-                            "No template for [%s] [%s]! (ID: %s)",
-                            mainObject.getClass().getName(),
-                            state.getLabel(),
-                            state.getId().toString().replaceAll("-", "")));
+                if (page == null) {
+                    if (Settings.isProduction()) {
+                        chain.doFilter(request, response);
+                        return;
+
+                    } else {
+                        throw new IllegalStateException(String.format(
+                                "No template for [%s] [%s]! (ID: %s)",
+                                mainObject.getClass().getName(),
+                                state.getLabel(),
+                                state.getId().toString().replaceAll("-", "")));
+                    }
                 }
             }
 
