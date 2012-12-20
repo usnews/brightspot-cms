@@ -361,9 +361,21 @@ public class PageFilter extends AbstractFilter {
             }
 
             Page page = Static.getPage(request);
+
             if (page == null) {
-                chain.doFilter(request, response);
-                return;
+                if (Settings.isProduction()) {
+                    chain.doFilter(request, response);
+                    return;
+
+                } else {
+                    State state = State.getInstance(mainObject);
+
+                    throw new IllegalStateException(String.format(
+                            "No template for [%s] [%s]! (ID: %s)",
+                            mainObject.getClass().getName(),
+                            state.getLabel(),
+                            state.getId().toString().replaceAll("-", "")));
+                }
             }
 
             // Set up a profile.
