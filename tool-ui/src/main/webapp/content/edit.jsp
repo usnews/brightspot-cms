@@ -286,7 +286,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             String modeId = wp.createId();
             %>
 
-            <ul class="widget-preview-controls">
+            <ul class="widget-preview_controls">
                 <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
@@ -295,23 +295,28 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         <button class="action-share">Share</button>
                     </form>
                 </li>
+                <li>
+                    <form
+                            id="<%= previewFormId %>"
+                            method="post"
+                            action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>"
+                            target="<%= previewTarget %>">
+                        <input type="hidden" id="<%= modeId %>" name="_" value="true">
+                        <label for="<%= wp.createId() %>">Mode:</label>
+                        <select id="<%= wp.getId() %>" onchange="
+                                var $select = $(this);
+                                $('#<%= modeId %>').attr('name', $select.val());
+                                $select.closest('form').submit();">
+                            <option value="_">Default</option>
+                            <option value="_prod">Production</option>
+                            <option value="_debug">Debug</option>
+                            <option value="_wireframe">Wireframe</option>
+                        </select>
+                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                    </form>
+                </li>
             </ul>
-
-            <form action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>" id="<%= previewFormId %>" method="post" target="<%= previewTarget %>" style="float: right; margin-top: 35px; margin-right: 45px;">
-                <input type="hidden" id="<%= modeId %>" name="_" value="true">
-                <label for="<%= wp.createId() %>">Mode:</label>
-                <select id="<%= wp.getId() %>" onchange="
-                        var $select = $(this);
-                        $('#<%= modeId %>').attr('name', $select.val());
-                        $select.closest('form').submit();">
-                    <option value="_">Default</option>
-                    <option value="_prod">Production</option>
-                    <option value="_debug">Debug</option>
-                    <option value="_wireframe">Wireframe</option>
-                </select>
-                <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-            </form>
         </div>
     </div>
 
@@ -335,11 +340,14 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
         // Preview should be roughly the same width as the window.
         $win.resize($.throttle(500, function() {
-            var offset = $edit.offset();
+            var css = $edit.offset(),
+                    winWidth = $win.width();
 
-            offset.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
-            $preview.css(offset);
-            $previewWidget.css('width', $win.outerWidth(true) - 30);
+            css.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
+            css['min-width'] = winWidth - css.left;
+
+            $preview.css(css);
+            $previewWidget.css('width', winWidth - 30);
         }));
 
         $win.resize();
@@ -402,7 +410,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                 'width': '100%'
                             }
                         });
-                        $previewForm.after($previewTarget);
+                        $previewWidget.append($previewTarget);
                     }
 
                     // Resize IFRAME so that there isn't a scrollbar.
