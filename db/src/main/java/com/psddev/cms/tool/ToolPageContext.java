@@ -705,12 +705,6 @@ public class ToolPageContext extends WebPageContext {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
         }
 
-        if (getCmsTool().isPageThumbnails()) {
-            write("<script type=\"text/javascript\">");
-            write("$(window.document).pageThumbnails('live', '.pageThumbnails');");
-            write("</script>");
-        }
-
         for (String src : new String[] {
                 "/script/cms.js" }) {
             write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");

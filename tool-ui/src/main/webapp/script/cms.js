@@ -26,6 +26,7 @@ $doc.frame({
 $doc.imageEditor('live', '.imageEditor');
 $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
+$doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
 $doc.toggleable('live', '.toggleable');
 
