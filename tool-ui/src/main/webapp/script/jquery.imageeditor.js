@@ -1,7 +1,8 @@
 /** Image editor. */
 (function($, win, undef) {
 
-var doc = win.document;
+var INPUT_NAMES = 'x y width height text textSize textX textY textWidth'.split(' '),
+        doc = win.document;
 
 $.plugin2('imageEditor', {
     '_create': function(element) {
@@ -228,6 +229,7 @@ $.plugin2('imageEditor', {
 
         var $sizes = $editor.find('.imageEditor-sizes table');
         var $sizeSelectors = $('<ul/>', { 'class': 'imageEditor-sizeSelectors' });
+        var $mainInputs = { };
 
         $sizes.find('th').each(function() {
             var $th = $(this);
@@ -237,16 +239,28 @@ $.plugin2('imageEditor', {
             var sizeHeight = parseFloat($tr.attr('data-size-height'));
             var sizeAspectRatio = sizeWidth / sizeHeight;
 
-            var $x = $tr.find(':input[name$=".x"]');
-            var $y = $tr.find(':input[name$=".y"]');
-            var $width = $tr.find(':input[name$=".width"]');
-            var $height = $tr.find(':input[name$=".height"]');
+            var $input = { };
 
-            var $text = $tr.find(':input[name$=".text"]');
-            var $textSize = $tr.find(':input[name$=".textSize"]');
-            var $textX = $tr.find(':input[name$=".textX"]');
-            var $textY = $tr.find(':input[name$=".textY"]');
-            var $textWidth = $tr.find(':input[name$=".textWidth"]');
+            $.each(INPUT_NAMES, function(index, name) {
+                $input[name] = $tr.find(':input[name$=".' + name + '"]');
+            });
+
+            var ratio = Math.floor(sizeAspectRatio * 100) / 100;
+            var $mainInput = $mainInputs['' + ratio];
+
+            if ($mainInput) {
+                $.each(INPUT_NAMES, function(index, name) {
+                    $mainInput[name] = $mainInput[name].add($input[name]);
+                });
+                return;
+
+            } else {
+                $mainInputs['' + (ratio - 0.02)] = $input;
+                $mainInputs['' + (ratio - 0.01)] = $input;
+                $mainInputs['' + ratio] = $input;
+                $mainInputs['' + (ratio + 0.01)] = $input;
+                $mainInputs['' + (ratio + 0.02)] = $input;
+            }
 
             var $sizeBox = $('<div/>', {
                 'class': 'imageEditor-sizeBox',
@@ -260,10 +274,10 @@ $.plugin2('imageEditor', {
                 var imageWidth = $image.width();
                 var imageHeight = $image.height();
 
-                var left = parseFloat($x.val()) || 0.0;
-                var top = parseFloat($y.val()) || 0.0;
-                var width = parseFloat($width.val()) || 0.0;
-                var height = parseFloat($height.val()) || 0.0;
+                var left = parseFloat($input.x.val()) || 0.0;
+                var top = parseFloat($input.y.val()) || 0.0;
+                var width = parseFloat($input.width.val()) || 0.0;
+                var height = parseFloat($input.height.val()) || 0.0;
 
                 if (width === 0.0 || height === 0.0) {
                     width = imageHeight * sizeAspectRatio;
@@ -323,11 +337,11 @@ $.plugin2('imageEditor', {
                     $textOverlay.show();
                     resizeTextOverlayFont();
 
-                    var textWidth = parseFloat($textWidth.val()) || 0.0;
+                    var textWidth = parseFloat($input.textWidth.val()) || 0.0;
 
                     if (textWidth !== 0.0) {
-                        var textX = parseFloat($textX.val()) || 0.0;
-                        var textY = parseFloat($textY.val()) || 0.0;
+                        var textX = parseFloat($input.textX.val()) || 0.0;
+                        var textY = parseFloat($input.textY.val()) || 0.0;
 
                         $textOverlay.css({
                             'left': (textX * 100) + '%',
@@ -457,10 +471,10 @@ $.plugin2('imageEditor', {
                         var sizeBoxWidth = $sizeBox.width();
                         var sizeBoxHeight = $sizeBox.height();
 
-                        $x.val(sizeBoxPosition.left / imageWidth);
-                        $y.val(sizeBoxPosition.top / imageHeight);
-                        $width.val(sizeBoxWidth / imageWidth);
-                        $height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
+                        $input.x.val(sizeBoxPosition.left / imageWidth);
+                        $input.y.val(sizeBoxPosition.top / imageHeight);
+                        $input.width.val(sizeBoxWidth / imageWidth);
+                        $input.height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
 
                         updatePreview();
                         resizeTextOverlayFont();
@@ -543,14 +557,16 @@ $.plugin2('imageEditor', {
 
             var originalFontSize;
             var resizeTextOverlayFont = function() {
-                var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body);
+                var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body),
+                        textSize;
 
                 if (!originalFontSize) {
                     originalFontSize = parseFloat($body.css('font-size'));
                 }
 
-                $textSize.val(originalFontSize);
-                $body.css('font-size', $sizeBox.height() / sizeHeight * originalFontSize);
+                textSize = 1 / sizeHeight * originalFontSize;
+                $input.textSize.val(textSize);
+                $body.css('font-size', $sizeBox.height() * textSize);
             };
 
             var updateTextOverlay = function(callback) {
@@ -598,10 +614,10 @@ $.plugin2('imageEditor', {
                         var textOverlayWidth = $textOverlay.width();
                         var textOverlayHeight = $textOverlay.height();
 
-                        $text.val($textOverlayInput.val());
-                        $textX.val(textOverlayPosition.left / sizeBoxWidth);
-                        $textY.val(textOverlayPosition.top / sizeBoxHeight);
-                        $textWidth.val(textOverlayWidth / sizeBoxWidth);
+                        $input.text.val($textOverlayInput.val());
+                        $input.textX.val(textOverlayPosition.left / sizeBoxWidth);
+                        $input.textY.val(textOverlayPosition.top / sizeBoxHeight);
+                        $input.textWidth.val(textOverlayWidth / sizeBoxWidth);
                     });
 
                     return false;
@@ -640,7 +656,7 @@ $.plugin2('imageEditor', {
             var $textOverlayInput = $('<input/>', {
                 'class': 'imageEditor-textOverlayInput',
                 'type': 'text',
-                'value': $text.val()
+                'value': $input.text.val()
             });
 
             $textOverlay.append($textOverlayInput);
@@ -649,7 +665,7 @@ $.plugin2('imageEditor', {
             });
 
             $form.submit(function() {
-                $text.val($textOverlayInput.val());
+                $input.text.val($textOverlayInput.val());
             });
         });
 
