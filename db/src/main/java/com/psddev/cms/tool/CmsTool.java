@@ -18,7 +18,6 @@ public class CmsTool extends Tool {
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
-    private boolean previewPopup;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
 
@@ -138,14 +137,6 @@ public class CmsTool extends Tool {
     /** Sets the default site URL. */
     public void setDefaultSiteUrl(String url) {
         this.defaultSiteUrl = url;
-    }
-
-    public boolean isPreviewPopup() {
-        return previewPopup;
-    }
-
-    public void setPreviewPopup(boolean previewPopup) {
-        this.previewPopup = previewPopup;
     }
 
     public String getDefaultTextOverlayCss() {

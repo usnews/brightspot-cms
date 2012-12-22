@@ -262,16 +262,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
                         <li><button class="action-draft" name="action" value="Save Draft">Save Draft</button></li>
                     <% } %>
-                    <% if (wp.getCmsTool().isPreviewPopup() && wp.isPreviewable(selected)) { %>
-                        <li><a class="action-preview" href="<%= wp.objectUrl("/content/preview.jsp", selected) %>" target="contentPreview-<%= state.getId() %>">Preview</a></li>
-                    <% } %>
                 </ul>
             </div>
         </div>
     </form>
 </div>
 
-<% if (!wp.getCmsTool().isPreviewPopup() && wp.isPreviewable(selected)) { %>
+<% if (wp.isPreviewable(selected)) { %>
     <div class="content-preview">
         <div class="widget widget-preview">
             <h1>Preview</h1>
@@ -317,132 +314,215 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
     </div>
 
     <script type="text/javascript">
+        (function($, win, undef) {
+            var $win = $(window),
 
-    // Make preview peekable.
-    $(function() {
-        var $win = $(window),
-                $edit = $('.content-edit'),
-                $preview = $('.content-preview'),
-                $previewWidget = $preview.find('.widget-preview'),
-                $previewHeading = $preview.find('h1');
+                    $edit = $('.content-edit'),
+                    oldEditStyle = $edit.attr('style') || '',
+                    $extraActions = $('.widget-publication .extraActions'),
+                    $previewAction,
+                    appendPreviewAction,
+                    removePreviewAction,
 
-        $previewWidget.addClass('loading');
-        $preview.show();
+                    $preview = $('.content-preview'),
+                    $previewWidget = $preview.find('.widget-preview'),
+                    $previewHeading = $preview.find('h1'),
+                    showPreview,
+                    previewEventsBound,
+                    hidePreview;
 
-        $edit.css({
-            'margin-right': $preview.outerWidth(true),
-            'max-width': 1100
-        });
+            // Append a link for activating the preview.
+            appendPreviewAction = function() {
+                $previewAction = $('<li/>', {
+                    'html': $('<a/>', {
+                        'class': 'action-preview',
+                        'href': '#',
+                        'text': 'Preview',
+                        'click': function() {
+                            removePreviewAction();
+                            showPreview();
+                            $previewHeading.click();
 
-        // Preview should be roughly the same width as the window.
-        $win.resize($.throttle(500, function() {
-            var css = $edit.offset(),
-                    winWidth = $win.width();
+                            $.ajax({
+                                'type': 'post',
+                                'url': CONTEXT_PATH + '/misc/updateUserSettings',
+                                'data': 'action=liveContentPreview-enable'
+                            });
 
-            css.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
-            css['min-width'] = winWidth - css.left;
-
-            $preview.css(css);
-            $previewWidget.css('width', winWidth - 30);
-        }));
-
-        $win.resize();
-
-        // Make the preview expand/collapse when the heading is clicked.
-        $previewHeading.click(function() {
-            var editLeft = $edit.offset().left;
-
-            if ($previewWidget.is('.widget-expanded')) {
-                $previewWidget.removeClass('widget-expanded');
-                $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
-                $preview.css('width', '');
-
-            } else {
-                $previewWidget.addClass('widget-expanded');
-                $preview.animate({ 'left': editLeft + 30 }, 300, 'easeOutBack');
-                $preview.css('width', '100%');
-            }
-        });
-
-        // Load the preview.
-        var $previewForm = $('#<%= previewFormId %>');
-        var $contentForm = $('.contentForm');
-        var action = location.href;
-        var questionAt = action.indexOf('?');
-        var oldFormData;
-
-        var loadPreview = $.throttle(2000, function() {
-            var newFormData = $contentForm.serialize();
-
-            // If the form inputs haven't changed, try again later.
-            if (oldFormData === newFormData) {
-                setTimeout(loadPreview, 100);
-                return;
-            }
-
-            oldFormData = newFormData;
-            $previewWidget.addClass('loading');
-
-            // Get the correct JSON from the server.
-            $.ajax({
-                'data': newFormData,
-                'type': 'post',
-                'url': CONTEXT_PATH + 'content/state.jsp?id=<%= state.getId() %>&' + (questionAt > -1 ? action.substring(questionAt + 1) : ''),
-                'complete': function(request) {
-
-                    // Make sure that the preview IFRAME exists.
-                    $(':input[name=<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>]').val(request.responseText);
-                    var $previewTarget = $('iframe[name=<%= previewTarget %>]');
-
-                    if ($previewTarget.length === 0) {
-                        $previewTarget = $('<iframe/>', {
-                            'name': '<%= previewTarget %>',
-                            'css': {
-                                'border-style': 'none',
-                                'height': '1000px',
-                                'margin': 0,
-                                'overflow': 'hidden',
-                                'padding': 0,
-                                'width': '100%'
-                            }
-                        });
-                        $previewWidget.append($previewTarget);
-                    }
-
-                    // Resize IFRAME so that there isn't a scrollbar.
-                    var setHeightTimer;
-                    var setHeight = function() {
-                        if ($previewTarget[0]) {
-                            var $body = $($previewTarget[0].contentWindow.document.body);
-                            $body.css('overflow', 'hidden');
-                            $previewTarget.height(Math.max($edit.outerHeight(true), $body.outerHeight(true)));
-
-                        } else if (setHeightTimer) {
-                            clearInterval(setHeightTimer);
-                            setHeightTimer = null;
+                            return false;
                         }
-                    };
+                    })
+                });
 
-                    setHeightTimer = setInterval(setHeight, 100);
+                $extraActions.append($previewAction);
+            };
 
-                    $previewTarget.load(function() {
-                        $previewWidget.removeClass('loading');
-                        setHeight();
-                        if (setHeightTimer) {
-                            clearInterval(setHeightTimer);
-                            setHeightTimer = null;
+            removePreviewAction = function() {
+                $previewAction.remove();
+                $previewAction = null;
+            };
+
+            // Show a peekable preview widget.
+            showPreview = function() {
+                var $previewForm = $('#<%= previewFormId %>'),
+                        $contentForm = $('.contentForm'),
+                        action = win.location.href,
+                        questionAt = action.indexOf('?'),
+                        oldFormData,
+                        loadPreview;
+
+                $previewWidget.addClass('widget-loading');
+                $preview.show();
+
+                $edit.css({
+                    'margin-right': $preview.outerWidth(true),
+                    'max-width': 1100
+                });
+
+                if (!previewEventsBound) {
+                    $preview.append($('<span/>', {
+                        'class': 'content-preview_close',
+                        'text': 'Close',
+                        'click': function() {
+                            hidePreview();
+                            return false;
+                        }
+                    }));
+
+                    // Preview should be roughly the same width as the window.
+                    $win.resize($.throttle(500, function() {
+                        var css = $edit.offset(),
+                                winWidth = $win.width();
+
+                        css.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
+                        css['min-width'] = winWidth - css.left;
+
+                        $preview.css(css);
+                        $previewWidget.css('width', winWidth - 30);
+                    }));
+
+                    // Make the preview expand/collapse when the heading is clicked.
+                    $previewHeading.click(function() {
+                        var editLeft = $edit.offset().left;
+
+                        if ($previewWidget.is('.widget-expanded')) {
+                            $previewWidget.removeClass('widget-expanded');
+                            $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
+                            $preview.css('width', '');
+
+                        } else {
+                            $previewWidget.addClass('widget-expanded');
+                            $preview.animate({ 'left': editLeft + 30 }, 300, 'easeOutBack');
+                            $preview.css('width', '100%');
                         }
                     });
 
-                    // Really load the preview.
-                    $previewForm.submit();
-                    setTimeout(loadPreview, 100);
+                    previewEventsBound = true;
                 }
-            });
-        });
 
-        loadPreview();
-    });
+                $win.resize();
+
+                // Load the preview.
+                loadPreview = $.throttle(2000, function() {
+                    var newFormData = $contentForm.serialize();
+
+                    // If the form inputs haven't changed, try again later.
+                    if (oldFormData === newFormData) {
+                        setTimeout(loadPreview, 100);
+                        return;
+                    }
+
+                    oldFormData = newFormData;
+                    $previewWidget.addClass('widget-loading');
+
+                    // Get the correct JSON from the server.
+                    $.ajax({
+                        'data': newFormData,
+                        'type': 'post',
+                        'url': CONTEXT_PATH + 'content/state.jsp?id=<%= state.getId() %>&' + (questionAt > -1 ? action.substring(questionAt + 1) : ''),
+                        'complete': function(request) {
+                            var $previewTarget,
+                                    setHeightTimer,
+                                    setHeight;
+
+                            // Make sure that the preview IFRAME exists.
+                            $(':input[name=<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>]').val(request.responseText);
+                            $previewTarget = $('iframe[name=<%= previewTarget %>]');
+
+                            if ($previewTarget.length === 0) {
+                                $previewTarget = $('<iframe/>', {
+                                    'name': '<%= previewTarget %>',
+                                    'css': {
+                                        'border-style': 'none',
+                                        'height': '1000px',
+                                        'margin': 0,
+                                        'overflow': 'hidden',
+                                        'padding': 0,
+                                        'width': '100%'
+                                    }
+                                });
+                                $previewWidget.append($previewTarget);
+                            }
+
+                            // Resize IFRAME so that there isn't a scrollbar.
+                            setHeight = function() {
+                                var $body;
+
+                                if ($previewTarget[0]) {
+                                    $body = $($previewTarget[0].contentWindow.document.body);
+                                    $body.css('overflow', 'hidden');
+                                    $previewTarget.height(Math.max($edit.outerHeight(true), $body.outerHeight(true)));
+
+                                } else if (setHeightTimer) {
+                                    clearInterval(setHeightTimer);
+                                    setHeightTimer = null;
+                                }
+                            };
+
+                            setHeightTimer = setInterval(setHeight, 100);
+
+                            $previewTarget.load(function() {
+                                $previewWidget.removeClass('widget-loading');
+                                setHeight();
+                                if (setHeightTimer) {
+                                    clearInterval(setHeightTimer);
+                                    setHeightTimer = null;
+                                }
+                            });
+
+                            // Really load the preview.
+                            $previewForm.submit();
+                            setTimeout(loadPreview, 100);
+                        }
+                    });
+                });
+
+                loadPreview();
+            };
+
+            hidePreview = function() {
+                if ($previewWidget.is('.widget-expanded')) {
+                    $previewHeading.click();
+                }
+
+                $edit.attr('style', oldEditStyle);
+                appendPreviewAction();
+                $preview.hide();
+                $win.resize();
+
+                $.ajax({
+                    'type': 'post',
+                    'url': CONTEXT_PATH + '/misc/updateUserSettings',
+                    'data': 'action=liveContentPreview-disable'
+                });
+            };
+
+            <% if (Boolean.TRUE.equals(wp.getUser().getState().get("liveContentPreview"))) { %>
+                showPreview();
+            <% } else { %>
+                appendPreviewAction();
+            <% } %>
+        })(jQuery, window);
     </script>
 <% } %>
 

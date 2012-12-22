@@ -3104,6 +3104,17 @@ h1 select:focus {
     }
 }
 
+.content-preview_close {
+    .icon-remove-sign;
+    .icon-only;
+
+    color: @color-note;
+    cursor: pointer;
+    position: fixed;
+    right: 20px;
+    top: 87px;
+}
+
 // --- Widgets ---
 
 .widget-content h1 { .icon-file; }
@@ -3131,18 +3142,12 @@ h1 select:focus {
         .link;
     }
 
-    &.loading > h1:before {
-        content: url(../style/icon/ajax-loader.gif);
-    }
+    &.widget-loading {
+        min-height: 1000px;
 
-    &.widget-expanded:before {
-        content: '\00bb';
-        font-size: 25px;
-        line-height: 1;
-        margin-top: -8px;
-        position: fixed;
-        right: 20px;
-        z-index: 1;
+        > h1:before {
+            content: url(../style/icon/ajax-loader.gif);
+        }
     }
 
     iframe {
