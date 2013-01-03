@@ -568,6 +568,7 @@
     margin-bottom: 6px;
     min-height: 30px;
     overflow: hidden;
+    position: relative;
 
     .message {
         margin-bottom: 5px;
@@ -3382,13 +3383,16 @@ h1 select:focus {
 }
 
 .fieldPreview-enabled {
-    &, & * {
-        cursor: pointer;
-        .user-select(none);
-    }
+    .label {
+        &,
+        & * {
+            cursor: pointer;
+            .user-select(none);
+        }
 
-    &:hover {
-        background-color: @color-link-lighter;
+        &:hover {
+            background-color: @color-link-lighter;
+        }
     }
 }
 
@@ -3398,4 +3402,31 @@ h1 select:focus {
     height: 20px;
     width: 20px;
     z-index: 10;
+}
+
+.fieldPreview-toggle {
+    .icon-question-sign;
+    .icon-only;
+    .link;
+
+    color: @color-text;
+    display: none;
+    .opacity(0.5);
+    padding: 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &:hover {
+        .opacity(1);
+    }
+
+    .inputContainer:hover & {
+        display: block;
+    }
+
+    .inputContainer.fieldPreview-displaying & {
+        display: block;
+        .opacity(1);
+    }
 }

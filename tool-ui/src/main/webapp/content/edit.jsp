@@ -336,8 +336,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     previewEventsBound,
                     hidePreview,
 
-                    $labels = $edit.find('.inputContainer .label'),
-                    labelHue = Math.random(),
+                    getUniqueColor,
+                    fieldHue = Math.random(),
                     GOLDEN_RATIO = 0.618033988749895;
 
             // Append a link for activating the preview.
@@ -407,7 +407,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         css['min-width'] = winWidth - css.left;
 
                         $preview.css(css);
-                        console.log(winWidth);
                         $previewWidget.css('width', winWidth - PEEK_WIDTH);
                     }));
 
@@ -415,19 +414,19 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     $previewHeading.click(function() {
                         var editLeft = $edit.offset().left;
 
+                        $edit.find('.inputContainer').trigger('fieldPreview-disable');
+
                         if ($previewWidget.is('.widget-expanded')) {
                             $previewWidget.removeClass('widget-expanded');
                             $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
                             $preview.css('width', '');
-
-                            $labels.trigger('fieldPreview-disable');
 
                         } else {
                             $previewWidget.addClass('widget-expanded');
                             $preview.animate({ 'left': editLeft + PEEK_WIDTH }, 300, 'easeOutBack');
                             $preview.css('width', $win.width() - PEEK_WIDTH - 30);
 
-                            $labels.trigger('fieldPreview-enable');
+                            $edit.find('.inputContainer').trigger('fieldPreview-enable');
                         }
                     });
 
@@ -538,20 +537,60 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% } %>
 
             // Per-field preview.
-            $labels.bind('fieldPreview-enable', function() {
+            getUniqueColor = function($container) {
+                var color = $.data($container[0], 'fieldPreview-color');
+
+                if (!color) {
+                    fieldHue += GOLDEN_RATIO;
+                    fieldHue %= 1.0;
+                    color = 'hsl(' + (fieldHue * 360) + ', 50%, 50%)';
+                    $.data($container[0], 'fieldPreview-color', color);
+                }
+
+                return color;
+            };
+
+            $edit.delegate('.inputContainer', 'mouseenter', function() {
+                var $container = $(this),
+                        $toggle = $.data($container[0], 'fieldPreview-$toggle');
+
+                if ($preview.is(':visible')) {
+                    if (!$toggle) {
+                        $toggle = $('<span/>', {
+                            'class': 'fieldPreview-toggle'
+                        });
+
+                        $.data($container[0], 'fieldPreview-$toggle', $toggle);
+                        $container.append($toggle);
+                    }
+
+                } else if ($toggle) {
+                    $toggle.remove();
+                }
+            });
+
+            $edit.delegate('.inputContainer .fieldPreview-toggle', 'click', function() {
+                var $toggle = $(this),
+                        $container = $toggle.closest('.inputContainer');
+
+                $container.find('.label').trigger('fieldPreview-toggle', [ $toggle ]);
+                $toggle.css('color', $container.is('.fieldPreview-displaying') ? getUniqueColor($container) : '');
+            });
+
+            $edit.delegate('.inputContainer', 'fieldPreview-enable', function() {
                 $(this).addClass('fieldPreview-enabled');
             });
 
-            $labels.bind('fieldPreview-disable', function() {
+            $edit.delegate('.inputContainer', 'fieldPreview-disable', function() {
                 $(this).trigger('fieldPreview-hide').removeClass('fieldPreview-enabled');
             });
 
-            $labels.bind('fieldPreview-hide', function() {
-                var $label = $(this),
-                        name = $label.closest('.inputContainer').attr('data-name');
+            $edit.delegate('.inputContainer', 'fieldPreview-hide', function() {
+                var $container = $(this),
+                        name = $container.attr('data-name');
 
-                $label.removeClass('fieldPreview-displaying');
-                $label.css({
+                $container.removeClass('fieldPreview-displaying');
+                $container.find('.label').css({
                     'background-color': '',
                     'color': ''
                 });
@@ -560,10 +599,10 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 $('.fieldPreview-paths[data-name="' + name + '"]').remove();
             });
 
-            $labels.click(function() {
-                var $label = $(this),
-                        name = $label.closest('.inputContainer').attr('data-name'),
-                        color = $.data(this, 'fieldPreview-color'),
+            $edit.delegate('.inputContainer', 'fieldPreview-toggle', function(event, $source) {
+                var $container = $(this),
+                        name = $container.attr('data-name'),
+                        color,
 
                         $frame,
                         frameOffset,
@@ -571,27 +610,18 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         $paths,
                         pathsCanvas;
 
-                if (!$previewWidget.is('.widget-expanded')) {
-                    return true;
+                if ($container.is('.fieldPreview-displaying')) {
+                    $container.trigger('fieldPreview-hide');
+                    return;
                 }
 
-                if ($label.is('.fieldPreview-displaying')) {
-                    $label.trigger('fieldPreview-hide');
-                    return false;
-                }
-
-                if (!color) {
-                    labelHue += GOLDEN_RATIO;
-                    labelHue %= 1.0;
-                    color = 'hsl(' + (labelHue * 360) + ', 50%, 50%)';
-                    $.data(this, 'fieldPreview-color', color);
-                }
+                color = getUniqueColor($container);
 
                 $frame = $preview.find('iframe');
                 frameOffset = $frame.offset();
 
-                $label.addClass('fieldPreview-displaying');
-                $label.css({
+                $container.addClass('fieldPreview-displaying');
+                $container.find('.label').css({
                     'background-color': color,
                     'color': 'white'
                 });
@@ -611,7 +641,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 // For browsers that don't support pointer-events.
                 $paths.click(function() {
-                    $labels.trigger('fieldPreview-hide');
+                    $edit.find('.inputContainer').trigger('fieldPreview-hide');
                 });
 
                 $paths.attr({
@@ -666,7 +696,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         }
                     }));
 
-                    sourceOffset = $label.offset();
+                    if (!$source) {
+                        $source = $container.find('.label');
+                    }
+
+                    sourceOffset = $source.offset();
                     targetOffset = $target.offset();
                     targetOffset.left += frameOffset.left;
                     targetOffset.top += frameOffset.top;
@@ -678,21 +712,21 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         isBackReference = true;
 
                         if (targetOffset.left + targetWidth > sourceOffset.left) {
-                            pathSourceX = sourceOffset.left + $label.width();
-                            pathSourceY = sourceOffset.top + $label.height() / 2;
+                            pathSourceX = sourceOffset.left + $source.width();
+                            pathSourceY = sourceOffset.top + $source.height() / 2;
                             pathSourceDirection = 1;
                             pathTargetDirection = 1;
 
                         } else {
                             pathSourceX = sourceOffset.left;
-                            pathSourceY = sourceOffset.top + $label.height() / 2;
+                            pathSourceY = sourceOffset.top + $source.height() / 2;
                             pathSourceDirection = -1;
                             pathTargetDirection = 1;
                         }
 
                     } else {
-                        pathSourceX = sourceOffset.left + $label.width();
-                        pathSourceY = sourceOffset.top + $label.height() / 2;
+                        pathSourceX = sourceOffset.left + $source.width();
+                        pathSourceY = sourceOffset.top + $source.height() / 2;
                         pathTargetX = targetOffset.left;
                         pathTargetY = targetOffset.top + $target.height() / 2;
                         pathSourceDirection = 1;
@@ -726,8 +760,16 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     pathsCanvas.closePath();
                     pathsCanvas.fill();
                 });
+            });
 
-                return false;
+            $edit.delegate('.inputContainer', 'click', function() {
+                if ($previewWidget.is('.widget-expanded')) {
+                    $(this).trigger('fieldPreview-toggle');
+                    return false;
+
+                } else {
+                    return true;
+                }
             });
         })(jQuery, window);
     </script>
