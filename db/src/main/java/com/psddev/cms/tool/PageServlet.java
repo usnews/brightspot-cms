@@ -28,6 +28,7 @@ public abstract class PageServlet extends HttpServlet {
             return;
         }
 
+        response.setContentType("text/html");
         doService(page);
     }
 }
