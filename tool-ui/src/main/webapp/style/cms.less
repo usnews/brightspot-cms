@@ -9,7 +9,7 @@
     font-style: normal;
     font-weight: normal;
     src: url('fontawesome-webfont.eot');
-    src: url('fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('fontawesome-webfont.woff') format('woff'), url('fontawesome-webfont.ttf') format('truetype'), url('fontawesome-webfont.svg#FontAwesome') format('svg');
+    src: url('fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('fontawesome-webfont.woff') format('woff'), url('fontawesome-webfont.ttf') format('truetype');
 }
 
 // --- Variables ---
@@ -31,7 +31,7 @@
 @fontFamily-label: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
 
 @fontSize-default: 13px;
-@fontSize-icon: 20px;
+@fontSize-icon: 14em / 13;
 
 @lineHeight-default: 20px;
 @lineHeight-input: 16px;
@@ -300,11 +300,7 @@
         font-family: 'FontAwesome';
         font-size: @fontSize-icon;
         font-weight: normal;
-        line-height: 0;
-        padding-right: 0.2em;
-        position: relative;
-        top: 1px;
-        vertical-align: middle;
+        padding-right: 0.25em;
 
         &:hover {
             text-decoration: none !important;
@@ -314,14 +310,12 @@
 
 .icon-only {
     display: inline-block;
-    height: @fontSize-icon;
     overflow: hidden;
-    vertical-align: middle;
     white-space: nowrap;
     width: @fontSize-icon;
 
     &:before {
-        padding-right: @fontSize-icon + 1;
+        padding-right: 1.1em;
     }
 }
 
@@ -330,8 +324,7 @@
 
     &:before {
         float: right;
-        margin-left: 4px;
-        margin-top: @fontSize-icon / 2;
+        padding-left: 0.25em;
     }
 }
 
@@ -717,7 +710,11 @@ ul.links {
 
                 left: -@marginLeft;
                 margin-right: -@marginLeft;
-                padding-left: (@marginLeft - 20px);
+                padding-left: (@marginLeft - 19px);
+
+                &:before {
+                    padding-right: 7px;
+                }
             }
         }
     }
@@ -748,7 +745,7 @@ table.links.table-striped {
     &:before {
         left: 10px;
         position: absolute;
-        top: 21px;
+        top: 10px;
     }
 }
 
@@ -1340,13 +1337,6 @@ input[type=text].expandable { min-width: 5em; }
 
     a {
         color: @color-link-lighter;
-    }
-
-    [class^="action-"],
-    [class*=" action-"] {
-        &:before {
-            font-size: 14px;
-        }
     }
 }
 
@@ -2217,12 +2207,8 @@ h1 select:focus {
     .border-radius(5px);
     cursor: pointer;
     .opacity(0.5);
-    padding: 0 2px 0 4px;
+    padding: 0 4px 0 4px;
     z-index: 2000000;
-
-    &:before {
-        .opacity(1);
-    }
 
     &:hover {
         background-color: @color-link;
@@ -2249,7 +2235,7 @@ h1 select:focus {
 
         &:not(.pageThumbnails_toggle-right) {
             margin: -10px 0 0 -10px;
-            padding: 10px 2px 10px 14px;
+            padding: 10px 4px 10px 14px;
 
             &:after {
                 .border-bottom-left-radius(5px);
@@ -2261,7 +2247,7 @@ h1 select:focus {
 
         &.pageThumbnails_toggle-right {
             margin: -10px -10px 0 0;
-            padding: 10px 12px 10px 4px;
+            padding: 10px 14px 10px 4px;
 
             &:after {
                 .border-bottom-right-radius(5px);
@@ -2367,12 +2353,9 @@ h1 select:focus {
 
     &:before {
         display: block;
-        font-size: 12px;
-        left: 6px;
-        line-height: 0;
-        .opacity(1);
+        left: 5px;
         position: absolute;
-        top: 12px;
+        top: 0px;
     }
 
     .popup.popup-loading &:not(:hover):after,
@@ -2867,7 +2850,7 @@ h1 select:focus {
     width: 20px;
 
     &:before {
-        padding: 2px 20px 0 4px;
+        padding: 1px 20px 0 3px;
     }
 
     &.wysihtml5-command-active {
@@ -2908,7 +2891,7 @@ h1 select:focus {
 }
 
 .rte-button:before {
-    font-size: 15px !important;
+    font-size: 14px !important;
 }
 
 .rte-dialog {
@@ -3146,7 +3129,7 @@ h1 select:focus {
         min-height: 1000px;
 
         > h1:before {
-            content: url(../style/icon/ajax-loader.gif);
+            content: url(icon/ajax-loader.gif);
         }
     }
 
