@@ -34,9 +34,7 @@ public class FieldAccessFilter extends AbstractFilter {
             chain.doFilter(request, response);
 
         } else {
-            Object mainObject = PageFilter.Static.getMainObject(request);
-
-            if (mainObject == null) {
+            if (PageFilter.Static.getMainObject(request) == null) {
                 chain.doFilter(request, response);
 
             } else {
@@ -46,7 +44,7 @@ public class FieldAccessFilter extends AbstractFilter {
                     FieldAccessResponse fieldAccessResponse = new FieldAccessResponse(response);
 
                     try {
-                        FieldAccessListener listener = new FieldAccessListener(mainObject, fieldAccessResponse);
+                        FieldAccessListener listener = new FieldAccessListener(fieldAccessResponse);
 
                         try {
                             State.Static.addListener(listener);
@@ -68,30 +66,26 @@ public class FieldAccessFilter extends AbstractFilter {
 
     private static class FieldAccessListener extends State.Listener {
 
-        private final Object mainObject;
         private final FieldAccessResponse response;
 
-        public FieldAccessListener(Object mainObject, FieldAccessResponse response) {
-            this.mainObject = mainObject;
+        public FieldAccessListener(FieldAccessResponse response) {
             this.response = response;
         }
 
         @Override
         public void beforeFieldGet(State state, String name) {
-            if (mainObject.equals(state.getOriginalObject())) {
-                StringBuilder marker = new StringBuilder();
+            StringBuilder marker = new StringBuilder();
 
-                marker.append("<span style=\"display: none;\" data-name=\"");
-                marker.append(StringUtils.escapeHtml(state.getId().toString()));
-                marker.append("/");
-                marker.append(StringUtils.escapeHtml(name));
-                marker.append("\">");
-                marker.append("</span>");
+            marker.append("<span style=\"display: none;\" data-name=\"");
+            marker.append(StringUtils.escapeHtml(state.getId().toString()));
+            marker.append("/");
+            marker.append(StringUtils.escapeHtml(name));
+            marker.append("\">");
+            marker.append("</span>");
 
-                try {
-                    response.writeLazily(marker.toString());
-                } catch (IOException error) {
-                }
+            try {
+                response.writeLazily(marker.toString());
+            } catch (IOException error) {
             }
         }
     }
