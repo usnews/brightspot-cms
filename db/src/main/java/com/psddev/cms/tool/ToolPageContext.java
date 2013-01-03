@@ -755,7 +755,7 @@ public class ToolPageContext extends WebPageContext {
             write("<span class=\"searchInput\">");
             write("<label for=\"", createId(), "\">Search</label>");
             write("<input id=\"", getId(), "\" name=\"", Search.QUERY_STRING_PARAMETER, "\" type=\"text\">");
-            write("<input type=\"submit\" value=\"Go\">");
+            write("<button>Go</button>");
             write("</span>");
             write("</form>");
 

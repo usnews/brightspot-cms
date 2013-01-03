@@ -81,7 +81,7 @@ String newTarget = (String) request.getAttribute("newTarget");
             <span class="searchInput" style="margin-bottom: 20px;">
                 <label for="<%= wp.createId() %>">Search</label>
                 <input id="<%= wp.getId() %>" class="autoFocus" name="<%= Search.QUERY_STRING_PARAMETER %>" type="text" value="<%= wp.h(search.getQueryString()) %>">
-                <input type="submit" value="Go">
+                <button>Go</button>
             </span>
 
             <h2>Filters</h2>
