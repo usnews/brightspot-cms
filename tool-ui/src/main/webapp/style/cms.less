@@ -3110,6 +3110,20 @@ h1 select:focus {
 .widget-template h1 { .icon-th; }
 .widget-urls h1 { .icon-sitemap; }
 
+.widget-scheduledEvents-empty {
+    position: relative;
+
+    &:before {
+        content: 'No Scheduled Events';
+        font-size: 3em;
+        left: 1.5em;
+        .opacity(0.1);
+        position: absolute;
+        top: 6.25em;
+        .transform(rotate(-50deg));
+    }
+}
+
 .widget-preview {
     margin-top: 10px;
 

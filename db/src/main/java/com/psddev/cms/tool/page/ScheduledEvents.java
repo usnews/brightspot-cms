@@ -36,6 +36,7 @@ public class ScheduledEvents extends PageServlet {
         DateTime begin = mode.getBegin(date);
         DateTime end = mode.getEnd(date);
         Map<DateTime, List<Schedule>> schedulesByDate = new TreeMap<DateTime, List<Schedule>>();
+        boolean hasSchedules = false;
 
         for (DateTime i = begin; i.isBefore(end); i = i.plusDays(1)) {
             schedulesByDate.put(i, new ArrayList<Schedule>());
@@ -51,12 +52,13 @@ public class ScheduledEvents extends PageServlet {
 
             if (schedules != null) {
                 schedules.add(schedule);
+                hasSchedules = true;
             }
         }
 
         PageWriter writer = page.getWriter();
 
-        writer.start("div", "class", "widget widget-scheduledEvents");
+        writer.start("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
             writer.start("h1", "class", "icon-calendar");
 
                 writer.html("Scheduled Events: ");
