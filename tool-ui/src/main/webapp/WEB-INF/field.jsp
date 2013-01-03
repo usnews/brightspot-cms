@@ -47,6 +47,10 @@ try {
         if (isReadOnly) {
             wp.write(" inputContainer-readOnly");
         }
+        wp.write("\" data-name=\"");
+        wp.write(wp.h(state.getId()));
+        wp.write("/");
+        wp.write(wp.h(field.getInternalName()));
         wp.write("\">");
         wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));

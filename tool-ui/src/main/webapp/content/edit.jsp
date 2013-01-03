@@ -294,6 +294,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             method="post"
                             action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>"
                             target="<%= previewTarget %>">
+                        <input type="hidden" name="_fields" value="true">
                         <input type="hidden" id="<%= modeId %>" name="_" value="true">
                         <label for="<%= wp.createId() %>">Mode:</label>
                         <select id="<%= wp.getId() %>" onchange="
@@ -315,7 +316,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
     <script type="text/javascript">
         (function($, win, undef) {
-            var $win = $(window),
+            var PEEK_WIDTH = 160,
+                    $win = $(win),
+                    doc = win.document,
+                    $doc = $(doc),
+                    $body = $(doc.body),
 
                     $edit = $('.content-edit'),
                     oldEditStyle = $edit.attr('style') || '',
@@ -329,7 +334,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     $previewHeading = $preview.find('h1'),
                     showPreview,
                     previewEventsBound,
-                    hidePreview;
+                    hidePreview,
+
+                    $labels = $edit.find('.inputContainer .label'),
+                    labelHue = Math.random(),
+                    GOLDEN_RATIO = 0.618033988749895;
 
             // Append a link for activating the preview.
             appendPreviewAction = function() {
@@ -394,11 +403,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         var css = $edit.offset(),
                                 winWidth = $win.width();
 
-                        css.left += $previewWidget.is('.widget-expanded') ? 30 : $edit.outerWidth() + 10;
+                        css.left += $previewWidget.is('.widget-expanded') ? PEEK_WIDTH : $edit.outerWidth() + 10;
                         css['min-width'] = winWidth - css.left;
 
                         $preview.css(css);
-                        $previewWidget.css('width', winWidth - 30);
+                        console.log(winWidth);
+                        $previewWidget.css('width', winWidth - PEEK_WIDTH);
                     }));
 
                     // Make the preview expand/collapse when the heading is clicked.
@@ -410,10 +420,14 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
                             $preview.css('width', '');
 
+                            $labels.trigger('fieldPreview-disable');
+
                         } else {
                             $previewWidget.addClass('widget-expanded');
-                            $preview.animate({ 'left': editLeft + 30 }, 300, 'easeOutBack');
-                            $preview.css('width', '100%');
+                            $preview.animate({ 'left': editLeft + PEEK_WIDTH }, 300, 'easeOutBack');
+                            $preview.css('width', $win.width() - PEEK_WIDTH - 30);
+
+                            $labels.trigger('fieldPreview-enable');
                         }
                     });
 
@@ -522,6 +536,199 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% } else { %>
                 appendPreviewAction();
             <% } %>
+
+            // Per-field preview.
+            $labels.bind('fieldPreview-enable', function() {
+                $(this).addClass('fieldPreview-enabled');
+            });
+
+            $labels.bind('fieldPreview-disable', function() {
+                $(this).trigger('fieldPreview-hide').removeClass('fieldPreview-enabled');
+            });
+
+            $labels.bind('fieldPreview-hide', function() {
+                var $label = $(this),
+                        name = $label.closest('.inputContainer').attr('data-name');
+
+                $label.removeClass('fieldPreview-displaying');
+                $label.css({
+                    'background-color': '',
+                    'color': ''
+                });
+
+                $('.fieldPreview-target[data-name="' + name + '"]').remove();
+                $('.fieldPreview-paths[data-name="' + name + '"]').remove();
+            });
+
+            $labels.click(function() {
+                var $label = $(this),
+                        name = $label.closest('.inputContainer').attr('data-name'),
+                        color = $.data(this, 'fieldPreview-color'),
+
+                        $frame,
+                        frameOffset,
+
+                        $paths,
+                        pathsCanvas;
+
+                if (!$previewWidget.is('.widget-expanded')) {
+                    return true;
+                }
+
+                if ($label.is('.fieldPreview-displaying')) {
+                    $label.trigger('fieldPreview-hide');
+                    return false;
+                }
+
+                if (!color) {
+                    labelHue += GOLDEN_RATIO;
+                    labelHue %= 1.0;
+                    color = 'hsl(' + (labelHue * 360) + ', 50%, 50%)';
+                    $.data(this, 'fieldPreview-color', color);
+                }
+
+                $frame = $preview.find('iframe');
+                frameOffset = $frame.offset();
+
+                $label.addClass('fieldPreview-displaying');
+                $label.css({
+                    'background-color': color,
+                    'color': 'white'
+                });
+
+                // Draw arrows between the label and the previews.
+                $paths = $('<canvas/>', {
+                    'class': 'fieldPreview-paths',
+                    'data-name': name,
+                    'css': {
+                        'left': 0,
+                        'pointer-events': 'none',
+                        'position': 'absolute',
+                        'top': 0,
+                        'z-index': 5
+                    }
+                });
+
+                // For browsers that don't support pointer-events.
+                $paths.click(function() {
+                    $labels.trigger('fieldPreview-hide');
+                });
+
+                $paths.attr({
+                    'width': $doc.width(),
+                    'height': $doc.height()
+                });
+
+                $body.append($paths);
+
+                pathsCanvas = $paths[0].getContext('2d');
+
+                $frame.contents().find('[data-name="' + name + '"]').each(function() {
+                    var $placeholder = $(this),
+                            $target,
+                            targetOffset,
+                            pathSourceX, pathSourceY, pathSourceDirection,
+                            pathTargetX, pathTargetY, pathTargetDirection,
+                            sourceOffset,
+                            targetOffset,
+                            isBackReference = false,
+                            pathSourceControlX,
+                            pathSourceControlY,
+                            pathTargetControlX,
+                            pathTargetControlY;
+
+                    if ($placeholder.parent().is('body')) {
+                        return;
+                    }
+
+                    $target = $placeholder.nextAll(':visible:first');
+
+                    if ($target.length === 0) {
+                        $target = $placeholder.parent();
+                    }
+
+                    if ($target.find('> * [data-name="' + name + '"]').length > 0) {
+                        return;
+                    }
+
+                    targetOffset = $target.offset();
+
+                    $body.append($('<span/>', {
+                        'class': 'fieldPreview-target',
+                        'data-name': name,
+                        'css': {
+                            'outline-color': color,
+                            'height': $target.outerHeight(),
+                            'left': frameOffset.left + targetOffset.left,
+                            'position': 'absolute',
+                            'top': frameOffset.top + targetOffset.top,
+                            'width': $target.outerWidth()
+                        }
+                    }));
+
+                    sourceOffset = $label.offset();
+                    targetOffset = $target.offset();
+                    targetOffset.left += frameOffset.left;
+                    targetOffset.top += frameOffset.top;
+
+                    if (sourceOffset.left > targetOffset.left) {
+                        var targetWidth = $target.outerWidth();
+                        pathTargetX = targetOffset.left + targetWidth;
+                        pathTargetY = targetOffset.top + $target.outerHeight() / 2;
+                        isBackReference = true;
+
+                        if (targetOffset.left + targetWidth > sourceOffset.left) {
+                            pathSourceX = sourceOffset.left + $label.width();
+                            pathSourceY = sourceOffset.top + $label.height() / 2;
+                            pathSourceDirection = 1;
+                            pathTargetDirection = 1;
+
+                        } else {
+                            pathSourceX = sourceOffset.left;
+                            pathSourceY = sourceOffset.top + $label.height() / 2;
+                            pathSourceDirection = -1;
+                            pathTargetDirection = 1;
+                        }
+
+                    } else {
+                        pathSourceX = sourceOffset.left + $label.width();
+                        pathSourceY = sourceOffset.top + $label.height() / 2;
+                        pathTargetX = targetOffset.left;
+                        pathTargetY = targetOffset.top + $target.height() / 2;
+                        pathSourceDirection = 1;
+                        pathTargetDirection = -1;
+                    }
+
+                    pathSourceControlX = pathSourceX + pathSourceDirection * 100;
+                    pathSourceControlY = pathSourceY;
+                    pathTargetControlX = pathTargetX + pathTargetDirection * 100;
+                    pathTargetControlY = pathTargetY;
+
+                    pathsCanvas.strokeStyle = color;
+                    pathsCanvas.fillStyle = color;
+
+                    // Reference curve.
+                    pathsCanvas.lineWidth = isBackReference ? 0.4 : 1.0;
+                    pathsCanvas.beginPath();
+                    pathsCanvas.moveTo(pathSourceX, pathSourceY);
+                    pathsCanvas.bezierCurveTo(pathSourceControlX, pathSourceControlY, pathTargetControlX, pathTargetControlY, pathTargetX, pathTargetY);
+                    pathsCanvas.stroke();
+
+                    // Arrow head.
+                    var arrowSize = pathTargetX > pathTargetControlX ? 5 : -5;
+                    if (isBackReference) {
+                        arrowSize *= 0.8;
+                    }
+                    pathsCanvas.beginPath();
+                    pathsCanvas.moveTo(pathTargetX, pathTargetY);
+                    pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY - arrowSize);
+                    pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY + arrowSize);
+                    pathsCanvas.closePath();
+                    pathsCanvas.fill();
+                });
+
+                return false;
+            });
         })(jQuery, window);
     </script>
 <% } %>

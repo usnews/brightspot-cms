@@ -227,6 +227,7 @@ public class PageFilter extends AbstractFilter {
         dependencies.add(com.psddev.cms.tool.ScheduleFilter.class);
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
+        dependencies.add(FieldAccessFilter.class);
         return dependencies;
     }
 
