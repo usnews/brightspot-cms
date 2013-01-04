@@ -3202,11 +3202,11 @@ h1 select:focus {
     .icon-remove-sign;
     .icon-only;
 
-    color: @color-note;
     cursor: pointer;
+    font-size: 120%;
     position: fixed;
     right: 20px;
-    top: 87px;
+    top: 86px;
 }
 
 // --- Widgets ---
@@ -3248,6 +3248,15 @@ h1 select:focus {
     .action-share {
         .icon-share;
         .link;
+    }
+
+    &.widget-expanded > h1:after {
+        color: @color-note-darker;
+        content: 'Click To Pin \00bb';
+        font-size: 90%;
+        left: 50%;
+        margin-left: -9em;
+        position: absolute;
     }
 
     &.widget-loading {
