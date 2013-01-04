@@ -83,6 +83,8 @@ $.plugin2('dropDown', {
                     }
                     updateInput();
                     $select.change();
+                    return false;
+
                 } : function(e) {
                     if (!$option.is('[selected]')) {
                         $select.find('> option').removeAttr('selected');
@@ -96,6 +98,7 @@ $.plugin2('dropDown', {
                         hideList();
                         $select.change();
                     }
+                    return false;
                 },
                 'html': $option.text() || '&nbsp;'
             });
