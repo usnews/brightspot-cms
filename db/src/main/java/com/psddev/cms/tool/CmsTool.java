@@ -9,8 +9,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-
 /** Brightspot CMS. */
 public class CmsTool extends Tool {
 
