@@ -386,9 +386,9 @@ $doc.delegate('table.links tr', 'click', function(event) {
         $body.append($cover);
 
         // Valid file drop zones.
-        $('.inputContainer .action-upload').each(function() {
+        $('.inputContainer .action-upload, .upload-droppable .action-upload').each(function() {
             var $upload = $(this),
-                    $container = $upload.closest('.inputContainer'),
+                    $container = $upload.closest('.inputContainer, .upload-droppable'),
                     overlayCss,
                     $dropZone,
                     $dropLink,

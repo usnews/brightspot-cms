@@ -116,8 +116,12 @@ public class UploadFiles extends PageServlet {
                         writer.write("$init = $page.popup('source').repeatable('closestInit'),");
                         writer.write("$addButton = $init.find('.addButton').eq(0),");
                         writer.write("$input;");
-                        writer.write(js.toString());
-                        writer.write("$page.popup('close');");
+                        writer.write("if ($addButton.length > 0) {");
+                            writer.write(js.toString());
+                            writer.write("$page.popup('close');");
+                        writer.write("} else {");
+                            writer.write("win.location.reload();");
+                        writer.write("}");
                     writer.write("})(jQuery, window);");
                 writer.end();
 
@@ -134,7 +138,14 @@ public class UploadFiles extends PageServlet {
             ObjectType type = environment.getTypeById(typeId);
 
             if (type != null) {
-                typesSet.addAll(type.findConcreteTypes());
+                for (ObjectType t : type.findConcreteTypes()) {
+                    for (ObjectField field : t.getFields()) {
+                        if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
+                            typesSet.add(t);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
