@@ -5,6 +5,7 @@ com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
+com.psddev.cms.db.Guide,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Section,
@@ -12,6 +13,7 @@ com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolSearch,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -161,6 +163,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</select>");
                     }
+                    wp.write(" <a target=\"\" style=\".icon-question-sign; \" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId()), "\">?</a>");
+                
 
                     if (selected instanceof Page) {
                         wp.write(": <a href=\"");
@@ -175,6 +179,21 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</a>");
                     }
+                    
+                    ToolUser user = wp.getUser(); 
+                    boolean showProductionGuide = false;
+                    if (user != null) {
+        	            showProductionGuide = Guide.Static.showByDefault(user);
+                    }
+           
+                    if (showProductionGuide && state.isNew()) {
+           	            if (wp.param("guide") == null || wp.param("guide").equals("1")) {
+               	            wp.redirect("guide.jsp", selected, "templateId", template.getId() );
+               	            return;
+           	            
+           	             }
+                    }  
+                    
                 %></h1>
 
                 <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>

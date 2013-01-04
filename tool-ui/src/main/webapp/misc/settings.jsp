@@ -10,7 +10,7 @@ java.util.Arrays,
 java.util.Collection
 " %><%!
 
-private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "email", "password");
+private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "email", "password", "showGuides");
 %><%
 
 // --- Logic ---
