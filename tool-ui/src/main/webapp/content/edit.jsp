@@ -163,7 +163,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</select>");
                     }
-                    wp.write(" <a target=\"\" style=\".icon-question-sign; \" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId()), "\">?</a>");
+                    wp.write(" <a target=\"Guide\" style=\".icon-question-sign; \" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId()), "\">?</a>");
                 
 
                     if (selected instanceof Page) {
