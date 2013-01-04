@@ -58,7 +58,7 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
                     wp.write("<input type=\"hidden\" name=\"");
                     wp.write(wp.h(state.getId()));
                     wp.write("/_widget\" value=\"");
-                    wp.write(wp.h(widget.getId()));
+                    wp.write(wp.h(widget.getInternalName()));
                     wp.write("\">");
 
                     String display = widget.display(wp, object);
