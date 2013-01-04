@@ -298,6 +298,7 @@
     &:before {
         display: inline-block;
         font-family: 'FontAwesome';
+        -webkit-font-smoothing: antialiased;
         font-size: @fontSize-icon;
         font-weight: normal;
         padding-right: 0.25em;
@@ -795,6 +796,15 @@ table.links.table-striped {
     margin-bottom: 5px;
     margin-left: 0;
     text-align: right;
+
+    form {
+        display: inline;
+    }
+
+    select {
+        height: @lineHeight-default;
+        line-height: @lineHeight-default;
+    }
 }
 
 .pagination-item {
@@ -871,6 +881,10 @@ table.links.table-striped {
         .border-radius(1em);
         padding-left: 0.7em;
         padding-right: 24px;
+    }
+
+    > input[type=submit] {
+        display: none;
     }
 
     > button {
@@ -1515,40 +1529,41 @@ input[type=text].expandable { min-width: 5em; }
 // --- Standard layouts ---
 
 .dashboard {
-    overflow: hidden;
     margin: -10px;
+    overflow: hidden;
     padding: 10px;
     width: 100%;
+
+    &[data-columns="1"] {
+        .dashboard_column { width: 100%; }
+    }
+
+    &[data-columns="2"] {
+        .dashboard_column:nth-child(1) { width: 60%; }
+        .dashboard_column:nth-child(2) { width: 40%; }
+    }
+
+    &[data-columns="3"] {
+        .dashboard_column:nth-child(1) { width: 40%; }
+        .dashboard_column:nth-child(2) { width: 30%; }
+        .dashboard_column:nth-child(3) { width: 30%; }
+    }
+
+    &[data-columns="4"] {
+        .dashboard_column:nth-child(1) { width: 30%; }
+        .dashboard_column:nth-child(2) { width: 30%; }
+        .dashboard_column:nth-child(3) { width: 20%; }
+        .dashboard_column:nth-child(4) { width: 20%; }
+    }
 }
 
-.dashboard-column {
+.dashboard_column {
     float: left;
 }
 
-.dashboard-1 {
-    .dashboard-column { width: 100%; }
-}
-
-.dashboard-2 {
-    .dashboard-column:nth-child(1) { width: 60%; }
-    .dashboard-column:nth-child(2) { width: 40%; }
-}
-
-.dashboard-3 {
-    .dashboard-column:nth-child(1) { width: 40%; }
-    .dashboard-column:nth-child(2) { width: 30%; }
-    .dashboard-column:nth-child(3) { width: 30%; }
-}
-
-.dashboard-4 {
-    .dashboard-column:nth-child(1) { width: 30%; }
-    .dashboard-column:nth-child(2) { width: 30%; }
-    .dashboard-column:nth-child(3) { width: 20%; }
-    .dashboard-column:nth-child(4) { width: 20%; }
-}
-
-.dashboard-cell {
+.dashboard_cell {
     padding: 5px;
+    position: relative;
 
     &:first-child {
         padding-top: 0;
@@ -1558,13 +1573,103 @@ input[type=text].expandable { min-width: 5em; }
         padding-bottom: 0;
     }
 
-    .dashboard-column:first-child & {
+    .dashboard_column:first-child & {
         padding-left: 0;
     }
 
-    .dashboard-column:last-child & {
+    .dashboard_column:last-child & {
         padding-right: 0;
     }
+}
+
+.dashboard_cell_moveContainer {
+    .icon-move;
+    .icon-only;
+    .link;
+
+    color: @color-note;
+    position: absolute;
+    right: 15px;
+    top: 11px;
+
+    .dashboard_cell:first-child & {
+        top: 6px;
+    }
+
+    .dashboard_column:last-child & {
+        right: 10px;
+    }
+
+    &:hover {
+        background-color: fade(@color-text, 20%);
+        .border-radius(50px);
+        height: 50px;
+        margin-right: -16px;
+        margin-top: -12px;
+        width: 50px;
+        z-index: 1;
+
+        &:before {
+            display: none;
+        }
+    }
+}
+
+.dashboard_cell_moveUp,
+.dashboard_cell_moveDown,
+.dashboard_cell_moveLeft,
+.dashboard_cell_moveRight {
+    .link;
+
+    color: @color-text;
+    line-height: 1;
+    position: absolute;
+
+    .dashboard_cell_moveContainer:hover & {
+        display: block;
+    }
+}
+
+.dashboard_cell_moveUp,
+.dashboard_cell_moveDown {
+    left: 19px;
+}
+
+.dashboard_cell_moveUp {
+    .icon-arrow-up;
+    .icon-only;
+
+    display: none;
+    top: 2px;
+}
+
+.dashboard_cell_moveDown {
+    .icon-arrow-down;
+    .icon-only;
+
+    display: none;
+    bottom: 2px;
+}
+
+.dashboard_cell_moveLeft,
+.dashboard_cell_moveRight {
+    top: 17px;
+}
+
+.dashboard_cell_moveLeft {
+    .icon-arrow-left;
+    .icon-only;
+
+    display: none;
+    left: 2px;
+}
+
+.dashboard_cell_moveRight {
+    .icon-arrow-right;
+    .icon-only;
+
+    display: none;
+    right: 0px;
 }
 
 .withLeftNav {

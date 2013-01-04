@@ -59,6 +59,114 @@ $doc.onCreate('.inputContainer .permissions select', function() {
     }));
 });
 
+// Allow dashboard widgets to move around.
+$doc.onCreate('.dashboard_cell', function() {
+    var $cell = $(this),
+            $moveContainer,
+            saveDashboard,
+            $moveUp,
+            $moveDown,
+            $moveLeft,
+            $moveRight;
+
+    $moveContainer = $('<span/>', {
+        'class': 'dashboard_cell_moveContainer'
+    });
+
+    saveDashboard = function() {
+        var $dashboard = $cell.closest('.dashboard'),
+                $columns,
+                widgets = [ ];
+
+        $dashboard.find('.dashboard_column:empty').remove();
+        $columns = $dashboard.find('.dashboard_column');
+        $dashboard.attr('data-columns', $columns.length);
+
+        $columns.each(function() {
+            var w = widgets[widgets.length] = [ ];
+
+            $(this).find('.dashboard_cell').each(function() {
+                w[w.length] = $(this).attr('data-widget');
+            });
+        });
+
+        $.ajax({
+            'type': 'post',
+            'url': CONTEXT_PATH + '/misc/updateUserSettings',
+            'data': 'action=dashboardWidgets-position&widgets=' + encodeURIComponent(JSON.stringify(widgets))
+        });
+    };
+
+    $moveUp = $('<span/>', {
+        'class': 'dashboard_cell_moveUp',
+        'click': function() {
+            $cell.prev().before($cell);
+            saveDashboard();
+
+            return false;
+        }
+    });
+
+    $moveDown = $('<span/>', {
+        'class': 'dashboard_cell_moveDown',
+        'click': function() {
+            $cell.next().after($cell);
+            saveDashboard();
+
+            return false;
+        }
+    });
+
+    $moveLeft = $('<span/>', {
+        'class': 'dashboard_cell_moveLeft',
+        'click': function() {
+            var $column = $cell.closest('.dashboard_column');
+                    $prevColumn = $column.prev();
+
+            if ($prevColumn.length === 0) {
+                $prevColumn = $('<div/>', {
+                    'class': 'dashboard_column'
+                });
+
+                $column.before($prevColumn);
+            }
+
+            $prevColumn.prepend($cell);
+            saveDashboard();
+
+            return false;
+        }
+    });
+
+    $moveRight = $('<span/>', {
+        'class': 'dashboard_cell_moveRight',
+        'click': function() {
+            var $column = $cell.closest('.dashboard_column');
+                    $nextColumn = $column.next();
+
+            if ($nextColumn.length === 0) {
+                $nextColumn = $('<div/>', {
+                    'class': 'dashboard_column'
+                });
+
+                $column.after($nextColumn);
+            }
+
+            $nextColumn.prepend($cell);
+            saveDashboard();
+
+            return false;
+        }
+    });
+
+    $moveContainer.append($moveUp);
+    $moveContainer.append($moveDown);
+    $moveContainer.append($moveLeft);
+    $moveContainer.append($moveRight);
+
+    $cell.append($moveContainer);
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();

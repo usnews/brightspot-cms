@@ -20,6 +20,8 @@ import javax.servlet.ServletException;
 @SuppressWarnings("serial")
 public class SiteMap extends PageServlet {
 
+    private static final int[] LIMITS = { 10, 20, 50 };
+
     @Override
     protected String getPermissionId() {
         return "area/dashboard";
@@ -28,6 +30,7 @@ public class SiteMap extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         Directory selected = Query.findById(Directory.class, page.pageParam(UUID.class, "directoryId", null));
+        int limit = page.pageParam(Integer.class, "limit", 20);
 
         if (selected == null) {
             selected = Query.from(Directory.class).first();
@@ -41,7 +44,7 @@ public class SiteMap extends PageServlet {
                     where(selected.itemsPredicate(null)).
                     and(page.siteItemsPredicate()).
                     sortAscending(Directory.PATHS_FIELD).
-                    select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 20));
+                    select(page.param(long.class, "offset"), limit);
         }
 
         PageWriter writer = page.getWriter();
@@ -79,27 +82,43 @@ public class SiteMap extends PageServlet {
                     writer.end();
 
                 } else {
-                    if (items.hasPrevious() || items.hasNext()) {
-                        writer.start("ul", "class", "pagination");
+                    writer.start("ul", "class", "pagination");
 
-                            if (items.hasPrevious()) {
-                                writer.start("li", "class", "first");
-                                    writer.start("a", "href", page.url("", "offset", items.getFirstOffset())).html("First").end();
+                        if (items.hasPrevious()) {
+                            writer.start("li", "class", "first");
+                                writer.start("a", "href", page.url("", "offset", items.getFirstOffset())).html("First").end();
+                            writer.end();
+
+                            writer.start("li", "class", "previous");
+                                writer.start("a", "href", page.url("", "offset", items.getPreviousOffset())).html("Previous ").html(items.getLimit()).end();
+                            writer.end();
+                        }
+
+                        writer.start("li");
+                            writer.start("form",
+                                    "class", "autoSubmit",
+                                    "method", "get",
+                                    "action", page.url(null));
+                                writer.start("select", "name", "limit");
+                                    for (int l : LIMITS) {
+                                        writer.start("option",
+                                                "value", l,
+                                                "selected", limit == l ? "selected" : null);
+                                            writer.html("Show ");
+                                            writer.html(l);
+                                        writer.end();
+                                    }
                                 writer.end();
-
-                                writer.start("li", "class", "previous");
-                                    writer.start("a", "href", page.url("", "offset", items.getPreviousOffset())).html("Previous ").html(items.getLimit()).end();
-                                writer.end();
-                            }
-
-                            if (items.hasNext()) {
-                                writer.start("li", "class", "next");
-                                    writer.start("a", "href", page.url("", "offset", items.getNextOffset())).html("Next ").html(items.getLimit()).end();
-                                writer.end();
-                            }
-
+                            writer.end();
                         writer.end();
-                    }
+
+                        if (items.hasNext()) {
+                            writer.start("li", "class", "next");
+                                writer.start("a", "href", page.url("", "offset", items.getNextOffset())).html("Next ").html(items.getLimit()).end();
+                            writer.end();
+                        }
+
+                    writer.end();
 
                     writer.start("table", "class", "links pageThumbnails table-striped");
                         writer.start("tbody");

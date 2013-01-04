@@ -106,19 +106,26 @@ public class ScheduledEvents extends PageServlet {
 
             writer.start("ul", "class", "pagination");
 
-                writer.start("li", "class", "previous");
-                    writer.start("a",
-                            "href", page.url("", "date", mode.getPrevious(date).getMillis()));
-                        writer.html("Previous ").html(mode);
-                    writer.end();
-                writer.end();
+                DateTime previous = mode.getPrevious(date);
+                DateTime today = new DateTime().toDateMidnight().toDateTime();
 
-                writer.start("li");
-                    writer.start("a",
-                            "href", page.url("", "date", System.currentTimeMillis()));
-                        writer.html("Today");
+                if (!previous.isBefore(today)) {
+                    writer.start("li", "class", "previous");
+                        writer.start("a",
+                                "href", page.url("", "date", previous.getMillis()));
+                            writer.html("Previous ").html(mode);
+                        writer.end();
                     writer.end();
-                writer.end();
+                }
+
+                if (begin.isAfter(today) || end.isBefore(today)) {
+                    writer.start("li");
+                        writer.start("a",
+                                "href", page.url("", "date", System.currentTimeMillis()));
+                            writer.html("Today");
+                        writer.end();
+                    writer.end();
+                }
 
                 writer.start("li", "class", "next");
                     writer.start("a",

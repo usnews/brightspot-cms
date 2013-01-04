@@ -55,8 +55,8 @@ try {
     selectedState.beginWrites();
     wp.include("/WEB-INF/objectPost.jsp", "object", selected);
 
-    UUID[] widgetIds = wp.uuidParams(selectedState.getId() + "/_widget");
-    if (!ObjectUtils.isBlank(widgetIds)) {
+    String[] widgetNames = wp.params(selectedState.getId() + "/_widget");
+    if (!ObjectUtils.isBlank(widgetNames)) {
 
         DependencyResolver<Widget> updateWidgets = new DependencyResolver<Widget>();
         for (Widget widget : wp.getTool().findPlugins(Widget.class)) {
@@ -65,8 +65,8 @@ try {
 
         for (Widget widget : updateWidgets.resolve()) {
             if (!"urls".equals(widget.getInternalName())) {
-                for (UUID widgetId : widgetIds) {
-                    if (widget.getId().equals(widgetId)) {
+                for (String widgetName : widgetNames) {
+                    if (widget.getInternalName().equals(widgetName)) {
                         widget.update(wp, selected);
                         break;
                     }

@@ -16,8 +16,8 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 Object object = request.getAttribute("object");
 State state = State.getInstance(object);
 
-UUID[] widgetIds = wp.uuidParams(state.getId() + "/_widget");
-if (!ObjectUtils.isBlank(widgetIds)) {
+String[] widgetNames = wp.params(state.getId() + "/_widget");
+if (!ObjectUtils.isBlank(widgetNames)) {
 
     DependencyResolver<Widget> updateWidgets = new DependencyResolver<Widget>();
     for (Widget widget : wp.getTool().findPlugins(Widget.class)) {
@@ -25,8 +25,8 @@ if (!ObjectUtils.isBlank(widgetIds)) {
     }
 
     for (Widget widget : updateWidgets.resolve()) {
-        for (UUID widgetId : widgetIds) {
-            if (widget.getId().equals(widgetId)) {
+        for (String widgetName : widgetNames) {
+            if (widget.getInternalName().equals(widgetName)) {
                 widget.update(wp, object);
                 break;
             }
