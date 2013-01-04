@@ -78,12 +78,6 @@ public class RecentActivity extends PageServlet {
                         "checked", userId == null ? "checked" : null);
                 writer.start("label", "for", page.getId()).html("Everyone").end();
 
-                writer.html(" ");
-
-                writer.tag("input",
-                        "type", "submit",
-                        "value", "Go");
-
             writer.end();
 
             writer.start("ul", "class", "pagination");
