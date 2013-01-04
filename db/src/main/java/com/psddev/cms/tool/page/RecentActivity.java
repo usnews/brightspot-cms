@@ -21,6 +21,8 @@ import com.psddev.dari.util.RoutingFilter;
 @SuppressWarnings("serial")
 public class RecentActivity extends PageServlet {
 
+    private static final int[] LIMITS = { 10, 20, 50 };
+
     @Override
     protected String getPermissionId() {
         return "area/dashboard";
@@ -101,6 +103,24 @@ public class RecentActivity extends PageServlet {
                         writer.end();
                     writer.end();
                 }
+
+                writer.start("li");
+                    writer.start("form",
+                            "class", "autoSubmit",
+                            "method", "get",
+                            "action", page.url(null));
+                        writer.start("select", "name", "limit");
+                            for (int l : LIMITS) {
+                                writer.start("option",
+                                        "value", l,
+                                        "selected", limit == l ? "selected" : null);
+                                    writer.html("Show ");
+                                    writer.html(l);
+                                writer.end();
+                            }
+                        writer.end();
+                    writer.end();
+                writer.end();
 
                 if (contents.hasNext()) {
                     writer.start("li", "class", "next");

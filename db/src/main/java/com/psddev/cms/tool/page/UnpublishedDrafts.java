@@ -20,6 +20,8 @@ import javax.servlet.ServletException;
 @SuppressWarnings("serial")
 public class UnpublishedDrafts extends PageServlet {
 
+    private static final int[] LIMITS = { 10, 20, 50 };
+
     @Override
     protected String getPermissionId() {
         return "area/dashboard";
@@ -28,11 +30,12 @@ public class UnpublishedDrafts extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         PageWriter writer = page.getWriter();
+        int limit = page.pageParam(Integer.class, "limit", 20);
         PaginatedResult<Draft> drafts = Query.
                 from(Draft.class).
                 where(Content.UPDATE_DATE_FIELD + " != missing").
                 sortDescending(Content.UPDATE_DATE_FIELD).
-                select(page.param(long.class, "offset"), page.paramOrDefault(int.class, "limit", 20));
+                select(page.param(long.class, "offset"), limit);
 
         writer.start("style", "type", "text/css");
             writer.write(".widget-unpublishedDrafts .status {");
@@ -50,33 +53,49 @@ public class UnpublishedDrafts extends PageServlet {
 
             writer.start("h1", "class", "icon-edit").html("Drafts").end();
 
-            if (drafts.hasPrevious() || drafts.hasNext()) {
-                writer.start("ul", "class", "pagination");
+            writer.start("ul", "class", "pagination");
 
-                    if (drafts.hasPrevious()) {
-                        writer.start("li", "class", "first");
-                            writer.start("a", "href", page.url("", "offset", drafts.getFirstOffset()));
-                                writer.html("Newest");
-                            writer.end();
+                if (drafts.hasPrevious()) {
+                    writer.start("li", "class", "first");
+                        writer.start("a", "href", page.url("", "offset", drafts.getFirstOffset()));
+                            writer.html("Newest");
                         writer.end();
+                    writer.end();
 
-                        writer.start("li", "class", "previous");
-                            writer.start("a", "href", page.url("", "offset", drafts.getPreviousOffset()));
-                                writer.html("Newer ").html(drafts.getLimit());
-                            writer.end();
+                    writer.start("li", "class", "previous");
+                        writer.start("a", "href", page.url("", "offset", drafts.getPreviousOffset()));
+                            writer.html("Newer ").html(drafts.getLimit());
                         writer.end();
-                    }
+                    writer.end();
+                }
 
-                    if (drafts.hasNext()) {
-                        writer.start("li", "class", "next");
-                            writer.start("a", "href", page.url("", "offset", drafts.getNextOffset()));
-                                writer.html("Older ").html(drafts.getLimit());
-                            writer.end();
+                writer.start("li");
+                    writer.start("form",
+                            "class", "autoSubmit",
+                            "method", "get",
+                            "action", page.url(null));
+                        writer.start("select", "name", "limit");
+                            for (int l : LIMITS) {
+                                writer.start("option",
+                                        "value", l,
+                                        "selected", limit == l ? "selected" : null);
+                                    writer.html("Show ");
+                                    writer.html(l);
+                                writer.end();
+                            }
                         writer.end();
-                    }
-
+                    writer.end();
                 writer.end();
-            }
+
+                if (drafts.hasNext()) {
+                    writer.start("li", "class", "next");
+                        writer.start("a", "href", page.url("", "offset", drafts.getNextOffset()));
+                            writer.html("Older ").html(drafts.getLimit());
+                        writer.end();
+                    writer.end();
+                }
+
+            writer.end();
 
             writer.start("table", "class", "links table-striped pageThumbnails").start("tbody");
                 for (Draft draft : drafts.getItems()) {
