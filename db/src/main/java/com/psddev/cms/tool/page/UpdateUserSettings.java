@@ -4,6 +4,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 
 import java.io.IOException;
@@ -33,6 +34,9 @@ public class UpdateUserSettings extends PageServlet {
 
             } else if ("liveContentPreview-disable".equals(action)) {
                 userState.put("liveContentPreview", false);
+
+            } else if ("dashboardWidgets-position".equals(action)) {
+                userState.put("dashboardWidgets", ObjectUtils.fromJson(page.param(String.class, "widgets")));
             }
         }
 
