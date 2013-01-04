@@ -63,7 +63,7 @@
 		}
 		if (pg == null) {
 			// something has gone wrong
-			wp.redirect("/");
+			// TODO: We should do something
 		}
 	}
 	// If a variation was selected, we use that
@@ -98,11 +98,6 @@
 	wp.include("/WEB-INF/header.jsp");
 %>
 <style type="text/css">
-.guidebuttons {
-	margin: 6px 0 15px 0;
-	overflow: hidden;
-	padding: 10px 30px;
-}
 
 .button {
     .background-image-vertical-gradient(@color-background, @color-note-lighter);
@@ -125,53 +120,6 @@
     }
 }
 
-.contentForm {
-	margin: -10px;
-	overflow: hidden;
-	padding: 10px 10px 10px 10px;
-}
-
-.guideTop {
-	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px;
-	margin-top: 0px;
-}
-
-.guideDescription {
-	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px;
-	margin-top: 20px;
-}
-
-.moduleReferences {
-	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px;
-	margin-top: 20px;
-}
-
-.guideTips {
-	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px; margin-top : 20px;
-	background-color: #E6DDDD;
-	margin-top: 20px;
-}
-
-.relatedTemplate {
-	float: left;
-	display: table;
-	vertical-align: middle;
-	padding: 10px 10px 10px 10px;
-}
-
-.relatedTemplate iframe,.relatedTemplate.text {
-	display: table-cell;
-	vertical-align: middle;
-}
-
 </style>
 
 <div class="widget widget-content">
@@ -182,23 +130,18 @@
 	</h1>
 	<!--  Choose page variation -->
 	<%
+	   // Can use this instead if we put in a way to set target to this popup isntead of _top
 	    if (state != null && !state.isNew()) {
 		    wp.include("/WEB-INF/objectVariation.jsp", "object", selected);
 	    }
-	%>
-
+	    // Display chosen variation
+	   %> <div class="variation">
+        Variation: <%= selectedVariation != null ? wp.objectLabel(selectedVariation) : "Default" %> 
+       </div> 
 
 	<div class="content-edit">
 		<!-- Link back to content edit page -->
-		<form action="<%=wp.objectUrl("", selected, "section", section)%>"
-			autocomplete="off" class="contentForm" enctype="multipart/form-data"
-			method="post">
-			<div align="right">
-				<a
-					href="<%=wp.objectUrl("/content/edit.jsp", selected,
-					"variationId", wp.param("variationId"), "guide", "0")%>"
-					class="button">Start Publishing!</a>
-			</div>
+		<form href="" class="guideForm" action="<%=wp.url("", "section", section)%>">
 			<%
 				Section prev = null;
 				Section nxt = null;
@@ -208,22 +151,18 @@
 				int curCnt = 1;
 			%>
 
-			<div class="contentForm-main">
+			<div class="guideForm-main">
 
 				<%
 					Content samplePage = Guide.Static.getSamplePage(pg);
 					if (samplePage != null) {
 						wp.write("<iframe src=\"", samplePage.getPermalink(),
 								"\" width=\"400px\" height=\"800px\" align=\"left\"></iframe>");
-						//wp.write("<iframe class=\"pageThumbnails_preview_frame\" src=\"/_preview?_cms.db.previewId=", samplePage.getId(), "\">",
-						//		"\"></iframe>");
-						//wp.write("<div class=\"guidepageThumbnails_preview_frame\"> <img src = \"", "/_preview?_cms.db.previewId=", samplePage.getId(), "\"/></div>");
-						//wp.include("_preview", "_cms.db.previewId", samplePage.getId());
 					}
 					wp.write("<div class=\"guideTop\">");
 					if (!summaryPage) {
 						wp.write(pg.getName(), ":  ");
-						wp.write("<select name=\"section\" onchange=\"this.form.submit();\">");
+						wp.write("<select name=\"section\" onchange=\"$(this).closest('form').submit();\">");
 					}
 					Iterator iter = sections.iterator();
 
@@ -271,8 +210,10 @@
 					if (!summaryPage) {
 						wp.write("</select>");
 					}
-					wp.write("<input type=\"hidden\" name=\"id\" value=\"",
+					if (selected != null) {
+						wp.write("<input type=\"hidden\" name=\"id\" value=\"",
 							((Content) selected).getId(), "\"/>");
+					}
 
 					wp.write("</div>");
 					// Display the descriptive content
@@ -349,11 +290,6 @@
 			
 			<div align="right" class="guidebuttons">
 				<a href="" class="button">Print Production Guide</a>
-				<!-- Link back to content edit page -->
-				<a
-					href="<%=wp.objectUrl("/content/edit.jsp", selected,
-					"variationId", wp.param("variationId"), "guide", "0")%>"
-					class="button">Start Publishing!</a>
 			</div>
 			<%
 				if (summaryPage) {
