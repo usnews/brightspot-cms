@@ -555,12 +555,14 @@
     padding: @input-padding;
     white-space: pre-wrap;
 
-    &:focus {
+    &:focus,
+    &.focus {
         border-color: @color-link-lighter;
         .box-shadow(@color-link-lighter 0 0 4px);
     }
 
-    &[disabled] {
+    &[disabled],
+    &.disabled {
         background-color: #f9dcdc;
     }
 }
@@ -1243,7 +1245,8 @@ select {
     word-wrap: normal;
 
     &[multiple] {
-        height: 6em;
+        height: (@input-borderWidth + @input-padding) * 2 + @lineHeight-input * 5;
+        width: 100%;
     }
 }
 
@@ -1779,11 +1782,39 @@ h1 select:focus {
 
 // --- $.dropDown ---
 
-.dropDown-input {
+.dropDown-label {
     .select;
+
+    width: 100%;
 
     &.focus {
         .border-bottom-left-radius(0);
+
+        &:after {
+            background-color: @color-background;
+            bottom: -1px;
+            content: '';
+            height: 3px;
+            left: 0;
+            position: absolute;
+            right: 3px;
+            z-index: 2;
+        }
+
+        &.dropDown-label-smaller {
+            .border-bottom-right-radius(0);
+
+            &:after {
+                right: 0;
+            }
+        }
+
+        &.dropDown-label-larger {
+            &:after {
+                bottom: 0;
+                height: 2px;
+            }
+        }
     }
 }
 
@@ -1791,25 +1822,37 @@ h1 select:focus {
     background-color: @color-background;
     .border-bottom-left-radius(5px);
     .border-bottom-right-radius(5px);
-    .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
-    left: 1px;
+    border: @input-borderWidth solid @color-link-lighter;
+    .box-shadow(0 0 4px @color-link-lighter);
     list-style-type: none;
-    margin: 0;
+    margin: 0 5px 0 0;
     max-height: 300px;
     overflow: auto;
     padding: 0 0 5px 0;
     position: relative;
-    top: 5px;
+    top: -1px;
     z-index: 1;
 
-    li {
-        cursor: default;
-        padding: 1px 15px 1px 5px;
+    &.dropDown-list-smaller {
+        border-top-color: transparent;
+    }
 
-        &:hover {
-            background-color: @color-link;
-            color: @color-background;
-        }
+    &.dropDown-list-larger {
+        .border-top-right-radius(5px);
+    }
+}
+
+.dropDown-listItem {
+    cursor: default;
+    padding: 1px 15px 1px 5px;
+
+    &.hover {
+        background-color: @color-link;
+        color: @color-background;
+    }
+
+    .dropDown-list-larger > &:first-child {
+        .border-top-right-radius(5px);
     }
 }
 
