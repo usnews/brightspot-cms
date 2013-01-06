@@ -35,7 +35,13 @@ $.plugin2('dropDown', {
             'class': plugin._className('label'),
             'href': '#',
             'click': function() {
-                $list.trigger('dropDown-open');
+                if ($openList && $openList[0] === $list[0]) {
+                    $list.trigger('dropDown-close');
+
+                } else {
+                    $list.trigger('dropDown-open');
+                }
+
                 return false;
             }
         });
