@@ -30,6 +30,11 @@ $.plugin2('dropDown', {
                 $list,
                 addItem;
 
+        if (!isMultiple &&
+                $original.find('option[selected]').length === 0) {
+            $original.find('option:first').attr('selected', 'selected');
+        }
+
         $input = $('<div/>', {
             'class': plugin.className('input'),
             'css': {
@@ -228,11 +233,6 @@ $.plugin2('dropDown', {
                 });
             }
         });
-
-        if (!isMultiple &&
-                $list.find(':has(:checked).' + plugin.className('listItem')).length === 0) {
-            $list.find('.' + plugin.className('listItem')).eq(0).find(':radio').attr('checked', 'checked');
-        }
 
         // Replace input with the custom control.
         $label.trigger('dropDown-update');
