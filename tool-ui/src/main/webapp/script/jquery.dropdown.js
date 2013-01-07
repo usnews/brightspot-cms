@@ -1,7 +1,8 @@
 /** Better drop-down list than standard SELECT. */
 (function($, win, undef) {
 
-var doc = win.document,
+var $win = $(win),
+        doc = win.document,
         $doc = $(doc),
         $openList;
 
@@ -14,10 +15,10 @@ $.plugin2('dropDown', {
         return this.option('classPrefix') + name;
     },
 
-
     '_create': function(original) {
         var plugin = this,
                 $original = $(original),
+                isFixedPosition = $original.isFixedPosition(),
                 isMultiple = $original.is('[multiple]'),
                 isSearchable = $original.is('[data-searchable="true"]'),
                 $input,
@@ -83,7 +84,7 @@ $.plugin2('dropDown', {
 
         containerCss = {
             'display': 'none',
-            'position': $original.isFixedPosition() ? 'fixed' : 'absolute',
+            'position': isFixedPosition ? 'fixed' : 'absolute',
             'z-index': $original.zIndex()
         };
 
@@ -108,6 +109,10 @@ $.plugin2('dropDown', {
                     inputLarger = $input.outerWidth(true) > $listContainer.outerWidth(true);
 
             offset.top += $input.outerHeight();
+
+            if (isFixedPosition) {
+                offset.top -= $win.scrollTop();
+            }
 
             $listContainer.css(offset);
             $markerContainer.css(offset);
