@@ -10,7 +10,10 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.ImageMetadataMap;
+import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.RoutingFilter;
@@ -18,6 +21,7 @@ import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,9 +35,14 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.fileupload.FileItem;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
 @SuppressWarnings("serial")
 public class UploadFiles extends PageServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadFiles.class);
 
     @Override
     protected String getPermissionId() {
@@ -87,11 +96,31 @@ public class UploadFiles extends PageServlet {
                         httpHeaders.put("Content-Type", Collections.singletonList(file.getContentType()));
 
                         StorageItem item = StorageItem.Static.create();
+                        String contentType = file.getContentType();
 
                         item.setPath(path.toString());
-                        item.setContentType(file.getContentType());
+                        item.setContentType(contentType);
                         item.getMetadata().put("http.headers", httpHeaders);
                         item.setData(file.getInputStream());
+
+                        if (contentType != null && contentType.startsWith("image/")) {
+                            InputStream fileInput = file.getInputStream();
+
+                            try {
+                                ImageMetadataMap metadata = new ImageMetadataMap(fileInput);
+                                List<Throwable> errors = metadata.getErrors();
+
+                                item.getMetadata().putAll(metadata);
+
+                                if (!errors.isEmpty()) {
+                                    LOGGER.info("Can't read image metadata!", new AggregateException(errors));
+                                }
+
+                            } finally {
+                                IoUtils.closeQuietly(fileInput);
+                            }
+                        }
+
                         item.save();
 
                         State state = State.getInstance(selectedType.createObject(null));
