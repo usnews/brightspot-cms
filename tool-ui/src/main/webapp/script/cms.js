@@ -14,7 +14,7 @@ $doc.repeatable('live', '.repeatableText', {
 
 $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
-$doc.dropDown('live', 'select[multiple]');
+$doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
 $doc.expandable('live', ':text.expandable, textarea');
 
 $doc.frame({

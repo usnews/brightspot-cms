@@ -10,29 +10,51 @@ $.plugin2('dropDown', {
         'classPrefix': 'dropDown-'
     },
 
-    '_className': function(name) {
+    'className': function(name) {
         return this.option('classPrefix') + name;
     },
+
 
     '_create': function(original) {
         var plugin = this,
                 $original = $(original),
                 isMultiple = $original.is('[multiple]'),
-                $labelContainer,
+                isSearchable = $original.is('[data-searchable="true"]'),
+                $input,
                 $label,
+                $search,
+                containerCss,
+                $markerContainer,
+                $marker,
                 $listContainer,
-                $list;
+                $list,
+                addItem;
 
-        $labelContainer = $('<div/>', {
+        $input = $('<div/>', {
+            'class': plugin.className('input'),
             'css': {
-                'display': 'inline-block',
+                'margin-bottom': $original.css('margin-bottom'),
+                'margin-left': $original.css('margin-left'),
+                'margin-right': $original.css('margin-right'),
+                'margin-top': $original.css('margin-top'),
                 'position': 'relative',
                 'width': $original.outerWidth()
             }
         });
 
+        $input.click(function() {
+            if ($label.is(':visible')) {
+                $label.click();
+
+            } else {
+                $search.click();
+            }
+
+            return false;
+        });
+
         $label = $('<a/>', {
-            'class': plugin._className('label'),
+            'class': plugin.className('label'),
             'href': '#',
             'click': function() {
                 if ($openList && $openList[0] === $list[0]) {
@@ -47,62 +69,71 @@ $.plugin2('dropDown', {
         });
 
         $label.bind('dropDown-update', function() {
-            var texts = $.map($original.find('> option[selected]'), function(option) {
+            var texts = $.map($original.find('option[selected]'), function(option) {
                 return $(option).text();
             });
 
             $label.html(texts.join(', ') || '&nbsp;');
         });
 
-        $listContainer = $('<div/>', {
-            'css': {
-                'display': 'none',
-                'position': 'absolute'
-            }
+        containerCss = {
+            'display': 'none',
+            'position': $original.isFixedPosition() ? 'fixed' : 'absolute',
+            'z-index': $original.zIndex()
+        };
+
+        $markerContainer = $('<div/>', {
+            'css': containerCss
         });
 
-        $list = $('<ul/>', {
-            'class': plugin._className('list')
+        $marker = $('<div/>', {
+            'class': plugin.className('marker')
+        });
+
+        $listContainer = $('<div/>', {
+            'css': containerCss
+        });
+
+        $list = $('<div/>', {
+            'class': plugin.className('list')
         });
 
         $list.bind('dropDown-open', function() {
-            var offset = $labelContainer.offset(),
-                    labelLarger = $labelContainer.outerWidth(true) > $listContainer.outerWidth(true);
+            var offset = $input.offset(),
+                    inputLarger = $input.outerWidth(true) > $listContainer.outerWidth(true);
 
-            $listContainer.css({
-                'left': offset.left,
-                'top': offset.top + $labelContainer.outerHeight(true)
-            });
+            offset.top += $input.outerHeight();
 
-            $label.toggleClass(plugin._className('label-smaller'), !labelLarger);
-            $label.toggleClass(plugin._className('label-larger'), labelLarger);
-            $label.addClass('focus');
+            $listContainer.css(offset);
+            $markerContainer.css(offset);
+            $markerContainer.css('width', $input.outerWidth());
 
-            $list.toggleClass(plugin._className('list-smaller'), labelLarger);
-            $list.toggleClass(plugin._className('list-larger'), !labelLarger);
+            $input.add($marker).add($list).toggleClass(plugin.className('input-larger'), inputLarger);
+            $input.addClass(plugin.className('list-open'));
 
-            $list.find('> li').removeClass('hover');
-            $list.find(isMultiple ? '> li:first' : '> li:has(:checked)').addClass('hover');
+            $list.find('.' + plugin.className('listItem')).removeClass('hover');
+            $list.find('.' + plugin.className('listItem') + (isMultiple ? ':first' : ':has(:checked)')).addClass('hover');
 
             if ($openList) {
                 $openList.trigger('dropDown-close');
             }
 
             $openList = $list;
+            $markerContainer.show();
             $listContainer.show();
-            $original.focus();
         });
 
         $list.bind('dropDown-close', function() {
-            $label.removeClass('focus');
+            console.log('close');
+            $input.removeClass(plugin.className('list-open'));
 
             $openList = null;
+            $markerContainer.hide();
             $listContainer.hide();
-            $original.blur();
         });
 
         $list.bind('dropDown-hover', function(event, $item) {
-            $list.find('> li').removeClass('hover');
+            $list.find('.' + plugin.className('listItem')).removeClass('hover');
 
             if ($item) {
                 $item.addClass('hover');
@@ -118,13 +149,12 @@ $.plugin2('dropDown', {
         });
 
         // Create the list based on the options in the original input.
-        $original.find('> option').each(function() {
-            var $option = $(this),
-                    $item,
+        addItem = function($option) {
+            var $item,
                     $check;
 
-            $item = $('<li/>', {
-                'class': plugin._className('listItem'),
+            $item = $('<div/>', {
+                'class': plugin.className('listItem'),
                 'html': $option.text() || '&nbsp;'
             });
 
@@ -161,7 +191,7 @@ $.plugin2('dropDown', {
 
             } : function() {
                 if (!$option.is('[selected]')) {
-                    $original.find('> option').removeAttr('selected');
+                    $original.find('option').removeAttr('selected');
                     $listContainer.find(':radio').removeAttr('checked');
 
                     $option.attr('selected', 'selected');
@@ -179,55 +209,156 @@ $.plugin2('dropDown', {
             $item.prepend(' ');
             $item.prepend($check);
             $list.append($item);
+        };
+
+        $original.find('> optgroup, > option').each(function() {
+            var $child = $(this);
+
+            if ($child.is('option')) {
+                addItem($child);
+
+            } else {
+                $list.append($('<div/>', {
+                    'class': plugin.className('listGroupLabel'),
+                    'text': $child.attr('label')
+                }));
+
+                $child.find('> option').each(function() {
+                    addItem($(this));
+                });
+            }
         });
+
+        if (!isMultiple &&
+                $list.find(':has(:checked).' + plugin.className('listItem')).length === 0) {
+            $list.find('.' + plugin.className('listItem')).eq(0).find(':radio').attr('checked', 'checked');
+        }
 
         // Replace input with the custom control.
         $label.trigger('dropDown-update');
-        $labelContainer.append($label);
-        $original.before($labelContainer);
+        $input.append($label);
+        $original.before($input);
         $original.hide();
 
         $listContainer.append($list);
         $(doc.body).append($listContainer);
+        $listContainer.css('min-width', $listContainer.outerWidth());
+
+        $markerContainer.append($marker);
+        $(doc.body).append($markerContainer);
+
+        if (isSearchable) {
+            $search = $('<input/>', {
+                'class': plugin.className('search'),
+                'type': 'text',
+                'data-auto-submit': 'false'
+            });
+
+            $search.bind('input', function() {
+                var re = new RegExp($search.val().replace(/\s/, '').split('').join('(?:.*\\W)?'), 'i'),
+                        $first;
+
+                $list.find('.' + plugin.className('listItem')).each(function() {
+                    var $item = $(this);
+
+                    if (re.test($item.text())) {
+                        $item.show();
+
+                        if (!$first) {
+                            $first = $item;
+                        }
+
+                    } else {
+                        $item.hide();
+                    }
+                });
+
+                $list.trigger('dropDown-hover', [ $first ]);
+            });
+
+            $search.click(function() {
+                return false;
+            });
+
+            $list.bind('dropDown-open', function() {
+                $label.hide();
+                $list.find('.' + plugin.className('listItem')).show();
+
+                $search.val($label.text());
+                $search.show();
+                $search.focus();
+                $search.select();
+            });
+
+            $list.bind('dropDown-close', function() {
+                $label.show();
+                $search.hide();
+            });
+
+            $search.hide();
+            $input.append($search);
+        }
     }
 });
 
 $doc.keydown(function(event) {
     var which,
             isUp,
+            LIST_ITEM_CLASS,
             $hover,
-            $newHover;
+            hoverTop,
+            hoverHeight,
+            delta;
 
     if ($openList) {
         which = event.which;
         isUp = which === 38;
 
-        if (isUp || which === 40) {
-            $hover = $openList.find('> .hover').eq(0);
+        if (!(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
+            LIST_ITEM_CLASS = $openList.dropDown('className', 'listItem');
 
-            if ($hover.length === 0) {
-                $hover = $openList.find('> li:first');
-            }
+            if (isUp || which === 40) {
+                $hover = $openList.find('.hover:visible.' + LIST_ITEM_CLASS).eq(0);
 
-            if ($hover.length > 0) {
-                $hover = $hover[isUp ? 'prev' : 'next']();
+                if ($hover.length === 0) {
+                    $hover = $openList.find(':visible.' + LIST_ITEM_CLASS).eq(isUp ? -1 : 0);
+
+                } else {
+                    $hover = $hover[isUp ? 'prevAll' : 'nextAll'](':visible.' + LIST_ITEM_CLASS).eq(0);
+                }
 
                 if ($hover.length > 0) {
                     $openList.trigger('dropDown-hover', [ $hover ]);
+
+                    hoverTop = $hover.position().top;
+                    hoverHeight = $hover.outerHeight();
+
+                    if (isUp) {
+                        if (hoverTop < 0) {
+                            $openList.scrollTop($openList.scrollTop() + hoverTop);
+                        }
+
+                    } else {
+                        delta = hoverTop + hoverHeight - $openList.height();
+
+                        if (delta > 0) {
+                            $openList.scrollTop($openList.scrollTop() + delta);
+                        }
+                    }
                 }
+
+                return false;
+
+            } else if (which === 13) {
+                $openList.find('.hover.' + LIST_ITEM_CLASS).click();
+
+                return false;
+
+            } else if (which === 27) {
+                $openList.trigger('dropDown-close');
+
+                return false;
             }
-
-            return false;
-
-        } else if (which === 13 || which === 32) {
-            $openList.find('> .hover').click();
-
-            return false;
-
-        } else if (which === 27) {
-            $openList.trigger('dropDown-close');
-
-            return false;
         }
     }
 

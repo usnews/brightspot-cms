@@ -1061,6 +1061,29 @@ table.links.table-striped {
     }
 }
 
+.text {
+    background: transparent;
+    border: none;
+    color: @color-text;
+    display: inline;
+    height: auto;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    position: static;
+    width: auto;
+
+    &:focus,
+    &.focus {
+        .box-shadow(none);
+    }
+
+    &:hover,
+    &.hover {
+        text-decoration: none;
+    }
+}
+
 .time {
     text-align: right;
     width: 55px;
@@ -1782,39 +1805,46 @@ h1 select:focus {
 
 // --- $.dropDown ---
 
-.dropDown-label {
+.dropDown-input {
     .select;
 
-    width: 100%;
-
-    &.focus {
+    &.dropDown-list-open {
         .border-bottom-left-radius(0);
+        border-color: @color-link-lighter;
+        .box-shadow(0 0 4px @color-link-lighter);
 
-        &:after {
-            background-color: @color-background;
-            bottom: -1px;
-            content: '';
-            height: 3px;
-            left: 0;
-            position: absolute;
-            right: 3px;
-            z-index: 2;
-        }
-
-        &.dropDown-label-smaller {
+        &:not(.dropDown-input-larger) {
             .border-bottom-right-radius(0);
-
-            &:after {
-                right: 0;
-            }
         }
+    }
+}
 
-        &.dropDown-label-larger {
-            &:after {
-                bottom: 0;
-                height: 2px;
-            }
-        }
+.dropDown-label {
+    .text;
+
+    display: block;
+}
+
+input[type="text"].dropDown-search {
+    .text;
+
+    width: 100%;
+}
+
+.dropDown-marker {
+    &:before {
+        background-color: @color-background;
+        content: '';
+        height: 3px;
+        left: 1px;
+        position: absolute;
+        right: 1px;
+        top: -3px;
+    }
+
+    &.dropDown-input-larger:before {
+        top: -4px;
+        right: 40px;
     }
 }
 
@@ -1831,15 +1861,21 @@ h1 select:focus {
     padding: 0 0 5px 0;
     position: relative;
     top: -1px;
-    z-index: 1;
 
-    &.dropDown-list-smaller {
+    &.dropDown-input-larger {
         border-top-color: transparent;
     }
+}
 
-    &.dropDown-list-larger {
-        .border-top-right-radius(5px);
-    }
+.dropDown-listGroupLabel {
+    border-bottom: 1px solid @color-note;
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    line-height: @lineHeight-default * 0.8;
+    text-transform: uppercase;
+    margin: 10px 5px;
+    padding: 0;
 }
 
 .dropDown-listItem {
@@ -1849,10 +1885,6 @@ h1 select:focus {
     &.hover {
         background-color: @color-link;
         color: @color-background;
-    }
-
-    .dropDown-list-larger > &:first-child {
-        .border-top-right-radius(5px);
     }
 }
 
