@@ -8,12 +8,14 @@ import javax.servlet.ServletException;
 
 import org.joda.time.DateTime;
 
+import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 
@@ -35,7 +37,7 @@ public class RecentActivity extends PageServlet {
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(Integer.class, "limit", 20);
 
-        Query<Content> contentQuery = Query.
+        Query<?> contentQuery = Query.
                 from(Content.class).
                 where(page.siteItemsPredicate()).
                 and(Content.UPDATE_DATE_FIELD + " != missing").
@@ -46,7 +48,7 @@ public class RecentActivity extends PageServlet {
             contentQuery.and(Content.UPDATE_USER_FIELD + " = ?", userId);
         }
 
-        PaginatedResult<Content> contents = contentQuery.select(offset, limit);
+        PaginatedResult<?> contents = contentQuery.select(offset, limit);
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-recentActivity");
@@ -131,10 +133,12 @@ public class RecentActivity extends PageServlet {
 
                 String lastDateString = null;
 
-                for (Content content : contents.getItems()) {
-                    String permalink = content.getPermalink();
-                    DateTime updateDate = new DateTime(content.getUpdateDate());
-                    ToolUser updateUser = content.getUpdateUser();
+                for (Object content : contents.getItems()) {
+                    State contentState = State.getInstance(content);
+                    String permalink = contentState.as(Directory.ObjectModification.class).getPermalink();
+                    Content.ObjectModification contentData = contentState.as(Content.ObjectModification.class);
+                    DateTime updateDate = new DateTime(contentData.getUpdateDate());
+                    ToolUser updateUser = contentData.getUpdateUser();
                     String dateString = updateDate.toString("E, MMM d, yyyy");
 
                     writer.start("tr", "data-preview-url", permalink);
