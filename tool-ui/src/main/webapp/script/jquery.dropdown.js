@@ -129,7 +129,6 @@ $.plugin2('dropDown', {
         });
 
         $list.bind('dropDown-close', function() {
-            console.log('close');
             $input.removeClass(plugin.className('list-open'));
 
             $openList = null;
