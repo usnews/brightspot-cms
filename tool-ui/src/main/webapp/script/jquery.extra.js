@@ -265,6 +265,29 @@ $.throttle = function(interval, throttledFunction) {
     });
 }());
 
+// Returns true if the element should be in fixed CSS position.
+$.fn.isFixedPosition = function() {
+    var $parent = this,
+            $newParent;
+
+    while (true) {
+        if ($parent.css('position') === 'fixed') {
+            return true;
+        }
+
+        $newParent = $parent.offsetParent();
+
+        if ($parent.length === 0 || $parent[0] === $newParent[0]) {
+            break;
+
+        } else {
+            $parent = $newParent;
+        }
+    }
+
+    return false;
+};
+
 // Returns an accurate CSS z-index, taking all the parents into account.
 $.fn.zIndex = function() {
     var zIndex;
