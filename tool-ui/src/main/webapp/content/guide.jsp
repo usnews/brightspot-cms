@@ -287,9 +287,13 @@
 				%>
 
 			</div>
-			
+
 			<div align="right" class="guidebuttons">
-				<a href="" class="button">Print Production Guide</a>
+				<a
+					href="<%=wp.url("guideprint.jsp", "templateId", pg.getId(),
+					"variationId", wp.uuidParam("variationId"))%>"
+					target="productionGuidePrintout" class="button">Print
+					Production Guide</a>
 			</div>
 			<%
 				if (summaryPage) {
