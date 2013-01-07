@@ -165,6 +165,9 @@ public class ToolFilter extends AbstractFilter {
             } else if (embeddedPath.startsWith(JspWidget.REMOTE_UPDATE_API)) {
                 isUpdating = Boolean.TRUE;
             }
+            
+            // Instruct compliant browsers not to display the page in a frame
+            response.setHeader("X-Frame-Options", "DENY");
 
             ToolPageContext wp = new ToolPageContext(getServletContext(), request, response);
             if (isUpdating != null) {
