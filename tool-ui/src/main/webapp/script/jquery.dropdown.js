@@ -250,8 +250,7 @@ $.plugin2('dropDown', {
         if (isSearchable) {
             $search = $('<input/>', {
                 'class': plugin.className('search'),
-                'type': 'text',
-                'data-auto-submit': 'false'
+                'type': 'text'
             });
 
             $search.bind('input', function() {
