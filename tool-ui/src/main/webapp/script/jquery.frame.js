@@ -16,10 +16,9 @@ $.plugin2('frame', {
         }
     },
 
-    '_init': function(selector) {
+    '_init': function(selector, options) {
         var plugin = this,
                 $caller = plugin.$caller,
-                options = plugin.option(),
                 frameClassName = options.frameClassName,
                 loadingClassName = options.loadingClassName,
                 loadedClassName = options.loadedClassName,
@@ -195,8 +194,6 @@ $.plugin2('frame', {
         $caller.onCreate('.' + frameClassName, function() {
             var $frame = $(this),
                     $anchor;
-
-            plugin._initElement(this, options);
 
             if ($frame.is(':not(.' + loadingClassName + '):not(.' + loadedClassName + ')')) {
                 $anchor = $frame.find('a:only-child:not([target])');

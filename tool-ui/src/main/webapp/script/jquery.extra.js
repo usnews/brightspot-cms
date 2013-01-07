@@ -12,18 +12,6 @@ $.plugin2 = function(name, methods) {
         return $.extend(true, { }, this._defaultOptions, options);
     };
 
-    methods._initElement = function(element, options) {
-        var $element = $(element);
-
-        $.data(element, OPTIONS_DATA_KEY, options);
-        $element.addClass(CLASS_NAME);
-        this['$caller'] = $element;
-    };
-
-    methods._isInit = function(element) {
-        return !!$.data(element, OPTIONS_DATA_KEY);
-    };
-
     methods.closestInit = function() {
         var $init = this.$caller.closest('.' + CLASS_NAME);
         return $init.length > 0 ? $init : $(doc);
@@ -56,23 +44,24 @@ $.plugin2 = function(name, methods) {
         options = plugin._mergeOptions(options);
 
         $caller.onCreate(selector, function() {
-            if (!plugin._isInit(this)) {
-                plugin._initElement(this, options);
+            var $element,
+                    elementPlugin;
 
-                if (plugin._create) {
-                    plugin._create(this);
+            if (!$.data(this, OPTIONS_DATA_KEY)) {
+                $element = $(this);
+                elementPlugin = $.extend({ }, plugin, { '$caller': $element });
+
+                $.data(this, OPTIONS_DATA_KEY, options);
+                $element.addClass(CLASS_NAME);
+
+                if (elementPlugin._create) {
+                    elementPlugin._create(this);
                 }
             }
         });
 
-        if (!plugin._isInit(this)) {
-            $caller.each(function() {
-                plugin._initElement(this, options);
-            });
-
-            if (plugin._init) {
-                plugin._init(selector);
-            }
+        if (plugin._init) {
+            plugin._init(selector, options);
         }
 
         return $caller;
