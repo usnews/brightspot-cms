@@ -87,7 +87,7 @@ String newTarget = (String) request.getAttribute("newTarget");
             <h2>Filters</h2>
 
             <% if (mainTypes.size() + miscTypes.size() > 1) { %>
-                <select name="<%= Search.SELECTED_TYPE_PARAMETER %>">
+                <select name="<%= Search.SELECTED_TYPE_PARAMETER %>" data-searchable="true">
                     <option value="">- ALL TYPES -</option>
                     <% if (mainTypes.size() > 0) { %>
                         <optgroup label="Main Content Types">
@@ -129,7 +129,7 @@ String newTarget = (String) request.getAttribute("newTarget");
             <h2>Create</h2>
 
             <form action="<%= wp.url(newJsp) %>" class="new" method="get"<%= ObjectUtils.isBlank(newTarget) ? "" : " target=\"" + newTarget + "\"" %>>
-                <select name="typeId">
+                <select name="typeId" data-searchable="true">
                     <% if (mainTypes.size() > 0) { %>
                         <optgroup label="Main Content Types">
                             <% for (ObjectType type : mainTypes) { %>
