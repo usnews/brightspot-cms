@@ -133,17 +133,28 @@ public class SearchResultRenderer {
             url = image.getPublicUrl();
         }
 
+        boolean showType = search.getSelectedType() == null
+                && search.getValidTypes().size() != 1;
+
         wp.write("<figure>");
         wp.write("<img alt=\"");
-        wp.write(wp.typeLabel(item));
-        wp.write(": ");
+
+        if (showType) {
+            wp.write(wp.typeLabel(item));
+            wp.write(": ");
+        }
+
         wp.write(wp.objectLabel(item));
         wp.write("\" src=\"");
         wp.write(wp.url(url));
         wp.write("\">");
         wp.write("<figcaption>");
-        wp.write(wp.typeLabel(item));
-        wp.write(": ");
+
+        if (showType) {
+            wp.write(wp.typeLabel(item));
+            wp.write(": ");
+        }
+
         wp.write(wp.objectLabel(item));
         wp.write("</figcaption>");
         wp.write("</figure>");
