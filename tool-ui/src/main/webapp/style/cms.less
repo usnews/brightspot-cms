@@ -38,6 +38,7 @@
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
+@media-webkit: ~'screen and (-webkit-min-device-pixel-ratio: 0)';
 
 // --- Functions ---
 
@@ -1252,11 +1253,6 @@ hr {
 
 i {
     .em;
-}
-
-input::-moz-focus-inner {
-    border: 0;
-    padding: 0;
 }
 
 input {
@@ -3674,5 +3670,22 @@ input[type="text"].dropDown-search {
     .inputContainer.fieldPreview-displaying & {
         display: block;
         .opacity(1);
+    }
+}
+
+// --- Firefox hacks ---
+
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+// --- WebKit hacks ---
+
+@media @media-webkit {
+    button,
+    input[type=submit] {
+        position: relative;
+        top: 1px;
     }
 }
