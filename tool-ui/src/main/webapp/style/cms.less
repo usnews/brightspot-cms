@@ -294,6 +294,39 @@
     cursor: help;
 }
 
+figure,
+.figure {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    figcaption,
+    .figcaption {
+        background-color: fade(@color-background, 80%);
+        bottom: 0;
+        .box-sizing(border-box);
+        left: 0;
+        line-height: @lineHeight-input;
+        margin: 0;
+        max-height: 100%;
+        overflow: hidden;
+        padding: 4px 4px;
+        position: absolute;
+        text-overflow: ellipsis;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        figcaption,
+        .figcatpion {
+            overflow: auto;
+            white-space: normal;
+        }
+    }
+}
+
 .icon {
     &:before {
         display: inline-block;
@@ -1545,7 +1578,7 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .searchForm-images {
-    img {
+    figure {
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;

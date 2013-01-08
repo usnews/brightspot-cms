@@ -133,6 +133,7 @@ public class SearchResultRenderer {
             url = image.getPublicUrl();
         }
 
+        wp.write("<figure>");
         wp.write("<img alt=\"");
         wp.write(wp.typeLabel(item));
         wp.write(": ");
@@ -140,6 +141,12 @@ public class SearchResultRenderer {
         wp.write("\" src=\"");
         wp.write(wp.url(url));
         wp.write("\">");
+        wp.write("<figcaption>");
+        wp.write(wp.typeLabel(item));
+        wp.write(": ");
+        wp.write(wp.objectLabel(item));
+        wp.write("</figcaption>");
+        wp.write("</figure>");
 
         renderAfterItem(item);
     }
