@@ -3,7 +3,8 @@ package com.psddev.cms.tool;
 public enum SearchSort {
 
     RELEVANT("Relevant"),
-    NEWEST("Newest");
+    NEWEST("Newest"),
+    ALPHABETICALLY("Alphabetically");
 
     private final String label;
 

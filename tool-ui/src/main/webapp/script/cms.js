@@ -522,8 +522,8 @@ $doc.ready(function() {
 
                 if (previousValue !== currentValue) {
                     previousValue = currentValue;
-                    $targetFrame.find('.searchInput :text').val($input.val());
-                    $targetFrame.find('form.existing').submit();
+                    $targetFrame.find('.searchForm-controlsFilters .searchInput :text').val($input.val());
+                    $targetFrame.find('.searchForm-controlsFilters form').submit();
                 }
             }
         }));

@@ -1536,40 +1536,56 @@ input[type=text].expandable { min-width: 5em; }
     padding: 5px;
 }
 
-.searchForm-filters {
+@searchForm-controls-width: 200px;
+
+.searchForm-controls {
     .box-sizing(border-box);
     float: left;
     padding-right: 15px;
-    width: 25%;
+    width: @searchForm-controls-width;
 
-    select,
-    .searchInput {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-
-    input[type=text] {
+    input[type=text],
+    select {
         width: 100%;
     }
 }
 
-.searchForm-filters-new {
+.searchForm-controlsFilters {
+    margin-bottom: 20px;
+}
+
+.searchForm-controlsCreate {
+    select {
+        width: 65%;
+    }
+
     input[type=submit] {
         padding-left: 10px;
         padding-right: 10px;
         width: 30%;
     }
-
-    select {
-        width: 65%;
-    }
 }
 
 .searchForm-result {
-    margin-left: 25%;
+    margin-left: @searchForm-controls-width;
+    position: relative;
 }
 
-.searchForm-images {
+.searchForm-resultSorter {
+    left: 0;
+    position: absolute;
+    top: 0;
+
+    form {
+        display: inline;
+    }
+}
+
+.searchForm-resultPagination {
+    margin-bottom: 20px;
+}
+
+.searchForm-resultListImages {
     figure {
         float: left;
         height: 100px;
@@ -3206,10 +3222,9 @@ input[type="text"].dropDown-search {
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
 
-.searchForm > .filters { .searchForm-filters; }
-.searchForm > .filters .new { .searchForm-filters-new; }
+.searchForm > .filters { .searchForm-controls; }
+.searchForm > .filters .new { .searchForm-controlsCreate; }
 .searchForm > .result { .searchForm-result; }
-.searchForm .images { .searchForm-images; }
 
 .toolHat > .profile { .toolHat-profile; }
 .toolHat > .toolbar { .toolHat-toolbar; }

@@ -15,6 +15,7 @@ import com.psddev.dari.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -182,28 +183,33 @@ public class Search {
         query.and(wp.siteItemsPredicate());
 
         // Automatic sort.
-        sort = wp.enumParam(SearchSort.class, SORT_PARAMETER, null);
-        if (sort == null) {
-            if (selectedType != null) {
-                /*
-                for (String field : selectedType.getLabelFields()) {
-                    query.sortAscending(field);
-                }
-                */
+        sort = wp.enumParam(SearchSort.class, SORT_PARAMETER, SearchSort.RELEVANT);
 
-            } else if (validTypes.size() == 1 && !isAllSearchable) {
-                ObjectType type = validTypes.iterator().next();
-                for (String field : type.getLabelFields()) {
-                    query.sortAscending(type.getInternalName() + "/" + field);
-                }
-
-            } else if (ObjectUtils.isBlank(queryString)) {
+        if (SearchSort.RELEVANT.equals(sort)) {
+            if (ObjectUtils.isBlank(queryString)) {
                 query.sortDescending(Content.UPDATE_DATE_FIELD);
             }
 
-        // Sort option manually selected.
         } else if (SearchSort.NEWEST.equals(sort)) {
             query.sortDescending(Content.UPDATE_DATE_FIELD);
+
+        } else if (SearchSort.ALPHABETICALLY.equals(sort)) {
+            if (selectedType != null) {
+                for (String field : selectedType.getLabelFields()) {
+                    if (selectedType.getIndex(field) != null) {
+                        query.sortAscending(field);
+                    }
+                }
+
+            } else if (validTypes.size() == 1) {
+                ObjectType type = validTypes.iterator().next();
+
+                for (String field : type.getLabelFields()) {
+                    if (type.getIndex(field) != null) {
+                        query.sortAscending(type.getInternalName() + "/" + field);
+                    }
+                }
+            }
         }
 
         this.offset = wp.longParam(OFFSET_PARAMETER);
@@ -228,6 +234,17 @@ public class Search {
 
     public String getQueryString() {
         return this.queryString;
+    }
+
+    public List<SearchSort> getSorts() {
+        List<SearchSort> sorts = new ArrayList<SearchSort>();
+
+        Collections.addAll(sorts, SearchSort.values());
+        if (selectedType == null && validTypes.size() != 1) {
+            sorts.remove(SearchSort.ALPHABETICALLY);
+        }
+
+        return sorts;
     }
 
     public SearchSort getSort() {

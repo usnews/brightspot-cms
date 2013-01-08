@@ -4,11 +4,12 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 
-import com.psddev.dari.db.SolrDatabase;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.DateUtils;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.PaginatedResult;
 
@@ -43,12 +44,58 @@ public class SearchResultRenderer {
     }
 
     public void render() throws IOException {
+        @SuppressWarnings("all")
+        HtmlWriter writer = new HtmlWriter(wp.getWriter());
+
         if (search.getResult().hasItems()) {
-            renderPagination();
-            renderList();
+            writer.start("div", "class", "searchForm-resultSorter");
+                renderSorter();
+            writer.end();
+
+            writer.start("div", "class", "searchForm-resultPagination");
+                renderPagination();
+            writer.end();
+
+            writer.start("div", "class", "searchForm-resultList");
+                renderList();
+            writer.end();
+
         } else {
-            renderEmpty();
+            writer.start("div", "class", "searchForm-resultList");
+                renderEmpty();
+            writer.end();
         }
+    }
+
+    protected void renderSorter() throws IOException {
+        ToolPageContext wp = getToolPageContext();
+        @SuppressWarnings("all")
+        HtmlWriter writer = new HtmlWriter(wp.getWriter());
+
+        writer.start("form",
+                "class", "autoSubmit",
+                "method", "get",
+                "action", wp.url(null));
+
+            for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(wp.url("", Search.SORT_PARAMETER, null)).entrySet()) {
+                String name = entry.getKey();
+
+                for (String value : entry.getValue()) {
+                    writer.tag("input", "type", "hidden", "name", name, "value", value);
+                }
+            }
+
+            writer.start("select", "name", Search.SORT_PARAMETER);
+                for (SearchSort sort : search.getSorts()) {
+                    writer.start("option",
+                            "value", sort.name(),
+                            "selected", sort.equals(search.getSort()) ? "selected" : null);
+                        writer.html("Sort: ").html(sort);
+                    writer.end();
+                }
+            writer.end();
+
+        writer.end();
     }
 
     protected void renderPagination() throws IOException {
@@ -104,7 +151,7 @@ public class SearchResultRenderer {
         }
 
         if (!previews.isEmpty()) {
-            wp.write("<div class=\"images\">");
+            wp.write("<div class=\"searchForm-resultListImages\">");
             for (Map.Entry<Object, StorageItem> e : previews.entrySet()) {
                 renderImage(e.getKey(), e.getValue());
             }
@@ -112,7 +159,7 @@ public class SearchResultRenderer {
         }
 
         if (!items.isEmpty()) {
-            wp.write("<table class=\"links table-striped pageThumbnails\"><tbody>");
+            wp.write("<table class=\"searchForm-resultListTable links table-striped pageThumbnails\"><tbody>");
             for (Object item : items) {
                 renderRow(item);
             }
@@ -175,13 +222,13 @@ public class SearchResultRenderer {
         if (search.getSort() == SearchSort.NEWEST) {
             Date updateDate = State.getInstance(item).as(Content.ObjectModification.class).getUpdateDate();
             String date = DateUtils.toString(updateDate, "MMM dd, yyyy");
-            wp.write("<td>");
+            wp.write("<td class=\"date\">");
             if (!ObjectUtils.equals(date, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
                 wp.write(wp.h(date));
                 request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, date);
             }
             wp.write("</td>");
-            wp.write("<td>");
+            wp.write("<td class=\"time\">");
             wp.write(wp.h(DateUtils.toString(updateDate, "hh:mm a")));
             wp.write("</td>");
         }
@@ -193,24 +240,11 @@ public class SearchResultRenderer {
             wp.write("</td>");
         }
 
-        wp.write("<td class=\"main\">");
+        wp.write("<td>");
         renderBeforeItem(item);
         wp.write(wp.objectLabel(item));
         renderAfterItem(item);
         wp.write("</td>");
-
-        wp.write("<td>");
-        wp.write(wp.h(permalink));
-        wp.write("</td>");
-
-        if (search.getSort() == SearchSort.RELEVANT) {
-            Float score = SolrDatabase.Static.getNormalizedScore(item);
-            wp.write("<td>");
-            if (score != null) {
-                wp.write(String.format("%.0f%%", score * 100));
-            }
-            wp.write("</td>");
-        }
 
         wp.write("</tr>");
     }
