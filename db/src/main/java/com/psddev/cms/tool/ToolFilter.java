@@ -166,8 +166,8 @@ public class ToolFilter extends AbstractFilter {
                 isUpdating = Boolean.TRUE;
             }
             
-            // Instruct compliant browsers not to display the page in a frame
-            response.setHeader("X-Frame-Options", "DENY");
+            // Instruct compliant browsers not to display the page in a remote frame
+            response.setHeader("X-Frame-Options", "SAMEORIGIN");
 
             ToolPageContext wp = new ToolPageContext(getServletContext(), request, response);
             if (isUpdating != null) {
