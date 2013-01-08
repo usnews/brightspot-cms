@@ -14,7 +14,7 @@ $doc.repeatable('live', '.repeatableText', {
 
 $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
-$doc.dropDown('live', 'select[multiple]');
+$doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
 $doc.expandable('live', ':text.expandable, textarea');
 
 $doc.frame({
@@ -386,9 +386,9 @@ $doc.delegate('table.links tr', 'click', function(event) {
         $body.append($cover);
 
         // Valid file drop zones.
-        $('.inputContainer .action-upload').each(function() {
+        $('.inputContainer .action-upload, .upload-droppable .action-upload').each(function() {
             var $upload = $(this),
-                    $container = $upload.closest('.inputContainer'),
+                    $container = $upload.closest('.inputContainer, .upload-droppable'),
                     overlayCss,
                     $dropZone,
                     $dropLink,

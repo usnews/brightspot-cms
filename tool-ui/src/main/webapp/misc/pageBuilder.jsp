@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.Template,
@@ -19,10 +20,9 @@ if (wp.requirePermission("area/dashboard")) {
 
 // --- Presentation ---
 
-%><div class="widget">
+%><div class="widget upload-droppable">
 
 <h1 class="icon-file">Page Builder</h1>
-<h2>Create New</h2>
 <ul class="links pageThumbnails">
 
     <%
@@ -51,10 +51,14 @@ if (wp.requirePermission("area/dashboard")) {
             <% } %>
         </li>
     <% } %>
+</ul>
 
+<ul class="links">
     <li><a href="<%= wp.url("/content/edit.jsp",
             "typeId", ObjectType.getInstance(Page.class).getId())
             %>" id="<%= wp.createId() %>" target="_top">One-off Page</a></li>
+
+    <li><a class="action-upload" href="<%= wp.url("/content/uploadFiles", "typeId", ObjectType.getInstance(Content.class).getId()) %>" target="uploadFiles">Upload Files</a></li>
 </ul>
 
 </div>

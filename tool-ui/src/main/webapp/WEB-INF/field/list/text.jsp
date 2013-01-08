@@ -83,7 +83,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         </ol>
     </div>
 <% } else { %>
-    <div class="smallInput repeatableText">
+    <div class="smallInput">
         <select multiple name="<%= wp.h(textName) %>">
             <% for (ObjectField.Value value : validValues) { %>
                 <%

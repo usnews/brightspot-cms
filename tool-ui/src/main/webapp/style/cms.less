@@ -559,12 +559,14 @@ html {display: none;}
     padding: @input-padding;
     white-space: pre-wrap;
 
-    &:focus {
+    &:focus,
+    &.focus {
         border-color: @color-link-lighter;
         .box-shadow(@color-link-lighter 0 0 4px);
     }
 
-    &[disabled] {
+    &[disabled],
+    &.disabled {
         background-color: #f9dcdc;
     }
 }
@@ -1063,6 +1065,29 @@ table.links.table-striped {
     }
 }
 
+.text {
+    background: transparent;
+    border: none;
+    color: @color-text;
+    display: inline;
+    height: auto;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    position: static;
+    width: auto;
+
+    &:focus,
+    &.focus {
+        .box-shadow(none);
+    }
+
+    &:hover,
+    &.hover {
+        text-decoration: none;
+    }
+}
+
 .time {
     text-align: right;
     width: 55px;
@@ -1247,7 +1272,8 @@ select {
     word-wrap: normal;
 
     &[multiple] {
-        height: 6em;
+        height: (@input-borderWidth + @input-padding) * 2 + @lineHeight-input * 5;
+        width: 100%;
     }
 }
 
@@ -1786,8 +1812,43 @@ h1 select:focus {
 .dropDown-input {
     .select;
 
-    &.focus {
+    &.dropDown-list-open {
         .border-bottom-left-radius(0);
+        border-color: @color-link-lighter;
+        .box-shadow(0 0 4px @color-link-lighter);
+
+        &:not(.dropDown-input-larger) {
+            .border-bottom-right-radius(0);
+        }
+    }
+}
+
+.dropDown-label {
+    .text;
+
+    display: block;
+}
+
+input[type="text"].dropDown-search {
+    .text;
+
+    width: 100%;
+}
+
+.dropDown-marker {
+    &:before {
+        background-color: @color-background;
+        content: '';
+        height: 3px;
+        left: 1px;
+        position: absolute;
+        right: 1px;
+        top: -3px;
+    }
+
+    &.dropDown-input-larger:before {
+        top: -4px;
+        right: 40px;
     }
 }
 
@@ -1795,25 +1856,39 @@ h1 select:focus {
     background-color: @color-background;
     .border-bottom-left-radius(5px);
     .border-bottom-right-radius(5px);
-    .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
-    left: 1px;
+    border: @input-borderWidth solid @color-link-lighter;
+    .box-shadow(0 0 4px @color-link-lighter);
     list-style-type: none;
-    margin: 0;
+    margin: 0 5px 0 0;
     max-height: 300px;
     overflow: auto;
     padding: 0 0 5px 0;
     position: relative;
-    top: 5px;
-    z-index: 1;
+    top: -1px;
 
-    li {
-        cursor: default;
-        padding: 1px 15px 1px 5px;
+    &.dropDown-input-larger {
+        border-top-color: transparent;
+    }
+}
 
-        &:hover {
-            background-color: @color-link;
-            color: @color-background;
-        }
+.dropDown-listGroupLabel {
+    border-bottom: 1px solid @color-note;
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    line-height: @lineHeight-default * 0.8;
+    text-transform: uppercase;
+    margin: 10px 5px;
+    padding: 0;
+}
+
+.dropDown-listItem {
+    cursor: default;
+    padding: 1px 15px 1px 5px;
+
+    &.hover {
+        background-color: @color-link;
+        color: @color-background;
     }
 }
 
@@ -3206,11 +3281,11 @@ h1 select:focus {
     .icon-remove-sign;
     .icon-only;
 
-    color: @color-note;
     cursor: pointer;
+    font-size: 120%;
     position: fixed;
     right: 20px;
-    top: 87px;
+    top: 86px;
 }
 
 // --- Widgets ---
@@ -3252,6 +3327,15 @@ h1 select:focus {
     .action-share {
         .icon-share;
         .link;
+    }
+
+    &.widget-expanded > h1:after {
+        color: @color-note-darker;
+        content: 'Click To Pin \00bb';
+        font-size: 90%;
+        left: 50%;
+        margin-left: -9em;
+        position: absolute;
     }
 
     &.widget-loading {
