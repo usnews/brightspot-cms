@@ -25,6 +25,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
+com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
@@ -114,31 +115,15 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 <div class="content-edit">
     <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" enctype="multipart/form-data" method="post">
         <div class="contentForm-main">
-
             <%
-            ToolSearch search = Query.from(ToolSearch.class).where("_id = ?", wp.uuidParam("searchId")).first();
-            if (search != null) {
-                String sortFieldName = search.getSortField().getInternalName();
-                Object previous = search.toPreviousQuery(state).first();
-                Object next = search.toNextQuery(state).first();
+            String search = wp.param(String.class, "search");
 
-                if (previous != null || next != null) {
-                    %><ul class="pagination" style="margin-top: -5px;"><%
-                        if (previous != null) {
-                            %><li class="previous"><a href="<%= wp.url("",
-                                    "id", State.getInstance(previous).getId())
-                                    %>"><%= wp.objectLabel(previous) %></a></li><%
-                        }
-                        %><li class="label"><a class="action-search" href="<%= wp.url("/misc/advancedSearch.jsp",
-                                "id", search.getId())
-                                %>">Search Result</a></li><%
-                        if (next != null) {
-                            %><li class="next"><a href="<%= wp.url("",
-                                    "id", State.getInstance(next).getId())
-                                    %>"><%= wp.objectLabel(next) %></a></li><%
-                        }
-                    %></ul><%
-                }
+            if (search != null) {
+                wp.write("<div class=\"content-searchResult frame\">");
+                wp.write("<a href=\"");
+                wp.write(StringUtils.addQueryParameters(search, "widget", true, "id", State.getInstance(selected).getId()));
+                wp.write("\">Search Result</a>");
+                wp.write("</div>");
             }
             %>
 

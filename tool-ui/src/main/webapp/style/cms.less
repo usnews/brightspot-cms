@@ -775,6 +775,19 @@ table.links.table-striped {
                 }
             }
         }
+
+        &.selected {
+            background-color: @color-text;
+            color: @color-background;
+
+            a {
+                color: @color-background;
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
     }
 }
 
@@ -3287,6 +3300,10 @@ input[type="text"].dropDown-search {
 
 // --- Content form ---
 
+.content-searchResult {
+    margin-bottom: 10px;
+}
+
 .contentForm {
     margin: -10px;
     overflow: hidden;
@@ -3536,6 +3553,7 @@ input[type="text"].dropDown-search {
 .action-logOut { .icon-signout; }
 .action-preview { .icon-eye-open; }
 .action-reset { .icon-remove; }
+.action-result { .icon-list-alt; }
 .action-search { .icon-search; }
 .action-settings { .icon-cogs; }
 .action-share { .icon-share; }

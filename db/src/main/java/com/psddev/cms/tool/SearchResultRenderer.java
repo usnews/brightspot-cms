@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -223,7 +224,13 @@ public class SearchResultRenderer {
 
         wp.write("<tr data-preview-url=\"");
         wp.write(wp.h(permalink));
-        wp.write("\">");
+        wp.write("\"");
+
+        if (State.getInstance(item).getId().equals(wp.param(UUID.class, "id"))) {
+            wp.write(" class=\"selected\"");
+        }
+
+        wp.write(">");
 
         if (search.getSort() == SearchSort.NEWEST) {
             Date updateDate = State.getInstance(item).as(Content.ObjectModification.class).getUpdateDate();
@@ -258,7 +265,7 @@ public class SearchResultRenderer {
     protected void renderBeforeItem(Object item) throws IOException {
         ToolPageContext wp = getToolPageContext();
         wp.write("<a href=\"");
-        wp.write(wp.objectUrl("/content/edit.jsp", item));
+        wp.write(wp.objectUrl("/content/edit.jsp", item, "search", wp.url("")));
         wp.write("\" target=\"_top\">");
     }
 
