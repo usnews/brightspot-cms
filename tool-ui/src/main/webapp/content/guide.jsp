@@ -46,24 +46,24 @@
 	if (sectionStr != null && !sectionStr.equals("")) {
 		sectionId = UUID.fromString(sectionStr);
 	}
-	
+
 	// Are we displaying the Production guide for an object with a template, or a one-off page
 	Page pg = null;
 	if (selected != null && selected instanceof Page) {
 		pg = (Page) selected;
 	} else {
-		pg = Query.findById(
-		            Template.class, wp.uuidParam("templateId"));
+		pg = Query.findById(Template.class, wp.uuidParam("templateId"));
 		// Otherwise we use the default template
 		if (pg == null) {
 			if (selected != null) {
 				pg = state.as(Template.ObjectModification.class)
-					.getDefault();
-			} 
+						.getDefault();
+			}
 		}
 		if (pg == null) {
 			// something has gone wrong
 			// TODO: We should do something
+
 		}
 	}
 	// If a variation was selected, we use that
@@ -98,28 +98,22 @@
 	wp.include("/WEB-INF/header.jsp");
 %>
 <style type="text/css">
-
-.button {
-    .background-image-vertical-gradient(@color-background, @color-note-lighter);
-    border: 1px solid @color-note;
-    .border-radius(5px);
-    .box-shadow(~'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05)');
-    .box-sizing(border-box);
-    color: @color-link;
-    cursor: pointer;
-    display: inline-block;
-    font-weight: bold;
-    height: 26px;
-    line-height: @lineHeight-input;
-    margin: 0;
-    padding: 4px 15px;
-
-    &:hover {
-        background: @color-note-lighter;
-        text-decoration: none;
-    }
+.button { .background-image-vertical-gradient (@color-background,
+	@color-note-lighter);
+	border: 1px solid@color-note; . border-radius (5px); . box-shadow
+	(~'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0,
+	0.05)'); . box-sizing (border-box);
+	color: @color-link;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: bold;
+	height: 26px;
+	line-height: @lineHeight-input;
+	margin: 0;
+	padding: 4px 15px; &: hover { background : @ color-note-lighter;
+	text-decoration: none;
 }
-
+}
 </style>
 
 <div class="widget widget-content">
@@ -130,18 +124,29 @@
 	</h1>
 	<!--  Choose page variation -->
 	<%
-	   // Can use this instead if we put in a way to set target to this popup isntead of _top
-	    if (state != null && !state.isNew()) {
-		    wp.include("/WEB-INF/objectVariation.jsp", "object", selected);
-	    }
-	    // Display chosen variation
-	   %> <div class="variation">
-        Variation: <%= selectedVariation != null ? wp.objectLabel(selectedVariation) : "Default" %> 
-       </div> 
+		// Can use this instead if we put in a way to set target to this popup isntead of _top
+		if (state != null && !state.isNew()) {
+			wp.include("/WEB-INF/objectVariation.jsp", "object", selected);
+		}
+		// Display chosen variation
+	%>
+	<div class="variation">
+		Variation:
+		<%=selectedVariation != null ? wp
+					.objectLabel(selectedVariation) : "Default"%>
+	</div>
 
 	<div class="content-edit">
+		<div align="right" class="guideButtons">
+			<a
+				href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId(),
+					"variationId", wp.uuidParam("variationId"))%>"
+				target="productionGuidePrintout" class="button">Print Production
+				Guide</a>
+		</div>
 		<!-- Link back to content edit page -->
-		<form href="" class="guideForm" action="<%=wp.url("", "section", section)%>">
+		<form href="" class="guideForm"
+			action="<%=wp.url("", "section", section)%>">
 			<%
 				Section prev = null;
 				Section nxt = null;
@@ -155,16 +160,20 @@
 
 				<%
 					Content samplePage = Guide.Static.getSamplePage(pg);
-					if (samplePage != null) {
-						wp.write("<iframe src=\"", samplePage.getPermalink(),
-								"\" width=\"400px\" height=\"800px\" align=\"left\"></iframe>");
-					}
+
 					wp.write("<div class=\"guideTop\">");
-					if (!summaryPage) {
-						wp.write(pg.getName(), ":  ");
-						wp.write("<select name=\"section\" onchange=\"$(this).closest('form').submit();\">");
-					}
+					wp.write(pg.getName(), ":  ");
+					wp.write("<select name=\"section\" onchange=\"$(this).closest('form').submit();\">");
+
 					Iterator iter = sections.iterator();
+
+					wp.write("<option value=\"\"");
+					if (summaryPage) {
+						wp.write("selected=\"selected\"");
+					}
+					wp.write(">");
+					wp.write("Summary");
+					wp.write("</option>");
 
 					while (iter.hasNext()) {
 						sectionCnt++;
@@ -197,138 +206,147 @@
 							nxt = cur;
 						}
 
-						if (!summaryPage) {
-							wp.write("<option value=\"" + cur.getId() + "\"");
-							if (cur.getId().equals(selectedId)) {
-								wp.write("selected=\"selected\"");
-							}
-							wp.write(">");
-							wp.write(nameMap.get(cur.getId()));
-							wp.write("</option>");
-						} // end if we are displaying section list 		
+						wp.write("<option value=\"" + cur.getId() + "\"");
+						if (cur.getId().equals(selectedId) && !summaryPage) {
+							wp.write("selected=\"selected\"");
+						}
+						wp.write(">");
+						wp.write(nameMap.get(cur.getId()));
+						wp.write("</option>");
+
 					} // end while if
 					if (!summaryPage) {
 						wp.write("</select>");
 					}
 					if (selected != null) {
 						wp.write("<input type=\"hidden\" name=\"id\" value=\"",
-							((Content) selected).getId(), "\"/>");
+								((Content) selected).getId(), "\"/>");
+					} else {
+						wp.write("<input type=\"hidden\" name=\"templateId\" value=\"",
+								pg.getId(), "\"/>");
 					}
 
 					wp.write("</div>");
 					// Display the descriptive content
 					if (summaryPage) {
-						wp.write("<div class=\"guideTop\">");
 						// Display the Summary Page
 						request.setAttribute("pageProductionGuide",
 								Guide.Static.getPageProductionGuide(pg));
-						wp.write("Summary: ");
-						wp.write(pg.getName());
-						wp.write("</div>");
-				        %><div class="guideDescription">
-					        <cms:render value="${pageProductionGuide.description}" />
-				       </div>
-				       <%
+				%><div class="guideDescription">
+					<cms:render value="${pageProductionGuide.description}" />
+				</div>
+				<%
 					} else {
 						if (section != null) {
 							request.setAttribute("sectionProductionGuide",
 									Guide.Static.getSectionProductionGuide(section));
-				        %><div class="guideDescription">
-					       <cms:render value="${sectionProductionGuide.description}" />
-				         </div>
-				         <%
-					List<Page> references = Guide.Static.getSectionReferences(
-									section, pg);
+				%><div class="guideDescription">
+					<cms:render value="${sectionProductionGuide.description}" />
 
-							if (references != null && references.size() > 0) {
-								wp.write("<div class=\"moduleReferences\"");
-								wp.write("<p>This module also appears on:</p>");
-								for (Page reference : references) {
-									wp.write("<li><a href=\"", wp.objectUrl(
-											"/content/guide.jsp", reference), "\">",
-											reference.getName(), "</a></li>");
+					<%
+						List<Page> references = Guide.Static.getSectionReferences(
+										section, pg);
+
+								if (references != null && references.size() > 0) {
+									wp.write("<div class=\"guideModuleReferences\"");
+									wp.write("<p>This module also appears on:</p>");
+									for (Page reference : references) {
+										wp.write("<li><a href=\"", wp.objectUrl(
+												"/content/guide.jsp", reference), "\">",
+												reference.getName(), "</a></li>");
+									}
+									wp.write("</div>");
 								}
-								wp.write("</div>");
+								if (Guide.Static.getSectionTips(section) != null) {
+					%><div class="guideTips">
+						<cms:render value="${sectionProductionGuide.tips}" />
+					</div>
+					<%
+						}
+								wp.write("</div>"); // end guideDescription
 							}
-							if (Guide.Static.getSectionTips(section) != null) {
-				                %><div class="guideTips">
-					             <cms:render value="${sectionProductionGuide.tips}" />
-				                </div>
-				               <%
-					        }
+
 						}
-					}
-					wp.write("</div>");
-					wp.write("<div class=\"guidebuttons\" align=\"center\">");
-					if (prev != null) {
-						wp.write("<a href=\"", wp.url("", "section", prev.getId()),
-								"\" class=\"button\">Previous</a>");
-					} else {
-						if (!summaryPage) {
-							// we don't have a previous section, but we're not the first page, which 
-							// means the previous page is the first (summary) page 
-							wp.write("<a href=\"", wp.url("", "section", ""),
+
+						if (samplePage != null) {
+							// 						wp.write("<iframe class=\"guidePreview\" src=\"", samplePage.getPermalink(),
+							// 								"\" ></iframe>");
+							//		wp.write("<iframe class=\"guidePreview guidePreviewFrame\" src=\"", samplePage.getPermalink(),
+							//				"\" ></iframe>");
+					%>
+					<div class="guidePreview">
+						<iframe class="guidePreviewFrame"
+							src="<%=samplePage.getPermalink()%>"></iframe>
+					</div>
+					<%
+						}
+						wp.write("</div>"); // end guideForm-main
+						wp.write("<div class=\"guideButtons\" align=\"center\">");
+						if (prev != null) {
+							wp.write("<a href=\"", wp.url("", "section", prev.getId()),
 									"\" class=\"button\">Previous</a>");
+						} else {
+							if (!summaryPage) {
+								// we don't have a previous section, but we're not the first page, which 
+								// means the previous page is the first (summary) page 
+								wp.write("<a href=\"", wp.url("", "section", ""),
+										"\" class=\"button\">Previous</a>");
+							}
 						}
-					}
-					// Current page location
-					if (!summaryPage) {
+						// Current page location
 						wp.write(" ");
 						wp.write(curCnt);
 						wp.write(" of ");
 						wp.write(sectionCnt);
 						wp.write(" ");
-					}
-					if (nxt != null) {
-						wp.write("<a href=\"", wp.url("", "section", nxt.getId()),
-								"\" class=\"button\">", summaryPage ? "Continue"
-										: "Next", "</a>");
+						if (nxt != null) {
+							wp.write("<a href=\"", wp.url("", "section", nxt.getId()),
+									"\" class=\"button\">Next</a>");
+						}
+					%>
+
+				</div>
+
+
+				<%
+					if (summaryPage) {
+						List<Template> relatedTemplates = Guide.Static
+								.getRelatedTemplates(selected, pg);
+						if (relatedTemplates != null && !relatedTemplates.isEmpty()) {
+							//wp.write("<div class=\"widget widget-content\">");
+							wp.write("<h3>Related Templates - Click on a Template Name to View Summary</h3>");
+
+							// Display samples of related templates
+							for (Page template : relatedTemplates) {
+								Content sample = Guide.Static.getSamplePage(template);
+								if (sample != null) {
+									wp.write("<div class=\"guideRelatedTemplate\">");
+									wp.write("<a href=\"", wp.objectUrl(
+											"/content/guide.jsp", sample,
+											"variationId", wp.param("variationId"),
+											"templateId", template.getId()),
+											"\" class=\"Text\">", template.getName(),
+											"</a>");
+									//wp.write(
+									//		"<iframe width=\"300\" height=\"500\" src=\"",
+									//		sample.getPermalink(), "\"></iframe>");
+									wp.write(
+											"<div class=\"guidePreview\"><iframe class=\"guidePreviewFrame\" src=\"",
+											samplePage.getPermalink(),
+											"\"></iframe></div>");
+									//wp.write("<iframe class=\"pageThumbnails_preview_frame\" src=\"/_preview?_cms.db.previewId=", sample.getId(), "\"></iframe>");
+
+									wp.write("</div>");
+								}
+							}
+							//wp.write("</div>");
+						}
 					}
 				%>
-
-			</div>
-
-			<div align="right" class="guidebuttons">
-				<a
-					href="<%=wp.url("guideprint.jsp", "templateId", pg.getId(),
-					"variationId", wp.uuidParam("variationId"))%>"
-					target="productionGuidePrintout" class="button">Print
-					Production Guide</a>
-			</div>
-			<%
-				if (summaryPage) {
-					List<Template> relatedTemplates = Guide.Static
-							.getRelatedTemplates(selected, pg);
-					if (relatedTemplates != null && !relatedTemplates.isEmpty()) {
-						//wp.write("<div class=\"widget widget-content\">");
-						wp.write("<h3>Related Templates - Click on a Template Name to View Summary</h3>");
-
-						// Display samples of related templates
-						for (Page template : relatedTemplates) {
-							Content sample = Guide.Static.getSamplePage(template);
-							if (sample != null) {
-								wp.write("<div class=\"relatedTemplate\">");
-								wp.write("<a href=\"", wp.objectUrl(
-										"/content/guide.jsp", sample,
-										"variationId", wp.param("variationId"),
-										"templateId", template.getId()),
-										"\" class=\"Text\">", template.getName(),
-										"</a>");
-  								wp.write(
-  										"<iframe width=\"300\" height=\"500\" src=\"",
-  										sample.getPermalink(), "\"></iframe>");
-								//wp.write("<iframe class=\"pageThumbnails_preview_frame\" src=\"/_preview?_cms.db.previewId=", sample.getId(), "\"></iframe>");
-					
-								wp.write("</div>");
-							}
-						}
-						//wp.write("</div>");
-					}
-				}
-			%>
-			</form>
-	   </div>
+			
+		</form>
 	</div>
-	<%
-		wp.include("/WEB-INF/footer.jsp");
-	%>
+</div>
+<%
+	wp.include("/WEB-INF/footer.jsp");
+%>

@@ -56,36 +56,33 @@
 	// --- Presentation ---
 %>
 
-<script type="text/javascript">  
-      window.onload = function(){window.print();}  
-</script>
+
 <style>
-    @media print {
-    body {
-        margin: 0 !important;
-    }
-    body > * {
-        display: none;
-    }
-    body > .popup[name=productionGuidePrintout] {
-        display: block !important;
-        position: static !important;        
-    }
-    body > .popup[name=productionGuidePrintout] .marker {
-        display: none !important;
-    }
-     body > .popup[name=productionGuidePrintout] .closeButton {
-        display: none !important;
-    }
-    body > .popup[name=productionGuidePrintout] .content {
-        box-shadow: 0 0 0 !important;
-        -webkit-box-shadow: 0 0 0 !important;
-        -moz-box-shadow: 0 0 0 !important;;  
-    }
-    
-  }
+@media print {
+	body {
+		margin: 0 !important;
+	}
+	body>* {
+		display: none !important;
+	}
+	body>.popup[name=productionGuidePrintout] {
+		display: block !important;
+		position: static !important;
+	}
+	body>.popup[name=productionGuidePrintout] .marker {
+		display: none !important;
+	}
+	body>.popup[name=productionGuidePrintout] .closeButton {
+		display: none !important;
+	}
+	body>.popup[name=productionGuidePrintout] .content {
+		box-shadow: 0 0 0 !important;
+		-webkit-box-shadow: 0 0 0 !important;
+		-moz-box-shadow: 0 0 0 !important;;
+	}
+}
 </style>
-    
+
 
 <%
 	wp.include("/WEB-INF/header.jsp");
@@ -114,7 +111,7 @@
 	%>
 	<div class="content-edit">
 		<form href="" class="guideForm">
-			
+
 			<div class="guideForm-page">
 				<div class="guideForm-main">
 
@@ -130,23 +127,16 @@
 						wp.write(pg.getName());
 						wp.write("</div>");
 						// how best to format for printing?
-						if (samplePage != null) {
-							wp.write("<iframe name=\"pgSamplePage\" src=\"", samplePage.getPermalink(),
-									"\" width=\"400px\" height=\"750px\" align=\"left\" scrolling=\"no\"></iframe>");
-						}
 					%><div class="guideDescription">
 						<cms:render value="${pageProductionGuide.description}" />
 					</div>
+					<%
+						if (samplePage != null) {
+							%><div class="guidePreview"><iframe class="guidePreviewFrame" src="<%=samplePage.getPermalink()%>"></iframe></div><%
+						}
+					%>
 				</div>
-				<%
-					wp.write("<div class=\"guidebuttons\" align=\"center\">");
-					wp.write(" ");
-					wp.write(curCnt++);
-					wp.write(" of ");
-					wp.write(totalCnt);
-					wp.write(" ");
-					wp.write("</div>"); // end page number
-				%>
+
 
 			</div>
 
@@ -174,20 +164,16 @@
 					wp.write("Section: ");
 					wp.write(section.getName());
 					wp.write("</div>"); // end guideTop
-					// how best to format for printing?
-					if (samplePage != null) {
-						wp.write("<iframe name=\"pgSamplePage\" src=\"", samplePage.getPermalink(),
-								"\" width=\"400px\" height=\"750px\" align=\"left\"></iframe>");
-					}
+				
 			%><div class="guideDescription">
 				<cms:render value="${sectionProductionGuide.description}" />
-			</div>
+		
 			<%
 				List<Page> references = Guide.Static.getSectionReferences(
 							section, pg);
 
 					if (references != null && references.size() > 0) {
-						wp.write("<div class=\"moduleReferences\"");
+						wp.write("<div class=\"guideModuleReferences\"");
 						wp.write("<p>This module also appears on:</p>");
 						for (Page reference : references) {
 							wp.write("<li>", reference.getName(), "</li>");
@@ -198,18 +184,23 @@
 			%><div class="guideTips">
 				<cms:render value="${sectionProductionGuide.tips}" />
 			</div>
+		    </div>
 			<%
 				}
-				wp.write("</div>"); // end guideForm-main
-				wp.write("</div>"); // end guideForm-page
+					// how best to format for printing?
+					if (samplePage != null) {
+						%><div class="guidePreview"><iframe class="guidePreviewFrame" src="<%=samplePage.getPermalink()%>"></iframe></div><%
+					}
+					wp.write("</div>"); // end guideForm-main
+					wp.write("</div>"); // end guideForm-page
 				}
 			%>
 		</form>
 	</div>
 </div>
-<script>
 
-onload:{window.print();window.close();}
+<script>
+onload:window.print();
 </script>
 
 <%

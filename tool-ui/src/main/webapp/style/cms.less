@@ -2516,7 +2516,7 @@ h1 select:focus {
 
 // Production Guide popup
 .popup[name=productionGuide] {
-    width: 70%;    
+    width: 80%;    
 }
 
 .popup[name=productionGuidePrintout] {
@@ -3229,6 +3229,7 @@ h1 select:focus {
 .guideForm-main {
     float: left;
     width: 100%;
+    position:relative;
 
     > .pagination {
         margin-bottom: 15px;
@@ -3240,49 +3241,77 @@ guideForm-page {
     page-break-after: always;
 }
 
-.guidebuttons {
+.guideButtons {
 	margin: 6px 0 15px 0;
 	overflow: hidden;
 	padding: 10px 30px;
 }
 
+.guidePreview {
+    background-size: 50px 50px;
+    bottom: 40px;
+    min-height: 480px;
+    overflow: hidden;
+    top: 40px;
+    width: 400px;
+    z-index: 1999999;
+    float: right;
+}
+
+.guidePreviewFrame {
+    border-style: none;
+    height: 800px;
+    left: 0;
+    top: @lineHeight-default + 10;
+    width: 1200px;
+    .transform(scale(0.30));
+    .transform-origin(0 0);
+}
+
 .guideTop {
 	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px;
+	margin-left: 10px;
+	margin-right:10px;
 	margin-top: 0px;
 }
 
 .guideDescription {
 	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
+	margin-left: 10px;
 	margin-right: 10px;
 	margin-top: 20px;
+	width: 425px;
+	float: left;
 }
 
-.moduleReferences {
+.guideModuleReferences {
 	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
+	margin-left: 10px;
 	margin-right: 10px;
 	margin-top: 20px;
+    width: 425px;
+    float: left;
 }
 
 .guideTips {
 	padding: 10px 10px 10px 10px;
-	margin-left: 450px;
-	margin-right: 10px; margin-top : 20px;
+	margin-left: 10px;
+	margin-right: 10px; 
+	margin-top : 20px;
 	background-color: #E6DDDD;
 	margin-top: 20px;
+    width: 425px;
+    float: left;
 }
 
-.relatedTemplate {
+.guideRelatedTemplate {
 	float: left;
 	display: table;
 	vertical-align: middle;
 	padding: 10px 10px 10px 10px;
 }
 
-.relatedTemplate iframe,.relatedTemplate.text {
+.guideRelatedTemplate iframe,.guideRelatedTemplate.text {
 	display: table-cell;
 	vertical-align: middle;
 }
