@@ -65,6 +65,12 @@ public class SearchResultRenderer {
                 renderEmpty();
             writer.end();
         }
+
+        String name = wp.param(String.class, "name");
+
+        if (name != null) {
+            wp.putUserSetting("search." + name, search.getState().getSimpleValues());
+        }
     }
 
     protected void renderSorter() throws IOException {
@@ -86,7 +92,7 @@ public class SearchResultRenderer {
             }
 
             writer.start("select", "name", Search.SORT_PARAMETER);
-                for (SearchSort sort : search.getSorts()) {
+                for (SearchSort sort : search.findSorts()) {
                     writer.start("option",
                             "value", sort.name(),
                             "selected", sort.equals(search.getSort()) ? "selected" : null);

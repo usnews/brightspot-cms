@@ -1551,7 +1551,21 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .searchForm-controlsFilters {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    position: relative;
+
+    .searchInput {
+        margin-bottom: 5px;
+    }
+
+    .action-reset {
+        .small;
+
+        color: @color-alert;
+        position: absolute;
+        right: 0;
+        top: -2px;
+    }
 }
 
 .searchForm-controlsCreate {
@@ -1586,6 +1600,8 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .searchForm-resultListImages {
+    overflow: hidden;
+
     figure {
         float: left;
         height: 100px;
@@ -3519,6 +3535,7 @@ input[type="text"].dropDown-search {
 .action-live { .icon-bullhorn; }
 .action-logOut { .icon-signout; }
 .action-preview { .icon-eye-open; }
+.action-reset { .icon-remove; }
 .action-search { .icon-search; }
 .action-settings { .icon-cogs; }
 .action-share { .icon-share; }

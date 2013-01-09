@@ -16,6 +16,7 @@ java.util.Collections,
 java.util.HashSet,
 java.util.Iterator,
 java.util.List,
+java.util.Map,
 java.util.Set,
 java.util.TreeSet,
 java.util.UUID
@@ -25,34 +26,52 @@ java.util.UUID
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 String resultTarget = wp.createId();
+Search search = null;
+String searchName = (String) request.getAttribute("searchName");
 
-UUID[] validTypeIds = (UUID[]) request.getAttribute("validTypeIds");
-if (ObjectUtils.isBlank(validTypeIds)) {
-    Class<?> validTypeClass = (Class<?>) request.getAttribute("validTypeClass");
-    if (validTypeClass != null) {
-        validTypeIds = new UUID[] { ObjectType.getInstance(validTypeClass).getId() };
+if (!wp.param(boolean.class, "reset") && searchName != null) {
+    Map<String, Object> searchSettings = (Map<String, Object>) wp.getUserSetting("search." + searchName);
+
+    if (searchSettings != null) {
+        search = new Search(wp);
+        search.getState().setValues(searchSettings);
     }
 }
 
-Search search = validTypeIds != null ? new Search(wp, validTypeIds) : new Search(wp);
-Set<ObjectType> validTypes = new HashSet<ObjectType>();
-if (search.getRequestedTypes().isEmpty()) {
-    validTypes.addAll(ObjectType.getInstance(Content.class).findConcreteTypes());
-} else {
-    for (ObjectType type : search.getRequestedTypes()) {
-        validTypes.addAll(type.findConcreteTypes());
+if (search == null) {
+    UUID[] validTypeIds = (UUID[]) request.getAttribute("validTypeIds");
+
+    if (ObjectUtils.isBlank(validTypeIds)) {
+        Class<?> validTypeClass = (Class<?>) request.getAttribute("validTypeClass");
+
+        if (validTypeClass != null) {
+            validTypeIds = new UUID[] { ObjectType.getInstance(validTypeClass).getId() };
+        }
+    }
+
+    if (validTypeIds != null) {
+        search = new Search(wp, validTypeIds);
+
+    } else {
+        search = new Search(wp);
     }
 }
 
+Set<ObjectType> validTypes = search.findValidTypes();
 ObjectType selectedType = search.getSelectedType();
+
+if (validTypes.isEmpty()) {
+    validTypes.addAll(ObjectType.getInstance(Content.class).findConcreteTypes());
+}
 
 // Segregate the valid types into main and misc.
 List<ObjectType> templatedTypes = Template.Static.findUsedTypes(wp.getSite());
-templatedTypes.add(ObjectType.getInstance(Page.class));
 List<ObjectType> mainTypes = new ArrayList<ObjectType>(validTypes);
 List<ObjectType> miscTypes = new ArrayList<ObjectType>();
+
 for (Iterator<ObjectType> i = mainTypes.iterator(); i.hasNext(); ) {
     ObjectType type = i.next();
+
     if (!templatedTypes.contains(type)) {
         i.remove();
         miscTypes.add(type);
@@ -73,6 +92,8 @@ String newTarget = (String) request.getAttribute("newTarget");
             <h2>Filters</h2>
 
             <form action="<%= wp.url(request.getAttribute("resultJsp")) %>" class="autoSubmit" method="get" target="<%= resultTarget %>">
+                <input type="hidden" name="name" value="<%= wp.h(searchName) %>">
+
                 <% for (ObjectType type : search.getRequestedTypes()) { %>
                     <input name="<%= Search.REQUESTED_TYPES_PARAMETER %>" type="hidden" value="<%= type.getId() %>">
                 <% } %>
@@ -80,6 +101,8 @@ String newTarget = (String) request.getAttribute("newTarget");
                 <input name="<%= Search.IS_ONLY_PATHED %>" type="hidden" value="<%= wp.boolParam(Search.IS_ONLY_PATHED) %>">
                 <input name="<%= Search.ADDITIONAL_QUERY_PARAMETER %>" type="hidden" value="<%= wp.h(wp.param(Search.ADDITIONAL_QUERY_PARAMETER)) %>">
                 <input name="<%= Search.PARENT_PARAMETER %>" type="hidden" value="<%= wp.h(wp.param(Search.PARENT_PARAMETER)) %>">
+                <input type="hidden" name="<%= Search.OFFSET_PARAMETER %>" value="<%= wp.h(search.getOffset()) %>">
+                <input type="hidden" name="<%= Search.LIMIT_PARAMETER %>" value="<%= wp.h(search.getLimit()) %>">
 
                 <span class="searchInput">
                     <label for="<%= wp.createId() %>">Search</label>
@@ -118,6 +141,8 @@ String newTarget = (String) request.getAttribute("newTarget");
                     </select>
                 <% } %>
             </form>
+
+            <a class="action-reset" href="<%= wp.url("", "reset", true) %>">Reset</a>
         </div>
 
         <% if (!ObjectUtils.isBlank(newJsp)) { %>
