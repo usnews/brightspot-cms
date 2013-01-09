@@ -4,6 +4,7 @@
 var $win = $(win),
         doc = win.document,
         $doc = $(doc),
+        $openOriginal,
         $openList;
 
 $.plugin2('dropDown', {
@@ -128,6 +129,7 @@ $.plugin2('dropDown', {
                 $openList.trigger('dropDown-close');
             }
 
+            $openOriginal = $original;
             $openList = $list;
             $markerContainer.show();
             $listContainer.show();
@@ -136,6 +138,7 @@ $.plugin2('dropDown', {
         $list.bind('dropDown-close', function() {
             $input.removeClass(plugin.className('list-open'));
 
+            $openOriginal = null;
             $openList = null;
             $markerContainer.hide();
             $listContainer.hide();
@@ -318,7 +321,7 @@ $doc.keydown(function(event) {
         isUp = which === 38;
 
         if (!(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
-            LIST_ITEM_CLASS = $openList.dropDown('className', 'listItem');
+            LIST_ITEM_CLASS = $openOriginal.dropDown('className', 'listItem');
 
             if (isUp || which === 40) {
                 $hover = $openList.find('.hover:visible.' + LIST_ITEM_CLASS).eq(0);
