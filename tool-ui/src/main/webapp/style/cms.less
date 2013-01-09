@@ -1968,12 +1968,28 @@ input[type="text"].dropDown-search {
 }
 
 .dropDown-listItem {
-    cursor: default;
-    padding: 1px 15px 1px 5px;
+    cursor: pointer;
+    padding: 1px 15px 1px 25px;
+    position: relative;
 
     &.hover {
         background-color: @color-link;
         color: @color-background;
+    }
+
+    &.dropDown-listItem-selected {
+        .icon-ok;
+
+        &:before {
+            left: 4px;
+            position: absolute;
+            top: 0;
+        }
+    }
+
+    input[type=checkbox],
+    input[type=radio] {
+        display: none;
     }
 }
 
