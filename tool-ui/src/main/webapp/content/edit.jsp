@@ -371,13 +371,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             removePreviewAction();
                             showPreview();
                             $previewHeading.click();
-
-                            $.ajax({
-                                'type': 'post',
-                                'url': CONTEXT_PATH + '/misc/updateUserSettings',
-                                'data': 'action=liveContentPreview-enable'
-                            });
-
                             return false;
                         }
                     })
@@ -440,6 +433,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             $previewWidget.removeClass('widget-expanded');
                             $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
                             $preview.css('width', '');
+
+                            $.ajax({
+                                'type': 'post',
+                                'url': CONTEXT_PATH + '/misc/updateUserSettings',
+                                'data': 'action=liveContentPreview-enable'
+                            });
 
                         } else {
                             $previewWidget.addClass('widget-expanded');

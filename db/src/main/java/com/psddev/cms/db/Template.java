@@ -290,12 +290,15 @@ public class Template extends Page {
          */
         public static List<ObjectType> findUsedTypes(Site site) {
             Set<ObjectType> typesSet = new LinkedHashSet<ObjectType>();
+            typesSet.add(ObjectType.getInstance(Page.class));
+
             for (Template template : findAll(site)) {
                 typesSet.addAll(template.getContentTypes());
             }
 
             List<ObjectType> types = new ArrayList<ObjectType>(typesSet);
             Collections.sort(types);
+
             return types;
         }
     }
