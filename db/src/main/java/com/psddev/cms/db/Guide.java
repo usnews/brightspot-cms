@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Record;
@@ -123,13 +124,33 @@ public class Guide extends Record {
 		}
 
 	}
+	
+	@Modification.Classes({ ObjectField.class })
+	public static class FieldProductionGuideModification extends
+			Modification<Object> {
+		@ToolUi.Note("Production Guide description for this section")
+		@InternalName(DESC_FIELD)
+		private ReferentialText description;
+
+		public ReferentialText getDescription() {
+			return description;
+		}
+
+		public void setDescription(ReferentialText description) {
+			this.description = description;
+		}	
+
+	}
 
 	/** Modification that records a user's production guide settings. */
 	@Modification.Classes({ ToolUser.class })
+	@ToolUi.Hidden
 	public static final class ProductionGuideSettingsModification extends
 			Modification<Object> {
 
 		@ToolUi.Note("If true, default to display of Production Guide when editing content")
+		// For now, we are not using this, so hide it from the CMS UI
+		@ToolUi.Hidden
 		private boolean showGuides = true;
 
 		public boolean isShowGuides() {
