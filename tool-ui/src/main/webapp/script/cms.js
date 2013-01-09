@@ -310,31 +310,6 @@ $doc.delegate(':input', 'blur', function() {
     $win.unbind('.focus');
 });
 
-// Allow clicks from anywhere within the row to activate the main link.
-$doc.delegate('table.links tr', 'click', function(event) {
-    var $anchor,
-            result,
-            href;
-
-    if ($(event.target).is('.link, a')) {
-        return true;
-
-    } else {
-        $anchor = $(this).find('.link, a').eq(0);
-        result = $anchor.triggerHandler('click');
-
-        if (result === undef || result) {
-            href = $anchor.attr('href');
-
-            if (href) {
-                win.location = href;
-            }
-        }
-
-        return false;
-    }
-});
-
 // Handle file uploads from drag-and-drop.
 (function() {
     var docEntered;

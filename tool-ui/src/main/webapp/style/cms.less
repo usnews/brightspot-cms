@@ -760,6 +760,22 @@ ul.links {
 
 table.links,
 table.links.table-striped {
+    overflow: hidden;
+
+    .link,
+    a {
+        position: relative;
+
+        &:before {
+            content: '';
+            height: 2000px;
+            left: -2000px;
+            position: absolute;
+            top: -4px;
+            width: 4000px;
+        }
+    }
+
     > tbody > tr {
         &:hover {
             background-color: @color-link;
