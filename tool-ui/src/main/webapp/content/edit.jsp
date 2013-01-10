@@ -557,7 +557,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 var $toggle = $(this),
                         $container = $toggle.closest('.inputContainer');
 
-                $container.find('.label').trigger('fieldPreview-toggle', [ $toggle ]);
+                $container.find('> .label').trigger('fieldPreview-toggle', [ $toggle ]);
                 $toggle.css('color', $container.is('.fieldPreview-displaying') ? getUniqueColor($container) : '');
             });
 
@@ -574,7 +574,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         name = $container.attr('data-name');
 
                 $container.removeClass('fieldPreview-displaying');
-                $container.find('.label').css({
+                $container.find('> .label').css({
                     'background-color': '',
                     'color': ''
                 });
@@ -594,6 +594,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         $paths,
                         pathsCanvas;
 
+                event.stopPropagation();
+
                 if ($container.is('.fieldPreview-displaying')) {
                     $container.trigger('fieldPreview-hide');
                     return;
@@ -605,7 +607,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 frameOffset = $frame.offset();
 
                 $container.addClass('fieldPreview-displaying');
-                $container.find('.label').css({
+                $container.find('> .label').css({
                     'background-color': color,
                     'color': 'white'
                 });
@@ -681,7 +683,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }));
 
                     if (!$source) {
-                        $source = $container.find('.label');
+                        $source = $container.find('> .label');
                     }
 
                     sourceOffset = $source.offset();
