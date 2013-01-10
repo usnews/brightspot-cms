@@ -33,144 +33,148 @@ if (wp.requireUser()) {
     return;
 }
 
-Map<String, Object> searchData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "search"));
-Search search = new Search(wp);
+try {
+    Map<String, Object> searchData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "search"));
+    Search search = new Search(wp);
 
-search.getState().setValues(searchData);
+    search.getState().setValues(searchData);
 
-Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "object"));
-Object object = Database.Static.getDefault().getEnvironment().createObject(ObjectUtils.to(UUID.class, objectData.get("_type")), ObjectUtils.to(UUID.class, objectData.get("_id")));
-State objectState = State.getInstance(object);
+    Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "object"));
+    Object object = Database.Static.getDefault().getEnvironment().createObject(ObjectUtils.to(UUID.class, objectData.get("_type")), ObjectUtils.to(UUID.class, objectData.get("_id")));
+    State objectState = State.getInstance(object);
 
-objectState.setValues(objectData);
+    objectState.setValues(objectData);
 
-ObjectType objectType = objectState.getType();
+    ObjectType objectType = objectState.getType();
 
-if (objectType == null) {
-    return;
-}
-
-String fieldName = wp.param(String.class, "field");
-ObjectField field = objectType.getField(fieldName);
-
-if (field == null) {
-    return;
-}
-
-Map<Object, Float> suggestions = new HashMap<Object, Float>();
-StringBuilder filter = new StringBuilder();
-
-for (ObjectType type : field.getTypes()) {
-    for (ObjectType t : type.findConcreteTypes()) {
-        filter.append(SolrDatabase.Static.escapeValue(t.getId()));
-        filter.append(" || ");
+    if (objectType == null) {
+        return;
     }
-}
 
-for (Object item : findSimilar(object, filter, 10)) {
-    Float score = SolrDatabase.Static.getNormalizedScore(item);
+    String fieldName = wp.param(String.class, "field");
+    ObjectField field = objectType.getField(fieldName);
 
-    if (score != null && score > 0.7) {
-        suggestions.put(item, score);
+    if (field == null) {
+        return;
     }
-}
 
-filter.setLength(0);
+    Map<Object, Float> suggestions = new HashMap<Object, Float>();
+    StringBuilder filter = new StringBuilder();
 
-String fieldClass = field.getJavaDeclaringClassName();
-
-for (ObjectType type : objectState.getDatabase().getEnvironment().getTypes()) {
-    ObjectField f = type.getField(fieldName);
-
-    if (f != null && ObjectUtils.equals(fieldClass, f.getJavaDeclaringClassName())) {
-        filter.append(SolrDatabase.Static.escapeValue(type.getId()));
-        filter.append(" || ");
+    for (ObjectType type : field.getTypes()) {
+        for (ObjectType t : type.findConcreteTypes()) {
+            filter.append(SolrDatabase.Static.escapeValue(t.getId()));
+            filter.append(" || ");
+        }
     }
-}
 
-Map<Object, Integer> similar = new HashMap<Object, Integer>();
+    for (Object item : findSimilar(object, filter, 10)) {
+        Float score = SolrDatabase.Static.getNormalizedScore(item);
 
-for (Object item : findSimilar(object, filter, 20)) {
-    Float score = SolrDatabase.Static.getNormalizedScore(item);
+        if (score != null && score > 0.7) {
+            suggestions.put(item, score);
+        }
+    }
 
-    if (score > 0.7) {
-        Object value = State.getInstance(item).get(fieldName);
+    filter.setLength(0);
 
-        if (value == null) {
-            continue;
+    String fieldClass = field.getJavaDeclaringClassName();
+
+    for (ObjectType type : objectState.getDatabase().getEnvironment().getTypes()) {
+        ObjectField f = type.getField(fieldName);
+
+        if (f != null && ObjectUtils.equals(fieldClass, f.getJavaDeclaringClassName())) {
+            filter.append(SolrDatabase.Static.escapeValue(type.getId()));
+            filter.append(" || ");
+        }
+    }
+
+    Map<Object, Integer> similar = new HashMap<Object, Integer>();
+
+    for (Object item : findSimilar(object, filter, 20)) {
+        Float score = SolrDatabase.Static.getNormalizedScore(item);
+
+        if (score > 0.7) {
+            Object value = State.getInstance(item).get(fieldName);
+
+            if (value == null) {
+                continue;
+            }
+
+            if (value instanceof Map) {
+                value = ((Map<?, ?>) value).values();
+            }
+
+            if (value instanceof Iterable) {
+                for (Object v : (Iterable<?>) value) {
+                    incrementCount(similar, v);
+                }
+
+            } else {
+                incrementCount(similar, value);
+            }
+        }
+    }
+
+    for (Map.Entry<Object, Integer> entry : similar.entrySet()) {
+        suggestions.put(entry.getKey(), ((float) entry.getValue()) / similar.size());
+    }
+
+    if (suggestions.isEmpty()) {
+        return;
+    }
+
+    Object fieldValue = State.getInstance(object).get(fieldName);
+
+    if (fieldValue != null) {
+        if (fieldValue instanceof Map) {
+            fieldValue = ((Map<?, ?>) fieldValue).values();
         }
 
-        if (value instanceof Map) {
-            value = ((Map<?, ?>) value).values();
-        }
-
-        if (value instanceof Iterable) {
-            for (Object v : (Iterable<?>) value) {
-                incrementCount(similar, v);
+        if (fieldValue instanceof Iterable) {
+            for (Object v : (Iterable<?>) fieldValue) {
+                suggestions.remove(v);
             }
 
         } else {
-            incrementCount(similar, value);
+            suggestions.remove(fieldValue);
         }
     }
-}
 
-for (Map.Entry<Object, Integer> entry : similar.entrySet()) {
-    suggestions.put(entry.getKey(), ((float) entry.getValue()) / similar.size());
-}
-
-if (suggestions.isEmpty()) {
-    return;
-}
-
-Object fieldValue = State.getInstance(object).get(fieldName);
-
-if (fieldValue != null) {
-    if (fieldValue instanceof Map) {
-        fieldValue = ((Map<?, ?>) fieldValue).values();
+    if (suggestions.isEmpty()) {
+        return;
     }
 
-    if (fieldValue instanceof Iterable) {
-        for (Object v : (Iterable<?>) fieldValue) {
-            suggestions.remove(v);
+    List<Map.Entry<Object, Float>> suggestionsList = new ArrayList<Map.Entry<Object, Float>>(suggestions.entrySet());
+
+    Collections.sort(suggestionsList, new Comparator<Map.Entry<Object, Float>>() {
+        public int compare(Map.Entry<Object, Float> x, Map.Entry<Object, Float> y) {
+            float xv = x.getValue();
+            float yv = y.getValue();
+
+            return xv == yv ? 0 : xv < yv ? 1 : -1;
         }
+    });
 
-    } else {
-        suggestions.remove(fieldValue);
+    List<Object> sortedSuggestions = new ArrayList<Object>();
+
+    for (Map.Entry<Object, Float> entry : suggestionsList) {
+        sortedSuggestions.add(entry.getKey());
     }
-}
 
-if (suggestions.isEmpty()) {
-    return;
-}
-
-List<Map.Entry<Object, Float>> suggestionsList = new ArrayList<Map.Entry<Object, Float>>(suggestions.entrySet());
-
-Collections.sort(suggestionsList, new Comparator<Map.Entry<Object, Float>>() {
-    public int compare(Map.Entry<Object, Float> x, Map.Entry<Object, Float> y) {
-        float xv = x.getValue();
-        float yv = y.getValue();
-
-        return xv == yv ? 0 : xv < yv ? 1 : -1;
+    if (sortedSuggestions.size() > 10) {
+        sortedSuggestions = sortedSuggestions.subList(0, 10);
     }
-});
 
-List<Object> sortedSuggestions = new ArrayList<Object>();
+    PageWriter writer = wp.getWriter();
 
-for (Map.Entry<Object, Float> entry : suggestionsList) {
-    sortedSuggestions.add(entry.getKey());
+    writer.start("div", "class", "searchForm-resultSuggestions");
+        writer.start("h2").html("Suggestions").end();
+        new SearchResultRenderer(wp, search).renderList(sortedSuggestions);
+    writer.end();
+
+} catch (Exception error) {
 }
-
-if (sortedSuggestions.size() > 10) {
-    sortedSuggestions = sortedSuggestions.subList(0, 10);
-}
-
-PageWriter writer = wp.getWriter();
-
-writer.start("div", "class", "searchForm-resultSuggestions");
-    writer.start("h2").html("Suggestions").end();
-    new SearchResultRenderer(wp, search).renderList(sortedSuggestions);
-writer.end();
 %><%!
 
 private static List<?> findSimilar(Object object, StringBuilder filter, int rows) {
