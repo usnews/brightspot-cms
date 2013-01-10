@@ -13,6 +13,7 @@ import com.psddev.dari.util.PaginatedResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +44,26 @@ public class SearchResultRenderer {
     }
 
     public void render() throws IOException {
+        if (ObjectUtils.isBlank(search.getQueryString())) {
+            String frameName = page.createId();
+
+            writer.start("div", "class", "frame", "name", frameName);
+            writer.end();
+
+            writer.start("form",
+                    "class", "searchForm-resultSuggestionsForm",
+                    "method", "post",
+                    "action", page.url("/content/suggestions.jsp"),
+                    "target", frameName);
+                writer.tag("input",
+                        "type", "hidden",
+                        "name", "search",
+                        "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
+            writer.end();
+        }
+
+        writer.start("h2").html("Result").end();
+
         if (result.hasItems()) {
             writer.start("div", "class", "searchForm-resultSorter");
                 renderSorter();
@@ -53,7 +74,7 @@ public class SearchResultRenderer {
             writer.end();
 
             writer.start("div", "class", "searchForm-resultList");
-                renderList();
+                renderList(result.getItems());
             writer.end();
 
         } else {
@@ -69,7 +90,7 @@ public class SearchResultRenderer {
         }
     }
 
-    protected void renderSorter() throws IOException {
+    public void renderSorter() throws IOException {
         writer.start("form",
                 "class", "autoSubmit",
                 "method", "get",
@@ -96,7 +117,7 @@ public class SearchResultRenderer {
         writer.end();
     }
 
-    protected void renderPagination() throws IOException {
+    public void renderPagination() throws IOException {
         writer.start("ul", "class", "pagination");
 
             if (result.hasPrevious()) {
@@ -128,8 +149,8 @@ public class SearchResultRenderer {
         writer.end();
     }
 
-    protected void renderList() throws IOException {
-        List<Object> items = new ArrayList<Object>(result.getItems());
+    public void renderList(Collection<?> listItems) throws IOException {
+        List<Object> items = new ArrayList<Object>(listItems);
         Map<Object, StorageItem> previews = new LinkedHashMap<Object, StorageItem>();
 
         for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
@@ -166,7 +187,7 @@ public class SearchResultRenderer {
         }
     }
 
-    protected void renderImage(Object item, StorageItem image) throws IOException {
+    public void renderImage(Object item, StorageItem image) throws IOException {
         String url = null;
 
         if (ImageEditor.Static.getDefault() != null) {
@@ -196,7 +217,7 @@ public class SearchResultRenderer {
         renderAfterItem(item);
     }
 
-    protected void renderRow(Object item) throws IOException {
+    public void renderRow(Object item) throws IOException {
         HttpServletRequest request = page.getRequest();
         String permalink = State.getInstance(item).as(Directory.ObjectModification.class).getPermalink();
 
@@ -244,17 +265,17 @@ public class SearchResultRenderer {
         writer.end();
     }
 
-    protected void renderBeforeItem(Object item) throws IOException {
+    public void renderBeforeItem(Object item) throws IOException {
         writer.start("a",
                 "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("")),
                 "target", "_top");
     }
 
-    protected void renderAfterItem(Object item) throws IOException {
+    public void renderAfterItem(Object item) throws IOException {
         writer.end();
     }
 
-    protected void renderEmpty() throws IOException {
+    public void renderEmpty() throws IOException {
         writer.start("div", "class", "message message-warning");
             writer.start("p");
                 writer.html("No matching items!");

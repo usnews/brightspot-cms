@@ -113,7 +113,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
 <div class="content-edit">
-    <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" enctype="multipart/form-data" method="post">
+    <form class="contentForm"
+            method="post"
+            enctype="multipart/form-data"
+            action="<%= wp.objectUrl("", selected) %>"
+            autocomplete="off"
+            data-object-id="<%= State.getInstance(selected).getId() %>">
         <div class="contentForm-main">
             <%
             String search = wp.param(String.class, "search");

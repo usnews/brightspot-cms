@@ -16,13 +16,14 @@ java.util.List
 ToolPageContext wp = new ToolPageContext(pageContext);
 State state = State.getInstance(request.getAttribute("object"));
 ObjectField field = (ObjectField) request.getAttribute("field");
+String fieldName = field.getInternalName();
 ToolUi ui = field.as(ToolUi.class);
 ObjectType type = field.getParentType();
 
 boolean isHidden = ui.isHidden();
 if (!isHidden && type != null) {
     isHidden = !wp.hasPermission("type/" + field.getParentType().getId() + "/read")
-            || !wp.hasPermission("type/" + field.getParentType().getId() + "/field/" + field.getInternalName() + "/read");
+            || !wp.hasPermission("type/" + field.getParentType().getId() + "/field/" + fieldName + "/read");
 }
 if (isHidden) {
     return;
@@ -32,14 +33,21 @@ boolean isFormPost = (Boolean) request.getAttribute("isFormPost");
 boolean isReadOnly = ui.isReadOnly();
 if (!isReadOnly && type != null) {
     isReadOnly = !wp.hasPermission("type/" + type.getId() + "/write")
-            || !wp.hasPermission("type/" + type.getId() + "/field/" + field.getInternalName() + "/write");
+            || !wp.hasPermission("type/" + type.getId() + "/field/" + fieldName + "/write");
 }
 if (isFormPost && isReadOnly) {
     return;
 }
 
 // Wrapped in try/finally because return is used for flow control.
+String fieldPrefix = (String) request.getAttribute("fieldPrefix");
+
+if (fieldPrefix == null) {
+    fieldPrefix = "";
+}
+
 try {
+    request.setAttribute("fieldPrefix", fieldPrefix + fieldName + "/");
 
     // Standard header.
     if (!isFormPost) {
@@ -47,10 +55,12 @@ try {
         if (isReadOnly) {
             wp.write(" inputContainer-readOnly");
         }
+        wp.write("\" data-field=\"");
+        wp.write(wp.h(fieldPrefix + fieldName));
         wp.write("\" data-name=\"");
         wp.write(wp.h(state.getId()));
         wp.write("/");
-        wp.write(wp.h(field.getInternalName()));
+        wp.write(wp.h(fieldName));
         wp.write("\">");
         wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));
@@ -84,7 +94,7 @@ try {
     // Look for class/field-specific handler.
     // TODO - There should be some type of a hook for external plugins.
     String prefix = wp.cmsUrl("/WEB-INF/field/");
-    String path = prefix + field.getJavaDeclaringClassName() + "." + field.getInternalName() + ".jsp";
+    String path = prefix + field.getJavaDeclaringClassName() + "." + fieldName + ".jsp";
     if (application.getResource(path) != null) {
         JspUtils.include(request, response, out, path);
         return;
@@ -119,6 +129,7 @@ try {
     JspUtils.include(request, response, out, prefix + "default.jsp");
 
 } finally {
+    request.setAttribute("fieldPrefix", fieldPrefix);
 
     // Standard footer.
     if (!isFormPost) {

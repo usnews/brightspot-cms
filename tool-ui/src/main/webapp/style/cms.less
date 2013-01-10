@@ -1614,10 +1614,16 @@ input[type=text].expandable { min-width: 5em; }
     position: relative;
 }
 
+.searchForm-resultSuggestionsForm {
+    display: none;
+}
+
+.searchForm-resultSuggestions {
+    margin-bottom: 20px;
+}
+
 .searchForm-resultSorter {
-    left: 0;
-    position: absolute;
-    top: 0;
+    float: left;
 
     form {
         display: inline;
@@ -1996,7 +2002,6 @@ input[type="text"].dropDown-search {
 // --- $.frame ---
 
 .frame {
-    min-height: 20px;
     position: relative;
 }
 .frame.loading > a {
