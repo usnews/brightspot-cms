@@ -27,16 +27,14 @@ String removeId = wp.createId();
 
         @Override
         protected void renderBeforeItem(Object item) throws IOException {
-            ToolPageContext wp = getToolPageContext();
-            wp.write("<span class=\"link\" data-objectId=\"");
-            wp.write(State.getInstance(item).getId());
-            wp.write("\">");
+            writer.start("span",
+                    "class", "link",
+                    "data-objectId", State.getInstance(item).getId());
         }
 
         @Override
         protected void renderAfterItem(Object item) throws IOException {
-            ToolPageContext wp = getToolPageContext();
-            wp.write("</span>");
+            writer.end();
         }
     }.render(); %>
 </div>

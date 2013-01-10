@@ -19,7 +19,7 @@ private static final String[] POSITIONS = new String[] {
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requireUser("area/dashboard")) {
+if (wp.requireUser()) {
     return;
 }
 

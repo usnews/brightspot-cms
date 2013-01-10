@@ -24,18 +24,15 @@ new SearchResultRenderer(wp, search) {
 
     @Override
     protected void renderBeforeItem(Object item) throws IOException {
-        ToolPageContext wp = getToolPageContext();
-        wp.write("<a data-objectId=\"");
-        wp.write(State.getInstance(item).getId());
-        wp.write("\" href=\"");
-        wp.write(wp.objectUrl("/content/enhancement.jsp", item));
-        wp.write("\" target=\"_parent\">");
+        writer.start("a",
+                "data-objectId", State.getInstance(item).getId(),
+                "href", page.objectUrl("/content/enhancement.jsp", item),
+                "target", "_parent");
     }
 
     @Override
     protected void renderAfterItem(Object item) throws IOException {
-        ToolPageContext wp = getToolPageContext();
-        wp.write("</a>");
+        writer.end();
     }
 }.render();
 %>
