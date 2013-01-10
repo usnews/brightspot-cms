@@ -1,5 +1,7 @@
 package com.psddev.cms.db;
 
+import com.psddev.cms.tool.AuthenticationFilter;
+
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.PaginatedResult;
@@ -7,17 +9,36 @@ import com.psddev.dari.util.PaginatedResult;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Database wrapper that applies all profile-specific variations
  * automatically.
  */
 public class VaryingDatabase extends ForwardingDatabase {
 
+    private HttpServletRequest request;
     private Profile profile;
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
     /** Returns the profile. */
     public Profile getProfile() {
-        return profile;
+        HttpServletRequest request = getRequest();
+
+        if (request != null &&
+                AuthenticationFilter.Static.getUser(request) == null) {
+            return profile;
+
+        } else {
+            return null;
+        }
     }
 
     /** Sets the profile. */

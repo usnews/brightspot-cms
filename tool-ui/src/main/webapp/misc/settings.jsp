@@ -1,7 +1,6 @@
 <%@ page import="
 
 com.psddev.cms.db.ToolUser,
-com.psddev.cms.tool.ToolFilter,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.util.Password,
@@ -16,6 +15,11 @@ private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.requireUser()) {
+    return;
+}
+
 ToolUser user = wp.getUser();
 if (wp.isFormPost()) {
     try {

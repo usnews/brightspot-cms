@@ -89,22 +89,22 @@ public class ToolPageContext extends WebPageContext {
 
     /**
      * Returns the parameter value as an instance of the given
-     * {@code returnClass} associated with the given {@code name},
-     * or if not found, either the {@linkplain ToolFilter#getPageSetting
-     * page setting value} or the given {@code defaultValue}.
+     * {@code returnClass} associated with the given {@code name}, or if not
+     * found, either the {@linkplain #getPageSetting page setting value} or
+     * the given {@code defaultValue}.
      */
     public <T> T pageParam(Class<T> returnClass, String name, T defaultValue) {
         HttpServletRequest request = getRequest();
         String valueString = request.getParameter(name);
         T value = ObjectUtils.to(returnClass, valueString);
-        T userValue = ObjectUtils.to(returnClass, ToolFilter.getPageSetting(request, name));
+        T userValue = ObjectUtils.to(returnClass, AuthenticationFilter.Static.getPageSetting(request, name));
 
         if (valueString == null) {
             return ObjectUtils.isBlank(userValue) ? defaultValue : userValue;
 
         } else {
             if (!ObjectUtils.equals(value, userValue)) {
-                ToolFilter.putPageSetting(request, name, value);
+                AuthenticationFilter.Static.putPageSetting(request, name, value);
             }
 
             return value;
@@ -875,25 +875,40 @@ public class ToolPageContext extends WebPageContext {
         write("</div></body></html>");
     }
 
-    // --- ToolFilter bridge ---
+    // --- AuthenticationFilter bridge ---
+
+    /** @see AuthenticationFilter.Static#requireUser */
+    public boolean requireUser() throws IOException {
+        return AuthenticationFilter.Static.requireUser(getServletContext(), getRequest(), getResponse());
+    }
 
     /**
      * Returns the current user accessing the tool.
      *
-     * @see ToolFilter#getUser
+     * @see AuthenticationFilter.Static#getUser
      */
     public ToolUser getUser() {
-        return ToolFilter.getUser(getRequest());
+        return AuthenticationFilter.Static.getUser(getRequest());
     }
 
-    /** @see ToolFilter#getUserSetting */
+    /**
+     * Returns the current tool user setting value associated with the given
+     * {@code key}.
+     *
+     * @see AuthenticationFilter.Static#getUserSetting
+     */
     public Object getUserSetting(String key) {
-        return ToolFilter.getUserSetting(getRequest(), key);
+        return AuthenticationFilter.Static.getUserSetting(getRequest(), key);
     }
 
-    /** @see ToolFilter#putUserSetting */
+    /**
+     * Puts the given setting {@code value} at the given {@code key} for
+     * the current tool user.
+     *
+     * @see AuthenticationFilter.Static#putUserSetting
+     */
     public void putUserSetting(String key, Object value) {
-        ToolFilter.putUserSetting(getRequest(), key, value);
+        AuthenticationFilter.Static.putUserSetting(getRequest(), key, value);
     }
 
     /**
@@ -911,16 +926,23 @@ public class ToolPageContext extends WebPageContext {
      * {@code permissionId}.
      */
     public boolean hasPermission(String permissionId) {
-        return getUser().hasPermission(permissionId);
+        ToolUser user = getUser();
+
+        return user != null ? user.hasPermission(permissionId) : false;
     }
 
     public boolean requirePermission(String permissionId) throws IOException {
-        if (hasPermission(permissionId)) {
-            return false;
+        if (requireUser()) {
+            return true;
 
         } else {
-            getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
-            return true;
+            if (hasPermission(permissionId)) {
+                return false;
+
+            } else {
+                getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+                return true;
+            }
         }
     }
 
