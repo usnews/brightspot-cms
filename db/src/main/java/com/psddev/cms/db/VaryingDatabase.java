@@ -29,20 +29,30 @@ public class VaryingDatabase extends ForwardingDatabase {
  
     @Override
     public <T> List<T> readAll(Query<T> query) {
-        Profile profile = getProfile();
         List<T> all = super.readAll(query);
-        for (T item : all) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : all) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return all;
     }
 
     @Override
     public <T> T readFirst(Query<T> query) {
         T first = super.readFirst(query);
+
         if (first != null) {
-            Variation.Static.applyAll(first, getProfile());
+            Profile profile = getProfile();
+
+            if (profile != null) {
+                Variation.Static.applyAll(first, getProfile());
+            }
         }
+
         return first;
     }
 
@@ -81,7 +91,15 @@ public class VaryingDatabase extends ForwardingDatabase {
         @Override
         public E next() {
             E item = delegate.next();
-            Variation.Static.applyAll(item, getProfile());
+
+            if (item != null) {
+                Profile profile = getProfile();
+
+                if (profile != null) {
+                    Variation.Static.applyAll(item, profile);
+                }
+            }
+
             return item;
         }
 
@@ -93,11 +111,15 @@ public class VaryingDatabase extends ForwardingDatabase {
 
     @Override
     public <T> PaginatedResult<T> readPartial(Query<T> query, long offset, int limit) {
-        Profile profile = getProfile();
         PaginatedResult<T> result = super.readPartial(query, offset, limit);
-        for (T item : result.getItems()) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : result.getItems()) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return result;
     }
 
@@ -106,11 +128,15 @@ public class VaryingDatabase extends ForwardingDatabase {
     @Deprecated
     @Override
     public <T> List<T> readList(Query<T> query) {
-        Profile profile = getProfile();
         List<T> list = super.readList(query);
-        for (T item : list) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : list) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return list;
     }
 }
