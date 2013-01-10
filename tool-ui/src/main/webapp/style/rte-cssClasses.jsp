@@ -7,6 +7,11 @@ com.psddev.dari.util.ObjectUtils
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.requireUser()) {
+    return;
+}
+
 CmsTool cms = wp.getCmsTool();
 String defaultCss = cms.getDefaultTextOverlayCss();
 

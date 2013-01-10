@@ -13,6 +13,11 @@ java.util.UUID
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.requireUser()) {
+    return;
+}
+
 Search search = new Search(wp);
 
 if (!wp.param(boolean.class, "widget")) {

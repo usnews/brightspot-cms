@@ -10,6 +10,10 @@ com.psddev.dari.util.StringUtils
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
+if (wp.requireUser()) {
+    return;
+}
+
 // --- Presentation ---
 
 %><h1>More Tools</h1>

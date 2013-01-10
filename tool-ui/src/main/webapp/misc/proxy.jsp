@@ -14,7 +14,7 @@ java.util.Map
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
-if (wp.requirePermission("misc")) {
+if (wp.requireUser()) {
     return;
 }
 

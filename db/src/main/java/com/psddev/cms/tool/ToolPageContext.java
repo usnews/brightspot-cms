@@ -670,6 +670,10 @@ public class ToolPageContext extends WebPageContext {
 
     /** Writes the tool header. */
     public void writeHeader() throws IOException {
+        if (requireUser()) {
+            throw new IllegalStateException();
+        }
+
         if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
             return;
         }
