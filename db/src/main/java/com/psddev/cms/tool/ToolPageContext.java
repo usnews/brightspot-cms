@@ -135,6 +135,32 @@ public class ToolPageContext extends WebPageContext {
         return query;
     }
 
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the given {@code object}.
+     */
+    public String getObjectLabelOrDefault(Object object, String defaultLabel) {
+        return Static.getObjectLabelOrDefault(object, defaultLabel);
+    }
+
+    /** Returns a label for the given {@code object}. */
+    public String getObjectLabel(Object object) {
+        return Static.getObjectLabel(object);
+    }
+
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the type of the given {@code object}.
+     */
+    public String getTypeLabelOrDefault(Object object, String defaultLabel) {
+        return Static.getTypeLabelOrDefault(object, defaultLabel);
+    }
+
+    /** Returns a label for the type of the given {@code object}. */
+    public String getTypeLabel(Object object) {
+        return Static.getTypeLabel(object);
+    }
+
     /** Returns {@code true} is the given {@code object} is previewable. */
     public boolean isPreviewable(Object object) {
         if (object != null) {
@@ -909,70 +935,103 @@ public class ToolPageContext extends WebPageContext {
         return pageWriter;
     }
 
+    /** {@link ToolPageContext} utility methods. */
+    public static final class Static {
+
+        private Static() {
+        }
+
+        /**
+         * Returns a label, or the given {@code defaultLabel} if one can't be
+         * found, for the given {@code object}.
+         */
+        public static String getObjectLabelOrDefault(Object object, String defaultLabel) {
+            State state = State.getInstance(object);
+
+            if (state != null) {
+                String label = state.getLabel();
+
+                if (ObjectUtils.to(UUID.class, label) == null) {
+                    return label;
+                }
+            }
+
+            return defaultLabel;
+        }
+
+        /** Returns a label for the given {@code object}. */
+        public static String getObjectLabel(Object object) {
+            State state = State.getInstance(object);
+
+            return state != null ? state.getLabel() : "Not Available";
+        }
+
+        /**
+         * Returns a label, or the given {@code defaultLabel} if one can't be
+         * found, for the type of the given {@code object}.
+         */
+        public static String getTypeLabelOrDefault(Object object, String defaultLabel) {
+            State state = State.getInstance(object);
+
+            if (state != null) {
+                ObjectType type = state.getType();
+
+                if (type != null) {
+                    return getObjectLabel(type);
+                }
+            }
+
+            return defaultLabel;
+        }
+
+        /** Returns a label for the type of the given {@code object}. */
+        public static String getTypeLabel(Object object) {
+            return getTypeLabelOrDefault(object, "Unknown Type");
+        }
+    }
+
     // --- Deprecated ---
+
+    /**
+     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
+     * one can't be found, for the given {@code object}.
+     *
+     * @deprecated Use {@link #getObjectLabelOrDefault} and {@link #h} instead.
+     */
+    @Deprecated
+    public String objectLabel(Object object, String defaultLabel) {
+        return h(getObjectLabelOrDefault(object, defaultLabel));
+    }
+
+    /**
+     * Returns an HTML-escaped label for the given {@code object}.
+     *
+     * @deprecated Use {@link getObjectLabel} and {@link #h} instead.
+     */
+    @Deprecated
+    public String objectLabel(Object object) {
+        return h(getObjectLabel(object));
+    }
 
     /**
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the type of the given {@code object}.
      *
-     * @deprecated Use {@link PageWriter#typeLabelOrDefault} instead.
+     * @deprecated Use {@link #getTypeLabelOrDefault} and {@link #h} instead.
      */
     @Deprecated
     public String typeLabel(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            ObjectType type = state.getType();
-
-            if (type != null) {
-                return objectLabel(type);
-            }
-        }
-
-        return h(defaultLabel);
+        return h(getTypeLabelOrDefault(object, defaultLabel));
     }
 
     /**
      * Returns an HTML-escaped label for the type of the given
      * {@code object}.
      *
-     * @deprecated Use {@link PageWriter#typeLabel} instead.
+     * @deprecated Use {@link #getTypeLabel} and {@link #h} instead.
      */
     @Deprecated
     public String typeLabel(Object object) {
-        return typeLabel(object, "Unknown Type");
-    }
-
-    /**
-     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
-     * one can't be found, for the given {@code object}.
-     *
-     * @deprecated Use {@link PageWriter#objectLabelOrDefault} instead.
-     */
-    @Deprecated
-    public String objectLabel(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            String label = state.getLabel();
-
-            if (ObjectUtils.to(UUID.class, label) == null) {
-                return h(label);
-            }
-        }
-
-        return h(defaultLabel);
-    }
-
-    /**
-     * Returns an HTML-escaped label for the given {@code object}.
-     *
-     * @deprecated Use {@link PageWriter#objectLabel} instead.
-     */
-    @Deprecated
-    public String objectLabel(Object object) {
-        State state = State.getInstance(object);
-
-        return state != null ? h(state.getLabel()) : "Not Available";
+        return h(getTypeLabel(object));
     }
 }
