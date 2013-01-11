@@ -38,7 +38,6 @@
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
-@media-webkit: ~'screen and (-webkit-min-device-pixel-ratio: 0)';
 
 // --- Functions ---
 
@@ -696,10 +695,6 @@ figure,
 
     img {
         border-style: none;
-    }
-
-    @media @media-webkit {
-        top: auto;
     }
 }
 
@@ -3763,14 +3758,4 @@ input[type="text"].dropDown-search {
 input::-moz-focus-inner {
     border: 0;
     padding: 0;
-}
-
-// --- WebKit hacks ---
-
-@media @media-webkit {
-    button,
-    input[type=submit] {
-        position: relative;
-        top: 1px;
-    }
 }
