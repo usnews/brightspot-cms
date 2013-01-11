@@ -266,7 +266,7 @@ var Rte = wysihtml5.Editor.extend({
 
         this.observe('load', function() {
 
-            // Make sure placeholder IMGs are replaced with enhancement SPANs.
+            // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
             var convertNodes = function(parent, oldTagName, newTagName, callback) {
                 var childNodes = parent.childNodes;
 
@@ -289,7 +289,10 @@ var Rte = wysihtml5.Editor.extend({
                                 newNode.setAttribute(attribute.name, attribute.value);
                             }
 
-                            callback(newNode);
+                            if (callback) {
+                                callback(newNode);
+                            }
+
                             parent.insertBefore(newNode, node);
                             parent.removeChild(node);
 
@@ -305,9 +308,7 @@ var Rte = wysihtml5.Editor.extend({
             textarea._originalGetValue = textarea.getValue;
             textarea.getValue = function() {
                 var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'SPAN', 'IMG', function(node) {
-                    node.setAttribute('src', rte.config.spacerUrl);
-                });
+                convertNodes(dom, 'SPAN', 'BUTTON');
                 return dom.innerHTML;
             };
 
@@ -316,7 +317,7 @@ var Rte = wysihtml5.Editor.extend({
             composer._originalGetValue = composer.getValue;
             composer.getValue = function() {
                 var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'IMG', 'SPAN', function(node) {
+                convertNodes(dom, 'BUTTON', 'SPAN', function(node) {
                     node.innerHTML = 'Enhancement';
                 });
                 return dom.innerHTML;
@@ -371,7 +372,7 @@ var Rte = wysihtml5.Editor.extend({
             $(this).data('rte-visited', false);
         });
 
-        $(composerIframe.contentDocument.body).find('img.enhancement').each(function() {
+        $(composerIframe.contentDocument.body).find('button.enhancement').each(function() {
             var $placeholder = $(this);
             var id = $placeholder.data('rte-enhancementId');
 
@@ -463,18 +464,17 @@ wysihtml5.commands.insertEnhancement = {
 
     'exec': function(composer, command, value) {
         var doc = composer.doc;
-        var image = doc.createElement('IMG');
+        var button = doc.createElement('BUTTON');
 
         if (value) {
             for (var i in value) {
-                image.setAttribute(i, value[i]);
+                button.setAttribute(i, value[i]);
             }
         }
 
-        image.setAttribute('class', 'enhancement');
-        image.setAttribute('src', composer.parent.config.spacerUrl);
+        button.setAttribute('class', 'enhancement');
 
-        composer.selection.insertNode(image);
+        composer.selection.insertNode(button);
 
         if (wysihtml5.browser.hasProblemsSettingCaretAfterImg()) {
             var textNode = doc.createTextNode(wysihtml5.INVISIBLE_SPACE);
@@ -482,7 +482,7 @@ wysihtml5.commands.insertEnhancement = {
             composer.selection.setAfter(textNode);
 
         } else {
-            composer.selection.setAfter(image);
+            composer.selection.setAfter(button);
         }
     },
 
@@ -496,18 +496,17 @@ wysihtml5.commands.insertMarker = {
 
     'exec': function(composer, command, value) {
         var doc = composer.doc;
-        var image = doc.createElement('IMG');
+        var button = doc.createElement('BUTTON');
 
         if (value) {
             for (var i in value) {
-                image.setAttribute(i, value[i]);
+                button.setAttribute(i, value[i]);
             }
         }
 
-        image.setAttribute('class', 'enhancement marker');
-        image.setAttribute('src', composer.parent.config.spacerUrl);
+        button.setAttribute('class', 'enhancement marker');
 
-        composer.selection.insertNode(image);
+        composer.selection.insertNode(button);
 
         if (wysihtml5.browser.hasProblemsSettingCaretAfterImg()) {
             var textNode = doc.createTextNode(wysihtml5.INVISIBLE_SPACE);
@@ -515,7 +514,7 @@ wysihtml5.commands.insertMarker = {
             composer.selection.setAfter(textNode);
 
         } else {
-            composer.selection.setAfter(image);
+            composer.selection.setAfter(button);
         }
     },
 
@@ -529,7 +528,6 @@ $.plugin2('rte', {
     '_defaultOptions': {
         'enhancement': createEnhancement,
         'marker': createMarker,
-        'spacerUrl': 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
         'style': false,
         'stylesheets': [ CONTEXT_PATH + '/style/rte-content.css', CONTEXT_PATH + '/style/rte-cssClasses.jsp' ],
         'toolbar': createToolbar,
