@@ -152,24 +152,31 @@ String newTarget = (String) request.getAttribute("newTarget");
                 <h2>Create</h2>
 
                 <form action="<%= wp.url(newJsp) %>" method="get"<%= ObjectUtils.isBlank(newTarget) ? "" : " target=\"" + newTarget + "\"" %>>
-                    <select name="typeId" data-searchable="true">
-                        <% if (mainTypes.size() > 0) { %>
-                            <optgroup label="Main Content Types">
-                                <% for (ObjectType type : mainTypes) { %>
-                                    <option<%= type.equals(selectedType) ? " selected" : "" %> value="<%= wp.h(type.getId()) %>"><%= wp.objectLabel(type) %></option>
-                                <% } %>
-                            </optgroup>
-                        <% } %>
-                        <% if (miscTypes.size() > 0) { %>
-                            <optgroup label="Misc Content Types">
-                                <% for (ObjectType type : miscTypes) { %>
-                                    <option<%= type.equals(selectedType) ? " selected" : "" %> value="<%= wp.h(type.getId()) %>"><%= wp.objectLabel(type) %></option>
-                                <% } %>
-                            </optgroup>
-                        <% } %>
-                    </select>
+                    <% if (validTypes.size() == 1) { %>
+                        <% ObjectType type = validTypes.iterator().next(); %>
+                        <input type="hidden" name="typeId" value="<%= type.getId() %>">
+                        <input type="submit" value="New <%= wp.getObjectLabel(type) %>" style="width: auto;">
 
-                    <input type="submit" value="New" />
+                    <% } else { %>
+                        <select name="typeId" data-searchable="true">
+                            <% if (mainTypes.size() > 0) { %>
+                                <optgroup label="Main Content Types">
+                                    <% for (ObjectType type : mainTypes) { %>
+                                        <option<%= type.equals(selectedType) ? " selected" : "" %> value="<%= wp.h(type.getId()) %>"><%= wp.objectLabel(type) %></option>
+                                    <% } %>
+                                </optgroup>
+                            <% } %>
+                            <% if (miscTypes.size() > 0) { %>
+                                <optgroup label="Misc Content Types">
+                                    <% for (ObjectType type : miscTypes) { %>
+                                        <option<%= type.equals(selectedType) ? " selected" : "" %> value="<%= wp.h(type.getId()) %>"><%= wp.objectLabel(type) %></option>
+                                    <% } %>
+                                </optgroup>
+                            <% } %>
+                        </select>
+
+                        <input type="submit" value="New" />
+                    <% } %>
                 </form>
             </div>
         <% } %>
