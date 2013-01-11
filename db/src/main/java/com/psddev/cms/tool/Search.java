@@ -67,7 +67,7 @@ public class Search extends Record {
         setOnlyPathed(page.param(boolean.class, IS_ONLY_PATHED));
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
-        setSort(page.paramOrDefault(SearchSort.class, SORT_PARAMETER, SearchSort.RELEVANT));
+        setSort(page.paramOrDefault(SearchSort.class, SORT_PARAMETER, null));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
     }
@@ -128,6 +128,9 @@ public class Search extends Record {
     }
 
     public SearchSort getSort() {
+        if (sort == null) {
+            setSort(findSorts().iterator().next());
+        }
         return sort;
     }
 
@@ -194,6 +197,11 @@ public class Search extends Record {
         List<SearchSort> sorts = new ArrayList<SearchSort>();
 
         Collections.addAll(sorts, SearchSort.values());
+
+        if (ObjectUtils.isBlank(getQueryString())) {
+            sorts.remove(SearchSort.RELEVANT);
+        }
+
         if (findAlphabeticalSortField() == null) {
             sorts.remove(SearchSort.ALPHABETICALLY);
         }
@@ -328,12 +336,7 @@ public class Search extends Record {
 
         SearchSort sort = getSort();
 
-        if (SearchSort.RELEVANT.equals(sort)) {
-            if (ObjectUtils.isBlank(queryString)) {
-                query.sortDescending(Content.UPDATE_DATE_FIELD);
-            }
-
-        } else if (SearchSort.NEWEST.equals(sort)) {
+        if (SearchSort.NEWEST.equals(sort)) {
             query.sortDescending(Content.UPDATE_DATE_FIELD);
 
         } else if (SearchSort.ALPHABETICALLY.equals(sort)) {
