@@ -128,9 +128,6 @@ public class Search extends Record {
     }
 
     public SearchSort getSort() {
-        if (sort == null) {
-            setSort(findSorts().iterator().next());
-        }
         return sort;
     }
 
@@ -335,6 +332,11 @@ public class Search extends Record {
         }
 
         SearchSort sort = getSort();
+
+        if (sort == null) {
+            setSort(findSorts().iterator().next());
+            sort = getSort();
+        }
 
         if (SearchSort.NEWEST.equals(sort)) {
             query.sortDescending(Content.UPDATE_DATE_FIELD);

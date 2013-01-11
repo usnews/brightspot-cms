@@ -57,6 +57,7 @@ if (search == null) {
     }
 }
 
+SearchSort sort = search.getSort();
 Set<ObjectType> validTypes = search.findValidTypes();
 ObjectType selectedType = search.getSelectedType();
 
@@ -93,6 +94,7 @@ String newTarget = (String) request.getAttribute("newTarget");
 
             <form action="<%= wp.url(request.getAttribute("resultJsp")) %>" class="autoSubmit" method="get" target="<%= resultTarget %>">
                 <input type="hidden" name="name" value="<%= wp.h(searchName) %>">
+                <input type="hidden" name="<%= Search.SORT_PARAMETER %>" value="<%= wp.h(sort != null ? sort.name() : null) %>">
 
                 <% for (ObjectType type : search.getRequestedTypes()) { %>
                     <input name="<%= Search.REQUESTED_TYPES_PARAMETER %>" type="hidden" value="<%= type.getId() %>">
