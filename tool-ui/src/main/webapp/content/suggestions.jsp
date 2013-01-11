@@ -117,7 +117,11 @@ try {
     }
 
     for (Map.Entry<Object, Integer> entry : similar.entrySet()) {
-        suggestions.put(entry.getKey(), ((float) entry.getValue()) / similar.size());
+        Integer count = entry.getValue();
+
+        if (count > 1) {
+            suggestions.put(entry.getKey(), ((float) count) / similar.size());
+        }
     }
 
     if (suggestions.isEmpty()) {
