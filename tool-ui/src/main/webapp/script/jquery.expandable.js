@@ -40,7 +40,7 @@ $.plugin2('expandable', {
                     'class': 'expandable-checker',
                     'css': {
                         'left': -10000,
-                        'position': 'absolute',
+                        'position': 'fixed',
                         'top': 0,
                         'visibility': 'hidden'
                     }
