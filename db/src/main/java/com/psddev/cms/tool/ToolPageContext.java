@@ -22,6 +22,7 @@ import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.WebPageContext;
 
@@ -944,7 +945,9 @@ public class ToolPageContext extends WebPageContext {
                 return false;
 
             } else {
-                getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+                getResponse().sendError(Settings.isProduction() ?
+                        HttpServletResponse.SC_NOT_FOUND :
+                        HttpServletResponse.SC_FORBIDDEN);
                 return true;
             }
         }
