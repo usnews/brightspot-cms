@@ -23,7 +23,7 @@ Search search = new Search(wp);
 new SearchResultRenderer(wp, search) {
 
     @Override
-    protected void renderBeforeItem(Object item) throws IOException {
+    public void renderBeforeItem(Object item) throws IOException {
         writer.start("a",
                 "data-objectId", State.getInstance(item).getId(),
                 "href", page.objectUrl("/content/sectionContent.jsp", item),
@@ -31,7 +31,7 @@ new SearchResultRenderer(wp, search) {
     }
 
     @Override
-    protected void renderAfterItem(Object item) throws IOException {
+    public void renderAfterItem(Object item) throws IOException {
         writer.end();
     }
 }.render();

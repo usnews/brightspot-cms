@@ -26,14 +26,14 @@ String removeId = wp.createId();
     <% new SearchResultRenderer(wp, search) {
 
         @Override
-        protected void renderBeforeItem(Object item) throws IOException {
+        public void renderBeforeItem(Object item) throws IOException {
             writer.start("span",
                     "class", "link",
                     "data-objectId", State.getInstance(item).getId());
         }
 
         @Override
-        protected void renderAfterItem(Object item) throws IOException {
+        public void renderAfterItem(Object item) throws IOException {
             writer.end();
         }
     }.render(); %>
