@@ -22,6 +22,7 @@
 		// something has gone wrong
 		// TODO: We should do something
 	}
+	Guide guide = Query.findById(Guide.class, wp.uuidParam("guideId"));
 
 	// Was there a variation selected?
 	String variationIdStr = wp.param("variationId");
@@ -45,12 +46,16 @@
 	}
 
 	// Get the list of sections that are in the layout
-	Iterable<Section> sections = pg.findSections();
-	HashMap<UUID, String> nameMap = Guide.Static
+	Iterable<Section> sections =  null;
+	HashMap<UUID, String> nameMap = null;
+	if (guide == null) {
+		sections = pg.findSections();
+		nameMap = Guide.Static
 			.getSectionNameMap(sections);
-	int totalCnt = 1;
-	if (nameMap.size() > 0) {
-		totalCnt += nameMap.size();
+		int totalCnt = 1;
+		if (nameMap.size() > 0) {
+			totalCnt += nameMap.size();
+		}
 	}
 
 	// --- Presentation ---

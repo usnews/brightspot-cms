@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
@@ -54,6 +55,9 @@ try {
         wp.write("\">");
         wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));
+        if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
+        	wp.write("<a target=\"fieldGuide\" class=\"icon-question-sign\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "field", field.getInternalName()), "\"></a>");
+        }
         wp.write("</label></div>");
 
         // Field-specific error messages.

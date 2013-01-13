@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Record;
@@ -30,6 +31,15 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * A Production Guide is Editor-oriented Help documentation providing guidance on how to create and organize content for a site. It's content
+ * is linked directly to the artifacts in the CMS so that helpful information is available contextually and can be easily kept up to date
+ * as the site evolves.
+ * 
+ * A Guide object consists of some overall descriptive content about programming the Site, and then assocations to templates/pages that
+ * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the modification classes
+ * defined in this class.
+ */
 public class Guide extends Record {
 
 	public static final String FIELD_PREFIX = "cms.guide.";
@@ -37,8 +47,46 @@ public class Guide extends Record {
 	public static final String DESC_FIELD = FIELD_PREFIX + "description";
 	public static final String SAMPLE_FIELD = FIELD_PREFIX + "samplePage";
 	public static final String TIPS_FIELD = FIELD_PREFIX + "tips";
+	public static final String SHOW_FIELD = FIELD_PREFIX + "showGuides";
+	// public static final String FIELD_DESCRIPTIONS = FIELD_PREFIX +
+	// "fieldDescriptions";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);
+
+	@Indexed(unique = true)
+	@ToolUi.Note("Production Guide Title")
+	private String title;
+
+	@ToolUi.Note("Production Guide Overview Section")
+	private ReferentialText overview;
+
+	@ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
+	private List<Page> templatesToIncludeInGuide;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public ReferentialText getOverview() {
+		return overview;
+	}
+
+	public void setOverview(ReferentialText overview) {
+		this.overview = overview;
+	}
+
+	public List<Page> getTemplatesToIncludeInGuide() {
+		return templatesToIncludeInGuide;
+	}
+
+	public void setTemplatesToIncludeInGuide(
+			List<Page> templatesToIncludeInGuide) {
+		this.templatesToIncludeInGuide = templatesToIncludeInGuide;
+	}
 
 	/** Modification that adds guide information for a page. */
 	@Modification.Classes({ Page.class })
@@ -46,14 +94,14 @@ public class Guide extends Record {
 			Modification<Object> {
 
 		@InternalName(NAME_FIELD)
-		@ToolUi.Note("Production Guide title for this page type")
+		@ToolUi.Note("Production Guide title for this page/template type")
 		private String name;
 
-		@ToolUi.Note("Production Guide summary for this page")
+		@ToolUi.Note("Production Guide text for this page/template")
 		@InternalName(DESC_FIELD)
 		private ReferentialText description;
 
-		@ToolUi.Note("Sample Page implementation")
+		@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
 		@InternalName(SAMPLE_FIELD)
 		private Content samplePage;
 
@@ -85,7 +133,6 @@ public class Guide extends Record {
 		public void setSamplePage(Content samplePage) {
 			this.samplePage = samplePage;
 		}
-
 
 	}
 
@@ -124,23 +171,7 @@ public class Guide extends Record {
 		}
 
 	}
-	
-	@Modification.Classes({ ObjectField.class })
-	public static class FieldProductionGuideModification extends
-			Modification<Object> {
-		@ToolUi.Note("Production Guide description for this section")
-		@InternalName(DESC_FIELD)
-		private ReferentialText description;
 
-		public ReferentialText getDescription() {
-			return description;
-		}
-
-		public void setDescription(ReferentialText description) {
-			this.description = description;
-		}	
-
-	}
 
 	/** Modification that records a user's production guide settings. */
 	@Modification.Classes({ ToolUser.class })
@@ -149,6 +180,7 @@ public class Guide extends Record {
 			Modification<Object> {
 
 		@ToolUi.Note("If true, default to display of Production Guide when editing content")
+		@InternalName(SHOW_FIELD)
 		// For now, we are not using this, so hide it from the CMS UI
 		@ToolUi.Hidden
 		private boolean showGuides = true;
@@ -168,11 +200,12 @@ public class Guide extends Record {
 
 		private Static() {
 		}
-		
+
 		/*
 		 * Get the main Production Guide
 		 */
-		public static Guide.PageProductionGuideModification getPageProductionGuide(Page content) {
+		public static Guide.PageProductionGuideModification getPageProductionGuide(
+				Page content) {
 			if (content != null) {
 				Guide.PageProductionGuideModification guide = content
 						.as(Guide.PageProductionGuideModification.class);
@@ -214,16 +247,16 @@ public class Guide extends Record {
 
 		}
 
-
 		/*
-		 * Return all pages/templates that the given section appears on (if it is shareable), excluding the 
-		 * provided (usually current) page. 
+		 * Return all pages/templates that the given section appears on (if it
+		 * is shareable), excluding the provided (usually current) page.
 		 */
 		public static List<Page> getSectionReferences(Section section, Page page) {
 			if (section != null && section.isShareable()) {
-				List<Page> references = Query.from(Page.class)
-						.where("* matches ? && not id = ?", section.getId(), page.getId())
-						.selectAll();
+				List<Page> references = Query
+						.from(Page.class)
+						.where("* matches ? && not id = ?", section.getId(),
+								page.getId()).selectAll();
 				return references;
 			}
 			return null;
@@ -233,7 +266,8 @@ public class Guide extends Record {
 		/*
 		 * Get the Production Guide for a template section
 		 */
-		public static Guide.SectionProductionGuideModification getSectionProductionGuide(Section section) {
+		public static Guide.SectionProductionGuideModification getSectionProductionGuide(
+				Section section) {
 			if (section != null) {
 				Guide.SectionProductionGuideModification guide = section
 						.as(Guide.SectionProductionGuideModification.class);
@@ -244,6 +278,7 @@ public class Guide extends Record {
 			return null;
 
 		}
+
 		/*
 		 * Get the Production Guide description for a template section
 		 */
@@ -274,8 +309,10 @@ public class Guide extends Record {
 
 		}
 
+
 		/*
-		 * Get the flag per user which dictates whether to automatically show production guides
+		 * Get the flag per user which dictates whether to automatically show
+		 * production guides
 		 */
 		public static boolean showByDefault(ToolUser user) {
 
@@ -290,7 +327,8 @@ public class Guide extends Record {
 		}
 
 		/*
-		 * Set the flag per user which dictates whether to automatically show production guides
+		 * Set the flag per user which dictates whether to automatically show
+		 * production guides
 		 */
 		public static void setShowByDefault(ToolUser user, boolean toShow) {
 
@@ -302,19 +340,22 @@ public class Guide extends Record {
 		}
 
 		/*
-		 * Return the related templates (other than the one provided) that have a sample page defined
+		 * Return the related templates (other than the one provided) that have
+		 * a sample page defined
 		 */
-		public static List<Template> getRelatedTemplates(Object object, Page ignoreTemplate) {
-			List<Template> relatedTemplates = new ArrayList<Template>();					
+		public static List<Template> getRelatedTemplates(Object object,
+				Page ignoreTemplate) {
+			List<Template> relatedTemplates = new ArrayList<Template>();
 			List<Template> usableTemplates = Template.Static.findUsable(object);
 			for (Template template : usableTemplates) {
-				if (!template.getId().equals(ignoreTemplate.getId()) && Guide.Static.getSamplePage(template) != null) {
+				if (!template.getId().equals(ignoreTemplate.getId())
+						&& Guide.Static.getSamplePage(template) != null) {
 					relatedTemplates.add(template);
 				}
 			}
 			return relatedTemplates;
 		}
-		
+
 		/*
 		 * Return a map of section ids to names where names are a concatenation
 		 * of the section name along with it's parental lineage in the layout
@@ -322,16 +363,19 @@ public class Guide extends Record {
 		public static HashMap<UUID, String> getSectionNameMap(
 				Iterable<Section> sections) {
 			HashMap<UUID, String> nameMap = new HashMap<UUID, String>();
-			
-			// This assumes that the sections are provided in an order such that parents are
-			// evaluated before children, which is how they get returned from Section
+
+			// This assumes that the sections are provided in an order such that
+			// parents are
+			// evaluated before children, which is how they get returned from
+			// Section
 			for (Section section : sections) {
 				String sectionName = "";
 				if (!nameMap.containsKey(section.getId())) {
 					if (!section.getName().isEmpty()) {
 						sectionName = section.getName();
 					} else {
-						// if the section wasn't given an explicit name, we use the class name (e.g. VerticalContainerSection)
+						// if the section wasn't given an explicit name, we use
+						// the class name (e.g. VerticalContainerSection)
 						sectionName = section.getClass().getSimpleName();
 					}
 					nameMap.put(section.getId(), sectionName);
