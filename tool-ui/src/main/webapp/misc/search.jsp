@@ -11,7 +11,7 @@ if (wp.requireUser()) {
 
 wp.include(
         "/WEB-INF/search.jsp",
-        "searchName", "toolHeader",
+        "name", "toolHeader",
         "newJsp", "/content/edit.jsp",
         "newTarget", "_top",
         "resultJsp", "/misc/searchResult.jsp");

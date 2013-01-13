@@ -4,11 +4,9 @@ com.psddev.cms.db.Content,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.Template,
 com.psddev.cms.tool.Search,
-com.psddev.cms.tool.SearchSort,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectType,
-
 com.psddev.dari.util.ObjectUtils,
 
 java.util.ArrayList,
@@ -25,39 +23,39 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-String resultTarget = wp.createId();
 Search search = null;
-String searchName = (String) request.getAttribute("searchName");
+String name = (String) request.getAttribute("name");
 
-if (!wp.param(boolean.class, "reset") && searchName != null) {
-    Map<String, Object> searchSettings = (Map<String, Object>) wp.getUserSetting("search." + searchName);
+if (!wp.param(boolean.class, "reset") && name != null) {
+    Map<String, Object> settings = (Map<String, Object>) wp.getUserSetting("search." + name);
 
-    if (searchSettings != null) {
+    if (settings != null) {
         search = new Search(wp);
-        search.getState().setValues(searchSettings);
+        search.getState().setValues(settings);
     }
 }
 
 if (search == null) {
-    UUID[] validTypeIds = (UUID[]) request.getAttribute("validTypeIds");
+    UUID[] typeIds = (UUID[]) request.getAttribute("validTypeIds");
 
-    if (ObjectUtils.isBlank(validTypeIds)) {
-        Class<?> validTypeClass = (Class<?>) request.getAttribute("validTypeClass");
+    if (ObjectUtils.isBlank(typeIds)) {
+        Class<?> typeClass = (Class<?>) request.getAttribute("validTypeClass");
 
-        if (validTypeClass != null) {
-            validTypeIds = new UUID[] { ObjectType.getInstance(validTypeClass).getId() };
+        if (typeClass != null) {
+            typeIds = new UUID[] { ObjectType.getInstance(typeClass).getId() };
         }
     }
 
-    if (validTypeIds != null) {
-        search = new Search(wp, validTypeIds);
+    if (typeIds != null) {
+        search = new Search(wp, typeIds);
 
     } else {
         search = new Search(wp);
     }
 }
 
-SearchSort sort = search.getSort();
+search.setName(name);
+
 Set<ObjectType> validTypes = search.findValidTypes();
 ObjectType selectedType = search.getSelectedType();
 
@@ -82,6 +80,7 @@ for (Iterator<ObjectType> i = mainTypes.iterator(); i.hasNext(); ) {
 Collections.sort(mainTypes);
 Collections.sort(miscTypes);
 
+String resultTarget = wp.createId();
 String newJsp = (String) request.getAttribute("newJsp");
 String newTarget = (String) request.getAttribute("newTarget");
 
@@ -93,8 +92,8 @@ String newTarget = (String) request.getAttribute("newTarget");
             <h2>Filters</h2>
 
             <form action="<%= wp.url(request.getAttribute("resultJsp")) %>" class="autoSubmit" method="get" target="<%= resultTarget %>">
-                <input type="hidden" name="name" value="<%= wp.h(searchName) %>">
-                <input type="hidden" name="<%= Search.SORT_PARAMETER %>" value="<%= wp.h(sort != null ? sort.name() : null) %>">
+                <input type="hidden" name="<%= Search.NAME_PARAMETER %>" value="<%= wp.h(search.getName()) %>">
+                <input type="hidden" name="<%= Search.SORT_PARAMETER %>" value="<%= wp.h(search.getSort()) %>">
 
                 <% for (ObjectType type : search.getRequestedTypes()) { %>
                     <input name="<%= Search.REQUESTED_TYPES_PARAMETER %>" type="hidden" value="<%= type.getId() %>">
