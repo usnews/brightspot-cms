@@ -167,6 +167,42 @@ $doc.onCreate('.dashboard_cell', function() {
     $cell.append($moveContainer);
 });
 
+$doc.onCreate('.searchForm-resultSuggestionsForm', function() {
+    var $suggestionsForm = $(this),
+            $source = $suggestionsForm.popup('source'),
+            $contentForm = $source.closest('.contentForm'),
+            search;
+
+    if ($contentForm.length === 0) {
+        return;
+    }
+
+    search = win.location.search;
+    search += search.indexOf('?') > -1 ? '&' : '?';
+    search += 'id=' + $contentForm.attr('data-object-id');
+
+    $.ajax({
+        'data': $contentForm.serialize(),
+        'type': 'post',
+        'url': CONTEXT_PATH + '/content/state.jsp' + search,
+        'complete': function(request) {
+            $suggestionsForm.append($('<input/>', {
+                'type': 'hidden',
+                'name': 'object',
+                'value': request.responseText
+            }));
+
+            $suggestionsForm.append($('<input/>', {
+                'type': 'hidden',
+                'name': 'field',
+                'value': $source.closest('.inputContainer').attr('data-field')
+            }));
+
+            $suggestionsForm.submit();
+        }
+    });
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
@@ -308,31 +344,6 @@ $doc.delegate(':input', 'blur', function() {
     $label.hide();
     $(this).parents('.focus').removeClass('focus focused');
     $win.unbind('.focus');
-});
-
-// Allow clicks from anywhere within the row to activate the main link.
-$doc.delegate('table.links tr', 'click', function(event) {
-    var $anchor,
-            result,
-            href;
-
-    if ($(event.target).is('.link, a')) {
-        return true;
-
-    } else {
-        $anchor = $(this).find('.link, a').eq(0);
-        result = $anchor.triggerHandler('click');
-
-        if (result === undef || result) {
-            href = $anchor.attr('href');
-
-            if (href) {
-                win.location = href;
-            }
-        }
-
-        return false;
-    }
 });
 
 // Handle file uploads from drag-and-drop.
@@ -522,8 +533,8 @@ $doc.ready(function() {
 
                 if (previousValue !== currentValue) {
                     previousValue = currentValue;
-                    $targetFrame.find('.searchInput :text').val($input.val());
-                    $targetFrame.find('form.existing').submit();
+                    $targetFrame.find('.searchForm-controlsFilters .searchInput :text').val($input.val());
+                    $targetFrame.find('.searchForm-controlsFilters form').submit();
                 }
             }
         }));

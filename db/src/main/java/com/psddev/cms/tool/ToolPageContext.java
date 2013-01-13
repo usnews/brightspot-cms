@@ -13,12 +13,12 @@ import com.psddev.cms.db.Trash;
 
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
+import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -26,8 +26,8 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.WebPageContext;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
@@ -88,51 +88,54 @@ public class ToolPageContext extends WebPageContext {
         super(servletContext, request, response);
     }
 
-    /** @deprecated Use {@link ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse} instead. */
-    @Deprecated
-    public ToolPageContext(
-            Servlet servlet,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        super(servlet, request, response);
-    }
-
     /**
      * Returns the parameter value as an instance of the given
-     * {@code returnClass} associated with the given {@code name},
-     * or if not found, either the {@linkplain ToolFilter#getPageSetting
-     * page setting value} or the given {@code defaultValue}.
+     * {@code returnClass} associated with the given {@code name}, or if not
+     * found, either the {@linkplain #getPageSetting page setting value} or
+     * the given {@code defaultValue}.
      */
     public <T> T pageParam(Class<T> returnClass, String name, T defaultValue) {
         HttpServletRequest request = getRequest();
         String valueString = request.getParameter(name);
         T value = ObjectUtils.to(returnClass, valueString);
-        T userValue = ObjectUtils.to(returnClass, ToolFilter.getPageSetting(request, name));
+        T userValue = ObjectUtils.to(returnClass, AuthenticationFilter.Static.getPageSetting(request, name));
 
         if (valueString == null) {
             return ObjectUtils.isBlank(userValue) ? defaultValue : userValue;
 
         } else {
             if (!ObjectUtils.equals(value, userValue)) {
-                ToolFilter.putPageSetting(request, name, value);
+                AuthenticationFilter.Static.putPageSetting(request, name, value);
             }
+
             return value;
         }
     }
 
-    /** @deprecated Use the factory methods in {@link Database.Static} instead. */
-    @Deprecated
-    public Database getDatabase() {
-        return Database.Static.getDefault();
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the given {@code object}.
+     */
+    public String getObjectLabelOrDefault(Object object, String defaultLabel) {
+        return Static.getObjectLabelOrDefault(object, defaultLabel);
     }
 
-    /** @deprecated Use {@link Query#from} instead. */
-    @Deprecated
-    public <T> Query<T> queryFrom(Class<T> objectClass) {
-        Query<T> query = Query.from(objectClass);
-        query.setDatabase(getDatabase());
-        return query;
+    /** Returns a label for the given {@code object}. */
+    public String getObjectLabel(Object object) {
+        return Static.getObjectLabel(object);
+    }
+
+    /**
+     * Returns a label, or the given {@code defaultLabel} if one can't be
+     * found, for the type of the given {@code object}.
+     */
+    public String getTypeLabelOrDefault(Object object, String defaultLabel) {
+        return Static.getTypeLabelOrDefault(object, defaultLabel);
+    }
+
+    /** Returns a label for the type of the given {@code object}. */
+    public String getTypeLabel(Object object) {
+        return Static.getTypeLabel(object);
     }
 
     /** Returns {@code true} is the given {@code object} is previewable. */
@@ -160,25 +163,24 @@ public class ToolPageContext extends WebPageContext {
      * Note that this method caches the result, so it'll return the
      * exact same object every time within a single request.
      */
+    @SuppressWarnings("unchecked")
     public <T extends Tool> T getToolByClass(Class<T> toolClass) {
         HttpServletRequest request = getRequest();
-
-        @SuppressWarnings("unchecked")
         Map<Class<?>, Tool> tools = (Map<Class<?>, Tool>) request.getAttribute(TOOL_BY_CLASS_ATTRIBUTE);
+
         if (tools == null) {
             tools = new HashMap<Class<?>, Tool>();
             request.setAttribute(TOOL_BY_CLASS_ATTRIBUTE, tools);
         }
 
         Tool tool = tools.get(toolClass);
+
         if (!toolClass.isInstance(tool)) {
             tool = Application.Static.getInstance(toolClass);
             tools.put(toolClass, tool);
         }
 
-        @SuppressWarnings("unchecked")
-        T typedTool = (T) tool;
-        return typedTool;
+        return (T) tool;
     }
 
     /**
@@ -191,25 +193,21 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /** Returns all embedded tools, keyed by their context paths. */
+    @SuppressWarnings("unchecked")
     public Map<String, Tool> getEmbeddedTools() {
         HttpServletRequest request = getRequest();
-
-        @SuppressWarnings("unchecked")
         Map<String, Tool> tools = (Map<String, Tool>) request.getAttribute(TOOL_BY_PATH_ATTRIBUTE);
+
         if (tools == null) {
             tools = new LinkedHashMap<String, Tool>();
 
-            for (Map.Entry<String, Properties> entry :
-                    JspUtils.getEmbeddedSettings(getServletContext()).entrySet()) {
-
+            for (Map.Entry<String, Properties> entry : JspUtils.getEmbeddedSettings(getServletContext()).entrySet()) {
                 String toolClassName = entry.getValue().getProperty(Application.MAIN_CLASS_SETTING);
                 Class<?> objectClass = ObjectUtils.getClassByName(toolClassName);
 
                 if (objectClass != null &&
                         Tool.class.isAssignableFrom(objectClass)) {
-                    @SuppressWarnings("unchecked")
-                    Class<Tool> toolClass = (Class<Tool>) objectClass;
-                    tools.put(entry.getKey(), getToolByClass(toolClass));
+                    tools.put(entry.getKey(), getToolByClass((Class<Tool>) objectClass));
                 }
             }
 
@@ -230,11 +228,11 @@ public class ToolPageContext extends WebPageContext {
     public Tool getTool() {
         ServletContext context = getServletContext();
         HttpServletRequest request = getRequest();
-
         Tool tool = (Tool) request.getAttribute(TOOL_ATTRIBUTE);
-        if (tool == null) {
 
+        if (tool == null) {
             String contextPath = JspUtils.getEmbeddedContextPath(context, request.getServletPath());
+
             tool = getEmbeddedTools().get(contextPath);
             request.setAttribute(TOOL_ATTRIBUTE, tool);
         }
@@ -245,10 +243,11 @@ public class ToolPageContext extends WebPageContext {
     /** Returns the area that's currently in use. */
     public Area getArea() {
         Tool tool = getTool();
-        if (tool != null) {
 
+        if (tool != null) {
             List<Area> areas = new ArrayList<Area>();
-            for (Area area : tool.findPlugins(Area.class)) {
+
+            for (Area area : Tool.Static.getPluginsByClass(Area.class)) {
                 if (area.getTool().equals(tool)) {
                     areas.add(area);
                 }
@@ -264,6 +263,7 @@ public class ToolPageContext extends WebPageContext {
             ServletContext context = getServletContext();
             HttpServletRequest request = getRequest();
             String path = JspUtils.getEmbeddedServletPath(context, request.getServletPath());
+
             for (Area area : areas) {
                 if (path.startsWith(area.getUrl())) {
                     return area;
@@ -278,12 +278,15 @@ public class ToolPageContext extends WebPageContext {
         int os = array.length;
         int ns = newItems.length;
         Object[] newArray = new Object[os + ns];
+
         if (os > 0) {
             System.arraycopy(array, 0, newArray, 0, os);
         }
+
         if (ns > 0) {
             System.arraycopy(newItems, 0, newArray, os, ns);
         }
+
         return newArray;
     }
 
@@ -293,6 +296,7 @@ public class ToolPageContext extends WebPageContext {
      */
     public String toolUrl(Tool tool, String path, Object... parameters) {
         String url = null;
+
         for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
             if (entry.getValue().equals(tool)) {
                 url = entry.getKey();
@@ -302,6 +306,7 @@ public class ToolPageContext extends WebPageContext {
 
         if (url == null) {
             url = tool.getUrl();
+
             if (ObjectUtils.isBlank(url)) {
                 return "javascript:alert('" + js(String.format(
                         "No tool URL for [%s]! (must be set under Admin/Settings)",
@@ -315,6 +320,7 @@ public class ToolPageContext extends WebPageContext {
         if (!path.equals("") && !path.startsWith("/")) {
             url += "/";
         }
+
         url += path;
 
         return StringUtils.addQueryParameters(url, parameters);
@@ -336,65 +342,76 @@ public class ToolPageContext extends WebPageContext {
                 HISTORY_ID_PARAMETER, null));
     }
 
-    public String typeUrl(
-            String path, Class<?> objectClass, Object... parameters) {
+    public String typeUrl(String path, Class<?> objectClass, Object... parameters) {
         UUID typeId = ObjectType.getInstance(objectClass).getId();
+
         return typeUrl(path, typeId, parameters);
     }
 
-    public String objectUrl(
-            String path, Object object, Object... parameters) {
+    public String objectUrl(String path, Object object, Object... parameters) {
         if (object instanceof Draft) {
             Draft draft = (Draft) object;
+
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, draft.getObjectId(),
                     DRAFT_ID_PARAMETER, draft.getId(),
                     HISTORY_ID_PARAMETER, null);
+
         } else if (object instanceof History) {
             History history = (History) object;
+
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, history.getObjectId(),
                     DRAFT_ID_PARAMETER, null,
                     HISTORY_ID_PARAMETER, history.getId());
+
         } else {
             UUID objectId = State.getInstance(object).getId();
             Draft draft = getOverlaidDraft(object);
             History history = getOverlaidHistory(object);
+
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, objectId,
                     DRAFT_ID_PARAMETER, draft != null ? draft.getId() : null,
                     HISTORY_ID_PARAMETER,
                     history != null ? history.getId() : null);
         }
+
         return url(path, parameters);
     }
 
-    public String originalUrl(
-            String path, Object object, Object... parameters) {
+    public String originalUrl(String path, Object object, Object... parameters) {
         return url(path, pushToArray(parameters,
                 OBJECT_ID_PARAMETER, State.getInstance(object).getId(),
                 DRAFT_ID_PARAMETER, ORIGINAL_DRAFT_VALUE,
                 HISTORY_ID_PARAMETER, null));
     }
 
-    /** Returns an URL for returning to the current page from the request
-     *  at the given {@code path}, modified by the given {@code parameters}. */
+    /**
+     * Returns an URL for returning to the current page from the request
+     * at the given {@code path}, modified by the given {@code parameters}.
+     */
     public String returnableUrl(String path, Object... parameters) {
         HttpServletRequest request = getRequest();
+
         return url(path, pushToArray(parameters,
                 RETURN_URL_PARAMETER, JspUtils.getAbsolutePath(request, "")
                 .substring(JspUtils.getEmbeddedContextPath(getServletContext(), request.getServletPath()).length())));
     }
 
-    /** Returns an URL to the return to the page specified by a previous
-     *  call to {@link #returnableUrl(String, Object...)}, modified by the
-     *  given {@code parameters}. */
+    /**
+     * Returns an URL to the return to the page specified by a previous
+     * call to {@link #returnableUrl(String, Object...)}, modified by the
+     * given {@code parameters}.
+     */
     public String returnUrl(Object... parameters) {
-        String returnUrl = param(RETURN_URL_PARAMETER);
+        String returnUrl = param(String.class, RETURN_URL_PARAMETER);
+
         if (ObjectUtils.isBlank(returnUrl)) {
             throw new IllegalArgumentException(String.format(
                     "The [%s] parameter is required!", RETURN_URL_PARAMETER));
         }
+
         return url(returnUrl, parameters);
     }
 
@@ -402,10 +419,12 @@ public class ToolPageContext extends WebPageContext {
     public List<Throwable> getErrors() {
         @SuppressWarnings("unchecked")
         List<Throwable> errors = (List<Throwable>) getRequest().getAttribute(ERRORS_ATTRIBUTE);
+
         if (errors == null) {
             errors = new ArrayList<Throwable>();
             getRequest().setAttribute(ERRORS_ATTRIBUTE, errors);
         }
+
         return errors;
     }
 
@@ -414,7 +433,9 @@ public class ToolPageContext extends WebPageContext {
      * using the data from the given {@code object}.
      */
     public void renderField(Object object, ObjectField field) throws IOException {
+        @SuppressWarnings("all")
         ToolFormWriter writer = new ToolFormWriter(this);
+
         writer.inputs(State.getInstance(object), field.getInternalName());
     }
 
@@ -424,26 +445,31 @@ public class ToolPageContext extends WebPageContext {
      * given {@code object}.
      */
     public void processField(Object object, ObjectField field) throws Throwable {
+        @SuppressWarnings("all")
         ToolFormWriter writer = new ToolFormWriter(this);
+
         writer.update(State.getInstance(object), getRequest(), field.getInternalName());
     }
 
     /** Finds an existing object or reserve one. */
     public Object findOrReserve(Collection<ObjectType> validTypes) {
-
-        UUID objectId = uuidParam(OBJECT_ID_PARAMETER);
+        UUID objectId = param(UUID.class, OBJECT_ID_PARAMETER);
         Object object = Query.findById(Object.class, objectId);
 
         if (object != null) {
             ObjectType objectType = State.getInstance(object).getType();
-            if (!ObjectUtils.isBlank(validTypes)
-                    && !validTypes.contains(objectType)) {
+
+            if (!ObjectUtils.isBlank(validTypes) &&
+                    !validTypes.contains(objectType)) {
                 StringBuilder tb = new StringBuilder();
+
                 for (ObjectType type : validTypes) {
                     tb.append(type.getLabel());
                     tb.append(", ");
                 }
+
                 tb.setLength(tb.length() - 2);
+
                 throw new IllegalArgumentException(String.format(
                         "Expected one of [%s] types for [%s] object"
                         + " but it is of [%s] type", tb, objectId,
@@ -452,35 +478,40 @@ public class ToolPageContext extends WebPageContext {
             }
 
         } else if (!ObjectUtils.isBlank(validTypes)) {
-            ObjectType selectedType = ObjectType.getInstance(uuidParam(TYPE_ID_PARAMETER));
+            ObjectType selectedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
+
             if (selectedType == null) {
                 for (ObjectType type : validTypes) {
                     selectedType = type;
                     break;
                 }
             }
+
             if (selectedType != null) {
                 object = selectedType.createObject(objectId);
                 State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
             }
         }
 
-        UUID draftId = uuidParam(DRAFT_ID_PARAMETER);
+        UUID draftId = param(UUID.class, DRAFT_ID_PARAMETER);
+
         if (object == null) {
             Draft draft = Query.findById(Draft.class, draftId);
+
             if (draft != null) {
                 object = draft.getObject();
-                State.getInstance(object)
-                        .getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
+
+                State.getInstance(object).getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
             }
 
         } else {
             State state = State.getInstance(object);
-            History history = Query
-                    .from(History.class)
-                    .where("id = ?", uuidParam(HISTORY_ID_PARAMETER))
-                    .and("objectId = ?", objectId)
-                    .first();
+
+            History history = Query.
+                    from(History.class).
+                    where("id = ?", param(UUID.class, HISTORY_ID_PARAMETER)).
+                    and("objectId = ?", objectId).
+                    first();
 
             if (history != null) {
                 state.getExtras().put(OVERLAID_HISTORY_EXTRA, history);
@@ -488,20 +519,21 @@ public class ToolPageContext extends WebPageContext {
                 state.setStatus(StateStatus.SAVED);
 
             } else if (objectId != null) {
-                Draft draft = Query
-                        .from(Draft.class)
-                        .where("id = ?", draftId)
-                        .and("objectId = ?", objectId)
-                        .first();
+                Draft draft = Query.
+                        from(Draft.class).
+                        where("id = ?", draftId).
+                        and("objectId = ?", objectId).
+                        first();
 
-                if (draft == null
-                        && !ORIGINAL_DRAFT_VALUE.equals(param(DRAFT_ID_PARAMETER))) {
-                    for (Draft d : getDatabase().readAll(Query
-                            .from(Draft.class)
-                            .where("objectId = ?", objectId))) {
+                if (draft == null &&
+                        !ORIGINAL_DRAFT_VALUE.equals(param(String.class, DRAFT_ID_PARAMETER))) {
+                    for (Draft d : getDatabase().readAll(Query.
+                            from(Draft.class).
+                            where("objectId = ?", objectId))) {
                         String name = d.getName();
-                        if (d.getSchedule() == null
-                                && (name == null || name.length() == 0)) {
+
+                        if (d.getSchedule() == null &&
+                                (name == null || name.length() == 0)) {
                             draft = d;
                             break;
                         }
@@ -514,11 +546,12 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            UUID variationId = uuidParam(VARIATION_ID_PARAMETER);
+            UUID variationId = param(UUID.class, VARIATION_ID_PARAMETER);
+
             if (variationId != null) {
                 @SuppressWarnings("unchecked")
-                Map<String, Object> variationValues = (Map<String, Object>)
-                        state.getValue("variations/" + variationId.toString());
+                Map<String, Object> variationValues = (Map<String, Object>) state.getValue("variations/" + variationId.toString());
+
                 if (variationValues != null) {
                     state.setValues(variationValues);
                 }
@@ -531,39 +564,48 @@ public class ToolPageContext extends WebPageContext {
     /** Finds an existing object or reserve one. */
     public Object findOrReserve(UUID... validTypeIds) {
         Set<ObjectType> validTypes = null;
+
         if (!ObjectUtils.isBlank(validTypeIds)) {
             validTypes = new LinkedHashSet<ObjectType>();
+
             for (UUID typeId : validTypeIds) {
                 ObjectType type = ObjectType.getInstance(typeId);
+
                 if (type != null) {
                     validTypes.add(type);
                 }
             }
         }
+
         return findOrReserve(validTypes);
     }
 
     /** Finds an existing object or reserve one. */
     public Object findOrReserve(Class<?>... validObjectClasses) {
         Set<ObjectType> validTypes = null;
+
         if (!ObjectUtils.isBlank(validObjectClasses)) {
             validTypes = new LinkedHashSet<ObjectType>();
+
             for (Class<?> validObjectClass : validObjectClasses) {
                 ObjectType type = ObjectType.getInstance(validObjectClass);
+
                 if (type != null) {
                     validTypes.add(type);
                 }
             }
         }
+
         return findOrReserve(validTypes);
     }
 
     /** Finds an existing object or reserve one. */
     public Object findOrReserve() {
-        UUID selectedTypeId = uuidParam(TYPE_ID_PARAMETER);
-        return findOrReserve(selectedTypeId != null
-                ? new UUID[] { selectedTypeId }
-                : new UUID[0]);
+        UUID selectedTypeId = param(UUID.class, TYPE_ID_PARAMETER);
+
+        return findOrReserve(selectedTypeId != null ?
+                new UUID[] { selectedTypeId } :
+                new UUID[0]);
     }
 
     /**
@@ -584,12 +626,15 @@ public class ToolPageContext extends WebPageContext {
 
     public Predicate siteItemsPredicate() {
         ToolUser user = getUser();
+
         if (user != null) {
             Site site = user.getCurrentSite();
+
             if (site != null) {
                 return site.itemsPredicate();
             }
         }
+
         return null;
     }
 
@@ -626,7 +671,11 @@ public class ToolPageContext extends WebPageContext {
 
     /** Writes the tool header. */
     public void writeHeader() throws IOException {
-        if (isAjaxRequest() || boolParam("_isFrame")) {
+        if (requireUser()) {
+            throw new IllegalStateException();
+        }
+
+        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
             return;
         }
 
@@ -644,7 +693,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         write("<script type=\"text/javascript\">(window.less = window.less || { }).env = 'production';</script>");
-        write("<script src=\"", cmsResource("/script/less-1.3.1.min.js"), "\" type=\"text/javascript\"></script>");
+        write("<script src=\"", cmsResource("/script/less-1.3.3.min.js"), "\" type=\"text/javascript\"></script>");
 
         String extraCss = cmsTool.getExtraCss();
         if (!ObjectUtils.isBlank(extraCss)) {
@@ -795,7 +844,7 @@ public class ToolPageContext extends WebPageContext {
 
     /** Writes the tool footer. */
     public void writeFooter() throws IOException {
-        if (isAjaxRequest() || boolParam("_isFrame")) {
+        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
             return;
         }
 
@@ -831,25 +880,40 @@ public class ToolPageContext extends WebPageContext {
         write("</div></body></html>");
     }
 
-    // --- ToolFilter bridge ---
+    // --- AuthenticationFilter bridge ---
+
+    /** @see AuthenticationFilter.Static#requireUser */
+    public boolean requireUser() throws IOException {
+        return AuthenticationFilter.Static.requireUser(getServletContext(), getRequest(), getResponse());
+    }
 
     /**
      * Returns the current user accessing the tool.
      *
-     * @see ToolFilter#getUser
+     * @see AuthenticationFilter.Static#getUser
      */
     public ToolUser getUser() {
-        return ToolFilter.getUser(getRequest());
+        return AuthenticationFilter.Static.getUser(getRequest());
     }
 
-    /** @see ToolFilter#getUserSetting */
+    /**
+     * Returns the current tool user setting value associated with the given
+     * {@code key}.
+     *
+     * @see AuthenticationFilter.Static#getUserSetting
+     */
     public Object getUserSetting(String key) {
-        return ToolFilter.getUserSetting(getRequest(), key);
+        return AuthenticationFilter.Static.getUserSetting(getRequest(), key);
     }
 
-    /** @see ToolFilter#putUserSetting */
+    /**
+     * Puts the given setting {@code value} at the given {@code key} for
+     * the current tool user.
+     *
+     * @see AuthenticationFilter.Static#putUserSetting
+     */
     public void putUserSetting(String key, Object value) {
-        ToolFilter.putUserSetting(getRequest(), key, value);
+        AuthenticationFilter.Static.putUserSetting(getRequest(), key, value);
     }
 
     /**
@@ -867,15 +931,25 @@ public class ToolPageContext extends WebPageContext {
      * {@code permissionId}.
      */
     public boolean hasPermission(String permissionId) {
-        return getUser().hasPermission(permissionId);
+        ToolUser user = getUser();
+
+        return user != null ? user.hasPermission(permissionId) : false;
     }
 
     public boolean requirePermission(String permissionId) throws IOException {
-        if (hasPermission(permissionId)) {
-            return false;
-        } else {
-            getResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+        if (requireUser()) {
             return true;
+
+        } else {
+            if (hasPermission(permissionId)) {
+                return false;
+
+            } else {
+                getResponse().sendError(Settings.isProduction() ?
+                        HttpServletResponse.SC_NOT_FOUND :
+                        HttpServletResponse.SC_FORBIDDEN);
+                return true;
+            }
         }
     }
 
@@ -909,70 +983,127 @@ public class ToolPageContext extends WebPageContext {
         return pageWriter;
     }
 
-    // --- Deprecated ---
+    /** {@link ToolPageContext} utility methods. */
+    public static final class Static {
 
-    /**
-     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
-     * one can't be found, for the type of the given {@code object}.
-     *
-     * @deprecated Use {@link PageWriter#typeLabelOrDefault} instead.
-     */
-    @Deprecated
-    public String typeLabel(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            ObjectType type = state.getType();
-
-            if (type != null) {
-                return objectLabel(type);
-            }
+        private Static() {
         }
 
-        return h(defaultLabel);
+        /**
+         * Returns a label, or the given {@code defaultLabel} if one can't be
+         * found, for the given {@code object}.
+         */
+        public static String getObjectLabelOrDefault(Object object, String defaultLabel) {
+            State state = State.getInstance(object);
+
+            if (state != null) {
+                String label = state.getLabel();
+
+                if (ObjectUtils.to(UUID.class, label) == null) {
+                    return label;
+                }
+            }
+
+            return defaultLabel;
+        }
+
+        /** Returns a label for the given {@code object}. */
+        public static String getObjectLabel(Object object) {
+            State state = State.getInstance(object);
+
+            return state != null ? state.getLabel() : "Not Available";
+        }
+
+        /**
+         * Returns a label, or the given {@code defaultLabel} if one can't be
+         * found, for the type of the given {@code object}.
+         */
+        public static String getTypeLabelOrDefault(Object object, String defaultLabel) {
+            State state = State.getInstance(object);
+
+            if (state != null) {
+                ObjectType type = state.getType();
+
+                if (type != null) {
+                    return getObjectLabel(type);
+                }
+            }
+
+            return defaultLabel;
+        }
+
+        /** Returns a label for the type of the given {@code object}. */
+        public static String getTypeLabel(Object object) {
+            return getTypeLabelOrDefault(object, "Unknown Type");
+        }
     }
 
-    /**
-     * Returns an HTML-escaped label for the type of the given
-     * {@code object}.
-     *
-     * @deprecated Use {@link PageWriter#typeLabel} instead.
-     */
+    // --- Deprecated ---
+
+    /** @deprecated Use {@link ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse} instead. */
     @Deprecated
-    public String typeLabel(Object object) {
-        return typeLabel(object, "Unknown Type");
+    public ToolPageContext(
+            Servlet servlet,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        super(servlet, request, response);
+    }
+
+    /** @deprecated Use {@link Database.Static#getDefault} instead. */
+    @Deprecated
+    public Database getDatabase() {
+        return Database.Static.getDefault();
+    }
+
+    /** @deprecated Use {@link Query#from} instead. */
+    @Deprecated
+    public <T> Query<T> queryFrom(Class<T> objectClass) {
+        Query<T> query = Query.from(objectClass);
+        query.setDatabase(getDatabase());
+        return query;
     }
 
     /**
      * Returns an HTML-escaped label, or the given {@code defaultLabel} if
      * one can't be found, for the given {@code object}.
      *
-     * @deprecated Use {@link PageWriter#objectLabelOrDefault} instead.
+     * @deprecated Use {@link #getObjectLabelOrDefault} and {@link #h} instead.
      */
     @Deprecated
     public String objectLabel(Object object, String defaultLabel) {
-        State state = State.getInstance(object);
-
-        if (state != null) {
-            String label = state.getLabel();
-
-            if (ObjectUtils.to(UUID.class, label) == null) {
-                return h(label);
-            }
-        }
-
-        return h(defaultLabel);
+        return h(getObjectLabelOrDefault(object, defaultLabel));
     }
 
     /**
      * Returns an HTML-escaped label for the given {@code object}.
      *
-     * @deprecated Use {@link PageWriter#objectLabel} instead.
+     * @deprecated Use {@link getObjectLabel} and {@link #h} instead.
      */
     @Deprecated
     public String objectLabel(Object object) {
-        State state = State.getInstance(object);
+        return h(getObjectLabel(object));
+    }
 
-        return state != null ? h(state.getLabel()) : "Not Available";
+    /**
+     * Returns an HTML-escaped label, or the given {@code defaultLabel} if
+     * one can't be found, for the type of the given {@code object}.
+     *
+     * @deprecated Use {@link #getTypeLabelOrDefault} and {@link #h} instead.
+     */
+    @Deprecated
+    public String typeLabel(Object object, String defaultLabel) {
+        return h(getTypeLabelOrDefault(object, defaultLabel));
+    }
+
+    /**
+     * Returns an HTML-escaped label for the type of the given
+     * {@code object}.
+     *
+     * @deprecated Use {@link #getTypeLabel} and {@link #h} instead.
+     */
+    @Deprecated
+    public String typeLabel(Object object) {
+        return h(getTypeLabel(object));
     }
 }

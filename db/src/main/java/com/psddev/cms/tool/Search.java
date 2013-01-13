@@ -5,78 +5,213 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.tool.ToolPageContext;
 
 import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
-public class Search {
+public class Search extends Record {
 
-    public static final String IS_ONLY_PATHED = "p";
+    public static final String ADDITIONAL_PREDICATE_PARAMETER = "aq";
     public static final String LIMIT_PARAMETER = "l";
     public static final String OFFSET_PARAMETER = "o";
+    public static final String ONLY_PATHED_PARAMETER = "p";
+    public static final String PARENT_PARAMETER = "pt";
     public static final String QUERY_STRING_PARAMETER = "q";
-    public static final String REQUESTED_TYPES_PARAMETER = "rt";
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SORT_PARAMETER = "s";
-    public static final String ADDITIONAL_QUERY_PARAMETER = "aq";
-    public static final String PARENT_PARAMETER = "pt";
+    public static final String TYPES_PARAMETER = "rt";
 
-    private final Set<ObjectType> requestedTypes;
-    private final Set<ObjectType> validTypes;
-    private final ObjectType selectedType;
+    private Set<ObjectType> types;
+    private ObjectType selectedType;
     private String queryString;
-    private final SearchSort sort;
-    private final Query<?> query;
-    private final long offset;
-    private final int limit;
-    private PaginatedResult<?> result;
+    private boolean onlyPathed;
+    private String additionalPredicate;
+    private UUID parentId;
+    private SearchSort sort;
+    private long offset;
+    private int limit;
 
-    public Search(ToolPageContext wp, UUID... requestedTypeIds) {
+    public Search() {
+    }
 
-        // Types that have been requested for search.
-        requestedTypes = new HashSet<ObjectType>();
-        if (requestedTypeIds != null) {
-            for (UUID typeId : requestedTypeIds) {
+    public Search(ToolPageContext page, Iterable<UUID> typeIds) {
+        this.page = page;
+
+        if (typeIds != null) {
+            for (UUID typeId : typeIds) {
                 ObjectType type = ObjectType.getInstance(typeId);
+
                 if (type != null) {
-                    requestedTypes.add(type);
+                    getTypes().add(type);
                 }
             }
         }
 
-        if (requestedTypes.size() == 1) {
-            for (ObjectType type : requestedTypes) {
-                if (Content.class.equals(type.getObjectClass())) {
-                    requestedTypes.clear();
-                    break;
-                }
+        setSelectedType(ObjectType.getInstance(page.param(UUID.class, SELECTED_TYPE_PARAMETER)));
+        setQueryString(page.paramOrDefault(String.class, QUERY_STRING_PARAMETER, "").trim());
+        setOnlyPathed(page.param(boolean.class, IS_ONLY_PATHED));
+        setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
+        setParentId(page.param(UUID.class, PARENT_PARAMETER));
+        setSort(page.paramOrDefault(SearchSort.class, SORT_PARAMETER, SearchSort.RELEVANT));
+        setOffset(page.param(long.class, OFFSET_PARAMETER));
+        setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
+    }
+
+    public Search(ToolPageContext page) {
+        this(page, page.params(UUID.class, TYPES_PARAMETER));
+    }
+
+    public Set<ObjectType> getTypes() {
+        if (types == null) {
+            types = new HashSet<ObjectType>();
+        }
+        return types;
+    }
+
+    public void setTypes(Set<ObjectType> types) {
+        this.types = types;
+    }
+
+    public ObjectType getSelectedType() {
+        return selectedType;
+    }
+
+    public void setSelectedType(ObjectType selectedType) {
+        this.selectedType = selectedType;
+    }
+
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    public boolean isOnlyPathed() {
+        return onlyPathed;
+    }
+
+    public void setOnlyPathed(boolean onlyPathed) {
+        this.onlyPathed = onlyPathed;
+    }
+
+    public String getAdditionalPredicate() {
+        return additionalPredicate;
+    }
+
+    public void setAdditionalPredicate(String additionalPredicate) {
+        this.additionalPredicate = additionalPredicate;
+    }
+
+    public UUID getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(UUID parentId) {
+        this.parentId = parentId;
+    }
+
+    public SearchSort getSort() {
+        return sort;
+    }
+
+    public void setSort(SearchSort sort) {
+        this.sort = sort;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public Set<ObjectType> findValidTypes() {
+        Set<ObjectType> types = getTypes();
+        List<ObjectType> validTypes = new ArrayList<ObjectType>();
+
+        if (types.size() == 1) {
+            ObjectType type = types.iterator().next();
+
+            if (type != null && Content.class.equals(type.getObjectClass())) {
+                types.clear();
             }
         }
 
-        // All the types that are valid based on the requested types.
-        validTypes = new TreeSet<ObjectType>();
-        for (ObjectType type : requestedTypes) {
+        for (ObjectType type : types) {
             validTypes.addAll(type.findConcreteTypes());
         }
 
-        // Type that the user selected.
+        Collections.sort(validTypes);
+        return new LinkedHashSet<ObjectType>(validTypes);
+    }
+
+    private String findAlphabeticalSortField() {
+        ObjectType type = getSelectedType();
+        Set<ObjectType> validTypes = findValidTypes();
+
+        if (type == null && validTypes.size() == 1) {
+            type = validTypes.iterator().next();
+        }
+
+        if (type != null) {
+            for (String field : type.getLabelFields()) {
+                if (type.getIndex(field) != null) {
+                    return type.getInternalName() + "/" + field;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public List<SearchSort> findSorts() {
+        List<SearchSort> sorts = new ArrayList<SearchSort>();
+
+        Collections.addAll(sorts, SearchSort.values());
+        if (findAlphabeticalSortField() == null) {
+            sorts.remove(SearchSort.ALPHABETICALLY);
+        }
+
+        return sorts;
+    }
+
+    public Query<?> toQuery() {
+        Query<?> query = null;
+        Set<ObjectType> types = getTypes();
+        ObjectType selectedType = getSelectedType();
+        Set<ObjectType> validTypes = findValidTypes();
         boolean isAllSearchable = true;
-        selectedType = Query.findById(ObjectType.class, wp.uuidParam(SELECTED_TYPE_PARAMETER));
+
         if (selectedType != null) {
             isAllSearchable = Content.Static.isSearchableType(selectedType);
-            query = Query.fromType(selectedType).where("_type = ?", selectedType);
+            query = Query.from(Object.class).where("_type = ?", selectedType);
+
         } else {
             for (ObjectType type : validTypes) {
                 if (!Content.Static.isSearchableType(type)) {
@@ -84,27 +219,26 @@ public class Search {
                 }
             }
 
-            if (requestedTypes.size() == 1) {
-                Query<?> q = null;
-                for (ObjectType type : requestedTypes) {
-                    q = Query.fromType(type);
+            if (types.size() == 1) {
+                for (ObjectType type : types) {
+                    query = Query.fromType(type);
                     break;
                 }
-                query = q;
 
             } else {
                 query = isAllSearchable ? Query.fromGroup(Content.SEARCHABLE_GROUP) : Query.fromAll();
+
                 if (!validTypes.isEmpty()) {
-                    query.where("typeId = ?", validTypes);
+                    query.where("_type = ?", validTypes);
                 }
             }
         }
 
-        // Force full text search on empty query.
-        queryString = wp.param(QUERY_STRING_PARAMETER, "").trim();
+        String queryString = getQueryString();
+
         if (queryString.length() == 0) {
             if (isAllSearchable) {
-                query.and("* ~= '*'");
+                query.and("* ~= *");
             }
 
         } else {
@@ -113,6 +247,7 @@ public class Search {
             if (queryString.length() > 8
                     && StringUtils.matches(queryString, "(?i)https?://.*")) {
                 int slashAt = queryString.indexOf("/", 8);
+
                 if (slashAt > -1) {
                     queryString = queryString.substring(slashAt);
                 }
@@ -121,28 +256,34 @@ public class Search {
             // Search by path.
             if (queryString.startsWith("/") && queryString.length() > 1) {
                 List<String> paths = new ArrayList<String>();
-                for (Directory directory : Query
-                        .from(Directory.class)
-                        .where("path ^=[c] ?", queryString)
-                        .selectAll()) {
+
+                for (Directory directory : Query.
+                        from(Directory.class).
+                        where("path ^=[c] ?", queryString).
+                        selectAll()) {
                     paths.add(directory.getRawPath());
                 }
+
                 int lastSlashAt = queryString.lastIndexOf("/");
+
                 if (lastSlashAt > 0) {
-                    for (Directory directory : Query
-                            .from(Directory.class)
-                            .where("path ^=[c] ?", queryString.substring(0, lastSlashAt))
-                            .selectAll()) {
+                    for (Directory directory : Query.
+                            from(Directory.class).
+                            where("path ^=[c] ?", queryString.substring(0, lastSlashAt)).
+                            selectAll()) {
                         paths.add(directory.getRawPath() + queryString.substring(lastSlashAt + 1));
                     }
                 }
+
                 query.and(Directory.PATHS_FIELD + " ^= ?", paths);
 
             // Full text search.
             } else if (isAllSearchable) {
                 int lastSpaceAt = queryString.lastIndexOf(" ");
+
                 if (lastSpaceAt > -1) {
                     query.and("* ~= ?", Arrays.asList(queryString, queryString.substring(0, lastSpaceAt)));
+
                 } else {
                     query.and("* ~= ?", queryString);
                 }
@@ -155,8 +296,10 @@ public class Search {
 
             } else {
                 Predicate predicate = null;
+
                 for (ObjectType type : validTypes) {
                     String prefix = type.getInternalName() + "/";
+
                     for (String field : type.getLabelFields()) {
                         predicate = CompoundPredicate.combine(
                                 PredicateParser.OR_OPERATOR,
@@ -165,91 +308,100 @@ public class Search {
                         break;
                     }
                 }
+
                 query.and(predicate);
             }
         }
 
-        // Only allow permalinked objects?
-        if (wp.boolParam(IS_ONLY_PATHED)) {
+        if (isOnlyPathed()) {
             query.and(Directory.Static.hasPathPredicate());
         }
 
-        String additionalQuery = wp.param(ADDITIONAL_QUERY_PARAMETER);
-        if (!ObjectUtils.isBlank(additionalQuery)) {
-            query.and(additionalQuery, Query.from(Object.class).where("_id = ?", wp.uuidParam(PARENT_PARAMETER)).first());
+        String additionalPredicate = getAdditionalPredicate();
+
+        if (!ObjectUtils.isBlank(additionalPredicate)) {
+            query.and(additionalPredicate, Query.
+                    from(Object.class).
+                    where("_id = ?", getParentId()).
+                    first());
         }
 
-        query.and(wp.siteItemsPredicate());
+        SearchSort sort = getSort();
 
-        // Automatic sort.
-        sort = wp.enumParam(SearchSort.class, SORT_PARAMETER, null);
-        if (sort == null) {
-            if (selectedType != null) {
-                /*
-                for (String field : selectedType.getLabelFields()) {
-                    query.sortAscending(field);
-                }
-                */
-
-            } else if (validTypes.size() == 1 && !isAllSearchable) {
-                ObjectType type = validTypes.iterator().next();
-                for (String field : type.getLabelFields()) {
-                    query.sortAscending(type.getInternalName() + "/" + field);
-                }
-
-            } else if (ObjectUtils.isBlank(queryString)) {
+        if (SearchSort.RELEVANT.equals(sort)) {
+            if (ObjectUtils.isBlank(queryString)) {
                 query.sortDescending(Content.UPDATE_DATE_FIELD);
             }
 
-        // Sort option manually selected.
         } else if (SearchSort.NEWEST.equals(sort)) {
             query.sortDescending(Content.UPDATE_DATE_FIELD);
+
+        } else if (SearchSort.ALPHABETICALLY.equals(sort)) {
+            String sortField = findAlphabeticalSortField();
+
+            if (sortField != null) {
+                query.sortAscending(sortField);
+            }
         }
 
-        this.offset = wp.longParam(OFFSET_PARAMETER);
-        this.limit = wp.intParam(LIMIT_PARAMETER, 10);
+        return query;
     }
 
-    public Search(ToolPageContext wp) {
-        this(wp, wp.uuidParams(REQUESTED_TYPES_PARAMETER));
+    // --- Deprecated ---
+
+    /** @deprecated Use {@link #ADDITIONA_PREDICATE_PARAMETER} instead. */
+    @Deprecated
+    public static final String ADDITIONAL_QUERY_PARAMETER = ADDITIONAL_PREDICATE_PARAMETER;
+
+    /** @deprecated Use {@link #ONLY_PATHED_PARAMETER} instead. */
+    @Deprecated
+    public static final String IS_ONLY_PATHED = ONLY_PATHED_PARAMETER;
+
+    /** @deprecated Use {@link #TYPES_PARAMETER} instead. */
+    @Deprecated
+    public static final String REQUESTED_TYPES_PARAMETER = TYPES_PARAMETER;
+
+    /** @deprecated Use {@link #Search(ToolPageContext, Collection)} instead. */
+    @Deprecated
+    public Search(ToolPageContext page, UUID... typeIds) {
+        this(page, typeIds != null ? Arrays.asList(typeIds) : null);
     }
 
+    /** @deprecated Use {@link #getTypes} instead. */
+    @Deprecated
     public Set<ObjectType> getRequestedTypes() {
-        return this.requestedTypes;
+        return getTypes();
     }
 
+    /** @deprecated Use {@link #findValidTypes} instead. */
     public Set<ObjectType> getValidTypes() {
-        return this.validTypes;
+        return findValidTypes();
     }
 
-    public ObjectType getSelectedType() {
-        return this.selectedType;
-    }
+    @Deprecated
+    private transient Query<?> query;
 
-    public String getQueryString() {
-        return this.queryString;
-    }
-
-    public SearchSort getSort() {
-        return this.sort;
-    }
-
+    /** @deprecated Use {@link #toQuery} instead. */
+    @Deprecated
     public Query<?> getQuery() {
-        return this.query;
-    }
-
-    public long getOffset() {
-        return this.offset;
-    }
-
-    public int getLimit() {
-        return this.limit;
-    }
-
-    public PaginatedResult<?> getResult() {
-        if (this.result == null) {
-            this.result = getQuery().select(getOffset(), getLimit());
+        if (query == null) {
+            query = toQuery();
         }
-        return this.result;
+        return query;
+    }
+
+    @Deprecated
+    private transient ToolPageContext page;
+
+    @Deprecated
+    private transient PaginatedResult<?> result;
+
+    /** @deprecated Use {@link #toQuery} instead. */
+    @Deprecated
+    public PaginatedResult<?> getResult() {
+        if (result == null) {
+            result = getQuery().and(page.siteItemsPredicate()).select(getOffset(), getLimit());
+        }
+        return result;
     }
 }

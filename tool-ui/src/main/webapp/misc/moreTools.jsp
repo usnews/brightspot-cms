@@ -16,6 +16,10 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 
 List<Guide> guides = Query.from(Guide.class).selectAll();
 
+if (wp.requireUser()) {
+    return;
+}
+
 // --- Presentation ---
 
 %><h1>More Tools</h1>

@@ -38,6 +38,7 @@
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
+@media-webkit: ~'screen and (-webkit-min-device-pixel-ratio: 0)';
 
 // --- Functions ---
 
@@ -292,6 +293,39 @@
 .help {
     border-bottom: 1px dotted @color-text;
     cursor: help;
+}
+
+figure,
+.figure {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    figcaption,
+    .figcaption {
+        background-color: fade(@color-background, 80%);
+        bottom: 0;
+        .box-sizing(border-box);
+        left: 0;
+        line-height: @lineHeight-input;
+        margin: 0;
+        max-height: 100%;
+        overflow: hidden;
+        padding: 4px 4px;
+        position: absolute;
+        text-overflow: ellipsis;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        figcaption,
+        .figcatpion {
+            overflow: auto;
+            white-space: normal;
+        }
+    }
 }
 
 .icon {
@@ -726,6 +760,22 @@ ul.links {
 
 table.links,
 table.links.table-striped {
+    overflow: hidden;
+
+    .link,
+    a {
+        position: relative;
+
+        &:before {
+            content: '';
+            height: 2000px;
+            left: -2000px;
+            position: absolute;
+            top: -4px;
+            width: 4000px;
+        }
+    }
+
     > tbody > tr {
         &:hover {
             background-color: @color-link;
@@ -733,6 +783,19 @@ table.links.table-striped {
             cursor: pointer;
 
             .link,
+            a {
+                color: @color-background;
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+
+        &.selected {
+            background-color: @color-text;
+            color: @color-background;
+
             a {
                 color: @color-background;
 
@@ -793,7 +856,6 @@ table.links.table-striped {
 }
 
 .pagination {
-    height: @lineHeight-default;
     list-style-type: none;
     margin-bottom: 5px;
     margin-left: 0;
@@ -801,11 +863,6 @@ table.links.table-striped {
 
     form {
         display: inline;
-    }
-
-    select {
-        height: @lineHeight-default;
-        line-height: @lineHeight-default;
     }
 }
 
@@ -916,7 +973,7 @@ table.links.table-striped {
     .input;
 
     color: @color-text;
-    cursor: default;
+    cursor: pointer;
     display: inline-block;
     height: auto;
     padding-right: 26px;
@@ -1221,11 +1278,6 @@ i {
     .em;
 }
 
-input::-moz-focus-inner {
-    border: 0;
-    padding: 0;
-}
-
 input {
     &[type=password],
     &[type=text] {
@@ -1264,6 +1316,8 @@ pre {
 
 select {
     .input;
+
+    cursor: pointer;
     white-space: nowrap;
     word-wrap: normal;
 
@@ -1511,41 +1565,79 @@ input[type=text].expandable { min-width: 5em; }
     padding: 5px;
 }
 
-.searchForm-filters {
+@searchForm-controls-width: 200px;
+
+.searchForm-controls {
     .box-sizing(border-box);
     float: left;
     padding-right: 15px;
-    width: 25%;
+    width: @searchForm-controls-width;
 
-    select,
-    .searchInput {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-
-    input[type=text] {
+    input[type=text],
+    select {
         width: 100%;
     }
 }
 
-.searchForm-filters-new {
+.searchForm-controlsFilters {
+    margin-bottom: 10px;
+    position: relative;
+
+    .searchInput {
+        margin-bottom: 5px;
+    }
+
+    .action-reset {
+        .small;
+
+        color: @color-alert;
+        position: absolute;
+        right: 0;
+        top: -2px;
+    }
+}
+
+.searchForm-controlsCreate {
+    select {
+        width: 65%;
+    }
+
     input[type=submit] {
         padding-left: 10px;
         padding-right: 10px;
         width: 30%;
     }
-
-    select {
-        width: 65%;
-    }
 }
 
 .searchForm-result {
-    margin-left: 25%;
+    margin-left: @searchForm-controls-width;
+    position: relative;
 }
 
-.searchForm-images {
-    img {
+.searchForm-resultSuggestionsForm {
+    display: none;
+}
+
+.searchForm-resultSuggestions {
+    margin-bottom: 20px;
+}
+
+.searchForm-resultSorter {
+    float: left;
+
+    form {
+        display: inline;
+    }
+}
+
+.searchForm-resultPagination {
+    margin-bottom: 20px;
+}
+
+.searchForm-resultListImages {
+    overflow: hidden;
+
+    figure {
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
@@ -1823,6 +1915,9 @@ h1 select:focus {
     .text;
 
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 input[type="text"].dropDown-search {
@@ -1879,19 +1974,34 @@ input[type="text"].dropDown-search {
 }
 
 .dropDown-listItem {
-    cursor: default;
-    padding: 1px 15px 1px 5px;
+    cursor: pointer;
+    padding: 1px 15px 1px 25px;
+    position: relative;
 
     &.hover {
         background-color: @color-link;
         color: @color-background;
+    }
+
+    &.dropDown-listItem-selected {
+        .icon-ok;
+
+        &:before {
+            left: 4px;
+            position: absolute;
+            top: 0;
+        }
+    }
+
+    input[type=checkbox],
+    input[type=radio] {
+        display: none;
     }
 }
 
 // --- $.frame ---
 
 .frame {
-    min-height: 20px;
     position: relative;
 }
 .frame.loading > a {
@@ -3187,10 +3297,9 @@ input[type="text"].dropDown-search {
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
 
-.searchForm > .filters { .searchForm-filters; }
-.searchForm > .filters .new { .searchForm-filters-new; }
+.searchForm > .filters { .searchForm-controls; }
+.searchForm > .filters .new { .searchForm-controlsCreate; }
 .searchForm > .result { .searchForm-result; }
-.searchForm .images { .searchForm-images; }
 
 .toolHat > .profile { .toolHat-profile; }
 .toolHat > .toolbar { .toolHat-toolbar; }
@@ -3236,6 +3345,10 @@ input[type="text"].dropDown-search {
 }
 
 // --- Content form ---
+
+.content-searchResult {
+    margin-bottom: 10px;
+}
 
 .contentForm {
     margin: -10px;
@@ -3603,6 +3716,8 @@ guideForm-page {
 .action-live { .icon-bullhorn; }
 .action-logOut { .icon-signout; }
 .action-preview { .icon-eye-open; }
+.action-reset { .icon-remove; }
+.action-result { .icon-list-alt; }
 .action-search { .icon-search; }
 .action-settings { .icon-cogs; }
 .action-share { .icon-share; }
@@ -3756,12 +3871,29 @@ guideForm-page {
         .opacity(1);
     }
 
-    .inputContainer:hover & {
+    .inputContainer:hover > & {
         display: block;
     }
 
-    .inputContainer.fieldPreview-displaying & {
+    .inputContainer.fieldPreview-displaying > & {
         display: block;
         .opacity(1);
+    }
+}
+
+// --- Firefox hacks ---
+
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+// --- WebKit hacks ---
+
+@media @media-webkit {
+    button,
+    input[type=submit] {
+        position: relative;
+        top: 1px;
     }
 }

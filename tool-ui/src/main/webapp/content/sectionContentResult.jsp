@@ -12,7 +12,7 @@ java.io.IOException
 // --- Presentation ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requirePermission("area/dashboard")) {
+if (wp.requireUser()) {
     return;
 }
 
@@ -23,19 +23,16 @@ Search search = new Search(wp);
 new SearchResultRenderer(wp, search) {
 
     @Override
-    protected void renderBeforeItem(Object item) throws IOException {
-        ToolPageContext wp = getToolPageContext();
-        wp.write("<a data-objectId=\"");
-        wp.write(State.getInstance(item).getId());
-        wp.write("\" href=\"");
-        wp.write(wp.objectUrl("/content/sectionContent.jsp", item));
-        wp.write("\" target=\"_parent\">");
+    public void renderBeforeItem(Object item) throws IOException {
+        writer.start("a",
+                "data-objectId", State.getInstance(item).getId(),
+                "href", page.objectUrl("/content/sectionContent.jsp", item),
+                "target", "_parent");
     }
 
     @Override
-    protected void renderAfterItem(Object item) throws IOException {
-        ToolPageContext wp = getToolPageContext();
-        wp.write("</a>");
+    public void renderAfterItem(Object item) throws IOException {
+        writer.end();
     }
 }.render();
 %>

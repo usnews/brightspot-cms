@@ -4,6 +4,7 @@
 var $win = $(win),
         doc = win.document,
         $doc = $(doc),
+        $openOriginal,
         $openList;
 
 $.plugin2('dropDown', {
@@ -128,6 +129,7 @@ $.plugin2('dropDown', {
                 $openList.trigger('dropDown-close');
             }
 
+            $openOriginal = $original;
             $openList = $list;
             $markerContainer.show();
             $listContainer.show();
@@ -136,6 +138,7 @@ $.plugin2('dropDown', {
         $list.bind('dropDown-close', function() {
             $input.removeClass(plugin.className('list-open'));
 
+            $openOriginal = null;
             $openList = null;
             $markerContainer.hide();
             $listContainer.hide();
@@ -173,6 +176,7 @@ $.plugin2('dropDown', {
 
             if ($option.is('[selected]')) {
                 $check.attr('checked', 'checked');
+                $item.addClass(plugin.className('listItem-selected'));
             }
 
             $item.mouseenter(function() {
@@ -187,10 +191,12 @@ $.plugin2('dropDown', {
                 if ($option.is('[selected]')) {
                     $option.removeAttr('selected');
                     $item.find(':checkbox').removeAttr('checked');
+                    $item.removeClass(plugin.className('listItem-selected'));
 
                 } else {
                     $option.attr('selected', 'selected');
                     $item.find(':checkbox').attr('checked', 'checked');
+                    $item.addClass(plugin.className('listItem-selected'));
                 }
 
                 $label.trigger('dropDown-update');
@@ -201,10 +207,12 @@ $.plugin2('dropDown', {
             } : function() {
                 if (!$option.is('[selected]')) {
                     $original.find('option').removeAttr('selected');
-                    $listContainer.find(':radio').removeAttr('checked');
+                    $list.find(':radio').removeAttr('checked');
+                    $list.find('.' + plugin.className('listItem')).removeClass(plugin.className('listItem-selected'));
 
                     $option.attr('selected', 'selected');
                     $check.attr('checked', 'checked');
+                    $item.addClass(plugin.className('listItem-selected'));
 
                     $label.trigger('dropDown-update');
                     $original.change();
@@ -318,7 +326,7 @@ $doc.keydown(function(event) {
         isUp = which === 38;
 
         if (!(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
-            LIST_ITEM_CLASS = $openList.dropDown('className', 'listItem');
+            LIST_ITEM_CLASS = $openOriginal.dropDown('className', 'listItem');
 
             if (isUp || which === 40) {
                 $hover = $openList.find('.hover:visible.' + LIST_ITEM_CLASS).eq(0);
