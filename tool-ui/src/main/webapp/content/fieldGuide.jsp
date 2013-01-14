@@ -31,13 +31,6 @@
 	<%=field.getLabel()%></h1>
 
 <%
-	if (field == null) {
-			wp.write("No field information available");
-			return;
-		}
-%>
-
-<%
 	if (field.isRequired()) {
 			wp.write("<li>Required</li>");
 		}
@@ -55,9 +48,9 @@
 </div>
 <%
 	}
-	}
 %>
 
 <%
 	wp.include("/WEB-INF/footer.jsp");
+	}
 %>

@@ -171,20 +171,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.write("</a>");
                     }
                     
-//                     ToolUser user = wp.getUser(); 
-//                     boolean showProductionGuide = false;
-//                     if (user != null) {
-//         	            showProductionGuide = Guide.Static.showByDefault(user);
-//                     }
-           
-//                     if (showProductionGuide && state.isNew()) {
-//            	            if (wp.param("guide") == null || wp.param("guide").equals("1")) {
-//                	            wp.redirect("guide.jsp", selected, "templateId", template.getId() );
-//                	            return;
-           	            
-//            	             }
-//                     }  
-                    
                 %></h1>
 
                 <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
