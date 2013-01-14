@@ -41,7 +41,7 @@
 			wp.write("<li>Minimum value: ", field.getMinimum(), "</li>");
 		}
 
-		if (fieldDesc != null) {
+		if (fieldDesc != null && !fieldDesc.isEmpty()) {
 			request.setAttribute("description", fieldDesc);
 %><div class="guideFieldDescription">
 	<cms:render value="${description}" />
@@ -53,4 +53,5 @@
 <%
 	wp.include("/WEB-INF/footer.jsp");
 	}
+	
 %>

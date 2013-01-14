@@ -29,7 +29,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
 }
 
 List<Guide> guides = Query.from(Guide.class).sortAscending("title").select();
-List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("type").select();
+List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType").select();
 List<Page> templates = Query.from(Page.class).sortAscending("name").select();
 List<Page> referencedTemplates = new ArrayList<Page>();
 List<Section> referencedSections = new ArrayList<Section>();

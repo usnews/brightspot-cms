@@ -45,27 +45,25 @@ public class GuideType extends Record {
 	@ToolUi.Note("Content type for Production Guide information")
 	@Required
 	@Indexed
-	ObjectType type;
+	ObjectType documentedType;
 	
 	@ToolUi.Note("Production Guide information about this content type")
 	@ToolUi.Hidden
 	// No plan for this yet - may not be needed
 	ReferentialText description;
 	
-	@ToolUi.Note("Production Guide field descriptions for this content type")
-	List<GuideField> fieldDescriptions;
-	
-	
-	public ObjectType getType() {
-		return type;
+	@ToolUi.Note("Production Guide field descriptions for this content type (Note that any fields within an embedded type should be defined separately in a Guide for the embedded type)")
+	private List<GuideField> fieldDescriptions;
+
+	public ObjectType getDocumentedType() {
+		return documentedType;
 	}
 
-	public void setType(ObjectType type) {
-		this.type = type;
-		// Automatically add a place holder for every known field of this type
+	public void setDocumentedType(ObjectType documentedType) {
+		this.documentedType = documentedType;
 	}
 
-	public ReferentialText getDescription() {
+    public ReferentialText getDescription() {
 		return description;
 	}
 
@@ -76,12 +74,23 @@ public class GuideType extends Record {
 	public List<GuideField> getFieldDescriptions() {
 		return fieldDescriptions;
 	}
+	
+	/*
+	 * Add a field description entry. This assumes that the caller already verified an 
+	 * entry for this field doesn't already exist
+	 */
+	public void addFieldDescription(GuideField fieldDescription) {
+		if (fieldDescriptions == null) {
+			fieldDescriptions = new ArrayList<GuideField>();
+		}
+		fieldDescriptions.add(fieldDescription);
+	}
 
 	public void setFieldDescriptions(List<GuideField> fieldDescriptions) {
 		this.fieldDescriptions = fieldDescriptions;
 	}
 	
-	public ReferentialText getFieldDescription(String fieldName) {
+	public ReferentialText getFieldDescription(String fieldName, boolean createIfMissing) {
 		ReferentialText desc = null;
 		if (fieldDescriptions != null) {
 			for (GuideField gf : fieldDescriptions) {
@@ -90,10 +99,33 @@ public class GuideType extends Record {
 				}
 			}
 		}
+		if (createIfMissing == true) {
+			GuideField gf = new GuideField();
+			gf.fieldName = fieldName;
+			// TODO - pull description from annotation?
+			addFieldDescription(gf);
+		}
 		return desc;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see com.psddev.dari.db.Record#beforeSave()
+	 */
+	public void beforeSave() {
+		// Create an entry for each field
+		ObjectType type = getDocumentedType();
+		if (type != null) {
+			List<ObjectField> fields = type.getFields();
+			for (ObjectField field : fields) {
+				getFieldDescription(field.getInternalName(), true);
+			}
+		}
 	}
 
 	@Record.Embedded
+	@Record.LabelFields({"fieldName", "description"})
 	public static class GuideField extends Record {
 		
 		@Required
@@ -129,24 +161,27 @@ public class GuideType extends Record {
 				ObjectType typeDefinition = state.getType();
 				GuideType guide = getGuideType(typeDefinition);
 				if (guide != null) {
-					return guide.getFieldDescription(fieldName);
+					return guide.getFieldDescription(fieldName, false);
 				}
 			}
 			return null;
 		}
+		
+		
 		
 		public static boolean hasFieldGuideInfo (State state, String fieldName) {
 			ObjectField field = state.getField(fieldName);
 			if (field.isRequired()) return true;
 			if (field.getMaximum() != null) return true;
 			if (field.getMinimum() != null) return true;
-			if (getFieldDescription(state, fieldName) != null) return true;
+			ReferentialText desc = getFieldDescription(state, fieldName);
+			if (desc != null && !desc.isEmpty()) return true;
 			
 			return false;
 		}
 		
 		public static GuideType getGuideType(ObjectType objectType) {
-			return Query.from(GuideType.class).where("type = ?",objectType).first();
+			return Query.from(GuideType.class).where("documentedType = ?",objectType).first();
 		}
 		
 	}
