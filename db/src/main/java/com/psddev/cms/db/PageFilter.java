@@ -16,6 +16,7 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.HtmlFormatter;
+import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -991,6 +992,12 @@ public class PageFilter extends AbstractFilter {
                         throw new IllegalArgumentException(String.format(
                                 "[%s] is not a valid rendering engine!", engine));
                     }
+                }
+
+                Object object = getCurrentObject(request);
+
+                if (object instanceof HtmlObject) {
+                    new HtmlWriter(writer).object(object);
                 }
 
                 if (Settings.isProduction()) {
