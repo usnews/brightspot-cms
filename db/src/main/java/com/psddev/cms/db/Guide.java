@@ -53,13 +53,14 @@ public class Guide extends Record {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);
 
+	@Required
 	@Indexed(unique = true)
 	@ToolUi.Note("Production Guide Title")
 	private String title;
 
 	@ToolUi.Note("Production Guide Overview Section")
 	private ReferentialText overview;
-
+	
 	@ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
 	private List<Page> templatesToIncludeInGuide;
 

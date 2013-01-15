@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * Production Guide class to hold information about Content types and their associated fields
  * 
  * ObjectType and ObjectField don't currently lend themselves well to Modification classes, otherwise
- * this info would be stored as modifications on the those objects
+ * this info would be stored as modifications on the those objects (see com.psddev.cms.db.Guide)
  */
-@Record.LabelFields("type/name")
+@Record.LabelFields("documentedType/name")
 public class GuideType extends Record {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GuideType.class);
@@ -76,8 +76,7 @@ public class GuideType extends Record {
 	}
 	
 	/*
-	 * Add a field description entry. This assumes that the caller already verified an 
-	 * entry for this field doesn't already exist
+	 * Add a field description entry. Assumes that entry doesn't already exist.
 	 */
 	public void addFieldDescription(GuideField fieldDescription) {
 		if (fieldDescriptions == null) {
@@ -174,6 +173,7 @@ public class GuideType extends Record {
 			if (field.isRequired()) return true;
 			if (field.getMaximum() != null) return true;
 			if (field.getMinimum() != null) return true;
+			if (field.getDefaultValue() != null) return true;
 			ReferentialText desc = getFieldDescription(state, fieldName);
 			if (desc != null && !desc.isEmpty()) return true;
 			

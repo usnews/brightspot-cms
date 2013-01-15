@@ -40,6 +40,10 @@
 		if (field.getMinimum() != null) {
 			wp.write("<li>Minimum value: ", field.getMinimum(), "</li>");
 		}
+		
+		if (field.getDefaultValue() != null) {
+			wp.write("<li>Default value: ", field.getDefaultValue(), "</li>");
+		}
 
 		if (fieldDesc != null && !fieldDesc.isEmpty()) {
 			request.setAttribute("description", fieldDesc);
