@@ -23,17 +23,9 @@ $.plugin2('autoSubmit', {
 
         if ($input[0] === $form[0]) {
             $form.delegate(':input', 'input.autoSubmit change.autoSubmit', submitFunction);
-            $form.delegate(':text', 'focus.autoSubmit', function() {
-                $('.frame[name=' + $form.attr('target') + ']').popup('open');
-                submitFunction();
-            });
 
         } else {
             $input.bind('input.autoSubmit change.autoSubmit', submitFunction);
-            $input.bind('focus.autoSubmit', function() {
-                $('.frame[name=' + $form.attr('target') + ']').popup('open');
-                submitFunction();
-            });
         }
 
         $targetFrame = $('.frame[name=' + $form.attr('target') + ']:not(.loading):not(.loaded)');
