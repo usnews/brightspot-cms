@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -31,6 +32,7 @@ import java.util.UUID;
 public class Search extends Record {
 
     public static final String ADDITIONAL_PREDICATE_PARAMETER = "aq";
+    public static final String FIELD_FILTER_PARAMETER_PREFIX = "f.";
     public static final String LIMIT_PARAMETER = "l";
     public static final String NAME_PARAMETER = "n";
     public static final String OFFSET_PARAMETER = "o";
@@ -54,6 +56,7 @@ public class Search extends Record {
     private boolean onlyPathed;
     private String additionalPredicate;
     private UUID parentId;
+    private Map<String, String> fieldFilters;
     private String sort;
     private boolean showMissing;
     private long offset;
@@ -74,6 +77,12 @@ public class Search extends Record {
                 if (type != null) {
                     getTypes().add(type);
                 }
+            }
+        }
+
+        for (String name : page.paramNamesList()) {
+            if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
+                getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
             }
         }
 
@@ -149,6 +158,17 @@ public class Search extends Record {
 
     public void setParentId(UUID parentId) {
         this.parentId = parentId;
+    }
+
+    public Map<String, String> getFieldFilters() {
+        if (fieldFilters == null) {
+            setFieldFilters(new HashMap<String, String>());
+        }
+        return fieldFilters;
+    }
+
+    public void setFieldFilters(Map<String, String> fieldFilters) {
+        this.fieldFilters = fieldFilters;
     }
 
     public String getSort() {
@@ -353,6 +373,16 @@ public class Search extends Record {
                     from(Object.class).
                     where("_id = ?", getParentId()).
                     first());
+        }
+
+        if (selectedType != null) {
+            for (Map.Entry<String, String> entry : getFieldFilters().entrySet()) {
+                String value = entry.getValue();
+
+                if (value != null) {
+                    query.and(selectedType.getInternalName() + "/" + entry.getKey() + " = ?", value);
+                }
+            }
         }
 
         String sort = getSort();

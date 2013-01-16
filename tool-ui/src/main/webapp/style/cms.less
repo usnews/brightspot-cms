@@ -1571,7 +1571,7 @@ input[type=text].expandable { min-width: 5em; }
     margin-bottom: 10px;
     position: relative;
 
-    .searchInput {
+    form {
         margin-bottom: 5px;
     }
 
@@ -1582,6 +1582,13 @@ input[type=text].expandable { min-width: 5em; }
         position: absolute;
         right: 0;
         top: -2px;
+    }
+
+    .objectId,
+    .objectId-select {
+        display: block;
+        margin-top: 5px;
+        width: 100%;
     }
 }
 
@@ -2217,6 +2224,10 @@ input[type="text"].dropDown-search {
 
         margin-left: 5px;
     }
+}
+
+.objectId-placeholder {
+    color: @color-note-darker;
 }
 
 // --- $.pageLayout ---

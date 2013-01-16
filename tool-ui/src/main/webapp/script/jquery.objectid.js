@@ -18,7 +18,7 @@ $.plugin2('objectId', {
 
         var $selectButton;
         var $clearButton;
-        var $editButton = $('<a/>', {
+        var $editButton = $input.attr('data-editable') === 'false' ? $() : $('<a/>', {
             'class': 'objectId-edit',
             'target': target,
             'text': 'Edit',
@@ -118,7 +118,7 @@ $.plugin2('objectId', {
                         return false;
                     }
                 });
-                $editButton.after($clearButton);
+                ($editButton.length > 0 ? $editButton : $selectButton).after($clearButton);
             }
 
         // Just add the edit button if drop down already.
