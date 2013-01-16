@@ -30,7 +30,7 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 `@Embedded`
 
-> Specifies whether the target field value is embedded. This can also be applied at a class level.
+> Specifies whether the target field value is embedded.
 
 `@Ignored`
 
@@ -173,7 +173,3 @@ The value passed to the annotation is the limiting value.  When a user is modify
 `@ToolUi.InputSearcherPath`
 
 > Specifies the path to the searcher used to find a value for the target field.
-
-`@ToolUi.RichText`
-
-> Specifies whether the target field should offer rich-text editing options. This allows String fields to contain Rich Text Controls.
