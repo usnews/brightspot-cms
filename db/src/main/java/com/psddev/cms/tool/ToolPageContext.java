@@ -801,7 +801,7 @@ public class ToolPageContext extends WebPageContext {
 
         if (user != null) {
             write("<div class=\"search\">");
-                write("<a class=\"action-search\" href=\"", cmsUrl("/misc/search.jsp"), "\" target=\"miscSearch\">Search</a>");
+                write("<a class=\"action-search\" href=\"", cmsUrl("/misc/search.jsp", Search.NAME_PARAMETER, "global"), "\" target=\"miscSearch\">Search</a>");
             write("</div>");
 
             write("<ul class=\"mainNav\">");

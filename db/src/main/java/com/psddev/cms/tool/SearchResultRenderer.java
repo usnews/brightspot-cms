@@ -327,7 +327,7 @@ public class SearchResultRenderer {
 
     public void renderBeforeItem(Object item) throws IOException {
         writer.start("a",
-                "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("")),
+                "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("", Search.NAME_PARAMETER, null)),
                 "target", "_top");
     }
 

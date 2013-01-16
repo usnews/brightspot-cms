@@ -7,6 +7,7 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.State,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.PaginatedResult,
+com.psddev.dari.util.StringUtils,
 
 java.util.Iterator,
 java.util.UUID
@@ -25,25 +26,19 @@ if (!wp.param(boolean.class, "widget")) {
 
 } else {
     HtmlWriter writer = new HtmlWriter(wp.getWriter());
-    PaginatedResult<?> result = search.getResult();
-    UUID id = wp.param(UUID.class, "id");
-    Object selected = null;
+    String url = wp.url("/misc/search.jsp");
+    String queryString = request.getQueryString();
 
-    for (Iterator<?> i = result.getItems().iterator(); i.hasNext(); ) {
-        State item = State.getInstance(i.next());
-
-        if (item.getId().equals(id)) {
-            selected = item;
-            break;
-        }
+    if (queryString != null) {
+        url += "?" + queryString;
     }
 
     writer.start("ul", "class", "pagination");
         writer.start("li");
             writer.start("a",
                     "class", "action-result",
-                    "href", wp.url("", "widget", null),
-                    "target", "searchResult");
+                    "href", StringUtils.addQueryParameters(url, "widget", null),
+                    "target", "miscSearch");
                 writer.html("Search Result");
             writer.end();
         writer.end();

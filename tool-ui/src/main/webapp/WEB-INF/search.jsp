@@ -25,7 +25,7 @@ java.util.UUID
 ToolPageContext wp = new ToolPageContext(pageContext);
 PageWriter writer = wp.getWriter();
 Search search = null;
-String name = (String) request.getAttribute("name");
+String name = wp.param(String.class, Search.NAME_PARAMETER);
 
 if (!wp.param(boolean.class, "reset") && name != null) {
     Map<String, Object> settings = (Map<String, Object>) wp.getUserSetting("search." + name);

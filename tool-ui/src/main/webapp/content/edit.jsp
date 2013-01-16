@@ -126,7 +126,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             if (search != null) {
                 wp.write("<div class=\"content-searchResult frame\">");
                 wp.write("<a href=\"");
-                wp.write(StringUtils.addQueryParameters(search, "widget", true, "id", State.getInstance(selected).getId()));
+                wp.write(StringUtils.addQueryParameters(search, "widget", true));
                 wp.write("\">Search Result</a>");
                 wp.write("</div>");
             }
