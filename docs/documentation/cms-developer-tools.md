@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: CMS Tools
 id: cms-tools-dev
 section: cms-tools-dev

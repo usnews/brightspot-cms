@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: CMS Tags
 id: cms-tags
 ---

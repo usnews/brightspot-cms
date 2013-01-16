@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Image Cropping
 id: image-cropping
 ---

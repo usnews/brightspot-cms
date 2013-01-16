@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Installation
 id: documentation
 section: documentation

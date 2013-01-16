@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Adding a Tool
 id: adding-a-tool
 ---
