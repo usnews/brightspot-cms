@@ -35,7 +35,7 @@
 
 <body data-target=".dari-docs-sidebar" data-spy="scroll" onload="prettyPrint()">
 
-    <div class="navbar navbar-fixed-top">
+        <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
                 <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -45,9 +45,10 @@
                 </a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <li class=""><a href="index.html">Home</a></li>
-                        <li class="active"><a href="documentation.html">Documentation</a></li>
-                        <li class=""><a href="community.html">Community</a></li>
+                        <li class="{% if page.id == 'index' %}active{% endif %}"><a href="index.html">Home</a></li>
+                        <li class="{% if page.id == 'ed_documentation' %}active{% endif %}"><a href="editorial.html">Editor</a></li>
+                        <li class="{% if page.id == 'dev_documentation' %}active{% endif %}"><a href="documentation.html">Developer</a></li>
+                        <li class="{% if page.id == 'community' %}active{% endif %}"><a href="community.html">Community</a></li>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
@@ -88,13 +89,6 @@
                     <li><a href="caching.html">Caching</a></li>
                     <li><a href="debugging.html">Debugging</a></li>
                     <li><a href="dari-developer-tools.html">Dari Developer Tools</a></li>
-
-                <li class="nav-header">Editorial Tools</li>
-                    <li><a href="editorial.html">Introduction</a></li>
-                    <li><a href="editorial.html#publishing">Publishing</a></li>
-                    <li><a href="editorial.html#images">Images</a></li>
-                    <li><a href="editorial.html#finding-content">Finding Content</a></li>
-                    <li><a href="editorial.html#cms-tools">CMS Tools</a></li>
 
                 <li class="nav-header">Support</li>
                     <li><a target="_blank" href="http://perfectsense.github.com/brightspot-cms/javadocs/">JavaDocs</a></li>
