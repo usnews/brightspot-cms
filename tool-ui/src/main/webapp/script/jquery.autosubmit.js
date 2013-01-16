@@ -19,12 +19,13 @@ $.plugin2('autoSubmit', {
         });
 
         $input.data('autoSubmit-submitFunction', submitFunction);
-        $input.attr('autocomplete', 'off');
 
         if ($input[0] === $form[0]) {
+            $form.find(':input').attr('autocomplete', 'off');
             $form.delegate(':input', 'input.autoSubmit change.autoSubmit', submitFunction);
 
         } else {
+            $input.attr('autocomplete', 'off');
             $input.bind('input.autoSubmit change.autoSubmit', submitFunction);
         }
 
