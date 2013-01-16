@@ -511,35 +511,6 @@ $doc.ready(function() {
         return false;
     });
 
-    // Sync the search input in the tool header with the one in the popup.
-    (function() {
-        var previousValue;
-
-        $('.toolHeader > .search :text').bind('focus input', $.throttle(500, function() {
-            var $input = $(this),
-                    $form = $input.closest('form'),
-                    $targetFrame,
-                    currentValue;
-
-            $form.attr('autocomplete', 'off');
-            $targetFrame = $('.frame[name=' + $form.attr('target') + ']');
-
-            if ($targetFrame.length === 0) {
-                $form.submit();
-
-            } else {
-                $targetFrame.popup('open');
-                currentValue = $input.val();
-
-                if (previousValue !== currentValue) {
-                    previousValue = currentValue;
-                    $targetFrame.find('.searchForm-controlsFilters .searchInput :text').val($input.val());
-                    $targetFrame.find('.searchForm-controlsFilters form').submit();
-                }
-            }
-        }));
-    }());
-
     // Update repeatable labels as the user edits the related sections.
     $('.contentForm .repeatableForm').delegate(':input, textarea', 'change input', $.throttle(1000, function() {
         var $container = $(this).closest('li'),
