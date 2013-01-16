@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: home
 title: Search
 id: search
 section: search

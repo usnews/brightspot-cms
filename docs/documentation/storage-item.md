@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: home
 title: Storage Item
 id: storage-item
 ---
