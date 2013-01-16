@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Template Tool
 id: template-tool
 ---

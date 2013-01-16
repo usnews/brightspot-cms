@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Modifications
 id: modifications
 section: modifications

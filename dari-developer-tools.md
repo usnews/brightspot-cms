@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 title: Dari Developer Tools
 id: dari-developer-tools
 ---
