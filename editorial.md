@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: home
 title: Editorial Tools
 id: editorialTools
 section: editorialTools
