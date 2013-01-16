@@ -9,11 +9,16 @@ section: editorialTools
 
 ### Introduction
 
-Brightspot boasts an intuitive UI experience, coupled with a toolset tailored for the professional publisher. Rich text editing, WYSIWYG formatting and inline image editing allows the editor complete access to manage assets quickly and efficiently.
+Brightspot boasts an intuitive UI experience, coupled with a toolset tailored for the professional publisher. Rich text editing, WYSIWYG formatting. advanced image editing and visual inline publishing allows the editor complete access to manage content quickly and efficiently.
 
 The beauty of the platform is the manner in which it is tailored to suit each client’s specific requirements. Assets are defined and created with exact structure and terminology, and the UI is automatically generated from your requirements.
 
 This editorial guide will walk through the basic publishing workflow, as well as the tools present in the CMS that make editorial tasks easier.
+
+<img src="http://docs.brightspot.s3.amazonaws.com/latest_dashboard.png"/>
+
+
+### Global widgets
 
 **Tool Hat**
 
@@ -25,11 +30,15 @@ The search tool can be accessed from any screen in Brightspot. Simply place your
 
 **Create**
 
-Found in the Search tool, you have the ability to create new content from anywhere within Brightspot using the create drop-down. Choose from the list of existing objects.
+Found in the Search tool, you have the ability to create new content from anywhere within Brightspot using the create drop-down. Choose from the list of existing objects or start typing to narrow the results.
+
+### Dashboard
+
+Logging into Brightspot brings a user directly to their dashboard, which contains several widgets, providing quick access to content and publishing workflows.
 
 **Site Map**
 
-The Site Map is a hierarchical view of your website content, showing the structure for the entire site. It is used to either find specific content, or to get a better understanding of the various items within each section.
+The Site Map is a hierarchical view of your website content, showing the structure for the entire site. It is used to either find specific content, or to get a better understanding of the various items within each section. You can also filter a directory to show a particular object type within it.
 
 **Recent Activity**
 
@@ -37,15 +46,36 @@ Using the Recent Activity, you can jump to a piece of content that has just been
 
 **Page Builder**
 
-Create a whole new page using Page Builder. Select from a list of existing templates to get started, each one associated with a specific piece of content. These templates are created under Admin > Templates & Sections.
+Create a whole new webpage using Page Builder. Select from a list of existing templates to get started, each one associated with a specific piece of content. These templates are created under Admin > Templates & Sections.
+
+**Bulk Upload**
+
+Also available within the Page Builder section is a bulk uploader. Clicking on `Upload Files` provides a popup window, where you can choose your file type, and upload in bulk. Alternatively, drag and drop your files in the page builder section.
+
+<img src="http://docs.brightspot.s3.amazonaws.com/bulk_choose_pagebuilder.png"/>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/bulk_drag_pagebuilder.png"/>
+
 
 **Schedules** 
 
-Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. <h2 id="publishing"> </h2>
+Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. 
 
 **Drafts**
 
-All content that is not yet completed, but saved in a draft status, appears in the Drafts module. 
+All content that is not yet completed, but saved in a draft status, appears in the Drafts module. The user who created the content can also be seen.
+
+**Page Thunbnails**
+
+Hovering over any content on the dashboard that is an individual page allows you to see a quick inline preview of the page. This allows editors to get a visual idea of what they want to create or edit. Hovering over the eye preview symbol toggles the view.<h2 id="publishing"> </h2>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/page_thumbs.png"/>
+
+**Custom Layout**
+
+Each CMS user can customize their own dashboard view, moving the widgets around to suit their workflow. Hover over the top right corner of a widget to move. Click on an arrow direction to move the widgets around. 
+
+<img src="http://docs.brightspot.s3.amazonaws.com/custom_widgets.png"/>
 
 
 ### Publishing
@@ -53,41 +83,37 @@ All content that is not yet completed, but saved in a draft status, appears in t
 
 **Creating Content**
 
-For the following publisher tasks, we will be using a Demo Brightspot instance as an example. That example CMS powers a mock version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same items, but these examples should give you an understanding of how to carry out basic editorial tasks.
+For the following publisher tasks, we will be using a Demo Brightspot instance as an example. This example CMS powers a mock version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same items, as it is derived from your own objects, but these examples should give you an understanding of how to carry out basic editorial tasks, and use the widgets.
 
 
-We are going to start by creating a new a blog post, which will update the Blog Page. From the Dashboard we select ‘Blog Post’, found in the Page Builder section on the right. *(Note, Content that has an assigned Template will appear in the Page Builder section.)*
+We are going to start by creating a new a Article. From the Dashboard we select ‘News Article’, found in the Page Builder section on the right. *(Note, Content that has an assigned Template will appear in the Page Builder section. Creating content from here results in a new page, with a dedicated URL)*
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/select-blog.png"/></a>
-
-
-
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/create-blog.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/editor_production_help.png"/></a>
 
 There are lots of options here, but for now, let’s focus on creating our first piece of content.
 
-* We enter a Title, “Our Latest Blog Post.”
-* We then, click into the ‘Body’ section. Notice how a toolbar appears. This is your Rich Text Editor, allowing you to style your content, add images and links.
-* We add some sample text for the blog post.
+* We enter a Title, a blurb and some body text.
+* When we click into an area of text notice how a toolbar appears. This is your Rich Text Editor, allowing you to style your content, add images and links.
+* If we are unsure as to what a particular field is being used for, of how it is shown on the front end, we can toggle the production assistant guide, using the small `?` found in each field (right side). Once toggled it shows us using the preview tool exactly where the content is being used on the page.
 
 
 **Preview Content**
 
-Now we have our content in place, we can make sure it is looking ok by clicking ‘Preview’, located on the right hand side. If you are using the inline preview, click on the preview bar to slide out the live preview. 
+Now we have our content in place, we can make sure it is looking ok reviewing the preview window. If you do not see the preview window on the right side of the content look for the `Preview` link text under Publish. If you are using the inline preview on a small screen click on the preview bar at the top to slide out the live preview view.
 
-The preview feature provides a preview of our content positioned on our site, and allows us to check and then make edits before the content goes live. *Note: Preview is available on content with an assigned Template, and a URL*
+The preview feature provides a live preview of our content positioned on our site, and allows us to check and then make edits before the content goes live.
 
 ![](http://docs.brightspot.s3.amazonaws.com/preview_tool_inline.png)
 
 **URL**
 
-If everything is as it should be we can close our preview window, or slide out the preview tool. The URL is automatically generated, visible in the right rail widget.  The logic at play grabs the headline “Our Latest Blog Post” and creates a URL. Our current headline is too long for our desired URL, so we can select 'Manual' and add item, a simple URL 'demo-blog'. A slash is automatically added before the word demo.
+Once you have everything as it should be we can close our preview window, or slide in the preview tool. URLs are automatically generated, visible in the right rail widget.  The logic at play grabs the headline / title of the content and creates a URL. If your current headline is too long for your desired URL, you can select 'Manual' and add item, a simple URL 'demo-blog'. A slash is automatically added before the word demo.
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/change-url.png"/>
 
-We’ve added content, checked it and given it a URL – we’re now ready to publish, by clicking ‘Publish’.
+We’ve added content, checked it and given it a URL – we’re now ready to publish, by clicking ‘Publish’. Here's a view of a published blog post.
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/publish-blog.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/new_article_published.png"/></a>
 
 **Versioning**
 
@@ -105,23 +131,24 @@ Our content is now published. Let’s return to the Dashboard by clicking the �
 
 In Brightspot we can add various items to content as 'Enhancements'.
 
-Clicking into the 'Body' Section of our content, seen below, opens ours Rich Text Editor tools, and we can click 'Add Enhancement'
+Clicking into the 'Body' Section of our content, seen below, opens the Rich Text Editor tools, and we can click 'Add Enhancement'
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/empty-enhancement.png"/></a>
 
 Once clicked you will see a grey 'Empty Enhancement' in your content. Click the Edit link to open the find tool. Here you can either select an existing image or any other content that has been designated as being applicable for inclusion. If you want to add a new object you can do that from here also.
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/find-image.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/add_enhancement_article.png"/></a>
 
 
 We can search for an image already in the CMS, or upload a new one. Click on it to select, then scroll down to save. Close your enhancement window, you should now see the grey enhancement area populated with your image name. (You will not see the image, just a reference to it. To see the image in place, use the preview tool.)
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/added-enhancement.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/edit_enhancement_article.png"/></a>
 
 
 Once an enhancement has been added, we can use the same menu to position it within our content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
 
 Use the preview tool to view your newly added image in place. If it looks good, click publish.
+
+Often images are added to a piece of content outside of a rich text area, an example would be a promo image, or gallery of images. 
 
 **Editing Images**
 
@@ -135,46 +162,46 @@ A new text overlay tool has also been added, allowing rich text to be added to a
 
 
 
-### Finding Content
+### Search
 
 <h2 id="finding-content"> </h2>
-Once content has been published, we can use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page.
+Once content has been published, we can use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search widget.
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/find-blog.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/food_network_search.png"/></a>
 
-There are several ways in which you can search in Brightspot. The default list is sorted by Most Recent, you can adjust this in the side filters. You can also search within a specific content type, say Images, Blog Posts or Projects. 
+There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a text search, and using the filter on the left, you can specify the exact type of content you wish to search within.
 
-Start typing the name of your content, for us it's our new blog post “Our Latest Blog Post”. Once you have found your content, select it so you can make some edits.
+You also have a drop down menu that allows the sort filters to be changed, such as newest, or in alphabetical order.
 
-**Finding Modules / Pages**
+The search is also persistent, and can be reset using the reset link.
 
-Our mock website homepage has three featured projects presented in a dynamic module. If we want to update this module, we have several options on how to locate it within the CMS.
+Once content has been accessed using the search tool, the results are still available, allowing an editor to click through results quickly in the content edit screen:
 
-**1) Find the Module**
-
-Modules may exist as individual items, with only one instance on the entire website, or with multiple versions. For the homepage example there is only one instance of the Featured Projects Module. Using the search tool we can see it appear.
-
-![add img](http://docs.brightspot.s3.amazonaws.com/search-dl.png)
-
-Clicking into the Module allows us to edit it. If we want to swap out the Indiewire project for a new client, we can do so easily. Or drag the listed items to change the order.
-
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/dl-view.png"/></a>
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/food_network_results.png"/></a>
 
 
-**2) Find the page**
+**Finding a module**
 
-Because there are often multiple versions of a module, on various pages, EG SlideShows, finding the required page, and then narrowing down the module is often a great way to locate content. Note, you can also filter by the type "Slideshow" and use a search term to find which instance of it you are looking for.
+Often Editors want to find and edit module content, based on the page on which they saw it. This type of discovery is fully supported within Brightspot search.
 
-Every Static, or One-off page for the website is categorized as a Page within Brightspot. In the search tool, using the filter, we can specify a list of all Pages. To get a better result, however, we can simply search for the page by name, in this case, Home Page.
+If an editor has seen something they would like to change on a module on the homepage, they can start with a search for that page within the CMS:
 
-<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/search-homepage.png"/></a>
+![add img](http://docs.brightspot.s3.amazonaws.com/find_page.png)
 
-Clicking on the Home Page brings us to a template view of the page. We can see all the content contained within the page. The Featured Project section has a link to a Default Featured Projects. Clicking on this brings us to that module, allowing us to edit it. 
+Clicking on the page result shows the template view, which provides a visual layout of the page, complete with references to the various modules included. Clicking on one opens it in an edit window, allowing the editor to make changes.
 
-<img src="http://docs.brightspot.s3.amazonaws.com/homepage-template.png"/>
+![add img](http://docs.brightspot.s3.amazonaws.com/find_on_template.png)
 
+![add img](http://docs.brightspot.s3.amazonaws.com/edit_module_from_template.png)
 
-<img src="http://docs.brightspot.s3.amazonaws.com/dl-view.png"/>
+I can also find the module with a text only search, here I have used the title of the module to locate it directly.
+
+![add img](http://docs.brightspot.s3.amazonaws.com/find_module_text.png)
+
+If you are editing a module directly, and are unsure of where it is currently being used on the site, a handy `References` widget, found in the right rail, provides links to where the module is in use. This helps editors gain insight as to where any changes they have made will be seen.
+
+![add img](http://docs.brightspot.s3.amazonaws.com/references_widget.png)
+
 
 <h2 id="cms-tools"> </h2>
 
@@ -184,17 +211,17 @@ Clicking on the Home Page brings us to a template view of the page. We can see a
 
 Often editors will want to review their web content visually, not from within the CMS interface. When doing so, Brightspot gives you the ability to edit the content from the actual web view, without having to log back into the CMS to make changes.
 
-The Bookmarklet tool that provides this editorial view allows live content can be updated, images changed and if needed, full CMS access at a single click.
+The Bookmarklet tool that provides this editorial view allows live content to be updated, images changed and if needed, full CMS access at a single click.
 
-The tool is accessed via a bookmark within your browser. Start by logging into the CMS. In the Tool hat you will see a `More Tools` link. Clicking on this opens a small window with another link. Drag this link (Your Bookmarklet trigger) to your bookmark bar on your browser, as seen below.
+The tool is accessed via a bookmark within your browser. Start by logging into the CMS. In the Toolhat you will see a `More Tools` link. Clicking on this opens a small window with another link. Drag this link (Your Bookmarklet trigger) to your bookmark bar on your browser, as seen below.
 
 ![](http://docs.brightspot.s3.amazonaws.com/bookmarklet_start.png)
 ![](http://docs.brightspot.s3.amazonaws.com/bookmarklet_place.png)
 
-Once in place, visit your site and find a page you wish to edit. Click on the new bookmark to launch the tool on that page. You will then see an overlay of boxes, showing the various items within the page layout. Any module or content with an `Edit` link can be accessed and updated. You can also click `Edit in Full` to be brought into the CMS full content edit view. Save your changes by scrolling down to the `Save` button. Refresh the page to see the changes.
+Once in place, visit your site and find a page you wish to edit. Click on the new bookmark you just added to launch the tool on that page. You will then see an overlay of boxes as you hover over modules, showing the various items within the page layout. Any module or content with an `Edit` icon can be accessed and updated. You can also click `Edit in Full` to be brought into the CMS full content edit view. Save your changes by scrolling down to the `Save` button. Refresh the page to see the changes. *Note, you must be logged into your CMS to authenticate the tool.*
 
-![](http://docs.brightspot.s3.amazonaws.com/bookmarklet_edit.png)
-![](http://docs.brightspot.s3.amazonaws.com/bookmarklet_save.png)
+![](http://docs.brightspot.s3.amazonaws.com/edit_book.png)
+![](http://docs.brightspot.s3.amazonaws.com/edit_content_book.png)
 
 **Managing Content History**
 
@@ -207,7 +234,7 @@ Within the yellow banner, which is shown when an older version is being displaye
 
 <img src="http://docs.brightspot.s3.amazonaws.com/history-name.png"/>
 
-<h2 id="scheduling"> </h2> To revert to an older version, click Publish when viewing the desired content to be made current.
+<h2 id="scheduling"> </h2> To revert to an older version, click Publish when viewing the desired content to be made current. Roll-over and use the preview thumbnail link on each piece of content to get a quick look at it.
 
 **Scheduling Content**
 
