@@ -800,9 +800,13 @@ public class ToolPageContext extends WebPageContext {
         write("</h1>");
 
         if (user != null) {
-            write("<div class=\"search\">");
-                write("<a class=\"action-search\" href=\"", cmsUrl("/misc/search.jsp", Search.NAME_PARAMETER, "global"), "\" target=\"miscSearch\">Search</a>");
-            write("</div>");
+            write("<form action=\"", cmsUrl("/misc/search.jsp"), "\" class=\"search\" method=\"get\" target=\"miscSearch\">");
+            write("<span class=\"searchInput\">");
+            write("<label for=\"", createId(), "\">Search</label>");
+            write("<input id=\"", getId(), "\" name=\"", Search.QUERY_STRING_PARAMETER, "\" type=\"text\">");
+            write("<button>Go</button>");
+            write("</span>");
+            write("</form>");
 
             write("<ul class=\"mainNav\">");
             String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
