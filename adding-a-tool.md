@@ -77,6 +77,25 @@ Note, when adding a widget, it must be done within the mainApplicationClass. Thi
 
 	dari/mainApplicationClass=com.package.tool.DemoTool
 	
+
+**Adding a widget to the Dashboard**
+
+    JspWidget socialWidget = createWidget(JspWidget.class, "Social Widget", "socialWidget", null);
+        socialWidget.setJsp("/dashboardWidgets/socialWidget.jsp");
+        socialWidget.addPosition(CmsTool.DASHBOARD_WIDGET_POSITION, 1.0, 4.0);
+        introducePlugin(socialWidget);
+        
+Within the Admin > Settings section, on the left hand side you can see your newly created plugin:
+
+<img src="http://docs.brightspot.s3.amazonaws.com/dashboard_widget_control.png"/>
+
+An example jsp structure for the widgets:
+
+	<div class="widget">
+	<h1>Title of Widget</h1>
+ 	    THIS IS CONTENT
+	</div>
+
 **Adding a widget to content publication page**
 
 Each widget will have a `setJsp` which points to the jsp being used to render.
