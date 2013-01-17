@@ -99,9 +99,11 @@ public class SearchResultRenderer {
 
         writer.start("h2").html("Result").end();
 
-        writer.start("div", "class", "searchForm-resultSorter");
-            renderSorter();
-        writer.end();
+        if (search.findSorts().size() > 1) {
+            writer.start("div", "class", "searchForm-resultSorter");
+                renderSorter();
+            writer.end();
+        }
 
         writer.start("div", "class", "searchForm-resultPagination");
             renderPagination();
