@@ -244,9 +244,15 @@ Content does not have to be published the moment it is created. With scheduling,
 
 Click into content and notice the right rail shows calendar link above the 'Publish` button. 
 
-If we want to set the date for scheduling, simply click into the calendar view, and select a date. The `Publish` button is now `Reschedule`. Once a piece of content has been scheduled it appears in the Schedules widget on the dashboard.
+If we want to set the date for scheduling, simply click into the calendar view, and select a date. The `Publish` button is now `Reschedule`. 
 
 <img src="http://docs.brightspot.s3.amazonaws.com/reschedule.png"/>
+
+Once a piece of content has been scheduled it appears in the Schedules widget on the dashboard beside the date for when it is due to go live.
+
+<img src="http://docs.brightspot.s3.amazonaws.com/sch_widget_dash.png"/>
+
+
 
 <h2 id="admin"> </h2>
 
