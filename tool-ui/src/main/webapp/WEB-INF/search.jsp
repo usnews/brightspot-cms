@@ -84,11 +84,12 @@ Collections.sort(miscTypes);
 String resultTarget = wp.createId();
 String newJsp = (String) request.getAttribute("newJsp");
 String newTarget = (String) request.getAttribute("newTarget");
+boolean singleType = validTypes.size() == 1;
 
-writer.start("div", "class", "searchForm");
+writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm-container-singleType" : ""));
     writer.start("div", "class", "searchForm-controls");
 
-        writer.start("div", "class", "searchForm-controlsFilters");
+        writer.start("div", "class", "searchForm-filters");
             writer.start("h2").html("Filters").end();
 
             writer.start("form",
@@ -236,7 +237,7 @@ writer.start("div", "class", "searchForm");
         writer.end();
 
         if (!ObjectUtils.isBlank(newJsp)) {
-            writer.start("div", "class", "searchForm-controlsCreate");
+            writer.start("div", "class", "searchForm-create");
                 writer.start("h2").html("Create").end();
 
                 writer.start("form",

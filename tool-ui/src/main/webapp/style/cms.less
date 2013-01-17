@@ -1547,7 +1547,7 @@ input[type=text].expandable { min-width: 5em; }
     text-transform: uppercase;
 }
 
-.searchForm {
+.searchForm-container {
     overflow: hidden;
     margin: -5px;
     padding: 5px;
@@ -1567,7 +1567,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.searchForm-controlsFilters {
+.searchForm-filters {
     margin-bottom: 20px;
     margin-top: 50px;
     position: relative;
@@ -1599,7 +1599,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.searchForm-controlsCreate {
+.searchForm-create {
     select {
         width: 65%;
     }
@@ -1643,6 +1643,21 @@ input[type=text].expandable { min-width: 5em; }
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
+    }
+}
+
+.searchForm-container-singleType {
+    .searchForm-filters {
+        h2,
+        .action-reset {
+            display: none;
+        }
+    }
+
+    .searchForm-create {
+        h2 {
+            display: none;
+        }
     }
 }
 
@@ -3289,8 +3304,9 @@ input[type="text"].dropDown-search {
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
 
+.searchForm { .searchForm-container; }
 .searchForm > .filters { .searchForm-controls; }
-.searchForm > .filters .new { .searchForm-controlsCreate; }
+.searchForm > .filters .new { .searchForm-create; }
 .searchForm > .result { .searchForm-result; }
 
 .toolHat > .profile { .toolHat-profile; }
