@@ -801,9 +801,10 @@ public class ToolPageContext extends WebPageContext {
 
         if (user != null) {
             write("<form action=\"", cmsUrl("/misc/search.jsp"), "\" class=\"search\" method=\"get\" target=\"miscSearch\">");
+            write("<input type=\"hidden\" name=\"", Search.NAME_PARAMETER, "\" value=\"global\">");
             write("<span class=\"searchInput\">");
             write("<label for=\"", createId(), "\">Search</label>");
-            write("<input id=\"", getId(), "\" name=\"", Search.QUERY_STRING_PARAMETER, "\" type=\"text\">");
+            write("<input id=\"", getId(), "\" type=\"text\">");
             write("<button>Go</button>");
             write("</span>");
             write("</form>");

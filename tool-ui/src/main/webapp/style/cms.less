@@ -2717,8 +2717,14 @@ input[type="text"].dropDown-search {
 }
 
 // General search input is in the header so no need to display it again.
-.popup[name=miscSearch] .searchInput {
-    display: none;
+.popup[name=miscSearch] {
+    .searchForm-filters {
+        margin-top: 0;
+    }
+
+    .searchInput {
+        display: none;
+    }
 }
 
 // These contain content forms so make them bigger.
