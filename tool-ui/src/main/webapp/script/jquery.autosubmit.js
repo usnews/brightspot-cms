@@ -19,21 +19,14 @@ $.plugin2('autoSubmit', {
         });
 
         $input.data('autoSubmit-submitFunction', submitFunction);
-        $input.attr('autocomplete', 'off');
 
         if ($input[0] === $form[0]) {
+            $form.find(':input').attr('autocomplete', 'off');
             $form.delegate(':input', 'input.autoSubmit change.autoSubmit', submitFunction);
-            $form.delegate(':text', 'focus.autoSubmit', function() {
-                $('.frame[name=' + $form.attr('target') + ']').popup('open');
-                submitFunction();
-            });
 
         } else {
+            $input.attr('autocomplete', 'off');
             $input.bind('input.autoSubmit change.autoSubmit', submitFunction);
-            $input.bind('focus.autoSubmit', function() {
-                $('.frame[name=' + $form.attr('target') + ']').popup('open');
-                submitFunction();
-            });
         }
 
         $targetFrame = $('.frame[name=' + $form.attr('target') + ']:not(.loading):not(.loaded)');

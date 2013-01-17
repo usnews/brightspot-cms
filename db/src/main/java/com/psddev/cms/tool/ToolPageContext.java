@@ -692,7 +692,7 @@ public class ToolPageContext extends WebPageContext {
             write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
         }
 
-        write("<script type=\"text/javascript\">(window.less = window.less || { }).env = 'production';</script>");
+        write("<script type=\"text/javascript\">window.less = window.less || { }; window.less.env = 'production'; window.less.poll = 500;</script>");
         write("<script src=\"", cmsResource("/script/less-1.3.3.min.js"), "\" type=\"text/javascript\"></script>");
 
         String extraCss = cmsTool.getExtraCss();
@@ -801,9 +801,10 @@ public class ToolPageContext extends WebPageContext {
 
         if (user != null) {
             write("<form action=\"", cmsUrl("/misc/search.jsp"), "\" class=\"search\" method=\"get\" target=\"miscSearch\">");
+            write("<input type=\"hidden\" name=\"", Search.NAME_PARAMETER, "\" value=\"global\">");
             write("<span class=\"searchInput\">");
             write("<label for=\"", createId(), "\">Search</label>");
-            write("<input id=\"", getId(), "\" name=\"", Search.QUERY_STRING_PARAMETER, "\" type=\"text\">");
+            write("<input id=\"", getId(), "\" type=\"text\">");
             write("<button>Go</button>");
             write("</span>");
             write("</form>");

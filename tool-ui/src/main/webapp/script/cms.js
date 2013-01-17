@@ -516,25 +516,25 @@ $doc.ready(function() {
         var previousValue;
 
         $('.toolHeader > .search :text').bind('focus input', $.throttle(500, function() {
-            var $input = $(this),
-                    $form = $input.closest('form'),
-                    $targetFrame,
-                    currentValue;
+            var $headerInput = $(this),
+                    $headerForm = $headerInput.closest('form'),
+                    $searchFrame,
+                    $searchInput,
+                    headerInputValue;
 
-            $form.attr('autocomplete', 'off');
-            $targetFrame = $('.frame[name=' + $form.attr('target') + ']');
+            $headerInput.attr('autocomplete', 'off');
+            $searchFrame = $('.frame[name="' + $headerForm.attr('target') + '"]');
 
-            if ($targetFrame.length === 0) {
-                $form.submit();
+            if ($searchFrame.length === 0) {
+                $headerForm.submit();
 
             } else {
-                $targetFrame.popup('open');
-                currentValue = $input.val();
+                $searchFrame.popup('open');
+                $searchInput = $searchFrame.find('.searchForm-filters .searchInput :text');
+                headerInputValue = $headerInput.val();
 
-                if (previousValue !== currentValue) {
-                    previousValue = currentValue;
-                    $targetFrame.find('.searchForm-controlsFilters .searchInput :text').val($input.val());
-                    $targetFrame.find('.searchForm-controlsFilters form').submit();
+                if (headerInputValue !== $searchInput.val()) {
+                    $searchInput.val(headerInputValue).trigger('input');
                 }
             }
         }));

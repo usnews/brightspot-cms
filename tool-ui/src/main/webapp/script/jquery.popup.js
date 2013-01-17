@@ -103,7 +103,10 @@ $.plugin2('popup', {
     'source': function($newSource, event) {
         var options = this.option();
 
-        if (event && (typeof event.pageX !== 'number' || typeof event.pageY !== 'number')) {
+        if (event &&
+                ($newSource.height() < 30 ||
+                typeof event.pageX !== 'number' ||
+                typeof event.pageY !== 'number')) {
             event = undef;
         }
 

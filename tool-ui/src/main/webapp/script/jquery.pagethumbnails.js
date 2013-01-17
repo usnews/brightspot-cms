@@ -7,7 +7,9 @@ var $win = $(win),
         $containers = $(),
         $currentContainer,
         showPreviewTimeout,
-        hidePreviewTimeout;
+        hidePreviewTimeout,
+
+        $toggle;
 
 $.plugin2('pageThumbnails', {
     '_create': function(container) {
@@ -15,7 +17,6 @@ $.plugin2('pageThumbnails', {
                 $container = $(container),
                 $body = $(doc.body),
 
-                $toggle,
                 enabled,
 
                 $preview,
