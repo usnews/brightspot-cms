@@ -6,7 +6,7 @@ id: ui
 
 ## User Interface Creation
 
-Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created form your Java code. For a guide to custom solutions see the [Custom UI](/brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
+Creating a new object in the CMS automatically generates the UI. In this section we are going to look at the standard UI that is created from your Java code. For a guide to custom solutions see the [Custom UI](/brightspot-cms/ui.html#custom-ui) section, or refer to the [Annotations](/brightspot-cms/annotations.html) section.
 
 **Text Input Field**
 
@@ -20,11 +20,17 @@ When a body of text is required use `private ReferentialText bodyText;`. The UI 
 
 ![Screenshot of UI](http://docs.brightspot.s3.amazonaws.com/body-text-ui.png)
 
+A `String` field can be customized to provide some rich text controls using the annotation @ToolUi.RichText
+
 **Adding a List**
 
 Using `private List<Image> image;`, where `Image` is an existing class, creates the UI below. Multiple items can now be added, with the Add Item option auto-generated. Lists can be dragged and reordered within Brightspot.
 
 ![Screenshot of UI](http://docs.brightspot.s3.amazonaws.com/list-option-ui.png)
+
+When the object passed into the list contains a `StorageItem` attribute the UI automatically updates to provide the Bulk Upload interface.
+
+![Find Dropdown](http://docs.brightspot.s3.amazonaws.com/upload_ui_bulk.png)
 
 **Adding a Set**
 
@@ -34,15 +40,10 @@ A set of items, in this instance Keywords, can be added through `private Set<Str
 
 **Choose a Type**
 
-A find drop down is provided automatically when an existing object is to be selected, like so, `private Category category;`
+A find drop down is provided automatically when an existing object is to be selected, like so, `private Category category;` The results are automatically limited to the return type specified in the class.
 
 ![Find Dropdown](http://docs.brightspot.s3.amazonaws.com/find-tool-ui.png)
 
-**Abstract Class**
-
-Referencing an abstract class, in this example a Link class, `public abstract class Link extends Content` will display the abstract class indented in the UI.
-
-![Abstract Class ](http://docs.brightspot.s3.amazonaws.com/abstract-class-ui.png)
 
 **Calendar Date**
 
@@ -82,7 +83,9 @@ Using the `LabelFields` annotation and specifying the variable, in this instance
 
 <img src="http://docs.brightspot.s3.amazonaws.com/dynamic-label-ui.png"/>
 
-To embed a class, and provide an indented UI view, the annotation `@Embedded` is used with a static class. This class is then included as a field within the original class.
+**Embedding Objects**
+
+To embed a class within an object the annotation `@Embedded` is used with a static class. This class is then included as a field within the original class.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/embedded_content.png"/>
 
@@ -100,7 +103,7 @@ To embed a class, and provide an indented UI view, the annotation `@Embedded` is
 
     }
 
-A `List` or `Set` of embedded items can be added, simply add the `Set` or `List` returnType. The difference between the `Set` and `List` is simply down to the ability to drag and reorder the `List`. This is not possible when choosing a `Set`.
+A `List` or `Set` of embedded items can be added, simply add the `Set` or `List` returnType. The difference between the `Set` and `List` is simply down to the ability to drag and reorder the `List`. This is not possible when choosing a `Set`, which is used to set a rigid order.
 
 <img  src="http://docs.brightspot.s3.amazonaws.com/embed_list_set.png"/>
 

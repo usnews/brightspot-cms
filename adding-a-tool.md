@@ -110,6 +110,36 @@ See the index.jsp used for the CMS application for an example.
 
 When building a complete page within the CMS, for your new tool, include the CMS header and footer with `wp.writeHeader();` and `wp.writeFooter();`
 
+    // Imports
+
+    <%
+    ToolPageContext wp=new ToolPageContext(pageContext);
+    wp.writeHeader();
+    %>
+
+    // Presentation
+    <div class="withLeftNav">
+        <div class="leftNav">
+
+            <div class="widget">
+              <h1>Left Sidebar</h1>
+              <ul class="links">
+                // Menu Content
+              </ul>
+            </div>
+        </div>
+            <div class="main">
+
+                <div class="widget">
+                  // Page Content
+                </div>
+
+            </div>
+    </div>
+
+    <% wp.writeFooter(); %>
+
+
 Note: A Widget will only appear within the CMS if it is actively displaying text in one form or another. If your widget is not appearing, test by printing out text through your .jsp.
 
 **Add URL**
