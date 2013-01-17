@@ -11,15 +11,13 @@ section: editorialTools
 
 
 
-Brightspot boasts an intuitive UI experience, coupled with a toolset tailored for the professional publisher. Rich text editing, WYSIWYG formatting. advanced image editing and visual inline publishing allows the editor complete access to manage content quickly and efficiently.
+Brightspot boasts an intuitive UI experience, coupled with a toolset tailored for the professional publisher. Rich text editing, WYSIWYG formatting, advanced image editing and visual inline publishing allows the editor complete access to manage content quickly and efficiently.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/latest_dashboard.png"/>
 
 The beauty of the platform is the manner in which it is tailored to suit each client’s specific requirements. Assets are defined and created with exact structure and terminology, and the UI is automatically generated from your requirements.
 
 This editorial guide will walk through the basic publishing workflow, as well as the tools present in the CMS that make editorial tasks easier.
-
-
 
 
 ### Global widgets
