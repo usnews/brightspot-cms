@@ -4,6 +4,9 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
@@ -32,15 +35,47 @@ public class SearchResultRenderer {
     protected final ToolPageContext page;
     protected final PageWriter writer;
     protected final Search search;
-    protected final PaginatedResult<?> result;
+    protected final ObjectField sortField;
     protected final boolean showTypeLabel;
+    protected final PaginatedResult<?> result;
 
     public SearchResultRenderer(ToolPageContext page, Search search) throws IOException {
         this.page = page;
         this.writer = page.getWriter();
         this.search = search;
+
+        ObjectType selectedType = search.getSelectedType();
+        String hash = search.getQueryString();
+
+        if (selectedType != null) {
+            hash += selectedType.getId().toString();
+        }
+
+        String name = search.getName();
+
+        if (!ObjectUtils.equals(
+                page.getUserSetting("search." + name + ".hash"),
+                hash)) {
+            search.setSort(null);
+            search.setOffset(0);
+        }
+
+        page.putUserSetting("search." + name + ".hash", hash);
+
         this.result = search.toQuery().and(page.siteItemsPredicate()).select(search.getOffset(), search.getLimit());
-        this.showTypeLabel = search.getSelectedType() == null && search.findValidTypes().size() != 1;
+
+        if (selectedType != null) {
+            this.sortField = selectedType.getField(search.getSort());
+            this.showTypeLabel = false;
+
+        } else {
+            this.sortField = null;
+            this.showTypeLabel = search.findValidTypes().size() != 1;
+        }
+
+        if (name != null) {
+            page.putUserSetting("search." + name, search.getState().getSimpleValues());
+        }
     }
 
     public void render() throws IOException {
@@ -64,30 +99,23 @@ public class SearchResultRenderer {
 
         writer.start("h2").html("Result").end();
 
-        if (result.hasItems()) {
+        if (search.findSorts().size() > 1) {
             writer.start("div", "class", "searchForm-resultSorter");
                 renderSorter();
             writer.end();
+        }
 
-            writer.start("div", "class", "searchForm-resultPagination");
-                renderPagination();
-            writer.end();
+        writer.start("div", "class", "searchForm-resultPagination");
+            renderPagination();
+        writer.end();
 
-            writer.start("div", "class", "searchForm-resultList");
+        writer.start("div", "class", "searchForm-resultList");
+            if (result.hasItems()) {
                 renderList(result.getItems());
-            writer.end();
-
-        } else {
-            writer.start("div", "class", "searchForm-resultList");
+            } else {
                 renderEmpty();
-            writer.end();
-        }
-
-        String name = page.param(String.class, "name");
-
-        if (name != null) {
-            page.putUserSetting("search." + name, search.getState().getSimpleValues());
-        }
+            }
+        writer.end();
     }
 
     public void renderSorter() throws IOException {
@@ -96,7 +124,10 @@ public class SearchResultRenderer {
                 "method", "get",
                 "action", page.url(null));
 
-            for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(page.url("", Search.SORT_PARAMETER, null)).entrySet()) {
+            for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(page.url("",
+                    Search.SORT_PARAMETER, null,
+                    Search.SHOW_MISSING_PARAMETER, null,
+                    Search.OFFSET_PARAMETER, null)).entrySet()) {
                 String name = entry.getKey();
 
                 for (String value : entry.getValue()) {
@@ -105,14 +136,34 @@ public class SearchResultRenderer {
             }
 
             writer.start("select", "name", Search.SORT_PARAMETER);
-                for (SearchSort sort : search.findSorts()) {
+                for (Map.Entry<String, String> entry : search.findSorts().entrySet()) {
+                    String label = entry.getValue();
+                    String value = entry.getKey();
+
                     writer.start("option",
-                            "value", sort.name(),
-                            "selected", sort.equals(search.getSort()) ? "selected" : null);
-                        writer.html("Sort: ").html(sort);
+                            "value", value,
+                            "selected", value.equals(search.getSort()) ? "selected" : null);
+                        writer.html("Sort: ").html(label);
                     writer.end();
                 }
             writer.end();
+
+            if (sortField != null) {
+                writer.html(" ");
+
+                writer.tag("input",
+                        "id", page.createId(),
+                        "type", "checkbox",
+                        "name", Search.SHOW_MISSING_PARAMETER,
+                        "value", "true",
+                        "checked", search.isShowMissing() ? "checked" : null);
+
+                writer.html(" ");
+
+                writer.start("label", "for", page.getId());
+                    writer.html("Show Missing");
+                writer.end();
+            }
 
         writer.end();
     }
@@ -219,13 +270,14 @@ public class SearchResultRenderer {
 
     public void renderRow(Object item) throws IOException {
         HttpServletRequest request = page.getRequest();
-        String permalink = State.getInstance(item).as(Directory.ObjectModification.class).getPermalink();
+        State itemState = State.getInstance(item);
+        String permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
 
         writer.start("tr",
                 "data-preview-url", permalink,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
-            if (search.getSort() == SearchSort.NEWEST) {
+            if (Search.NEWEST_SORT_VALUE.equals(search.getSort())) {
                 Date updateDate = State.getInstance(item).as(Content.ObjectModification.class).getUpdateDate();
 
                 if (updateDate == null) {
@@ -262,12 +314,22 @@ public class SearchResultRenderer {
                 renderAfterItem(item);
             writer.end();
 
+            if (sortField != null) {
+                Object value = itemState.get(sortField.getInternalName());
+
+                writer.start("td");
+                    writer.html(value instanceof Recordable ?
+                            ((Recordable) value).getState().getLabel() :
+                            value);
+                writer.end();
+            }
+
         writer.end();
     }
 
     public void renderBeforeItem(Object item) throws IOException {
         writer.start("a",
-                "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("")),
+                "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("", Search.NAME_PARAMETER, null)),
                 "target", "_top");
     }
 

@@ -11,13 +11,13 @@ if (wp.requireUser()) {
 
 wp.include(
         "/WEB-INF/search.jsp",
-        "searchName", "toolHeader",
+        "name", "toolHeader",
         "newJsp", "/content/edit.jsp",
         "newTarget", "_top",
         "resultJsp", "/misc/searchResult.jsp");
 %>
 <script type="text/javascript">
     if (typeof jQuery !== 'undefined') (function(win, $, undef) {
-        $('.toolHeader > .search :text').val($('.frame[name="miscSearch"] .searchForm-controlsFilters .searchInput :text').val()).trigger('input');
+        $('.toolHeader > .search :text').val($('.frame[name="miscSearch"] .searchForm-filters .searchInput :text').val()).trigger('input');
     })(window, jQuery);
 </script>

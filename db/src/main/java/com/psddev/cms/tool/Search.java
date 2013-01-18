@@ -2,9 +2,11 @@ package com.psddev.cms.tool;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.ToolPageContext;
 
 import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -18,31 +20,45 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class Search extends Record {
 
     public static final String ADDITIONAL_PREDICATE_PARAMETER = "aq";
+    public static final String FIELD_FILTER_PARAMETER_PREFIX = "f.";
     public static final String LIMIT_PARAMETER = "l";
+    public static final String NAME_PARAMETER = "n";
     public static final String OFFSET_PARAMETER = "o";
     public static final String ONLY_PATHED_PARAMETER = "p";
     public static final String PARENT_PARAMETER = "pt";
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
+    public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
     public static final String TYPES_PARAMETER = "rt";
 
+    public static final String NEWEST_SORT_LABEL = "Newest";
+    public static final String NEWEST_SORT_VALUE = "_newest";
+    public static final String RELEVANT_SORT_LABEL = "Relevant";
+    public static final String RELEVANT_SORT_VALUE = "_relevant";
+
+    private String name;
     private Set<ObjectType> types;
     private ObjectType selectedType;
     private String queryString;
     private boolean onlyPathed;
     private String additionalPredicate;
     private UUID parentId;
-    private SearchSort sort;
+    private Map<String, String> fieldFilters;
+    private String sort;
+    private boolean showMissing;
     private long offset;
     private int limit;
 
@@ -51,6 +67,8 @@ public class Search extends Record {
 
     public Search(ToolPageContext page, Iterable<UUID> typeIds) {
         this.page = page;
+
+        setName(page.param(String.class, NAME_PARAMETER));
 
         if (typeIds != null) {
             for (UUID typeId : typeIds) {
@@ -62,18 +80,33 @@ public class Search extends Record {
             }
         }
 
+        for (String name : page.paramNamesList()) {
+            if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
+                getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
+            }
+        }
+
         setSelectedType(ObjectType.getInstance(page.param(UUID.class, SELECTED_TYPE_PARAMETER)));
         setQueryString(page.paramOrDefault(String.class, QUERY_STRING_PARAMETER, "").trim());
         setOnlyPathed(page.param(boolean.class, IS_ONLY_PATHED));
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
-        setSort(page.paramOrDefault(SearchSort.class, SORT_PARAMETER, SearchSort.RELEVANT));
+        setSort(page.param(String.class, SORT_PARAMETER));
+        setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
     }
 
     public Search(ToolPageContext page) {
         this(page, page.params(UUID.class, TYPES_PARAMETER));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<ObjectType> getTypes() {
@@ -127,12 +160,31 @@ public class Search extends Record {
         this.parentId = parentId;
     }
 
-    public SearchSort getSort() {
+    public Map<String, String> getFieldFilters() {
+        if (fieldFilters == null) {
+            setFieldFilters(new HashMap<String, String>());
+        }
+        return fieldFilters;
+    }
+
+    public void setFieldFilters(Map<String, String> fieldFilters) {
+        this.fieldFilters = fieldFilters;
+    }
+
+    public String getSort() {
         return sort;
     }
 
-    public void setSort(SearchSort sort) {
+    public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public boolean isShowMissing() {
+        return showMissing;
+    }
+
+    public void setShowMissing(boolean showMissing) {
+        this.showMissing = showMissing;
     }
 
     public long getOffset() {
@@ -171,31 +223,28 @@ public class Search extends Record {
         return new LinkedHashSet<ObjectType>(validTypes);
     }
 
-    private String findAlphabeticalSortField() {
-        ObjectType type = getSelectedType();
-        Set<ObjectType> validTypes = findValidTypes();
+    public Map<String, String> findSorts() {
+        Map<String, String> sorts = new LinkedHashMap<String, String>();
+        ObjectType selectedType = getSelectedType();
 
-        if (type == null && validTypes.size() == 1) {
-            type = validTypes.iterator().next();
+        if (!ObjectUtils.isBlank(getQueryString())) {
+            sorts.put(RELEVANT_SORT_VALUE, RELEVANT_SORT_LABEL);
         }
 
-        if (type != null) {
-            for (String field : type.getLabelFields()) {
-                if (type.getIndex(field) != null) {
-                    return type.getInternalName() + "/" + field;
+        sorts.put(NEWEST_SORT_VALUE, NEWEST_SORT_LABEL);
+
+        if (selectedType != null) {
+            for (ObjectField field : selectedType.getIndexedFields()) {
+                if (!field.as(ToolUi.class).isHidden()) {
+                    String fieldType = field.getInternalType();
+
+                    if (ObjectField.DATE_TYPE.equals(fieldType) ||
+                            ObjectField.NUMBER_TYPE.equals(fieldType) ||
+                            ObjectField.TEXT_TYPE.equals(fieldType)) {
+                        sorts.put(field.getInternalName(), field.getDisplayName());
+                    }
                 }
             }
-        }
-
-        return null;
-    }
-
-    public List<SearchSort> findSorts() {
-        List<SearchSort> sorts = new ArrayList<SearchSort>();
-
-        Collections.addAll(sorts, SearchSort.values());
-        if (findAlphabeticalSortField() == null) {
-            sorts.remove(SearchSort.ALPHABETICALLY);
         }
 
         return sorts;
@@ -326,21 +375,44 @@ public class Search extends Record {
                     first());
         }
 
-        SearchSort sort = getSort();
+        if (selectedType != null) {
+            for (Map.Entry<String, String> entry : getFieldFilters().entrySet()) {
+                String value = entry.getValue();
 
-        if (SearchSort.RELEVANT.equals(sort)) {
-            if (ObjectUtils.isBlank(queryString)) {
-                query.sortDescending(Content.UPDATE_DATE_FIELD);
+                if (value != null) {
+                    query.and(selectedType.getInternalName() + "/" + entry.getKey() + " = ?", value);
+                }
             }
+        }
 
-        } else if (SearchSort.NEWEST.equals(sort)) {
+        String sort = getSort();
+
+        if (sort == null) {
+            sort = findSorts().keySet().iterator().next();
+            setSort(sort);
+        }
+
+        if (NEWEST_SORT_VALUE.equals(sort)) {
             query.sortDescending(Content.UPDATE_DATE_FIELD);
 
-        } else if (SearchSort.ALPHABETICALLY.equals(sort)) {
-            String sortField = findAlphabeticalSortField();
+        } else if (RELEVANT_SORT_VALUE.equals(sort)) {
+
+        } else if (selectedType != null && sort != null) {
+            ObjectField sortField = selectedType.getField(sort);
 
             if (sortField != null) {
-                query.sortAscending(sortField);
+                String sortName = selectedType.getInternalName() + "/" + sort;
+
+                if (ObjectField.TEXT_TYPE.equals(sortField.getInternalType())) {
+                    query.sortAscending(sortName);
+
+                } else {
+                    query.sortDescending(sortName);
+                }
+
+                if (!isShowMissing()) {
+                    query.and(sortName + " != missing");
+                }
             }
         }
 

@@ -18,7 +18,7 @@ $.plugin2('objectId', {
 
         var $selectButton;
         var $clearButton;
-        var $editButton = $('<a/>', {
+        var $editButton = $input.attr('data-editable') === 'false' ? $() : $('<a/>', {
             'class': 'objectId-edit',
             'target': target,
             'text': 'Edit',
@@ -50,13 +50,34 @@ $.plugin2('objectId', {
             });
 
             $selectButton.bind('updatePreview', function() {
-                var preview = $input.attr('data-preview');
+                var preview = $input.attr('data-preview'),
+                        label,
+                        placeholder;
+
                 if (preview) {
                     $selectButton.html($('<img/>', {
                         'src': preview
                     }));
+
                 } else {
-                    $selectButton.text($input.attr('data-label') || '\u00a0');
+                    label = $input.attr('data-label');
+
+                    if (label) {
+                        $selectButton.text(label);
+
+                    } else {
+                        placeholder = $input.attr('placeholder');
+
+                        if (placeholder) {
+                            $selectButton.html($('<span/>', {
+                                'class': 'objectId-placeholder',
+                                'text': placeholder
+                            }));
+
+                        } else {
+                            $selectButton.text('\u00a0');
+                        }
+                    }
                 }
             });
 
@@ -97,7 +118,7 @@ $.plugin2('objectId', {
                         return false;
                     }
                 });
-                $editButton.after($clearButton);
+                ($editButton.length > 0 ? $editButton : $selectButton).after($clearButton);
             }
 
         // Just add the edit button if drop down already.

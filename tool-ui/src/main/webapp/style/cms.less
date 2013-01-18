@@ -38,7 +38,6 @@
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
-@media-webkit: ~'screen and (-webkit-min-device-pixel-ratio: 0)';
 
 // --- Functions ---
 
@@ -1559,7 +1558,7 @@ input[type=text].expandable { min-width: 5em; }
     text-transform: uppercase;
 }
 
-.searchForm {
+.searchForm-container {
     overflow: hidden;
     margin: -5px;
     padding: 5px;
@@ -1579,12 +1578,19 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.searchForm-controlsFilters {
-    margin-bottom: 10px;
+.searchForm-filters {
+    margin-bottom: 20px;
+    margin-top: 50px;
     position: relative;
 
-    .searchInput {
+    form {
         margin-bottom: 5px;
+    }
+
+    .searchInput {
+        left: 0;
+        position: absolute;
+        top: -45px;
     }
 
     .action-reset {
@@ -1595,9 +1601,16 @@ input[type=text].expandable { min-width: 5em; }
         right: 0;
         top: -2px;
     }
+
+    .objectId,
+    .objectId-select {
+        display: block;
+        margin-top: 5px;
+        width: 100%;
+    }
 }
 
-.searchForm-controlsCreate {
+.searchForm-create {
     select {
         width: 65%;
     }
@@ -1641,6 +1654,21 @@ input[type=text].expandable { min-width: 5em; }
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
+    }
+}
+
+.searchForm-container-singleType {
+    .searchForm-filters {
+        h2,
+        .action-reset {
+            display: none;
+        }
+    }
+
+    .searchForm-create {
+        h2 {
+            display: none;
+        }
     }
 }
 
@@ -2231,6 +2259,10 @@ input[type="text"].dropDown-search {
     }
 }
 
+.objectId-placeholder {
+    color: @color-note-darker;
+}
+
 // --- $.pageLayout ---
 
 // Tabs for switching between different modes.
@@ -2685,8 +2717,14 @@ input[type="text"].dropDown-search {
 }
 
 // General search input is in the header so no need to display it again.
-.popup[name=miscSearch] .searchInput {
-    display: none;
+.popup[name=miscSearch] {
+    .searchForm-filters {
+        margin-top: 0;
+    }
+
+    .searchInput {
+        display: none;
+    }
 }
 
 // These contain content forms so make them bigger.
@@ -3297,8 +3335,9 @@ input[type="text"].dropDown-search {
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
 
+.searchForm { .searchForm-container; }
 .searchForm > .filters { .searchForm-controls; }
-.searchForm > .filters .new { .searchForm-controlsCreate; }
+.searchForm > .filters .new { .searchForm-create; }
 .searchForm > .result { .searchForm-result; }
 
 .toolHat > .profile { .toolHat-profile; }
@@ -3707,6 +3746,7 @@ guideForm-page {
 
 // --- Actions ---
 
+.action-add { .icon-plus-sign; }
 .action-back { .icon-arrow-left; }
 .action-edit { .icon-pencil; }
 .action-delete { .icon-trash; }
@@ -3716,6 +3756,7 @@ guideForm-page {
 .action-live { .icon-bullhorn; }
 .action-logOut { .icon-signout; }
 .action-preview { .icon-eye-open; }
+.action-remove { .icon-minus-sign; }
 .action-reset { .icon-remove; }
 .action-result { .icon-list-alt; }
 .action-search { .icon-search; }
@@ -3886,14 +3927,4 @@ guideForm-page {
 input::-moz-focus-inner {
     border: 0;
     padding: 0;
-}
-
-// --- WebKit hacks ---
-
-@media @media-webkit {
-    button,
-    input[type=submit] {
-        position: relative;
-        top: 1px;
-    }
 }
