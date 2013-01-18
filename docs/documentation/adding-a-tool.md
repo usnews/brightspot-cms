@@ -77,6 +77,25 @@ Note, when adding a widget, it must be done within the mainApplicationClass. Thi
 
 	dari/mainApplicationClass=com.package.tool.DemoTool
 	
+
+**Adding a widget to the Dashboard**
+
+    JspWidget socialWidget = createWidget(JspWidget.class, "Social Widget", "socialWidget", null);
+        socialWidget.setJsp("/dashboardWidgets/socialWidget.jsp");
+        socialWidget.addPosition(CmsTool.DASHBOARD_WIDGET_POSITION, 1.0, 4.0);
+        introducePlugin(socialWidget);
+        
+Within the Admin > Settings section, on the left hand side you can see your newly created plugin:
+
+<img src="http://docs.brightspot.s3.amazonaws.com/dashboard_widget_control.png"/>
+
+An example jsp structure for the widgets:
+
+	<div class="widget">
+	<h1>Title of Widget</h1>
+ 	    THIS IS CONTENT
+	</div>
+
 **Adding a widget to content publication page**
 
 Each widget will have a `setJsp` which points to the jsp being used to render.
@@ -109,6 +128,36 @@ Widgets can also be added to the right rail, above between or below the default 
 See the index.jsp used for the CMS application for an example.
 
 When building a complete page within the CMS, for your new tool, include the CMS header and footer with `wp.writeHeader();` and `wp.writeFooter();`
+
+    // Imports
+
+    <%
+    ToolPageContext wp=new ToolPageContext(pageContext);
+    wp.writeHeader();
+    %>
+
+    // Presentation
+    <div class="withLeftNav">
+        <div class="leftNav">
+
+            <div class="widget">
+              <h1>Left Sidebar</h1>
+              <ul class="links">
+                // Menu Content
+              </ul>
+            </div>
+        </div>
+            <div class="main">
+
+                <div class="widget">
+                  // Page Content
+                </div>
+
+            </div>
+    </div>
+
+    <% wp.writeFooter(); %>
+
 
 Note: A Widget will only appear within the CMS if it is actively displaying text in one form or another. If your widget is not appearing, test by printing out text through your .jsp.
 

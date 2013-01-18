@@ -23,3 +23,7 @@ By clicking on `Raw Content` found to the right of `Save Draft` in the content e
 A typical implementation would be to test to see if an SEO Title has been added. If not, the standard object title can be used instead.
 
 	<title>Perfect Sense Digital<c:if test="${!empty seo.title}" >: <c:out value="${seo.title}" /></c:if></title>
+	
+Using the wireframe tool on a particular page, we can see the JSTL expression needed and available within our header section, to render the SEO content.
+
+![Screenshot of UI](http://docs.brightspot.s3.amazonaws.com/seo_wireframe.png)

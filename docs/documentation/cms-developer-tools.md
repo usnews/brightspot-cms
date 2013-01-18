@@ -22,11 +22,9 @@ When using a smaller screen size, the preview tool slides to the right, hidden o
 
 The live page link now opens a new window with the previewed page, and the share tool allows a non published piece of content to be shared with another user. This content is not indexed or accessible without the share URL.
 
-**Settings**
+**Closing Preview**
 
-Found in Admin -> Settings, the Preview Popup can be enabled, replacing the inline preview view.
-
-![](http://docs.brightspot.s3.amazonaws.com/cms-settings-preview.png)
+If you would like to revert to a hidden preview and pop-up window format you can close out the preview window using the X. This settings is persisted on all content across your account.
 
 
 ### Wireframe Tool
@@ -37,7 +35,7 @@ Also available within the inline preview, the wireframe tool uses the page templ
 
 ![](http://docs.brightspot.s3.amazonaws.com/wireframe_tool_browser.png)
 
-Within each page section the content chosen, or not chosen can be accessed directly. The tool helps to highlight any gaps in development, as well as providing a detailed list of all the JSTL hooks available for each section. The drop down menus for each section highlight the properties available on that page section.
+Within each page section the content chosen, or if nothing has been chosen chosen can be accessed directly. The tool helps to highlight any gaps in development, as well as providing a detailed list of all the JSTL hooks available for each section. The drop down menus for each section highlight the properties available on that page section.
 
 ![](http://docs.brightspot.s3.amazonaws.com/wireframe_detail.png)
 

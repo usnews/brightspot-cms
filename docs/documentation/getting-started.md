@@ -18,23 +18,29 @@ Once logged into Brightspot you are brought to the Dashboard. Here you will find
 
 Let’s explain what they do:
 
-![Dashboard](http://docs.brightspot.s3.amazonaws.com/dashboard.png)
+<img src="http://docs.brightspot.s3.amazonaws.com/latest_dashboard.png"/>
+
+### Global widgets
 
 **Tool Hat**
 
-The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the Bookmarklet tool.
+The Tool Hat is the black toolbar at the top of the screen. It remains visible on all pages in Brightspot. From here you can access your own User Settings, Log-out, change which site you are viewing if using Multisite and implement the [Bookmarklet tool](/brightspot-cms/editorial.html#cms-tools).
 
 **Search**
 
-The search tool can be accessed from any screen in Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change.  As a default, all content types are shown in the results, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for.
+The search tool can be accessed from any screen in Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. There is a dedicated section [here](/brightspot-cms/editorial.html#finding-content), which walks through searching for content in Brightspot.
 
 **Create**
 
-Found in the Search tool, you have the ability to create new content from anywhere within Brightspot using the create drop-down. Choose from the list of existing objects.
+Found in the Search tool, you have the ability to create new content from anywhere within Brightspot using the create drop-down. Choose from the list of existing objects or start typing to narrow the results.
+
+### Dashboard
+
+Logging into Brightspot brings a user directly to their dashboard, which contains several widgets, providing quick access to content and publishing workflows.
 
 **Site Map**
 
-The Site Map is a hierarchical view of your website content, showing the structure for the entire site. It is used to either find specific content, or to get a better understanding of the various items within each section. 
+The Site Map is a hierarchical view of your website content, showing the structure for the entire site. It is used to either find specific content, or to get a better understanding of the various items within each section. You can also filter a directory to show a particular object type within it.
 
 **Recent Activity**
 
@@ -42,15 +48,36 @@ Using the Recent Activity, you can jump to a piece of content that has just been
 
 **Page Builder**
 
-Create a whole new page using Page Builder. Select from a list of existing templates to get started, each one associated with a specific piece of content. These templates are created under Admin > Templates & Sections.
+Create a whole new webpage using Page Builder. Select from a list of existing templates to get started, each one associated with a specific piece of content. These templates are created under Admin > Templates & Sections.
 
-**Schedules**
+**Bulk Upload**
 
-Content that is set to go live at a future date appears in the Schedules section. Scheduling is set from within the content edit screen, using a date widget.
+Also available within the Page Builder section is a bulk uploader. Clicking on `Upload Files` provides a popup window, where you can choose your file type, and upload in bulk. Alternatively, drag and drop your files in the page builder section.
+
+<img src="http://docs.brightspot.s3.amazonaws.com/bulk_choose_pagebuilder.png"/>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/bulk_drag_pagebuilder.png"/>
+
+
+**Schedules** 
+
+Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget. See the dedicated section on [scheduling](/brightspot-cms/editorial.html#scheduling) here. 
 
 **Drafts**
 
-All content that is not yet completed, but saved in a draft status, appears in the Drafts module.
+All content that is not yet completed, but saved in a draft status, appears in the Drafts module. The user who created the content can also be seen.
+
+**Page Thunbnails**
+
+Hovering over any content on the dashboard that is an individual page allows you to see a quick inline preview of the page. This allows editors to get a visual idea of what they want to create or edit. Hovering over the eye preview symbol toggles the view.<h2 id="publishing"> </h2>
+
+<img src="http://docs.brightspot.s3.amazonaws.com/page_thumbs.png"/>
+
+**Custom Layout**
+
+Each CMS user can customize their own dashboard view, moving the widgets around to suit their workflow. Hover over the top right corner of a widget to move. Click on an arrow direction to move the widgets around. 
+
+<img src="http://docs.brightspot.s3.amazonaws.com/custom_widgets.png"/>
 
 
 <h2 id="hello-world"> </h2>
@@ -136,7 +163,8 @@ You will be prompted to install the reloader application, which will allow you t
 
 If the reloader is not prompted, run `mvn clean install` to rebuild your project. This should only have to be done for your first time class creation - the reloader will handle subsequent changes.
 
-You'll notice that in the CMS your object automatically has UI associated with it, derived from the names you have given the fields. To see all the UI elements used see the User Interface Section.
+You'll notice that in the CMS your object automatically has UI associated with it, derived from the names you have given the fields. To see all the UI elements used see the
+<a href="/brightspot-cms/ui.html" >User Interface</a> Section.
 
 **Associating Objects**
 
@@ -146,7 +174,7 @@ Our Article currently allows the user to specify an Author name via a String of 
 
 Create a new class and name it `Author.java`
 
-As we did with the Article, extend Content. For our Author we simply require a first and last name.
+As we did with the Article, extend Content. For our Author we simply require a first and last name, two text fields.
 
 
 	public class Author extends Content {
@@ -163,28 +191,30 @@ Save your `Author.java`. Because we have added a new class, we can trigger the r
 
 **Create Authors**
 
-Before we go any further, it's time to create some authors within the CMS. We can delete these later, but for now, create three or four so we have objects to select from. Click into Search and `Create` - find the Author object and start publishing. You can use the `Create Another` link at the top, after you create one.
+Before we go any further, it's time to create some authors within the CMS. We can delete these later, but for now, create three or four so we have objects to select from, and query. Click into Search and `Create` - find the Author object and start publishing. You can use the `Create Another` link at the top, after you create one, to speed up the process.
 
 Now that we have some sample authors, use the search tool to filter, and show them all. You can see that while we are able to see our authors, we can only see their first names.
 
-**Define Label Fields**
+**Adding an Annotation - Define Label Fields**
 
-We can fix this by specifying what information we would like displayed as a label for the `Author` content type.
+We can fix this by specifying what information we would like displayed as a label for the `Author` content type. As a default, Brightspot uses the first text field in a piece of content as the label field for that object. This annotation allows you to customize that label.
 
 Go back into your `Author.java` and add the following annotation above the main class:
 
     @LabelFields({"firstName", "lastName"})
     public class Author extends Content {
 
-Save.
+Save. We have defined our label fields as being the first and last name.
 
-Annotations are not picked up by the reloader, therefore trigger within the CMS by adding `?_reload=true` to the end of the URL.
+Annotations are currently not picked up by the reloader, therefore trigger within the CMS by adding `?_reload=true` to the end of the URL.
 
-We are now able to see both the first and last names of our authors when we search for them in the CMS. We achieved this using the `LabelFields` annotation, specifying the fields within the object model we wanted to include as a label.
+We are now able to see both the first and last names of our authors when we search for them in the CMS.
+
+There are many annotations that can be used both at a class and field level within Brightspot. You can check them all out here, in the <a href="/brightspot-cms/annotations.html">annotation section</a>.
 
 **Update Article.java**
 
-Our initial `Article.java` class defined the Author as a String of text, so let's go back and update it, to allow the CMS user to select one of the authors we have just created, using our `Author.java` content type.
+Our initial `Article.java` class defined the Author as a String of text, so let's go back and update it, to allow the CMS user to select one of the authors we have just created, using our `Author.java` content type. All that is required for this step is a change of the `returnType` from `String` to `Author`.
 
 
 	public class Article extends Content {
@@ -215,7 +245,7 @@ Finish this step by publishing an Article, and choosing an author. We will now m
 
 **Building a Basic Test Page**
 
-Once you have created a content type, the next step is to display it and access it via a URL.
+Once you have created a content type, the next step is to display it on a page and access it via a URL.
 
 Start by creating a new template. In the Page Builder section of the Dashboard click on `One-off Page`.  
 
@@ -237,9 +267,10 @@ Publish.
 
 In Step 1 and 2 we have created the most basic of template structures, to house our new Article content. The final step is to build the JSP file that renders the content on our webpage.
 
-Create a directory in which you will place your new JSP file. We have already stated the path in the template `/model/articleBody.jsp`. It should sit within the `WEB-INF` directory of your project.
+Create a directory in which you will place your new JSP file. We have already stated the path in the template `/model/articleBody.jsp`. It should sit within the `WEB-INF` directory of your project, or at the root.
 
 Example: src/main/webapp/WEB-INF/model/articleBody.jsp
+Example: src/main/webapp/model/articleBody.jsp
 
 When we created our template we defined the article as the 'Content'. In doing so, we are now able, within our JSP, to refer to this content directly.
 
@@ -254,9 +285,16 @@ When we created our template we defined the article as the 'Content'. In doing s
     
 You can see how we have access to the fields within the Author object, as it is associated with the Article object.
 
+**Using the Wireframe Tool**
+
+When creating a JSP to render content Brightspot provides a wireframe tool, that shows all the content and data that is available to it on a specific page. Within the template, open the preview window on the right, and select `Wireframe` in the mode drop down. You are given a wireframe view of your page, with options on each section. In our example we have one Article section. Click on `Available JSTL Expressions` and `Content` to see everything available. The other options, such as Template, Profile, SEO are always offered.
+
+![](http://docs.brightspot.s3.amazonaws.com/wireframe_article_started.png)
+
+
 Save.
 
-To render the article body text in the JSP we have used the `<cms:render value="${}"/>` tag.
+To render the article body text in the JSP we have used the `<cms:render value="${}"/>` tag. This tag processes the rich text as well as any dynamic content that has been added
 
 
 **Finish and View**
