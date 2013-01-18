@@ -250,6 +250,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 if (file.getSize() > 0) {
                     String idString = UUID.randomUUID().toString().replace("-", "");
                     StringBuilder pathBuilder = new StringBuilder();
+                    String label = state.getLabel();
+
+                    if (ObjectUtils.isBlank(label)) {
+                        label = file.getName();
+                    }
+
+                    label = StringUtils.toNormalized(label);
+
+                    if (ObjectUtils.isBlank(label)) {
+                        label = UUID.randomUUID().toString().replace("-", "");
+                    }
 
                     pathBuilder.append(idString.substring(0, 2));
                     pathBuilder.append('/');
@@ -257,7 +268,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     pathBuilder.append('/');
                     pathBuilder.append(idString.substring(4));
                     pathBuilder.append('/');
-                    pathBuilder.append(StringUtils.toNormalized(state.getLabel()));
+                    pathBuilder.append(label);
 
                     newItem = StorageItem.Static.create();
                     newItem.setPath(pathBuilder.toString());
