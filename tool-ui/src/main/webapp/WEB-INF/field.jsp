@@ -21,6 +21,13 @@ ToolUi ui = field.as(ToolUi.class);
 ObjectType type = field.getParentType();
 
 boolean isHidden = ui.isHidden();
+
+if (!isHidden &&
+        field.isDeprecated() &&
+        ObjectUtils.isBlank(state.get(field.getInternalName()))) {
+    isHidden = true;
+}
+
 if (!isHidden && type != null) {
     isHidden = !wp.hasPermission("type/" + field.getParentType().getId() + "/read")
             || !wp.hasPermission("type/" + field.getParentType().getId() + "/field/" + fieldName + "/read");
