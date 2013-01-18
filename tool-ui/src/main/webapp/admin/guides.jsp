@@ -1,6 +1,7 @@
 <%@ page
 	import="
 	com.psddev.cms.db.Guide,
+	com.psddev.cms.db.GuidePage,
 	com.psddev.cms.db.GuideType,
 	com.psddev.cms.db.Page,
 	com.psddev.cms.db.Section,
@@ -20,7 +21,7 @@ if (wp.requirePermission("area/admin/adminGuides")) {
     return;
 }
 
-Object selected = wp.findOrReserve(Guide.class, Page.class, Template.class, GuideType.class);
+Object selected = wp.findOrReserve(Guide.class, Page.class, Template.class, GuideType.class, GuidePage.class);
 Class<?> selectedClass = selected.getClass();
 State selectedState = State.getInstance(selected);
 
@@ -30,6 +31,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
 
 List<Guide> guides = Query.from(Guide.class).sortAscending("title").select();
 List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType").select();
+List<GuidePage> pageGuides = Query.from(GuidePage.class).sortAscending("pageType").select();
 List<Page> templates = Query.from(Page.class).sortAscending("name").select();
 List<Page> referencedTemplates = new ArrayList<Page>();
 List<Section> referencedSections = new ArrayList<Section>();
@@ -65,6 +67,19 @@ List<Section> referencedSections = new ArrayList<Section>();
                 	       }
                        }
                    } %>
+			</ul>
+			
+			<h2>Template/Page Guides</h2>
+			<ul class="links">
+				<li
+					class="new<%= selectedClass == GuidePage.class && selectedState.isNew() ? " selected" : "" %>">
+					<a href="<%= wp.typeUrl(null, GuidePage.class) %>">New Guide</a>
+				</li>
+				<% for (GuidePage guide : pageGuides) { %>
+				<li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
+					<a href="<%= wp.objectUrl(null, guide) %>"><%= wp.objectLabel(guide) %></a>
+				</li> 
+				<% } %>
 			</ul>
 
 			<h2>Content Type Guides</h2>

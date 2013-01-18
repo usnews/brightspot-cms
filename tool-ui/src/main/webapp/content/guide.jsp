@@ -1,9 +1,33 @@
 <%@ page
-	import="com.psddev.cms.tool.ToolPageContext,com.psddev.dari.db.ReferentialText,com.psddev.cms.db.Site,com.psddev.dari.db.Query,com.psddev.cms.db.Variation,java.util.Iterator,java.util.UUID,java.util.HashMap,java.util.List,java.util.Map,java.util.ArrayList,com.psddev.cms.db.Content,com.psddev.cms.db.ContainerSection,com.psddev.cms.db.PageFilter,com.psddev.cms.db.Page,com.psddev.cms.db.Section,com.psddev.cms.db.Guide,com.psddev.cms.db.Guide.*,com.psddev.cms.db.Template,com.psddev.dari.db.State,com.psddev.cms.tool.ToolPageContext"%>
+	import="com.psddev.cms.tool.ToolPageContext,
+	com.psddev.dari.db.ReferentialText,
+	com.psddev.cms.db.Site,com.
+	psddev.dari.db.Query,
+	com.psddev.cms.db.Variation,
+	java.util.Iterator,
+	java.util.UUID,
+	java.util.HashMap,
+	java.util.List,
+	java.util.Map,
+	java.util.ArrayList,
+	com.psddev.cms.db.Content,
+	com.psddev.cms.db.ContainerSection,
+	com.psddev.cms.db.PageFilter,
+	com.psddev.cms.db.Page,
+	com.psddev.cms.db.Section,
+	com.psddev.cms.db.Guide,
+	com.psddev.cms.db.GuidePage,
+	com.psddev.cms.db.GuideSection,
+	com.psddev.cms.db.Template,
+	com.psddev.dari.db.State,
+	com.psddev.cms.tool.ToolPageContext"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="productionGuide" class="com.psddev.cms.db.Guide"
 	scope="request" />
-
+<jsp:useBean id="pageProductionGuide" class="com.psddev.cms.db.GuidePage"
+	scope="request" />
+<jsp:useBean id="sectionProductionGuide" class="com.psddev.cms.db.GuideSection"
+	scope="request" />
 <%
 	// --- Logic ---
 
@@ -310,7 +334,8 @@
 					if (selected != null && selected instanceof Content) {
 						wp.write("<input type=\"hidden\" name=\"id\" value=\"",
 								((Content) selected).getId(), "\"/>");
-					} else {
+					} 
+					if (pg != null) {
 						wp.write(
 								"<input type=\"hidden\" name=\"templateId\" value=\"",
 								pg.getId(), "\"/>");
@@ -328,8 +353,9 @@
 			<%
 				} else {
 						if (section != null) {
+							GuideSection sectionGuide = Guide.Static.getSectionGuide(pg, section);
 							request.setAttribute("sectionProductionGuide",
-									Guide.Static.getSectionProductionGuide(section));
+									sectionGuide);
 			%><div class="guideDescription">
 				<cms:render value="${sectionProductionGuide.description}" />
 
@@ -347,7 +373,7 @@
 									}
 									wp.write("</div>");
 								}
-								if (Guide.Static.getSectionTips(section) != null) {
+								if (sectionGuide != null && sectionGuide.getTips() != null && !sectionGuide.getTips().isEmpty()) {
 				%><div class="guideTips">
 					<cms:render value="${sectionProductionGuide.tips}" />
 				</div>

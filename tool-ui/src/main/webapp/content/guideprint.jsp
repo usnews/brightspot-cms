@@ -1,11 +1,32 @@
 <%@ page
-	import="com.psddev.cms.tool.ToolPageContext,com.psddev.dari.db.ReferentialText,com.psddev.cms.db.Site,com.psddev.dari.db.Query,com.psddev.cms.db.Variation,java.util.Iterator,java.util.UUID,java.util.HashMap,java.util.List,java.util.Map,java.util.ArrayList,com.psddev.cms.db.Content,com.psddev.cms.db.ContainerSection,com.psddev.cms.db.PageFilter,com.psddev.cms.db.Page,com.psddev.cms.db.Section,com.psddev.cms.db.Guide,com.psddev.cms.db.Guide.*,com.psddev.cms.db.Template,com.psddev.dari.db.State,com.psddev.cms.tool.ToolPageContext"%>
+	import="com.psddev.cms.tool.ToolPageContext,
+	com.psddev.dari.db.ReferentialText,
+	com.psddev.cms.db.Site,
+	com.psddev.dari.db.Query,
+	com.psddev.cms.db.Variation,
+	java.util.Iterator,
+	java.util.UUID,
+	java.util.HashMap,
+	java.util.List,
+	java.util.Map,
+	java.util.ArrayList,
+	com.psddev.cms.db.Content,
+	com.psddev.cms.db.ContainerSection,
+	com.psddev.cms.db.PageFilter,
+	com.psddev.cms.db.Page,
+	com.psddev.cms.db.Section,
+	com.psddev.cms.db.Guide, 
+	com.psddev.cms.db.GuidePage,
+	com.psddev.cms.db.GuideSection,
+	com.psddev.cms.db.Template,
+	com.psddev.dari.db.State,
+	com.psddev.cms.tool.ToolPageContext"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="pageProductionGuide"
-	class="com.psddev.cms.db.Guide$PageProductionGuideModification"
+	class="com.psddev.cms.db.GuidePage"
 	scope="request" />
 <jsp:useBean id="sectionProductionGuide"
-	class="com.psddev.cms.db.Guide$SectionProductionGuideModification"
+	class="com.psddev.cms.db.GuideSection"
 	scope="request" />
 
 
@@ -155,10 +176,11 @@
 			</div>
 			<%
 				if (samplePage != null) {
-			%><div class="guidePreview">
-				<iframe class="guidePreviewFrame"
-					src="<%=samplePage.getPermalink()%>"></iframe>
-			</div>
+ 			%>
+<!--  			 <div class="guidePreview">  -->
+<!-- 				<iframe class="guidePreviewFrame" -->
+<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
+<!-- 			</div> -->
 			<%
 				}
 					wp.write("</div>"); //end guideForm-main
@@ -188,8 +210,9 @@
 								sectionState.getValues().putAll(variationData);
 							}
 						}
+						GuideSection sectionGuide = Guide.Static.getSectionGuide(pg, section);
 						request.setAttribute("sectionProductionGuide",
-								Guide.Static.getSectionProductionGuide(section));
+								sectionGuide);
 						wp.write("Section: ");
 						wp.write(section.getName());
 						wp.write("</div>"); // end guideTop
@@ -208,7 +231,7 @@
 							}
 							wp.write("</div>");
 						}
-						if (Guide.Static.getSectionTips(section) != null) {
+						if (sectionGuide != null && sectionGuide.getTips() != null) {
 			%><div class="guideTips">
 				<cms:render value="${sectionProductionGuide.tips}" />
 			</div>
@@ -217,10 +240,11 @@
 				}
 						// how best to format for printing?
 						if (samplePage != null) {
-			%><div class="guidePreview">
-				<iframe class="guidePreviewFrame"
-					src="<%=samplePage.getPermalink()%>"></iframe>
-			</div>
+			%>
+<!-- 			<div class="guidePreview"> -->
+<!-- 				<iframe class="guidePreviewFrame" -->
+<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
+<!-- 			</div> -->
 			<%
 				}
 						wp.write("</div>"); // end guideForm-main

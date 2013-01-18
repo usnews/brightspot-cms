@@ -1,32 +1,14 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
+import com.psddev.cms.db.GuideSection;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.ValidationException;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PeriodicCache;
-import com.psddev.dari.util.PullThroughCache;
-import com.psddev.dari.util.PullThroughValue;
-import com.psddev.dari.util.StringUtils;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Guide extends Record {
 
-	public static final String FIELD_PREFIX = "cms.guide.";
-	public static final String NAME_FIELD = FIELD_PREFIX + "name";
-	public static final String DESC_FIELD = FIELD_PREFIX + "description";
-	public static final String SAMPLE_FIELD = FIELD_PREFIX + "samplePage";
-	public static final String TIPS_FIELD = FIELD_PREFIX + "tips";
-	public static final String SHOW_FIELD = FIELD_PREFIX + "showGuides";
-	// public static final String FIELD_DESCRIPTIONS = FIELD_PREFIX +
-	// "fieldDescriptions";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);
 
@@ -89,112 +63,6 @@ public class Guide extends Record {
 		this.templatesToIncludeInGuide = templatesToIncludeInGuide;
 	}
 
-	/** Modification that adds guide information for a page. */
-	@Modification.Classes({ Page.class })
-	public static final class PageProductionGuideModification extends
-			Modification<Object> {
-
-		@InternalName(NAME_FIELD)
-		@ToolUi.Note("Production Guide title for this page/template type")
-		private String name;
-
-		@ToolUi.Note("Production Guide text for this page/template")
-		@InternalName(DESC_FIELD)
-		private ReferentialText description;
-
-		@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
-		@InternalName(SAMPLE_FIELD)
-		private Content samplePage;
-
-		public PageProductionGuideModification() {
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		/** Returns the Production Guide description for this object. */
-		public ReferentialText getDescription() {
-			return description;
-		}
-
-		/** Sets the Production Guide description for this object. */
-		public void setDescription(ReferentialText description) {
-			this.description = description;
-		}
-
-		public Content getSamplePage() {
-			return samplePage;
-		}
-
-		public void setSamplePage(Content samplePage) {
-			this.samplePage = samplePage;
-		}
-
-	}
-
-	/** Modification that adds guide information for a page. */
-	@Modification.Classes({ Section.class })
-	public static class SectionProductionGuideModification extends
-			Modification<Object> {
-
-		@ToolUi.Note("Production Guide description for this section")
-		@InternalName(DESC_FIELD)
-		private ReferentialText description;
-
-		@ToolUi.Note("Production Guide Tips for this section")
-		@InternalName(TIPS_FIELD)
-		private ReferentialText tips;
-
-		public SectionProductionGuideModification() {
-		}
-
-		/** Returns the Production Guide description for this object. */
-		public ReferentialText getDescription() {
-			return description;
-		}
-
-		/** Sets the Production Guide description for this object. */
-		public void setDescription(ReferentialText description) {
-			this.description = description;
-		}
-
-		public ReferentialText getTips() {
-			return tips;
-		}
-
-		public void setTips(ReferentialText tips) {
-			this.tips = tips;
-		}
-
-	}
-
-
-	/** Modification that records a user's production guide settings. */
-	@Modification.Classes({ ToolUser.class })
-	@ToolUi.Hidden
-	public static final class ProductionGuideSettingsModification extends
-			Modification<Object> {
-
-		@ToolUi.Note("If true, default to display of Production Guide when editing content")
-		@InternalName(SHOW_FIELD)
-		// For now, we are not using this, so hide it from the CMS UI
-		@ToolUi.Hidden
-		private boolean showGuides = true;
-
-		public boolean isShowGuides() {
-			return showGuides;
-		}
-
-		public void setShowGuides(boolean showGuides) {
-			this.showGuides = showGuides;
-		}
-
-	}
 
 	/** Static utility methods. */
 	public static final class Static {
@@ -205,11 +73,10 @@ public class Guide extends Record {
 		/*
 		 * Get the main Production Guide
 		 */
-		public static Guide.PageProductionGuideModification getPageProductionGuide(
+		public static GuidePage getPageProductionGuide(
 				Page content) {
 			if (content != null) {
-				Guide.PageProductionGuideModification guide = content
-						.as(Guide.PageProductionGuideModification.class);
+				GuidePage guide = Query.from(GuidePage.class).where("pageType = ?", content.getId()).first();
 				if (guide != null) {
 					return guide;
 				}
@@ -223,8 +90,7 @@ public class Guide extends Record {
 		 */
 		public static ReferentialText getSummaryDescription(Page content) {
 			if (content != null) {
-				Guide.PageProductionGuideModification guide = content
-						.as(Guide.PageProductionGuideModification.class);
+				GuidePage guide = Static.getPageProductionGuide(content);
 				if (guide != null) {
 					return guide.getDescription();
 				}
@@ -238,8 +104,7 @@ public class Guide extends Record {
 		 */
 		public static Content getSamplePage(Page content) {
 			if (content != null) {
-				Guide.PageProductionGuideModification guide = content
-						.as(Guide.PageProductionGuideModification.class);
+				GuidePage guide = Static.getPageProductionGuide(content);
 				if (guide != null) {
 					return guide.getSamplePage();
 				}
@@ -265,80 +130,44 @@ public class Guide extends Record {
 		}
 
 		/*
-		 * Get the Production Guide for a template section
+		 * Get the Production Guide description for a template section
 		 */
-		public static Guide.SectionProductionGuideModification getSectionProductionGuide(
-				Section section) {
-			if (section != null) {
-				Guide.SectionProductionGuideModification guide = section
-						.as(Guide.SectionProductionGuideModification.class);
-				if (guide != null) {
-					return guide;
+		public static GuideSection getSectionGuide(Page page, Section section) {
+			if (section != null && page != null) {
+				GuidePage pageGuide = getPageProductionGuide(page);
+				if (pageGuide != null) {
+					return pageGuide.findOrCreateSectionGuide(section);
 				}
 			}
 			return null;
-
 		}
-
+		
 		/*
 		 * Get the Production Guide description for a template section
 		 */
-		public static ReferentialText getSectionDescription(Section section) {
-			if (section != null) {
-				Guide.SectionProductionGuideModification guide = section
-						.as(Guide.SectionProductionGuideModification.class);
-				if (guide != null) {
-					return guide.getDescription();
+		public static ReferentialText getSectionDescription(Page page, Section section) {
+			if (section != null && page != null) {
+				GuidePage pageGuide = getPageProductionGuide(page);
+				if (pageGuide != null) {
+					return pageGuide.getSectionDescription(section);
 				}
 			}
 			return null;
-
 		}
 
 		/*
 		 * Get the Production Guide tips for a template section
 		 */
-		public static ReferentialText getSectionTips(Section section) {
-			if (section != null) {
-				Guide.SectionProductionGuideModification guide = section
-						.as(Guide.SectionProductionGuideModification.class);
-				if (guide != null) {
-					return guide.getTips();
+		public static ReferentialText getSectionTips(Page page, Section section) {
+			if (section != null && page != null) {
+				GuidePage pageGuide = getPageProductionGuide(page);
+				if (pageGuide != null) {
+					return pageGuide.getSectionTips(section);
 				}
 			}
 			return null;
-
 		}
 
-
-		/*
-		 * Get the flag per user which dictates whether to automatically show
-		 * production guides
-		 */
-		public static boolean showByDefault(ToolUser user) {
-
-			ProductionGuideSettingsModification userMod = user
-					.as(ProductionGuideSettingsModification.class);
-			if (userMod != null) {
-				return userMod.isShowGuides();
-			} else {
-				return false;
-			}
-
-		}
-
-		/*
-		 * Set the flag per user which dictates whether to automatically show
-		 * production guides
-		 */
-		public static void setShowByDefault(ToolUser user, boolean toShow) {
-
-			ProductionGuideSettingsModification userMod = user
-					.as(ProductionGuideSettingsModification.class);
-			if (userMod != null) {
-				userMod.setShowGuides(toShow);
-			}
-		}
 
 		/*
 		 * Return the related templates (other than the one provided) that have
@@ -405,5 +234,7 @@ public class Guide extends Record {
 		}
 
 	}
+	
+
 
 }
