@@ -5,6 +5,8 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PeriodicValue;
+import com.psddev.dari.util.PullThroughValue;
 import com.psddev.dari.util.StringUtils;
 
 import java.lang.reflect.Array;
@@ -194,6 +196,30 @@ public class Template extends Page {
     /** Static utility methods. */
     public static final class Static {
 
+        private static final PullThroughValue<PeriodicValue<List<Template>>>
+                INSTANCES = new PullThroughValue<PeriodicValue<List<Template>>>() {
+
+            @Override
+            protected PeriodicValue<List<Template>> produce() {
+                return new PeriodicValue<List<Template>>() {
+                    @Override
+                    protected List<Template> update() {
+
+                        Query<Template> query = Query.from(Template.class).sortAscending("name");
+                        Date cacheUpdate = getUpdateDate();
+                        Date databaseUpdate = query.lastUpdate();
+                        if (databaseUpdate == null || (cacheUpdate != null && !databaseUpdate.after(cacheUpdate))) {
+                            List<Template> templates = get();
+                            return templates != null ? templates : Collections.<Template>emptyList();
+                        }
+
+                        LOGGER.info("Loading templates");
+                        return query.selectAll();
+                    }
+                };
+            }
+        };
+
         private Static() {
         }
 
@@ -202,7 +228,7 @@ public class Template extends Page {
          */
         public static List<Template> findAll(Site site) {
             List<Template> templates = new ArrayList<Template>();
-            for (Template template : Query.from(Template.class).selectAll()) {
+            for (Template template : INSTANCES.get().get()) {
                 if (Site.Static.isObjectAccessible(site, template)) {
                     templates.add(template);
                 }
@@ -228,7 +254,7 @@ public class Template extends Page {
             ObjectType objectType = objectState.getType();
             List<Template> usable = new ArrayList<Template>();
 
-            for (Template t : findAll(site)) {
+            for (Template t : INSTANCES.get().get()) {
                 if (Site.Static.isObjectAccessible(site, t)
                         && t.getContentTypes().contains(objectType)) {
                     usable.add(t);
@@ -248,7 +274,7 @@ public class Template extends Page {
                 State objectState = State.getInstance(object);
                 Site objectOwner = objectState.as(Site.ObjectModification.class).getOwner();
                 ObjectType objectType = objectState.getType();
-                for (Template template : findAll(null)) {
+                for (Template template : INSTANCES.get().get()) {
                     if (Site.Static.isObjectAccessible(objectOwner, template)
                             && template.getContentTypes().contains(objectType)) {
                         templates.add(template);
