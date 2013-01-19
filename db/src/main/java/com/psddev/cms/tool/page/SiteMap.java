@@ -34,6 +34,10 @@ public class SiteMap extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        if (Query.from(Directory.class).count() > 300) {
+            return;
+        }
+
         String path = page.pageParam(String.class, "path", "/");
         ObjectType type = Query.findById(ObjectType.class, page.pageParam(UUID.class, "typeId", null));
         long offset = page.param(long.class, "offset");
