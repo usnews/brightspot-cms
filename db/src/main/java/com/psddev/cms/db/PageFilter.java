@@ -475,30 +475,6 @@ public class PageFilter extends AbstractFilter {
         debugObject(request, writer, "Ending page", page);
     }
 
-    /** Renders the beginning of the given {@code container}. */
-    protected static void beginContainer(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Writer writer,
-            ContainerSection container)
-            throws IOException, ServletException {
-
-        debugObject(request, writer, "Beginning container", container);
-        renderScript(request, response, writer, container.getBeginEngine(), container.getBeginScript());
-    }
-
-    /** Renders the end of the given {@code container}. */
-    protected static void endContainer(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Writer writer,
-            ContainerSection container)
-            throws IOException, ServletException {
-
-        renderScript(request, response, writer, container.getEndEngine(), container.getEndScript());
-        debugObject(request, writer, "Ending container", container);
-    }
-
     /** Renders the given {@code section}. */
     public static void renderSection(
             HttpServletRequest request,
@@ -564,6 +540,7 @@ public class PageFilter extends AbstractFilter {
             throws IOException, ServletException {
 
         boolean wireframe = isWireframe(request);
+        boolean containerRendered = false;
 
         if (wireframe) {
             writeWireframeSectionBegin(writer, section);
@@ -572,27 +549,33 @@ public class PageFilter extends AbstractFilter {
         // Container section - begin, child sections, then end.
         if (section instanceof ContainerSection) {
             ContainerSection container = (ContainerSection) section;
-            List<Section> children = container.getChildren();
 
-            try {
-                addParentSection(request, container);
-                beginContainer(request, response, writer, container);
+            if (ObjectUtils.isBlank(container.getRendererPath())) {
+                containerRendered = true;
+                List<Section> children = container.getChildren();
 
-                for (Section child : children) {
-                    renderSection(request, response, writer, child);
-                    if (isAborted(request)) {
-                        return;
+                try {
+                    addParentSection(request, container);
+                    beginContainer(request, response, writer, container);
+
+                    for (Section child : children) {
+                        renderSection(request, response, writer, child);
+                        if (isAborted(request)) {
+                            return;
+                        }
                     }
+
+                    endContainer(request, response, writer, container);
+
+                } finally {
+                    removeLastParentSection(request);
                 }
-
-                endContainer(request, response, writer, container);
-
-            } finally {
-                removeLastParentSection(request);
             }
+        }
 
         // Script section may be associated with an object.
-        } else if (section instanceof ScriptSection) {
+        if (!containerRendered &&
+                section instanceof ScriptSection) {
             Object object;
             if (section instanceof MainSection) {
                 object = getMainObject(request);
@@ -881,10 +864,16 @@ public class PageFilter extends AbstractFilter {
             Object object)
             throws IOException, ServletException {
 
-        renderObjectWithSection(request, response, writer, object, null);
+        if (object instanceof Section) {
+            renderSection(request, response, writer, (Section) object);
+
+        } else {
+            renderObjectWithSection(request, response, writer, object, null);
+        }
     }
 
     /** Renders the given {@code object} using the given {@code section}. */
+    @SuppressWarnings("all")
     private static void renderObjectWithSection(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -897,7 +886,7 @@ public class PageFilter extends AbstractFilter {
         String script;
         if (section != null) {
             engine = section.getEngine();
-            script = section.getScript();
+            script = section.getRendererPath();
         } else {
             engine = null;
             script = null;
@@ -913,7 +902,7 @@ public class PageFilter extends AbstractFilter {
 
             // Engine not specified on section so fall back to the one
             // specified in the object type definition.
-            if (ObjectUtils.isBlank(engine)) {
+            if (ObjectUtils.isBlank(script)) {
                 ObjectType type = State.getInstance(object).getType();
                 if (type != null) {
                     Renderer.TypeModification typeRenderer = type.as(Renderer.TypeModification.class);
@@ -977,21 +966,13 @@ public class PageFilter extends AbstractFilter {
             boolean wireframe = isWireframe(request);
 
             if (!wireframe) {
-                if (!ObjectUtils.isBlank(engine)) {
-                    if ("JSP".equals(engine)) {
-                        if (!ObjectUtils.isBlank(script)) {
-                            JspUtils.include(request, response, writer, StringUtils.ensureStart(script, "/"));
-                            return;
-                        }
+                if ("RawText".equals(engine)) {
+                    writer.write(script);
+                    return;
 
-                    } else if ("RawText".equals(engine)) {
-                        writer.write(script);
-                        return;
-
-                    } else {
-                        throw new IllegalArgumentException(String.format(
-                                "[%s] is not a valid rendering engine!", engine));
-                    }
+                } else if (!ObjectUtils.isBlank(script)) {
+                    JspUtils.include(request, response, writer, StringUtils.ensureStart(script, "/"));
+                    return;
                 }
 
                 Object object = getCurrentObject(request);
@@ -1008,6 +989,10 @@ public class PageFilter extends AbstractFilter {
             Section section = getCurrentSection(request);
 
             if (!(section instanceof ScriptSection)) {
+                return;
+            }
+
+            if (section instanceof ContainerSection) {
                 return;
             }
 
@@ -1624,5 +1609,31 @@ public class PageFilter extends AbstractFilter {
     @Deprecated
     public static String getResource(String servletPath) {
         return Static.getResource(servletPath);
+    }
+
+    /** Renders the beginning of the given {@code container}. */
+    @Deprecated
+    protected static void beginContainer(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Writer writer,
+            ContainerSection container)
+            throws IOException, ServletException {
+
+        debugObject(request, writer, "Beginning container", container);
+        renderScript(request, response, writer, container.getBeginEngine(), container.getBeginScript());
+    }
+
+    /** Renders the end of the given {@code container}. */
+    @Deprecated
+    protected static void endContainer(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Writer writer,
+            ContainerSection container)
+            throws IOException, ServletException {
+
+        renderScript(request, response, writer, container.getEndEngine(), container.getEndScript());
+        debugObject(request, writer, "Ending container", container);
     }
 }

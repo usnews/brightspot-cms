@@ -56,6 +56,7 @@ import javax.servlet.jsp.PageContext;
  */
 public class ToolPageContext extends WebPageContext {
 
+    public static final String TYPE_PARAMETER = "type";
     public static final String TYPE_ID_PARAMETER = "typeId";
     public static final String OBJECT_ID_PARAMETER = "id";
     public static final String DRAFT_ID_PARAMETER = "draftId";
@@ -481,6 +482,10 @@ public class ToolPageContext extends WebPageContext {
             ObjectType selectedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
 
             if (selectedType == null) {
+                selectedType = Database.Static.getDefault().getEnvironment().getTypeByName(param(String.class, TYPE_PARAMETER));
+            }
+
+            if (selectedType == null) {
                 for (ObjectType type : validTypes) {
                     selectedType = type;
                     break;
@@ -602,6 +607,14 @@ public class ToolPageContext extends WebPageContext {
     /** Finds an existing object or reserve one. */
     public Object findOrReserve() {
         UUID selectedTypeId = param(UUID.class, TYPE_ID_PARAMETER);
+
+        if (selectedTypeId == null) {
+            ObjectType selectedType = Database.Static.getDefault().getEnvironment().getTypeByName(param(String.class, TYPE_PARAMETER));
+
+            if (selectedType != null) {
+                selectedTypeId = selectedType.getId();
+            }
+        }
 
         return findOrReserve(selectedTypeId != null ?
                 new UUID[] { selectedTypeId } :

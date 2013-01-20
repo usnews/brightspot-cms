@@ -1,15 +1,15 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Record;
-
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Section extends Content {
+public abstract class Section extends Content {
 
     private String name;
-    private @Indexed boolean isShareable;
-    private boolean isCacheable;
+
+    @Indexed
+    @InternalName("isShareable")
+    private boolean shareable;
+
     private long cacheDuration;
 
     /** Returns the name. */
@@ -27,12 +27,12 @@ public class Section extends Content {
      * pages.
      */
     public boolean isShareable() {
-        return isShareable;
+        return shareable;
     }
 
     /** Sets whether this section is shareable across multiple pages. */
-    public void setShareable(boolean isShareable) {
-        this.isShareable = isShareable;
+    public void setShareable(boolean shareable) {
+        this.shareable = shareable;
     }
 
     public long getCacheDuration() {
@@ -44,12 +44,15 @@ public class Section extends Content {
     }
 
     public Map<String, Object> toDefinition() {
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put("_id", getId().toString());
-        map.put("_type", getClass().getName());
-        map.put("name", getName());
-        map.put("isShareable", isShareable());
-        map.put("cacheDuration", getCacheDuration());
-        return map;
+        Map<String, Object> definition = getState().getSimpleValues();
+        definition.put("_type", getClass().getName());
+        return definition;
     }
+
+    // --- Deprecated ---
+
+    /** No replacement. */
+    @Deprecated
+    @ToolUi.Hidden
+    private boolean isCacheable;
 }

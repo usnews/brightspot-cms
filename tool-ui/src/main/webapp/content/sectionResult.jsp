@@ -1,0 +1,36 @@
+<%@ page import="
+
+com.psddev.cms.tool.Search,
+com.psddev.cms.tool.SearchResultRenderer,
+com.psddev.cms.tool.ToolPageContext,
+
+com.psddev.dari.db.State,
+
+java.io.IOException
+" %><%
+
+ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.requireUser()) {
+    return;
+}
+
+Search search = new Search(wp);
+SearchResultRenderer renderer = new SearchResultRenderer(wp, search) {
+
+    @Override
+    public void renderBeforeItem(Object item) throws IOException {
+        writer.start("a",
+                "data-objectId", State.getInstance(item).getId(),
+                "href", page.objectUrl("/content/section.jsp", item, "action-select", true),
+                "target", "_parent");
+    }
+
+    @Override
+    public void renderAfterItem(Object item) throws IOException {
+        writer.end();
+    }
+};
+
+renderer.render();
+%>

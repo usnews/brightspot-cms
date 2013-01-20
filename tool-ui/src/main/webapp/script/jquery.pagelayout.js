@@ -6,85 +6,90 @@ var doc = win.document,
 
 $.plugin2('pageLayout', {
     '_create': function(textarea) {
-        var $textarea = $(textarea);
-        var pageId = $textarea.attr('data-pageid');
-        var layout;
-        var openSettings;
-        var isSettingsOpen = false;
-        var updateSection;
+        var $textarea = $(textarea),
+                pageId = $textarea.attr('data-pageid'),
+                layout,
+                $visual,
+                createVisualSection,
+                $tabs,
+                $visualButton,
+                $textareaButton;
 
-        var $visual = $('<div/>', { 'class': 'pageLayout-visual' });
-        $visual.bind('updateJson', function() {
+        $visual = $('<div/>', { 'class': 'pageLayout-visual' });
+
+        $visual.bind('populateTextarea', function() {
             $textarea.val(JSON.stringify(layout, null, 2));
         });
 
-        var updateVisual = function() {
+        $visual.bind('updateVisual', function() {
             $visual.empty();
-            updateSection($visual, layout.outermostSection);
-            $visual.find('.section > .hat').hide();
-            $visual.trigger('updateJson');
-        };
+            createVisualSection($visual, layout.outermostSection);
+            $visual.trigger('populateTextarea');
+        });
 
-        $visual.mousemove($.throttle(100, function(event) {
-            if (!isSettingsOpen) {
-                var $all = $visual.find('.section > .hat');
-                var $over;
-                var element = doc.elementFromPoint(event.pageX - $win.scrollLeft(), event.pageY - $win.scrollTop());
-                if (element) {
-                    $over = $(element).closest('.section').find('> .hat');
-                    $all = $all.not($over);
-                }
-                $all.hide();
-                if ($over) {
-                    $over.show();
-                }
-            }
-        }));
+        // Creates the visual editor according to the definition.
+        createVisualSection = function($container, definition, parentDefinition) {
+            var $section,
+                    $controls,
+                    $heading,
+                    $content,
+                    children,
+                    childrenLength,
+                    $moveButtons,
+                    $removeButton,
+                    isContainer,
+                    $name;
 
-        // Updates the visual editor according to the given definitions.
-        updateSection = function($container, definition, parentDefinition) {
+            $section = $('<div/>', { 'class': 'section' });
+            $controls = $('<div/>', { 'class': 'controls' });
+            $heading = $('<div/>', { 'class': 'heading' });
+            $content = $('<div/>', { 'class': 'content' });
 
-            var $section = $('<div/>', { 'class': 'section', 'data-flex': 1 });
             definition.page = definition.page || pageId;
-            $section.data('definition', definition);
+            $.data($section[0], 'definition', definition);
 
-            var $hat = $('<div/>', { 'class': 'hat' });
-            var $heading = $('<div/>', { 'class': 'heading' });
-            var $content = $('<div/>', { 'class': 'content', 'data-flex': 1 });
-
+            // Create the movement controls if within another section.
             if (parentDefinition) {
-                var children = parentDefinition.children;
-                if (children) {
-                    var childrenLength = children.length;
-                    if (childrenLength > 1) {
+                children = parentDefinition.children;
 
-                        var moveButtons = { };
+                if (children) {
+                    childrenLength = children.length;
+
+                    if (childrenLength > 1) {
+                        $moveButtons = { };
+
                         $.each([ 'Up', 'Down', 'Left', 'Right' ], function(index, direction) {
-                            $hat.append(moveButtons[direction] = $('<span/>', {
+                            $controls.append($moveButtons[direction] = $('<span/>', {
                                 'class': 'move' + direction + 'Button',
                                 'text': direction
                             }));
                         });
 
-                        moveButtons.Up.add(moveButtons.Left).click(function() {
-                            for (var i = 1; i < childrenLength; ++ i) {
-                                if (children[i] === definition) {
-                                    var before = children[i - 1];
-                                    children[i - 1] = definition;
-                                    children[i] = before;
-                                    updateVisual();
+                        $moveButtons.Up.add($moveButtons.Left).click(function() {
+                            var index,
+                                    before;
+
+                            for (index = 1; index < childrenLength; ++ index) {
+                                if (children[index] === definition) {
+                                    before = children[index - 1];
+                                    children[index - 1] = definition;
+                                    children[index] = before;
+                                    $visual.trigger('updateVisual');
                                     break;
                                 }
                             }
                         });
 
-                        moveButtons.Down.add(moveButtons.Right).click(function() {
-                            for (var i = 0; i < childrenLength - 1; ++ i) {
-                                if (children[i] === definition) {
-                                    var after = children[i + 1];
-                                    children[i + 1] = definition;
-                                    children[i] = after;
-                                    updateVisual();
+                        $moveButtons.Down.add($moveButtons.Right).click(function() {
+                            var index,
+                                    after;
+
+                            for (index = 0; index < childrenLength - 1; ++ index) {
+                                if (children[index] === definition) {
+                                    after = children[index + 1];
+                                    children[index + 1] = definition;
+                                    children[index] = after;
+                                    $visual.trigger('updateVisual');
                                     break;
                                 }
                             }
@@ -93,227 +98,97 @@ $.plugin2('pageLayout', {
                 }
             }
 
-            $hat.append($('<a/>', {
+            $controls.append($('<a/>', {
                 'class': 'settingsButton',
                 'text': 'Settings',
-                'click': function() {
-                    openSettings($(this), definition);
-                    return false;
-                }
+                'target': 'sectionSettings',
+                'href': CONTEXT_PATH + '/content/section.jsp' +
+                        '?type=' + (definition._type ? encodeURIComponent(definition._type) : '') +
+                        '&id=' + (definition._id ? encodeURIComponent(definition._id) : '') +
+                        '&data=' + encodeURIComponent(JSON.stringify(definition))
             }));
 
-            var $removeButton = $('<span/>', {
+            $removeButton = $('<span/>', {
                 'class': 'removeButton',
                 'text': 'Remove',
                 'click': function() {
                     if ($section.is('.toBeRemoved')) {
                         definition._isIgnore = false;
-                        $visual.trigger('updateJson');
+                        $visual.trigger('populateTextarea');
                         $section.removeClass('toBeRemoved');
                         $(this).text('Remove').attr('src', CONTEXT_PATH + 'style/icon/delete.png');
                     } else {
                         definition._isIgnore = true;
-                        $visual.trigger('updateJson');
+                        $visual.trigger('populateTextarea');
                         $section.addClass('toBeRemoved');
                         $(this).text('Restore').attr('src', CONTEXT_PATH + 'style/icon/add.png');
                     }
                 }
             });
-            $hat.append($removeButton);
+
+            $controls.append($removeButton);
+
             if (definition._isIgnore) {
                 $removeButton.click();
             }
 
-            var isContainer = true;
             if (definition._type === 'com.psddev.cms.db.HorizontalContainerSection') {
                 $section.add($content).addClass('horizontal');
+                isContainer = true;
+
             } else if (definition._type === 'com.psddev.cms.db.VerticalContainerSection') {
                 $section.add($content).addClass('vertical');
-            } else {
-                if (definition._type === 'com.psddev.cms.db.MainSection') {
-                    $section.addClass('main');
-                }
-                isContainer = false;
+                isContainer = true;
+
+            } else if (definition._type === 'com.psddev.cms.db.MainSection') {
+                $section.addClass('main');
             }
 
             if (definition.isShareable) {
                 $section.addClass('shared');
             }
 
-            var $name = $('<div/>', { 'class': 'name' });
+            $name = $('<div/>', { 'class': 'name' });
+
             if (definition.name) {
                 $name.text(definition.name);
+
             } else {
                 $name.addClass('anonymous');
                 $name.text('Unnamed ' + (isContainer ? 'Container' : 'Section'));
             }
+
             $heading.append($name);
 
-            if (definition._type === 'com.psddev.cms.db.ContentSection') {
-                var $contentButton = $('<a/>', {
-                    'class': 'contentButton',
-                    'text': definition.contentTypeLabel && definition.contentLabel ? definition.contentTypeLabel + ': ' + definition.contentLabel : 'Select Content'
-                });
-                if ($container.closest('.contentForm').length > 0 && definition.content) {
-                    var href = location.href.replace(/&contentId=[^&]*/, '');
-                    href = href.replace(/\?contentId=[^&]*/, '?');
-                    href += '&contentId=' + definition.content;
-                    $contentButton.attr('href', href);
-                    $contentButton.attr('target', '_top');
-                } else {
-                    $contentButton.attr('href', CONTEXT_PATH + 'content/sectionContent.jsp?id=' + (definition.content || ''));
-                    $contentButton.attr('target', 'contentSectionContent');
-                }
-                $heading.append($contentButton);
-                if (definition.contentTypeLabel && definition.contentLabel) {
-                    $heading.append($('<a/>', {
-                        'class': 'removeContentButton',
-                        'text': 'Remove',
-                        'click': function() {
-                            definition.content = null;
-                            definition.contentTypeLabel = null;
-                            definition.contentLabel = null;
-                            updateVisual();
-                        }
-                    }));
-                }
-            }
-
-            $section.append($hat);
-            $section.append($heading);
-            $section.append($content);
-            $container.append($section);
-
+            // Allow adding child sections within a container.
             if (isContainer) {
                 $heading.append($('<span/>', {
                     'class': 'addButton',
                     'click': function() {
-                        var childDefinition = { '_type': 'com.psddev.cms.db.ScriptSection' };
+                        var childDefinition = { };
                         (definition.children = definition.children || [ ]).push(childDefinition);
-                        updateVisual();
+                        $visual.trigger('updateVisual');
                     }
                 }));
 
                 if (definition.children) {
                     $.each(definition.children, function(index, childDefinition) {
-                        updateSection($content, childDefinition, definition);
+                        createVisualSection($content, childDefinition, definition);
                     });
                 }
             }
 
-            if (definition._type === 'com.psddev.cms.db.MainSection') {
-                $section.parentsUntil('.pageLayout-visual').add($section).filter('[data-flex]').attr('data-flex', 2.5);
-            }
+            $section.append($heading);
+            $section.append($controls);
+            $section.append($content);
+
+            $container.append($section);
         };
 
-        // Opens the settings popup.
-        openSettings = function($button, definition) {
+        // Toggle between the visual editor and the textarea.
+        $tabs = $('<div/>', { 'class': 'pageLayout-tabs' });
 
-            var $settings = $('#sectionSettings');
-            if ($settings.length === 0) {
-                var engines = '<option value=""></option><option value="JSP">JSP</option><option value="RawText">Raw Text</option>';
-                $settings = $(
-                        '<div id="sectionSettings">' +
-                            '<h1>Section: <strong class="name"></strong></h1>' +
-                            '<div class="inputContainer">' +
-                                '<div class="label">Shareable?</div>' +
-                                '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
-                            '</div>' +
-                            '<div class="inputContainer">' +
-                                '<div class="label">Cache Duration (in Milliseconds)</div>' +
-                                '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
-                            '</div>' +
-                            '<div class="inputContainer">' +
-                                '<div class="label">Type</div>' +
-                                '<div class="smallInput"><select class="toggleable" name="_type">' +
-                                    '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
-                                    '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
-                                    '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
-                                    '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .c" value="com.psddev.cms.db.ContentSection">Script (with Content)</option>' +
-                                    '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.MainSection">Script (with Main Content)</option>' +
-                                '</select></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i hc vc s c">' +
-                                '<div class="label">Name</div>' +
-                                '<div class="smallInput"><input name="name" type="text"></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i s c">' +
-                                '<div class="label">Engine</div>' +
-                                '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i s c">' +
-                                '<div class="label">Script</div>' +
-                                '<div class="smallInput"><input name="script" type="text"></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i hc vc">' +
-                                '<div class="label">Begin Engine</div>' +
-                                '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i hc vc">' +
-                                '<div class="label">Begin Script</div>' +
-                                '<div class="smallInput"><input name="beginScript" type="text"></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i hc vc">' +
-                                '<div class="label">End Engine</div>' +
-                                '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
-                            '</div>' +
-                            '<div class="inputContainer i hc vc">' +
-                                '<div class="label">End Script</div>' +
-                                '<div class="smallInput"><input name="endScript" type="text"></div>' +
-                            '</div>' +
-                            '<div class="buttons">' +
-                                '<a class="button continueButton" href="#">Continue Editing</a>' +
-                            '</div>' +
-                        '</div>');
-
-                $settings.find('.continueButton').click(function() {
-                    $settings.popup('close');
-                    return false;
-                });
-
-                $('body').append($settings);
-                $settings.popup();
-            }
-
-            $settings.popup('source', $button);
-            $settings.popup('open');
-            isSettingsOpen = true;
-
-            $settings.find('> h1 > .name').text(definition.name || 'Unnamed');
-            $.each('isShareable cacheDuration _type name engine script beginEngine beginScript endEngine endScript'.split(' '), function(index, name) {
-                var $input = $settings.find(':input[name=' + name + ']');
-                if ($input.is(':checkbox')) {
-                    if (definition[name]) {
-                        $input.attr('checked', 'checked');
-                    } else {
-                        $input.removeAttr('checked');
-                    }
-                } else {
-                    $input.val(definition[name] || '');
-                }
-                $input.change();
-            });
-
-            var $popup = $settings.popup('container');
-            $popup.unbind('close.section');
-            $popup.bind('close.section', function() {
-                $.each('isShareable cacheDuration _type name engine script beginEngine beginScript endEngine endScript'.split(' '), function(index, name) {
-                    var $input = $settings.find(':input[name=' + name + ']');
-                    if ($input.is(':checkbox')) {
-                        definition[name] = $input.is(':checked');
-                    } else if (name === 'cacheDuration') {
-                        definition[name] = $input.val() || 0;
-                    } else {
-                        definition[name] = $input.val();
-                    }
-                });
-                updateVisual();
-                isSettingsOpen = false;
-            });
-        };
-
-        var $tabs = $('<div/>', { 'class': 'pageLayout-tabs' });
-        var $visualButton = $('<span/>', {
+        $visualButton = $('<span/>', {
             'class': 'visualButton',
             'text': 'Visual',
             'click': function() {
@@ -321,31 +196,60 @@ $.plugin2('pageLayout', {
                     layout = $.parseJSON($textarea.val());
                 } catch (error) {
                 }
-                layout = $.extend(true, { 'outermostSection': { '_type': 'com.psddev.cms.db.ScriptSection' } }, layout);
+
+                layout = $.extend(true, { 'outermostSection': { } }, layout);
+
                 $textarea.hide();
-                $jsonButton.removeClass('selected');
+                $textareaButton.removeClass('selected');
                 $visual.show();
                 $visualButton.addClass('selected');
-                updateVisual();
+
+                $visual.trigger('updateVisual');
             }
         });
-        var $jsonButton = $('<span/>', {
+
+        $textareaButton = $('<span/>', {
             'class': 'jsonButton',
             'text': 'JSON',
             'click': function() {
                 $visual.hide();
                 $visualButton.removeClass('selected');
                 $textarea.show();
-                $jsonButton.addClass('selected');
+                $textareaButton.addClass('selected');
             }
         });
 
         $tabs.append($visualButton);
-        $tabs.append($jsonButton);
+        $tabs.append($textareaButton);
 
         $textarea.before($tabs);
         $textarea.before($visual);
+
         $visualButton.click();
+    },
+
+    'definition': function(newDefinition, $popup) {
+        var $section = this.$caller,
+                definition = $.data($section[0], 'definition'),
+                prop;
+
+        if (newDefinition) {
+            newDefinition.children = definition.children;
+
+            for (prop in definition) {
+                if (definition.hasOwnProperty(prop)) {
+                    delete definition[prop];
+                }
+            }
+
+            $.extend(definition, newDefinition);
+            $section.trigger('updateVisual');
+
+            return $section;
+
+        } else {
+            return definition;
+        }
     }
 });
 
