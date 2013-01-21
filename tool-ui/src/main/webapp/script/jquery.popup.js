@@ -103,7 +103,10 @@ $.plugin2('popup', {
     'source': function($newSource, event) {
         var options = this.option();
 
-        if (event && (typeof event.pageX !== 'number' || typeof event.pageY !== 'number')) {
+        if (event &&
+                ($newSource.height() < 30 ||
+                typeof event.pageX !== 'number' ||
+                typeof event.pageY !== 'number')) {
             event = undef;
         }
 
@@ -152,9 +155,8 @@ $.plugin2('popup', {
             }
 
             // Adjust left/top if position is fixed.
-            var $newSourceParent = $newSource.offsetParent();
-            var isFixed = $newSourceParent.css('position') == 'fixed';
-            if (isFixed) {
+            var isFixedPosition = $newSource.isFixedPosition();
+            if (isFixedPosition) {
                 left -= $(window).scrollLeft();
                 top -= $(window).scrollTop();
             }
@@ -162,9 +164,9 @@ $.plugin2('popup', {
             $container.css({
                 'left': left,
                 'margin': 0,
-                'position': isFixed ? 'fixed' : 'absolute',
+                'position': isFixedPosition ? 'fixed' : 'absolute',
                 'top': top,
-                'z-index': $newSourceParent.zIndex() + 1
+                'z-index': $newSource.parent().zIndex() + 1
             });
 
             return this.$caller;

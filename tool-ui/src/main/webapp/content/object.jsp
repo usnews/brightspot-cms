@@ -6,7 +6,7 @@ com.psddev.cms.tool.ToolPageContext
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requirePermission("area/dashboard")) {
+if (wp.requireUser()) {
     return;
 }
 

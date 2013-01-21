@@ -12,7 +12,7 @@ java.io.IOException
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requirePermission("area/dashboard")) {
+if (wp.requireUser()) {
     return;
 }
 
@@ -26,17 +26,15 @@ String removeId = wp.createId();
     <% new SearchResultRenderer(wp, search) {
 
         @Override
-        protected void renderBeforeItem(Object item) throws IOException {
-            ToolPageContext wp = getToolPageContext();
-            wp.write("<span class=\"link\" data-objectId=\"");
-            wp.write(State.getInstance(item).getId());
-            wp.write("\">");
+        public void renderBeforeItem(Object item) throws IOException {
+            writer.start("span",
+                    "class", "link",
+                    "data-objectId", State.getInstance(item).getId());
         }
 
         @Override
-        protected void renderAfterItem(Object item) throws IOException {
-            ToolPageContext wp = getToolPageContext();
-            wp.write("</span>");
+        public void renderAfterItem(Object item) throws IOException {
+            writer.end();
         }
     }.render(); %>
 </div>

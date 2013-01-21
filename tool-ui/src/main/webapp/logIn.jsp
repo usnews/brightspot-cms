@@ -2,7 +2,7 @@
 
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.db.ToolUser,
-com.psddev.cms.tool.ToolFilter,
+com.psddev.cms.tool.AuthenticationFilter,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.util.AuthenticationException,
@@ -30,9 +30,9 @@ if (wp.isFormPost()) {
     }
 
     try {
-        ToolFilter.logIn(request, response, (ToolUser) authPolicy.authenticate(email, password));
+        AuthenticationFilter.Static.logIn(request, response, (ToolUser) authPolicy.authenticate(email, password));
         try {
-            wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(ToolFilter.RETURN_PATH_PARAMETER, "/"))).toString());
+            wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER, "/"))).toString());
         } catch (MalformedURLException e) {
             wp.redirect("/");
         }

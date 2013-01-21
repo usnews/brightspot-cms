@@ -1,7 +1,8 @@
 package com.psddev.cms.db;
 
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
-import com.psddev.cms.tool.ToolFilter;
+import com.psddev.cms.tool.RemoteWidgetFilter;
 
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
@@ -15,6 +16,7 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.HtmlFormatter;
+import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -223,7 +225,8 @@ public class PageFilter extends AbstractFilter {
     public Iterable<Class<? extends Filter>> dependencies() {
         List<Class<? extends Filter>> dependencies = new ArrayList<Class<? extends Filter>>();
         dependencies.add(ApplicationFilter.class);
-        dependencies.add(com.psddev.cms.tool.ToolFilter.class);
+        dependencies.add(RemoteWidgetFilter.class);
+        dependencies.add(AuthenticationFilter.class);
         dependencies.add(com.psddev.cms.tool.ScheduleFilter.class);
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
@@ -280,14 +283,11 @@ public class PageFilter extends AbstractFilter {
             return;
         }
 
-        boolean isAuthenticated = ToolFilter.Static.isAuthenticated(request);
-
-        if (!isAuthenticated) {
-            VaryingDatabase varying = new VaryingDatabase();
-            varying.setDelegate(Database.Static.getDefault());
-            varying.setProfile(profile);
-            Database.Static.overrideDefault(varying);
-        }
+        VaryingDatabase varying = new VaryingDatabase();
+        varying.setDelegate(Database.Static.getDefault());
+        varying.setRequest(request);
+        varying.setProfile(profile);
+        Database.Static.overrideDefault(varying);
 
         try {
             String servletPath = request.getServletPath();
@@ -449,9 +449,7 @@ public class PageFilter extends AbstractFilter {
             }
 
         } finally {
-            if (!isAuthenticated) {
-                Database.Static.restoreDefault();
-            }
+            Database.Static.restoreDefault();
         }
     }
 
@@ -996,6 +994,12 @@ public class PageFilter extends AbstractFilter {
                     }
                 }
 
+                Object object = getCurrentObject(request);
+
+                if (object instanceof HtmlObject) {
+                    new HtmlWriter(writer).object(object);
+                }
+
                 if (Settings.isProduction()) {
                     return;
                 }
@@ -1198,14 +1202,11 @@ public class PageFilter extends AbstractFilter {
                 return request.getAttribute(MAIN_OBJECT_ATTRIBUTE);
             }
 
-            boolean isAuthenticated = ToolFilter.Static.isAuthenticated(request);
-
-            if (!isAuthenticated) {
-                VaryingDatabase varying = new VaryingDatabase();
-                varying.setDelegate(Database.Static.getDefault());
-                varying.setProfile(getProfile(request));
-                Database.Static.overrideDefault(varying);
-            }
+            VaryingDatabase varying = new VaryingDatabase();
+            varying.setDelegate(Database.Static.getDefault());
+            varying.setRequest(request);
+            varying.setProfile(getProfile(request));
+            Database.Static.overrideDefault(varying);
 
             try {
                 request.setAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE, Boolean.TRUE);
@@ -1353,9 +1354,7 @@ public class PageFilter extends AbstractFilter {
                 return mainObject;
 
             } finally {
-                if (!isAuthenticated) {
-                    Database.Static.restoreDefault();
-                }
+                Database.Static.restoreDefault();
             }
         }
 

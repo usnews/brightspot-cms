@@ -37,6 +37,11 @@ java.util.UUID
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.requireUser()) {
+    return;
+}
+
 SearchFormWriter html = new SearchFormWriter(wp);
 
 State userState = State.getInstance(wp.getUser());

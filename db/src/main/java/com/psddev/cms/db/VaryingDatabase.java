@@ -1,5 +1,7 @@
 package com.psddev.cms.db;
 
+import com.psddev.cms.tool.AuthenticationFilter;
+
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.PaginatedResult;
@@ -7,17 +9,36 @@ import com.psddev.dari.util.PaginatedResult;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Database wrapper that applies all profile-specific variations
  * automatically.
  */
 public class VaryingDatabase extends ForwardingDatabase {
 
+    private HttpServletRequest request;
     private Profile profile;
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
     /** Returns the profile. */
     public Profile getProfile() {
-        return profile;
+        HttpServletRequest request = getRequest();
+
+        if (request != null &&
+                AuthenticationFilter.Static.getUser(request) == null) {
+            return profile;
+
+        } else {
+            return null;
+        }
     }
 
     /** Sets the profile. */
@@ -29,20 +50,30 @@ public class VaryingDatabase extends ForwardingDatabase {
  
     @Override
     public <T> List<T> readAll(Query<T> query) {
-        Profile profile = getProfile();
         List<T> all = super.readAll(query);
-        for (T item : all) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : all) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return all;
     }
 
     @Override
     public <T> T readFirst(Query<T> query) {
         T first = super.readFirst(query);
+
         if (first != null) {
-            Variation.Static.applyAll(first, getProfile());
+            Profile profile = getProfile();
+
+            if (profile != null) {
+                Variation.Static.applyAll(first, getProfile());
+            }
         }
+
         return first;
     }
 
@@ -81,7 +112,15 @@ public class VaryingDatabase extends ForwardingDatabase {
         @Override
         public E next() {
             E item = delegate.next();
-            Variation.Static.applyAll(item, getProfile());
+
+            if (item != null) {
+                Profile profile = getProfile();
+
+                if (profile != null) {
+                    Variation.Static.applyAll(item, profile);
+                }
+            }
+
             return item;
         }
 
@@ -93,11 +132,15 @@ public class VaryingDatabase extends ForwardingDatabase {
 
     @Override
     public <T> PaginatedResult<T> readPartial(Query<T> query, long offset, int limit) {
-        Profile profile = getProfile();
         PaginatedResult<T> result = super.readPartial(query, offset, limit);
-        for (T item : result.getItems()) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : result.getItems()) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return result;
     }
 
@@ -106,11 +149,15 @@ public class VaryingDatabase extends ForwardingDatabase {
     @Deprecated
     @Override
     public <T> List<T> readList(Query<T> query) {
-        Profile profile = getProfile();
         List<T> list = super.readList(query);
-        for (T item : list) {
-            Variation.Static.applyAll(item, profile);
+        Profile profile = getProfile();
+
+        if (profile != null) {
+            for (T item : list) {
+                Variation.Static.applyAll(item, profile);
+            }
         }
+
         return list;
     }
 }

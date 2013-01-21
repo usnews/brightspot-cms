@@ -25,6 +25,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
+com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
@@ -37,7 +38,7 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-if (wp.requirePermission("area/dashboard")) {
+if (wp.requireUser()) {
     return;
 }
 
@@ -112,33 +113,22 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
 <div class="content-edit">
-    <form action="<%= wp.objectUrl("", selected) %>" autocomplete="off" class="contentForm" enctype="multipart/form-data" method="post">
+    <form class="contentForm"
+            method="post"
+            enctype="multipart/form-data"
+            action="<%= wp.objectUrl("", selected) %>"
+            autocomplete="off"
+            data-object-id="<%= State.getInstance(selected).getId() %>">
         <div class="contentForm-main">
-
             <%
-            ToolSearch search = Query.from(ToolSearch.class).where("_id = ?", wp.uuidParam("searchId")).first();
-            if (search != null) {
-                String sortFieldName = search.getSortField().getInternalName();
-                Object previous = search.toPreviousQuery(state).first();
-                Object next = search.toNextQuery(state).first();
+            String search = wp.param(String.class, "search");
 
-                if (previous != null || next != null) {
-                    %><ul class="pagination" style="margin-top: -5px;"><%
-                        if (previous != null) {
-                            %><li class="previous"><a href="<%= wp.url("",
-                                    "id", State.getInstance(previous).getId())
-                                    %>"><%= wp.objectLabel(previous) %></a></li><%
-                        }
-                        %><li class="label"><a class="action-search" href="<%= wp.url("/misc/advancedSearch.jsp",
-                                "id", search.getId())
-                                %>">Search Result</a></li><%
-                        if (next != null) {
-                            %><li class="next"><a href="<%= wp.url("",
-                                    "id", State.getInstance(next).getId())
-                                    %>"><%= wp.objectLabel(next) %></a></li><%
-                        }
-                    %></ul><%
-                }
+            if (search != null) {
+                wp.write("<div class=\"content-searchResult frame\">");
+                wp.write("<a href=\"");
+                wp.write(StringUtils.addQueryParameters(search, "widget", true));
+                wp.write("\">Search Result</a>");
+                wp.write("</div>");
             }
             %>
 
@@ -572,7 +562,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 var $toggle = $(this),
                         $container = $toggle.closest('.inputContainer');
 
-                $container.find('.label').trigger('fieldPreview-toggle', [ $toggle ]);
+                $container.find('> .label').trigger('fieldPreview-toggle', [ $toggle ]);
                 $toggle.css('color', $container.is('.fieldPreview-displaying') ? getUniqueColor($container) : '');
             });
 
@@ -589,7 +579,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         name = $container.attr('data-name');
 
                 $container.removeClass('fieldPreview-displaying');
-                $container.find('.label').css({
+                $container.find('> .label').css({
                     'background-color': '',
                     'color': ''
                 });
@@ -609,6 +599,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         $paths,
                         pathsCanvas;
 
+                event.stopPropagation();
+
                 if ($container.is('.fieldPreview-displaying')) {
                     $container.trigger('fieldPreview-hide');
                     return;
@@ -620,7 +612,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 frameOffset = $frame.offset();
 
                 $container.addClass('fieldPreview-displaying');
-                $container.find('.label').css({
+                $container.find('> .label').css({
                     'background-color': color,
                     'color': 'white'
                 });
@@ -696,7 +688,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }));
 
                     if (!$source) {
-                        $source = $container.find('.label');
+                        $source = $container.find('> .label');
                     }
 
                     sourceOffset = $source.offset();

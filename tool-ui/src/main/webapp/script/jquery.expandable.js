@@ -2,7 +2,9 @@
 (function($, win, undef) {
 
 var $win = $(win),
-        $allInputs = $();
+        doc = win.document,
+        $allInputs = $(),
+        $checkers;
 
 $.plugin2('expandable', {
     '_defaultOptions': {
@@ -36,24 +38,30 @@ $.plugin2('expandable', {
             // Create a hidden DIV that copies the input styles so that we can
             // measure the height.
             if ($checker.length === 0) {
-                $checker = $('<div/>', {
-                    'class': 'expandable-checker',
-                    'css': {
-                        'left': -10000,
-                        'position': 'absolute',
-                        'top': 0,
-                        'visibility': 'hidden'
-                    }
-                });
+                $checker = $('<div/>');
 
                 for (index = 0, size = properties.length; index < size; ++ index) {
                     property = properties[index];
                     $checker.css(property, $input.css(property));
                 }
 
-                $input.
-                        before($checker).
-                        css('overflow', 'hidden');
+                $input.css('overflow', 'hidden');
+
+                if (!$checkers) {
+                    $checkers = $('<div/>', {
+                        'class': 'expandable-checkers',
+                        'css': {
+                            'left': -10000,
+                            'position': 'absolute',
+                            'top': 0,
+                            'visibility': 'hidden'
+                        }
+                    });
+
+                    $(doc.body).append($checkers);
+                }
+
+                $checkers.append($checker);
             }
 
             inputDisplay = $input.css('display');
