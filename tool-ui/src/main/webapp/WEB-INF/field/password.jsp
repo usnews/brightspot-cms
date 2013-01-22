@@ -41,7 +41,7 @@ String password2Name = inputName + "/password2";
                 String currentPassword = wp.param(currentPasswordName);                
                 ToolUser user = wp.getUser();
                 if (ObjectUtils.isBlank(currentPassword)) {
-                    state.addError(field, "Must supply current password!");
+                    state.addError(field, "Must supply your current password!");
                 } else {
                     if (!password.equals(wp.param(password2Name))) {
                         state.addError(field, "Passwords don't match!");
@@ -78,7 +78,7 @@ String passwordContainerId = wp.createId();
     </select>
 
     <div id="<%= passwordContainerId %>" style="margin-top: 10px;">
-        <div>Current Password:</div>
+        <div>Your Current Password (for security):</div>
         <input name="<%= currentPasswordName %>" type="password">
         <div>New Password:</div>
         <input name="<%= password1Name %>" type="password">
