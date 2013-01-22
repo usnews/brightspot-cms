@@ -63,6 +63,13 @@ if (validValues != null) {
 
 } else {
     wp.write("<textarea id=\"", wp.getId());
+
+    String codeType = ui.getCodeType();
+    if (!ObjectUtils.isBlank(codeType)) {
+        wp.write("\" data-code-type=\"");
+        wp.write(wp.h(codeType));
+    }
+
     wp.write("\" placeholder=\"", wp.h(placeholder));
     if (suggestedMinimum != null) {
         wp.write("\" data-suggested-minimum=\"", suggestedMinimum.intValue());

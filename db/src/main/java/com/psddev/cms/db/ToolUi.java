@@ -26,6 +26,7 @@ import java.util.UUID;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private String codeType;
     private String heading;
     private Boolean hidden;
     private String inputProcessorPath;
@@ -38,6 +39,14 @@ public class ToolUi extends Modification<Object> {
     private boolean richText;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+
+    public String getCodeType() {
+        return codeType;
+    }
+
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
+    }
 
     /** Returns the heading to display before this object. */
     public String getHeading() {
@@ -160,6 +169,22 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    @Documented
+    @Inherited
+    @ObjectField.AnnotationProcessorClass(CodeProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Code {
+        String value();
+    }
+
+    private static class CodeProcessor implements ObjectField.AnnotationProcessor<Code> {
+        @Override
+        public void process(ObjectType type, ObjectField field, Code annotation) {
+            field.as(ToolUi.class).setCodeType(annotation.value());
+        }
     }
 
     /** Specifies the text to display before the target field. */
