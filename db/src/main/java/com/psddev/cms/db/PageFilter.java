@@ -994,12 +994,6 @@ public class PageFilter extends AbstractFilter {
                     return;
                 }
 
-                Object object = getCurrentObject(request);
-
-                if (object instanceof Renderable) {
-                    ((Renderable) object).render(new HtmlWriter(writer));
-                }
-
                 if (Settings.isProduction()) {
                     return;
                 }
