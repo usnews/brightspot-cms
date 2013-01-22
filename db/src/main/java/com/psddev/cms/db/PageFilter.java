@@ -16,7 +16,6 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.HtmlFormatter;
-import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -533,8 +532,8 @@ public class PageFilter extends AbstractFilter {
      * {@code writer}.
      */
     private static void writeSection(
-            HttpServletRequest request,
-            HttpServletResponse response,
+            final HttpServletRequest request,
+            final HttpServletResponse response,
             Writer writer,
             Section section)
             throws IOException, ServletException {
@@ -546,45 +545,65 @@ public class PageFilter extends AbstractFilter {
             writeWireframeSectionBegin(writer, section);
         }
 
-        // Container section - begin, child sections, then end.
-        if (section instanceof ContainerSection) {
-            ContainerSection container = (ContainerSection) section;
+        if (section instanceof GridSection) {
+            GridSection grid = (GridSection) section;
+            @SuppressWarnings("all")
+            HtmlWriter gridWriter = new HtmlWriter(writer);
 
-            if (ObjectUtils.isBlank(container.getRendererPath())) {
-                containerRendered = true;
-                List<Section> children = container.getChildren();
-
-                try {
-                    addParentSection(request, container);
-                    beginContainer(request, response, writer, container);
-
-                    for (Section child : children) {
-                        renderSection(request, response, writer, child);
-                        if (isAborted(request)) {
-                            return;
-                        }
+            gridWriter.putOverride(Section.class, new HtmlFormatter<Section>() {
+                @Override
+                public void format(HtmlWriter writer, Section child) throws IOException {
+                    try {
+                        renderObject(request, response, writer, child);
+                    } catch (ServletException error) {
+                        throw new IOException(error);
                     }
+                }
+            });
 
-                    endContainer(request, response, writer, container);
+            gridWriter.grid(grid.getChildren(), grid.getWidths(), grid.getHeights(), grid.getTemplate());
 
-                } finally {
-                    removeLastParentSection(request);
+        } else {
+            // Container section - begin, child sections, then end.
+            if (section instanceof ContainerSection) {
+                ContainerSection container = (ContainerSection) section;
+
+                if (ObjectUtils.isBlank(container.getRendererPath())) {
+                    containerRendered = true;
+                    List<Section> children = container.getChildren();
+
+                    try {
+                        addParentSection(request, container);
+                        beginContainer(request, response, writer, container);
+
+                        for (Section child : children) {
+                            renderSection(request, response, writer, child);
+                            if (isAborted(request)) {
+                                return;
+                            }
+                        }
+
+                        endContainer(request, response, writer, container);
+
+                    } finally {
+                        removeLastParentSection(request);
+                    }
                 }
             }
-        }
 
-        // Script section may be associated with an object.
-        if (!containerRendered &&
-                section instanceof ScriptSection) {
-            Object object;
-            if (section instanceof MainSection) {
-                object = getMainObject(request);
-            } else if (section instanceof ContentSection) {
-                object = ((ContentSection) section).getContent();
-            } else {
-                object = null;
+            // Script section may be associated with an object.
+            if (!containerRendered &&
+                    section instanceof ScriptSection) {
+                Object object;
+                if (section instanceof MainSection) {
+                    object = getMainObject(request);
+                } else if (section instanceof ContentSection) {
+                    object = ((ContentSection) section).getContent();
+                } else {
+                    object = null;
+                }
+                renderObjectWithSection(request, response, writer, object, (ScriptSection) section);
             }
-            renderObjectWithSection(request, response, writer, object, (ScriptSection) section);
         }
 
         if (wireframe) {
@@ -977,8 +996,8 @@ public class PageFilter extends AbstractFilter {
 
                 Object object = getCurrentObject(request);
 
-                if (object instanceof HtmlObject) {
-                    new HtmlWriter(writer).object(object);
+                if (object instanceof Renderable) {
+                    ((Renderable) object).render(new HtmlWriter(writer));
                 }
 
                 if (Settings.isProduction()) {

@@ -2,8 +2,9 @@ package com.psddev.cms.db;
 
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlObject;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 /**
@@ -57,6 +57,9 @@ public class RenderTag extends BodyTagSupport {
     private int beginOffset;
     private String endMarker;
     private int endOffset;
+    private String gridTemplate;
+    private String gridWidths;
+    private String gridHeights;
 
     public void setValue(Object value) {
         this.value = value;
@@ -78,12 +81,25 @@ public class RenderTag extends BodyTagSupport {
         this.endOffset = endOffset;
     }
 
+    public void setGridTemplate(String gridTemplate) {
+        this.gridTemplate = gridTemplate;
+    }
+
+    public void setGridWidths(String gridWidths) {
+        this.gridWidths = gridWidths;
+    }
+
+    public void setGridHeights(String gridHeights) {
+        this.gridHeights = gridHeights;
+    }
+
     // --- TagSupport support ---
 
     @Override
     public int doStartTag() throws JspException {
         try {
-            Integer action = writeValue(value);
+            HtmlWriter writer = new HtmlWriter(pageContext.getOut());
+            Integer action = writeValue(writer, value);
 
             if (action != null) {
                 return action;
@@ -127,14 +143,13 @@ public class RenderTag extends BodyTagSupport {
     }
 
     // Writes the given value to the response.
-    private Integer writeValue(Object value) throws IOException, ServletException {
+    private Integer writeValue(HtmlWriter writer, Object value) throws IOException, ServletException {
         if (ObjectUtils.isBlank(value)) {
             return EVAL_BODY_BUFFERED;
         }
 
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
-        JspWriter writer = pageContext.getOut();
 
         if (value instanceof ReferentialText) {
             List<Object> items = new ArrayList<Object>((ReferentialText) value);
@@ -194,13 +209,47 @@ public class RenderTag extends BodyTagSupport {
                 }
             }
 
-        } else if (value instanceof Iterable) {
-            for (Object item : (Iterable<?>) value) {
-                writeValue(item);
+        } else if (value instanceof Map) {
+            Map<String, HtmlObject> items = new LinkedHashMap<String, HtmlObject>();
+
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                Object key = entry.getKey();
+                final Object item = entry.getValue();
+
+                items.put(key != null ? key.toString() : null, new HtmlObject() {
+                    @Override
+                    public void format(HtmlWriter writer) throws IOException {
+                        try {
+                            writeValue(writer, item);
+                        } catch (ServletException error) {
+                            throw new IOException(error);
+                        }
+                    }
+                });
             }
 
+            writer.grid(items, gridWidths, gridHeights, gridTemplate);
+
+        } else if (value instanceof Iterable) {
+            List<HtmlObject> items = new ArrayList<HtmlObject>();
+
+            for (final Object item : (Iterable<?>) value) {
+                items.add(new HtmlObject() {
+                    @Override
+                    public void format(HtmlWriter writer) throws IOException {
+                        try {
+                            writeValue(writer, item);
+                        } catch (ServletException error) {
+                            throw new IOException(error);
+                        }
+                    }
+                });
+            }
+
+            writer.grid(items, gridWidths, gridHeights, gridTemplate);
+
         } else if (value instanceof String) {
-            writer.write(StringUtils.escapeHtml((String) value));
+            writer.html(value);
 
         } else {
             PageFilter.renderObject(request, response, writer, value);

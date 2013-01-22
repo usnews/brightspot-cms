@@ -176,6 +176,27 @@ $.plugin2('pageLayout', {
                         createVisualSection($content, childDefinition, definition);
                     });
                 }
+
+            } else if (definition._type === 'com.psddev.cms.db.GridSection') {
+                $.ajax({
+                    'cache': false,
+                    'type': 'get',
+                    'url': CONTEXT_PATH + '/content/sectionLayoutPreview.jsp?data=' + encodeURIComponent(JSON.stringify(definition)),
+                    'complete': function(response) {
+                        var body = response.responseText.replace(/^\s+|\s+$/g, '');
+
+                        if (body) {
+                            $content.html($(body));
+
+                        } else {
+                            if (definition.children) {
+                                $.each(definition.children, function(index, childDefinition) {
+                                    createVisualSection($content, childDefinition, definition);
+                                });
+                            }
+                        }
+                    }
+                });
             }
 
             $section.append($heading);
@@ -234,7 +255,9 @@ $.plugin2('pageLayout', {
                 prop;
 
         if (newDefinition) {
-            newDefinition.children = definition.children;
+            if (newDefinition._type !== 'com.psddev.cms.db.GridSection') {
+                newDefinition.children = definition.children;
+            }
 
             for (prop in definition) {
                 if (definition.hasOwnProperty(prop)) {

@@ -1,5 +1,8 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.util.HtmlWriter;
+
+import java.io.IOException;
 import java.util.Map;
 
 public abstract class Section extends Content {
@@ -47,6 +50,9 @@ public abstract class Section extends Content {
         Map<String, Object> definition = getState().getSimpleValues();
         definition.put("_type", getClass().getName());
         return definition;
+    }
+
+    public void writeLayoutPreview(HtmlWriter writer) throws IOException {
     }
 
     // --- Deprecated ---

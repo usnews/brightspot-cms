@@ -2308,6 +2308,14 @@ input[type="text"].dropDown-search {
 
 // Visual representation.
 .pageLayout-visual {
+    .cms-grid-areaWrapper {
+        background-color: fade(@color-text, 10%);
+    }
+
+    .cms-grid-area {
+        margin: 10px;
+    }
+
     .section {
         background-color: @color-note-lighter;
         margin-bottom: 10px;
@@ -2343,79 +2351,6 @@ input[type="text"].dropDown-search {
             > .heading > .name {
                 color: @color-alert;
                 text-decoration: line-through;
-            }
-        }
-
-        // Hat contains controls for editing general section settings.
-        > .controls {
-            > .moveUpButton { .icon-arrow-up; }
-            > .moveDownButton { .icon-arrow-down; }
-            > .moveLeftButton { .icon-arrow-left; }
-            > .moveRightButton { .icon-arrow-right; }
-
-            > .moveUpButton,
-            > .moveDownButton,
-            > .moveLeftButton,
-            > .moveRightButton {
-                .link;
-                .icon-only;
-
-                margin-right: 4px;
-            }
-
-            > .settingsButton {
-                .icon-cogs;
-            }
-
-            > .removeButton {
-                .icon-remove-sign;
-                .link;
-                .icon-only;
-
-                color: @color-alert;
-                position: absolute;
-                right: 5px;
-                top: 5px;
-            }
-        }
-
-        // Heading contains the section name and other section-specific
-        // controls.
-        > .heading {
-            > .name {
-                font-family: @fontFamily-label;
-                font-size: 150%;
-                line-height: 1.3;
-
-                &.anonymous {
-                    .opacity(0.3);
-                }
-            }
-
-            > .contentButton {
-                .icon-pencil;
-
-                color: @color-link-darker;
-            }
-
-            > .removeContentButton {
-                .icon-remove-sign;
-
-                color: @color-alert-darker;
-                margin-left: 10px;
-            }
-
-            > .addButton {
-                .icon-plus-sign;
-
-                background: @color-link-lighter;
-                .border-radius(5px);
-                cursor: pointer;
-                text-align: center;
-
-                &:after {
-                    content: 'Add Section';
-                }
             }
         }
 
@@ -2485,6 +2420,80 @@ input[type="text"].dropDown-search {
             }
         }
     }
+
+    // Hat contains controls for editing general section settings.
+    .controls {
+        > .moveUpButton { .icon-arrow-up; }
+        > .moveDownButton { .icon-arrow-down; }
+        > .moveLeftButton { .icon-arrow-left; }
+        > .moveRightButton { .icon-arrow-right; }
+
+        > .moveUpButton,
+        > .moveDownButton,
+        > .moveLeftButton,
+        > .moveRightButton {
+            .link;
+            .icon-only;
+
+            margin-right: 4px;
+        }
+
+        > .settingsButton {
+            .icon-cogs;
+        }
+
+        > .removeButton {
+            .icon-remove-sign;
+            .link;
+            .icon-only;
+
+            color: @color-alert;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+    }
+
+    // Heading contains the section name and other section-specific
+    // controls.
+    .heading {
+        > .name {
+            font-family: @fontFamily-label;
+            font-size: 150%;
+            line-height: 1.3;
+
+            &.anonymous {
+                .opacity(0.3);
+            }
+        }
+
+        > .contentButton {
+            .icon-pencil;
+
+            color: @color-link-darker;
+        }
+
+        > .removeContentButton {
+            .icon-remove-sign;
+
+            color: @color-alert-darker;
+            margin-left: 10px;
+        }
+
+        > .addButton {
+            .icon-plus-sign;
+
+            background: @color-link-lighter;
+            .border-radius(5px);
+            cursor: pointer;
+            text-align: center;
+
+            &:after {
+                content: 'Add Section';
+            }
+        }
+    }
+
 }
 
 .pageLayout-visual .horizontal > .section > .controls > .moveUpButton,
