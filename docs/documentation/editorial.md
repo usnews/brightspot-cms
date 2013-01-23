@@ -173,6 +173,8 @@ Once content has been published, we can use the search tool to find it. Clicking
 
 There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a text search, and using the filter on the left, you can specify the exact type of content you wish to search within.
 
+<a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/advanced_filters_search.png"/></a>
+
 You also have a drop down menu that allows the sort filters to be changed, such as newest, or in alphabetical order.
 
 The search is also persistent, and can be reset using the reset link.
