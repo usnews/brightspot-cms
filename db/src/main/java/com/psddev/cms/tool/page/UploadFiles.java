@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
@@ -123,10 +124,26 @@ public class UploadFiles extends PageServlet {
 
                         item.save();
 
-                        State state = State.getInstance(selectedType.createObject(null));
+                        Object object = selectedType.createObject(null);
+                        State state = State.getInstance(object);
 
                         state.put(previewField.getInternalName(), item);
-                        page.publish(state);
+
+                        try {
+                            page.publish(state);
+
+                        } catch (RuntimeException error) {
+                            if (state.hasAnyErrors()) {
+                                Draft draft = new Draft();
+
+                                draft.setOwner(page.getUser());
+                                draft.setObject(object);
+                                page.publish(draft);
+
+                            } else {
+                                throw error;
+                            }
+                        }
 
                         js.append("$addButton.click();");
                         js.append("$input = $init.find(':input.objectId').eq(-1);");
