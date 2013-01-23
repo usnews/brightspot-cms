@@ -57,7 +57,7 @@ public class RenderTag extends BodyTagSupport {
     private int beginOffset;
     private String endMarker;
     private int endOffset;
-    private String gridTemplate;
+    private String[] gridTemplate;
     private String gridWidths;
     private String gridHeights;
 
@@ -81,8 +81,8 @@ public class RenderTag extends BodyTagSupport {
         this.endOffset = endOffset;
     }
 
-    public void setGridTemplate(String gridTemplate) {
-        this.gridTemplate = gridTemplate;
+    public void setGridTemplate(Object gridTemplate) {
+        this.gridTemplate = ObjectUtils.to(String[].class, gridTemplate);
     }
 
     public void setGridWidths(String gridWidths) {
