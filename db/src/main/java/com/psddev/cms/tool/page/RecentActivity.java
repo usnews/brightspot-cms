@@ -53,7 +53,7 @@ public class RecentActivity extends PageServlet {
 
         writer.start("div", "class", "widget widget-recentActivity");
 
-            writer.start("h1", "class", "icon-list");
+            writer.start("h1", "class", "icon icon-list");
                 writer.html("Recent Activity");
             writer.end();
 

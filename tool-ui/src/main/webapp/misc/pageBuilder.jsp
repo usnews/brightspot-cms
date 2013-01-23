@@ -23,7 +23,7 @@ if (wp.requireUser()) {
 
 %><div class="widget upload-droppable">
 
-<h1 class="icon-file">Page Builder</h1>
+<h1 class="icon icon-file">Page Builder</h1>
 <ul class="links pageThumbnails">
 
     <%

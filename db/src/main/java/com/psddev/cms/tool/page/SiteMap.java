@@ -59,7 +59,7 @@ public class SiteMap extends PageServlet {
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget");
-            writer.start("h1", "class", "icon-sitemap").html("Site Map").end();
+            writer.start("h1", "class", "icon icon-sitemap").html("Site Map").end();
 
             writer.start("form", "action", page.url(null), "method", "get");
 

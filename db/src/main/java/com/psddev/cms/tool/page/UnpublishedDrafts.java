@@ -51,7 +51,7 @@ public class UnpublishedDrafts extends PageServlet {
 
         writer.start("div", "class", "widget widget-unpublishedDrafts");
 
-            writer.start("h1", "class", "icon-edit").html("Drafts").end();
+            writer.start("h1", "class", "icon icon-edit").html("Drafts").end();
 
             writer.start("ul", "class", "pagination");
 
