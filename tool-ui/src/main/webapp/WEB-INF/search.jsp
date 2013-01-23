@@ -93,7 +93,6 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
             writer.start("h2").html("Filters").end();
 
             writer.start("form",
-                    "class", "autoSubmit",
                     "method", "get",
                     "action", wp.url(null));
 
@@ -110,6 +109,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
 
                 if (mainTypes.size() + miscTypes.size() > 1) {
                     writer.start("select",
+                            "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
                             "data-searchable", true);
 
