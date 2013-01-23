@@ -35,7 +35,7 @@ if (wp.isFormPost()) {
 
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
-<h1 class="icon-<%= widget.getIconName() %>"><%= wp.objectLabel(widget) %></h1>
+<h1 class="icon icon-<%= widget.getIconName() %>"><%= wp.objectLabel(widget) %></h1>
 <form action="<%= wp.url("") %>" method="post">
     <%= widget.display(wp, object) %>
     <div class="buttons">

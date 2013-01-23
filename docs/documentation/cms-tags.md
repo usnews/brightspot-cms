@@ -100,10 +100,12 @@ Specify a duration (milliseconds) for an item to be cached. Within the CMS Templ
 
 The `cms:resource` function allows files to be automatically uploaded to your default CDN on their first view.
 
+In your `context.xml` add:
+
+`<Environment name="cms/isResourceInStorage" override="false" type="java.lang.Boolean" value="true" />`
+
 Point to the local file from within your .jsp file. This can be any kind of file, examples: CSS, JavaScript or any image file.
 
-
-    <link rel="stylesheet" href="<c:url value="${cms:resource('/main.css')}"/>"/>
     
 `<script src="${cms:resource('path/to/file.js')}"></script>`
 
