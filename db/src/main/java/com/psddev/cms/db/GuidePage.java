@@ -19,7 +19,7 @@ public class GuidePage extends Record {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(GuidePage.class);
 
-	@ToolUi.Note("Page type for Production Guide information. On Save, the Section list will be populated with all sections in the current layout")
+	@ToolUi.Note("Page type for Production Guide information. On Save, the Section list will be populated with all non-container sections in the current layout")
 	@Required
 	@Indexed(unique = true)
 	@DisplayName("Template or One-Off Page")
@@ -89,6 +89,9 @@ public class GuidePage extends Record {
 	}
 
 	public GuideSection findOrCreateSectionGuide(Section section) {
+		if (section instanceof ContainerSection) {
+			return null;
+		}
 		if (sectionDescriptions == null) {
 			sectionDescriptions = new ArrayList<GuideSection>();
 		}

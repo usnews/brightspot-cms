@@ -197,10 +197,11 @@
 					}
 
 					while (iter != null && iter.hasNext()) {
-						wp.write("<div class=\"guideForm-page\">");
-						wp.write("<div class=\"guideForm-main\">");
-						wp.write("<div class=\"guideTop\">");
 						section = (Section) iter.next();
+						if (section instanceof ContainerSection) {
+							continue;
+						}
+					
 						if (selectedVariation != null) {
 							State sectionState = State.getInstance(section);
 							Map<String, Object> variationData = (Map<String, Object>) sectionState
@@ -211,6 +212,12 @@
 							}
 						}
 						GuideSection sectionGuide = Guide.Static.getSectionGuide(pg, section);
+						if (sectionGuide == null || sectionGuide.getDescription() == null || sectionGuide.getDescription().isEmpty()) {
+							continue;
+						}
+						wp.write("<div class=\"guideForm-page\">");
+						wp.write("<div class=\"guideForm-main\">");
+						wp.write("<div class=\"guideTop\">");
 						request.setAttribute("sectionProductionGuide",
 								sectionGuide);
 						wp.write("Section: ");

@@ -74,7 +74,7 @@ try {
         wp.write(wp.h(field.getLabel()));
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
         	// typeId parm needed for embedded types to work properly
-        	wp.write("<a target=\"fieldGuide\" class=\"icon-question-sign\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\"></a>");
+        	wp.write("<a target=\"fieldGuide\" class=\"icon icon-question-sign icon-only\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">?</a>");
         }
         wp.write("</label></div>");
 

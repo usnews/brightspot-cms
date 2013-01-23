@@ -1,33 +1,12 @@
 <%@ page
-	import="com.psddev.cms.tool.ToolPageContext,
-	com.psddev.dari.db.ReferentialText,
-	com.psddev.cms.db.Site,com.
-	psddev.dari.db.Query,
-	com.psddev.cms.db.Variation,
-	java.util.Iterator,
-	java.util.UUID,
-	java.util.HashMap,
-	java.util.List,
-	java.util.Map,
-	java.util.ArrayList,
-	com.psddev.cms.db.Content,
-	com.psddev.cms.db.ContainerSection,
-	com.psddev.cms.db.PageFilter,
-	com.psddev.cms.db.Page,
-	com.psddev.cms.db.Section,
-	com.psddev.cms.db.Guide,
-	com.psddev.cms.db.GuidePage,
-	com.psddev.cms.db.GuideSection,
-	com.psddev.cms.db.Template,
-	com.psddev.dari.db.State,
-	com.psddev.cms.tool.ToolPageContext"%>
+	import="com.psddev.cms.tool.ToolPageContext,com.psddev.dari.db.ReferentialText,com.psddev.cms.db.Site,com.psddev.dari.db.Query,com.psddev.cms.db.Variation,java.util.Iterator,java.util.UUID,java.util.HashMap,java.util.List,java.util.Map,java.util.ArrayList,com.psddev.cms.db.Content,com.psddev.cms.db.ContainerSection,com.psddev.cms.db.PageFilter,com.psddev.cms.db.Page,com.psddev.cms.db.Section,com.psddev.cms.db.Guide,com.psddev.cms.db.GuidePage,com.psddev.cms.db.GuideSection,com.psddev.cms.db.Template,com.psddev.dari.db.State,com.psddev.dari.util.JspUtils,com.psddev.cms.tool.ToolPageContext"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="productionGuide" class="com.psddev.cms.db.Guide"
 	scope="request" />
-<jsp:useBean id="pageProductionGuide" class="com.psddev.cms.db.GuidePage"
-	scope="request" />
-<jsp:useBean id="sectionProductionGuide" class="com.psddev.cms.db.GuideSection"
-	scope="request" />
+<jsp:useBean id="pageProductionGuide"
+	class="com.psddev.cms.db.GuidePage" scope="request" />
+<jsp:useBean id="sectionProductionGuide"
+	class="com.psddev.cms.db.GuideSection" scope="request" />
 <%
 	// --- Logic ---
 
@@ -75,7 +54,8 @@
 	// What section guide are we displaying (if any)? 
 	UUID sectionId = null;
 	UUID selectedId = null;
-	String sectionStr = wp.param("section");
+	String sectionStr = wp.param("sectionId");
+	String sectionName = "";
 	if (sectionStr != null && !sectionStr.equals("0")
 			&& !sectionStr.equals("")) {
 		sectionId = UUID.fromString(sectionStr);
@@ -169,7 +149,7 @@
 
 	<div class="content-edit">
 		<form href="" class="guideForm"
-			action="<%=wp.url("", "section", section)%>">
+			action="<%=wp.url("", "sectionId", section)%>">
 			<div class="guideForm-main">
 				<%
 					if (guide != null) {
@@ -275,7 +255,7 @@
 
 					wp.write("<div class=\"guideTop\">");
 					wp.write(pg.getName(), " Guide Section:  ");
-					wp.write("<select name=\"section\" onchange=\"$(this).closest('form').submit();\">");
+					wp.write("<select name=\"sectionId\" onchange=\"$(this).closest('form').submit();\">");
 
 					iter = sections.iterator();
 
@@ -288,11 +268,16 @@
 					wp.write("</option>");
 
 					while (iter.hasNext()) {
-						sectionCnt++;
-						if (cur != null && !foundSelected) {
-							prev = cur;
-						}
+						Section tmp = cur;
 						cur = (Section) iter.next();
+						if (cur instanceof ContainerSection) {
+							cur = tmp;
+							continue;
+						}
+						if (tmp != null && !foundSelected) {
+							prev = tmp;
+						}
+						sectionCnt++;
 						if (nxt == null && foundSelected) {
 							nxt = cur;
 						}
@@ -334,7 +319,7 @@
 					if (selected != null && selected instanceof Content) {
 						wp.write("<input type=\"hidden\" name=\"id\" value=\"",
 								((Content) selected).getId(), "\"/>");
-					} 
+					}
 					if (pg != null) {
 						wp.write(
 								"<input type=\"hidden\" name=\"templateId\" value=\"",
@@ -353,7 +338,9 @@
 			<%
 				} else {
 						if (section != null) {
-							GuideSection sectionGuide = Guide.Static.getSectionGuide(pg, section);
+							sectionName = section.getName();
+							GuideSection sectionGuide = Guide.Static
+									.getSectionGuide(pg, section);
 							request.setAttribute("sectionProductionGuide",
 									sectionGuide);
 			%><div class="guideDescription">
@@ -373,7 +360,9 @@
 									}
 									wp.write("</div>");
 								}
-								if (sectionGuide != null && sectionGuide.getTips() != null && !sectionGuide.getTips().isEmpty()) {
+								if (sectionGuide != null
+										&& sectionGuide.getTips() != null
+										&& !sectionGuide.getTips().isEmpty()) {
 				%><div class="guideTips">
 					<cms:render value="${sectionProductionGuide.tips}" />
 				</div>
@@ -384,24 +373,26 @@
 
 						}
 
-						if (samplePage != null) {
+						if (samplePage != null && samplePage.getPermalink() != null) {
+							String pageUrl = samplePage.getPermalink();
+							pageUrl += '?' + PageFilter.OVERLAY_PARAMETER + "=true";
 				%>
 				<div class="guidePreview">
-					<iframe class="guidePreviewFrame"
-						src="<%=samplePage.getPermalink()%>"></iframe>
+					<iframe name="guidePreview" class="guidePreviewFrame"
+						src="<%=pageUrl%>" onload="init_sample(window.guidePreview);"></iframe>
 				</div>
 				<%
 					}
 						wp.write("</div>"); // end guideForm-main
 						wp.write("<div class=\"guideButtons\" align=\"center\">");
-						if (prev != null) {
-							wp.write("<a href=\"", wp.url("", "section", prev.getId()),
+						if (prev != null && !summaryPage) {
+							wp.write("<a href=\"", wp.url("", "sectionId", prev.getId()),
 									"\" class=\"button\">Previous</a>");
 						} else {
 							if (!summaryPage) {
 								// we don't have a previous section, but we're not the first page, which 
 								// means the previous page is the first (summary) page 
-								wp.write("<a href=\"", wp.url("", "section", ""),
+								wp.write("<a href=\"", wp.url("", "sectionId", ""),
 										"\" class=\"button\">Previous</a>");
 							}
 						}
@@ -412,7 +403,7 @@
 						wp.write(sectionCnt);
 						wp.write(" ");
 						if (nxt != null) {
-							wp.write("<a href=\"", wp.url("", "section", nxt.getId()),
+							wp.write("<a href=\"", wp.url("", "sectionId", nxt.getId()),
 									"\" class=\"button\">Next</a>");
 						}
 						wp.write("</div>"); // end guidebuttons
@@ -445,7 +436,7 @@
 									}
 								}
 							}
-							wp.write("</div>");	
+							wp.write("</div>");
 						}
 				%>
 
@@ -467,3 +458,101 @@
 <%
 	wp.include("/WEB-INF/footer.jsp");
 %>
+<script type="text/javascript">
+function init_sample(obj) {
+   var samplePageBody = obj.document.getElementsByTagName("body")[0];
+   
+    if (samplePageBody) {
+      $(samplePageBody).find('span.cms-overlayBegin').each(function() {
+                    var $begin = $(this),
+                            data = $.parseJSON($begin.text()),
+                            found = false,
+                            minX = Number.MAX_VALUE,
+                            maxX = 0,
+                            minY = Number.MAX_VALUE,
+                            maxY = 0,
+                            $section,
+                            $edit;
+       });
+    }
+   
+}
+</script>
+<script type="text/javascript">
+function init_sample(obj) {
+    body = $(obj.document.getElementsByTagName("body")[0]);
+    markSection(body);
+}
+
+(function($, win, undef) {
+                     
+        var $samplePageWin = $(window.frames[ "guidePreview" ]);
+        sectionId = "<%=sectionId%>";
+        sectionName = "<%=sectionName%>";
+        
+        markSection = (function($samplePageBody)  { 
+
+                 $samplePageBody.find('span.cms-overlayBegin').each(function() {
+                    var $begin = $(this),
+                            data = $.parseJSON($begin.text()),
+                            found = false,
+                            minX = Number.MAX_VALUE,
+                            maxX = 0,
+                            minY = Number.MAX_VALUE,
+                            maxY = 0,
+                            $section,
+                            $edit;
+                           
+
+                    // Calculate the section size using the marker SPANs.
+                    $begin.nextUntil('span.cms-overlayEnd').filter(':visible').each(function() {
+                        var $item = $(this),
+                                itemOffset = $item.offset(),
+                                itemMinX = itemOffset.left,
+                                itemMaxX = itemMinX + $item.outerWidth(),
+                                itemMinY = itemOffset.top,
+                                itemMaxY = itemMinY + $item.outerHeight();
+
+                        found = true;
+
+                        if (minX > itemMinX) {
+                            minX = itemMinX;
+                        }
+                        if (maxX < itemMaxX) {
+                            maxX = itemMaxX;
+                        }
+                        if (minY > itemMinY) {
+                            minY = itemMinY;
+                        }
+                        if (maxY < itemMaxY) {
+                            maxY = itemMaxY;
+                        }
+                        
+                        if (found && data.sectionId == sectionId) {
+                        
+                            // if this is the section we want, make a border
+                            $section = $('<a/>', {
+                              'class': 'guidePreviewSection',
+                              'css': {
+                                'border': '10px solid',
+                                'height': maxY - minY,
+                                'left': minX,
+                                'position': 'absolute',
+                                'top': minY,
+                                'width': maxX - minX
+                              }
+                            });
+
+                           
+                            $samplePageBody.append($section);
+                        }
+                                            
+                    });
+                });
+                    
+             });         
+                    
+        
+
+})(jQuery, window);
+</script>

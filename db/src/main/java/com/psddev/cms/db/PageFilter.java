@@ -936,6 +936,7 @@ public class PageFilter extends AbstractFilter {
 
                 if (section != null) {
                     map.put("sectionName", section.getName());
+					map.put("sectionId", section.getId().toString());
                 }
 
                 if (object != null) {

@@ -27,7 +27,7 @@ if (wp.requireUser()) {
 <p>
 	Production Guides:<br>
 	<% for (Guide guide : guides) { 
-	  wp.write(" <a target=\"_blank\" href=\"", wp.url("/content/guide.jsp", "guideId", guide.getId()), "\">", guide.getTitle(), "</a>");                        
+	  wp.write("<li><a target=\"_blank\" href=\"", wp.url("/content/guide.jsp", "guideId", guide.getId()), "\">", guide.getTitle(), "</a></li>");                        
 	 } %>
 </p>
 <% } %>
