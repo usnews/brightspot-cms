@@ -31,7 +31,6 @@ saved!
     Default Role For New Users:                            
     <form id="defaultRole" action="<%= wp.url("/admin/defaultRole.jsp")%>" method="post" style="padding: 5px;">
         <select name="role" style="width: 120px;margin-right: 5px;">
-            <option value="" selected>None</option>
             <% for(ToolRole role : roles) { %>
             <option value="<%= role.getId() %>" <%= role.getDefaultRole() ? "selected" : "" %>><%= role.getName() %></option>
             <% } %>
