@@ -410,7 +410,7 @@ String existingClass = wp.createId();
                         </div>
 
                         <div class="imageEditor-edit">
-                            <h2>Filters</h2>
+                            <h2>Adjustments</h2>
                             <table><tbody>
                                 <tr>
                                     <th>Brightness</th>
