@@ -59,7 +59,7 @@ public class ScheduledEvents extends PageServlet {
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
-            writer.start("h1", "class", "icon-calendar");
+            writer.start("h1", "class", "icon icon-calendar");
 
                 writer.html("Scheduled Events: ");
 
