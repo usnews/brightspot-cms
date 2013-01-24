@@ -531,6 +531,7 @@ public class PageFilter extends AbstractFilter {
      * Processes and writes the given {@code section} to the given
      * {@code writer}.
      */
+    @SuppressWarnings("all")
     private static void writeSection(
             final HttpServletRequest request,
             final HttpServletResponse response,
@@ -550,18 +551,33 @@ public class PageFilter extends AbstractFilter {
             @SuppressWarnings("all")
             HtmlWriter gridWriter = new HtmlWriter(writer);
 
-            gridWriter.putOverride(Section.class, new HtmlFormatter<Section>() {
+            gridWriter.putOverride(Record.class, new HtmlFormatter<Record>() {
                 @Override
-                public void format(HtmlWriter writer, Section child) throws IOException {
+                public void format(HtmlWriter writer, Record object) throws IOException {
                     try {
-                        renderObject(request, response, writer, child);
+                        renderObject(request, response, writer, object);
                     } catch (ServletException error) {
                         throw new IOException(error);
                     }
                 }
             });
 
-            gridWriter.grid(grid.getChildren(), grid.getWidths(), grid.getHeights(), grid.getTemplate());
+            gridWriter.putOverride(List.class, new HtmlFormatter<List>() {
+                @Override
+                public void format(HtmlWriter writer, List list) throws IOException {
+                    for (Object item : list) {
+                        writer.object(item);
+                    }
+                }
+            });
+
+            Map<String, List<Content>> contents = new HashMap<String, List<Content>>();
+
+            for (GridSection.Area area : grid.getAreas()) {
+                contents.put(area.getName(), area.getContents());
+            }
+
+            gridWriter.grid(contents, grid.getWidths(), grid.getHeights(), grid.getTemplate());
 
         } else {
             // Container section - begin, child sections, then end.

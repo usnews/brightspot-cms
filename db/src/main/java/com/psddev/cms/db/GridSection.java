@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.CollectionUtils;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlFormatter;
 import com.psddev.dari.util.HtmlWriter;
 
@@ -21,8 +20,7 @@ public class GridSection extends Section {
     @ToolUi.Code("css-grid")
     private String template;
 
-    @Embedded
-    private List<Section> children;
+    private List<Area> areas;
 
     public String getWidths() {
         return widths;
@@ -48,33 +46,20 @@ public class GridSection extends Section {
         this.template = template;
     }
 
-    /** Returns the children. */
-    public List<Section> getChildren() {
-        if (children == null) {
-            children = new ArrayList<Section>();
+    public List<Area> getAreas() {
+        if (areas == null) {
+            areas = new ArrayList<Area>();
         }
-        return children;
+        return areas;
     }
 
-    /** Sets the children. */
-    public void setChildren(List<Section> children) {
-        this.children = children;
+    public void setAreas(List<Area> areas) {
+        this.areas = areas;
     }
 
     @Override
     public Map<String, Object> toDefinition() {
-        Map<String, Object> definition = super.toDefinition();
-        List<Map<String, Object>> childMaps = new ArrayList<Map<String, Object>>();
-
-        definition.put("children", childMaps);
-
-        for (Section child : getChildren()) {
-            if (child != null) {
-                childMaps.add(child.toDefinition());
-            }
-        }
-
-        return definition;
+        return super.toDefinition();
     }
 
     @Override
@@ -85,16 +70,57 @@ public class GridSection extends Section {
         previewWriter.putOverride(HtmlWriter.Area.class, new HtmlFormatter<HtmlWriter.Area>() {
             @Override
             public void format(HtmlWriter writer, HtmlWriter.Area area) throws IOException {
-                Object section = CollectionUtils.getByPath(getChildren(), area.getName());
+                Area gridArea = null;
 
-                writer.start("div", "class", "name");
-                    writer.html(section != null ?
-                            State.getInstance(section).getLabel() :
-                            area.getName());
+                for (Area ga : getAreas()) {
+                    if (area.getName().equals(ga.getName())) {
+                        gridArea = ga;
+                        break;
+                    }
+                }
+
+                writer.start("div", "class", "heading");
+
+                    writer.start("div", "class", "name");
+                        writer.html(area.getName());
+                    writer.end();
+
+                    if (gridArea != null) {
+                        writer.start("ol");
+                            for (Content content : gridArea.getContents()) {
+                                writer.start("li");
+                                    writer.start("a",
+                                            "href", "/cms/content/object.jsp?id=" + content.getId(),
+                                            "target", "gridContent");
+                                        writer.html(content.getLabel());
+                                    writer.end();
+                                writer.end();
+                            }
+                        writer.end();
+                    }
+
                 writer.end();
             }
         });
         
         previewWriter.grid(null, widths, heights, template);
+    }
+
+    @Embedded
+    public static class Area extends Record {
+
+        private String name;
+        private List<Content> contents;
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Content> getContents() {
+            if (contents == null) {
+                contents = new ArrayList<Content>();
+            }
+            return contents;
+        }
     }
 }
