@@ -15,6 +15,7 @@ public class GridSection extends Section {
     private String widths;
 
     @ToolUi.Code("css-grid")
+    @ToolUi.Note("You can leave this blank and put the heights in the template using the slash syntax (e.g. A B C /auto).")
     private String heights;
 
     @ToolUi.Code("css-grid")
