@@ -19,6 +19,8 @@ public class Page extends Content {
     @Required
     private String name;
 
+    private Content defaultContent;
+
     @DisplayName("Layout")
     @InternalName("layout.v2")
     @ToolUi.FieldDisplayType("layout")
@@ -32,6 +34,16 @@ public class Page extends Content {
     /** Sets the unique name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /** Returns the default content. */
+    public Content getDefaultContent() {
+        return defaultContent;
+    }
+
+    /** Sets the default content. */
+    public void setDefaultContent(Content defaultContent) {
+        this.defaultContent = defaultContent;
     }
 
     /** Returns the layout. */
