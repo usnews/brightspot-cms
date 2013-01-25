@@ -9,6 +9,7 @@ com.psddev.cms.db.VerticalContainerSection,
 com.psddev.cms.db.Template,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 
@@ -27,12 +28,6 @@ State selectedState = State.getInstance(selected);
 if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     return;
 }
-
-List<Section> shareableSections = Query.
-        from(Section.class).
-        where("isShareable = true").
-        and(wp.siteItemsPredicate()).
-        select();
 
 // --- Presentation ---
 
@@ -60,16 +55,23 @@ List<Section> shareableSections = Query.
                 <% } %>
             </ul>
 
-            <% if (!shareableSections.isEmpty()) { %>
-                <h2>Shareable Sections</h2>
-                <ul class="links">
-                    <% for (Section section : shareableSections) { %>
-                        <li<%= section.equals(selected) ? " class=\"selected\"" : "" %>>
-                            <a href="<%= wp.objectUrl(null, section) %>"><%= wp.objectLabel(section) %></a>
-                        </li>
-                    <% } %>
-                </ul>
-            <% } %>
+            <h2>Shareable Sections</h2>
+            <ul class="links">
+                <% for (ObjectType type : ObjectType.getInstance(Section.class).findConcreteTypes()) { %>
+                    <li class="new<%= type.equals(selectedState.getType()) && selectedState.isNew() ? " selected" : "" %>">
+                        <a href="<%= wp.typeUrl(null, type.getObjectClass()) %>">New <%= wp.h(type.getLabel()) %></a>
+                    </li>
+                <% } %>
+                <% for (Section section : Query.
+                        from(Section.class).
+                        where("isShareable = true").
+                        and(wp.siteItemsPredicate()).
+                        selectAll()) { %>
+                    <li<%= section.equals(selected) ? " class=\"selected\"" : "" %>>
+                        <a href="<%= wp.objectUrl(null, section) %>"><%= wp.objectLabel(section) %></a>
+                    </li>
+                <% } %>
+            </ul>
         </div>
 
     </div>
