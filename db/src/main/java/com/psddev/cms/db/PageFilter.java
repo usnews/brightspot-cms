@@ -571,11 +571,20 @@ public class PageFilter extends AbstractFilter {
                 }
             });
 
-            Map<String, List<Content>> contents = new HashMap<String, List<Content>>();
+            Map<String, Object> contents = new HashMap<String, Object>();
+
+            for (Section s : Query.
+                    from(Section.class).
+                    where("isShareable = true").
+                    iterable(0)) {
+                contents.put(s.getInternalName(), s);
+            }
 
             for (GridSection.Area area : grid.getAreas()) {
                 contents.put(area.getName(), area.getContents());
             }
+
+            contents.put("MAIN", Static.getMainObject(request));
 
             gridWriter.grid(contents, grid.getWidths(), grid.getHeights(), grid.getTemplate());
 
