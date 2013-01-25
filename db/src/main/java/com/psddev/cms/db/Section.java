@@ -7,7 +7,11 @@ import java.util.Map;
 
 public abstract class Section extends Content {
 
-    private String name;
+    @InternalName("name")
+    private String displayName;
+
+    @Indexed(unique = true)
+    private String internalName;
 
     @Indexed
     @InternalName("isShareable")
@@ -15,14 +19,24 @@ public abstract class Section extends Content {
 
     private long cacheDuration;
 
-    /** Returns the name. */
-    public String getName() {
-        return name;
+    /** Returns the display name. */
+    public String getDisplayName() {
+        return displayName;
     }
 
-    /** Sets the name. */
-    public void setName(String name) {
-        this.name = name;
+    /** Sets the display name. */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /** Returns the internal name. */
+    public String getInternalName() {
+        return internalName;
+    }
+
+    /** Sets the internal name. */
+    public void setInternalName(String internalName) {
+        this.internalName = internalName;
     }
 
     /**
@@ -57,8 +71,20 @@ public abstract class Section extends Content {
 
     // --- Deprecated ---
 
-    /** No replacement. */
+    /** @deprecated No replacement. */
     @Deprecated
     @ToolUi.Hidden
     private boolean isCacheable;
+
+    /** @deprecated Use {@link #getDisplayName} instead. */
+    @Deprecated
+    public String getName() {
+        return getDisplayName();
+    }
+
+    /** @deprecated Use {@link #setDisplayName} instead. */
+    @Deprecated
+    public void setName(String name) {
+        setDisplayName(name);
+    }
 }
