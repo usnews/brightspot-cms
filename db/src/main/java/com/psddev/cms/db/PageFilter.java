@@ -580,11 +580,14 @@ public class PageFilter extends AbstractFilter {
                 contents.put(s.getInternalName(), s);
             }
 
+            for (Enumeration<String> e = request.getAttributeNames(); e.hasMoreElements(); ) {
+                String name = e.nextElement();
+                contents.put(name, request.getAttribute(name));
+            }
+
             for (GridSection.Area area : grid.getAreas()) {
                 contents.put(area.getName(), area.getContents());
             }
-
-            contents.put("MAIN", Static.getMainObject(request));
 
             gridWriter.grid(contents, grid.getWidths(), grid.getHeights(), grid.getTemplate());
 
