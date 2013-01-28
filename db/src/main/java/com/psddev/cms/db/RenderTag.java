@@ -53,12 +53,17 @@ public class RenderTag extends BodyTagSupport {
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
 
+    private String area;
     private Object value;
     private String beginMarker;
     private int beginOffset;
     private String endMarker;
     private int endOffset;
     private transient Map<String, String> areas;
+
+    public void setArea(String area) {
+        this.area = area;
+    }
 
     public void setValue(Object value) {
         this.value = value;
@@ -256,15 +261,20 @@ public class RenderTag extends BodyTagSupport {
 
     @Override
     public int doEndTag() throws JspException {
-        if (areas == null && bodyContent != null) {
+        if (bodyContent != null) {
             String body = bodyContent.getString();
 
             if (body != null) {
-                try {
-                    pageContext.getOut().print(body);
+                if (areas != null && !ObjectUtils.isBlank(area)) {
+                    areas.put(area, body);
 
-                } catch (IOException ex) {
-                    throw new JspException(ex);
+                } else {
+                    try {
+                        pageContext.getOut().print(body);
+
+                    } catch (IOException ex) {
+                        throw new JspException(ex);
+                    }
                 }
             }
         }

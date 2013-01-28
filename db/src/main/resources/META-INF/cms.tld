@@ -160,9 +160,12 @@
         <tag-class>com.psddev.cms.db.RenderTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
+            <name>area</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>value</name>
             <rtexprvalue>true</rtexprvalue>
-            <required>true</required>
         </attribute>
         <attribute>
             <name>beginMarker</name>
