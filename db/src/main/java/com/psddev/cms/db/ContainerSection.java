@@ -30,9 +30,9 @@ public abstract class ContainerSection extends ScriptSection {
 
         definition.put("children", childMaps);
 
-        for (Section child : getChildren()) {
-            if (child != null) {
-                childMaps.add(child.toDefinition());
+        for (Object child : getChildren()) {
+            if (child instanceof Section) {
+                childMaps.add(((Section) child).toDefinition());
             }
         }
 
