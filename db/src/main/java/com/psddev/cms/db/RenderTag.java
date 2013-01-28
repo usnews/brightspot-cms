@@ -91,10 +91,7 @@ public class RenderTag extends BodyTagSupport {
     @Override
     public int doStartTag() throws JspException {
         Tag parent = getParent();
-
-        if (parent instanceof LayoutTag) {
-            areas = ((LayoutTag) parent).getAreas();
-        }
+        areas = parent instanceof LayoutTag ? ((LayoutTag) parent).getAreas() : null;
 
         try {
             Integer action = writeValue(areas, pageContext.getOut(), null, value);
