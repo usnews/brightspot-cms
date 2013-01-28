@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
@@ -89,10 +90,10 @@ public class RenderTag extends BodyTagSupport {
 
     @Override
     public int doStartTag() throws JspException {
-        LayoutTag parent = (LayoutTag) findAncestorWithClass(this, LayoutTag.class);
+        Tag parent = getParent();
 
-        if (parent != null) {
-            areas = parent.getAreas();
+        if (parent instanceof LayoutTag) {
+            areas = ((LayoutTag) parent).getAreas();
         }
 
         try {
