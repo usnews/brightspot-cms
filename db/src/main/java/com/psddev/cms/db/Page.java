@@ -1,17 +1,17 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.State;
-
-import com.psddev.dari.util.ObjectUtils;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ListMap;
+import com.psddev.dari.util.ObjectUtils;
 
 public class Page extends Content {
     
@@ -21,6 +21,7 @@ public class Page extends Content {
 
     private String rendererPath;
     private List<Area> areas;
+    private transient Map<String, Area> areasMap;
 
     @DisplayName("Layout")
     @InternalName("layout.v2")
@@ -48,16 +49,27 @@ public class Page extends Content {
     }
 
     /** Returns the areas. */
-    public List<Area> getAreas() {
+    public Map<String, Area> getAreas() {
         if (areas == null) {
             areas = new ArrayList<Area>();
         }
-        return areas;
+
+        if (areasMap == null) {
+            areasMap = new ListMap<String, Area>(areas) {
+                @Override
+                public String getKey(Area area) {
+                    return area.getInternalName();
+                }
+            };
+        }
+
+        return areasMap;
     }
 
     /** Sets the areas. */
     public void setAreas(List<Area> areas) {
         this.areas = areas;
+        this.areasMap = null;
     }
 
     /** Returns the layout. */
