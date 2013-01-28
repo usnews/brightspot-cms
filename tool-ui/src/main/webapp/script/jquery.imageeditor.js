@@ -9,6 +9,7 @@ $.plugin2('imageEditor', {
         var $editor = $(element);
         var $form = $editor.closest('form');
         var $image = $editor.find('.imageEditor-image img');
+        var imageSrc = $image.attr('src');
         var $originalImage = $image;
         var $imageClone = $image.clone();
         var imageClone = $imageClone[0];
@@ -527,7 +528,7 @@ $.plugin2('imageEditor', {
                 'class': 'imageEditor-sizePreview',
                 'html': $('<img/>', {
                     'alt': $th.text(),
-                    'src': $image.attr('src'),
+                    'src': imageSrc,
                     'load': function() {
                         updatePreview();
                     }
