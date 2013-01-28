@@ -2,9 +2,20 @@ package com.psddev.cms.db;
 
 import com.psddev.cms.db.GuideSection;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.GuideType.GuideField;
+import com.psddev.cms.db.GuideType.Static;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Guide extends Record {
 
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);
 
 	@Required
@@ -34,7 +44,7 @@ public class Guide extends Record {
 
 	@ToolUi.Note("Production Guide Overview Section")
 	private ReferentialText overview;
-	
+
 	@ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
 	private List<Page> templatesToIncludeInGuide;
 
@@ -63,7 +73,6 @@ public class Guide extends Record {
 		this.templatesToIncludeInGuide = templatesToIncludeInGuide;
 	}
 
-
 	/** Static utility methods. */
 	public static final class Static {
 
@@ -73,10 +82,10 @@ public class Guide extends Record {
 		/*
 		 * Get the main Production Guide
 		 */
-		public static GuidePage getPageProductionGuide(
-				Page content) {
+		public static GuidePage getPageProductionGuide(Page content) {
 			if (content != null) {
-				GuidePage guide = Query.from(GuidePage.class).where("pageType = ?", content.getId()).first();
+				GuidePage guide = Query.from(GuidePage.class)
+						.where("pageType = ?", content.getId()).first();
 				if (guide != null) {
 					return guide;
 				}
@@ -141,11 +150,12 @@ public class Guide extends Record {
 			}
 			return null;
 		}
-		
+
 		/*
 		 * Get the Production Guide description for a template section
 		 */
-		public static ReferentialText getSectionDescription(Page page, Section section) {
+		public static ReferentialText getSectionDescription(Page page,
+				Section section) {
 			if (section != null && page != null) {
 				GuidePage pageGuide = getPageProductionGuide(page);
 				if (pageGuide != null) {
@@ -167,7 +177,6 @@ public class Guide extends Record {
 			}
 			return null;
 		}
-
 
 		/*
 		 * Return the related templates (other than the one provided) that have
@@ -234,7 +243,44 @@ public class Guide extends Record {
 		}
 
 	}
-	
 
+	/* Annotation processors */
+
+	/** Annotation allows Production description content for fields */
+	@Documented
+	@Inherited
+	@ObjectField.AnnotationProcessorClass(DescriptionProcessor.class)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.FIELD })
+	public @interface Description {
+		String value() default "";
+	}
+
+	private static class DescriptionProcessor implements
+			ObjectField.AnnotationProcessor<Description> {
+
+		@Override
+		public void process(ObjectType type, ObjectField field,
+				Description annotation) {
+			// field.as(ToolUi.class).setHidden(annotation.value());
+			// find/create a GuideType object for the fields type
+			// add the description
+			GuideType guide = GuideType.Static.findOrCreateGuide(field);
+			GuideField gf = guide.getGuideField(field.getInternalName());
+			if (gf != null) {
+				ReferentialText currentDesc = gf.getDescription();
+				if (currentDesc == null || currentDesc.isEmpty()
+						|| gf.isFromAnnotation() == true) {
+					ReferentialText descText = new ReferentialText();
+					descText.add(annotation.value());
+					if (!descText.equals(currentDesc)) {
+						GuideType.Static.setDescription(field, descText);
+					}
+				}
+			}
+
+		}
+
+	}
 
 }

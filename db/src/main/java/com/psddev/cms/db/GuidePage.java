@@ -32,7 +32,7 @@ public class GuidePage extends Record {
 	@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
 	private Content samplePage;
 
-	@ToolUi.Note("Production Guide field descriptions for this content type (Note that any fields within an embedded type should be defined separately in a Guide for the embedded type)")
+	@ToolUi.Note("Production Guide section descriptions for this page/template")
 	@Embedded
 	private List<GuideSection> sectionDescriptions;
 
@@ -92,25 +92,24 @@ public class GuidePage extends Record {
 		if (section instanceof ContainerSection) {
 			return null;
 		}
+		// Only allowed to create a production guide for a named section
+		if (section.getName() == null || section.getName().isEmpty()) {
+			return null;
+		}
 		if (sectionDescriptions == null) {
 			sectionDescriptions = new ArrayList<GuideSection>();
 		}
 		if (!sectionDescriptions.isEmpty()) {
 			for (GuideSection gs : sectionDescriptions) {
-				if (gs.getSectionId() != null
-						&& gs.getSectionId().equals(section.getId())) {
+				if (gs.getSectionName() != null
+						&& gs.getSectionName().equals(section.getName())) {
 					return gs;
 				}
 			}
 		}
 		// else create it
 		GuideSection gs = new GuideSection();
-		if (section.getName() == null || section.getName().isEmpty()) {
-			gs.setSectionName(section.getClass().getSimpleName());
-		} else {
-			gs.setSectionName(section.getName());
-		}
-		gs.setSectionId(section.getId());
+		gs.setSectionName(section.getName());
 		sectionDescriptions.add(gs);
 		return gs;
 	}

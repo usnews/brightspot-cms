@@ -153,7 +153,7 @@ public class GuideType extends Record {
 	}
 
 	@Record.Embedded
-	@Record.LabelFields({ "fieldName", "description" })
+	@Record.LabelFields({ "fieldName" })
 	public static class GuideField extends Record {
 
 		@Required
@@ -252,42 +252,7 @@ public class GuideType extends Record {
 		}
 	}
 
-	/* Annotation processors */
 
-	/** Specifies Production description content for field */
-	@Documented
-	@Inherited
-	@ObjectField.AnnotationProcessorClass(DescriptionProcessor.class)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.FIELD })
-	public @interface Description {
-		String value() default "";
-	}
-
-	private static class DescriptionProcessor implements
-			ObjectField.AnnotationProcessor<Description> {
-
-		@Override
-		public void process(ObjectType type, ObjectField field,
-				Description annotation) {
-			// field.as(ToolUi.class).setHidden(annotation.value());
-			// find/create a GuideType object for the fields type
-			// add the description
-			GuideType guide = Static.findOrCreateGuide(field);
-			GuideField gf = guide.getGuideField(field.getInternalName());
-			ReferentialText currentDesc = gf.getDescription();
-			if (currentDesc == null || currentDesc.isEmpty() || gf.isFromAnnotation() == true ) {
-				ReferentialText descText = new ReferentialText();
-				descText.add(annotation.value());
-				if (!descText.equals(currentDesc)) {
-					Static.setDescription(field, descText);
-				}
-			}
-
-		}
-
-	}
-	
 	
 
 }
