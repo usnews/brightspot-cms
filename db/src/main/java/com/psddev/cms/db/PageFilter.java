@@ -429,6 +429,13 @@ public class PageFilter extends AbstractFilter {
                 id = writeWireframeWrapperBegin(request, html);
             }
 
+            request.setAttribute("sections", new PullThroughCache<String, Section>() {
+                @Override
+                protected Section produce(String name) {
+                    return Query.from(Section.class).where("internalName = ?", name).first();
+                }
+            });
+
             beginPage(request, response, html, page);
 
             if (!response.isCommitted()) {
@@ -1471,11 +1478,6 @@ public class PageFilter extends AbstractFilter {
 
             return servletPath;
         }
-
-        /** Returns the section with the given {@code internalName}. */
-        public static Section getSection(String internalName) {
-            return Query.from(Section.class).where("internalName = ?", internalName).first();
-        }
     }
 
     public static class PathPattern extends Rule {
@@ -1619,12 +1621,6 @@ public class PageFilter extends AbstractFilter {
     @Deprecated
     public static String getResource(String servletPath) {
         return Static.getResource(servletPath);
-    }
-
-    /** @deprecated Use {@link Static#getSection} instead. */
-    @Deprecated
-    public static Section getSection(String internalName) {
-        return Static.getSection(internalName);
     }
 
     /** Renders the beginning of the given {@code container}. */
