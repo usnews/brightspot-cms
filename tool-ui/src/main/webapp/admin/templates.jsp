@@ -59,7 +59,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
             <ul class="links">
                 <% for (ObjectType type : ObjectType.getInstance(Section.class).findConcreteTypes()) { %>
                     <li class="new<%= type.equals(selectedState.getType()) && selectedState.isNew() ? " selected" : "" %>">
-                        <a href="<%= wp.typeUrl(null, type.getObjectClass()) %>">New <%= wp.h(type.getLabel()) %></a>
+                        <a href="<%= wp.typeUrl(null, type.getId()) %>">New <%= wp.h(type.getLabel()) %></a>
                     </li>
                 <% } %>
                 <% for (Section section : Query.
