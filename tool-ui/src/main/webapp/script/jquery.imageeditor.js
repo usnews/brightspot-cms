@@ -587,6 +587,8 @@ $.plugin2('imageEditor', {
                     var sizeBoxWidth = $sizeBox.width();
                     var sizeBoxHeight = $sizeBox.height();
 
+                    event.dragImmediately = true;
+
                     $.drag(this, event, function(event) {
 
                     }, function(event) {
