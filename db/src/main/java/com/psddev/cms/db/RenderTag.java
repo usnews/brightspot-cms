@@ -1,12 +1,8 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Reference;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.HtmlObject;
-import com.psddev.dari.util.HtmlWriter;
-import com.psddev.dari.util.ObjectUtils;
-
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -57,9 +58,7 @@ public class RenderTag extends BodyTagSupport {
     private int beginOffset;
     private String endMarker;
     private int endOffset;
-    private String[] gridTemplate;
-    private String gridWidths;
-    private String gridHeights;
+    private transient Map<String, String> areas;
 
     public void setValue(Object value) {
         this.value = value;
@@ -81,25 +80,18 @@ public class RenderTag extends BodyTagSupport {
         this.endOffset = endOffset;
     }
 
-    public void setGridTemplate(Object gridTemplate) {
-        this.gridTemplate = ObjectUtils.to(String[].class, gridTemplate);
-    }
-
-    public void setGridWidths(String gridWidths) {
-        this.gridWidths = gridWidths;
-    }
-
-    public void setGridHeights(String gridHeights) {
-        this.gridHeights = gridHeights;
-    }
-
     // --- TagSupport support ---
 
     @Override
     public int doStartTag() throws JspException {
+        LayoutTag parent = (LayoutTag) findAncestorWithClass(this, LayoutTag.class);
+
+        if (parent != null) {
+            areas = parent.getAreas();
+        }
+
         try {
-            HtmlWriter writer = new HtmlWriter(pageContext.getOut());
-            Integer action = writeValue(writer, value);
+            Integer action = writeValue(areas, pageContext.getOut(), null, value);
 
             if (action != null) {
                 return action;
@@ -143,7 +135,13 @@ public class RenderTag extends BodyTagSupport {
     }
 
     // Writes the given value to the response.
-    private Integer writeValue(HtmlWriter writer, Object value) throws IOException, ServletException {
+    private Integer writeValue(
+            Map<String, String> areas,
+            Writer writer,
+            Object area,
+            Object value)
+            throws IOException, ServletException {
+
         if (ObjectUtils.isBlank(value)) {
             return EVAL_BODY_BUFFERED;
         }
@@ -210,49 +208,47 @@ public class RenderTag extends BodyTagSupport {
             }
 
         } else if (value instanceof Map) {
-            Map<String, HtmlObject> items = new LinkedHashMap<String, HtmlObject>();
-
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-                Object key = entry.getKey();
-                final Object item = entry.getValue();
-
-                items.put(key != null ? key.toString() : null, new HtmlObject() {
-                    @Override
-                    public void format(HtmlWriter writer) throws IOException {
-                        try {
-                            writeValue(writer, item);
-                        } catch (ServletException error) {
-                            throw new IOException(error);
-                        }
-                    }
-                });
+                writeValue(areas, writer, entry.getKey(), entry.getValue());
             }
-
-            writer.grid(items, gridWidths, gridHeights, gridTemplate);
 
         } else if (value instanceof Iterable) {
-            List<HtmlObject> items = new ArrayList<HtmlObject>();
-
-            for (final Object item : (Iterable<?>) value) {
-                items.add(new HtmlObject() {
-                    @Override
-                    public void format(HtmlWriter writer) throws IOException {
-                        try {
-                            writeValue(writer, item);
-                        } catch (ServletException error) {
-                            throw new IOException(error);
-                        }
-                    }
-                });
+            int index = 0;
+            for (Object item : (Iterable<?>) value) {
+                writeValue(areas, writer, index, item);
+                ++ index;
             }
 
-            writer.grid(items, gridWidths, gridHeights, gridTemplate);
-
         } else if (value instanceof String) {
-            writer.html(value);
+            writer.write(StringUtils.escapeHtml((String) value));
+
+        } else if (value instanceof Page.Area) {
+            Page.Area pageArea = (Page.Area) value;
+
+            if (areas == null) {
+                writeValue(areas, writer, null, pageArea.getContents());
+
+            } else {
+                StringWriter stringWriter = new StringWriter();
+                writeValue(null, stringWriter, null, pageArea.getContents());
+                areas.put(pageArea.getInternalName(), stringWriter.toString());
+            }
 
         } else {
-            PageFilter.renderObject(request, response, writer, value);
+            if (areas == null) {
+                PageFilter.renderObject(request, response, writer, value);
+
+            } else {
+                if (value instanceof Section) {
+                    area = ((Section) value).getInternalName();
+                }
+
+                if (!ObjectUtils.isBlank(area)) {
+                    StringWriter stringWriter = new StringWriter();
+                    PageFilter.renderObject(request, response, stringWriter, value);
+                    areas.put(area.toString(), stringWriter.toString());
+                }
+            }
         }
 
         return null;
@@ -260,10 +256,10 @@ public class RenderTag extends BodyTagSupport {
 
     @Override
     public int doEndTag() throws JspException {
-        if (bodyContent != null) {
+        if (areas == null && bodyContent != null) {
             String body = bodyContent.getString();
 
-            if (!ObjectUtils.isBlank(body)) {
+            if (body != null) {
                 try {
                     pageContext.getOut().print(body);
 

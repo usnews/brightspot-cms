@@ -19,7 +19,8 @@ public class Page extends Content {
     @Required
     private String name;
 
-    private Content defaultContent;
+    private String rendererPath;
+    private List<Area> areas;
 
     @DisplayName("Layout")
     @InternalName("layout.v2")
@@ -36,14 +37,27 @@ public class Page extends Content {
         this.name = name;
     }
 
-    /** Returns the default content. */
-    public Content getDefaultContent() {
-        return defaultContent;
+    /** Returns the renderer path. */
+    public String getRendererPath() {
+        return rendererPath;
     }
 
-    /** Sets the default content. */
-    public void setDefaultContent(Content defaultContent) {
-        this.defaultContent = defaultContent;
+    /** Sets the renderer path. */
+    public void setRendererPath(String rendererPath) {
+        this.rendererPath = rendererPath;
+    }
+
+    /** Returns the areas. */
+    public List<Area> getAreas() {
+        if (areas == null) {
+            areas = new ArrayList<Area>();
+        }
+        return areas;
+    }
+
+    /** Sets the areas. */
+    public void setAreas(List<Area> areas) {
+        this.areas = areas;
     }
 
     /** Returns the layout. */
@@ -281,6 +295,47 @@ public class Page extends Content {
             return (T) reference;
         } else {
             return null;
+        }
+    }
+
+    @Embedded
+    public static class Area extends Record {
+
+        private String displayName;
+        private String internalName;
+        private List<Content> contents;
+
+        /** Returns the display name. */
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        /** Sets the display name. */
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        /** Returns the internal name. */
+        public String getInternalName() {
+            return internalName;
+        }
+
+        /** Sets the internal name. */
+        public void setInternalName(String internalName) {
+            this.internalName = internalName;
+        }
+
+        /** Returns the contents. */
+        public List<Content> getContents() {
+            if (contents == null) {
+                contents = new ArrayList<Content>();
+            }
+            return contents;
+        }
+
+        /** Sets the contents. */
+        public void setContents(List<Content> contents) {
+            this.contents = contents;
         }
     }
 }

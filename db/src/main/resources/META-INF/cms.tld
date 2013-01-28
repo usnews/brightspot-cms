@@ -145,6 +145,17 @@
     </tag>
 
     <tag>
+        <name>layout</name>
+        <tag-class>com.psddev.cms.db.LayoutTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>class</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>render</name>
         <tag-class>com.psddev.cms.db.RenderTag</tag-class>
         <body-content>JSP</body-content>
@@ -170,15 +181,7 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>gridTemplate</name>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>gridWidths</name>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>gridHeights</name>
+            <name>class</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -198,6 +201,14 @@
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>
             java.lang.String getResource(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>section</name>
+        <function-class>com.psddev.cms.db.PageFilter</function-class>
+        <function-signature>
+            com.psddev.cms.db.Section getSection(java.lang.String)
         </function-signature>
     </function>
 </taglib>

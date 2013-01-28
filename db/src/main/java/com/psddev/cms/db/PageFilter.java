@@ -435,10 +435,21 @@ public class PageFilter extends AbstractFilter {
                 request.getSession();
             }
 
-            Page.Layout layout = page.getLayout();
+            String rendererPath = page.getRendererPath();
 
-            if (layout != null) {
-                renderSection(request, response, html, layout.getOutermostSection());
+            if (ObjectUtils.isBlank(rendererPath)) {
+                rendererPath = page.as(Renderer.TypeModification.class).getScript();
+            }
+
+            if (!ObjectUtils.isBlank(rendererPath)) {
+                JspUtils.include(request, response, writer, StringUtils.ensureStart(rendererPath, "/"));
+
+            } else {
+                Page.Layout layout = page.getLayout();
+
+                if (layout != null) {
+                    renderSection(request, response, html, layout.getOutermostSection());
+                }
             }
 
             endPage(request, response, html, page);
@@ -546,92 +557,45 @@ public class PageFilter extends AbstractFilter {
             writeWireframeSectionBegin(writer, section);
         }
 
-        if (section instanceof GridSection) {
-            GridSection grid = (GridSection) section;
-            @SuppressWarnings("all")
-            HtmlWriter gridWriter = new HtmlWriter(writer);
+        // Container section - begin, child sections, then end.
+        if (section instanceof ContainerSection) {
+            ContainerSection container = (ContainerSection) section;
 
-            gridWriter.putOverride(Record.class, new HtmlFormatter<Record>() {
-                @Override
-                public void format(HtmlWriter writer, Record object) throws IOException {
-                    try {
-                        renderObject(request, response, writer, object);
-                    } catch (ServletException error) {
-                        throw new IOException(error);
-                    }
-                }
-            });
+            if (ObjectUtils.isBlank(container.getRendererPath())) {
+                containerRendered = true;
+                List<Section> children = container.getChildren();
 
-            gridWriter.putOverride(List.class, new HtmlFormatter<List>() {
-                @Override
-                public void format(HtmlWriter writer, List list) throws IOException {
-                    for (Object item : list) {
-                        writer.object(item);
-                    }
-                }
-            });
+                try {
+                    addParentSection(request, container);
+                    beginContainer(request, response, writer, container);
 
-            Map<String, Object> contents = new HashMap<String, Object>();
-
-            for (Section s : Query.
-                    from(Section.class).
-                    where("isShareable = true").
-                    iterable(0)) {
-                contents.put(s.getInternalName(), s);
-            }
-
-            for (Enumeration<String> e = request.getAttributeNames(); e.hasMoreElements(); ) {
-                String name = e.nextElement();
-                contents.put(name, request.getAttribute(name));
-            }
-
-            for (GridSection.Area area : grid.getAreas()) {
-                contents.put(area.getName(), area.getContents());
-            }
-
-            gridWriter.grid(contents, grid.getWidths(), grid.getHeights(), grid.getTemplate());
-
-        } else {
-            // Container section - begin, child sections, then end.
-            if (section instanceof ContainerSection) {
-                ContainerSection container = (ContainerSection) section;
-
-                if (ObjectUtils.isBlank(container.getRendererPath())) {
-                    containerRendered = true;
-                    List<Section> children = container.getChildren();
-
-                    try {
-                        addParentSection(request, container);
-                        beginContainer(request, response, writer, container);
-
-                        for (Section child : children) {
-                            renderSection(request, response, writer, child);
-                            if (isAborted(request)) {
-                                return;
-                            }
+                    for (Section child : children) {
+                        renderSection(request, response, writer, child);
+                        if (isAborted(request)) {
+                            return;
                         }
-
-                        endContainer(request, response, writer, container);
-
-                    } finally {
-                        removeLastParentSection(request);
                     }
-                }
-            }
 
-            // Script section may be associated with an object.
-            if (!containerRendered &&
-                    section instanceof ScriptSection) {
-                Object object;
-                if (section instanceof MainSection) {
-                    object = getMainObject(request);
-                } else if (section instanceof ContentSection) {
-                    object = ((ContentSection) section).getContent();
-                } else {
-                    object = null;
+                    endContainer(request, response, writer, container);
+
+                } finally {
+                    removeLastParentSection(request);
                 }
-                renderObjectWithSection(request, response, writer, object, (ScriptSection) section);
             }
+        }
+
+        // Script section may be associated with an object.
+        if (!containerRendered &&
+                section instanceof ScriptSection) {
+            Object object;
+            if (section instanceof MainSection) {
+                object = getMainObject(request);
+            } else if (section instanceof ContentSection) {
+                object = ((ContentSection) section).getContent();
+            } else {
+                object = null;
+            }
+            renderObjectWithSection(request, response, writer, object, (ScriptSection) section);
         }
 
         if (wireframe) {
@@ -1507,6 +1471,11 @@ public class PageFilter extends AbstractFilter {
 
             return servletPath;
         }
+
+        /** Returns the section with the given {@code internalName}. */
+        public static Section getSection(String internalName) {
+            return Query.from(Section.class).where("internalName = ?", internalName).first();
+        }
     }
 
     public static class PathPattern extends Rule {
@@ -1650,6 +1619,12 @@ public class PageFilter extends AbstractFilter {
     @Deprecated
     public static String getResource(String servletPath) {
         return Static.getResource(servletPath);
+    }
+
+    /** @deprecated Use {@link Static#getSection} instead. */
+    @Deprecated
+    public static Section getSection(String internalName) {
+        return Static.getSection(internalName);
     }
 
     /** Renders the beginning of the given {@code container}. */
