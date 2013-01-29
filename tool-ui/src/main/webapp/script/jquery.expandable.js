@@ -83,7 +83,7 @@ $.plugin2('expandable', {
 });
 
 $win.resize($.throttle(200, function() {
-    $allInputs.trigger('expand');
+    $allInputs.filter(':visible').trigger('expand');
 }));
 
 }(jQuery, window));
