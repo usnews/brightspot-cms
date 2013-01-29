@@ -3640,6 +3640,34 @@ input[type="text"].dropDown-search {
     padding: 10px 10px 10px 10px;
 }
 
+.guideFootnote {
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    padding: 10px 0 10px 0;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.guideLink {
+    font-family: @fontFamily-label;
+    font-size: 90%;
+    padding: 10px 10px 10px 10px;
+    text-align: left;
+}
+
+.guideControls {
+    .piped;
+    margin-top: 0px;
+    margin-right: 35px;
+    text-align: right;
+    form {
+        display: inline;
+    }
+    li {
+        .piped-item;
+    }
+}
 
 // --- Widgets ---
 
@@ -3836,6 +3864,7 @@ input[type="text"].dropDown-search {
 .action-live { .icon; .icon-bullhorn; }
 .action-logOut { .icon; .icon-signout; }
 .action-preview { .icon; .icon-eye-open; }
+.action-print { .icon; .icon-print; }
 .action-remove { .icon; .icon-minus-sign; }
 .action-reset { .icon; .icon-remove; }
 .action-result { .icon; .icon-list-alt; }

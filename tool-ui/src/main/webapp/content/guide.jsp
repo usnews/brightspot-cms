@@ -150,9 +150,6 @@
 <div class="widget widget-content">
 	<h1 class="icon-page_white_find">
 		<%=guideTitle%>
-						<% if (isPopup) { %>
-	   <a style="float: right" href="<%=wp.url("", "_isFrame", false, "templateId", pg.getId(), "popup", false)%>" target="_blank">View in Full</a>
-	<% } %>
 	</h1>
 	
 	<div class="content-edit">
@@ -219,21 +216,28 @@
 									selectedTemplate.getId(), "\"/>");
 						}
 				%>
-				<div align="right" class="guideButtons">
+				<ul class="guideControls">
+				<li>		
 					<a href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
-						target="productionGuidePrintout" class="button">Print
+						target="productionGuidePrintout">Print
 						Production Guide</a>
-				</div>
+						</li>
+				</ul>
 				<%
 					} else {
 						wp.write("<input type=\"hidden\" name=\"popup\" value=\"",
 								isPopupStr, "\"/>");
 				%>
-				<div align="right" class="guideButtons">
+				<ul class="guideControls">
+					<% if (isPopup) { %>
+	                      <li><a href="<%=wp.url("", "_isFrame", false, "templateId", pg.getId(), "popup", false)%>" target="_blank">View in Full</a></li>
+	                 <% } %>
+				<li>
 					<a href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId())%>"
-						target="productionGuidePrintout" class="button">Print
+						class="action-print" target="productionGuidePrintout">Print
 						Production Guide</a>
-				</div>
+				</li>
+				</ul>
 				<%
 					}
 				%>

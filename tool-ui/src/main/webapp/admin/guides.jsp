@@ -102,7 +102,7 @@ String incompleteIndicator = "*";
 				<% } %>
 			</ul>
 		
-			<ul><%=incompleteIndicator%> indicates minimum information is missing from Guide </ul>
+			<div class="guideFootnote"><%=incompleteIndicator%> indicates needed information is missing from Guide </div>
 
 		</div>
 	</div>
