@@ -351,6 +351,7 @@ var Rte = wysihtml5.Editor.extend({
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
             composer.iframe.contentDocument.body.style.overflow = 'hidden';
+            composer.iframe.contentDocument.body.className += ' rte-loaded';
             textarea.element.className += ' rte-source';
 
             // Make sure only one toolbar is visible at a time.
@@ -550,9 +551,9 @@ wysihtml5.commands.insertMarker = {
 $.plugin2('rte', {
     '_defaultOptions': {
         'enhancement': createEnhancement,
+        'iframeSrc': CONTEXT_PATH + '/style/rte-content.jsp',
         'marker': createMarker,
         'style': false,
-        'stylesheets': [ CONTEXT_PATH + '/style/rte-content.css', CONTEXT_PATH + '/style/rte-cssClasses.jsp' ],
         'toolbar': createToolbar,
         'useLineBreaks': false
     },

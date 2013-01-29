@@ -497,9 +497,6 @@ $.plugin2('imageEditor', {
                 };
             }));
 
-            $sizeBox.hide();
-            $editor.append($sizeBox);
-
             $sizeBox.append($('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-topLeft',
                 'mousedown': updateSizeBox(function(event, original, delta) {
@@ -568,19 +565,31 @@ $.plugin2('imageEditor', {
                     });
 
                     var resizeTextOverlayFont = function() {
+                        if (!$sizeBox.is(':visible')) {
+                            return;
+                        }
+
                         var textSizes = '';
 
                         $sizeBox.find('.imageEditor-textOverlay').each(function() {
                             var $to = $(this),
                                     $body = $($to.find('.rte-container iframe')[0].contentDocument.body),
-                                    originalFontSize,
-                                    textSize;
+                                    originalFontSize = $.data(this, 'imageEditor-originalFontSize'),
+                                    textSize,
+                                    newFontSize;
 
-                            $body.css('font-size', '');
-                            originalFontSize = parseFloat($body.css('font-size'));
-                            textSize = 1 / sizeHeight * originalFontSize;
-                            textSizes += DELIMITER + textSize;
-                            $body.css('font-size', $sizeBox.height() * textSize);
+                            if (!originalFontSize && $body.is('.rte-loaded')) {
+                                originalFontSize = parseFloat($body.css('font-size'));
+                                $.data(this, 'imageEditor-originalFontSize', originalFontSize);
+                            }
+
+                            textSizes += DELIMITER;
+
+                            if (originalFontSize > 0) {
+                                textSize = 1 / sizeHeight * originalFontSize;
+                                textSizes += textSize;
+                                $body.css('font-size', $sizeBox.height() * textSize);
+                            }
                         });
 
                         $input.textSizes.val(textSizes);
@@ -704,12 +713,16 @@ $.plugin2('imageEditor', {
                         $textOverlayInput.focus();
                     }
 
-                    var wait = 2000;
+                    var wait = 5000;
                     var repeatResizeTextOverlayFont = function() {
-                        resizeTextOverlayFont();
-                        wait -= 100;
-                        if (wait > 0) {
-                            setTimeout(repeatResizeTextOverlayFont, 100);
+                        var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body);
+                        if ($body.is('.rte-loaded')) {
+                            resizeTextOverlayFont();
+                        } else {
+                            wait -= 100;
+                            if (wait > 0) {
+                                setTimeout(repeatResizeTextOverlayFont, 100);
+                            }
                         }
                     };
 

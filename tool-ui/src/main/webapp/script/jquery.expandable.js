@@ -28,7 +28,7 @@ $.plugin2('expandable', {
     '_init': function(selector, options) {
         this.$caller.delegate(selector, 'expand.expandable input.expandable', function() {
             var $input = $(this),
-                    $checker = $input.prevAll('.expandable-checker'),
+                    $checker = $.data(this, 'expandable-checker'),
                     properties = options.cssProperties,
                     index,
                     size,
@@ -37,8 +37,9 @@ $.plugin2('expandable', {
 
             // Create a hidden DIV that copies the input styles so that we can
             // measure the height.
-            if ($checker.length === 0) {
+            if (!$checker) {
                 $checker = $('<div/>');
+                $.data(this, 'expandable-checker', $checker);
 
                 for (index = 0, size = properties.length; index < size; ++ index) {
                     property = properties[index];
@@ -82,7 +83,7 @@ $.plugin2('expandable', {
 });
 
 $win.resize($.throttle(200, function() {
-    $allInputs.trigger('expand');
+    $allInputs.filter(':visible').trigger('expand');
 }));
 
 }(jQuery, window));

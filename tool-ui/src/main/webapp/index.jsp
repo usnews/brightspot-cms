@@ -69,7 +69,7 @@ writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size()
 
                     writer.start("div", "class", "dashboard_cell", "data-widget", widget.getInternalName());
                         writer.start("div", "class", "frame");
-                            writer.start("a", "href", wp.url(jsp)).html(jsp).end();
+                            writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
                         writer.end();
                     writer.end();
                 }
