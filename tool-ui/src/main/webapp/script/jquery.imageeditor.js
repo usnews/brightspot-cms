@@ -543,7 +543,7 @@ $.plugin2('imageEditor', {
 
             var textOverlayIndex = 0;
 
-            $sizeButton.append($('<a/>', {
+            $sizeLabel.after($('<a/>', {
                 'class': 'imageEditor-addTextOverlay',
                 'text': 'Add Text',
                 'click': function(event, init) {
