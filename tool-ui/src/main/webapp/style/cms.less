@@ -2184,46 +2184,48 @@ input[type="text"].dropDown-search {
     right: -5px;
 }
 
+.imageEditor-addTextOverlay {
+    .icon;
+    .icon-plus-sign;
+
+    display: none;
+
+    .imageEditor-sizeSelected & {
+        display: block;
+    }
+}
+
 .imageEditor-textOverlay {
     .rte-container {
         border: none;
         margin: -4px;
-        outline: 1px dashed @color-text;
+        outline: 1px dashed @color-background;
     }
+}
 
+.filePreview {
     .rte-toolbar {
-        background-color: rgba(0, 0, 0, 0.5);
-        .border-top-left-radius(0);
-        .border-top-right-radius(5px);
-        .border-bottom-left-radius(5px);
-        .border-bottom-right-radius(5px);
+        background: transparent;
         border: none;
-        position: absolute;
-        right: -108px;
-        top: -7px;
-        width: 98px;
-    }
-
-    .rte-group {
-        width: 92px;
+        margin: 0 0 2px 0;
+        padding: 0;
     }
 
     .rte-group[data-group-name=List],
-    .rte-group[data-group-name=Enhancement],
     .rte-group[data-group-name=Misc] {
         display: none;
     }
 }
 
 .imageEditor-textOverlayLabel {
-    background-color: fade(@color-text, 50%);
-    .border-bottom-left-radius(5px);
+    background-color: fade(@color-text, 80%);
+    .border-radius(5px);
     color: @color-background;
     cursor: move;
     padding: 1px 5px;
     position: absolute;
-    right: -5px;
-    top: -5px;
+    right: -10px;
+    top: -10px;
     .user-select(none);
 }
 

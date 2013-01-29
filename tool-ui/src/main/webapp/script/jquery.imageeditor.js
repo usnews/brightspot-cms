@@ -1,7 +1,8 @@
 /** Image editor. */
 (function($, win, undef) {
 
-var INPUT_NAMES = 'x y width height text textSize textX textY textWidth'.split(' '),
+var INPUT_NAMES = 'x y width height texts textSizes textXs textYs textWidths'.split(' '),
+        DELIMITER = 'aaaf7c5a9e604daaa126f11e23e321d8',
         doc = win.document;
 
 $.plugin2('imageEditor', {
@@ -9,6 +10,7 @@ $.plugin2('imageEditor', {
         var $editor = $(element);
         var $form = $editor.closest('form');
         var $image = $editor.find('.imageEditor-image img');
+        var imageSrc = $image.attr('src');
         var $originalImage = $image;
         var $imageClone = $image.clone();
         var imageClone = $imageClone[0];
@@ -319,7 +321,6 @@ $.plugin2('imageEditor', {
                         $coverRight.hide();
                         $coverBottom.hide();
                         $sizeBox.hide();
-                        $textOverlay.hide();
                         return false;
 
                     } else {
@@ -334,21 +335,25 @@ $.plugin2('imageEditor', {
                     updateCover(bounds);
                     $sizeBox.css(bounds);
                     $sizeBox.show();
-                    $textOverlay.show();
-                    resizeTextOverlayFont();
 
-                    var textWidth = parseFloat($input.textWidth.val()) || 0.0;
+                    $sizeBox.find('.imageEditor-textOverlay').each(function(index) {
+                        var $textOverlay = $(this);
 
-                    if (textWidth !== 0.0) {
-                        var textX = parseFloat($input.textX.val()) || 0.0;
-                        var textY = parseFloat($input.textY.val()) || 0.0;
+                        $textOverlay.trigger('resizeTextOverlayFont');
 
-                        $textOverlay.css({
-                            'left': (textX * 100) + '%',
-                            'top': (textY * 100) + '%',
-                            'width': (textWidth * 100) + '%'
-                        });
-                    }
+                        var textWidth = parseFloat($input.textWidths.val().split(DELIMITER)[index + 1]) || 0.0;
+
+                        if (textWidth !== 0.0) {
+                            var textX = parseFloat($input.textXs.val().split(DELIMITER)[index + 1]) || 0.0;
+                            var textY = parseFloat($input.textYs.val().split(DELIMITER)[index + 1]) || 0.0;
+
+                            $textOverlay.css({
+                                'left': (textX * 100) + '%',
+                                'top': (textY * 100) + '%',
+                                'width': (textWidth * 100) + '%'
+                            });
+                        }
+                    });
 
                     return false;
                 }
@@ -463,7 +468,7 @@ $.plugin2('imageEditor', {
 
                         updateCover(bounds);
                         $sizeBox.css(bounds);
-                        resizeTextOverlayFont();
+                        $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
 
                     // Set the hidden inputs to the current bounds.
                     }, function() {
@@ -477,7 +482,7 @@ $.plugin2('imageEditor', {
                         $input.height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
 
                         updatePreview();
-                        resizeTextOverlayFont();
+                        $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
                     });
 
                     return false;
@@ -527,7 +532,7 @@ $.plugin2('imageEditor', {
                 'class': 'imageEditor-sizePreview',
                 'html': $('<img/>', {
                     'alt': $th.text(),
-                    'src': $image.attr('src'),
+                    'src': imageSrc,
                     'load': function() {
                         updatePreview();
                     }
@@ -536,136 +541,224 @@ $.plugin2('imageEditor', {
 
             $sizeButton.append($sizePreview);
 
-            var $textOverlay = $('<div/>', {
-                'class': 'imageEditor-textOverlay',
-                'css': {
-                    'display': 'none',
-                    'left': '0%',
-                    'position': 'absolute',
-                    'top': '0%',
-                    'width': '100%',
-                    'z-index': 1
-                }
-            });
+            var textOverlayIndex = 0;
 
-            $sizeBox.append($textOverlay);
+            $sizeLabel.after($('<a/>', {
+                'class': 'imageEditor-addTextOverlay',
+                'text': 'Add Text',
+                'click': function(event, init) {
+                    ++ textOverlayIndex;
 
-            var $textOverlayLabel = $('<div/>', {
-                'class': 'imageEditor-textOverlayLabel',
-                'text': 'Text Overlay'
-            });
-
-            var originalFontSize;
-            var resizeTextOverlayFont = function() {
-                var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body),
-                        textSize;
-
-                if (!originalFontSize) {
-                    originalFontSize = parseFloat($body.css('font-size'));
-                }
-
-                textSize = 1 / sizeHeight * originalFontSize;
-                $input.textSize.val(textSize);
-                $body.css('font-size', $sizeBox.height() * textSize);
-            };
-
-            var updateTextOverlay = function(callback) {
-                return function(event) {
-                    resizeTextOverlayFont();
-
-                    var textOverlayPosition = $textOverlay.position();
-                    var original = {
-                        'left': textOverlayPosition.left,
-                        'top': textOverlayPosition.top,
-                        'width': $textOverlay.width(),
-                        'height': $textOverlay.height(),
-                        'pageX': event.pageX,
-                        'pageY': event.pageY
-                    };
-
-                    var sizeBoxWidth = $sizeBox.width();
-                    var sizeBoxHeight = $sizeBox.height();
-
-                    $.drag(this, event, function(event) {
-
-                    }, function(event) {
-                        var deltaX = event.pageX - original.pageX;
-                        var deltaY = event.pageY - original.pageY;
-                        var bounds = callback(event, original, {
-                            'x': deltaX,
-                            'y': deltaY
-                        });
-
-                        // Fill out the missing bounds.
-                        for (key in original) {
-                            bounds[key] = bounds[key] || original[key];
+                    var $textOverlay = $('<div/>', {
+                        'class': 'imageEditor-textOverlay',
+                        'css': {
+                            'left': (($input.textXs.val().split(DELIMITER)[textOverlayIndex] || 0.25) * 100) + '%',
+                            'position': 'absolute',
+                            'top': (($input.textYs.val().split(DELIMITER)[textOverlayIndex] || 0.25) * 100) + '%',
+                            'width': (($input.textWidths.val().split(DELIMITER)[textOverlayIndex] || 0.50) * 100) + '%',
+                            'z-index': 1
                         }
-
-                        bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
-                        bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
-                        bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
-                        bounds.height = 'auto';
-
-                        $textOverlay.css(bounds);
-
-                    // Set the hidden inputs to the current bounds.
-                    }, function() {
-                        var textOverlayPosition = $textOverlay.position();
-                        var textOverlayWidth = $textOverlay.width();
-                        var textOverlayHeight = $textOverlay.height();
-
-                        $input.text.val($textOverlayInput.val());
-                        $input.textX.val(textOverlayPosition.left / sizeBoxWidth);
-                        $input.textY.val(textOverlayPosition.top / sizeBoxHeight);
-                        $input.textWidth.val(textOverlayWidth / sizeBoxWidth);
                     });
 
+                    $sizeBox.append($textOverlay);
+
+                    var $textOverlayLabel = $('<div/>', {
+                        'class': 'imageEditor-textOverlayLabel',
+                        'text': 'Text #' + textOverlayIndex
+                    });
+
+                    var resizeTextOverlayFont = function() {
+                        var textSizes = '';
+
+                        $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                            var $to = $(this),
+                                    $body = $($to.find('.rte-container iframe')[0].contentDocument.body),
+                                    originalFontSize,
+                                    textSize;
+
+                            $body.css('font-size', '');
+                            originalFontSize = parseFloat($body.css('font-size'));
+                            textSize = 1 / sizeHeight * originalFontSize;
+                            textSizes += DELIMITER + textSize;
+                            $body.css('font-size', $sizeBox.height() * textSize);
+                        });
+
+                        $input.textSizes.val(textSizes);
+                    };
+
+                    $textOverlay.bind('resizeTextOverlayFont', resizeTextOverlayFont);
+
+                    var updateTextOverlay = function(callback) {
+                        return function(event) {
+                            resizeTextOverlayFont();
+
+                            var textOverlayPosition = $textOverlay.position();
+                            var original = {
+                                'left': textOverlayPosition.left,
+                                'top': textOverlayPosition.top,
+                                'width': $textOverlay.width(),
+                                'height': $textOverlay.height(),
+                                'pageX': event.pageX,
+                                'pageY': event.pageY
+                            };
+
+                            var sizeBoxWidth = $sizeBox.width();
+                            var sizeBoxHeight = $sizeBox.height();
+
+                            event.dragImmediately = true;
+
+                            $.drag(this, event, function(event) {
+
+                            }, function(event) {
+                                var deltaX = event.pageX - original.pageX;
+                                var deltaY = event.pageY - original.pageY;
+                                var bounds = callback(event, original, {
+                                    'x': deltaX,
+                                    'y': deltaY
+                                });
+
+                                // Fill out the missing bounds.
+                                for (key in original) {
+                                    bounds[key] = bounds[key] || original[key];
+                                }
+
+                                bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
+                                bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
+                                bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
+                                bounds.height = 'auto';
+
+                                $textOverlay.css(bounds);
+
+                            // Set the hidden inputs to the current bounds.
+                            }, function() {
+                                var texts = '',
+                                        xs = '',
+                                        ys = '',
+                                        widths = '';
+
+                                $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                                    var $to = $(this),
+                                            textOverlayPosition = $to.position(),
+                                            textOverlayWidth = $to.width(),
+                                            textOverlayHeight = $to.height();
+
+                                    texts += DELIMITER + ($to.find('.imageEditor-textOverlayInput').val());
+                                    xs += DELIMITER + (textOverlayPosition.left / sizeBoxWidth);
+                                    ys += DELIMITER + (textOverlayPosition.top / sizeBoxHeight);
+                                    widths += DELIMITER + (textOverlayWidth / sizeBoxWidth);
+                                });
+
+                                $input.texts.val(texts);
+                                $input.textXs.val(xs);
+                                $input.textYs.val(ys);
+                                $input.textWidths.val(widths);
+                            });
+
+                            return false;
+                        };
+                    };
+
+                    $textOverlayLabel.mousedown(updateTextOverlay(function(event, original, delta) {
+                        return {
+                            'moving': true,
+                            'left': original.left + delta.x,
+                            'top': original.top + delta.y
+                        };
+                    }));
+
+                    $textOverlay.append($textOverlayLabel);
+
+                    $textOverlay.append($('<div/>', {
+                        'class': 'imageEditor-resizer imageEditor-resizer-left',
+                        'mousedown': updateTextOverlay(function(event, original, delta) {
+                            return {
+                                'left': original.left + delta.x,
+                                'width': original.width - delta.x
+                            };
+                        })
+                    }));
+                    $textOverlay.append($('<div/>', {
+                        'class': 'imageEditor-resizer imageEditor-resizer-right',
+                        'mousedown': updateTextOverlay(function(event, original, delta) {
+                            return {
+                                'left': original.left,
+                                'width': original.width + delta.x
+                            };
+                        })
+                    }));
+
+                    var $textOverlayInput = $('<input/>', {
+                        'class': 'imageEditor-textOverlayInput',
+                        'type': 'text',
+                        'value': $input.texts.val().split(DELIMITER)[textOverlayIndex] || ''
+                    });
+
+                    $textOverlay.append($textOverlayInput);
+                    $textOverlayInput.rte({
+                        'useLineBreaks': true
+                    });
+
+                    $editor.before($textOverlay.find('.rte-toolbar-container'));
+
+                    if (!init) {
+                        $textOverlayInput.focus();
+                    }
+
+                    var wait = 2000;
+                    var repeatResizeTextOverlayFont = function() {
+                        resizeTextOverlayFont();
+                        wait -= 100;
+                        if (wait > 0) {
+                            setTimeout(repeatResizeTextOverlayFont, 100);
+                        }
+                    };
+
+                    repeatResizeTextOverlayFont();
+
+                    $form.submit(function() {
+                        var texts = '';
+
+                        $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                            texts += DELIMITER + $(this).find('.imageEditor-textOverlayInput').val();
+                        });
+
+                        $input.texts.val(texts);
+                    });
+
+                    if (!init) {
+                        var sizeBoxWidth = $sizeBox.width();
+                        var sizeBoxHeight = $sizeBox.height();
+                        var texts = '',
+                                xs = '',
+                                ys = '',
+                                widths = '';
+
+                        $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                            var $to = $(this),
+                                    textOverlayPosition = $to.position(),
+                                    textOverlayWidth = $to.width(),
+                                    textOverlayHeight = $to.height();
+
+                            texts += DELIMITER + ($to.find('.imageEditor-textOverlayInput').val());
+                            xs += DELIMITER + (textOverlayPosition.left / sizeBoxWidth);
+                            ys += DELIMITER + (textOverlayPosition.top / sizeBoxHeight);
+                            widths += DELIMITER + (textOverlayWidth / sizeBoxWidth);
+                        });
+
+                        $input.texts.val(texts);
+                        $input.textXs.val(xs);
+                        $input.textYs.val(ys);
+                        $input.textWidths.val(widths);
+                    }
+
                     return false;
-                };
-            };
-
-            $textOverlayLabel.mousedown(updateTextOverlay(function(event, original, delta) {
-                return {
-                    'moving': true,
-                    'left': original.left + delta.x,
-                    'top': original.top + delta.y
-                };
+                }
             }));
 
-            $textOverlay.append($textOverlayLabel);
-
-            $textOverlay.append($('<div/>', {
-                'class': 'imageEditor-resizer imageEditor-resizer-left',
-                'mousedown': updateTextOverlay(function(event, original, delta) {
-                    return {
-                        'left': original.left + delta.x,
-                        'width': original.width - delta.x
-                    };
-                })
-            }));
-            $textOverlay.append($('<div/>', {
-                'class': 'imageEditor-resizer imageEditor-resizer-right',
-                'mousedown': updateTextOverlay(function(event, original, delta) {
-                    return {
-                        'left': original.left,
-                        'width': original.width + delta.x
-                    };
-                })
-            }));
-
-            var $textOverlayInput = $('<input/>', {
-                'class': 'imageEditor-textOverlayInput',
-                'type': 'text',
-                'value': $input.text.val()
-            });
-
-            $textOverlay.append($textOverlayInput);
-            $textOverlayInput.rte({
-                'useLineBreaks': true
-            });
-
-            $form.submit(function() {
-                $input.text.val($textOverlayInput.val());
+            $.each($input.texts.val().split(DELIMITER), function(index, text) {
+                if (index > 0) {
+                    $sizeButton.find('.imageEditor-addTextOverlay').trigger('click', true);
+                }
             });
         });
 

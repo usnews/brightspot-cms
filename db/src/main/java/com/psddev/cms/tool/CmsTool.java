@@ -70,7 +70,7 @@ public class CmsTool extends Tool {
         @Required
         private String internalName;
 
-        @Required
+        private String tag;
         private String css;
 
         public String getDisplayName() {
@@ -87,6 +87,14 @@ public class CmsTool extends Tool {
 
         public void setInternalName(String internalName) {
             this.internalName = internalName;
+        }
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
         }
 
         public String getCss() {
