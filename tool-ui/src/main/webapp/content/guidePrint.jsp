@@ -113,9 +113,7 @@
 
 <div class="widget">
 	<h1 class="icon-page_white_find">
-		Production Guide:
 		<%=widgetTitle%>
-
 	</h1>
 
 	<div class="variation">
@@ -158,7 +156,11 @@
 				}
 				while (pg != null) {
 
-					wp.write("<div class=\"guideForm-page\">");
+					if (guide != null) {
+						wp.write("<div style=\"page-break-before:always\">");
+					} else {
+						wp.write("<div>");
+					}
 					wp.write("<div class=\"guideForm-main\">");
 					Content samplePage = Guide.Static.getSamplePage(pg);
 
@@ -167,9 +169,15 @@
 					// Display the Summary Page
 					request.setAttribute("pageProductionGuide",
 							Guide.Static.getPageProductionGuide(pg));
+					wp.write("<strong>");
+					if (guide != null) {
+						wp.write("Production Guide: " + guide.getTitle() + "<br/>");
+					}
+					if (pg.getName() != null && !pg.getName().isEmpty()) {
+						wp.write(pg.getName() + " ");
+					}
 					wp.write("Summary: ");
-					wp.write(pg.getName());
-					wp.write("</div>");
+					wp.write("</strong></div>");
 					// how best to format for printing?
 			%><div class="guideDescription">
 				<cms:render value="${pageProductionGuide.description}" />
@@ -215,14 +223,21 @@
 						if (sectionGuide == null || sectionGuide.getDescription() == null || sectionGuide.getDescription().isEmpty()) {
 							continue;
 						}
-						wp.write("<div class=\"guideForm-page\">");
+						wp.write("<div style=\"page-break-before:always\">");
 						wp.write("<div class=\"guideForm-main\">");
 						wp.write("<div class=\"guideTop\">");
 						request.setAttribute("sectionProductionGuide",
 								sectionGuide);
+						wp.write("<strong>");
+						if (guide != null) {
+							wp.write("Production Guide: " + guide.getTitle() + "<br/>");
+						}
+						if (pg.getName() != null && !pg.getName().isEmpty()) {
+							wp.write(pg.getName() + " ");
+						}
 						wp.write("Section: ");
 						wp.write(section.getName());
-						wp.write("</div>"); // end guideTop
+						wp.write("</strong></div>"); // end guideTop
 			%><div class="guideDescription">
 				<cms:render value="${sectionProductionGuide.description}" />
 			</div>
@@ -238,7 +253,7 @@
 							}
 							wp.write("</div>");
 						}
-						if (sectionGuide != null && sectionGuide.getTips() != null) {
+						if (sectionGuide != null && sectionGuide.getTips() != null && !sectionGuide.getTips().isEmpty()) {
 			%><div class="guideTips">
 				<cms:render value="${sectionProductionGuide.tips}" />
 			</div>
@@ -269,7 +284,7 @@
 </div>
 
 <script>
-onload:window.print();
+onload:window.print(); window.close();
 </script>
 
 <%

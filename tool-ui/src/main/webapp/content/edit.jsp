@@ -155,7 +155,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
                     
                     if (Guide.Static.getPageProductionGuide(template) != null) {
-	                    wp.write("   <a target=\"productionGuide\" class=\"icon icon-question-sign\" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">View Production Guide</a>");
+	                    wp.write("<h3><a target=\"productionGuide\" class=\"icon icon-question-sign\" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">View Production Guide</a></h3>");
                     }            
 
                     if (selected instanceof Page) {
