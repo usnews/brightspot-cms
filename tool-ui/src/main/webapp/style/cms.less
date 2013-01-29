@@ -2784,6 +2784,10 @@ input[type="text"].dropDown-search {
 .popup[name=productionGuidePrintout] {
     width: 1010px;   
     top: 0; 
+    visibility: hidden;
+    @media print {
+		visibility: visible;
+	}
 }
 .popup[name=contentRemoteOverlayEdit] {
     width: 80%;

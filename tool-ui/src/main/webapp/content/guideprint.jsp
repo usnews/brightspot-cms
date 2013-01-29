@@ -284,7 +284,7 @@
 </div>
 
 <script>
-onload:window.print(); window.close();
+onload:window.print();
 </script>
 
 <%
