@@ -362,7 +362,7 @@ var Rte = wysihtml5.Editor.extend({
         var composerIframe = composer.iframe;
         var composerIframeWindow = composerIframe.contentWindow;
 
-        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 2 : 40));
+        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 10 : 40));
         $(composerIframeWindow).scrollTop(0);
 
         // Create enhancements based on the underlying placeholders.
