@@ -219,7 +219,7 @@
 				<ul class="guideControls">
 				<li>		
 					<a href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
-						target="productionGuidePrintout">Print
+						class="action-print" target="productionGuidePrintout">Print
 						Production Guide</a>
 						</li>
 				</ul>
