@@ -725,6 +725,32 @@ $.plugin2('imageEditor', {
                         $input.texts.val(texts);
                     });
 
+                    if (!init) {
+                        var sizeBoxWidth = $sizeBox.width();
+                        var sizeBoxHeight = $sizeBox.height();
+                        var texts = '',
+                                xs = '',
+                                ys = '',
+                                widths = '';
+
+                        $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                            var $to = $(this),
+                                    textOverlayPosition = $to.position(),
+                                    textOverlayWidth = $to.width(),
+                                    textOverlayHeight = $to.height();
+
+                            texts += DELIMITER + ($to.find('.imageEditor-textOverlayInput').val());
+                            xs += DELIMITER + (textOverlayPosition.left / sizeBoxWidth);
+                            ys += DELIMITER + (textOverlayPosition.top / sizeBoxHeight);
+                            widths += DELIMITER + (textOverlayWidth / sizeBoxWidth);
+                        });
+
+                        $input.texts.val(texts);
+                        $input.textXs.val(xs);
+                        $input.textYs.val(ys);
+                        $input.textWidths.val(widths);
+                    }
+
                     return false;
                 }
             }));
