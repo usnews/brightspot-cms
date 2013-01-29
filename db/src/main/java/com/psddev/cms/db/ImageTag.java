@@ -681,7 +681,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
                 }
 
-                if (item != null && crops != null) {
+                if (item != null && crops != null && standardImageSize != null) {
                     ImageCrop crop = crops.get(standardImageSize.getId().toString());
 
                     if (crop != null) {
