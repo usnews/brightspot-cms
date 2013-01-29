@@ -1,5 +1,27 @@
 <%@ page
-	import="com.psddev.cms.tool.ToolPageContext,com.psddev.dari.db.ReferentialText,com.psddev.cms.db.Site,com.psddev.dari.db.Query,com.psddev.cms.db.Variation,java.util.Iterator,java.util.UUID,java.util.HashMap,java.util.List,java.util.Map,java.util.ArrayList,com.psddev.cms.db.Content,com.psddev.cms.db.ContainerSection,com.psddev.cms.db.PageFilter,com.psddev.cms.db.Page,com.psddev.cms.db.Section,com.psddev.cms.db.Guide,com.psddev.cms.db.GuidePage,com.psddev.cms.db.GuideSection,com.psddev.cms.db.Template,com.psddev.dari.db.State,com.psddev.dari.util.JspUtils,com.psddev.cms.tool.ToolPageContext"%>
+	import="com.psddev.cms.tool.ToolPageContext,
+	java.util.Iterator,
+	java.util.UUID,
+	java.util.HashMap,
+	java.util.List,
+	java.util.Map,
+	java.util.ArrayList,
+	com.psddev.cms.db.Content,
+	com.psddev.cms.db.ContainerSection,
+    com.psddev.cms.db.Guide,
+	com.psddev.cms.db.GuidePage,
+	com.psddev.cms.db.GuideSection,
+	com.psddev.cms.db.Page,
+    com.psddev.cms.db.PageFilter,
+	com.psddev.cms.db.Section,
+	com.psddev.cms.db.Template,
+	com.psddev.cms.db.Site,
+	com.psddev.cms.db.Variation,
+	com.psddev.dari.db.State,
+	com.psddev.dari.util.JspUtils,
+	com.psddev.dari.db.ReferentialText,
+	com.psddev.dari.db.Query,
+	com.psddev.cms.tool.ToolPageContext"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="productionGuide" class="com.psddev.cms.db.Guide"
 	scope="request" />
@@ -40,7 +62,7 @@
 	if (guide != null) {
 		pages = guide.getTemplatesToIncludeInGuide();
 	}
-	
+
 	boolean isPopup = false;
 	String isPopupStr = wp.param("popup");
 	if (isPopupStr != null && isPopupStr.equals("true")) {
@@ -151,12 +173,12 @@
 	<h1 class="icon-page_white_find">
 		<%=guideTitle%>
 	</h1>
-	
+
 	<div class="content-edit">
 		<form href="" class="guideForm"
 			action="<%=wp.url("", "sectionId", section)%>">
 			<div id="guideForm" class="guideForm-main">
-			
+
 				<%
 					if (guide != null) {
 						Page prevT = null;
@@ -212,16 +234,16 @@
 						wp.write("<input type=\"hidden\" name=\"guideId\" value=\"",
 								guide.getId(), "\"/>");
 						if (selectedTemplate != null) {
-							wp.write("<input type=\"hidden\" name=\"templateId\" value=\"",
+							wp.write(
+									"<input type=\"hidden\" name=\"templateId\" value=\"",
 									selectedTemplate.getId(), "\"/>");
 						}
 				%>
 				<ul class="guideControls">
-				<li>		
-					<a href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
+					<li><a
+						href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
 						class="action-print" target="productionGuidePrintout">Print
-						Production Guide</a>
-						</li>
+							Production Guide</a></li>
 				</ul>
 				<%
 					} else {
@@ -229,14 +251,20 @@
 								isPopupStr, "\"/>");
 				%>
 				<ul class="guideControls">
-					<% if (isPopup) { %>
-	                      <li><a href="<%=wp.url("", "_isFrame", false, "templateId", pg.getId(), "popup", false)%>" target="_blank">View in Full</a></li>
-	                 <% } %>
-				<li>
-					<a href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId())%>"
+					<%
+						if (isPopup) {
+					%>
+					<li><a
+						href="<%=wp.url("", "_isFrame", false, "templateId",
+							pg.getId(), "popup", false)%>"
+						target="_blank">View in Full</a></li>
+					<%
+						}
+					%>
+					<li><a
+						href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId())%>"
 						class="action-print" target="productionGuidePrintout">Print
-						Production Guide</a>
-				</li>
+							Production Guide</a></li>
 				</ul>
 				<%
 					}
@@ -265,7 +293,7 @@
 
 
 			<%
-				Content samplePage = Guide.Static.getSamplePage(pg);
+				    Content samplePage = Guide.Static.getSamplePage(pg);
 
 					wp.write("<div class=\"guideTop\">");
 					wp.write(pg.getName(), " Guide Section:  ");
@@ -328,7 +356,7 @@
 						wp.write(nameMap.get(cur.getId()));
 						wp.write("</option>");
 
-					} // end while if
+					} // end while next section
 
 					wp.write("</select>");
 
@@ -479,173 +507,166 @@
 %>
 <script type="text/javascript">
 if (typeof jQuery !== 'undefined') (function($, win, undef) {         
-        var sectionId,
-        doc = win.document,
-        $doc = $(doc),
-        sectionName,
-        scrollAmount = 0,
-        sectionTop = 0,
-        sectionLeft = 0,
-        sectionHeight = 0,
-        sectionWidth = 0,        
-        $frame,
-        $guideForm,
-        frameOffset,
-        frameTransformPct,
-        sectionChooserX,
-        sectionChooserY,
-        midSectionX,
-        startLineX,
-        startLineY,
-        stopLineX,
-        stopLineY, 
-        $source,
-        $target,
-        $paths = null,
-        targetOffset,
-        pathsCanvas,
-        pathSourceX, pathSourceY, pathSourceDirection,
-        pathTargetX, pathTargetY, pathTargetDirection,
-        sourceOffset,
-        targetOffset,
-        isBackReference = false,
-        pathSourceControlX,
-        pathSourceControlY,
-        pathTargetControlX,
-        pathTargetControlY;
+    var sectionId,
+    doc = win.document,
+    $doc = $(doc),
+    sectionName,
+    scrollAmount = 0,
+    sectionTop = 0,
+    sectionLeft = 0,
+    sectionHeight = 0,
+    sectionWidth = 0,        
+    $frame,
+    $guideForm,
+    frameOffset,
+    frameTransformPct,
+    sectionChooserX,
+    sectionChooserY,
+    $source,
+    $target,
+    $paths = null,
+    targetOffset,
+    pathsCanvas,
+    pathSourceX, pathSourceY, pathSourceDirection,
+    pathTargetX, pathTargetY, pathTargetDirection,
+    sourceOffset,
+    targetOffset,
+    isBackReference = false,
+    pathSourceControlX,
+    pathSourceControlY,
+    pathTargetControlX,
+    pathTargetControlY;
         
-        sectionId = "<%=sectionId%>";
-        sectionName = "<%=sectionName%>";
-        $paths = $("#pgCanvas");
-        if ($paths.length > 0) {
-           $paths.remove();
-        }
+    sectionId = "<%=sectionId%>";
+    sectionName = "<%=sectionName%>";
+    $paths = $("#pgCanvas");
+    if ($paths.length > 0) {
+        $paths.remove();
+    }
         
 
-        markSection = (function($samplePageBody)  { 
+    markSection = (function($samplePageBody)  { 
 
-                 $samplePageBody.find('span.cms-overlayBegin').each(function() {
-                    displayMark = false;
-                    var $begin = $(this),
-                            data = $.parseJSON($begin.text()),
-                            found = false,
-                            minX = Number.MAX_VALUE,
-                            maxX = 0,
-                            minY = Number.MAX_VALUE,
-                            maxY = 0,
-                            $section,
-                            $edit;
+    $samplePageBody.find('span.cms-overlayBegin').each(function() {
+        displayMark = false;
+        var $begin = $(this),
+            data = $.parseJSON($begin.text()),
+            found = false,
+            minX = Number.MAX_VALUE,
+            maxX = 0,
+            minY = Number.MAX_VALUE,
+            maxY = 0,
+            $section,
+            $edit;
                            
 
-                    // Calculate the section size using the marker SPANs.
-                    $begin.nextUntil('span.cms-overlayEnd').filter(':visible').each(function() {
-                        var $item = $(this),
-                                itemOffset = $item.offset(),
-                                itemMinX = itemOffset.left,
-                                itemMaxX = itemMinX + $item.outerWidth(),
-                                itemMinY = itemOffset.top,
-                                itemMaxY = itemMinY + $item.outerHeight();
+         // Calculate the section size using the marker SPANs.
+         $begin.nextUntil('span.cms-overlayEnd').filter(':visible').each(function() {
+             var $item = $(this),
+                 itemOffset = $item.offset(),
+                 itemMinX = itemOffset.left,
+                 itemMaxX = itemMinX + $item.outerWidth(),
+                 itemMinY = itemOffset.top,
+                 itemMaxY = itemMinY + $item.outerHeight();
 
-                        found = true;
+                 found = true;
 
-                        if (minX > itemMinX) {
-                            minX = itemMinX;
-                        }
-                        if (maxX < itemMaxX) {
-                            maxX = itemMaxX;
-                        }
-                        if (minY > itemMinY) {
-                            minY = itemMinY;
-                        }
-                        if (maxY < itemMaxY) {
-                            maxY = itemMaxY;
-                        }
+                 if (minX > itemMinX) {
+                     minX = itemMinX;
+                 }
+                 if (maxX < itemMaxX) {
+                     maxX = itemMaxX;
+                 }
+                 if (minY > itemMinY) {
+                     minY = itemMinY;
+                 }
+                 if (maxY < itemMaxY) {
+                     maxY = itemMaxY;
+                 }
                         
-                        if (found && data.sectionId == sectionId) {
+                 if (found && data.sectionId == sectionId) {
                         
-                            sectionLeft = minX;
-                            sectionTop = minY;
-                            sectionHeight = maxY - minY;
-                            sectionWidth = maxX - minX;
+                     sectionLeft = minX;
+                     sectionTop = minY;
+                     sectionHeight = maxY - minY;
+                     sectionWidth = maxX - minX;
                          
-                            // if this is the section we want, make a border
-                            $section = $('<a/>', {
-                              'class': 'guidePreviewSection',
-                              'id' : 'sectionBlock',
-                              'css': {
-                                'border': '10px solid black',
-                                'height': sectionHeight,
-                                'left': sectionLeft,
-                                'position': 'absolute',
-                                'top': sectionTop,
-                                'width': sectionWidth
-                              }
-                            });
+                     // if this is the section we want, make a border
+                     $section = $('<a/>', {
+                       'class': 'guidePreviewSection',
+                       'id' : 'sectionBlock',
+                       'css': {
+                       'border': '10px solid black',
+                       'height': sectionHeight,
+                       'left': sectionLeft,
+                       'position': 'absolute',
+                       'top': sectionTop,
+                       'width': sectionWidth
+                     }
+                     });
 
-							displayMark = true;
-							scrollAmount = 0;
-							// If the page is longer than the display, we need to scroll it to the section
-							if (minY > 600) {
-								scrollAmount = minY;
-						    }
-						    
-							                                         
-                        }                                   
-                    }); // end find overlayEnd
-                    // Sometimes there are more than one cmsOverlay-end processing to a section, waiting until here ensures we just display the
-                    // entire single block
-                    if (displayMark) {
-                        $samplePageBody.append($section);
-                        $samplePageBody.scrollTop(scrollAmount);
-                        var newTop = $samplePageBody.scrollTop();
-                        $target = $section;
-                        targetOffset = $target.offset();
-                        targetOffset.left = sectionLeft;
-                        targetOffset.top = sectionTop - newTop;
-                    }
-                });  // end find overlayBegin
+                     displayMark = true;
+		             scrollAmount = 0;
+		             // If the page is longer than the display, we need to scroll it to the section
+		             if (minY > 600) {
+		                scrollAmount = minY;
+		             }
+                 }                                   
+             }); // end find overlayEnd
+             // Sometimes there are more than one cmsOverlay-end processing to a section, waiting until here ensures we just display the
+             // entire single block
+             if (displayMark) {
+                 $samplePageBody.append($section);
+                 $samplePageBody.scrollTop(scrollAmount);
+                 var newTop = $samplePageBody.scrollTop();
+                 $target = $section;
+                 targetOffset = $target.offset();
+                 targetOffset.left = sectionLeft;
+                  targetOffset.top = sectionTop - newTop;
+             }
+          });  // end find overlayBegin
                 
-                if ($target === undefined) {
-                   return;
-                }
+          if ($target === undefined) {
+             return;
+          }
                     
-                 //iframe coordinates
-                $frame = $("#samplePagePreview");
-                $guideForm = $("#guideForm");
-                frameOffset = $frame.offset();
-                $source = $("#sectionChoice"); 
-                // Percentage that the page was reduced for display in the frame
-                frameTransformPct = .30
+          //iframe coordinates
+          $frame = $("#samplePagePreview");
+          $guideForm = $("#guideForm");
+          frameOffset = $frame.offset();
+          $source = $("#sectionChoice"); 
+          // Percentage that the page was reduced for display in the frame
+          frameTransformPct = .30
                               
-                //section selector element coordinates
-                sectionChooserX = $source.offset().left;
-                sectionChooserY = $source.offset().top;
+          //section selector element coordinates
+          sectionChooserX = $source.offset().left;
+          sectionChooserY = $source.offset().top;
                                
-                sourceOffset = $source.offset();
-                // Adjust the target offset for the location and transform pct of the iframe
-                targetOffset.left = targetOffset.left * frameTransformPct;
-                targetOffset.top = targetOffset.top * frameTransformPct;
-                targetOffset.left += frameOffset.left;
-                targetOffset.top += frameOffset.top;
+          sourceOffset = $source.offset();
+          // Adjust the target offset for the location and transform pct of the iframe
+          targetOffset.left = targetOffset.left * frameTransformPct;
+          targetOffset.top = targetOffset.top * frameTransformPct;
+          targetOffset.left += frameOffset.left;
+          targetOffset.top += frameOffset.top;
             
-                // remove any previous lines
-                var $body;
-                // look first for the popup
-                $body = $('.popup[name*="productionGuide"]');
-                if ($body.length == 0) {
-                     //if no popup, PG is displayed as page
-	                 $body = $('body');
-				} else {
-				    // if we put canvas in a popup, need to adjust offsets accordingly
-					sourceOffset.left -= $body.offset().left;
-					sourceOffset.top -= $body.offset().top;
-					targetOffset.left -= $body.offset().left;
-					targetOffset.top -= $body.offset().top;
-				}
+          // remove any previous lines
+          var $body;
+         // look first for the popup
+          $body = $('.popup[name*="productionGuide"]');
+          if ($body.length == 0) {
+              //if no popup, PG is displayed as page
+	           $body = $('body');
+          } else {
+          // if we put canvas in a popup, need to adjust offsets accordingly
+		      sourceOffset.left -= $body.offset().left;
+              sourceOffset.top -= $body.offset().top;
+              targetOffset.left -= $body.offset().left;
+              targetOffset.top -= $body.offset().top;
+          }
                 
    
-               	   // Create the canvas area where line can be drawn
-                   $paths = $('<canvas/>', {
+          // Create the canvas area where line can be drawn
+          $paths = $('<canvas/>', {
                       'class': 'fieldPreview-paths',
                       'id' : 'pgCanvas',
                       'css': {
@@ -653,93 +674,87 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                              'pointer-events': 'none',
                              'position': 'absolute',
                              'top': 0
-                      }
-                    });
+               }
+           });
                 
-                   $paths.attr({
-                      'width': $doc.width(),
-                      'height': $doc.height()
-                    });
-                    // insert the canvas
-                    $body.append($paths);
-
-                 
-                
-                 pathsCanvas = $paths[0].getContext('2d');
-                 // clear the canvas
-                 pathsCanvas.clearRect(0, 0, $paths.width, $paths.height);
+          $paths.attr({
+              'width': $doc.width(),
+              'height': $doc.height()
+          });
+          // insert the canvas
+          $body.append($paths);               
+          pathsCanvas = $paths[0].getContext('2d');
+          // clear the canvas
+          pathsCanvas.clearRect(0, 0, $paths.width, $paths.height);
               
-                // draw a line from the dropdown box to the marked section 
+          // draw a line from the dropdown box to the marked section 
 
-                 // for purposes of determining the center of the block, need to only consider visible content
-                 var targetHeight = $target.height() * frameTransformPct;
-                 var maxHeight = $('.guidePreview').height();
-                 if ((targetOffset.top + targetHeight) > maxHeight) {
-                 	 targetHeight = maxHeight - targetOffset.top;
-                 }   
+          // for purposes of determining the center of the block, need to only consider visible content
+          var targetHeight = $target.height() * frameTransformPct;
+          var maxHeight = $('.guidePreview').height();
+          if ((targetOffset.top + targetHeight) > maxHeight) {
+            	 targetHeight = maxHeight - targetOffset.top;
+          }   
    
-                 if (sourceOffset.left > targetOffset.left) {
-                        var targetWidth = $target.outerWidth();
-                        pathTargetX = targetOffset.left + targetWidth;
-                        pathTargetY = targetOffset.top + targetHeight / 2;
-                        isBackReference = true;
+          if (sourceOffset.left > targetOffset.left) {
+                var targetWidth = $target.outerWidth();
+                pathTargetX = targetOffset.left + targetWidth;
+                pathTargetY = targetOffset.top + targetHeight / 2;
+                isBackReference = true;
 
-                        if (targetOffset.left + targetWidth > sourceOffset.left) {
-                            pathSourceX = sourceOffset.left + $source.width();
-                            pathSourceY = sourceOffset.top + $source.height() / 2;
-                            pathSourceDirection = 1;
-                            pathTargetDirection = 1;
+                if (targetOffset.left + targetWidth > sourceOffset.left) {
+                       pathSourceX = sourceOffset.left + $source.width();
+                       pathSourceY = sourceOffset.top + $source.height() / 2;
+                       pathSourceDirection = 1;
+                       pathTargetDirection = 1;
 
-                        } else {
-                            pathSourceX = sourceOffset.left;
-                            pathSourceY = sourceOffset.top + $source.height() / 2;
-                            pathSourceDirection = -1;
-                            pathTargetDirection = 1;
-                        }
+                } else {
+                       pathSourceX = sourceOffset.left;
+                       pathSourceY = sourceOffset.top + $source.height() / 2;
+                       pathSourceDirection = -1;
+                       pathTargetDirection = 1;
+                }
 
-                  } else {
-                        pathSourceX = sourceOffset.left + $source.width();
-                        pathSourceY = sourceOffset.top + $source.height() / 2;
-                        pathTargetX = targetOffset.left;
-                        pathTargetY = targetOffset.top + targetHeight / 2;
-                        pathSourceDirection = 1;
-                        pathTargetDirection = -1;
-                  }
+          } else {
+              pathSourceX = sourceOffset.left + $source.width();
+              pathSourceY = sourceOffset.top + $source.height() / 2;
+              pathTargetX = targetOffset.left;
+              pathTargetY = targetOffset.top + targetHeight / 2;
+              pathSourceDirection = 1;
+              pathTargetDirection = -1;
+          }
 
-                  pathSourceControlX = pathSourceX + pathSourceDirection * 100;
-                  pathSourceControlY = pathSourceY;
-                  pathTargetControlX = pathTargetX + pathTargetDirection * 100;
-                  pathTargetControlY = pathTargetY;
+          pathSourceControlX = pathSourceX + pathSourceDirection * 100;
+          pathSourceControlY = pathSourceY;
+          pathTargetControlX = pathTargetX + pathTargetDirection * 100;
+          pathTargetControlY = pathTargetY;
 
-                  pathsCanvas.strokeStyle = "black";
-                  pathsCanvas.fillStyle = "black";
+          pathsCanvas.strokeStyle = "black";
+          pathsCanvas.fillStyle = "black";
 
-                  // Reference curve.
-                  // pathsCanvas.lineWidth = isBackReference ? 0.4 : 1.0;
-                  pathsCanvas.lineWidth = 1.0;
-                  pathsCanvas.beginPath();
-                  pathsCanvas.moveTo(pathSourceX, pathSourceY);
-                  pathsCanvas.bezierCurveTo(pathSourceControlX, pathSourceControlY, pathTargetControlX, pathTargetControlY, pathTargetX, pathTargetY);
-                  pathsCanvas.stroke();
+          // Reference curve.
+          // pathsCanvas.lineWidth = isBackReference ? 0.4 : 1.0;
+          pathsCanvas.lineWidth = 1.0;
+          pathsCanvas.beginPath();
+          pathsCanvas.moveTo(pathSourceX, pathSourceY);
+          pathsCanvas.bezierCurveTo(pathSourceControlX, pathSourceControlY, pathTargetControlX, pathTargetControlY, pathTargetX, pathTargetY);
+          pathsCanvas.stroke();
 
-                  // Arrow head.
-                  var arrowSize = pathTargetX > pathTargetControlX ? 5 : -5;
-                  if (isBackReference) {
-                        arrowSize *= 0.8;
-                  }
-                  pathsCanvas.beginPath();
-                  pathsCanvas.moveTo(pathTargetX, pathTargetY);
-                  pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY - arrowSize);
-                  pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY + arrowSize);
-                  pathsCanvas.closePath();
-                  pathsCanvas.fill();
-                    
-             }); // end markSection        
-                    
-        
-
+          // Arrow head.
+          var arrowSize = pathTargetX > pathTargetControlX ? 5 : -5;
+          if (isBackReference) {
+               arrowSize *= 0.8;
+          }
+          pathsCanvas.beginPath();
+          pathsCanvas.moveTo(pathTargetX, pathTargetY);
+          pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY - arrowSize);
+          pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY + arrowSize);
+          pathsCanvas.closePath();
+          pathsCanvas.fill();                  
+     }); // end markSection        
 })(jQuery, window);
 </script>
+
 <script type="text/javascript">
 function init_sample(obj) {
     body = $(obj.document.getElementsByTagName("body")[0]);

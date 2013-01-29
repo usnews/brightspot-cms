@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * is linked directly to the artifacts in the CMS so that helpful information is available contextually and can be easily kept up to date
  * as the site evolves.
  * 
- * A Guide object consists of some overall descriptive content about programming the Site, and then assocations to templates/pages that
- * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the modification classes
- * defined in this class.
+ * A Guide object consists of some overall descriptive content about programming the Site, and then associations to templates/pages that
+ * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the GuidePage and
+ * GuideType classes
  */
 public class Guide extends Record {
 
@@ -41,15 +41,13 @@ public class Guide extends Record {
 	@Indexed(unique = true)
 	@ToolUi.Note("Production Guide Title")
 	private String title;
-	
+
 	@ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
 	private List<Page> templatesToIncludeInGuide;
 
-
 	@ToolUi.Note("Production Guide Overview Section")
-	@Guide.Description ("The overview is first page(s) of the Production Guide and is considered necessary for a useful experience")
+	@Guide.Description("The overview is first page(s) of the Production Guide and is considered necessary for a useful experience")
 	private ReferentialText overview;
-
 
 	public String getTitle() {
 		return title;
@@ -75,7 +73,7 @@ public class Guide extends Record {
 			List<Page> templatesToIncludeInGuide) {
 		this.templatesToIncludeInGuide = templatesToIncludeInGuide;
 	}
-	
+
 	public boolean isIncomplete() {
 		if (this.getOverview() == null || this.getOverview().isEmpty()) {
 			return true;
@@ -272,9 +270,8 @@ public class Guide extends Record {
 		@Override
 		public void process(ObjectType type, ObjectField field,
 				Description annotation) {
-			// field.as(ToolUi.class).setHidden(annotation.value());
-			// find/create a GuideType object for the fields type
-			// add the description
+			// find/create a GuideType object for the field's type
+			// and then add the annotated description
 			GuideType guide = GuideType.Static.findOrCreateGuide(field);
 			GuideField gf = guide.getGuideField(field.getInternalName());
 			if (gf != null) {

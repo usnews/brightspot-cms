@@ -15,7 +15,7 @@
 	com.psddev.cms.db.PageFilter,
 	com.psddev.cms.db.Page,
 	com.psddev.cms.db.Section,
-	com.psddev.cms.db.Guide, 
+	com.psddev.cms.db.Guide,
 	com.psddev.cms.db.GuidePage,
 	com.psddev.cms.db.GuideSection,
 	com.psddev.cms.db.Template,
@@ -23,11 +23,9 @@
 	com.psddev.cms.tool.ToolPageContext"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="pageProductionGuide"
-	class="com.psddev.cms.db.GuidePage"
-	scope="request" />
+	class="com.psddev.cms.db.GuidePage" scope="request" />
 <jsp:useBean id="sectionProductionGuide"
-	class="com.psddev.cms.db.GuideSection"
-	scope="request" />
+	class="com.psddev.cms.db.GuideSection" scope="request" />
 
 
 <%
@@ -183,15 +181,7 @@
 				<cms:render value="${pageProductionGuide.description}" />
 			</div>
 			<%
-				if (samplePage != null) {
- 			%>
-<!--  			 <div class="guidePreview">  -->
-<!-- 				<iframe class="guidePreviewFrame" -->
-<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
-<!-- 			</div> -->
-			<%
-				}
-					wp.write("</div>"); //end guideForm-main
+				wp.write("</div>"); //end guideForm-main
 					wp.write("</div>"); //end guideForm-page
 
 					//Get the list of sections that are in the layout
@@ -209,7 +199,7 @@
 						if (section instanceof ContainerSection) {
 							continue;
 						}
-					
+
 						if (selectedVariation != null) {
 							State sectionState = State.getInstance(section);
 							Map<String, Object> variationData = (Map<String, Object>) sectionState
@@ -219,18 +209,21 @@
 								sectionState.getValues().putAll(variationData);
 							}
 						}
-						GuideSection sectionGuide = Guide.Static.getSectionGuide(pg, section);
-						if (sectionGuide == null || sectionGuide.getDescription() == null || sectionGuide.getDescription().isEmpty()) {
+						GuideSection sectionGuide = Guide.Static.getSectionGuide(
+								pg, section);
+						if (sectionGuide == null
+								|| sectionGuide.getDescription() == null
+								|| sectionGuide.getDescription().isEmpty()) {
 							continue;
 						}
 						wp.write("<div style=\"page-break-before:always\">");
 						wp.write("<div class=\"guideForm-main\">");
 						wp.write("<div class=\"guideTop\">");
-						request.setAttribute("sectionProductionGuide",
-								sectionGuide);
+						request.setAttribute("sectionProductionGuide", sectionGuide);
 						wp.write("<strong>");
 						if (guide != null) {
-							wp.write("Production Guide: " + guide.getTitle() + "<br/>");
+							wp.write("Production Guide: " + guide.getTitle()
+									+ "<br/>");
 						}
 						if (pg.getName() != null && !pg.getName().isEmpty()) {
 							wp.write(pg.getName() + " ");
@@ -253,7 +246,8 @@
 							}
 							wp.write("</div>");
 						}
-						if (sectionGuide != null && sectionGuide.getTips() != null && !sectionGuide.getTips().isEmpty()) {
+						if (sectionGuide != null && sectionGuide.getTips() != null
+								&& !sectionGuide.getTips().isEmpty()) {
 			%><div class="guideTips">
 				<cms:render value="${sectionProductionGuide.tips}" />
 			</div>
@@ -263,10 +257,10 @@
 						// how best to format for printing?
 						if (samplePage != null) {
 			%>
-<!-- 			<div class="guidePreview"> -->
-<!-- 				<iframe class="guidePreviewFrame" -->
-<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
-<!-- 			</div> -->
+			<!-- 			<div class="guidePreview"> -->
+			<!-- 				<iframe class="guidePreviewFrame" -->
+			<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
+			<!-- 			</div> -->
 			<%
 				}
 						wp.write("</div>"); // end guideForm-main

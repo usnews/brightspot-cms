@@ -2,12 +2,14 @@ package com.psddev.cms.db;
 
 import java.util.UUID;
 
-import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.ReferentialText;
+
 
 
 /*
- * Production Guide class to hold information about layout sections
+ * Production Guide class to hold information about layout sections. Instances of this class are generally not stored
+ * separately, but embedded in the GuidePage objects
  * 
  */
 @Record.LabelFields({ "sectionName" })

@@ -41,11 +41,8 @@ List<GuidePage> pageGuides = Query.from(GuidePage.class).sortAscending("pageType
 List<Page> templates = Query.from(Page.class).sortAscending("name").select();
 String incompleteIndicator = "*";
 
-
 // --- Presentation ---
-
-%>
-<% wp.include("/WEB-INF/header.jsp"); %>
+wp.include("/WEB-INF/header.jsp"); %>
 
 <div class="withLeftNav">
 	<div class="leftNav">
@@ -102,7 +99,7 @@ String incompleteIndicator = "*";
 				<% } %>
 			</ul>
 		
-			<div class="guideFootnote"><%=incompleteIndicator%> indicates needed information is missing from Guide </div>
+			<div class="guideFootnote"><%=incompleteIndicator%> indicates minimum information is missing from Guide </div>
 
 		</div>
 	</div>
