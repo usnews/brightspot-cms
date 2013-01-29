@@ -99,7 +99,7 @@ public class ImageCrop extends Record {
 
     public void setTexts(String texts) {
         if (texts != null) {
-            String[] split = texts.split(DELIMITER);
+            String[] split = texts.split(DELIMITER, -1);
             for (int i = 1, length = split.length; i < length; ++ i) {
                 getOrCreateTextOverlay(i - 1).setText(split[i]);
             }
@@ -120,7 +120,7 @@ public class ImageCrop extends Record {
 
     public void setTextSizes(String textSizes) {
         if (textSizes != null) {
-            String[] split = textSizes.split(DELIMITER);
+            String[] split = textSizes.split(DELIMITER, -1);
             for (int i = 1, length = split.length; i < length; ++ i) {
                 getOrCreateTextOverlay(i - 1).setSize(ObjectUtils.to(double.class, split[i]));
             }
@@ -141,7 +141,7 @@ public class ImageCrop extends Record {
 
     public void setTextXs(String textXs) {
         if (textXs != null) {
-            String[] split = textXs.split(DELIMITER);
+            String[] split = textXs.split(DELIMITER, -1);
             for (int i = 1, length = split.length; i < length; ++ i) {
                 getOrCreateTextOverlay(i - 1).setX(ObjectUtils.to(double.class, split[i]));
             }
@@ -162,7 +162,7 @@ public class ImageCrop extends Record {
 
     public void setTextYs(String textYs) {
         if (textYs != null) {
-            String[] split = textYs.split(DELIMITER);
+            String[] split = textYs.split(DELIMITER, -1);
             for (int i = 1, length = split.length; i < length; ++ i) {
                 getOrCreateTextOverlay(i - 1).setY(ObjectUtils.to(double.class, split[i]));
             }
@@ -183,7 +183,7 @@ public class ImageCrop extends Record {
 
     public void setTextWidths(String textWidths) {
         if (textWidths != null) {
-            String[] split = textWidths.split(DELIMITER);
+            String[] split = textWidths.split(DELIMITER, -1);
             for (int i = 1, length = split.length; i < length; ++ i) {
                 getOrCreateTextOverlay(i - 1).setWidth(ObjectUtils.to(double.class, split[i]));
             }
