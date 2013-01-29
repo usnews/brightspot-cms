@@ -304,23 +304,42 @@ var Rte = wysihtml5.Editor.extend({
             };
 
             var textarea = this.textarea;
+            var lastTextareaValue;
 
             textarea._originalGetValue = textarea.getValue;
-            textarea.getValue = function() {
-                var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'SPAN', 'BUTTON');
-                return dom.innerHTML;
+            textarea.getValue = function(parse) {
+                var value = this._originalGetValue(parse),
+                        dom;
+
+                if (lastTextareaValue === value) {
+                    return value;
+
+                } else {
+                    lastTextareaValue = value;
+                    dom = wysihtml5.dom.getAsDom(value, this.element.ownerDocument);
+                    convertNodes(dom, 'SPAN', 'BUTTON');
+                    return dom.innerHTML;
+                }
             };
 
             var composer = this.composer;
+            var lastComposerValue;
 
             composer._originalGetValue = composer.getValue;
-            composer.getValue = function() {
-                var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'BUTTON', 'SPAN', function(node) {
-                    node.innerHTML = 'Enhancement';
-                });
-                return dom.innerHTML;
+            composer.getValue = function(parse) {
+                var value = this._originalGetValue(parse);
+
+                if (lastComposerValue === value) {
+                    return value;
+
+                } else {
+                    lastComposerValue = value;
+                    dom = wysihtml5.dom.getAsDom(value, this.element.ownerDocument);
+                    convertNodes(dom, 'BUTTON', 'SPAN', function(node) {
+                        node.innerHTML = 'Enhancement';
+                    });
+                    return dom.innerHTML;
+                }
             };
 
             composer.setValue(textarea.getValue());
