@@ -2,6 +2,7 @@
 	import="
 	com.psddev.cms.db.Guide,
 	com.psddev.cms.db.GuidePage,
+	com.psddev.cms.db.GuidePage.Static,
 	com.psddev.cms.db.GuideType,
 	com.psddev.cms.db.Page,
 	com.psddev.cms.db.Section,
@@ -29,14 +30,16 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     return;
 }
 
+// Ensure that there is a GuidePage object created for any templates
+GuidePage.Static.createDefaultTemplateGuides();
+// Ensure that there is a GuideType object created for any objects referenced by templates.
+GuideType.Static.createDefaultTypeGuides();
+
 List<Guide> guides = Query.from(Guide.class).sortAscending("title").select();
-List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType").select();
-List<GuidePage> pageGuides = Query.from(GuidePage.class).sortAscending("pageType").select();
+List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType/name").select();
+List<GuidePage> pageGuides = Query.from(GuidePage.class).sortAscending("pageType/name").select();
 List<Page> templates = Query.from(Page.class).sortAscending("name").select();
-List<Page> referencedTemplates = new ArrayList<Page>();
-List<Section> referencedSections = new ArrayList<Section>();
-
-
+String incompleteIndicator = "*";
 
 
 // --- Presentation ---
@@ -56,17 +59,16 @@ List<Section> referencedSections = new ArrayList<Section>();
 					class="new<%= selectedClass == Guide.class && selectedState.isNew() ? " selected" : "" %>">
 					<a href="<%= wp.typeUrl(null, Guide.class) %>">New Guide</a>
 				</li>
-				<% for (Guide guide : guides) { %>
+				<% for (Guide guide : guides) { 
+				     String label = wp.objectLabel(guide);     
+				     if (guide.isIncomplete()) {
+				    	 label += incompleteIndicator;
+				     }
+				%>
 				<li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
-					<a href="<%= wp.objectUrl(null, guide) %>"><%= wp.objectLabel(guide) %></a>
+					<a href="<%= wp.objectUrl(null, guide) %>"><%=label%></a>
 				</li>
-				<% // Record which templates are referenced by this guide
-                       if (guide.getTemplatesToIncludeInGuide() != null) {
-                	       for (Page template : guide.getTemplatesToIncludeInGuide()) {
-                		       referencedTemplates.add(template);               		       
-                	       }
-                       }
-                   } %>
+				<% } %>
 			</ul>
 			
 			<h2>Template/Page Guides</h2>
@@ -75,9 +77,14 @@ List<Section> referencedSections = new ArrayList<Section>();
 					class="new<%= selectedClass == GuidePage.class && selectedState.isNew() ? " selected" : "" %>">
 					<a href="<%= wp.typeUrl(null, GuidePage.class) %>">New Guide</a>
 				</li>
-				<% for (GuidePage guide : pageGuides) { %>
+				<% for (GuidePage guide : pageGuides) { 
+					String templateLabel = wp.objectLabel(guide);
+					if (guide.isIncomplete()) {
+						templateLabel += incompleteIndicator;
+					}
+				%>
 				<li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
-					<a href="<%= wp.objectUrl(null, guide) %>"><%= wp.objectLabel(guide) %></a>
+					<a href="<%= wp.objectUrl(null, guide) %>"><%= templateLabel %></a>
 				</li> 
 				<% } %>
 			</ul>
@@ -94,6 +101,8 @@ List<Section> referencedSections = new ArrayList<Section>();
 				</li> 
 				<% } %>
 			</ul>
+		
+			<ul><%=incompleteIndicator%> indicates minimum information is missing from Guide </ul>
 
 		</div>
 	</div>

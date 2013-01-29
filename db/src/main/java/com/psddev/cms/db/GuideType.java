@@ -1,6 +1,5 @@
 package com.psddev.cms.db;
 
-
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -16,6 +15,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * ObjectType and ObjectField don't currently lend themselves well to Modification classes or else this 
  * (and the other Guide<xxx> classes) would have been implemented as a modification class
  */
-@Record.LabelFields({"documentedType/name"})
+@Record.LabelFields({ "documentedType/name" })
 public class GuideType extends Record {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -99,7 +99,7 @@ public class GuideType extends Record {
 		}
 		return desc;
 	}
-	
+
 	public GuideField getGuideField(String fieldName) {
 		if (fieldDescriptions != null) {
 			for (GuideField gf : fieldDescriptions) {
@@ -107,7 +107,7 @@ public class GuideType extends Record {
 					return gf;
 				}
 			}
-		}		
+		}
 		return null;
 	}
 
@@ -163,8 +163,9 @@ public class GuideType extends Record {
 
 		@ToolUi.Note("Production Guide information about this field")
 		ReferentialText description;
-		
-		// True if the description was populated from an annotation (if false, annotations are ignored)
+
+		// True if the description was populated from an annotation (if false,
+		// annotations are ignored)
 		@ToolUi.Hidden
 		boolean fromAnnotation;
 
@@ -190,7 +191,7 @@ public class GuideType extends Record {
 
 		public void setFromAnnotation(boolean fromAnnotation) {
 			this.fromAnnotation = fromAnnotation;
-		}		
+		}
 
 	}
 
@@ -227,32 +228,61 @@ public class GuideType extends Record {
 
 		public static GuideType getGuideType(ObjectType objectType) {
 			return Query.from(GuideType.class)
-					.where("documentedType = ?", objectType).first();
+					.where("documentedType = ?", objectType.getId()).first();
 		}
-		
+
 		public static synchronized GuideType findOrCreateGuide(ObjectField field) {
 			GuideType guide = Query.from(GuideType.class)
-					.where("documentedType = ?", field.getParentType()).first();
+					.where("documentedType = ?", field.getParentType().getId()).first();
 			if (guide == null) {
-				Database db = Database.Static.getDefault();
-				guide = new GuideType();
-				guide.setDocumentedType(field.getParentType());
-				guide.save();
-				db.commitWrites();
-			}	
+				guide = createGuide(field.getParentType());
+			}
 			return guide;
 		}
 
-		public static synchronized void setDescription(ObjectField field, ReferentialText descText) {
-			Database db = Database.Static.getDefault();
-			GuideType guide = Static.findOrCreateGuide(field) ;
+		public static GuideType findOrCreateGuide(ObjectType documentedType) {
+			GuideType guide = Query.from(GuideType.class)
+					.where("documentedType = ?", documentedType.getId()).first();
+			if (guide == null) {
+				guide = createGuide(documentedType);
+			}
+			return guide;
+		}
+
+		public static synchronized GuideType createGuide(
+				ObjectType documentedType) {
+			GuideType guide = Query.from(GuideType.class)
+					.where("documentedType = ?", documentedType.getId()).first();
+			if (guide == null) {
+				LOGGER.info("Creating a production guide instance for type: "
+						+ documentedType);
+				guide = new GuideType();
+				guide.setDocumentedType(documentedType);
+				guide.saveImmediately();
+			}
+			return guide;
+		}
+
+		public static synchronized void setDescription(ObjectField field,
+				ReferentialText descText) {
+			GuideType guide = Static.findOrCreateGuide(field);
 			guide.setFieldDescription(field.getInternalName(), descText, true);
-			guide.save();
-			db.commitWrites();
+			guide.saveImmediately();
+		}
+
+		/*
+		 * Generate guide instances for any content types usable in the site's
+		 * templates
+		 */
+		public static void createDefaultTypeGuides() {
+			// List<ObjectType> types = Template.Static.findUsedTypes(null);
+			List<Template> templates = Query.from(Template.class).selectAll();
+			for (Template template : templates) {
+				for (ObjectType t : template.getContentTypes()) {
+					findOrCreateGuide(t);
+				}
+			}
 		}
 	}
-
-
-	
 
 }

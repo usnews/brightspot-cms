@@ -41,12 +41,15 @@ public class Guide extends Record {
 	@Indexed(unique = true)
 	@ToolUi.Note("Production Guide Title")
 	private String title;
-
-	@ToolUi.Note("Production Guide Overview Section")
-	private ReferentialText overview;
-
+	
 	@ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
 	private List<Page> templatesToIncludeInGuide;
+
+
+	@ToolUi.Note("Production Guide Overview Section")
+	@Guide.Description ("The overview is first page(s) of the Production Guide and is considered necessary for a useful experience")
+	private ReferentialText overview;
+
 
 	public String getTitle() {
 		return title;
@@ -71,6 +74,13 @@ public class Guide extends Record {
 	public void setTemplatesToIncludeInGuide(
 			List<Page> templatesToIncludeInGuide) {
 		this.templatesToIncludeInGuide = templatesToIncludeInGuide;
+	}
+	
+	public boolean isIncomplete() {
+		if (this.getOverview() == null || this.getOverview().isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 	/** Static utility methods. */

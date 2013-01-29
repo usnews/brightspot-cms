@@ -1,9 +1,12 @@
 package com.psddev.cms.db;
 
 
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,9 +30,11 @@ public class GuidePage extends Record {
 
 	@ToolUi.Note("Production Guide summary for this page type")
 	@DisplayName("Summary")
+	@Guide.Description("The summary should provide high level instruction regarding editorial programming of the page. The guide is considered incomplete without a summary.")
 	ReferentialText description;
 
 	@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
+	@Guide.Description ("The sample page is a published page (it must have a live permalink) that is shown in the production guide as an example of proper programming. The guide will graphically highlight the location of each section on the sample page.")
 	private Content samplePage;
 
 	@ToolUi.Note("Production Guide section descriptions for this page/template")
@@ -68,6 +73,16 @@ public class GuidePage extends Record {
 		this.samplePage = samplePage;
 	}
 
+	public boolean isIncomplete() {
+		if (this.getSamplePage() == null || this.getSamplePage().getPermalink() == null) {
+			return true;
+		}
+		if (this.getDescription() == null || this.getDescription().isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
 	public ReferentialText getSectionDescription(Section section) {
 		if (section != null) {
 			GuideSection gs = findOrCreateSectionGuide(section);
@@ -134,6 +149,33 @@ public class GuidePage extends Record {
 	 */
 	public void beforeSave() {
 		generateSectionDescriptionList();
+	}
+	
+	/** Static utility methods. */
+	public static final class Static {
+		
+		/*
+		 * Generating any missing guides for existing templates
+		 */
+		public static synchronized void createDefaultTemplateGuides() {
+			List<GuidePage> pageGuides = Query.from(GuidePage.class).selectAll();
+			List<Template> templates = Query.from(Template.class).selectAll();
+			// eliminate templates that already have guides
+			for (GuidePage guide : pageGuides) {
+				int i = templates.indexOf(guide.getPageType());
+				if (i >= 0) {
+					templates.remove(i);
+				}
+			}
+			if (!templates.isEmpty()) {
+				for (Template template : templates) {
+					GuidePage newGuide = new GuidePage();
+					newGuide.setPageType(template);
+					newGuide.saveImmediately();
+				} 
+			}
+			return;
+		}
 	}
 
 }
