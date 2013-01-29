@@ -713,6 +713,7 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, String> cssDef = new HashMap<String, String>();
                 cssDef.put("internalName", cssClass.getInternalName());
                 cssDef.put("displayName", cssClass.getDisplayName());
+                cssDef.put("tag", cssClass.getTag());
                 cssClasses.add(cssDef);
             }
         }

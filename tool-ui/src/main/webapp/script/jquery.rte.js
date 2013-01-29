@@ -10,12 +10,16 @@ $.each(CSS_CLASS_GROUPS, function() {
     var regex = new RegExp(prefix + '[0-9a-z\-]+', 'g');
 
     wysihtml5.commands[command] = {
-        'exec': function(composer, command, className) {
-            return wysihtml5.commands.formatInline.exec(composer, command, 'span', prefix + className, regex);
+        'exec': function(composer, command, optionsString) {
+            var options = optionsString ? $.parseJSON(optionsString) : { };
+            var format = options.tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].exec(composer, command, options.tag, prefix + options.internalName, regex);
         },
 
-        'state': function(composer, command, className) {
-            return wysihtml5.commands.formatInline.state(composer, command, 'span', prefix + className, regex);
+        'state': function(composer, command, optionsString) {
+            var options = optionsString ? $.parseJSON(optionsString) : { };
+            var format = options.tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].state(composer, command, options.tag , prefix + options.internalName, regex);
         }
     };
 });
@@ -59,7 +63,7 @@ var createToolbar = function(inline) {
 
         $.each(this.cssClasses, function() {
             var $cssClass = $createToolbarCommand(this.displayName, command);
-            $cssClass.attr('data-wysihtml5-command-value', this.internalName);
+            $cssClass.attr('data-wysihtml5-command-value', JSON.stringify(this));
             $group.append($cssClass);
         });
     });
