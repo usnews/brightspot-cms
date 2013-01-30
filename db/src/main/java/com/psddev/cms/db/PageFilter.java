@@ -931,7 +931,7 @@ public class PageFilter extends AbstractFilter {
 
             setCurrentObject(request, object);
             if (isOverlay) {
-                writer.write("<span class=\"cms-overlayBegin\" style=\"display: none;\">");
+                writer.write("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
                 Map<String, String> map = new HashMap<String, String>();
 
                 if (section != null) {
@@ -945,8 +945,8 @@ public class PageFilter extends AbstractFilter {
                     map.put("typeLabel", state.getType().getLabel());
                 }
 
-                writer.write(ObjectUtils.toJson(map));
-                writer.write("</span>");
+                writer.write(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
+                writer.write("\"></span>");
             }
 
             renderScript(request, response, writer, engine, script);
