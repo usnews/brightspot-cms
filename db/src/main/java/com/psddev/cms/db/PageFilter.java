@@ -2,7 +2,9 @@ package com.psddev.cms.db;
 
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.RemoteWidgetFilter;
+import com.psddev.cms.tool.ToolPageContext;
 
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
@@ -450,6 +452,59 @@ public class PageFilter extends AbstractFilter {
 
         } finally {
             Database.Static.restoreDefault();
+        }
+
+        Object mainObject = PageFilter.Static.getMainObject(request);
+
+        if (mainObject != null) {
+            long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
+            UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, AuthenticationFilter.USER_COOKIE, sessionTimeout));
+            ToolUser user = Query.findById(ToolUser.class, userId);
+
+            if (user != null) {
+                @SuppressWarnings("all")
+                ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
+                PageWriter writer = page.getWriter();
+
+                writer.start("div", "style", writer.cssString(
+                        "background", "rgba(0, 0, 0, 0.7)",
+                        "border-bottom-left-radius", "5px",
+                        "color", "white",
+                        "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                        "font-size", "13px",
+                        "line-height", "20px",
+                        "padding", "5px 10px",
+                        "position", "fixed",
+                        "top", 0,
+                        "right", 0,
+                        "z-index", 2000000));
+                    writer.start("a",
+                            "href", "javascript:" + StringUtils.encodeUri(
+                                    "(function(){document.body.appendChild(document.createElement('script')).src='" +
+                                    page.cmsUrl("/content/bookmarklet.jsp") +
+                                    "';}());"),
+                            "style", writer.cssString(
+                                    "color", "#83cbea",
+                                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                                    "font-size", "13px",
+                                    "line-height", "20px"));
+                        writer.html("Edit Inline");
+                    writer.end();
+
+                    writer.html(" | ");
+
+                    writer.start("a",
+                            "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
+                            "target", "_blank",
+                            "style", writer.cssString(
+                                    "color", "#83cbea",
+                                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                                    "font-size", "13px",
+                                    "line-height", "20px"));
+                        writer.html("Edit In CMS");
+                    writer.end();
+                writer.end();
+            }
         }
     }
 
