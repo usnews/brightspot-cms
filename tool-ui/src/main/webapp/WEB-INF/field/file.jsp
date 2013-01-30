@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.ImageCrop,
+com.psddev.cms.db.ImageTextOverlay,
 com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.ToolPageContext,
 
@@ -321,22 +322,29 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         double y = wp.doubleParam(cropsName + cropId + ".y");
         double width = wp.doubleParam(cropsName + cropId + ".width");
         double height = wp.doubleParam(cropsName + cropId + ".height");
-        String text = wp.param(cropsName + cropId + ".text");
-        double textSize = wp.doubleParam(cropsName + cropId + ".textSize");
-        double textX = wp.doubleParam(cropsName + cropId + ".textX");
-        double textY = wp.doubleParam(cropsName + cropId + ".textY");
-        double textWidth = wp.doubleParam(cropsName + cropId + ".textWidth");
-        if (x != 0.0 || y != 0.0 || width != 0.0 || height != 0.0 || !ObjectUtils.isBlank(text)) {
+        String texts = wp.param(cropsName + cropId + ".texts");
+        String textSizes = wp.param(cropsName + cropId + ".textSizes");
+        String textXs = wp.param(cropsName + cropId + ".textXs");
+        String textYs = wp.param(cropsName + cropId + ".textYs");
+        String textWidths = wp.param(cropsName + cropId + ".textWidths");
+        if (x != 0.0 || y != 0.0 || width != 0.0 || height != 0.0 || !ObjectUtils.isBlank(texts)) {
             ImageCrop crop = e.getValue();
             crop.setX(x);
             crop.setY(y);
             crop.setWidth(width);
             crop.setHeight(height);
-            crop.setText(text);
-            crop.setTextSize(textSize);
-            crop.setTextX(textX);
-            crop.setTextY(textY);
-            crop.setTextWidth(textWidth);
+            crop.setTexts(texts);
+            crop.setTextSizes(textSizes);
+            crop.setTextXs(textXs);
+            crop.setTextYs(textYs);
+            crop.setTextWidths(textWidths);
+
+            for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
+                if (ObjectUtils.isBlank(j.next().getText())) {
+                    j.remove();
+                }
+            }
+
         } else {
             i.remove();
         }
@@ -471,11 +479,11 @@ String existingClass = wp.createId();
                                             <td><input name="<%= wp.h(cropsName + cropId + ".y") %>" type="text" value="<%= crop.getY() %>"></td>
                                             <td><input name="<%= wp.h(cropsName + cropId + ".width") %>" type="text" value="<%= crop.getWidth() %>"></td>
                                             <td><input name="<%= wp.h(cropsName + cropId + ".height") %>" type="text" value="<%= crop.getHeight() %>"></td>
-                                            <td><input name="<%= wp.h(cropsName + cropId + ".text") %>" type="text" value="<%= wp.h(crop.getText()) %>"></td>
-                                            <td><input name="<%= wp.h(cropsName + cropId + ".textSize") %>" type="text" value="<%= wp.h(crop.getTextSize()) %>"></td>
-                                            <td><input name="<%= wp.h(cropsName + cropId + ".textX") %>" type="text" value="<%= crop.getTextX() %>"></td>
-                                            <td><input name="<%= wp.h(cropsName + cropId + ".textY") %>" type="text" value="<%= crop.getTextY() %>"></td>
-                                            <td><input name="<%= wp.h(cropsName + cropId + ".textWidth") %>" type="text" value="<%= crop.getTextWidth() %>"></td>
+                                            <td><input name="<%= wp.h(cropsName + cropId + ".texts") %>" type="text" value="<%= wp.h(crop.getTexts()) %>"></td>
+                                            <td><input name="<%= wp.h(cropsName + cropId + ".textSizes") %>" type="text" value="<%= wp.h(crop.getTextSizes()) %>"></td>
+                                            <td><input name="<%= wp.h(cropsName + cropId + ".textXs") %>" type="text" value="<%= crop.getTextXs() %>"></td>
+                                            <td><input name="<%= wp.h(cropsName + cropId + ".textYs") %>" type="text" value="<%= crop.getTextYs() %>"></td>
+                                            <td><input name="<%= wp.h(cropsName + cropId + ".textWidths") %>" type="text" value="<%= crop.getTextWidths() %>"></td>
                                         </tr>
                                     <% } %>
                                 </tbody></table>

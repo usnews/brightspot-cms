@@ -1,22 +1,23 @@
 package com.psddev.cms.db;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
-
-import java.util.Map;
+import com.psddev.dari.util.TypeReference;
 
 @Record.Embedded
 public class ImageCrop extends Record {
+
+    private static final String DELIMITER = "aaaf7c5a9e604daaa126f11e23e321d8";
 
     private double x;
     private double y;
     private double width;
     private double height;
-    private String text;
-    private double textSize;
-    private double textX;
-    private double textY;
-    private double textWidth;
+    private List<ImageTextOverlay> textOverlays;
 
     public ImageCrop() {
     }
@@ -26,11 +27,7 @@ public class ImageCrop extends Record {
         y = ObjectUtils.to(double.class, map.get("y"));
         width = ObjectUtils.to(double.class, map.get("width"));
         height = ObjectUtils.to(double.class, map.get("height"));
-        text = ObjectUtils.to(String.class, map.get("text"));
-        textSize = ObjectUtils.to(double.class, map.get("textSize"));
-        textX = ObjectUtils.to(double.class, map.get("textX"));
-        textY = ObjectUtils.to(double.class, map.get("textY"));
-        textWidth = ObjectUtils.to(double.class, map.get("textWidth"));
+        textOverlays = ObjectUtils.to(new TypeReference<List<ImageTextOverlay>>() { }, map.get("textOverlays"));
     }
 
     public double getX() {
@@ -65,43 +62,131 @@ public class ImageCrop extends Record {
         this.height = height;
     }
 
-    public String getText() {
-        return text;
+    public List<ImageTextOverlay> getTextOverlays() {
+        if (textOverlays == null) {
+            textOverlays = new ArrayList<ImageTextOverlay>();
+        }
+        return textOverlays;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTextOverlays(List<ImageTextOverlay> textOverlays) {
+        this.textOverlays = textOverlays;
     }
 
-    public double getTextSize() {
-        return textSize;
+    private ImageTextOverlay getOrCreateTextOverlay(int index) {
+        List<ImageTextOverlay> textOverlays = getTextOverlays();
+
+        for (int i = textOverlays.size(); i <= index; ++ i) {
+            textOverlays.add(new ImageTextOverlay());
+        }
+
+        return textOverlays.get(index);
     }
 
-    public void setTextSize(double textSize) {
-        this.textSize = textSize;
+    public String getTexts() {
+        StringBuilder texts = new StringBuilder();
+
+        for (ImageTextOverlay textOverlay : getTextOverlays()) {
+            String text = textOverlay.getText();
+            texts.append(DELIMITER);
+            if (text != null) {
+                texts.append(text);
+            }
+        }
+
+        return texts.toString();
     }
 
-    public double getTextX() {
-        return textX;
+    public void setTexts(String texts) {
+        if (texts != null) {
+            String[] split = texts.split(DELIMITER, -1);
+            for (int i = 1, length = split.length; i < length; ++ i) {
+                getOrCreateTextOverlay(i - 1).setText(split[i]);
+            }
+        }
     }
 
-    public void setTextX(double textX) {
-        this.textX = textX;
+    public String getTextSizes() {
+        StringBuilder textSizes = new StringBuilder();
+
+        for (ImageTextOverlay textOverlay : getTextOverlays()) {
+            double textSize = textOverlay.getSize();
+            textSizes.append(DELIMITER);
+            textSizes.append(textSize);
+        }
+
+        return textSizes.toString();
     }
 
-    public double getTextY() {
-        return textY;
+    public void setTextSizes(String textSizes) {
+        if (textSizes != null) {
+            String[] split = textSizes.split(DELIMITER, -1);
+            for (int i = 1, length = split.length; i < length; ++ i) {
+                getOrCreateTextOverlay(i - 1).setSize(ObjectUtils.to(double.class, split[i]));
+            }
+        }
     }
 
-    public void setTextY(double textY) {
-        this.textY = textY;
+    public String getTextXs() {
+        StringBuilder textXs = new StringBuilder();
+
+        for (ImageTextOverlay textOverlay : getTextOverlays()) {
+            double textX = textOverlay.getX();
+            textXs.append(DELIMITER);
+            textXs.append(textX);
+        }
+
+        return textXs.toString();
     }
 
-    public double getTextWidth() {
-        return textWidth;
+    public void setTextXs(String textXs) {
+        if (textXs != null) {
+            String[] split = textXs.split(DELIMITER, -1);
+            for (int i = 1, length = split.length; i < length; ++ i) {
+                getOrCreateTextOverlay(i - 1).setX(ObjectUtils.to(double.class, split[i]));
+            }
+        }
     }
 
-    public void setTextWidth(double textWidth) {
-        this.textWidth = textWidth;
+    public String getTextYs() {
+        StringBuilder textYs = new StringBuilder();
+
+        for (ImageTextOverlay textOverlay : getTextOverlays()) {
+            double textY = textOverlay.getY();
+            textYs.append(DELIMITER);
+            textYs.append(textY);
+        }
+
+        return textYs.toString();
+    }
+
+    public void setTextYs(String textYs) {
+        if (textYs != null) {
+            String[] split = textYs.split(DELIMITER, -1);
+            for (int i = 1, length = split.length; i < length; ++ i) {
+                getOrCreateTextOverlay(i - 1).setY(ObjectUtils.to(double.class, split[i]));
+            }
+        }
+    }
+
+    public String getTextWidths() {
+        StringBuilder textWidths = new StringBuilder();
+
+        for (ImageTextOverlay textOverlay : getTextOverlays()) {
+            double textWidth = textOverlay.getWidth();
+            textWidths.append(DELIMITER);
+            textWidths.append(textWidth);
+        }
+
+        return textWidths.toString();
+    }
+
+    public void setTextWidths(String textWidths) {
+        if (textWidths != null) {
+            String[] split = textWidths.split(DELIMITER, -1);
+            for (int i = 1, length = split.length; i < length; ++ i) {
+                getOrCreateTextOverlay(i - 1).setWidth(ObjectUtils.to(double.class, split[i]));
+            }
+        }
     }
 }

@@ -726,6 +726,7 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, String> cssDef = new HashMap<String, String>();
                 cssDef.put("internalName", cssClass.getInternalName());
                 cssDef.put("displayName", cssClass.getDisplayName());
+                cssDef.put("tag", cssClass.getTag());
                 cssClasses.add(cssDef);
             }
         }
@@ -792,7 +793,7 @@ public class ToolPageContext extends WebPageContext {
                 write(cmsUrl("/misc/sites.jsp"));
                 write("\" target=\"misc\">");
                 Site currentSite = user.getCurrentSite();
-                write(currentSite != null ? h(currentSite.getLabel()) : "All Sites");
+                write(currentSite != null ? h(currentSite.getLabel()) : "Global");
                 write("</a></li>");
             }
 
