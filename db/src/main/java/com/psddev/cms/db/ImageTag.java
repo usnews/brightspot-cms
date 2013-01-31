@@ -883,16 +883,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> edits = (Map<String, Object>) item.getMetadata().get("cms.edits");
 
-                // Requires at least the width and height to perform a crop
-                if (cropWidth != null && cropHeight != null) {
-                    item = ImageEditor.Static.crop(editor, item, options, cropX, cropY, cropWidth, cropHeight);
-                }
-
-                // Requires only one of either the width or the height to perform a resize
-                if (width != null || height != null) {
-                    item = ImageEditor.Static.resize(editor, item, options, width, height);
-                }
-
                 if (edits != null) {
                     ImageEditor realEditor = editor;
                     if (realEditor == null) {
@@ -901,6 +891,16 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
                         item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
                     }
+                }
+
+                // Requires at least the width and height to perform a crop
+                if (cropWidth != null && cropHeight != null) {
+                    item = ImageEditor.Static.crop(editor, item, options, cropX, cropY, cropWidth, cropHeight);
+                }
+
+                // Requires only one of either the width or the height to perform a resize
+                if (width != null || height != null) {
+                    item = ImageEditor.Static.resize(editor, item, options, width, height);
                 }
 
                 String url = item.getPublicUrl();
