@@ -33,8 +33,8 @@ $.plugin2('dropDown', {
                 addItem;
 
         if (!isMultiple &&
-                $original.find('option[selected]').length === 0) {
-            $original.find('option:first').attr('selected', 'selected');
+                $original.find('option:selected').length === 0) {
+            $original.find('option:first').prop('selected', true);
         }
 
         $input = $('<div/>', {
@@ -76,7 +76,7 @@ $.plugin2('dropDown', {
         });
 
         $label.bind('dropDown-update', function() {
-            var texts = $.map($original.find('option[selected]'), function(option) {
+            var texts = $.map($original.find('option:selected'), function(option) {
                 return $(option).text();
             });
 
@@ -174,8 +174,8 @@ $.plugin2('dropDown', {
                 'type': isMultiple ? 'checkbox' : 'radio'
             });
 
-            if ($option.is('[selected]')) {
-                $check.attr('checked', 'checked');
+            if ($option.is(':selected')) {
+                $check.prop('checked', true);
                 $item.addClass(plugin.className('listItem-selected'));
             }
 
@@ -188,14 +188,14 @@ $.plugin2('dropDown', {
             });
 
             $item.click(isMultiple ? function() {
-                if ($option.is('[selected]')) {
-                    $option.removeAttr('selected');
-                    $item.find(':checkbox').removeAttr('checked');
+                if ($option.is(':selected')) {
+                    $option.prop('selected', false);
+                    $item.find(':checkbox').prop('checked', false);
                     $item.removeClass(plugin.className('listItem-selected'));
 
                 } else {
-                    $option.attr('selected', 'selected');
-                    $item.find(':checkbox').attr('checked', 'checked');
+                    $option.prop('selected', true);
+                    $item.find(':checkbox').prop('checked', true);
                     $item.addClass(plugin.className('listItem-selected'));
                 }
 
@@ -205,13 +205,13 @@ $.plugin2('dropDown', {
                 return false;
 
             } : function() {
-                if (!$option.is('[selected]')) {
-                    $original.find('option').removeAttr('selected');
-                    $list.find(':radio').removeAttr('checked');
+                if (!$option.is(':selected')) {
+                    $original.find('option').prop('selected', false);
+                    $list.find(':radio').prop('checked', false);
                     $list.find('.' + plugin.className('listItem')).removeClass(plugin.className('listItem-selected'));
 
-                    $option.attr('selected', 'selected');
-                    $check.attr('checked', 'checked');
+                    $option.prop('selected', true);
+                    $check.prop('checked', true);
                     $item.addClass(plugin.className('listItem-selected'));
 
                     $label.trigger('dropDown-update');
