@@ -1398,10 +1398,6 @@ textarea {
     height: 4em;
     resize: none;
     width: 100%;
-
-    &[data-code-type] {
-        font-family: @fontFamily-code;
-    }
 }
 
 tt {
@@ -2338,14 +2334,6 @@ input[type="text"].dropDown-search {
 
 // Visual representation.
 .pageLayout-visual {
-    .cms-grid-areaWrapper {
-        background-color: fade(@color-text, 10%);
-    }
-
-    .cms-grid-area {
-        margin: 10px;
-    }
-
     .section {
         background-color: @color-note-lighter;
         margin-bottom: 10px;
@@ -2369,11 +2357,11 @@ input[type="text"].dropDown-search {
             background-color: #fdd !important;
 
             .section,
-            > .controls > .moveUpButton,
-            > .controls > .moveDownButton,
-            > .controls > .moveLeftButton,
-            > .controls > .moveRightButton,
-            > .controls > .settingsButton,
+            > .hat > .moveUpButton,
+            > .hat > .moveDownButton,
+            > .hat > .moveLeftButton,
+            > .hat > .moveRightButton,
+            > .hat > .settingsButton,
             > .heading > .addButton {
                 visibility: hidden;
             }
@@ -2381,6 +2369,101 @@ input[type="text"].dropDown-search {
             > .heading > .name {
                 color: @color-alert;
                 text-decoration: line-through;
+            }
+        }
+
+        // Hat contains controls for editing general section settings.
+        > .hat {
+            background-color: rgba(0, 0, 0, 0.7);
+            .border-radius(5px);
+            left: 5px;
+            overflow: hidden;
+            padding: 0 5px;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            z-index: 1;
+
+            > .moveUpButton,
+            > .moveDownButton,
+            > .moveLeftButton,
+            > .moveRightButton {
+                .icon;
+                .icon-only;
+                .link;
+
+                color: @color-link-lighter;
+                float: left;
+                margin-top: 2px;
+                margin-right: 4px;
+            }
+
+            > .moveUpButton { .icon-arrow-up; }
+            > .moveDownButton { .icon-arrow-down; }
+            > .moveLeftButton { .icon-arrow-left; }
+            > .moveRightButton { .icon-arrow-right; }
+
+            > .settingsButton {
+                .icon;
+                .icon-cogs;
+
+                color: @color-link-lighter;
+                float: left;
+                margin-top: 2px;
+            }
+
+            > .removeButton {
+                .icon;
+                .icon-remove-sign;
+                .icon-only;
+                .link;
+
+                color: @color-alert-lighter;
+                float: right;
+                margin-top: 2px;
+            }
+        }
+
+        // Heading contains the section name and other section-specific
+        // controls.
+        > .heading {
+            > .name {
+                font-family: @fontFamily-label;
+                font-size: 150%;
+                margin-bottom: 4px;
+
+                &.anonymous {
+                    .opacity(0.3);
+                }
+            }
+
+            > .contentButton {
+                .icon;
+                .icon-pencil;
+
+                color: @color-link-darker;
+            }
+
+            > .removeContentButton {
+                .icon;
+                .icon-remove-sign;
+
+                color: @color-alert-darker;
+                margin-left: 10px;
+            }
+
+            > .addButton {
+                .icon;
+                .icon-plus-sign;
+
+                background: @color-link-lighter;
+                .border-radius(5px);
+                cursor: pointer;
+                text-align: center;
+
+                &:after {
+                    content: 'Add Section';
+                }
             }
         }
 
@@ -2410,8 +2493,6 @@ input[type="text"].dropDown-search {
         }
 
         &.horizontal {
-            min-height: 115px;
-
             > .content {
                 border-spacing: 10px;
                 display: table;
@@ -2428,11 +2509,11 @@ input[type="text"].dropDown-search {
                 bottom: 10px;
                 position: absolute;
                 right: 10px;
-                top: 56px;
+                top: 32px;
                 width: 20px;
 
                 &:before {
-                    left: 4px;
+                    left: 2px;
                     position: absolute;
                     top: 50%;
                 }
@@ -2442,99 +2523,13 @@ input[type="text"].dropDown-search {
                 }
             }
         }
-
-        &.horizontal,
-        &.vertical {
-            > .controls {
-                margin-bottom: 10px;
-            }
-        }
     }
-
-    // Hat contains controls for editing general section settings.
-    .controls {
-        > .moveUpButton { .icon; .icon-arrow-up; }
-        > .moveDownButton { .icon; .icon-arrow-down; }
-        > .moveLeftButton { .icon; .icon-arrow-left; }
-        > .moveRightButton { .icon; .icon-arrow-right; }
-
-        > .moveUpButton,
-        > .moveDownButton,
-        > .moveLeftButton,
-        > .moveRightButton {
-            .link;
-            .icon-only;
-
-            margin-right: 4px;
-        }
-
-        > .settingsButton {
-            .icon;
-            .icon-cogs;
-        }
-
-        > .removeButton {
-            .icon;
-            .icon-remove-sign;
-            .link;
-            .icon-only;
-
-            color: @color-alert;
-            position: absolute;
-            right: 5px;
-            top: 5px;
-        }
-    }
-
-    // Heading contains the section name and other section-specific
-    // controls.
-    .heading {
-        > .name {
-            font-family: @fontFamily-label;
-            font-size: 150%;
-            line-height: 1.3;
-
-            &.anonymous {
-                .opacity(0.3);
-            }
-        }
-
-        > .contentButton {
-            .icon;
-            .icon-pencil;
-
-            color: @color-link-darker;
-        }
-
-        > .removeContentButton {
-            .icon;
-            .icon-remove-sign;
-
-            color: @color-alert-darker;
-            margin-left: 10px;
-        }
-
-        > .addButton {
-            .icon;
-            .icon-plus-sign;
-
-            background: @color-link-lighter;
-            .border-radius(5px);
-            cursor: pointer;
-            text-align: center;
-
-            &:after {
-                content: 'Add Section';
-            }
-        }
-    }
-
 }
 
-.pageLayout-visual .horizontal > .section > .controls > .moveUpButton,
-.pageLayout-visual .horizontal > .section > .controls > .moveDownButton,
-.pageLayout-visual .vertical > .section > .controls > .moveLeftButton,
-.pageLayout-visual .vertical > .section > .controls > .moveRightButton {
+.pageLayout-visual .horizontal > .section > .hat > .moveUpButton,
+.pageLayout-visual .horizontal > .section > .hat > .moveDownButton,
+.pageLayout-visual .vertical > .section > .hat > .moveLeftButton,
+.pageLayout-visual .vertical > .section > .hat > .moveRightButton {
     display: none;
 }
 
@@ -2777,8 +2772,7 @@ input[type="text"].dropDown-search {
 .popup[name^=objectId-],
 .popup[name=contentRaw],
 .popup[name=contentSectionContent],
-.popup[name=miscSearch],
-.popup[name=sectionSettings] {
+.popup[name=miscSearch] {
     width: 70%;
 }
 

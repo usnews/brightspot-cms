@@ -606,14 +606,13 @@ public class PageFilter extends AbstractFilter {
      */
     @SuppressWarnings("all")
     private static void writeSection(
-            final HttpServletRequest request,
-            final HttpServletResponse response,
+            HttpServletRequest request,
+            HttpServletResponse response,
             Writer writer,
             Section section)
             throws IOException, ServletException {
 
         boolean wireframe = isWireframe(request);
-        boolean containerRendered = false;
 
         if (wireframe) {
             writeWireframeSectionBegin(writer, section);
@@ -622,33 +621,27 @@ public class PageFilter extends AbstractFilter {
         // Container section - begin, child sections, then end.
         if (section instanceof ContainerSection) {
             ContainerSection container = (ContainerSection) section;
+            List<Section> children = container.getChildren();
 
-            if (ObjectUtils.isBlank(container.getRendererPath())) {
-                containerRendered = true;
-                List<Section> children = container.getChildren();
+            try {
+                addParentSection(request, container);
+                beginContainer(request, response, writer, container);
 
-                try {
-                    addParentSection(request, container);
-                    beginContainer(request, response, writer, container);
-
-                    for (Section child : children) {
-                        renderSection(request, response, writer, child);
-                        if (isAborted(request)) {
-                            return;
-                        }
+                for (Section child : children) {
+                    renderSection(request, response, writer, child);
+                    if (isAborted(request)) {
+                        return;
                     }
-
-                    endContainer(request, response, writer, container);
-
-                } finally {
-                    removeLastParentSection(request);
                 }
+
+                endContainer(request, response, writer, container);
+
+            } finally {
+                removeLastParentSection(request);
             }
-        }
 
         // Script section may be associated with an object.
-        if (!containerRendered &&
-                section instanceof ScriptSection) {
+        } else if (section instanceof ScriptSection) {
             Object object;
             if (section instanceof MainSection) {
                 object = getMainObject(request);
@@ -1056,10 +1049,6 @@ public class PageFilter extends AbstractFilter {
             Section section = getCurrentSection(request);
 
             if (!(section instanceof ScriptSection)) {
-                return;
-            }
-
-            if (section instanceof ContainerSection) {
                 return;
             }
 
