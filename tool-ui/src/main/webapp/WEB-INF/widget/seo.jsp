@@ -25,7 +25,9 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 Widget widget = JspWidget.getWidget(wp);
 Object object = JspWidget.getObject(wp);
 State state = State.getInstance(object);
-if (object.getClass() != Page.class && !Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) {
+if (!Page.class.isInstance(object) &&
+        Template.class.isInstance(object) &&
+        !Template.Static.findUsedTypes(wp.getSite()).contains(state.getType())) {
     return;
 }
 

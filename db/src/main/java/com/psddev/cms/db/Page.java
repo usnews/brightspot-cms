@@ -1,28 +1,27 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.State;
-
-import com.psddev.dari.util.ObjectUtils;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ListMap;
+import com.psddev.dari.util.ObjectUtils;
+
 public class Page extends Content {
-    
+
     @Indexed(unique = true)
     @Required
     private String name;
 
-    @DisplayName("Layout")
-    @InternalName("layout.v2")
-    @ToolUi.FieldDisplayType("layout")
-    private Layout layout;
+    private String rendererPath;
+    private List<Area> areas;
+    private transient Map<String, Area> areasMap;
 
     /** Returns the unique name. */
     public String getName() {
@@ -34,7 +33,92 @@ public class Page extends Content {
         this.name = name;
     }
 
-    /** Returns the layout. */
+    /** Returns the renderer path. */
+    public String getRendererPath() {
+        return rendererPath;
+    }
+
+    /** Sets the renderer path. */
+    public void setRendererPath(String rendererPath) {
+        this.rendererPath = rendererPath;
+    }
+
+    /** Returns the areas. */
+    public Map<String, Area> getAreas() {
+        if (areas == null) {
+            areas = new ArrayList<Area>();
+        }
+
+        if (areasMap == null) {
+            areasMap = new ListMap<String, Area>(areas) {
+                @Override
+                public String getKey(Area area) {
+                    return area.getInternalName();
+                }
+            };
+        }
+
+        return areasMap;
+    }
+
+    /** Sets the areas. */
+    public void setAreas(List<Area> areas) {
+        this.areas = areas;
+        this.areasMap = null;
+    }
+
+    @Embedded
+    public static class Area extends Record {
+
+        private String displayName;
+        private String internalName;
+        private List<Content> contents;
+
+        /** Returns the display name. */
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        /** Sets the display name. */
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        /** Returns the internal name. */
+        public String getInternalName() {
+            return internalName;
+        }
+
+        /** Sets the internal name. */
+        public void setInternalName(String internalName) {
+            this.internalName = internalName;
+        }
+
+        /** Returns the contents. */
+        public List<Content> getContents() {
+            if (contents == null) {
+                contents = new ArrayList<Content>();
+            }
+            return contents;
+        }
+
+        /** Sets the contents. */
+        public void setContents(List<Content> contents) {
+            this.contents = contents;
+        }
+    }
+
+    // --- Deprecated ---
+
+    @Deprecated
+    @DisplayName("Layout")
+    @InternalName("layout.v2")
+    @ToolUi.FieldDisplayType("layout")
+    @ToolUi.Note("Deprecated. Please use Renderer Path and Areas instead.")
+    private Layout layout;
+
+    /** @deprecated Use {@link #getRendererPath} and {@link #getAreas} instead. */
+    @Deprecated
     public Layout getLayout() {
         if (layout == null) {
             Section legacySection = resolveReference(Section.class, getState().getValue("layout"));
@@ -46,12 +130,14 @@ public class Page extends Content {
         return layout;
     }
 
-    /** Sets the layout. */
+    /** @deprecated Use {@link #setRendererPath} and {@link #setAreas} instead. */
+    @Deprecated
     public void setLayout(Layout layout) {
         this.layout = layout;
     }
 
-    /** Returns an iterable of all the sections in this page. */
+    /** @deprecated Use {@link #getAreas} instead. */
+    @Deprecated
     public Iterable<Section> findSections() {
         List<Section> sections = new ArrayList<Section>();
         Layout layout = getLayout();
@@ -73,7 +159,10 @@ public class Page extends Content {
         }
     }
 
+    /** @deprecated Use {@link #getRendererPath} and {@link #getAreas} instead. */
+    @Deprecated
     @Embedded
+    @SuppressWarnings("all")
     public static class Layout extends Record {
 
         @Embedded
@@ -168,6 +257,7 @@ public class Page extends Content {
         }
     }
 
+    @SuppressWarnings("all")
     private Section convertLegacySection(Layout layout, Section section) {
 
         if (section == null || section.getClass() != Section.class) {
@@ -261,6 +351,7 @@ public class Page extends Content {
         return newSection;
     }
 
+    @SuppressWarnings("all")
     private <T> T resolveReference(Class<T> objectClass, Object reference) {
         if (reference instanceof Map) {
             return Query.findById(objectClass, ObjectUtils.to(UUID.class,

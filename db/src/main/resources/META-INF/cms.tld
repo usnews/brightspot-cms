@@ -145,13 +145,27 @@
     </tag>
 
     <tag>
+        <name>layout</name>
+        <tag-class>com.psddev.cms.db.LayoutTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>class</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>render</name>
         <tag-class>com.psddev.cms.db.RenderTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
+            <name>area</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>value</name>
             <rtexprvalue>true</rtexprvalue>
-            <required>true</required>
         </attribute>
         <attribute>
             <name>beginMarker</name>
@@ -167,6 +181,10 @@
         </attribute>
         <attribute>
             <name>endOffset</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>class</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
