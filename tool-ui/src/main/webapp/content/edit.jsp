@@ -179,7 +179,10 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     <div class="widget-content-new">
                         <div class="action action-new">New</div>
                         <ul>
-                            <li><a class="action action-new" href="<%= wp.url("/content/edit.jsp", "templateId", template.getId()) %>">New <%= wp.typeLabel(editing) %></a></li>
+                            <li><a class="action action-new" href="<%= wp.url("/content/edit.jsp",
+                                    "typeId", State.getInstance(editing).getTypeId(),
+                                    "templateId", template != null ? template.getId() : null)
+                                    %>">New <%= wp.typeLabel(editing) %></a></li>
                             <li><a class="action action-copy" href="<%= wp.url("/content/edit.jsp",
                                     "typeId", State.getInstance(editing).getTypeId(),
                                     "templateId", template != null ? template.getId() : null,
