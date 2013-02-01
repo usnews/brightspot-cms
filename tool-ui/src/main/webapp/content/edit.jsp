@@ -120,20 +120,18 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             autocomplete="off"
             data-object-id="<%= State.getInstance(selected).getId() %>">
         <div class="contentForm-main">
-            <%
-            String search = wp.param(String.class, "search");
-
-            if (search != null) {
-                wp.write("<div class=\"content-searchResult frame\">");
-                wp.write("<a href=\"");
-                wp.write(StringUtils.addQueryParameters(search, "widget", true));
-                wp.write("\">Search Result</a>");
-                wp.write("</div>");
-            }
-            %>
-
-            <div class="widget widget-content">
+            <div class="widget">
                 <h1><%
+                    String search = wp.param(String.class, "search");
+
+                    if (search != null) {
+                        wp.write("<span class=\"content-searchResult frame\">");
+                        wp.write("<a href=\"");
+                        wp.write(StringUtils.addQueryParameters(search, "widget", true));
+                        wp.write("\">Search Result</a>");
+                        wp.write("</span>");
+                    }
+                %><span class="icon icon-file"><%
                     wp.write(state.isNew() ? "New " : "Edit ");
 
                     if (compatibleTypes.size() < 2) {
@@ -165,7 +163,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</a>");
                     }
-                %></h1>
+                %></span></h1>
 
                 <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
 

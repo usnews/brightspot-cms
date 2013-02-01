@@ -33,15 +33,13 @@ if (!wp.param(boolean.class, "widget")) {
         url += "?" + queryString;
     }
 
-    writer.start("ul", "class", "pagination");
-        writer.start("li");
-            writer.start("a",
-                    "class", "action-result",
-                    "href", StringUtils.addQueryParameters(url, "widget", null),
-                    "target", "miscSearch");
-                writer.html("Search Result");
-            writer.end();
-        writer.end();
+    writer.start("a",
+            "class", "action-result",
+            "href", StringUtils.addQueryParameters(url, "widget", null),
+            "target", "miscSearch");
+        writer.html("Search Result");
     writer.end();
+
+    writer.html(" \u2192 ");
 }
 %>
