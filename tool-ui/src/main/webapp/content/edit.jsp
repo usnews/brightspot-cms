@@ -165,6 +165,21 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
                 %></span><% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %></h1>
 
+                <% if (!State.getInstance(editing).isNew()) { %>
+                    <div class="widget-content-new">
+                        <div class="action action-new">New</div>
+                        <ul>
+                            <li><a class="action action-new" href="<%= wp.url("/content/edit.jsp", "templateId", template.getId()) %>">New <%= wp.typeLabel(editing) %></a></li>
+                            <li><a class="action action-copy" href="<%= wp.url("/content/edit.jsp",
+                                    "typeId", State.getInstance(editing).getTypeId(),
+                                    "templateId", template != null ? template.getId() : null,
+                                    "copyId", State.getInstance(editing).getId())
+                                    %>" target="_top">Copy This <%= wp.typeLabel(editing) %></a></li>
+
+                        </ul>
+                    </div>
+                <% } %>
+
                 <% if (sectionContent != null) { %>
                     <p><a class="action-back" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
                 <% } %>

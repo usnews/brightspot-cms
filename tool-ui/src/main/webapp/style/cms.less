@@ -3415,6 +3415,82 @@ input[type="text"].dropDown-search {
 .widget-content > h1 { .breadcrumb; margin-left: -10px; }
 .widget-content > h1 > .action { .breadcrumb-item; }
 
+.widget-content-new {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    z-index: 1;
+
+    > .action-new {
+        border-color: transparent;
+        border-style: solid;
+        border-width: 1px 1px 0 1px;
+        color: @color-link;
+        cursor: default;
+        float: right;
+        padding: 2px 6px;
+        .user-select(none);
+    }
+
+    > ul {
+        display: none;
+    }
+
+    &:hover {
+        > .action-new {
+            background: @color-background;
+            border-color: @color-note;
+            .border-top-left-radius(5px);
+            .border-top-right-radius(5px);
+            .box-shadow(0 0 2px fade(@color-text, 30%));
+            position: relative;
+
+            &:after {
+                background: @color-background;
+                content: '';
+                height: 5px;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 100%;
+            }
+        }
+
+        > ul {
+            background: @color-background;
+            border: 1px solid @color-note;
+            .border-bottom-left-radius(5px);
+            .border-bottom-right-radius(5px);
+            .border-top-left-radius(5px);
+            .box-shadow(0 0 2px fade(@color-text, 30%));
+            clear: both;
+            display: block;
+            list-style-type: none;
+            margin: 0;
+            padding: 5px 0;
+
+            > li {
+                padding: 1px 6px;
+
+                > a {
+                    display: block;
+                    text-decoration: none;
+                }
+
+                &:hover {
+                    background-color: @color-link;
+                    color: @color-background;
+
+                    > a {
+                        background-color: inherit;
+                        color: inherit;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /* --- Hovering focus label --- */
 
 .focusLabel {
@@ -3679,6 +3755,7 @@ input[type="text"].dropDown-search {
 
 .action-add { .icon; .icon-plus-sign; }
 .action-back { .icon; .icon-arrow-left; }
+.action-copy { .icon; .icon-copy; }
 .action-edit { .icon; .icon-pencil; }
 .action-delete { .icon; .icon-trash; }
 .action-draft { .icon; .icon-save; }
@@ -3686,6 +3763,7 @@ input[type="text"].dropDown-search {
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }
 .action-logOut { .icon; .icon-signout; }
+.action-new { .icon; .icon-plus-sign; }
 .action-preview { .icon; .icon-eye-open; }
 .action-remove { .icon; .icon-minus-sign; }
 .action-reset { .icon; .icon-remove; }
