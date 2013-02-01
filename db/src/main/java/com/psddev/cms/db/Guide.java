@@ -281,7 +281,7 @@ public class Guide extends Record {
 					ReferentialText descText = new ReferentialText();
 					descText.add(annotation.value());
 					if (!descText.equals(currentDesc)) {
-						GuideType.Static.setDescription(field, descText);
+						GuideType.Static.setDescription(field, descText, true);
 					}
 				}
 			}

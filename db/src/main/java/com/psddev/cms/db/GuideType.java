@@ -81,21 +81,22 @@ public class GuideType extends Record {
 		this.fieldDescriptions = fieldDescriptions;
 	}
 
-	public ReferentialText getFieldDescription(String fieldName,
+	public ReferentialText getFieldDescription(String fieldName, String fieldDisplayName,
 			boolean createIfMissing) {
 		ReferentialText desc = null;
 		if (fieldDescriptions != null) {
 			for (GuideField gf : fieldDescriptions) {
 				if (gf.getFieldName().equals(fieldName)) {
+					// we take this opportunity to synch the display name
+					if (createIfMissing && fieldDisplayName != null) {
+						gf.setDisplayName(fieldDisplayName);
+					}
 					return gf.getDescription();
 				}
 			}
 		}
 		if (createIfMissing == true) {
-			GuideField gf = new GuideField();
-			gf.fieldName = fieldName;
-			// TODO - pull description from annotation?
-			addFieldDescription(gf);
+			setFieldDescription(fieldName, fieldDisplayName, null, false);
 		}
 		return desc;
 	}
@@ -111,12 +112,15 @@ public class GuideType extends Record {
 		return null;
 	}
 
-	public void setFieldDescription(String fieldName,
+	public void setFieldDescription(String fieldName, String fieldDisplayName,
 			ReferentialText description, boolean annotation) {
 		ReferentialText desc = null;
 		if (fieldDescriptions != null) {
 			for (GuideField gf : fieldDescriptions) {
 				if (gf.getFieldName().equals(fieldName)) {
+					if (fieldDisplayName != null) {
+						gf.setDisplayName(fieldDisplayName);
+					}
 					gf.setDescription(description);
 					gf.setFromAnnotation(annotation);
 					return;
@@ -125,8 +129,11 @@ public class GuideType extends Record {
 		}
 		// if didn't already exist
 		GuideField gf = new GuideField();
-		gf.fieldName = fieldName;
-		gf.description = description;
+		gf.setFieldName(fieldName);
+		if (fieldDisplayName != null) {
+			gf.setDisplayName(fieldDisplayName);
+		}
+		gf.setDescription(description);
 		gf.setFromAnnotation(annotation);
 		addFieldDescription(gf);
 
@@ -138,7 +145,7 @@ public class GuideType extends Record {
 		if (type != null) {
 			List<ObjectField> fields = type.getFields();
 			for (ObjectField field : fields) {
-				getFieldDescription(field.getInternalName(), true);
+				getFieldDescription(field.getInternalName(), field.getDisplayName(), true);
 			}
 		}
 	}
@@ -153,13 +160,16 @@ public class GuideType extends Record {
 	}
 
 	@Record.Embedded
-	@Record.LabelFields({ "fieldName" })
+	@Record.LabelFields({ "displayName" })
 	public static class GuideField extends Record {
 
 		@Required
 		@Indexed
-		@ToolUi.Note("Internal fieldname in this object type")
+		@ToolUi.Note("Internal fieldname in this object type. This is used to query the object and must exactly match the internal name")
 		String fieldName;
+		
+		@ToolUi.Note("Fieldname as it's displayed in UI (if different from the internal fieldname)")
+		String displayName;
 
 		@ToolUi.Note("Production Guide information about this field")
 		ReferentialText description;
@@ -175,6 +185,14 @@ public class GuideType extends Record {
 
 		public void setFieldName(String fieldName) {
 			this.fieldName = fieldName;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public void setDisplayName(String displayName) {
+			this.displayName = displayName;
 		}
 
 		public ReferentialText getDescription() {
@@ -203,12 +221,16 @@ public class GuideType extends Record {
 				ObjectType typeDefinition = state.getType();
 				GuideType guide = getGuideType(typeDefinition);
 				if (guide != null) {
-					return guide.getFieldDescription(fieldName, false);
+					return guide.getFieldDescription(fieldName, null, false);
 				}
 			}
 			return null;
 		}
 
+		/*
+		 * Query to get a T/F as to whether this field has any information we include in 
+		 * the field description (e.g. used to determine whether ? link is displayed in UI
+		 */
 		public static boolean hasFieldGuideInfo(State state, String fieldName) {
 			ObjectField field = state.getField(fieldName);
 			if (field.isRequired())
@@ -226,11 +248,19 @@ public class GuideType extends Record {
 			return false;
 		}
 
+		/*
+		 * Retrieve the existing GuideType instance for a given ObjectType.
+		 * If none exists, null is returned
+		 */
 		public static GuideType getGuideType(ObjectType objectType) {
 			return Query.from(GuideType.class)
 					.where("documentedType = ?", objectType.getId()).first();
 		}
 
+		/*
+		 * Retrieve a GuideType instance for the parent type of a given field, creating one if it
+		 * doesn't already exist.
+		 */
 		public static synchronized GuideType findOrCreateGuide(ObjectField field) {
 			GuideType guide = Query.from(GuideType.class)
 					.where("documentedType = ?", field.getParentType().getId()).first();
@@ -240,6 +270,10 @@ public class GuideType extends Record {
 			return guide;
 		}
 
+		/*
+		 * Retrieve a GuideType instance for the given ObjectType, creating one if it
+		 * doesn't already exist.
+		 */
 		public static GuideType findOrCreateGuide(ObjectType documentedType) {
 			GuideType guide = Query.from(GuideType.class)
 					.where("documentedType = ?", documentedType.getId()).first();
@@ -249,6 +283,10 @@ public class GuideType extends Record {
 			return guide;
 		}
 
+		/*
+		 * Create a GuideType instance for the given ObjectType. To allow for thread/transaction safety, this
+		 * is synchronized and double checks to ensure it hasn't already been created.
+		 */
 		public static synchronized GuideType createGuide(
 				ObjectType documentedType) {
 			GuideType guide = Query.from(GuideType.class)
@@ -264,9 +302,9 @@ public class GuideType extends Record {
 		}
 
 		public static synchronized void setDescription(ObjectField field,
-				ReferentialText descText) {
+				ReferentialText descText, boolean fromAnnotation) {
 			GuideType guide = Static.findOrCreateGuide(field);
-			guide.setFieldDescription(field.getInternalName(), descText, true);
+			guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText, fromAnnotation);
 			guide.saveImmediately();
 		}
 
