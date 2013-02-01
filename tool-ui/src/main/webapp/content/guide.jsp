@@ -37,7 +37,7 @@
 		return;
 	}
 	Guide guide = Query.findById(Guide.class, wp.uuidParam("guideId"));
-	String guideTitle = "Production Guide: ";
+	String guideTitle = "";
 
 	if (guide != null) {
 		guideTitle += guide.getTitle();
@@ -58,7 +58,8 @@
 	}
 
 	List<Page> pages = null;
-	String nextTemplate = "";
+	String nextTemplateId = "";
+	String nextTemplateName = "";
 	if (guide != null) {
 		pages = guide.getTemplatesToIncludeInGuide();
 	}
@@ -119,9 +120,11 @@
 	HashMap<UUID, String> nameMap = null;
 	if (pg != null) {
 		if (guide != null) {
-			guideTitle += " - ";
+			guideTitle += " - " + pg.getLabel();
+		} else {
+			guideTitle += pg.getLabel() + " Production Guide";
 		}
-		guideTitle += pg.getLabel();
+		
 
 		sections = pg.findSections();
 		nameMap = Guide.Static.getSectionNameMap(sections);
@@ -187,7 +190,7 @@
 						foundSelected = false;
 						int templateCnt = 1;
 
-						wp.write("Chapter: ");
+						wp.write("View Chapter: ");
 						wp.write("<select name=\"templateId\" onchange=\"$(this).closest('form').submit();\">");
 
 						iter = pages.iterator();
@@ -208,7 +211,8 @@
 							curT = (Page) iter.next();
 							if (nxtT == null && (foundSelected || overviewPage)) {
 								nxtT = curT;
-								nextTemplate = nxtT.getId().toString();
+								nextTemplateId = nxtT.getId().toString();
+								nextTemplateName = nxtT.getName();
 							}
 							if (selectedTemplate != null
 									&& curT.getId().equals(selectedTemplate.getId())) {
@@ -242,8 +246,7 @@
 				<ul class="guideControls">
 					<li><a
 						href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
-						class="action-print" target="productionGuidePrintout">Print
-							Production Guide</a></li>
+						class="action-print" target="productionGuidePrintout">Print</a></li>
 				</ul>
 				<%
 					} else {
@@ -263,8 +266,7 @@
 					%>
 					<li><a
 						href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId())%>"
-						class="action-print" target="productionGuidePrintout">Print
-							Production Guide</a></li>
+						class="action-print" target="productionGuidePrintout">Print</a></li>
 				</ul>
 				<%
 					}
@@ -296,7 +298,7 @@
 				    Content samplePage = Guide.Static.getSamplePage(pg);
 
 					wp.write("<div class=\"guideTop\">");
-					wp.write(pg.getName(), " Guide Section:  ");
+					wp.write("View Section: ");
 					wp.write("<select id=\"sectionChoice\" name=\"sectionId\" onchange=\"$(this).closest('form').submit();\">");
 
 					iter = sections.iterator();
@@ -422,6 +424,7 @@
 							pageUrl += '?' + PageFilter.OVERLAY_PARAMETER + "=true";
 				%>
 				<div class="guidePreview">
+				    Sample <%=pg.getLabel()%>
 					<iframe id="samplePagePreview" name="samplePagePreview"
 						class="guidePreviewFrame" src="<%=pageUrl%>" scrolling="no"
 						onload="init_sample(window.samplePagePreview);"></iframe>
@@ -443,11 +446,11 @@
 							}
 						}
 						// Current page location
-						wp.write(" ");
+						wp.write("<div style=\"display: inline; padding-left: 20px; padding-right: 20px;\">");
 						wp.write(curCnt);
 						wp.write(" of ");
 						wp.write(sectionCnt);
-						wp.write(" ");
+						wp.write("</div>");
 						if (nxt != null) {
 							wp.write("<a href=\"",
 									wp.url("", "sectionId", nxt.getId()),
@@ -490,11 +493,18 @@
 
 				<%
 					}
-					if (guide != null) {
-						wp.write("<div class=\"guideButtons\" align=\"center\">");
-						wp.write("<a href=\"", wp.url("", "templateId", nextTemplate),
-								"\" class=\"button\">Next Chapter</a>");
-						wp.write("</div>");
+					if (guide != null && !pages.isEmpty()) {
+						if (!nextTemplateId.isEmpty()) {
+						    wp.write("<div class=\"guideButtons\" align=\"center\">");
+					    	wp.write("<a href=\"", wp.url("", "templateId", nextTemplateId),
+								"\">Next Chapter: ", nextTemplateName ,"</a>");
+						    wp.write("</div>");
+						} else {
+							wp.write("<div class=\"guideButtons\" align=\"center\">");
+					    	wp.write("<a href=\"", wp.url("", "templateId", ""),
+								"\">Go to Overview</a>");
+						    wp.write("</div>");
+						}
 					}
 				%>
 			</div>
@@ -550,7 +560,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
     $samplePageBody.find('span.cms-overlayBegin').each(function() {
         displayMark = false;
         var $begin = $(this),
-            data = $.parseJSON($begin.text()),
+            data = $.parseJSON($begin.attr('data-object')),
             found = false,
             minX = Number.MAX_VALUE,
             maxX = 0,
