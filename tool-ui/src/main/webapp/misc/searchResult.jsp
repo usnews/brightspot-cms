@@ -26,7 +26,7 @@ if (!wp.param(boolean.class, "widget")) {
 
 } else {
     HtmlWriter writer = new HtmlWriter(wp.getWriter());
-    String url = wp.url("/misc/search.jsp");
+    String url = wp.url("/misc/savedSearch.jsp");
     String queryString = request.getQueryString();
 
     if (queryString != null) {
@@ -36,7 +36,7 @@ if (!wp.param(boolean.class, "widget")) {
     writer.start("a",
             "class", "action action-result",
             "href", StringUtils.addQueryParameters(url, "widget", null),
-            "target", "miscSearch");
+            "target", "miscSavedSearch");
         writer.html("Search Result");
     writer.end();
 }
