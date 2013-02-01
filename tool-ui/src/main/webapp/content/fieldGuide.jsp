@@ -1,5 +1,12 @@
 <%@ page
-	import="com.psddev.cms.db.GuideType,com.psddev.cms.db.PageFilter,com.psddev.cms.tool.ToolPageContext,com.psddev.dari.db.ReferentialText,com.psddev.dari.db.ObjectField,com.psddev.dari.db.State"%>
+	import="com.psddev.cms.db.GuideType,
+	com.psddev.cms.db.PageFilter,
+	com.psddev.cms.tool.ToolPageContext,
+	com.psddev.cms.db.Content,
+	com.psddev.dari.db.ReferentialText,
+	com.psddev.dari.db.ObjectField,
+	com.psddev.dari.db.State,
+	java.util.AbstractList"%>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms"%>
 <jsp:useBean id="description" class="com.psddev.dari.db.ReferentialText"
 	scope="request" />
@@ -26,9 +33,7 @@
 	wp.include("/WEB-INF/header.jsp");
 %>
 
-<h1>
-	Field:
-	<%=field.getLabel()%></h1>
+<h1><%=field.getLabel()%></h1>
 
 <%
 	if (field.isRequired()) {
@@ -42,7 +47,17 @@
 		}
 		
 		if (field.getDefaultValue() != null) {
-			wp.write("<li>Default value: ", field.getDefaultValue(), "</li>");
+			String defaultVal = "";
+			Object defaultValObj = field.getDefaultValue();
+		    if (defaultValObj instanceof Number || defaultValObj instanceof String || defaultValObj instanceof Character || defaultValObj instanceof Boolean) {
+		    	defaultVal = defaultValObj.toString();
+		    	wp.write("<li>Default value: ", defaultVal, "</li>");
+		    } else {
+		    	wp.write("<li>Default value: (complex type)</li");
+		    	     // Would like to replace above w/ability to display link to content id (if applicable)
+		    		//defaultVal = "<a href=\"wp.objectUrl(\"/content/edit.jsp\", field.getDefaultValue())\" target=\"_blank\">(Content) field.getDefaultValue().getLabel()</a>";	
+		    } 
+			
 		}
 
 		if (fieldDesc != null && !fieldDesc.isEmpty()) {
