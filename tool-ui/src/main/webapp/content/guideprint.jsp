@@ -150,7 +150,11 @@
 					Page curT = null;
 
 					iterT = pages.iterator();
-					pg = (Page) iterT.next();
+					if (iterT.hasNext()) {
+					    pg = (Page) iterT.next();
+					} else {
+						pg = null;
+					}
 				}
 				while (pg != null) {
 
