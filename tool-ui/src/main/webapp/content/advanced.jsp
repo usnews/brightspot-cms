@@ -24,11 +24,6 @@ Template selectedTemplate = selectedState.as(Template.ObjectModification.class).
 
 <h1>Advanced Options</h1>
 <ul class="links">
-    <li><a href="<%= wp.url("/content/edit.jsp",
-            "typeId", selectedState.getTypeId(),
-            "templateId", selectedTemplate != null ? selectedTemplate.getId() : null,
-            "copyId", selectedState.getId())
-            %>" target="_top">Create new with the same data</a></li>
     <li><a href="<%= wp.objectUrl("/content/raw.jsp", selected) %>" target="contentRaw">View raw data</a></li>
 </ul>
 

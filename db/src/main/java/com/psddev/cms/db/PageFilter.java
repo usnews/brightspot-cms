@@ -241,6 +241,10 @@ public class PageFilter extends AbstractFilter {
         if (path == null) {
             return false;
         } else {
+            String queryString = request.getQueryString();
+            if (queryString != null) {
+                path += "?" + queryString;
+            }
             JspUtils.redirectPermanently(request, response, path);
             return true;
         }
