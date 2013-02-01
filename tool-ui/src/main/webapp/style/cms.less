@@ -3406,11 +3406,14 @@ input[type="text"].dropDown-search {
 
 // --- Local ---
 
-.widget > .variation {
+.widget:not(.widget-content) > .action-variation {
     position: absolute;
     right: 10px;
     top: 6px;
 }
+
+.widget-content > h1 { .breadcrumb; margin-left: -10px; }
+.widget-content > h1 > .action { .breadcrumb-item; }
 
 /* --- Hovering focus label --- */
 
@@ -3693,6 +3696,7 @@ input[type="text"].dropDown-search {
 .action-switch { .icon; .icon-random; }
 .action-tools { .icon; .icon-wrench; }
 .action-upload { .icon; .icon-upload-alt; }
+.action-variation { .icon; .icon-columns; }
 
 // --- Bookmarklet ---
 

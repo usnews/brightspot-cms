@@ -1,32 +1,53 @@
 <%@ page import="
 
 com.psddev.cms.db.Variation,
+com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 
+java.util.Iterator,
+java.util.List,
+java.util.Set,
 java.util.UUID
 " %><%
 
-// --- Logic ---
-
 ToolPageContext wp = new ToolPageContext(pageContext);
+
 if (wp.requireUser()) {
     return;
 }
 
-UUID variationId = wp.uuidParam("variationId");
+List<Variation> variations = Variation.Static.getApplicable(ObjectType.getInstance(wp.param(UUID.class, "typeId")));
+PageWriter writer = wp.getWriter();
+UUID variationId = wp.param(UUID.class, "variationId");
 
-// --- Presentation ---
+wp.include("/WEB-INF/header.jsp");
 
-%><% wp.include("/WEB-INF/header.jsp"); %>
+writer.start("h1").html("Variations").end();
 
-<h1>Variations</h1>
-<ul class="links">
-    <li<%= variationId == null ? " class=\"selected\"" : "" %>><a href="<%= wp.returnUrl("variationId", null) %>" target="_top">Default</a></li>
-    <% for (Variation variation : Query.from(Variation.class).sortAscending("name").select()) { %>
-        <li<%= variation.getId().equals(variationId) ? " class=\"selected\"" : "" %>><a href="<%= wp.returnUrl("variationId", variation.getId()) %>" target="_top"><%= wp.objectLabel(variation) %></a></li>
-    <% } %>
-</ul>
+writer.start("ul", "class", "links");
 
-<% wp.include("/WEB-INF/footer.jsp"); %>
+    writer.start("li", "class", variationId == null ? "selected" : null);
+        writer.start("a",
+                "href", wp.returnUrl("variationId", null),
+                "target", "_top");
+            writer.html("Original");
+        writer.end();
+    writer.end();
+
+    for (Variation variation : variations) {
+        writer.start("li", "class", variation.getId().equals(variationId) ? "selected" : null);
+            writer.start("a",
+                    "href", wp.returnUrl("variationId", variation.getId()),
+                    "target", "_top");
+                writer.objectLabel(variation);
+            writer.end();
+        writer.end();
+    }
+
+writer.end();
+
+wp.include("/WEB-INF/footer.jsp");
+%>

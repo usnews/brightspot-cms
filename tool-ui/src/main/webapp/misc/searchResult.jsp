@@ -34,12 +34,10 @@ if (!wp.param(boolean.class, "widget")) {
     }
 
     writer.start("a",
-            "class", "action-result",
+            "class", "action action-result",
             "href", StringUtils.addQueryParameters(url, "widget", null),
             "target", "miscSearch");
         writer.html("Search Result");
     writer.end();
-
-    writer.html(" \u2192 ");
 }
 %>
