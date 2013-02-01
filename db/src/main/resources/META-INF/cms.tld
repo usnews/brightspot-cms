@@ -148,17 +148,14 @@
         <name>layout</name>
         <tag-class>com.psddev.cms.db.LayoutTag</tag-class>
         <body-content>JSP</body-content>
-        <attribute>
-            <name>class</name>
-            <rtexprvalue>true</rtexprvalue>
-            <required>true</required>
-        </attribute>
+        <dynamic-attributes>true</dynamic-attributes>
     </tag>
 
     <tag>
         <name>render</name>
         <tag-class>com.psddev.cms.db.RenderTag</tag-class>
         <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
         <attribute>
             <name>area</name>
             <rtexprvalue>true</rtexprvalue>
@@ -181,10 +178,6 @@
         </attribute>
         <attribute>
             <name>endOffset</name>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>class</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

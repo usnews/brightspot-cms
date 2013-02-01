@@ -2,7 +2,6 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,12 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.Tag;
 
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -50,7 +50,7 @@ import com.psddev.dari.util.StringUtils;
  * </p>
  */
 @SuppressWarnings("serial")
-public class RenderTag extends BodyTagSupport {
+public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
 
@@ -60,7 +60,9 @@ public class RenderTag extends BodyTagSupport {
     private int beginOffset;
     private String endMarker;
     private int endOffset;
-    private transient Map<String, String> areas;
+    private final Map<String, String> attributes = new LinkedHashMap<String, String>();
+    private transient HtmlWriter pageWriter;
+    private transient Map<String, Object> areas;
 
     public void setArea(String area) {
         this.area = area;
@@ -86,18 +88,65 @@ public class RenderTag extends BodyTagSupport {
         this.endOffset = endOffset;
     }
 
+    // --- DynamicAttributes support ---
+
+    @Override
+    public void setDynamicAttribute(String uri, String localName, Object value) {
+        if (value != null) {
+            attributes.put(localName, value.toString());
+        }
+    }
+
     // --- TagSupport support ---
 
     @Override
     public int doStartTag() throws JspException {
-        Tag parent = getParent();
-        areas = parent instanceof LayoutTag ? ((LayoutTag) parent).getAreas() : null;
-
         try {
-            Integer action = writeValue(areas, pageContext.getOut(), null, value);
+            pageWriter = new HtmlWriter(pageContext.getOut());
+            Tag parent = getParent();
+            areas = parent instanceof LayoutTag ? ((LayoutTag) parent).getAreas() : null;
 
-            if (action != null) {
-                return action;
+            if (ObjectUtils.isBlank(value)) {
+                if (areas != null) {
+                    return EVAL_BODY_BUFFERED;
+
+                } else {
+                    if (!attributes.isEmpty()) {
+                        pageWriter.start("div", attributes);
+                    }
+
+                    setBodyContent(null);
+                    return EVAL_BODY_INCLUDE;
+                }
+
+            } else {
+                if (value instanceof Map) {
+                    for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                        writeArea(entry.getKey(), entry.getValue());
+                    }
+
+                } else if (value instanceof Iterable &&
+                        !(value instanceof ReferentialText)) {
+                    int index = 0;
+                    for (Object item : (Iterable<?>) value) {
+                        writeArea(index, item);
+                        ++ index;
+                    }
+
+                } else if (value instanceof Page.Area) {
+                    Page.Area pageArea = (Page.Area) value;
+                    writeArea(pageArea.getInternalName(), pageArea.getContents());
+
+                } else if (value instanceof Section) {
+                    Section section = (Section) value;
+                    writeArea(section.getInternalName(), section);
+
+                } else {
+                    writeArea(area, value);
+                }
+
+                setBodyContent(null);
+                return SKIP_BODY;
             }
 
         } catch (IOException error) {
@@ -106,49 +155,33 @@ public class RenderTag extends BodyTagSupport {
         } catch (ServletException error) {
             throw new JspException(error);
         }
-
-        setBodyContent(null);
-        return SKIP_BODY;
     }
 
-    // Finds the offset to the marker with the given internalName and offset
-    // in the given items.
-    private int findMarker(List<Object> items, String internalName, int offset) {
-        int itemIndex = 0;
-        int markerIndex = 0;
-
-        for (Object item : items) {
-            if (item instanceof Reference) {
-                Object referenced = ((Reference) item).getObject();
-
-                if (referenced instanceof ReferentialTextMarker &&
-                        internalName.equals(((ReferentialTextMarker) referenced).getInternalName())) {
-                    if (offset == markerIndex) {
-                        return itemIndex;
-                    } else {
-                        ++ markerIndex;
-                    }
-                }
+    private void writeArea(Object area, Object value) throws IOException, ServletException {
+        if (areas != null) {
+            if (!ObjectUtils.isBlank(area)) {
+                StringWriter stringWriter = new StringWriter();
+                writeValueWithAttributes(new HtmlWriter(stringWriter), value);
+                areas.put(area.toString(), stringWriter.toString());
             }
 
-            ++ itemIndex;
+        } else {
+            writeValueWithAttributes(pageWriter, value);
         }
-
-        return -1;
     }
 
-    // Writes the given value to the response.
-    private Integer writeValue(
-            Map<String, String> areas,
-            Writer writer,
-            Object area,
-            Object value)
-            throws IOException, ServletException {
+    private void writeValueWithAttributes(HtmlWriter writer, Object value) throws IOException, ServletException {
+        if (attributes.isEmpty()) {
+            writeValue(writer, value);
 
-        if (ObjectUtils.isBlank(value)) {
-            return EVAL_BODY_BUFFERED;
+        } else {
+            writer.start("div", attributes);
+                writeValue(writer, value);
+            writer.end();
         }
+    }
 
+    private void writeValue(HtmlWriter writer, Object value) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
 
@@ -173,10 +206,6 @@ public class RenderTag extends BodyTagSupport {
                 } else {
                     items = items.subList(beginIndex, endIndex);
                 }
-            }
-
-            if (items.isEmpty()) {
-                return EVAL_BODY_BUFFERED;
             }
 
             for (Object item : items) {
@@ -212,71 +241,89 @@ public class RenderTag extends BodyTagSupport {
 
         } else if (value instanceof Map) {
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-                writeValue(areas, writer, entry.getKey(), entry.getValue());
+                writeValue(writer, entry.getValue());
             }
 
         } else if (value instanceof Iterable) {
-            int index = 0;
             for (Object item : (Iterable<?>) value) {
-                writeValue(areas, writer, index, item);
-                ++ index;
+                writeValue(writer, item);
             }
-
-        } else if (value instanceof String) {
-            writer.write(StringUtils.escapeHtml((String) value));
 
         } else if (value instanceof Page.Area) {
-            Page.Area pageArea = (Page.Area) value;
+            writeValue(writer, ((Page.Area) value).getContents());
 
-            if (areas == null) {
-                writeValue(areas, writer, null, pageArea.getContents());
-
-            } else {
-                StringWriter stringWriter = new StringWriter();
-                writeValue(null, stringWriter, null, pageArea.getContents());
-                areas.put(pageArea.getInternalName(), stringWriter.toString());
-            }
+        } else if (value instanceof String) {
+            writer.html(value);
 
         } else {
-            if (areas == null) {
-                PageFilter.renderObject(request, response, writer, value);
+            PageFilter.renderObject(request, response, writer, value);
+        }
+    }
 
-            } else {
-                if (value instanceof Section) {
-                    area = ((Section) value).getInternalName();
-                }
+    private int findMarker(List<Object> items, String internalName, int offset) {
+        int itemIndex = 0;
+        int markerIndex = 0;
 
-                if (!ObjectUtils.isBlank(area)) {
-                    StringWriter stringWriter = new StringWriter();
-                    PageFilter.renderObject(request, response, stringWriter, value);
-                    areas.put(area.toString(), stringWriter.toString());
+        for (Object item : items) {
+            if (item instanceof Reference) {
+                Object referenced = ((Reference) item).getObject();
+
+                if (referenced instanceof ReferentialTextMarker &&
+                        internalName.equals(((ReferentialTextMarker) referenced).getInternalName())) {
+                    if (offset == markerIndex) {
+                        return itemIndex;
+                    } else {
+                        ++ markerIndex;
+                    }
                 }
             }
+
+            ++ itemIndex;
         }
 
-        return null;
+        return -1;
     }
 
     @Override
     public int doEndTag() throws JspException {
-        if (bodyContent != null) {
-            String body = bodyContent.getString();
+        try {
+            if (ObjectUtils.isBlank(value)) {
+                if (bodyContent != null) {
+                    String body = bodyContent.getString();
 
-            if (body != null) {
-                if (areas != null && !ObjectUtils.isBlank(area)) {
-                    areas.put(area, body);
+                    if (body != null) {
+                        if (areas != null) {
+                            if (!ObjectUtils.isBlank(area)) {
+                                if (!attributes.isEmpty()) {
+                                    StringWriter stringWriter = new StringWriter();
+                                    @SuppressWarnings("all")
+                                    HtmlWriter htmlWriter = new HtmlWriter(stringWriter);
 
-                } else {
-                    try {
-                        pageContext.getOut().print(body);
+                                    htmlWriter.start("div", attributes);
+                                        htmlWriter.write(body);
+                                    htmlWriter.end();
 
-                    } catch (IOException ex) {
-                        throw new JspException(ex);
+                                    body = stringWriter.toString();
+                                }
+
+                                areas.put(area, body);
+                            }
+
+                        } else {
+                            pageWriter.write(body);
+
+                            if (!attributes.isEmpty()) {
+                                pageWriter.end();
+                            }
+                        }
                     }
                 }
             }
-        }
 
-        return EVAL_PAGE;
+            return EVAL_PAGE;
+
+        } catch (IOException error) {
+            throw new JspException(error);
+        }
     }
 }

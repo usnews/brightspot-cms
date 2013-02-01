@@ -6,25 +6,31 @@ import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.DynamicAttributes;
 
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
 
 @SuppressWarnings("serial")
-public class LayoutTag extends BodyTagSupport {
+public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
-    private String cssClass;
+    private final Map<String, String> attributes = new LinkedHashMap<String, String>();
     private transient HtmlGrid grid;
-    private transient Map<String, String> areas;
+    private transient Map<String, Object> areas;
     private transient HtmlWriter writer;
 
-    public void setCssClass(String cssClass) {
-        this.cssClass = cssClass;
+    public Map<String, Object> getAreas() {
+        return areas;
     }
 
-    public Map<String, String> getAreas() {
-        return areas;
+    // --- DynamicAttributes support ---
+
+    @Override
+    public void setDynamicAttribute(String uri, String localName, Object value) {
+        if (value != null) {
+            attributes.put(localName, value.toString());
+        }
     }
 
     // --- TagSupport support ---
@@ -32,14 +38,12 @@ public class LayoutTag extends BodyTagSupport {
     @Override
     public int doStartTag() throws JspException {
         try {
+            String cssClass = attributes.get("class");
             grid = HtmlGrid.Static.find(pageContext.getServletContext(), cssClass);
-
-            if (grid != null) {
-                areas = new LinkedHashMap<String, String>();
-            }
-
+            areas = grid != null ? new LinkedHashMap<String, Object>() : null;
             writer = new HtmlWriter(pageContext.getOut());
-            writer.start("div", "class", cssClass);
+
+            writer.start("div", attributes, "class", cssClass);
 
         } catch (IOException error) {
             throw new JspException(error);
@@ -54,7 +58,7 @@ public class LayoutTag extends BodyTagSupport {
             if (areas != null) {
                 Map<String, GridItem> items = new LinkedHashMap<String, GridItem>();
 
-                for (Map.Entry<String, String> entry : areas.entrySet()) {
+                for (Map.Entry<String, Object> entry : areas.entrySet()) {
                     items.put(entry.getKey(), new GridItem(entry.getValue()));
                 }
 
@@ -72,16 +76,16 @@ public class LayoutTag extends BodyTagSupport {
 
     private class GridItem implements HtmlObject {
 
-        private final String item;
+        private final Object item;
 
-        public GridItem(String item) {
+        public GridItem(Object item) {
             this.item = item;
         }
 
         @Override
         public void format(HtmlWriter writer) throws IOException {
             if (item != null) {
-                writer.write(item);
+                writer.write(item.toString());
             }
         }
     }
