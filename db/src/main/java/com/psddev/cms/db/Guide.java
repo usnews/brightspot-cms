@@ -24,12 +24,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * A Production Guide is Editor-oriented Help documentation providing guidance on how to create and organize content for a site. It's content
- * is linked directly to the artifacts in the CMS so that helpful information is available contextually and can be easily kept up to date
+ * is associate with objects in the CMS so that helpful information is available contextually and can be easily kept up to date
  * as the site evolves.
  * 
- * A Guide object consists of some overall descriptive content about programming the Site, and then associations to templates/pages that
+ * A Guide object consists of some overall descriptive content about programming, and then associations to templates/pages that
  * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the GuidePage and
  * GuideType classes
  */
@@ -87,8 +87,8 @@ public class Guide extends Record {
 		private Static() {
 		}
 
-		/*
-		 * Get the main Production Guide
+		/**
+		 * Get the Production Guide for the given template {@code content}
 		 */
 		public static GuidePage getPageProductionGuide(Page content) {
 			if (content != null) {
@@ -102,8 +102,8 @@ public class Guide extends Record {
 
 		}
 
-		/*
-		 * Get the Production Guide summary description
+		/**
+		 * Get the Production Guide summary description for the given template {@code content}
 		 */
 		public static ReferentialText getSummaryDescription(Page content) {
 			if (content != null) {
@@ -116,8 +116,8 @@ public class Guide extends Record {
 
 		}
 
-		/*
-		 * Get the Production Guide sample page
+		/**
+		 * Get the Production Guide sample page for the given template {@code content}
 		 */
 		public static Content getSamplePage(Page content) {
 			if (content != null) {
@@ -130,7 +130,7 @@ public class Guide extends Record {
 
 		}
 
-		/*
+		/**
 		 * Return all pages/templates that the given section appears on (if it
 		 * is shareable), excluding the provided (usually current) page.
 		 */
@@ -146,7 +146,7 @@ public class Guide extends Record {
 
 		}
 
-		/*
+		/**
 		 * Get the Production Guide description for a template section
 		 */
 		public static GuideSection getSectionGuide(Page page, Section section) {
@@ -159,7 +159,7 @@ public class Guide extends Record {
 			return null;
 		}
 
-		/*
+		/**
 		 * Get the Production Guide description for a template section
 		 */
 		public static ReferentialText getSectionDescription(Page page,
@@ -173,7 +173,7 @@ public class Guide extends Record {
 			return null;
 		}
 
-		/*
+		/**
 		 * Get the Production Guide tips for a template section
 		 */
 		public static ReferentialText getSectionTips(Page page, Section section) {
@@ -186,7 +186,7 @@ public class Guide extends Record {
 			return null;
 		}
 
-		/*
+		/**
 		 * Return the related templates (other than the one provided) that have
 		 * a sample page defined
 		 */
@@ -203,7 +203,7 @@ public class Guide extends Record {
 			return relatedTemplates;
 		}
 
-		/*
+		/**
 		 * Return a map of section ids to names where names are a concatenation
 		 * of the section name along with it's parental lineage in the layout
 		 */

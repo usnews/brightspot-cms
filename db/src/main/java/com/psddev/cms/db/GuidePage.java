@@ -12,7 +12,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * Production Guide class to hold information about Pages and Templates (objects with layouts)
  * 
  */
@@ -73,6 +73,9 @@ public class GuidePage extends Record {
 		this.samplePage = samplePage;
 	}
 
+	/**
+	 * Return a boolean as to whether the basic information expected for this production guide is available.
+	 */
 	public boolean isIncomplete() {
 		if (this.getSamplePage() == null || this.getSamplePage().getPermalink() == null) {
 			return true;
@@ -103,6 +106,10 @@ public class GuidePage extends Record {
 		return null;
 	}
 
+	/**
+	 * Return the GuideSection entry that matches the given {@code section} of the template
+	 * associated with this guide object. If none exists, create one.
+	 */
 	public GuideSection findOrCreateSectionGuide(Section section) {
 		if (section instanceof ContainerSection) {
 			return null;
@@ -129,6 +136,10 @@ public class GuidePage extends Record {
 		return gs;
 	}
 
+	/**
+	 * Create a GuideSection entry in the sectionList for all sections in the object's
+	 * referenced page/template.
+	 */
 	public void generateSectionDescriptionList() {
 		// Create an entry for each field
 		Page type = getPageType();
@@ -154,8 +165,8 @@ public class GuidePage extends Record {
 	/** Static utility methods. */
 	public static final class Static {
 		
-		/*
-		 * Generating any missing guides for existing templates
+		/**
+		 * Generate any missing guides for existing templates
 		 */
 		public static synchronized void createDefaultTemplateGuides() {
 			List<GuidePage> pageGuides = Query.from(GuidePage.class).selectAll();

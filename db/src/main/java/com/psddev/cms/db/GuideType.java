@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.db.CachingDatabase;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -18,15 +19,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * Production Guide class to hold information about Content types and their associated fields
  * 
- * ObjectType and ObjectField don't currently lend themselves well to Modification classes or else this 
- * (and the other Guide<xxx> classes) would have been implemented as a modification class
  */
 @Record.LabelFields({ "documentedType/name" })
 public class GuideType extends Record {
@@ -227,8 +227,8 @@ public class GuideType extends Record {
 			return null;
 		}
 
-		/*
-		 * Query to get a T/F as to whether this field has any information we include in 
+		/**
+		 * Query to get a T/F as to whether the given {@code fieldName} has any information we include in 
 		 * the field description (e.g. used to determine whether ? link is displayed in UI
 		 */
 		public static boolean hasFieldGuideInfo(State state, String fieldName) {
@@ -248,8 +248,8 @@ public class GuideType extends Record {
 			return false;
 		}
 
-		/*
-		 * Retrieve the existing GuideType instance for a given ObjectType.
+		/**
+		 * Retrieve the existing GuideType instance for a given {@code objectType}.
 		 * If none exists, null is returned
 		 */
 		public static GuideType getGuideType(ObjectType objectType) {
@@ -257,11 +257,11 @@ public class GuideType extends Record {
 					.where("documentedType = ?", objectType.getId()).first();
 		}
 
-		/*
-		 * Retrieve a GuideType instance for the parent type of a given field, creating one if it
+		/**
+		 * Retrieve a GuideType instance for the parent type of a given {@code field}, creating one if it
 		 * doesn't already exist.
 		 */
-		public static synchronized GuideType findOrCreateGuide(ObjectField field) {
+		public static GuideType findOrCreateGuide(ObjectField field) {
 			GuideType guide = Query.from(GuideType.class)
 					.where("documentedType = ?", field.getParentType().getId()).first();
 			if (guide == null) {
@@ -270,8 +270,8 @@ public class GuideType extends Record {
 			return guide;
 		}
 
-		/*
-		 * Retrieve a GuideType instance for the given ObjectType, creating one if it
+		/**
+		 * Retrieve a GuideType instance for the given {@code documentedType}, creating one if it
 		 * doesn't already exist.
 		 */
 		public static GuideType findOrCreateGuide(ObjectType documentedType) {
@@ -283,14 +283,16 @@ public class GuideType extends Record {
 			return guide;
 		}
 
-		/*
-		 * Create a GuideType instance for the given ObjectType. To allow for thread/transaction safety, this
-		 * is synchronized and double checks to ensure it hasn't already been created.
+		/**
+		 * Create a GuideType instance for the given {@code documentedType}. To allow for thread/transaction safety, this
+		 * is synchronized first queries to ensure it hasn't already been created.
 		 */
 		public static synchronized GuideType createGuide(
 				ObjectType documentedType) {
-			GuideType guide = Query.from(GuideType.class)
-					.where("documentedType = ?", documentedType.getId()).first();
+			Query<GuideType> query = Query.from(GuideType.class)
+					.where("documentedType = ?", documentedType.getId());
+			query.as(CachingDatabase.QueryOptions.class).setDisabled(true);
+			GuideType guide = query.first();
 			if (guide == null) {
 				LOGGER.info("Creating a production guide instance for type: "
 						+ documentedType);
@@ -301,23 +303,35 @@ public class GuideType extends Record {
 			return guide;
 		}
 
-		public static synchronized void setDescription(ObjectField field,
+		public static void setDescription(ObjectField field,
 				ReferentialText descText, boolean fromAnnotation) {
 			GuideType guide = Static.findOrCreateGuide(field);
 			guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText, fromAnnotation);
 			guide.saveImmediately();
 		}
 
-		/*
-		 * Generate guide instances for any content types usable in the site's
+		/**
+		 * Generate a GuideType instance for every content type usable in the
 		 * templates
 		 */
 		public static void createDefaultTypeGuides() {
-			// List<ObjectType> types = Template.Static.findUsedTypes(null);
 			List<Template> templates = Query.from(Template.class).selectAll();
 			for (Template template : templates) {
 				for (ObjectType t : template.getContentTypes()) {
 					findOrCreateGuide(t);
+					// Create guides for the types referenced within this type
+					if (t.getFields() != null) {
+						for (ObjectField field : t.getFields()) {
+						    Set<ObjectType> types = field.getTypes();
+						    if (types != null) {
+							    for (ObjectType type : types) {
+							    	if (type.getFields() != null && !type.getFields().isEmpty()) {
+							    		findOrCreateGuide(type);
+							    	}
+							    }
+							}
+						}
+					}
 				}
 			}
 		}
