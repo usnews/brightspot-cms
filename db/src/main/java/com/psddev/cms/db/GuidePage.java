@@ -5,6 +5,8 @@ import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.StorageItem;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,10 @@ public class GuidePage extends Record {
 	@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
 	@Guide.Description ("The sample page is a published page (it must have a live permalink) that is shown in the production guide as an example of proper programming. The guide will graphically highlight the location of each section on the sample page.")
 	private Content samplePage;
+	
+	@ToolUi.Note("Sample Page snapshot image for used for Printouts")
+	@Guide.Description ("When printing the production guide, this image is printed (following the Summary) in lieu of the live samplePage.")
+	private StorageItem samplePageSnapshot;
 
 	@ToolUi.Note("Production Guide section descriptions for this page/template")
 	@Embedded
@@ -71,6 +77,14 @@ public class GuidePage extends Record {
 
 	public void setSamplePage(Content samplePage) {
 		this.samplePage = samplePage;
+	}
+	
+	public StorageItem getSamplePageSnapshot() {
+		return samplePageSnapshot;
+	}
+
+	public void setSamplePageSnapshot(StorageItem samplePageSnapshot) {
+		this.samplePageSnapshot = samplePageSnapshot;
 	}
 
 	/**

@@ -3,6 +3,7 @@
 	com.psddev.dari.db.ReferentialText,
 	com.psddev.cms.db.Site,
 	com.psddev.dari.db.Query,
+	com.psddev.dari.util.StorageItem,
 	com.psddev.cms.db.Variation,
 	java.util.Iterator,
 	java.util.UUID,
@@ -164,7 +165,7 @@
 						wp.write("<div>");
 					}
 					wp.write("<div class=\"guideForm-main\">");
-					Content samplePage = Guide.Static.getSamplePage(pg);
+					StorageItem samplePage = Guide.Static.getSamplePageSnapshot(pg);
 
 					wp.write("<div class=\"guideTop\">");
 
@@ -180,13 +181,28 @@
 					}
 					wp.write("Summary: ");
 					wp.write("</strong></div>");
-					// how best to format for printing?
 			%><div class="guideDescription">
 				<cms:render value="${pageProductionGuide.description}" />
 			</div>
 			<%
-				wp.write("</div>"); //end guideForm-main
+				    wp.write("</div>"); //end guideForm-main
 					wp.write("</div>"); //end guideForm-page
+					
+					// If there's a snapshot, print it here
+					if (samplePage != null && samplePage.getUrl() != null) {
+						wp.write("<div class=\"guideForm-page\">");
+						wp.write("<div class=\"guideForm-main\">");
+						%>
+						<div style="page-break-before:always">
+						<div class="guidePreviewFrame">
+					<cms:img src="${pageProductionGuide.samplePageSnapshot}" />
+					</div>
+					</div>
+					<%	
+						
+						wp.write("</div>"); // end guideForm-page
+						wp.write("</div>"); // end guideForm-main
+					}
 
 					//Get the list of sections that are in the layout
 					Iterable<Section> sections = null;
@@ -256,15 +272,6 @@
 				<cms:render value="${sectionProductionGuide.tips}" />
 			</div>
 
-			<%
-				}
-						// how best to format for printing?
-						if (samplePage != null) {
-			%>
-			<!-- 			<div class="guidePreview"> -->
-			<!-- 				<iframe class="guidePreviewFrame" -->
-			<%-- 					src="<%=samplePage.getPermalink()%>"></iframe> --%>
-			<!-- 			</div> -->
 			<%
 				}
 						wp.write("</div>"); // end guideForm-main

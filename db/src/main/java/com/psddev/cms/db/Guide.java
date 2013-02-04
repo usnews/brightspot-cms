@@ -9,6 +9,7 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.StorageItem;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -124,6 +125,20 @@ public class Guide extends Record {
 				GuidePage guide = Static.getPageProductionGuide(content);
 				if (guide != null) {
 					return guide.getSamplePage();
+				}
+			}
+			return null;
+
+		}
+		
+		/**
+		 * Get the Production Guide sample page snapshot for the given template {@code content}
+		 */
+		public static StorageItem getSamplePageSnapshot(Page content) {
+			if (content != null) {
+				GuidePage guide = Static.getPageProductionGuide(content);
+				if (guide != null) {
+					return guide.getSamplePageSnapshot();
 				}
 			}
 			return null;
