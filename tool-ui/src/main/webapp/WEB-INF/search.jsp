@@ -195,12 +195,27 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                             continue;
                         }
 
-                        if (!"record".equals(field.getInternalItemType())) {
+                        if (!ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
+                            continue;
+                        }
+
+                        if (field.isEmbedded()) {
+                            continue;
+                        }
+
+                        Set<ObjectType> fieldTypes = field.getTypes();
+
+                        for (Iterator<ObjectType> i = fieldTypes.iterator(); i.hasNext(); ) {
+                            if (i.next().isEmbedded()) {
+                                i.remove();
+                            }
+                        }
+
+                        if (fieldTypes.isEmpty()) {
                             continue;
                         }
 
                         String fieldName = field.getInternalName();
-                        Set<ObjectType> fieldTypes = field.getTypes();
                         StringBuilder fieldTypeIds = new StringBuilder();
 
                         if (!ObjectUtils.isBlank(fieldTypes)) {
