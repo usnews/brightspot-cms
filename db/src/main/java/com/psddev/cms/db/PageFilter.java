@@ -1,35 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.cms.tool.AuthenticationFilter;
-import com.psddev.cms.tool.CmsTool;
-import com.psddev.cms.tool.PageWriter;
-import com.psddev.cms.tool.RemoteWidgetFilter;
-import com.psddev.cms.tool.ToolPageContext;
-
-import com.psddev.dari.db.Application;
-import com.psddev.dari.db.ApplicationFilter;
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.AbstractFilter;
-import com.psddev.dari.util.CodeUtils;
-import com.psddev.dari.util.DebugFilter;
-import com.psddev.dari.util.HtmlFormatter;
-import com.psddev.dari.util.HtmlObject;
-import com.psddev.dari.util.HtmlWriter;
-import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PageContextFilter;
-import com.psddev.dari.util.Profiler;
-import com.psddev.dari.util.PullThroughCache;
-import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.TypeDefinition;
-
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -65,6 +35,36 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.tool.AuthenticationFilter;
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.PageWriter;
+import com.psddev.cms.tool.RemoteWidgetFilter;
+import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.ApplicationFilter;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.CodeUtils;
+import com.psddev.dari.util.DebugFilter;
+import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.HtmlFormatter;
+import com.psddev.dari.util.HtmlObject;
+import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PageContextFilter;
+import com.psddev.dari.util.Profiler;
+import com.psddev.dari.util.PullThroughCache;
+import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
+
 public class PageFilter extends AbstractFilter {
 
     public static final String WIREFRAME_PARAMETER = "_wireframe";
@@ -87,10 +87,10 @@ public class PageFilter extends AbstractFilter {
     private static final String PATH_MATCHES_ATTRIBUTE = ATTRIBUTE_PREFIX + ".matches";
 
     public static final String ABORTED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".aborted";
-    public static final String CURRENT_OBJECT_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentObject";
     public static final String CURRENT_SECTION_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentSection";
     public static final String MAIN_OBJECT_ATTRIBUTE = ATTRIBUTE_PREFIX + ".mainObject";
     public static final String MAIN_OBJECT_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".mainObjectChecked";
+    private static final String OBJECTS_ATTRIBUTE = ATTRIBUTE_PREFIX + ".objects";
     public static final String PAGE_ATTRIBUTE = ATTRIBUTE_PREFIX + ".page";
     public static final String PAGE_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".pageChecked";
     public static final String PARENT_SECTIONS_ATTRIBUTE = ATTRIBUTE_PREFIX + ".parentSections";
@@ -112,25 +112,6 @@ public class PageFilter extends AbstractFilter {
     /** Aborts rendering the given {@code request}. */
     public static void abort(HttpServletRequest request) {
         request.setAttribute(ABORTED_ATTRIBUTE, Boolean.TRUE);
-    }
-
-    /**
-     * Returns the object currently being rendered in the given
-     * {@code request}.
-     */
-    public static Object getCurrentObject(HttpServletRequest request) {
-        return request.getAttribute(CURRENT_OBJECT_ATTRIBUTE);
-    }
-
-    /**
-     * Sets the object currently being rendered in the given
-     * {@code request}.
-     */
-    public static void setCurrentObject(HttpServletRequest request, Object object) {
-        request.setAttribute(CURRENT_OBJECT_ATTRIBUTE, object);
-        request.setAttribute("object", object);
-        request.setAttribute("record", object);
-        request.setAttribute("content", object);
     }
 
     /**
@@ -760,7 +741,7 @@ public class PageFilter extends AbstractFilter {
             html.end();
 
         } else {
-            Object object = getCurrentObject(request);
+            Object object = Static.peekObject(request);
 
             if (object != null) {
                 String className = object.getClass().getName();
@@ -983,12 +964,13 @@ public class PageFilter extends AbstractFilter {
         }
 
         debugObject(request, writer, "Rendering", object);
-
-        Object previousObject = getCurrentObject(request);
         boolean isOverlay = Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER));
-        try {
 
-            setCurrentObject(request, object);
+        try {
+            if (object != null) {
+                Static.pushObject(request, object);
+            }
+
             if (isOverlay) {
                 writer.write("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
                 Map<String, String> map = new HashMap<String, String>();
@@ -997,8 +979,10 @@ public class PageFilter extends AbstractFilter {
                     map.put("sectionName", section.getName());
                 }
 
-                if (object != null) {
-                    State state = State.getInstance(object);
+                Object concrete = Static.peekConcreteObject(request);
+
+                if (concrete != null) {
+                    State state = State.getInstance(concrete);
                     map.put("id", state.getId().toString());
                     map.put("label", state.getLabel());
                     map.put("typeLabel", state.getType().getLabel());
@@ -1011,7 +995,10 @@ public class PageFilter extends AbstractFilter {
             renderScript(request, response, writer, engine, script);
 
         } finally {
-            setCurrentObject(request, previousObject);
+            if (object != null) {
+                Static.popObject(request);
+            }
+
             if (isOverlay) {
                 writer.write("<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>");
             }
@@ -1053,7 +1040,7 @@ public class PageFilter extends AbstractFilter {
                     }
                 }
 
-                Object object = getCurrentObject(request);
+                Object object = Static.peekObject(request);
 
                 if (object instanceof HtmlObject) {
                     new HtmlWriter(writer).object(object);
@@ -1476,6 +1463,86 @@ public class PageFilter extends AbstractFilter {
             request.setAttribute("profile", profile);
         }
 
+        /**
+         * Pushes the given {@code object} to the list of objects that
+         * are currently being rendered.
+         */
+        public static void pushObject(HttpServletRequest request, Object object) {
+            ErrorUtils.errorIfNull(object, "object");
+
+            @SuppressWarnings("unchecked")
+            List<Object> objects = (List<Object>) request.getAttribute(OBJECTS_ATTRIBUTE);
+
+            if (objects == null) {
+                objects = new ArrayList<Object>();
+                request.setAttribute(OBJECTS_ATTRIBUTE, objects);
+            }
+
+            objects.add(object);
+            request.setAttribute("content", object);
+            request.setAttribute("record", object);
+            request.setAttribute("object", object);
+            request.setAttribute(CURRENT_OBJECT_ATTRIBUTE, object);
+        }
+
+        /**
+         * Pops the last object from the list of objects that are currently
+         * being rendered.
+         */
+        public static Object popObject(HttpServletRequest request) {
+            @SuppressWarnings("unchecked")
+            List<Object> objects = (List<Object>) request.getAttribute(OBJECTS_ATTRIBUTE);
+
+            if (objects == null || objects.isEmpty()) {
+                return null;
+
+            } else {
+                Object popped = objects.remove(objects.size() - 1);
+                Object object = peekObject(request);
+                request.setAttribute("content", object);
+                request.setAttribute("record", object);
+                request.setAttribute("object", object);
+                return popped;
+            }
+        }
+
+        /**
+         * Returns the last object from the list of objects that are currently
+         * being rendered.
+         */
+        public static Object peekObject(HttpServletRequest request) {
+            @SuppressWarnings("unchecked")
+            List<Object> objects = (List<Object>) request.getAttribute(OBJECTS_ATTRIBUTE);
+
+            if (objects == null || objects.isEmpty()) {
+                return null;
+
+            } else {
+                return objects.get(objects.size() - 1);
+            }
+        }
+
+        /**
+         * Returns the last concrete object from the list of objects that are
+         * currently being rendered.
+         */
+        public static Object peekConcreteObject(HttpServletRequest request) {
+            @SuppressWarnings("unchecked")
+            List<Object> objects = (List<Object>) request.getAttribute(OBJECTS_ATTRIBUTE);
+
+            if (objects != null) {
+                for (int i = objects.size() - 1; i >= 0; -- i) {
+                    Object object = objects.get(i);
+
+                    if (!State.getInstance(object).isNew()) {
+                        return object;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         // --- EL functions ---
 
         /**
@@ -1683,5 +1750,22 @@ public class PageFilter extends AbstractFilter {
     @Deprecated
     public static String getResource(String servletPath) {
         return Static.getResource(servletPath);
+    }
+
+    /** @deprecated No replacement. */
+    @Deprecated
+    public static final String CURRENT_OBJECT_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentObject";
+
+    /** @deprecated Use {@link Static#peekObject} instead. */
+    @Deprecated
+    public static Object getCurrentObject(HttpServletRequest request) {
+        return Static.peekObject(request);
+    }
+
+    /** @deprecated Use {@link Static#pushObject} instead. */
+    @Deprecated
+    public static void setCurrentObject(HttpServletRequest request, Object object) {
+        request.setAttribute(OBJECTS_ATTRIBUTE, null);
+        Static.pushObject(request, object);
     }
 }
