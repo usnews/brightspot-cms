@@ -120,20 +120,18 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             autocomplete="off"
             data-object-id="<%= State.getInstance(selected).getId() %>">
         <div class="contentForm-main">
-            <%
-            String search = wp.param(String.class, "search");
-
-            if (search != null) {
-                wp.write("<div class=\"content-searchResult frame\">");
-                wp.write("<a href=\"");
-                wp.write(StringUtils.addQueryParameters(search, "widget", true));
-                wp.write("\">Search Result</a>");
-                wp.write("</div>");
-            }
-            %>
-
             <div class="widget widget-content">
                 <h1><%
+                    String search = wp.param(String.class, "search");
+
+                    if (search != null) {
+                        wp.write("<span class=\"action content-searchResult frame\">");
+                        wp.write("<a href=\"");
+                        wp.write(StringUtils.addQueryParameters(search, "widget", true));
+                        wp.write("\">Search Result</a>");
+                        wp.write("</span>");
+                    }
+                %><span class="action action-edit"><%
                     wp.write(state.isNew() ? "New " : "Edit ");
 
                     if (compatibleTypes.size() < 2) {
@@ -165,9 +163,25 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</a>");
                     }
-                %></h1>
+                %></span><% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %></h1>
 
-                <% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %>
+                <% if (!State.getInstance(editing).isNew()) { %>
+                    <div class="widget-content-new">
+                        <div class="action action-new">New</div>
+                        <ul>
+                            <li><a class="action action-new" href="<%= wp.url("/content/edit.jsp",
+                                    "typeId", State.getInstance(editing).getTypeId(),
+                                    "templateId", template != null ? template.getId() : null)
+                                    %>">New <%= wp.typeLabel(editing) %></a></li>
+                            <li><a class="action action-copy" href="<%= wp.url("/content/edit.jsp",
+                                    "typeId", State.getInstance(editing).getTypeId(),
+                                    "templateId", template != null ? template.getId() : null,
+                                    "copyId", State.getInstance(editing).getId())
+                                    %>" target="_top">Copy This <%= wp.typeLabel(editing) %></a></li>
+
+                        </ul>
+                    </div>
+                <% } %>
 
                 <% if (sectionContent != null) { %>
                     <p><a class="action-back" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
