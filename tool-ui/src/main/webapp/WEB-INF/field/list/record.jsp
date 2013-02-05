@@ -184,11 +184,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
                                     List<HtmlObject> values = new ArrayList<HtmlObject>();
 
-                                    for (final String itemClass : layouts.get(layoutName)) {
+                                    for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
+                                        String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                         final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                        Set<ObjectType> itemTypes = Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass);
+                                        Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
 
-                                        if (itemTypes.isEmpty()) {
+                                        if (itemTypes == null || itemTypes.isEmpty()) {
                                             itemTypeIdsCsv.append(typeIdsCsv);
 
                                         } else {
@@ -260,11 +261,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                             HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
                             List<HtmlObject> values = new ArrayList<HtmlObject>();
 
-                            for (final String itemClass : layouts.get(layoutName)) {
+                            for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
+                                String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                 final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                Set<ObjectType> itemTypes = Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass);
+                                Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
 
-                                if (itemTypes.isEmpty()) {
+                                if (itemTypes == null || itemTypes.isEmpty()) {
                                     itemTypeIdsCsv.append(typeIdsCsv);
 
                                 } else {
