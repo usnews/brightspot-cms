@@ -12,14 +12,16 @@ $.each(CSS_CLASS_GROUPS, function() {
     wysihtml5.commands[command] = {
         'exec': function(composer, command, optionsString) {
             var options = optionsString ? $.parseJSON(optionsString) : { };
-            var format = options.tag === 'span' ? 'formatInline' : 'formatBlock';
-            return wysihtml5.commands[format].exec(composer, command, options.tag, prefix + options.internalName, regex);
+            var tag = options.tag || 'span';
+            var format = tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].exec(composer, command, tag, prefix + options.internalName, regex);
         },
 
         'state': function(composer, command, optionsString) {
             var options = optionsString ? $.parseJSON(optionsString) : { };
-            var format = options.tag === 'span' ? 'formatInline' : 'formatBlock';
-            return wysihtml5.commands[format].state(composer, command, options.tag , prefix + options.internalName, regex);
+            var tag = options.tag || 'span';
+            var format = tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].state(composer, command, tag , prefix + options.internalName, regex);
         }
     };
 });

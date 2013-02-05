@@ -3189,16 +3189,17 @@ input[type="text"].dropDown-search {
     }
 }
 
-.rte-textarea {
+.rte-source {
     border-style: none;
     .box-shadow(none);
-}
-
-.rte-source {
     font-family: @fontFamily-code;
     font-size: 11px;
     min-height: 10em;
-    padding: 0;
+    padding: 4px;
+
+    &:focus {
+        .box-shadow(none);
+    }
 }
 
 .rte-toolbar {

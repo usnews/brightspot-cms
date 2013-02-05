@@ -41,11 +41,6 @@ $.plugin2('expandable', {
                 $checker = $('<div/>');
                 $.data(this, 'expandable-checker', $checker);
 
-                for (index = 0, size = properties.length; index < size; ++ index) {
-                    property = properties[index];
-                    $checker.css(property, $input.css(property));
-                }
-
                 $input.css('overflow', 'hidden');
 
                 if (!$checkers) {
@@ -66,6 +61,11 @@ $.plugin2('expandable', {
             }
 
             inputDisplay = $input.css('display');
+
+            for (index = 0, size = properties.length; index < size; ++ index) {
+                property = properties[index];
+                $checker.css(property, $input.css(property));
+            }
 
             $checker.
                     css('display', inputDisplay).

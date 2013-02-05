@@ -34,7 +34,7 @@ public class History extends Record {
         this.updateUser = user;
         this.objectType = objectState.getType();
         this.objectId = objectState.getId();
-        this.objectOriginals = objectState.getValues();
+        this.objectOriginals = objectState.getSimpleValues();
     }
 
     /**

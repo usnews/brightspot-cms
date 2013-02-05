@@ -11,7 +11,7 @@ com.psddev.dari.db.ObjectType
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
-if (wp.requireUser()) {
+if (wp.requirePermission("area/dashboard")) {
     return;
 }
 

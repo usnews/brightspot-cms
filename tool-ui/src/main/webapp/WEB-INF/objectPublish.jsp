@@ -58,6 +58,7 @@ try {
     }
 
     if (publishDate != null) {
+        state.validate();
 
         if (draft == null) {
             draft = new Draft();

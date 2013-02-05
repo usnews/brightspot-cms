@@ -1,10 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Reference;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,6 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -162,6 +164,8 @@ public class RenderTag extends BodyTagSupport {
             if (items.isEmpty()) {
                 return EVAL_BODY_BUFFERED;
             }
+
+            Application.Static.getInstance(CmsTool.class).writeCss(request, writer);
 
             for (Object item : items) {
                 if (item instanceof String) {

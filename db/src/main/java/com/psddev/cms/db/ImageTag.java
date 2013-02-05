@@ -922,6 +922,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 }
             }
 
+            if (standardImageSize != null) {
+                attributes.put("data-size", standardImageSize.getInternalName());
+            }
+
             return attributes;
         }
     }

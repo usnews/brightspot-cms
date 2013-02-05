@@ -1,5 +1,13 @@
 package com.psddev.cms.tool;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectFieldComparator;
@@ -8,14 +16,6 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeDefinition;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
 
 /** Brightspot application, typically used by the internal staff. */
 public abstract class Tool extends Application {
@@ -173,31 +173,48 @@ public abstract class Tool extends Application {
          * {@code positionName}.
          */
         public static List<List<Widget>> getWidgets(String positionName) {
-            Map<Double, Map<Double, Widget>> widgetsMap = new TreeMap<Double, Map<Double, Widget>>();
+            Map<Double, Map<Double, List<Widget>>> widgets = new HashMap<Double, Map<Double, List<Widget>>>();
             List<List<Widget>> widgetsTable = new ArrayList<List<Widget>>();
 
             for (Widget widget : getPluginsByClass(Widget.class)) {
                 for (Widget.Position position : widget.getPositions()) {
                     if (ObjectUtils.equals(position.getName(), positionName)) {
                         double column = position.getColumn();
-                        Map<Double, Widget> widgets = widgetsMap.get(column);
+                        Map<Double, List<Widget>> widgetsColumn = widgets.get(column);
 
-                        if (widgets == null) {
-                            widgets = new TreeMap<Double, Widget>();
-                            widgetsMap.put(column, widgets);
+                        if (widgetsColumn == null) {
+                            widgetsColumn = new HashMap<Double, List<Widget>>();
+                            widgets.put(column, widgetsColumn);
                         }
 
-                        widgets.put(position.getRow(), widget);
+                        double row = position.getRow();
+                        List<Widget> widgetsRow = widgetsColumn.get(row);
+
+                        if (widgetsRow == null) {
+                            widgetsRow = new ArrayList<Widget>();
+                            widgetsColumn.put(row, widgetsRow);
+                        }
+
+                        widgetsRow.add(widget);
                         break;
                     }
                 }
             }
 
-            for (Map<Double, Widget> map : widgetsMap.values()) {
-                List<Widget> widgets = new ArrayList<Widget>();
+            List<Double> columns = new ArrayList<Double>(widgets.keySet());
+            Collections.sort(columns);
 
-                widgets.addAll(map.values());
-                widgetsTable.add(widgets);
+            for (Double column : columns) {
+                Map<Double, List<Widget>> widgetsColumn = widgets.get(column);
+                List<Double> rows = new ArrayList<Double>(widgetsColumn.keySet());
+                List<Widget> widgetsTableRow = new ArrayList<Widget>();
+
+                Collections.sort(rows);
+                widgetsTable.add(widgetsTableRow);
+
+                for (Double row : rows) {
+                    widgetsTableRow.addAll(widgetsColumn.get(row));
+                }
             }
 
             return widgetsTable;
