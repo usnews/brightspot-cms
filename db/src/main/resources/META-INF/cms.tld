@@ -185,6 +185,14 @@
     <!-- Functions -->
 
     <function>
+        <name>listLayouts</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            java.util.List listLayouts(java.lang.Object, java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>plainResource</name>
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>

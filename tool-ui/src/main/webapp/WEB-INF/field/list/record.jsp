@@ -1,33 +1,41 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.Renderable,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Database,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 
+com.psddev.dari.util.HtmlGrid,
+com.psddev.dari.util.HtmlObject,
+com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.StorageItem,
 
+java.io.IOException,
 java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
 java.util.List,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
 
 // --- Logic ---
 
-ToolPageContext wp = new ToolPageContext(pageContext);
+final ToolPageContext wp = new ToolPageContext(pageContext);
 
 State state = State.getInstance(request.getAttribute("object"));
 
-ObjectField field = (ObjectField) request.getAttribute("field");
+final ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
 List<Object> fieldValue = (List<Object>) state.getValue(fieldName);
 if (fieldValue == null) {
@@ -48,10 +56,11 @@ if (isValueExternal && validTypes != null && validTypes.size() > 0) {
 
 Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
-String inputName = (String) request.getAttribute("inputName");
+final String inputName = (String) request.getAttribute("inputName");
 String idName = inputName + ".id";
 String typeIdName = inputName + ".typeId";
 String publishDateName = inputName + ".publishDate";
+String layoutsName = inputName + ".layouts";
 
 if ((Boolean) request.getAttribute("isFormPost")) {
 
@@ -78,6 +87,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (item != null) {
                 fieldValue.add(item);
             }
+        }
+
+        if (!ObjectUtils.isBlank(field.as(Renderable.FieldData.class).getListLayouts())) {
+            state.as(Renderable.Data.class).getListLayouts().put(fieldName, wp.params(String.class, layoutsName));
         }
     }
 
@@ -114,7 +127,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 <%
 } else {
     Set<ObjectType> types = field.getTypes();
-    StringBuilder typeIdsCsv = new StringBuilder();
+    final StringBuilder typeIdsCsv = new StringBuilder();
     StringBuilder typeIdsQuery = new StringBuilder();
     boolean previewable = false;
 
@@ -130,6 +143,177 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
         typeIdsCsv.setLength(typeIdsCsv.length() - 1);
         typeIdsQuery.setLength(typeIdsQuery.length() - 1);
+    }
+
+    Map<String, List<String>> layouts = field.as(Renderable.FieldData.class).getListLayouts();
+
+    if (layouts != null && !layouts.isEmpty()) {
+        HtmlWriter writer = new HtmlWriter(out);
+        String containerId = wp.createId();
+
+        writer.start("div",
+                "class", "largeInput repeatableLayout",
+                "id", containerId);
+            writer.start("ol");
+
+                List<String> fieldLayoutNames = state.as(Renderable.Data.class).getListLayouts().get(fieldName);
+
+                if (fieldLayoutNames != null) {
+                    int itemIndex = 0;
+
+                    for (String fieldLayoutName : fieldLayoutNames) {
+                        writer.start("li");
+
+                            List<String> layoutNames = new ArrayList<String>(layouts.keySet());
+                            Collections.sort(layoutNames);
+
+                            writer.start("div", "class", "label");
+                                writer.start("select", "name", layoutsName);
+                                    for (String layoutName : layoutNames) {
+                                        writer.start("option",
+                                                "selected", layoutName.equals(fieldLayoutName) ? "selected" : null,
+                                                "value", layoutName);
+                                            writer.html(StringUtils.toLabel(layoutName));
+                                        writer.end();
+                                    }
+                                writer.end();
+                            writer.end();
+
+                            writer.start("div", "class", "layouts");
+                                for (String layoutName : layoutNames) {
+                                    HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+                                    List<HtmlObject> values = new ArrayList<HtmlObject>();
+
+                                    for (final String itemClass : layouts.get(layoutName)) {
+                                        final StringBuilder itemTypeIdsCsv = new StringBuilder();
+                                        Set<ObjectType> itemTypes = Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass);
+
+                                        if (itemTypes.isEmpty()) {
+                                            itemTypeIdsCsv.append(typeIdsCsv);
+
+                                        } else {
+                                            for (ObjectType type : itemTypes) {
+                                                itemTypeIdsCsv.append(type.getId()).append(",");
+                                            }
+                                            itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
+                                        }
+
+                                        final State itemState;
+
+                                        if (!layoutName.equals(fieldLayoutName)) {
+                                            itemState = null;
+
+                                        } else {
+                                            itemState = itemIndex < fieldValue.size() ? State.getInstance(fieldValue.get(itemIndex)) : null;
+                                            ++ itemIndex;
+                                        }
+
+                                        values.add(new HtmlObject() {
+                                            public void format(HtmlWriter writer) throws IOException {
+                                                StorageItem preview = itemState != null ? itemState.getPreview() : null;
+
+                                                writer.start("div", "class", "inputContainer-listLayoutItem");
+                                                    writer.tag("input",
+                                                            "type", "text",
+                                                            "class", "objectId",
+                                                            "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
+                                                            "data-label", itemState != null ? itemState.getLabel() : null,
+                                                            "data-typeIds", itemTypeIdsCsv,
+                                                            "data-pathed", ToolUi.isOnlyPathed(field),
+                                                            "data-additional-query", field.getPredicate(),
+                                                            "data-preview", preview != null ? preview.getUrl() : null,
+                                                            "name", inputName,
+                                                            "value", itemState != null ? itemState.getId() : null);
+                                                writer.end();
+                                            }
+                                        });
+                                    }
+
+                                    writer.start("div", "class", "layout " + layoutName);
+                                        writer.grid(values, grid, true);
+                                    writer.end();
+                                }
+                            writer.end();
+
+                        writer.end();
+                    }
+                }
+
+                writer.start("li", "class", "template");
+
+                    List<String> layoutNames = new ArrayList<String>(layouts.keySet());
+                    Collections.sort(layoutNames);
+
+                    writer.start("div", "class", "label");
+                        writer.start("select", "name", layoutsName);
+                            for (String layoutName : layoutNames) {
+                                writer.start("option",
+                                        "value", layoutName);
+                                    writer.html(StringUtils.toLabel(layoutName));
+                                writer.end();
+                            }
+                        writer.end();
+                    writer.end();
+
+                    writer.start("div", "class", "layouts");
+                        for (String layoutName : layoutNames) {
+                            HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+                            List<HtmlObject> values = new ArrayList<HtmlObject>();
+
+                            for (final String itemClass : layouts.get(layoutName)) {
+                                final StringBuilder itemTypeIdsCsv = new StringBuilder();
+                                Set<ObjectType> itemTypes = Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass);
+
+                                if (itemTypes.isEmpty()) {
+                                    itemTypeIdsCsv.append(typeIdsCsv);
+
+                                } else {
+                                    for (ObjectType type : itemTypes) {
+                                        itemTypeIdsCsv.append(type.getId()).append(",");
+                                    }
+                                    itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
+                                }
+
+                                values.add(new HtmlObject() {
+                                    public void format(HtmlWriter writer) throws IOException {
+                                        writer.start("div", "class", "inputContainer-listLayoutItem");
+                                            writer.tag("input",
+                                                    "type", "text",
+                                                    "class", "objectId",
+                                                    "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
+                                                    "data-typeIds", itemTypeIdsCsv,
+                                                    "data-pathed", ToolUi.isOnlyPathed(field),
+                                                    "data-additional-query", field.getPredicate(),
+                                                    "name", inputName);
+                                        writer.end();
+                                    }
+                                });
+                            }
+
+                            writer.start("div", "class", "layout " + layoutName);
+                                writer.grid(values, grid, true);
+                            writer.end();
+                        }
+                    writer.end();
+
+                writer.end();
+            writer.end();
+        writer.end();
+
+        writer.start("script", "type", "text/javascript");
+            writer.write("(function($, win, undef) {");
+                writer.write("var toggleLayouts = function() {");
+                    writer.write("var $li = $(this).closest('li');");
+                    writer.write("$li.find('.layout').hide().find(':input').attr('disabled', 'disabled');");
+                    writer.write("$li.find('.' + $li.find('select').val()).show().find(':input').removeAttr('disabled');");
+                writer.write("};");
+                writer.write("$('#" + containerId + "').find('li').each(toggleLayouts);");
+                writer.write("$('#" + containerId + "').onCreate('li', toggleLayouts);");
+                writer.write("$('#" + containerId + "').delegate('select', 'change', toggleLayouts);");
+            writer.write("})(jQuery, window);");
+        writer.end();
+
+        return;
     }
     %>
     <div class="smallInput repeatableObjectId<%= previewable ? " repeatableObjectId-previewable" : "" %>">

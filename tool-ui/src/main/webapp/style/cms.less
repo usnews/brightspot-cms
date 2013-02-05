@@ -681,6 +681,16 @@ figure,
     }
 }
 
+.inputContainer-listLayoutItem {
+    background-color: @color-note-lighter;
+    padding: 5px;
+
+    .objectId,
+    .objectId-select {
+        width: 100%;
+    }
+}
+
 .link {
     background: transparent;
     .border-radius(0);
@@ -695,7 +705,6 @@ figure,
     padding: 0;
 
     &:hover {
-        background: transparent;
         text-decoration: underline;
     }
 
@@ -2951,6 +2960,94 @@ input[type="text"].dropDown-search {
             .link;
             margin-right: 15px;
         }
+    }
+}
+
+.repeatableLayout {
+    > ul {
+        margin-left: 0;
+    }
+
+    > ol,
+    > ul {
+        margin-bottom: 6px;
+
+        > li {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid @color-note-lighter;
+            .border-radius(5px);
+            margin-bottom: 6px;
+            padding: 0 6px;
+            position: relative;
+
+            > .label {
+                background-color: @color-note-lighter;
+                color: @color-text;
+                cursor: pointer;
+                font-family: @fontFamily-label;
+                left: 0;
+                margin: 0 -6px 6px -6px;
+                min-height: 22px;
+                padding: 5px;
+            }
+
+            > .layouts {
+                margin-bottom: 4px;
+            }
+
+            > .removeButton {
+                .icon;
+                .icon-minus-sign;
+                .link;
+                color: @color-alert;
+                left: 100%;
+                margin-left: -5.8em;
+                position: absolute;
+                top: 7px;
+            }
+
+            &.focus {
+                border-color: @color-link-lighter;
+
+                > .label {
+                    background-color: @color-link-lighter;
+                }
+            }
+
+            &.toBeRemoved {
+                border-color: #fdd;
+                padding-bottom: 0;
+
+                > .label {
+                    background-color: #fdd;
+                    border-bottom-style: none;
+                    color: @color-alert;
+                    margin-bottom: 0;
+                    text-decoration: line-through;
+
+                    &:before {
+                        visibility: hidden;
+                    }
+                }
+
+                > .layouts {
+                    display: none;
+                }
+
+                > .removeButton {
+                    .icon;
+                    .icon-plus-sign;
+                    color: @color-link;
+                }
+            }
+        }
+    }
+
+    > .addButtonContainer > .addButton {
+        .icon;
+        .icon-plus-sign;
+        .link;
+        margin-right: 15px;
     }
 }
 

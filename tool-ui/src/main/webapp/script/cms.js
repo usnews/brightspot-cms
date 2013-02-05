@@ -5,7 +5,7 @@ var $win = $(win),
         $doc = $(doc);
 
 // Standard behaviors.
-$doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableObjectId');
+$doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');
 $doc.repeatable('live', '.repeatableText', {
     'addButtonText': '',
     'removeButtonText': '',
