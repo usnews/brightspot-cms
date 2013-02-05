@@ -24,7 +24,7 @@ try {
 
     } else {
         Trash trash = wp.deleteSoftly(object);
-        wp.redirect("/");
+        wp.redirect("", "id", null, "saved", null);
     }
 
 } catch (Exception ex) {
