@@ -166,6 +166,10 @@ Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename this t
 
 `./bin/startup.sh`
 
+If you are seeing the following error - `The BASEDIR environment variable is not defined correctly. This environment variable is needed to run this program` you will need to remove restrictions on the permissions of your /bin/*.sh files.
+
+From $TOMCAT_HOME run the following command `chmod +x bin/*.sh`
+
 
 ### Access your CMS
 
