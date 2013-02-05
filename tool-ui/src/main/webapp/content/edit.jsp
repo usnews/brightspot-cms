@@ -31,6 +31,7 @@ java.io.StringWriter,
 java.util.ArrayList,
 java.util.List,
 java.util.ListIterator,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
@@ -88,6 +89,17 @@ if (selected instanceof Page) {
     sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
     if (sectionContent != null) {
         editing = sectionContent;
+        UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);                                                                                             
+
+        if (variationId != null) {
+            State editingState = State.getInstance(editing);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> variationValues = (Map<String, Object>) editingState.getValue("variations/" + variationId.toString());
+
+            if (variationValues != null) {
+                editingState.setValues(variationValues);
+            }
+        }
     }
 }
 
