@@ -254,7 +254,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
                         wp.write(wp.getId());
                         wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                        wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
+                        wp.write(draft != null && draft.getSchedule() != null ?
+                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
+                                wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
                         wp.write("\">");
                         wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
                     }
