@@ -21,7 +21,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private transient HtmlWriter writer;
-    private transient Map<String, HtmlGrid> grids;
+    private transient List<CssClassHtmlGrid> grids;
     private transient Map<String, Object> areas;
 
     public Map<String, Object> getAreas() {
@@ -43,7 +43,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     public int doStartTag() throws JspException {
         try {
             writer = new HtmlWriter(pageContext.getOut());
-            grids = new LinkedHashMap<String, HtmlGrid>();
+            grids = new ArrayList<CssClassHtmlGrid>();
             List<String> cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
 
             if (cssClasses != null) {
@@ -53,7 +53,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                         HtmlGrid grid = HtmlGrid.Static.find(pageContext.getServletContext(), cssClass);
 
                         if (grid != null) {
-                            grids.put(cssClass, grid);
+                            grids.add(new CssClassHtmlGrid(cssClass, grid));
                         }
                     }
                 }
@@ -89,9 +89,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                 int areaSize = areasList.size();
                 int gridOffset = 0;
 
-                for (Map.Entry<String, HtmlGrid> gridEntry : grids.entrySet()) {
-                    String cssClass = gridEntry.getKey();
-                    HtmlGrid grid = gridEntry.getValue();
+                for (CssClassHtmlGrid gridEntry : grids) {
+                    String cssClass = gridEntry.cssClass;
+                    HtmlGrid grid = gridEntry.grid;
                     Map<String, GridItem> items = new LinkedHashMap<String, GridItem>();
                     int gridAreaSize = grid.getAreas().size();
 
@@ -116,6 +116,17 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         }
 
         return EVAL_PAGE;
+    }
+
+    private static class CssClassHtmlGrid {
+
+        public final String cssClass;
+        public final HtmlGrid grid;
+
+        public CssClassHtmlGrid(String cssClass, HtmlGrid grid) {
+            this.cssClass = cssClass;
+            this.grid = grid;
+        }
     }
 
     private class GridItem implements HtmlObject {
