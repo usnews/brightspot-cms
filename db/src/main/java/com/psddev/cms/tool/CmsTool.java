@@ -1,16 +1,23 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Template;
-
-import com.psddev.dari.db.Record;
-import com.psddev.dari.util.ObjectUtils;
-
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.psddev.cms.db.Template;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectUtils;
+
 /** Brightspot CMS. */
 public class CmsTool extends Tool {
+
+    private static final String ATTRIBUTE_PREFIX = CmsTool.class.getName() + ".";
+    private static final String CSS_WRITTEN = ATTRIBUTE_PREFIX + ".cssWritten";
 
     private String companyName;
     private String extraCss;
@@ -182,6 +189,39 @@ public class CmsTool extends Tool {
             }
         }
         return "/_preview";
+    }
+
+    /** Writes the custom CSS to the given {@code out}. */
+    public void writeCss(HttpServletRequest request, Writer out) throws IOException {
+        if (request.getAttribute(CSS_WRITTEN) != null) {
+            return;
+        }
+
+        request.setAttribute(CSS_WRITTEN, Boolean.TRUE);
+
+        @SuppressWarnings("all")
+        HtmlWriter writer = new HtmlWriter(out);
+
+        writer.start("style", "type", "text/css");
+            writer.css(".cms-textAlign-left", "text-align", "left");
+            writer.css(".cms-textAlign-center", "text-align", "center");
+            writer.css(".cms-textAlign-right", "text-align", "right");
+
+            for (CmsTool.CssClassGroup group : getTextCssClassGroups()) {
+                String groupName = group.getInternalName();
+
+                for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                    writer.write(".cms-");
+                    writer.write(groupName);
+                    writer.write("-");
+                    writer.write(cssClass.getInternalName());
+                    writer.write("{");
+                    writer.write(cssClass.getCss());
+                    writer.write("}");
+                }
+            }
+
+        writer.end();
     }
 
     // --- Tool support ---
