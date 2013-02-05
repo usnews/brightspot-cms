@@ -165,10 +165,10 @@ public class GuideType extends Record {
 
 		@Required
 		@Indexed
-		@ToolUi.Note("Internal fieldname in this object type. This is used to query the object and must exactly match the internal name")
+		@ToolUi.Note("Internal fieldname in this object type. This is used to query the object and must exactly match the internal name. Extreme care should be taken if changing.")
 		String fieldName;
 		
-		@ToolUi.Note("Fieldname as it's displayed in UI (if different from the internal fieldname)")
+		@ToolUi.Note("Displayed fieldname (note that changing this value does not change the value on the edit form)")
 		String displayName;
 
 		@ToolUi.Note("Production Guide information about this field")
