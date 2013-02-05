@@ -49,6 +49,7 @@
 	boolean overviewPage = true;
 	boolean foundSelected = false;
 	Iterator iter = null;
+	String pageUrl = "";
 
 	// What template guide are we displaying (if any)? 
 	Page selectedTemplate = Query.findById(Page.class,
@@ -420,13 +421,13 @@
 						}
 
 						if (samplePage != null && samplePage.getPermalink() != null) {
-							String pageUrl = samplePage.getPermalink();
+						    pageUrl = samplePage.getPermalink();
 							pageUrl += '?' + PageFilter.OVERLAY_PARAMETER + "=true";
 				%>
 				<div class="guidePreview">
 				    Sample <%=pg.getLabel()%>
 					<iframe id="samplePagePreview" name="samplePagePreview"
-						class="guidePreviewFrame" src="<%=pageUrl%>" scrolling="no"
+						class="guidePreviewFrame" src="<%=samplePage.getPermalink()%>" scrolling="no"
 						onload="init_sample(window.samplePagePreview);"></iframe>
 				</div>
 				<%
@@ -553,11 +554,37 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
     if ($paths.length > 0) {
         $paths.remove();
     }
-        
+    
+    createDupWithMarkup = (function($body)  { 
+     // Create a duplicate of the page with overlay flag on to get section placements
+       // without potentially messing up the page
+        var $duplicate = $('<iframe/>', {
+            'src': '<%=pageUrl%>',
+            'css': {
+                'background-color': 'white',
+                'border': 'none',
+                'height': 1500,
+                'left': -10000,
+                'overflow': 'auto',
+                'position': 'absolute',
+                'top': 0,
+                'width': 1220
+                }
+        });
 
-    markSection = (function($samplePageBody)  { 
+        $duplicate.load(function() {
+            var $duplicateBody = $duplicate.contents().find('body'),
+                    mainObjectData = $.parseJSON($duplicateBody.find('.cms-mainObject').text());
+   			markSection($duplicateBody,$body);
+    	});
+    	
+        $body.append($duplicate);
+  
+    }); // end createDupWithMarkup 
 
-    $samplePageBody.find('span.cms-overlayBegin').each(function() {
+    markSection = (function($duplicateBody,$samplePageBody)  { 
+
+    $duplicateBody.find('span.cms-overlayBegin').each(function() {
         displayMark = false;
         var $begin = $(this),
             data = $.parseJSON($begin.attr('data-object')),
@@ -632,7 +659,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                  $target = $section;
                  targetOffset = $target.offset();
                  targetOffset.left = sectionLeft;
-                  targetOffset.top = sectionTop - newTop;
+                 targetOffset.top = sectionTop - newTop;
              }
           });  // end find overlayBegin
                 
@@ -767,8 +794,9 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
 
 <script type="text/javascript">
 function init_sample(obj) {
-    body = $(obj.document.getElementsByTagName("body")[0]);
-    markSection(body);
+     body = $(obj.document.getElementsByTagName("body")[0]);
+     createDupWithMarkup(body);
+      
 }
 </script>
 
