@@ -401,9 +401,14 @@
 									wp.write("<div class=\"guideModuleReferences\"");
 									wp.write("<p>This module also appears on:</p>");
 									for (Page reference : references) {
-										wp.write("<li><a href=\"", wp.objectUrl(
-												"/content/guide.jsp", reference),
+										GuidePage referencedGuide = Guide.Static.getPageProductionGuide(reference);
+										if (referencedGuide != null && referencedGuide.getDescription() != null && !referencedGuide.getDescription().isEmpty()) {
+											wp.write("<li><a href=\"", wp.objectUrl(
+												"/content/guide.jsp", reference, "templateId", reference.getId()),
 												"\">", reference.getName(), "</a></li>");
+										} else {
+											wp.write("<li>", reference.getName(), "</li>");
+										}
 									}
 									wp.write("</div>");
 								}
