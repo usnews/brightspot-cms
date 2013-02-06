@@ -147,7 +147,18 @@ public class GuideType extends Record {
 			for (ObjectField field : fields) {
 				getFieldDescription(field.getInternalName(), field.getDisplayName(), true);
 			}
+			// Now identify any potentially out of date fields
+			if (this.getFieldDescriptions() != null && !this.getFieldDescriptions().isEmpty()) {
+				for (GuideField fieldDescription : this.getFieldDescriptions()) {
+					if (fieldDescription.getFieldName() != null && !fieldDescription.getFieldName().isEmpty()) {
+						if (type.getField(fieldDescription.getFieldName()) == null) {
+							fieldDescription.setDisplayName(fieldDescription.getFieldName() + " - INTERNAL FIELDNAME NO LONGER FOUND IN OBJECT TYPE. EVALUATE FOR CONTENT TRANSFER/REMOVAL.");
+						}
+					}
+				}
+			}
 		}
+	
 	}
 
 	/*
