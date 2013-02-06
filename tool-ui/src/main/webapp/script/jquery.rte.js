@@ -624,6 +624,10 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
             return;
         }
 
+        if ($toolbar.closest('.rte-container').length === 0) {
+            return;
+        }
+
         $header = $('.toolHeader');
         headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
         $container = $(this.container);
