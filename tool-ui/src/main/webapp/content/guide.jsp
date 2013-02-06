@@ -659,8 +659,9 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
              // entire single block
              if (displayMark) {
                  $samplePageBody.append($section);
-                 $samplePageBody.scrollTop(scrollAmount);
-                 var newTop = $samplePageBody.scrollTop();
+                 var $samplePage = $("#samplePagePreview")
+                 $samplePage.contents().scrollTop(scrollAmount);
+                 var newTop = $samplePage.contents().scrollTop();
                  $target = $section;
                  targetOffset = $target.offset();
                  targetOffset.left = sectionLeft;
@@ -686,8 +687,16 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                                
           sourceOffset = $source.offset();
           // Adjust the target offset for the location and transform pct of the iframe
+
           targetOffset.left = targetOffset.left * frameTransformPct;
           targetOffset.top = targetOffset.top * frameTransformPct;
+                
+          // for purposes of determining the center of the block, need to only consider visible content
+          var targetHeight = $target.height() * frameTransformPct;
+          var maxHeight = $('.guidePreview').height();
+          if ((targetOffset.top + targetHeight) > maxHeight) {
+            	 targetHeight = maxHeight - targetOffset.top;
+          }   
           targetOffset.left += frameOffset.left;
           targetOffset.top += frameOffset.top;
             
@@ -731,12 +740,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
               
           // draw a line from the dropdown box to the marked section 
 
-          // for purposes of determining the center of the block, need to only consider visible content
-          var targetHeight = $target.height() * frameTransformPct;
-          var maxHeight = $('.guidePreview').height();
-          if ((targetOffset.top + targetHeight) > maxHeight) {
-            	 targetHeight = maxHeight - targetOffset.top;
-          }   
+      
    
           if (sourceOffset.left > targetOffset.left) {
                 var targetWidth = $target.outerWidth();
