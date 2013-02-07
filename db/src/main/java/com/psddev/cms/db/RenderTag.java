@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
-import javax.servlet.jsp.tagext.Tag;
 
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
@@ -103,8 +102,14 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     public int doStartTag() throws JspException {
         try {
             pageWriter = new HtmlWriter(pageContext.getOut());
-            Tag parent = getParent();
-            areas = parent instanceof LayoutTag ? ((LayoutTag) parent).getAreas() : null;
+
+            if (findAncestorWithClass(this, RenderTag.class) != null) {
+                areas = null;
+
+            } else {
+                LayoutTag parent = (LayoutTag) findAncestorWithClass(this, LayoutTag.class);
+                areas = parent != null ? parent.getAreas() : null;
+            }
 
             if (ObjectUtils.isBlank(value)) {
                 if (areas != null) {
