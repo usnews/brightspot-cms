@@ -132,7 +132,7 @@
 		<form href="" class="guideForm">
 
 			<%
-				// Write overview page				
+				// Write overview page
 				if (guide != null) {
 					wp.write("<div class=\"guideForm-page\">");
 					wp.write("<div class=\"guideForm-main\">");
@@ -187,7 +187,7 @@
 			<%
 				    wp.write("</div>"); //end guideForm-main
 					wp.write("</div>"); //end guideForm-page
-					
+
 					// If there's a snapshot, print it here
 					if (samplePage != null && samplePage.getUrl() != null) {
 						wp.write("<div class=\"guideForm-page\">");
@@ -198,8 +198,8 @@
 					<cms:img src="${pageProductionGuide.samplePageSnapshot}" />
 					</div>
 					</div>
-					<%	
-						
+					<%
+
 						wp.write("</div>"); // end guideForm-page
 						wp.write("</div>"); // end guideForm-main
 					}

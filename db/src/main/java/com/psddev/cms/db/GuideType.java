@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Production Guide class to hold information about Content types and their associated fields
- * 
+ *
  */
 @Record.LabelFields({ "documentedType/name" })
 public class GuideType extends Record {
@@ -158,12 +158,12 @@ public class GuideType extends Record {
 				}
 			}
 		}
-	
+
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.psddev.dari.db.Record#beforeSave()
 	 */
 	public void beforeSave() {
@@ -178,7 +178,7 @@ public class GuideType extends Record {
 		@Indexed
 		@ToolUi.Note("Internal fieldname in this object type. This is used to query the object and must exactly match the internal name. Extreme care should be taken if changing.")
 		String fieldName;
-		
+
 		@ToolUi.Note("Displayed fieldname (note that changing this value does not change the value on the edit form)")
 		String displayName;
 
@@ -239,7 +239,7 @@ public class GuideType extends Record {
 		}
 
 		/**
-		 * Query to get a T/F as to whether the given {@code fieldName} has any information we include in 
+		 * Query to get a T/F as to whether the given {@code fieldName} has any information we include in
 		 * the field description (e.g. used to determine whether ? link is displayed in UI
 		 */
 		public static boolean hasFieldGuideInfo(State state, String fieldName) {

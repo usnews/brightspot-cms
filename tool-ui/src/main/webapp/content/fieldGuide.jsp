@@ -45,7 +45,7 @@
 		if (field.getMinimum() != null) {
 			wp.write("<li>Minimum value: ", field.getMinimum(), "</li>");
 		}
-		
+
 		if (field.getDefaultValue() != null) {
 			String defaultVal = "";
 			Object defaultValObj = field.getDefaultValue();
@@ -55,9 +55,9 @@
 		    } else {
 		    	wp.write("<li>Default value: (complex type)</li");
 		    	     // Would like to replace above w/ability to display link to content id (if applicable)
-		    		//defaultVal = "<a href=\"wp.objectUrl(\"/content/edit.jsp\", field.getDefaultValue())\" target=\"_blank\">(Content) field.getDefaultValue().getLabel()</a>";	
-		    } 
-			
+		    		//defaultVal = "<a href=\"wp.objectUrl(\"/content/edit.jsp\", field.getDefaultValue())\" target=\"_blank\">(Content) field.getDefaultValue().getLabel()</a>";
+		    }
+
 		}
 
 		if (fieldDesc != null && !fieldDesc.isEmpty()) {
@@ -72,5 +72,5 @@
 <%
 	wp.include("/WEB-INF/footer.jsp");
 	}
-	
+
 %>

@@ -92,7 +92,7 @@ if (selected instanceof Page) {
     sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
     if (sectionContent != null) {
         editing = sectionContent;
-        UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);                                                                                             
+        UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
 
         if (variationId != null) {
             State editingState = State.getInstance(editing);
@@ -164,12 +164,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             }
                         wp.write("</select>");
                     }
-                    
+
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
 	                    wp.write("<a target=\"productionGuide\" class=\"icon icon-question-sign guideLink\" href=\"", wp.objectUrl("/content/guide.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">View Production Guide</a>");
-    	                                
-                    }            
+
+                    }
 
                     if (selected instanceof Page) {
                         wp.write(": <a href=\"");

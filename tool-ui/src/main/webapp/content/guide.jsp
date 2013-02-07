@@ -51,7 +51,7 @@
 	Iterator iter = null;
 	String pageUrl = "";
 
-	// What template guide are we displaying (if any)? 
+	// What template guide are we displaying (if any)?
 	Page selectedTemplate = Query.findById(Page.class,
 			wp.uuidParam("templateId"));
 	if (selectedTemplate != null) {
@@ -81,7 +81,7 @@
 				wp.uuidParam("variationId"));
 	}
 
-	// What section guide are we displaying (if any)? 
+	// What section guide are we displaying (if any)?
 	UUID sectionId = null;
 	UUID selectedId = null;
 	String sectionStr = wp.param("sectionId");
@@ -125,7 +125,7 @@
 		} else {
 			guideTitle += pg.getLabel() + " Production Guide";
 		}
-		
+
 
 		sections = pg.findSections();
 		nameMap = Guide.Static.getSectionNameMap(sections);
@@ -445,8 +445,8 @@
 									"\" class=\"button\">Previous</a>");
 						} else {
 							if (!summaryPage) {
-								// we don't have a previous section, but we're not the first page, which 
-								// means the previous page is the first (summary) page 
+								// we don't have a previous section, but we're not the first page, which
+								// means the previous page is the first (summary) page
 								wp.write("<a href=\"", wp.url("", "sectionId", ""),
 										"\" class=\"button\">Previous</a>");
 							}
@@ -522,7 +522,7 @@
 	wp.include("/WEB-INF/footer.jsp");
 %>
 <script type="text/javascript">
-if (typeof jQuery !== 'undefined') (function($, win, undef) {         
+if (typeof jQuery !== 'undefined') (function($, win, undef) {
     var sectionId,
     doc = win.document,
     $doc = $(doc),
@@ -531,7 +531,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
     sectionTop = 0,
     sectionLeft = 0,
     sectionHeight = 0,
-    sectionWidth = 0,        
+    sectionWidth = 0,
     $frame,
     $guideForm,
     frameOffset,
@@ -552,15 +552,15 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
     pathSourceControlY,
     pathTargetControlX,
     pathTargetControlY;
-        
+
     sectionId = "<%=sectionId%>";
     sectionName = "<%=sectionName%>";
     $paths = $("#pgCanvas");
     if ($paths.length > 0) {
         $paths.remove();
     }
-    
-    createDupWithMarkup = (function($body)  { 
+
+    createDupWithMarkup = (function($body)  {
      // Create a duplicate of the page with overlay flag on to get section placements
        // without potentially messing up the page
         var $duplicate = $('<iframe/>', {
@@ -582,12 +582,12 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                     mainObjectData = $.parseJSON($duplicateBody.find('.cms-mainObject').text());
    			markSection($duplicateBody,$body);
     	});
-    	
-        $body.append($duplicate);
-  
-    }); // end createDupWithMarkup 
 
-    markSection = (function($duplicateBody,$samplePageBody)  { 
+        $body.append($duplicate);
+
+    }); // end createDupWithMarkup
+
+    markSection = (function($duplicateBody,$samplePageBody)  {
 
     $duplicateBody.find('span.cms-overlayBegin').each(function() {
         displayMark = false;
@@ -600,7 +600,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
             maxY = 0,
             $section,
             $edit;
-                           
+
 
          // Calculate the section size using the marker SPANs.
          $begin.nextUntil('span.cms-overlayEnd').filter(':visible').each(function() {
@@ -625,14 +625,14 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                  if (maxY < itemMaxY) {
                      maxY = itemMaxY;
                  }
-                        
+
                  if (found && data.sectionId == sectionId) {
-                        
+
                      sectionLeft = minX;
                      sectionTop = minY;
                      sectionHeight = maxY - minY;
                      sectionWidth = maxX - minX;
-                         
+
                      // if this is the section we want, make a border
                      $section = $('<a/>', {
                        'class': 'guidePreviewSection',
@@ -653,7 +653,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
 		             if (minY > 600) {
 		                scrollAmount = minY;
 		             }
-                 }                                   
+                 }
              }); // end find overlayEnd
              // Sometimes there are more than one cmsOverlay-end processing to a section, waiting until here ensures we just display the
              // entire single block
@@ -668,38 +668,38 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                  targetOffset.top = sectionTop - newTop;
              }
           });  // end find overlayBegin
-                
+
           if ($target === undefined) {
              return;
           }
-                    
+
           //iframe coordinates
           $frame = $("#samplePagePreview");
           $guideForm = $("#guideForm");
           frameOffset = $frame.offset();
-          $source = $("#sectionChoice"); 
+          $source = $("#sectionChoice");
           // Percentage that the page was reduced for display in the frame
           frameTransformPct = .30
-                              
+
           //section selector element coordinates
           sectionChooserX = $source.offset().left;
           sectionChooserY = $source.offset().top;
-                               
+
           sourceOffset = $source.offset();
           // Adjust the target offset for the location and transform pct of the iframe
 
           targetOffset.left = targetOffset.left * frameTransformPct;
           targetOffset.top = targetOffset.top * frameTransformPct;
-                
+
           // for purposes of determining the center of the block, need to only consider visible content
           var targetHeight = $target.height() * frameTransformPct;
           var maxHeight = $('.guidePreview').height();
           if ((targetOffset.top + targetHeight) > maxHeight) {
             	 targetHeight = maxHeight - targetOffset.top;
-          }   
+          }
           targetOffset.left += frameOffset.left;
           targetOffset.top += frameOffset.top;
-            
+
           // remove any previous lines
           var $body;
          // look first for the popup
@@ -714,8 +714,8 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
               targetOffset.left -= $body.offset().left;
               targetOffset.top -= $body.offset().top;
           }
-                
-   
+
+
           // Create the canvas area where line can be drawn
           $paths = $('<canvas/>', {
                       'class': 'fieldPreview-paths',
@@ -727,21 +727,21 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                              'top': 0
                }
            });
-                
+
           $paths.attr({
               'width': $doc.width(),
               'height': $doc.height()
           });
           // insert the canvas
-          $body.append($paths);               
+          $body.append($paths);
           pathsCanvas = $paths[0].getContext('2d');
           // clear the canvas
           pathsCanvas.clearRect(0, 0, $paths.width, $paths.height);
-              
-          // draw a line from the dropdown box to the marked section 
 
-      
-   
+          // draw a line from the dropdown box to the marked section
+
+
+
           if (sourceOffset.left > targetOffset.left) {
                 var targetWidth = $target.outerWidth();
                 pathTargetX = targetOffset.left + targetWidth;
@@ -796,8 +796,8 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
           pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY - arrowSize);
           pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY + arrowSize);
           pathsCanvas.closePath();
-          pathsCanvas.fill();                  
-     }); // end markSection        
+          pathsCanvas.fill();
+     }); // end markSection
 })(jQuery, window);
 </script>
 
@@ -805,7 +805,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
 function init_sample(obj) {
      body = $(obj.document.getElementsByTagName("body")[0]);
      createDupWithMarkup(body);
-      
+
 }
 </script>
 

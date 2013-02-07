@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Production Guide class to hold information about Pages and Templates (objects with layouts)
- * 
+ *
  */
 @Record.LabelFields({ "pageType/name" })
 public class GuidePage extends Record {
@@ -38,7 +38,7 @@ public class GuidePage extends Record {
 	@ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
 	@Guide.Description ("The sample page is a published page (it must have a live permalink) that is shown in the production guide as an example of proper programming. The guide will graphically highlight the location of each section on the sample page.")
 	private Content samplePage;
-	
+
 	@ToolUi.Note("Sample Page snapshot image for used for Printouts")
 	@Guide.Description ("When printing the production guide, this image is printed (following the Summary) in lieu of the live samplePage.")
 	private StorageItem samplePageSnapshot;
@@ -78,7 +78,7 @@ public class GuidePage extends Record {
 	public void setSamplePage(Content samplePage) {
 		this.samplePage = samplePage;
 	}
-	
+
 	public StorageItem getSamplePageSnapshot() {
 		return samplePageSnapshot;
 	}
@@ -99,7 +99,7 @@ public class GuidePage extends Record {
 		}
 		return false;
 	}
-	
+
 	public ReferentialText getSectionDescription(Section section) {
 		if (section != null) {
 			GuideSection gs = findOrCreateSectionGuide(section);
@@ -169,16 +169,16 @@ public class GuidePage extends Record {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.psddev.dari.db.Record#beforeSave()
 	 */
 	public void beforeSave() {
 		generateSectionDescriptionList();
 	}
-	
+
 	/** Static utility methods. */
 	public static final class Static {
-		
+
 		/**
 		 * Generate any missing guides for existing templates
 		 */
@@ -197,7 +197,7 @@ public class GuidePage extends Record {
 					GuidePage newGuide = new GuidePage();
 					newGuide.setPageType(template);
 					newGuide.saveImmediately();
-				} 
+				}
 			}
 			return;
 		}

@@ -56,8 +56,8 @@ wp.include("/WEB-INF/header.jsp"); %>
 					class="new<%= selectedClass == Guide.class && selectedState.isNew() ? " selected" : "" %>">
 					<a href="<%= wp.typeUrl(null, Guide.class) %>">New Guide</a>
 				</li>
-				<% for (Guide guide : guides) { 
-				     String label = wp.objectLabel(guide);     
+				<% for (Guide guide : guides) {
+				     String label = wp.objectLabel(guide);
 				     if (guide.isIncomplete()) {
 				    	 label += incompleteIndicator;
 				     }
@@ -67,14 +67,14 @@ wp.include("/WEB-INF/header.jsp"); %>
 				</li>
 				<% } %>
 			</ul>
-			
+
 			<h2>Template/Page Guides</h2>
 			<ul class="links">
 				<li
 					class="new<%= selectedClass == GuidePage.class && selectedState.isNew() ? " selected" : "" %>">
 					<a href="<%= wp.typeUrl(null, GuidePage.class) %>">New Guide</a>
 				</li>
-				<% for (GuidePage guide : pageGuides) { 
+				<% for (GuidePage guide : pageGuides) {
 					String templateLabel = wp.objectLabel(guide);
 					if (guide.isIncomplete()) {
 						templateLabel += incompleteIndicator;
@@ -82,7 +82,7 @@ wp.include("/WEB-INF/header.jsp"); %>
 				%>
 				<li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
 					<a href="<%= wp.objectUrl(null, guide) %>"><%= templateLabel %></a>
-				</li> 
+				</li>
 				<% } %>
 			</ul>
 
@@ -95,10 +95,10 @@ wp.include("/WEB-INF/header.jsp"); %>
 				<% for (GuideType guide : typeGuides) { %>
 				<li <%= guide.equals(selected) ? " class=\"selected\"" : "" %>>
 					<a href="<%= wp.objectUrl(null, guide) %>"><%= wp.objectLabel(guide) %></a>
-				</li> 
+				</li>
 				<% } %>
 			</ul>
-		
+
 			<div class="guideFootnote"><%=incompleteIndicator%> indicates minimum information is missing from Guide </div>
 
 		</div>

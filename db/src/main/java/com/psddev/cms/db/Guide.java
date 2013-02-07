@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * A Production Guide is Editor-oriented Help documentation providing guidance on how to create and organize content for a site. It's content
  * is associate with objects in the CMS so that helpful information is available contextually and can be easily kept up to date
  * as the site evolves.
- * 
+ *
  * A Guide object consists of some overall descriptive content about programming, and then associations to templates/pages that
  * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the GuidePage and
  * GuideType classes
@@ -130,7 +130,7 @@ public class Guide extends Record {
 			return null;
 
 		}
-		
+
 		/**
 		 * Get the Production Guide sample page snapshot for the given template {@code content}
 		 */
