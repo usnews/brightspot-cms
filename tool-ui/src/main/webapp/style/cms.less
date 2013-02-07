@@ -3584,10 +3584,10 @@ input[type="text"].dropDown-search {
         .icon-only;
 
         float: right;
-        color: @color-note;
+        color: fade(@color-text, 25%);
 
         &:hover {
-            color: @color-note-darker;
+            color: fade(@color-text, 40%);
         }
     }
 }
@@ -4120,20 +4120,19 @@ input[type="text"].dropDown-search {
 
 .fieldPreview-toggle {
     .icon;
-    .icon-question-sign;
+    .icon-eye-open;
     .icon-only;
     .link;
 
-    color: @color-text;
+    color: fade(@color-text, 30%);
     display: none;
-    .opacity(0.5);
     padding: 5px;
     position: absolute;
     right: 0;
     top: 0;
 
     &:hover {
-        .opacity(1);
+        color: fade(@color-text, 50%);
     }
 
     .inputContainer:hover > & {
