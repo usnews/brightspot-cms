@@ -70,12 +70,12 @@ try {
         wp.write("/");
         wp.write(wp.h(fieldName));
         wp.write("\">");
-        wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
-        wp.write(wp.h(field.getLabel()));
+        wp.write("<div class=\"label\">");
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
-            // typeId parm needed for embedded types to work properly
-            wp.write("<a target=\"fieldGuide\" class=\"icon icon-question-sign icon-only\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">?</a>");
+            wp.write("<a class=\"action action-guide\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
         }
+        wp.write("<label for=\"", wp.createId(), "\">");
+        wp.write(wp.h(field.getLabel()));
         wp.write("</label></div>");
 
         // Field-specific error messages.

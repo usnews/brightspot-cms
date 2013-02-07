@@ -3573,6 +3573,25 @@ input[type="text"].dropDown-search {
 
 // --- Production Guide ---
 
+.widget-content > .action-guide {
+    position: absolute;
+    right: 65px;
+    top: 7px;
+}
+
+.inputContainer > .label {
+    > .action-guide {
+        .icon-only;
+
+        float: right;
+        color: @color-note;
+
+        &:hover {
+            color: @color-note-darker;
+        }
+    }
+}
+
 .guideForm {
      margin: -10px;
      overflow: hidden;
@@ -3729,13 +3748,6 @@ input[type="text"].dropDown-search {
     text-transform: uppercase;
 }
 
-.guideLink {
-    font-family: @fontFamily-label;
-    font-size: 90%;
-    padding: 10px 10px 10px 10px;
-    text-align: left;
-}
-
 .guideControls {
     .piped;
 
@@ -3752,11 +3764,11 @@ input[type="text"].dropDown-search {
     }
 }
 
-.popup[name=productionGuide] {
+.popup[name='guideType'] {
     width: 1010px;
 }
 
-.popup[name=productionGuidePrintout] {
+.popup[name='guidePrint'] {
     top: 0;
     visibility: hidden;
     width: 1010px;
@@ -3956,6 +3968,7 @@ input[type="text"].dropDown-search {
 .action-edit { .icon; .icon-pencil; }
 .action-delete { .icon; .icon-trash; }
 .action-draft { .icon; .icon-save; }
+.action-guide { .icon; .icon-question-sign; }
 .action-image-edit { .icon; .icon-magic; }
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }

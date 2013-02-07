@@ -247,7 +247,7 @@
                 <ul class="guideControls">
                     <li><a
                         href="<%=wp.url("guidePrint.jsp", "guideId", guide.getId())%>"
-                        class="action-print" target="productionGuidePrintout">Print</a></li>
+                        class="action-print" target="guidePrint">Print</a></li>
                 </ul>
                 <%
                     } else {
@@ -267,7 +267,7 @@
                     %>
                     <li><a
                         href="<%=wp.url("guidePrint.jsp", "templateId", pg.getId())%>"
-                        class="action-print" target="productionGuidePrintout">Print</a></li>
+                        class="action-print" target="guidePrint">Print</a></li>
                 </ul>
                 <%
                     }
@@ -404,7 +404,7 @@
                                         GuidePage referencedGuide = Guide.Static.getPageProductionGuide(reference);
                                         if (referencedGuide != null && referencedGuide.getDescription() != null && !referencedGuide.getDescription().isEmpty()) {
                                             wp.write("<li><a href=\"", wp.objectUrl(
-                                                "/content/guide.jsp", reference, "templateId", reference.getId()),
+                                                "/content/guideType.jsp", reference, "templateId", reference.getId()),
                                                 "\">", reference.getName(), "</a></li>");
                                         } else {
                                             wp.write("<li>", reference.getName(), "</li>");
@@ -478,7 +478,7 @@
                                     if (sample != null && sample.getPermalink() != null) {
                                         wp.write("<div class=\"guideRelatedTemplate\">");
                                         wp.write("<a href=\"", wp.objectUrl(
-                                                "/content/guide.jsp", sample,
+                                                "/content/guideType.jsp", sample,
                                                 "variationId", wp.param("variationId"),
                                                 "templateId", template.getId()),
                                                 "\" class=\"Text\">", template
@@ -703,7 +703,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
           // remove any previous lines
           var $body;
          // look first for the popup
-          $body = $('.popup[name*="productionGuide"]');
+          $body = $('.popup[name*="guideType"]');
           if ($body.length == 0) {
               //if no popup, PG is displayed as page
                $body = $('body');

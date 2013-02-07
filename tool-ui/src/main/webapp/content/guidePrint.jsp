@@ -82,20 +82,20 @@
     body {
         margin: 0 !important;
     }
-    body>* {
+    body > * {
         display: none !important;
     }
-    body>.popup[name=productionGuidePrintout] {
+    body > .popup[name='guidePrint'] {
         display: block !important;
         position: static !important;
     }
-    body>.popup[name=productionGuidePrintout] .marker {
+    body > .popup[name='guidePrint'] .marker {
         display: none !important;
     }
-    body>.popup[name=productionGuidePrintout] .closeButton {
+    body > .popup[name='guidePrint'] .closeButton {
         display: none !important;
     }
-    body>.popup[name=productionGuidePrintout] .content {
+    body > .popup[name='guidePrint'] .content {
         box-shadow: 0 0 0 !important;
         -webkit-box-shadow: 0 0 0 !important;
         -moz-box-shadow: 0 0 0 !important;;
