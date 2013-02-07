@@ -989,7 +989,7 @@ public class PageFilter extends AbstractFilter {
 
                 if (section != null) {
                     map.put("sectionName", section.getName());
-					map.put("sectionId", section.getId().toString());
+                    map.put("sectionId", section.getId().toString());
                 }
 
                 Object concrete = Static.peekConcreteObject(request);

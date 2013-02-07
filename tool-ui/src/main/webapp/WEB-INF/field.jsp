@@ -73,8 +73,8 @@ try {
         wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
-        	// typeId parm needed for embedded types to work properly
-        	wp.write("<a target=\"fieldGuide\" class=\"icon icon-question-sign icon-only\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">?</a>");
+            // typeId parm needed for embedded types to work properly
+            wp.write("<a target=\"fieldGuide\" class=\"icon icon-question-sign icon-only\" style=\"float: right;\" href=\"", wp.objectUrl("/content/fieldGuide.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">?</a>");
         }
         wp.write("</label></div>");
 

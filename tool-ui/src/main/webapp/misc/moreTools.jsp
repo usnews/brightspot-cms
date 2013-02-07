@@ -25,10 +25,10 @@ if (wp.requireUser()) {
 %><h1>More Tools</h1>
 <% if (guides != null && !guides.isEmpty()) { %>
 <p>
-	Production Guides:<br>
-	<% for (Guide guide : guides) {
-	  wp.write("<li><a target=\"_blank\" href=\"", wp.url("/content/guide.jsp", "guideId", guide.getId()), "\">", guide.getTitle(), "</a></li>");
-	 } %>
+    Production Guides:<br>
+    <% for (Guide guide : guides) {
+      wp.write("<li><a target=\"_blank\" href=\"", wp.url("/content/guide.jsp", "guideId", guide.getId()), "\">", guide.getTitle(), "</a></li>");
+     } %>
 </p>
 <% } %>
 <p>
