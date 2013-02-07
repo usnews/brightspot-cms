@@ -173,7 +173,10 @@
 }
 </style>
 
-<div class="widget widget-content">
+<% if (!wp.param(boolean.class, "popup")) { %>
+    <div class="widget widget-content">
+<% } %>
+
     <h1 class="icon-page_white_find">
         <%=guideTitle%>
     </h1>
@@ -517,7 +520,11 @@
         </form>
     </div>
 </div>
-</div>
+
+<% if (!wp.param(boolean.class, "popup")) { %>
+    </div>
+<% } %>
+
 <%
     wp.include("/WEB-INF/footer.jsp");
 %>
