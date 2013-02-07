@@ -38,13 +38,13 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (ObjectUtils.isBlank(password)) {
             state.addError(field, "Password can't be blank!");
         } else {
-            String currentPassword = wp.param(currentPasswordName);
-            ToolUser user = wp.getUser();
-            if (ObjectUtils.isBlank(currentPassword)) {
-                state.addError(field, "Must supply your current password!");
-            } else {
-                if (!password.equals(wp.param(password2Name))) {
-                    state.addError(field, "Passwords don't match!");
+            if (!state.isNew()) {
+                String currentPassword = wp.param(currentPasswordName);
+                ToolUser user = wp.getUser();
+
+                if (ObjectUtils.isBlank(currentPassword)) {
+                    state.addError(field, "Must supply your current password!");
+
                 } else {
                     AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
                     if (authPolicy == null) {
@@ -52,13 +52,20 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     }
                     try {
                         authPolicy.authenticate(user.getEmail(), currentPassword);
-                        PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
-                        state.putValue(fieldName, Password.validateAndCreateCustom(policy, null, null, password).toString());
-                    } catch (PasswordException error) {
-                        state.addError(field, error.getMessage());
                     } catch (AuthenticationException authError) {
                         state.addError(field, "Invalid current password!");
                     }
+                }
+            }
+
+            if (!password.equals(wp.param(password2Name))) {
+                state.addError(field, "Passwords don't match!");
+            } else {
+                try {
+                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+                    state.putValue(fieldName, Password.validateAndCreateCustom(policy, null, null, password).toString());
+                } catch (PasswordException error) {
+                    state.addError(field, error.getMessage());
                 }
             }
         }
@@ -78,8 +85,12 @@ String passwordContainerId = wp.createId();
     </select>
 
     <div id="<%= passwordContainerId %>" style="margin-top: 10px;">
-        <div>Current Password:</div>
-        <input name="<%= currentPasswordName %>" type="password">
+
+        <% if (!state.isNew()) { %>
+            <div>Your Current Password:</div>
+            <input name="<%= currentPasswordName %>" type="password">
+        <% } %>
+
         <div>New Password:</div>
         <input name="<%= password1Name %>" type="password">
         <div>Confirm Password:</div>
