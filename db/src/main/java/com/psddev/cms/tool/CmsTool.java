@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolRole;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
@@ -20,6 +21,7 @@ public class CmsTool extends Tool {
     private static final String CSS_WRITTEN = ATTRIBUTE_PREFIX + ".cssWritten";
 
     private String companyName;
+    private ToolRole defaultRole;
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -120,6 +122,24 @@ public class CmsTool extends Tool {
     /** Sets the company name. */
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    /**
+     * Returns the default role.
+     *
+     * @return May be {@code null}.
+     */
+    public ToolRole getDefaultRole() {
+        return defaultRole;
+    }
+
+    /**
+     * Sets the default role.
+     *
+     * @param defaultRole May be {@code null}.
+     */
+    public void setDefaultRole(ToolRole defaultRole) {
+        this.defaultRole = defaultRole;
     }
 
     /** Returns the extra CSS. */
