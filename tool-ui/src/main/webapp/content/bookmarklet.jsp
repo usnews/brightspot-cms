@@ -80,7 +80,7 @@ newJQueryScript.onload = function() {
 
                 $duplicateBody.find('span.cms-overlayBegin').each(function() {
                     var $begin = $(this),
-                            data = $.parseJSON($begin.text()),
+                            data = $.parseJSON($begin.attr('data-object')),
                             found = false,
                             minX = Number.MAX_VALUE,
                             maxX = 0,

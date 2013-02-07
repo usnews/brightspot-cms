@@ -74,10 +74,6 @@ if (published != null) {
     wp.write("<div class=\"success message\"><p>");
     wp.write("Published ", published);
     wp.write(".</p>");
-    Template template = State.getInstance(object).as(Template.ObjectModification.class).getDefault();
-    wp.write("<p><a class=\"button\" href=\"");
-    wp.write(wp.url(null, "typeId", State.getInstance(object).getTypeId(), "templateId", template != null ? template.getId() : null));
-    wp.write("\">Create Another</a></p>");
     wp.write("</div>");
     return;
 }

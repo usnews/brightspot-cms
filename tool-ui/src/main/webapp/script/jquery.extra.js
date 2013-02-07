@@ -212,15 +212,7 @@ $.throttle = function(interval, throttledFunction) {
         startPageY = lastPageY = event.pageY;
 
         startDrag = function() {
-            dragStartTimeout = setTimeout(function() {
-                var deltaX = lastPageX - startPageX,
-                        deltaY = lastPageY - startPageY;
-
-                if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) < (event.dragDistance || 5)) {
-                    startDrag();
-                    return;
-                }
-
+            var drag = function() {
                 dragMoveCallback = function(event) {
                     return moveCallback.call(element, event, data);
                 };
@@ -231,7 +223,24 @@ $.throttle = function(interval, throttledFunction) {
 
                 $(doc.body).append($dragCover);
                 startCallback.call(element, event, data);
-            }, (event.dragDelay || 100));
+            };
+
+            if (event.dragImmediately) {
+                drag();
+
+            } else {
+                dragStartTimeout = setTimeout(function() {
+                    var deltaX = lastPageX - startPageX,
+                            deltaY = lastPageY - startPageY;
+
+                    if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) < (event.dragDistance || 5)) {
+                        startDrag();
+                        return;
+                    }
+
+                    drag();
+                }, (event.dragDelay || 100));
+            }
         };
 
         startDrag();

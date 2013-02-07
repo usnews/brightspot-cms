@@ -10,12 +10,18 @@ $.each(CSS_CLASS_GROUPS, function() {
     var regex = new RegExp(prefix + '[0-9a-z\-]+', 'g');
 
     wysihtml5.commands[command] = {
-        'exec': function(composer, command, className) {
-            return wysihtml5.commands.formatInline.exec(composer, command, 'span', prefix + className, regex);
+        'exec': function(composer, command, optionsString) {
+            var options = optionsString ? $.parseJSON(optionsString) : { };
+            var tag = options.tag || 'span';
+            var format = tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].exec(composer, command, tag, prefix + options.internalName, regex);
         },
 
-        'state': function(composer, command, className) {
-            return wysihtml5.commands.formatInline.state(composer, command, 'span', prefix + className, regex);
+        'state': function(composer, command, optionsString) {
+            var options = optionsString ? $.parseJSON(optionsString) : { };
+            var tag = options.tag || 'span';
+            var format = tag === 'span' ? 'formatInline' : 'formatBlock';
+            return wysihtml5.commands[format].state(composer, command, tag , prefix + options.internalName, regex);
         }
     };
 });
@@ -59,7 +65,7 @@ var createToolbar = function(inline) {
 
         $.each(this.cssClasses, function() {
             var $cssClass = $createToolbarCommand(this.displayName, command);
-            $cssClass.attr('data-wysihtml5-command-value', this.internalName);
+            $cssClass.attr('data-wysihtml5-command-value', JSON.stringify(this));
             $group.append($cssClass);
         });
     });
@@ -304,23 +310,42 @@ var Rte = wysihtml5.Editor.extend({
             };
 
             var textarea = this.textarea;
+            var lastTextareaValue;
 
             textarea._originalGetValue = textarea.getValue;
-            textarea.getValue = function() {
-                var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'SPAN', 'BUTTON');
-                return dom.innerHTML;
+            textarea.getValue = function(parse) {
+                var value = this._originalGetValue(parse),
+                        dom;
+
+                if (lastTextareaValue === value) {
+                    return value;
+
+                } else {
+                    lastTextareaValue = value;
+                    dom = wysihtml5.dom.getAsDom(value, this.element.ownerDocument);
+                    convertNodes(dom, 'SPAN', 'BUTTON');
+                    return dom.innerHTML;
+                }
             };
 
             var composer = this.composer;
+            var lastComposerValue;
 
             composer._originalGetValue = composer.getValue;
-            composer.getValue = function() {
-                var dom = wysihtml5.dom.getAsDom(this._originalGetValue(), this.element.ownerDocument);
-                convertNodes(dom, 'BUTTON', 'SPAN', function(node) {
-                    node.innerHTML = 'Enhancement';
-                });
-                return dom.innerHTML;
+            composer.getValue = function(parse) {
+                var value = this._originalGetValue(parse);
+
+                if (lastComposerValue === value) {
+                    return value;
+
+                } else {
+                    lastComposerValue = value;
+                    dom = wysihtml5.dom.getAsDom(value, this.element.ownerDocument);
+                    convertNodes(dom, 'BUTTON', 'SPAN', function(node) {
+                        node.innerHTML = 'Enhancement';
+                    });
+                    return dom.innerHTML;
+                }
             };
 
             composer.setValue(textarea.getValue());
@@ -328,6 +353,7 @@ var Rte = wysihtml5.Editor.extend({
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
             composer.iframe.contentDocument.body.style.overflow = 'hidden';
+            composer.iframe.contentDocument.body.className += ' rte-loaded';
             textarea.element.className += ' rte-source';
 
             // Make sure only one toolbar is visible at a time.
@@ -362,7 +388,7 @@ var Rte = wysihtml5.Editor.extend({
         var composerIframe = composer.iframe;
         var composerIframeWindow = composerIframe.contentWindow;
 
-        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 2 : 40));
+        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 10 : 40));
         $(composerIframeWindow).scrollTop(0);
 
         // Create enhancements based on the underlying placeholders.
@@ -527,9 +553,9 @@ wysihtml5.commands.insertMarker = {
 $.plugin2('rte', {
     '_defaultOptions': {
         'enhancement': createEnhancement,
+        'iframeSrc': CONTEXT_PATH + '/style/rte-content.jsp',
         'marker': createMarker,
         'style': false,
-        'stylesheets': [ CONTEXT_PATH + '/style/rte-content.css', CONTEXT_PATH + '/style/rte-cssClasses.jsp' ],
         'toolbar': createToolbar,
         'useLineBreaks': false
     },
@@ -537,7 +563,9 @@ $.plugin2('rte', {
     '_create': function(element) {
         var options = $.extend(true, { }, this.option());
 
-        options.useLineBreaks = !!$(element).attr('data-use-line-breaks');
+        if (typeof options.useLineBreaks === 'undefined') {
+            options.useLineBreaks = !!$(element).attr('data-use-line-breaks');
+        }
 
         new Rte(element, options);
     },
@@ -593,6 +621,10 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
                 windowTop;
 
         if (!$toolbar.is(':visible')) {
+            return;
+        }
+
+        if ($toolbar.closest('.rte-container').length === 0) {
             return;
         }
 

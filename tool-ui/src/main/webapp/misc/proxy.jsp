@@ -35,4 +35,8 @@ try {
 } finally {
     urlInput.close();
 }
+
+if (true) {
+    return;
+}
 %>

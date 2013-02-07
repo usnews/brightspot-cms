@@ -71,7 +71,16 @@ public class UploadFiles extends PageServlet {
                 ObjectField previewField = selectedType.getField(selectedType.getPreviewField());
 
                 if (previewField == null) {
-                    throw new IllegalStateException("No preview field!");
+                    for (ObjectField field : selectedType.getFields()) {
+                        if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
+                            previewField = field;
+                            break;
+                        }
+                    }
+                }
+
+                if (previewField == null) {
+                    throw new IllegalStateException("No file field!");
                 }
 
                 FileItem[] files = request.getFileItems("file");

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.tool.CmsTool;
-
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -681,20 +681,28 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
                 }
 
-                if (item != null && crops != null) {
+                if (item != null && crops != null && standardImageSize != null) {
                     ImageCrop crop = crops.get(standardImageSize.getId().toString());
 
                     if (crop != null) {
-                        String text = crop.getText();
+                        List<ImageTextOverlay> textOverlays = crop.getTextOverlays();
+                        boolean hasOverlays = false;
 
-                        if (!ObjectUtils.isBlank(text)) {
+                        for (ImageTextOverlay textOverlay : textOverlays) {
+                            if (!ObjectUtils.isBlank(textOverlay.getText())) {
+                                hasOverlays = true;
+                                break;
+                            }
+                        }
+
+                        if (hasOverlays) {
                             StringBuilder overlay = new StringBuilder();
-
-                            String id = "i" + UUID.randomUUID().toString().replace("-", "");
                             CmsTool cms = Application.Static.getInstance(CmsTool.class);
                             String defaultCss = cms.getDefaultTextOverlayCss();
+                            String id = "i" + UUID.randomUUID().toString().replace("-", "");
 
                             overlay.append("<style type=\"text/css\">");
+
                             if (!ObjectUtils.isBlank(defaultCss)) {
                                 overlay.append("#");
                                 overlay.append(id);
@@ -702,6 +710,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 overlay.append(defaultCss);
                                 overlay.append("}");
                             }
+
                             for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
                                 String groupName = group.getInternalName();
                                 for (CmsTool.CssClass cssClass : group.getCssClasses()) {
@@ -716,23 +725,30 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                     overlay.append("}");
                                 }
                             }
+
                             overlay.append("</style>");
 
                             overlay.append("<span id=\"");
                             overlay.append(id);
                             overlay.append("\">");
                             overlay.append(html);
-                            overlay.append("<span style=\"left: ");
-                            overlay.append(crop.getTextX() * 100);
-                            overlay.append("%; position: absolute; top: ");
-                            overlay.append(crop.getTextY() * 100);
-                            overlay.append("%; font-size: ");
-                            overlay.append(crop.getTextSize() * standardImageSize.getHeight());
-                            overlay.append("px; width: ");
-                            overlay.append(crop.getTextWidth() != 0.0 ? crop.getTextWidth() * 100 : 100.0);
-                            overlay.append("%;\">");
-                            overlay.append(text);
-                            overlay.append("</span>");
+
+                            for (ImageTextOverlay textOverlay : textOverlays) {
+                                String text = textOverlay.getText();
+
+                                overlay.append("<span style=\"left: ");
+                                overlay.append(textOverlay.getX() * 100);
+                                overlay.append("%; position: absolute; top: ");
+                                overlay.append(textOverlay.getY() * 100);
+                                overlay.append("%; font-size: ");
+                                overlay.append(textOverlay.getSize() * standardImageSize.getHeight());
+                                overlay.append("px; width: ");
+                                overlay.append(textOverlay.getWidth() != 0.0 ? textOverlay.getWidth() * 100 : 100.0);
+                                overlay.append("%;\">");
+                                overlay.append(text);
+                                overlay.append("</span>");
+                            }
+
                             overlay.append("</span>");
                             html = overlay.toString();
                         }
@@ -867,16 +883,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> edits = (Map<String, Object>) item.getMetadata().get("cms.edits");
 
-                // Requires at least the width and height to perform a crop
-                if (cropWidth != null && cropHeight != null) {
-                    item = ImageEditor.Static.crop(editor, item, options, cropX, cropY, cropWidth, cropHeight);
-                }
-
-                // Requires only one of either the width or the height to perform a resize
-                if (width != null || height != null) {
-                    item = ImageEditor.Static.resize(editor, item, options, width, height);
-                }
-
                 if (edits != null) {
                     ImageEditor realEditor = editor;
                     if (realEditor == null) {
@@ -885,6 +891,16 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
                         item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
                     }
+                }
+
+                // Requires at least the width and height to perform a crop
+                if (cropWidth != null && cropHeight != null) {
+                    item = ImageEditor.Static.crop(editor, item, options, cropX, cropY, cropWidth, cropHeight);
+                }
+
+                // Requires only one of either the width or the height to perform a resize
+                if (width != null || height != null) {
+                    item = ImageEditor.Static.resize(editor, item, options, width, height);
                 }
 
                 String url = item.getPublicUrl();
@@ -904,6 +920,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (this.attributes != null) {
                     attributes.putAll(this.attributes);
                 }
+            }
+
+            if (standardImageSize != null) {
+                attributes.put("data-size", standardImageSize.getInternalName());
             }
 
             return attributes;

@@ -1,21 +1,24 @@
 package com.psddev.cms.db;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.PeriodicValue;
 import com.psddev.dari.util.PullThroughValue;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Changes objects based on rules.
@@ -37,6 +40,9 @@ public class Variation extends Record {
     @Required
     @ToolUi.Hidden
     private double position;
+
+    @ToolUi.Note("Leave blank to allow on all content types.")
+    private Set<ObjectType> contentTypes;
 
     @Required
     private Rule rule;
@@ -62,6 +68,17 @@ public class Variation extends Record {
     /** Sets the position. */
     public void setPosition(double position) {
         this.position = position;
+    }
+
+    public Set<ObjectType> getContentTypes() {
+        if (contentTypes == null) {
+            contentTypes = new HashSet<ObjectType>();
+        }
+        return contentTypes;
+    }
+
+    public void setContentTypes(Set<ObjectType> contentTypes) {
+        this.contentTypes = contentTypes;
     }
 
     /** Returns the rule. */
@@ -166,6 +183,25 @@ public class Variation extends Record {
             }
 
             return applied;
+        }
+
+        /**
+         * Returns a list of variations that can be applied to the instances
+         * of the given {@code type}.
+         *
+         * @return Never {@code null}.
+         */
+        public static List<Variation> getApplicable(ObjectType type) {
+            List<Variation> applicable = new ArrayList<Variation>();
+
+            for (Variation variation : ALL.get().get()) {
+                Set<ObjectType> types = variation.getContentTypes();
+                if (types.isEmpty() || types.contains(type)) {
+                    applicable.add(variation);
+                }
+            }
+
+            return applicable;
         }
     }
 

@@ -40,7 +40,7 @@ for (Site site : Site.findAll()) {
 %><h1>Sites</h1>
 <form action="<%= wp.url(null) %>" method="post">
     <select name="id">
-        <option value="">All Sites</option>
+        <option value="">Global</option>
         <% for (Site site : sites) { %>
             <option<%= site.equals(currentSite) ? " selected" : "" %> value="<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
         <% } %>
