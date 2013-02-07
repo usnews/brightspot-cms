@@ -2777,19 +2777,6 @@ input[type="text"].dropDown-search {
     width: 70%;
 }
 
-// Production Guide popup
-.popup[name=productionGuide] {
-    width: 1010px;
-}
-
-.popup[name=productionGuidePrintout] {
-    width: 1010px;
-    top: 0;
-    visibility: hidden;
-    @media print {
-        visibility: visible;
-    }
-}
 .popup[name=contentRemoteOverlayEdit] {
     width: 80%;
 }
@@ -3584,19 +3571,19 @@ input[type="text"].dropDown-search {
     top: 86px;
 }
 
-// -- Production Guide  --
+// --- Production Guide ---
 
 .guideForm {
      margin: -10px;
      overflow: hidden;
-     width: 1000px;
      padding: 10px 10px 10px 10px;
+     width: 1000px;
 }
 
 .guideForm-main {
     float: left;
-    width: 100%;
     position:relative;
+    width: 100%;
 
     > .pagination {
         margin-bottom: 15px;
@@ -3604,8 +3591,8 @@ input[type="text"].dropDown-search {
     }
 
     @media print {
-        width: 950px;
         float: none;
+        width: 950px;
     }
 }
 
@@ -3619,13 +3606,13 @@ input[type="text"].dropDown-search {
 .guidePreview {
     background-size: 50px 50px;
     bottom: 40px;
+    float: right;
+    height: 600px;
     min-height: 480px;
     overflow: hidden;
     top: 40px;
     width: 400px;
     z-index: 1999999;
-    float: right;
-    height: 600px;
 }
 
 .guidePreviewFrame {
@@ -3633,92 +3620,98 @@ input[type="text"].dropDown-search {
     height: 1500px;
     left: 0;
     top: @lineHeight-default + 10;
-    width: 1220px;
     .transform(scale(0.30));
     .transform-origin(0 0);
+    width: 1220px;
+
     @media print {
         .transform(scale(0.75));
     }
 }
 
 .guideTop {
-    padding: 10px 10px 10px 10px;
     margin-left: 10px;
     margin-right:10px;
     margin-top: 0px;
+    padding: 10px 10px 10px 10px;
+
     @media print {
         width: 950px;
     }
 }
 
 .guideTitle {
-    padding: 10px 10px 10px 10px;
     margin-left: 10px;
     margin-right:10px;
     margin-top: 0px;
+    padding: 10px 10px 10px 10px;
 }
 
 .guideOverview {
-    padding: 10px 10px 10px 10px;
+    float: left;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 20px;
-    float: left;
+    padding: 10px 10px 10px 10px;
+
     @media print {
-        width: 950px;
         float: none;
+        width: 950px;
     }
 }
 
 .guideDescription {
+    float: left;
     padding: 10px 10px 10px 10px;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 20px;
     width: 425px;
-    float: left;
+
     @media print {
-        width: 950px;
         float: none;
+        width: 950px;
     }
 }
 
 .guideModuleReferences {
-    padding: 10px 10px 10px 10px;
+    float: left;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 20px;
+    padding: 10px 10px 10px 10px;
     width: 425px;
-    float: left;
+
     @media print {
-        width: 950px;
         float: none;
+        width: 950px;
     }
 }
 
 .guideTips {
-    padding: 10px 10px 10px 10px;
+    background-color: #E6DDDD;
+    float: left;
     margin-left: 10px;
     margin-right: 10px;
     margin-top : 20px;
-    background-color: #E6DDDD;
-    margin-top: 20px;
+    padding: 10px 10px 10px 10px;
     width: 425px;
-    float: left;
+
     @media print {
-        width: 950px;
         float: none;
+        width: 950px;
     }
 }
 
 .guideRelatedTemplate {
-    float: left;
     display: table;
-    vertical-align: middle;
+    float: left;
     padding: 10px 10px 10px 10px;
+    vertical-align: middle;
 }
 
-.guideRelatedTemplate iframe,.guideRelatedTemplate.text {
+.guideRelatedTemplate iframe,
+.guideRelatedTemplate.text {
     display: table-cell;
     vertical-align: middle;
 }
@@ -3745,14 +3738,31 @@ input[type="text"].dropDown-search {
 
 .guideControls {
     .piped;
+
     margin-top: 0px;
     margin-right: 35px;
     text-align: right;
+
     form {
         display: inline;
     }
+
     li {
         .piped-item;
+    }
+}
+
+.popup[name=productionGuide] {
+    width: 1010px;
+}
+
+.popup[name=productionGuidePrintout] {
+    top: 0;
+    visibility: hidden;
+    width: 1010px;
+
+    @media print {
+        visibility: visible;
     }
 }
 
