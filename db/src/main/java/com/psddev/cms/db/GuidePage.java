@@ -32,15 +32,12 @@ public class GuidePage extends Record {
 
     @ToolUi.Note("Production Guide summary for this page type")
     @DisplayName("Summary")
-    @Guide.Description("The summary should provide high level instruction regarding editorial programming of the page. The guide is considered incomplete without a summary.")
     ReferentialText description;
 
     @ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
-    @Guide.Description ("The sample page is a published page (it must have a live permalink) that is shown in the production guide as an example of proper programming. The guide will graphically highlight the location of each section on the sample page.")
     private Content samplePage;
 
     @ToolUi.Note("Sample Page snapshot image for used for Printouts")
-    @Guide.Description ("When printing the production guide, this image is printed (following the Summary) in lieu of the live samplePage.")
     private StorageItem samplePageSnapshot;
 
     @ToolUi.Note("Production Guide section descriptions for this page/template")

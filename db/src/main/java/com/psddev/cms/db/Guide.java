@@ -1,22 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.cms.db.GuideSection;
-import com.psddev.cms.db.ToolUi;
-import com.psddev.cms.db.GuideType.GuideField;
-import com.psddev.cms.db.GuideType.Static;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.StorageItem;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +7,11 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.StorageItem;
 
 /**
  * A Production Guide is Editor-oriented Help documentation providing guidance on how to create and organize content for a site. It's content
@@ -47,7 +35,6 @@ public class Guide extends Record {
     private List<Page> templatesToIncludeInGuide;
 
     @ToolUi.Note("Production Guide Overview Section")
-    @Guide.Description("The overview is first page(s) of the Production Guide and is considered necessary for a useful experience")
     private ReferentialText overview;
 
     public String getTitle() {
@@ -266,43 +253,4 @@ public class Guide extends Record {
         }
 
     }
-
-    /* Annotation processors */
-
-    /** Annotation allows Production description content for fields */
-    @Documented
-    @Inherited
-    @ObjectField.AnnotationProcessorClass(DescriptionProcessor.class)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD })
-    public @interface Description {
-        String value() default "";
-    }
-
-    private static class DescriptionProcessor implements
-            ObjectField.AnnotationProcessor<Description> {
-
-        @Override
-        public void process(ObjectType type, ObjectField field,
-                Description annotation) {
-            // find/create a GuideType object for the field's type
-            // and then add the annotated description
-            GuideType guide = GuideType.Static.findOrCreateGuide(field);
-            GuideField gf = guide.getGuideField(field.getInternalName());
-            if (gf != null) {
-                ReferentialText currentDesc = gf.getDescription();
-                if (currentDesc == null || currentDesc.isEmpty()
-                        || gf.isFromAnnotation() == true) {
-                    ReferentialText descText = new ReferentialText();
-                    descText.add(annotation.value());
-                    if (!descText.equals(currentDesc)) {
-                        GuideType.Static.setDescription(field, descText, true);
-                    }
-                }
-            }
-
-        }
-
-    }
-
 }

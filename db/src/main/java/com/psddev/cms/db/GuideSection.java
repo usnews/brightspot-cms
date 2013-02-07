@@ -17,7 +17,6 @@ public class GuideSection extends Record {
 
     @Required
     @ToolUi.Note("Section name in template definition")
-    @Guide.Description("The section name must match the name defined in the template exactly. This happens naturally as these guide sections get automatically created. However, if a section name is changed on the template definition at a later time, it needs to be changed in this production guide object as well. Sections without names and container-only sections cannot have production guide content.")
     private String sectionName;
 
     // Would rather use this for uniqueness, but at this time, the sectionId can change anytime
