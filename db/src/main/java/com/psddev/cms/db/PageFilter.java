@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -388,6 +389,17 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywords", keywords);
                 seo.put("keywordsString", keywords.toString());
             }
+
+            StringBuilder robots = new StringBuilder();
+            for (Iterator<Seo.RobotsValue> i = State.getInstance(mainObject).as(Seo.ObjectModification.class).getRobots().iterator(); i.hasNext(); ) {
+                Seo.RobotsValue value = i.next();
+                robots.append(value.name().toLowerCase(Locale.ENGLISH));
+                if (i.hasNext()) {
+                    robots.append(",");
+                }
+            }
+
+            seo.put("robots", robots.toString());
             request.setAttribute("seo", seo);
 
             // Try to set the right content type based on the extension.
@@ -978,6 +990,7 @@ public class PageFilter extends AbstractFilter {
 
                 if (section != null) {
                     map.put("sectionName", section.getName());
+                    map.put("sectionId", section.getId().toString());
                 }
 
                 Object concrete = Static.peekConcreteObject(request);

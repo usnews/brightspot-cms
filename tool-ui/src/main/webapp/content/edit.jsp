@@ -5,6 +5,8 @@ com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
+com.psddev.cms.db.Guide,
+com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Section,
@@ -12,6 +14,7 @@ com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolSearch,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -31,6 +34,7 @@ java.io.StringWriter,
 java.util.ArrayList,
 java.util.List,
 java.util.ListIterator,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
@@ -57,25 +61,6 @@ Template template = null;
 if (selected != null) {
     template = state.as(Template.ObjectModification.class).getDefault();
 }
-if (template == null) {
-    template = Query.findById(
-            Template.class, wp.uuidParam("templateId"));
-    if (template != null) {
-        Set<ObjectType> types = template.getContentTypes();
-        if (types != null && types.size() == 1) {
-            for (ObjectType type : types) {
-                selected = wp.findOrReserve(type.getId());
-                state = State.getInstance(selected);
-            }
-        }
-    }
-    if (selected != null) {
-        state.as(Template.ObjectModification.class).setDefault(template);
-    } else {
-        wp.redirect("/");
-        return;
-    }
-}
 
 UUID newTypeId = wp.uuidParam("newTypeId");
 if (newTypeId != null) {
@@ -88,6 +73,17 @@ if (selected instanceof Page) {
     sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
     if (sectionContent != null) {
         editing = sectionContent;
+        UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
+
+        if (variationId != null) {
+            State editingState = State.getInstance(editing);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> variationValues = (Map<String, Object>) editingState.getValue("variations/" + variationId.toString());
+
+            if (variationValues != null) {
+                editingState.setValues(variationValues);
+            }
+        }
     }
 }
 
@@ -164,6 +160,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.write("</a>");
                     }
                 %></span><% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %></h1>
+
+                <%
+                GuidePage guide = Guide.Static.getPageProductionGuide(template);
+                if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
+                    wp.write("<a class=\"action action-guide\" target=\"guideType\" href=\"", wp.objectUrl("/content/guideType.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">Guide</a>");
+                }
+                %>
 
                 <% if (!State.getInstance(editing).isNew()) { %>
                     <div class="widget-content-new">
@@ -242,7 +245,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
                         wp.write(wp.getId());
                         wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                        wp.write(draft != null && draft.getSchedule() != null ? DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") : "");
+                        wp.write(draft != null && draft.getSchedule() != null ?
+                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
+                                wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
                         wp.write("\">");
                         wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
                     }
@@ -440,6 +445,10 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 // Load the preview.
                 loadPreview = $.throttle(2000, function() {
+                    if (!$preview.is(':visible')) {
+                        return;
+                    }
+
                     var newFormData = $contentForm.serialize();
 
                     // If the form inputs haven't changed, try again later.
@@ -521,6 +530,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     $previewHeading.click();
                 }
 
+                $edit.find('.inputContainer').trigger('fieldPreview-hide');
                 $edit.attr('style', oldEditStyle);
                 appendPreviewAction();
                 $preview.hide();

@@ -35,11 +35,13 @@ DatabaseEnvironment environment = state.getDatabase().getEnvironment();
 ObjectField titleField = environment.getField("cms.seo.title");
 ObjectField descriptionField = environment.getField("cms.seo.description");
 ObjectField keywordsField = environment.getField("cms.seo.keywords");
+ObjectField robotsField = environment.getField("cms.seo.robots");
 
 if (JspWidget.isUpdating(wp)) {
     wp.processField(object, titleField);
     wp.processField(object, descriptionField);
     wp.processField(object, keywordsField);
+    wp.processField(object, robotsField);
     return;
 }
 
@@ -60,7 +62,7 @@ if (type != null) {
 // --- Presentation ---
 
 for (ObjectField field : new ObjectField[] {
-        titleField, descriptionField, keywordsField }) {
+        titleField, descriptionField, keywordsField, robotsField }) {
     wp.renderField(object, field);
 }
 %><%!

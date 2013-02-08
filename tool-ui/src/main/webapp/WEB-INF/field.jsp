@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
@@ -69,7 +70,11 @@ try {
         wp.write("/");
         wp.write(wp.h(fieldName));
         wp.write("\">");
-        wp.write("<div class=\"label\"><label for=\"", wp.createId(), "\">");
+        wp.write("<div class=\"label\">");
+        if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
+            wp.write("<a class=\"action action-guide\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
+        }
+        wp.write("<label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));
         wp.write("</label></div>");
 

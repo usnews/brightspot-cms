@@ -321,7 +321,6 @@ figure,
     &:hover {
         figcaption,
         .figcatpion {
-            overflow: auto;
             white-space: normal;
         }
     }
@@ -1169,10 +1168,6 @@ table.links.table-striped {
 .time {
     text-align: right;
     width: 55px;
-    white-space: nowrap;
-}
-
-.typeLabel {
     white-space: nowrap;
 }
 
@@ -2128,7 +2123,7 @@ input[type="text"].dropDown-search {
 }
 
 .imageEditor-image {
-    margin-right: 160px; 
+    margin-right: 160px;
 
     canvas,
     img {
@@ -3273,16 +3268,17 @@ input[type="text"].dropDown-search {
     }
 }
 
-.rte-textarea {
+.rte-source {
     border-style: none;
     .box-shadow(none);
-}
-
-.rte-source {
     font-family: @fontFamily-code;
     font-size: 11px;
     min-height: 10em;
-    padding: 0;
+    padding: 4px;
+
+    &:focus {
+        .box-shadow(none);
+    }
 }
 
 .rte-toolbar {
@@ -3667,6 +3663,213 @@ input[type="text"].dropDown-search {
     top: 86px;
 }
 
+// --- Production Guide ---
+
+.widget-content > .action-guide {
+    position: absolute;
+    right: 65px;
+    top: 7px;
+}
+
+.inputContainer > .label {
+    > .action-guide {
+        .icon-only;
+
+        float: right;
+        color: fade(@color-text, 25%);
+
+        &:hover {
+            color: fade(@color-text, 40%);
+        }
+    }
+}
+
+.guideForm {
+     margin: -10px;
+     overflow: hidden;
+     padding: 10px 10px 10px 10px;
+     width: 1000px;
+}
+
+.guideForm-main {
+    float: left;
+    position:relative;
+    width: 100%;
+
+    > .pagination {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    @media print {
+        float: none;
+        width: 950px;
+    }
+}
+
+.guideButtons {
+    margin: 6px 0 15px 0;
+    overflow: hidden;
+    padding: 10px 30px;
+    width: 950px;
+}
+
+.guidePreview {
+    background-size: 50px 50px;
+    bottom: 40px;
+    float: right;
+    height: 600px;
+    min-height: 480px;
+    overflow: hidden;
+    top: 40px;
+    width: 400px;
+    z-index: 1999999;
+}
+
+.guidePreviewFrame {
+    border-style: none;
+    height: 1500px;
+    left: 0;
+    top: @lineHeight-default + 10;
+    .transform(scale(0.30));
+    .transform-origin(0 0);
+    width: 1220px;
+
+    @media print {
+        .transform(scale(0.75));
+    }
+}
+
+.guideTop {
+    margin-left: 10px;
+    margin-right:10px;
+    margin-top: 0px;
+    padding: 10px 10px 10px 10px;
+
+    @media print {
+        width: 950px;
+    }
+}
+
+.guideTitle {
+    margin-left: 10px;
+    margin-right:10px;
+    margin-top: 0px;
+    padding: 10px 10px 10px 10px;
+}
+
+.guideOverview {
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    padding: 10px 10px 10px 10px;
+
+    @media print {
+        float: none;
+        width: 950px;
+    }
+}
+
+.guideDescription {
+    float: left;
+    padding: 10px 10px 10px 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    width: 425px;
+
+    @media print {
+        float: none;
+        width: 950px;
+    }
+}
+
+.guideModuleReferences {
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    padding: 10px 10px 10px 10px;
+    width: 425px;
+
+    @media print {
+        float: none;
+        width: 950px;
+    }
+}
+
+.guideTips {
+    background-color: #E6DDDD;
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top : 20px;
+    padding: 10px 10px 10px 10px;
+    width: 425px;
+
+    @media print {
+        float: none;
+        width: 950px;
+    }
+}
+
+.guideRelatedTemplate {
+    display: table;
+    float: left;
+    padding: 10px 10px 10px 10px;
+    vertical-align: middle;
+}
+
+.guideRelatedTemplate iframe,
+.guideRelatedTemplate.text {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.guideFieldDescription {
+    padding: 10px 10px 10px 10px;
+}
+
+.guideFootnote {
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    padding: 10px 0 10px 0;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.guideControls {
+    .piped;
+
+    margin-top: 0px;
+    margin-right: 35px;
+    text-align: right;
+
+    form {
+        display: inline;
+    }
+
+    li {
+        .piped-item;
+    }
+}
+
+.popup[name='guideType'] {
+    width: 1010px;
+}
+
+.popup[name='guidePrint'] {
+    top: 0;
+    visibility: hidden;
+    width: 1010px;
+
+    @media print {
+        visibility: visible;
+    }
+}
+
 // --- Widgets ---
 
 .widget-drafts h1 { .icon; .icon-edit; }
@@ -3828,6 +4031,115 @@ input[type="text"].dropDown-search {
     position: relative;
 }
 
+// Recent activity widget.
+.widget-recentActivity {
+    h1 {
+        .icon;
+        .icon-list;
+    }
+}
+
+.recentActivity-filters {
+    overflow: hidden;
+
+    select {
+        width: 100%;
+    }
+}
+
+.recentActivity-filters-itemType,
+.recentActivity-filters-user {
+    .box-sizing(border-box);
+    float: left;
+}
+
+.recentActivity-filters-itemType {
+    width: 20%;
+}
+
+.recentActivity-filters-user {
+    padding-left: 2.5em;
+    width: 80%;
+}
+
+.recentActivity-filters-by {
+    display: inline-block;
+    margin-left: -2.5em;
+    text-align: center;
+    width: 2.5em;
+}
+
+// Sitemap widget.
+.widget-sitemap {
+    h1 {
+        .icon;
+        .icon-sitemap;
+    }
+}
+
+.sitemap-filters {
+    overflow: hidden;
+
+    select {
+        width: 100%;
+    }
+}
+
+.sitemap-filters-itemType,
+.sitemap-filters-type,
+.sitemap-filters-value {
+    .box-sizing(border-box);
+    float: left;
+}
+
+.sitemap-filters-itemType {
+    width: 20%;
+}
+
+.sitemap-filters-type {
+    padding: 0 5px 0 3em;
+    width: 30%;
+}
+
+.sitemap-filters-with {
+    display: inline-block;
+    margin-left: -3em;
+    text-align: center;
+    width: 3em;
+}
+
+.sitemap-filters-value {
+    padding-right: 0;
+    width: 50%;
+
+    .objectId-select {
+        width: 100%;
+    }
+
+    .objectId-clear {
+        display: none !important;
+    }
+}
+
+.sitemap-warning {
+    .message;
+    .message-warning;
+
+    &.sitemap-warning-value {
+        position: relative;
+
+        &:after {
+            content: '';
+            border-color: transparent transparent #ed9 transparent;
+            border-style: solid;
+            border-width: 10px;
+            position: absolute;
+            right: 25%;
+            top: -20px;
+        }
+    }
+}
+
 // Soft validation based on suggested sizes.
 .suggestedSize-tooShort:after,
 .suggestedSize-tooLong:after {
@@ -3857,12 +4169,14 @@ input[type="text"].dropDown-search {
 .action-edit { .icon; .icon-pencil; }
 .action-delete { .icon; .icon-trash; }
 .action-draft { .icon; .icon-save; }
+.action-guide { .icon; .icon-question-sign; }
 .action-image-edit { .icon; .icon-magic; }
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }
 .action-logOut { .icon; .icon-signout; }
 .action-new { .icon; .icon-plus-sign; }
 .action-preview { .icon; .icon-eye-open; }
+.action-print { .icon; .icon-print; }
 .action-remove { .icon; .icon-minus-sign; }
 .action-reset { .icon; .icon-remove; }
 .action-result { .icon; .icon-list-alt; }
@@ -4007,20 +4321,19 @@ input[type="text"].dropDown-search {
 
 .fieldPreview-toggle {
     .icon;
-    .icon-question-sign;
+    .icon-eye-open;
     .icon-only;
     .link;
 
-    color: @color-text;
+    color: fade(@color-text, 30%);
     display: none;
-    .opacity(0.5);
     padding: 5px;
     position: absolute;
     right: 0;
     top: 0;
 
     &:hover {
-        .opacity(1);
+        color: fade(@color-text, 50%);
     }
 
     .inputContainer:hover > & {

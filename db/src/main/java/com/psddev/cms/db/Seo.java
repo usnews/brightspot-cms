@@ -153,47 +153,72 @@ public final class Seo {
         }
     }
 
+    public enum RobotsValue {
+        NOINDEX,
+        NOFOLLOW,
+        NOARCHIVE,
+        NOSNIPPET,
+        NOODP,
+        NOTRANSLATE,
+        NOIMAGEINDEX;
+    }
+
     /** Modification of an object for specifying SEO-related overrides. */
+    @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class ObjectModification extends Modification<Object> {
 
-        private String cms$seo$title;
-        private String cms$seo$description;
-        private Set<String> cms$seo$keywords;
+        private String title;
+        private String description;
+        private Set<String> keywords;
+
+        @ToolUi.NoteHtml("See <a href=\"https://developers.google.com/webmasters/control-crawl-index/docs/robots_meta_tag\" target=\"_blank\">robots meta tag documentation</a> for more information.")
+        private Set<RobotsValue> robots;
 
         public ObjectModification() {
         }
 
         /** Returns the page title override. */
         public String getTitle() {
-            return cms$seo$title;
+            return title;
         }
 
         /** Sets the page title override. */
         public void setTitle(String title) {
-            this.cms$seo$title = title;
+            this.title = title;
         }
 
         /** Returns the meta description override. */
         public String getDescription() {
-            return cms$seo$description;
+            return description;
         }
 
         /** Sets the meta description override. */
         public void setDescription(String description) {
-            this.cms$seo$description = description;
+            this.description = description;
         }
 
         /** Returns the meta keywords override. */
         public Set<String> getKeywords() {
-            if (cms$seo$keywords == null) {
-                cms$seo$keywords = new LinkedHashSet<String>();
+            if (keywords == null) {
+                keywords = new LinkedHashSet<String>();
             }
-            return cms$seo$keywords;
+            return keywords;
         }
 
         /** Sets the meta keywords override. */
         public void setKeywords(Set<String> keywords) {
-            this.cms$seo$keywords = keywords;
+            this.keywords = keywords;
+        }
+
+        public Set<RobotsValue> getRobots() {
+            if (robots == null) {
+                robots = new LinkedHashSet<RobotsValue>();
+            }
+            return robots;
+        }
+
+        public void setRobots(Set<RobotsValue> robots) {
+            this.robots = robots;
         }
     }
 

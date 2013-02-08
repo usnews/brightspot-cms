@@ -1,31 +1,5 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Content;
-import com.psddev.cms.db.Draft;
-import com.psddev.cms.db.History;
-import com.psddev.cms.db.Page;
-import com.psddev.cms.db.Renderer;
-import com.psddev.cms.db.Site;
-import com.psddev.cms.db.Template;
-import com.psddev.cms.db.ToolFormWriter;
-import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.db.Trash;
-
-import com.psddev.dari.db.Application;
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.StateStatus;
-import com.psddev.dari.util.BuildDebugServlet;
-import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.WebPageContext;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -36,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +24,32 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
+
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.History;
+import com.psddev.cms.db.Page;
+import com.psddev.cms.db.Renderer;
+import com.psddev.cms.db.Site;
+import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolFormWriter;
+import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.db.Trash;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
+import com.psddev.dari.db.StateStatus;
+import com.psddev.dari.util.BuildDebugServlet;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeReference;
+import com.psddev.dari.util.WebPageContext;
 
 /**
  * {@link WebPageContext} with extra methods that work well with
@@ -558,6 +559,33 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        Template template = Query.from(Template.class).where("_id = ?", param(UUID.class, "templateId")).first();
+
+        if (template != null) {
+            if (object == null) {
+                Set<ObjectType> contentTypes = template.getContentTypes();
+
+                if (!contentTypes.isEmpty()) {
+                    object = contentTypes.iterator().next().createObject(objectId);
+                }
+            }
+
+            if (object != null) {
+                State.getInstance(object).as(Template.ObjectModification.class).setDefault(template);
+            }
+
+        } else if (object != null) {
+            State state = State.getInstance(object);
+
+            if (state.isNew()) {
+                List<Template> templates = Template.Static.findUsable(object);
+
+                if (!templates.isEmpty()) {
+                    state.as(Template.ObjectModification.class).setDefault(templates.iterator().next());
+                }
+            }
+        }
+
         return object;
     }
 
@@ -882,6 +910,99 @@ public class ToolPageContext extends WebPageContext {
         write("</div></body></html>");
     }
 
+    /**
+     * Writes a {@code <select>} tag that allows the user to pick a content
+     * type.
+     *
+     * @param types Types that the user is allowed to select from.
+     * If {@code null}, all content types will be available.
+     * @param selectedType Type that should be initially selected.
+     * @param allLabel Label for the option that selects all types.
+     * If {@code null}, the option won't be available.
+     * @param attributes Attributes for the {@code <select>} tag.
+     */
+    public void typeSelect(
+            Iterable<ObjectType> types,
+            ObjectType selectedType,
+            String allLabel,
+            Object... attributes) throws IOException {
+
+        if (types == null) {
+            types = Database.Static.getDefault().getEnvironment().getTypes();
+        }
+
+        List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
+
+        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
+            ObjectType type = i.next();
+
+            if (!type.isConcrete()) {
+                i.remove();
+            }
+        }
+
+        Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
+        List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
+
+        mainTypes.retainAll(typesList);
+        typesList.removeAll(mainTypes);
+        typeGroups.put("Main Content Types", mainTypes);
+        typeGroups.put("Misc Content Types", typesList);
+
+        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext(); ) {
+            List<ObjectType> typeGroup = i.next();
+
+            if (typeGroup.isEmpty()) {
+                i.remove();
+
+            } else {
+                Collections.sort(typeGroup);
+            }
+        }
+
+        PageWriter writer = getWriter();
+
+        writer.start("select", attributes);
+
+            if (allLabel != null) {
+                writer.start("option", "value", "").html(allLabel).end();
+            }
+
+            if (typeGroups.size() == 1) {
+                typeSelectGroup(writer, selectedType, typeGroups.values().iterator().next());
+
+            } else {
+                for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
+                    writer.start("optgroup", "label", entry.getKey());
+                        typeSelectGroup(writer, selectedType, entry.getValue());
+                    writer.end();
+                }
+            }
+
+        writer.end();
+    }
+
+    private static void typeSelectGroup(PageWriter writer, ObjectType selectedType, List<ObjectType> types) throws IOException {
+        String previousLabel = null;
+
+        for (ObjectType type : types) {
+            String label = Static.getObjectLabel(type);
+
+            writer.start("option",
+                    "selected", type.equals(selectedType) ? "selected" : null,
+                    "value", type.getId());
+                writer.html(label);
+                if (label.equals(previousLabel)) {
+                    writer.html(" (");
+                    writer.html(type.getInternalName());
+                    writer.html(")");
+                }
+            writer.end();
+
+            previousLabel = label;
+        }
+    }
+
     // --- AuthenticationFilter bridge ---
 
     /** @see AuthenticationFilter.Static#requireUser */
@@ -991,6 +1112,29 @@ public class ToolPageContext extends WebPageContext {
         private Static() {
         }
 
+        private static String notTooShort(String word) {
+            char[] letters = word.toCharArray();
+            StringBuilder not = new StringBuilder();
+            int index = 0;
+            int length = letters.length;
+
+            for (; index < 5 && index < length; ++ index) {
+                char letter = letters[index];
+
+                if (Character.isWhitespace(letter)) {
+                    not.append('\u00a0');
+                } else {
+                    not.append(letter);
+                }
+            }
+
+            if (index < length) {
+                not.append(letters, index, length - index);
+            }
+
+            return not.toString();
+        }
+
         /**
          * Returns a label, or the given {@code defaultLabel} if one can't be
          * found, for the given {@code object}.
@@ -1002,18 +1146,18 @@ public class ToolPageContext extends WebPageContext {
                 String label = state.getLabel();
 
                 if (ObjectUtils.to(UUID.class, label) == null) {
-                    return label;
+                    return notTooShort(label);
                 }
             }
 
-            return defaultLabel;
+            return notTooShort(defaultLabel);
         }
 
         /** Returns a label for the given {@code object}. */
         public static String getObjectLabel(Object object) {
             State state = State.getInstance(object);
 
-            return state != null ? state.getLabel() : "Not Available";
+            return notTooShort(state != null ? state.getLabel() : "Not Available");
         }
 
         /**
@@ -1031,7 +1175,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            return defaultLabel;
+            return notTooShort(defaultLabel);
         }
 
         /** Returns a label for the type of the given {@code object}. */

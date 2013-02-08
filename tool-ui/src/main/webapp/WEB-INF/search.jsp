@@ -64,23 +64,6 @@ if (validTypes.isEmpty()) {
     validTypes.addAll(ObjectType.getInstance(Content.class).findConcreteTypes());
 }
 
-// Segregate the valid types into main and misc.
-List<ObjectType> templatedTypes = Template.Static.findUsedTypes(wp.getSite());
-List<ObjectType> mainTypes = new ArrayList<ObjectType>(validTypes);
-List<ObjectType> miscTypes = new ArrayList<ObjectType>();
-
-for (Iterator<ObjectType> i = mainTypes.iterator(); i.hasNext(); ) {
-    ObjectType type = i.next();
-
-    if (!templatedTypes.contains(type)) {
-        i.remove();
-        miscTypes.add(type);
-    }
-}
-
-Collections.sort(mainTypes);
-Collections.sort(miscTypes);
-
 String resultTarget = wp.createId();
 String newJsp = (String) request.getAttribute("newJsp");
 String newTarget = (String) request.getAttribute("newTarget");
@@ -107,51 +90,14 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                 writer.tag("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
                 writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
 
-                if (mainTypes.size() + miscTypes.size() > 1) {
-                    writer.start("select",
+                if (!validTypes.isEmpty()) {
+                    wp.typeSelect(
+                            validTypes,
+                            selectedType,
+                            "All Types",
                             "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
                             "data-searchable", true);
-
-                        writer.start("option", "value", "").html("All Types").end();
-
-                        if (mainTypes.size() > 0) {
-                            writer.start("optgroup", "label", "Main Content Types");
-                                for (ObjectType type : mainTypes) {
-                                    writer.start("option",
-                                            "value", type.getId(),
-                                            "selected", type.equals(selectedType) ? "selected" : null);
-                                        writer.objectLabel(type);
-                                    writer.end();
-                                }
-                            writer.end();
-                        }
-
-                        if (miscTypes.size() > 0) {
-                            writer.start("optgroup", "label", "Misc Content Types");
-                                String previousName = null;
-
-                                for (ObjectType type : miscTypes) {
-                                    String currentName = type.getLabel();
-
-                                    writer.start("option",
-                                            "value", type.getId(),
-                                            "selected", type.equals(selectedType) ? "selected" : null);
-                                        writer.objectLabel(type);
-
-                                        if (ObjectUtils.equals(previousName, currentName)) {
-                                            writer.html(" (");
-                                            writer.html(type.getObjectClassName());
-                                            writer.html(")");
-                                        }
-                                    writer.end();
-
-                                    previousName = currentName;
-                                }
-                            writer.end();
-                        }
-
-                    writer.end();
                 }
 
             writer.end();
@@ -267,34 +213,12 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                         writer.tag("input", "type", "submit", "value", "New " + wp.getObjectLabel(type), "style", "width: auto;");
 
                     } else {
-                        writer.start("select", "name", "typeId", "data-searchable", true);
-
-                            if (mainTypes.size() > 0) {
-                                writer.start("optgroup", "label", "Main Content Types");
-                                    for (ObjectType type : mainTypes) {
-                                        writer.start("option",
-                                                "value", type.getId(),
-                                                "selected", type.equals(selectedType) ? "selected" : null);
-                                            writer.objectLabel(type);
-                                        writer.end();
-                                    }
-                                writer.end();
-                            }
-
-                            if (miscTypes.size() > 0) {
-                                writer.start("optgroup", "label", "Misc Content Types");
-                                    for (ObjectType type : miscTypes) {
-                                        writer.start("option",
-                                                "value", type.getId(),
-                                                "selected", type.equals(selectedType) ? "selected" : null);
-                                            writer.objectLabel(type);
-                                        writer.end();
-                                    }
-                                writer.end();
-                            }
-
-                        writer.end();
-
+                        wp.typeSelect(
+                                validTypes,
+                                selectedType,
+                                null,
+                                "name", "typeId",
+                                "data-searchable", true);
                         writer.tag("input", "type", "submit", "value", "New");
                     }
 

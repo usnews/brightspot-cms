@@ -1,18 +1,27 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Template;
-
-import com.psddev.dari.db.Record;
-import com.psddev.dari.util.ObjectUtils;
-
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolRole;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectUtils;
+
 /** Brightspot CMS. */
 public class CmsTool extends Tool {
 
+    private static final String ATTRIBUTE_PREFIX = CmsTool.class.getName() + ".";
+    private static final String CSS_WRITTEN = ATTRIBUTE_PREFIX + ".cssWritten";
+
     private String companyName;
+    private ToolRole defaultRole;
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -115,6 +124,24 @@ public class CmsTool extends Tool {
         this.companyName = companyName;
     }
 
+    /**
+     * Returns the default role.
+     *
+     * @return May be {@code null}.
+     */
+    public ToolRole getDefaultRole() {
+        return defaultRole;
+    }
+
+    /**
+     * Sets the default role.
+     *
+     * @param defaultRole May be {@code null}.
+     */
+    public void setDefaultRole(ToolRole defaultRole) {
+        this.defaultRole = defaultRole;
+    }
+
     /** Returns the extra CSS. */
     public String getExtraCss() {
         return extraCss;
@@ -184,6 +211,39 @@ public class CmsTool extends Tool {
         return "/_preview";
     }
 
+    /** Writes the custom CSS to the given {@code out}. */
+    public void writeCss(HttpServletRequest request, Writer out) throws IOException {
+        if (request.getAttribute(CSS_WRITTEN) != null) {
+            return;
+        }
+
+        request.setAttribute(CSS_WRITTEN, Boolean.TRUE);
+
+        @SuppressWarnings("all")
+        HtmlWriter writer = new HtmlWriter(out);
+
+        writer.start("style", "type", "text/css");
+            writer.css(".cms-textAlign-left", "text-align", "left");
+            writer.css(".cms-textAlign-center", "text-align", "center");
+            writer.css(".cms-textAlign-right", "text-align", "right");
+
+            for (CmsTool.CssClassGroup group : getTextCssClassGroups()) {
+                String groupName = group.getInternalName();
+
+                for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                    writer.write(".cms-");
+                    writer.write(groupName);
+                    writer.write("-");
+                    writer.write(cssClass.getInternalName());
+                    writer.write("{");
+                    writer.write(cssClass.getCss());
+                    writer.write("}");
+                }
+            }
+
+        writer.end();
+    }
+
     // --- Tool support ---
 
     @Override
@@ -193,6 +253,7 @@ public class CmsTool extends Tool {
         // Areas.
         plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
         plugins.add(createArea2("Admin", "admin", "admin", "/admin/"));
+        plugins.add(createArea2("Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
         plugins.add(createArea2("Templates & Sections", "adminTemplates", "admin/adminTemplates", "/admin/templates.jsp"));

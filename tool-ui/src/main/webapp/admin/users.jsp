@@ -20,6 +20,11 @@ if (wp.requirePermission("area/admin/adminUsers")) {
 String queryString = wp.param("query");
 Object selected = wp.findOrReserve(ToolUser.class, ToolRole.class);
 State selectedState = State.getInstance(selected);
+
+if (selected instanceof ToolUser && selectedState.isNew()) {
+    ((ToolUser) selected).setRole(wp.getCmsTool().getDefaultRole());
+}
+
 if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     return;
 }

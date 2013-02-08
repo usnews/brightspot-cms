@@ -21,6 +21,13 @@ import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
+
 /**
  * Renders the given {@code value} safely in HTML context.
  *
@@ -216,6 +223,8 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     items = items.subList(beginIndex, endIndex);
                 }
             }
+
+            Application.Static.getInstance(CmsTool.class).writeCss(request, writer);
 
             for (Object item : items) {
                 if (item instanceof String) {

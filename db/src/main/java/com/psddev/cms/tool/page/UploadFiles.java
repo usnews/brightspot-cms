@@ -1,26 +1,5 @@
 package com.psddev.cms.tool.page;
 
-import com.psddev.cms.db.Draft;
-import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWriter;
-import com.psddev.cms.tool.ToolPageContext;
-
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.DatabaseEnvironment;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectFieldComparator;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.AggregateException;
-import com.psddev.dari.util.ErrorUtils;
-import com.psddev.dari.util.ImageMetadataMap;
-import com.psddev.dari.util.IoUtils;
-import com.psddev.dari.util.MultipartRequest;
-import com.psddev.dari.util.MultipartRequestFilter;
-import com.psddev.dari.util.RoutingFilter;
-import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,9 +14,29 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import org.apache.commons.fileupload.FileItem;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.psddev.cms.db.Draft;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
+import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.DatabaseEnvironment;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectFieldComparator;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.AggregateException;
+import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.ImageMetadataMap;
+import com.psddev.dari.util.IoUtils;
+import com.psddev.dari.util.MultipartRequest;
+import com.psddev.dari.util.MultipartRequestFilter;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 
 @RoutingFilter.Path(application = "cms", value = "/content/uploadFiles")
 @SuppressWarnings("serial")
@@ -90,6 +89,21 @@ public class UploadFiles extends PageServlet {
                     for (FileItem file : files) {
                         StringBuilder path = new StringBuilder();
                         String random = UUID.randomUUID().toString().replace("-", "");
+                        String fileName = file.getName();
+                        int lastDotAt = fileName.indexOf('.');
+                        String extension;
+
+                        if (lastDotAt > -1) {
+                            extension = fileName.substring(lastDotAt);
+                            fileName = fileName.substring(0, lastDotAt);
+
+                        } else {
+                            extension = "";
+                        }
+
+                        if (ObjectUtils.isBlank(fileName)) {
+                            fileName = UUID.randomUUID().toString().replace("-", "");
+                        }
 
                         path.append(random.substring(0, 2));
                         path.append('/');
@@ -97,7 +111,8 @@ public class UploadFiles extends PageServlet {
                         path.append('/');
                         path.append(random.substring(4));
                         path.append('/');
-                        path.append(StringUtils.toNormalized(file.getName()));
+                        path.append(StringUtils.toNormalized(fileName));
+                        path.append(extension);
 
                         Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
 

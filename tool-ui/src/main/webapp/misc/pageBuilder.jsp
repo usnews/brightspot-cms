@@ -15,7 +15,7 @@ com.psddev.dari.db.State
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
-if (wp.requireUser()) {
+if (wp.requirePermission("area/dashboard")) {
     return;
 }
 

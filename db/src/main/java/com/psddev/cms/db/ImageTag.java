@@ -768,7 +768,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /** Returns all the attributes that will get placed on the img tag. */
-        private Map<String, String> toAttributes() {
+        public Map<String, String> toAttributes() {
             // set all the attributes
             Map<String, String> attributes = new LinkedHashMap<String, String>();
 
@@ -920,6 +920,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (this.attributes != null) {
                     attributes.putAll(this.attributes);
                 }
+            }
+
+            if (standardImageSize != null) {
+                attributes.put("data-size", standardImageSize.getInternalName());
             }
 
             return attributes;

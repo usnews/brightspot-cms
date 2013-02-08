@@ -1,9 +1,13 @@
 <%@ page import="
 
+com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.db.ToolUser,
 
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
+com.psddev.dari.util.AuthenticationException,
+com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Password,
 com.psddev.dari.util.PasswordException,
@@ -24,6 +28,7 @@ Object fieldValue = state.getValue(fieldName);
 
 String inputName = (String) request.getAttribute("inputName");
 String isNewName = inputName + "/isNew";
+String currentPasswordName = inputName + "/currentPassword";
 String password1Name = inputName + "/password1";
 String password2Name = inputName + "/password2";
 
@@ -33,6 +38,26 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (ObjectUtils.isBlank(password)) {
             state.addError(field, "Password can't be blank!");
         } else {
+            if (!state.isNew()) {
+                String currentPassword = wp.param(currentPasswordName);
+                ToolUser user = wp.getUser();
+
+                if (ObjectUtils.isBlank(currentPassword)) {
+                    state.addError(field, "Must supply your current password!");
+
+                } else {
+                    AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
+                    if (authPolicy == null) {
+                        authPolicy = new ToolAuthenticationPolicy();
+                    }
+                    try {
+                        authPolicy.authenticate(user.getEmail(), currentPassword);
+                    } catch (AuthenticationException authError) {
+                        state.addError(field, "Invalid current password!");
+                    }
+                }
+            }
+
             if (!password.equals(wp.param(password2Name))) {
                 state.addError(field, "Passwords don't match!");
             } else {
@@ -60,6 +85,12 @@ String passwordContainerId = wp.createId();
     </select>
 
     <div id="<%= passwordContainerId %>" style="margin-top: 10px;">
+
+        <% if (!state.isNew()) { %>
+            <div>Your Current Password:</div>
+            <input name="<%= currentPasswordName %>" type="password">
+        <% } %>
+
         <div>New Password:</div>
         <input name="<%= password1Name %>" type="password">
         <div>Confirm Password:</div>

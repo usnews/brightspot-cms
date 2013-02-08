@@ -1,7 +1,12 @@
 package com.psddev.cms.db;
 
-import com.psddev.cms.tool.ToolPageContext;
+import java.io.IOException;
+import java.io.StringWriter;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.FormInputProcessor;
 import com.psddev.dari.db.FormLabelRenderer;
 import com.psddev.dari.db.FormWriter;
@@ -9,12 +14,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
-
-import java.io.IOException;
-import java.io.StringWriter;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import com.psddev.dari.util.Settings;
 
 public class ToolFormWriter extends FormWriter {
 
@@ -62,7 +62,10 @@ public class ToolFormWriter extends FormWriter {
                     html.string(field.getLabel());
                     html.string("] field!");
                 html.end();
-                html.object(ex);
+
+                if (!Settings.isProduction()) {
+                    html.object(ex);
+                }
             }
 
             write(string.toString());
