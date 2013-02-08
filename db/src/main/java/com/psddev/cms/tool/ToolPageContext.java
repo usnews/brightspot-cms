@@ -1,31 +1,5 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Content;
-import com.psddev.cms.db.Draft;
-import com.psddev.cms.db.History;
-import com.psddev.cms.db.Page;
-import com.psddev.cms.db.Renderer;
-import com.psddev.cms.db.Site;
-import com.psddev.cms.db.Template;
-import com.psddev.cms.db.ToolFormWriter;
-import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.db.Trash;
-
-import com.psddev.dari.db.Application;
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.StateStatus;
-import com.psddev.dari.util.BuildDebugServlet;
-import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.WebPageContext;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -36,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +24,33 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
+
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.History;
+import com.psddev.cms.db.Page;
+import com.psddev.cms.db.Renderer;
+import com.psddev.cms.db.Site;
+import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolFormWriter;
+import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.db.Trash;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
+import com.psddev.dari.db.StateStatus;
+import com.psddev.dari.util.BuildDebugServlet;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeReference;
+import com.psddev.dari.util.WebPageContext;
 
 /**
  * {@link WebPageContext} with extra methods that work well with
@@ -907,6 +909,116 @@ public class ToolPageContext extends WebPageContext {
         write("</div>");
 
         write("</div></body></html>");
+    }
+
+    /**
+     * Writes a {@code <select>} tag that allows the user to pick a content
+     * type.
+     *
+     * @param types Types that the user is allowed to select from.
+     * If {@code null}, all content types will be available.
+     * @param allLabel Label for the option that selects all types.
+     * If {@code null}, the option won't be available.
+     * @param group Whether the options should be grouped using
+     * {@code <optgroup>} tag.
+     * @param attributes Attributes for the {@code <select>} tag.
+     */
+    public void typeSelect(
+            Iterable<ObjectType> types,
+            String allLabel,
+            boolean group,
+            Object... attributes) throws IOException {
+
+        String name = null;
+
+        for (int i = 1, length = attributes.length; i < length; i += 2) {
+            if ("name".equals(ObjectUtils.to(String.class, attributes[i - 1]))) {
+                name = ObjectUtils.to(String.class, attributes[i]);
+            }
+        }
+
+        if (types == null) {
+            types = Database.Static.getDefault().getEnvironment().getTypes();
+        }
+
+        List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
+
+        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
+            ObjectType type = i.next();
+
+            if (!type.isConcrete()) {
+                i.remove();
+            }
+        }
+
+        Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
+
+        if (group) {
+            List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
+
+            mainTypes.retainAll(typesList);
+            typesList.removeAll(mainTypes);
+            typeGroups.put("Main Content Types", mainTypes);
+            typeGroups.put("Misc Content Types", typesList);
+
+        } else {
+            typeGroups.put("Content Types", typesList);
+        }
+
+        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext(); ) {
+            List<ObjectType> typeGroup = i.next();
+
+            if (typeGroup.isEmpty()) {
+                i.remove();
+
+            } else {
+                Collections.sort(typeGroup);
+            }
+        }
+
+        PageWriter writer = getWriter();
+        UUID selectedId = param(UUID.class, name);
+
+        writer.start("select", attributes);
+
+            if (allLabel != null) {
+                writer.start("option", "value", "").html(allLabel).end();
+            }
+
+            if (typeGroups.size() == 1) {
+                typeSelectGroup(writer, selectedId, typeGroups.values().iterator().next());
+
+            } else {
+                for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
+                    writer.start("optgroup", "label", entry.getKey());
+                        typeSelectGroup(writer, selectedId, entry.getValue());
+                    writer.end();
+                }
+            }
+
+        writer.end();
+    }
+
+    private static void typeSelectGroup(PageWriter writer, UUID selectedId, List<ObjectType> types) throws IOException {
+        String previousLabel = null;
+
+        for (ObjectType type : types) {
+            UUID typeId = type.getId();
+            String label = Static.getObjectLabel(type);
+
+            writer.start("option",
+                    "selected", typeId.equals(selectedId) ? "selected" : null,
+                    "value", type.getId());
+                writer.html(label);
+                if (label.equals(previousLabel)) {
+                    writer.html(" (");
+                    writer.html(type.getInternalName());
+                    writer.html(")");
+                }
+            writer.end();
+
+            previousLabel = label;
+        }
     }
 
     // --- AuthenticationFilter bridge ---
