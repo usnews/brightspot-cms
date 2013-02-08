@@ -445,6 +445,10 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 // Load the preview.
                 loadPreview = $.throttle(2000, function() {
+                    if (!$preview.is(':visible')) {
+                        return;
+                    }
+
                     var newFormData = $contentForm.serialize();
 
                     // If the form inputs haven't changed, try again later.
