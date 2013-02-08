@@ -91,7 +91,10 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                 writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
 
                 if (!validTypes.isEmpty()) {
-                    wp.typeSelect(validTypes, "All Types", true,
+                    wp.typeSelect(
+                            validTypes,
+                            selectedType,
+                            "All Types",
                             "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
                             "data-searchable", true);
@@ -210,7 +213,10 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                         writer.tag("input", "type", "submit", "value", "New " + wp.getObjectLabel(type), "style", "width: auto;");
 
                     } else {
-                        wp.typeSelect(validTypes, null, true,
+                        wp.typeSelect(
+                                validTypes,
+                                selectedType,
+                                null,
                                 "name", "typeId",
                                 "data-searchable", true);
                         writer.tag("input", "type", "submit", "value", "New");

@@ -148,7 +148,10 @@ public class SiteMap extends PageServlet {
                     "action", page.url(null));
 
                 writer.start("span", "class", "sitemap-filters-itemType");
-                    page.typeSelect(Template.Static.findUsedTypes(page.getSite()), "Everything", false,
+                    page.typeSelect(
+                            Template.Static.findUsedTypes(page.getSite()),
+                            itemType,
+                            "Everything",
                             "class", "autoSubmit",
                             "name", "itemType",
                             "data-searchable", "true");

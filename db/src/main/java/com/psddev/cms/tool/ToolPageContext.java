@@ -33,7 +33,6 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
-import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
 import com.psddev.dari.db.Application;
@@ -917,25 +916,16 @@ public class ToolPageContext extends WebPageContext {
      *
      * @param types Types that the user is allowed to select from.
      * If {@code null}, all content types will be available.
+     * @param selectedType Type that should be initially selected.
      * @param allLabel Label for the option that selects all types.
      * If {@code null}, the option won't be available.
-     * @param group Whether the options should be grouped using
-     * {@code <optgroup>} tag.
      * @param attributes Attributes for the {@code <select>} tag.
      */
     public void typeSelect(
             Iterable<ObjectType> types,
+            ObjectType selectedType,
             String allLabel,
-            boolean group,
             Object... attributes) throws IOException {
-
-        String name = null;
-
-        for (int i = 1, length = attributes.length; i < length; i += 2) {
-            if ("name".equals(ObjectUtils.to(String.class, attributes[i - 1]))) {
-                name = ObjectUtils.to(String.class, attributes[i]);
-            }
-        }
 
         if (types == null) {
             types = Database.Static.getDefault().getEnvironment().getTypes();
@@ -952,18 +942,12 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
+        List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
 
-        if (group) {
-            List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
-
-            mainTypes.retainAll(typesList);
-            typesList.removeAll(mainTypes);
-            typeGroups.put("Main Content Types", mainTypes);
-            typeGroups.put("Misc Content Types", typesList);
-
-        } else {
-            typeGroups.put("Content Types", typesList);
-        }
+        mainTypes.retainAll(typesList);
+        typesList.removeAll(mainTypes);
+        typeGroups.put("Main Content Types", mainTypes);
+        typeGroups.put("Misc Content Types", typesList);
 
         for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext(); ) {
             List<ObjectType> typeGroup = i.next();
@@ -977,7 +961,6 @@ public class ToolPageContext extends WebPageContext {
         }
 
         PageWriter writer = getWriter();
-        UUID selectedId = param(UUID.class, name);
 
         writer.start("select", attributes);
 
@@ -986,12 +969,12 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (typeGroups.size() == 1) {
-                typeSelectGroup(writer, selectedId, typeGroups.values().iterator().next());
+                typeSelectGroup(writer, selectedType, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
                     writer.start("optgroup", "label", entry.getKey());
-                        typeSelectGroup(writer, selectedId, entry.getValue());
+                        typeSelectGroup(writer, selectedType, entry.getValue());
                     writer.end();
                 }
             }
@@ -999,15 +982,14 @@ public class ToolPageContext extends WebPageContext {
         writer.end();
     }
 
-    private static void typeSelectGroup(PageWriter writer, UUID selectedId, List<ObjectType> types) throws IOException {
+    private static void typeSelectGroup(PageWriter writer, ObjectType selectedType, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
-            UUID typeId = type.getId();
             String label = Static.getObjectLabel(type);
 
             writer.start("option",
-                    "selected", typeId.equals(selectedId) ? "selected" : null,
+                    "selected", type.equals(selectedType) ? "selected" : null,
                     "value", type.getId());
                 writer.html(label);
                 if (label.equals(previousLabel)) {
