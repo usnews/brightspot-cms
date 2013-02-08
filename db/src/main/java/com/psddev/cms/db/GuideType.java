@@ -9,12 +9,6 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -96,7 +90,7 @@ public class GuideType extends Record {
             }
         }
         if (createIfMissing == true) {
-            setFieldDescription(fieldName, fieldDisplayName, null, false);
+            setFieldDescription(fieldName, fieldDisplayName, null);
         }
         return desc;
     }
@@ -113,7 +107,7 @@ public class GuideType extends Record {
     }
 
     public void setFieldDescription(String fieldName, String fieldDisplayName,
-            ReferentialText description, boolean annotation) {
+            ReferentialText description) {
         ReferentialText desc = null;
         if (fieldDescriptions != null) {
             for (GuideField gf : fieldDescriptions) {
@@ -122,7 +116,6 @@ public class GuideType extends Record {
                         gf.setDisplayName(fieldDisplayName);
                     }
                     gf.setDescription(description);
-                    gf.setFromAnnotation(annotation);
                     return;
                 }
             }
@@ -134,7 +127,6 @@ public class GuideType extends Record {
             gf.setDisplayName(fieldDisplayName);
         }
         gf.setDescription(description);
-        gf.setFromAnnotation(annotation);
         addFieldDescription(gf);
 
     }
@@ -185,11 +177,6 @@ public class GuideType extends Record {
         @ToolUi.Note("Production Guide information about this field")
         ReferentialText description;
 
-        // True if the description was populated from an annotation (if false,
-        // annotations are ignored)
-        @ToolUi.Hidden
-        boolean fromAnnotation;
-
         public String getFieldName() {
             return fieldName;
         }
@@ -212,14 +199,6 @@ public class GuideType extends Record {
 
         public void setDescription(ReferentialText description) {
             this.description = description;
-        }
-
-        public boolean isFromAnnotation() {
-            return fromAnnotation;
-        }
-
-        public void setFromAnnotation(boolean fromAnnotation) {
-            this.fromAnnotation = fromAnnotation;
         }
 
     }
@@ -315,9 +294,9 @@ public class GuideType extends Record {
         }
 
         public static void setDescription(ObjectField field,
-                ReferentialText descText, boolean fromAnnotation) {
+                ReferentialText descText) {
             GuideType guide = Static.findOrCreateGuide(field);
-            guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText, fromAnnotation);
+            guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText);
             guide.saveImmediately();
         }
 
