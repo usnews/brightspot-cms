@@ -3986,17 +3986,22 @@ input[type="text"].dropDown-search {
     }
 }
 
-.sitemap-valueWarning {
-    position: relative;
+.sitemap-warning {
+    .message;
+    .message-warning;
 
-    &:after {
-        content: '';
-        border-color: transparent transparent #ed9 transparent;
-        border-style: solid;
-        border-width: 10px;
-        position: absolute;
-        right: 25%;
-        top: -20px;
+    &.sitemap-warning-value {
+        position: relative;
+
+        &:after {
+            content: '';
+            border-color: transparent transparent #ed9 transparent;
+            border-style: solid;
+            border-width: 10px;
+            position: absolute;
+            right: 25%;
+            top: -20px;
+        }
     }
 }
 

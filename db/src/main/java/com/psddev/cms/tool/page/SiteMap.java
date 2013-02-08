@@ -140,7 +140,7 @@ public class SiteMap extends PageServlet {
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-sitemap");
-            writer.start("h1", "class", "icon icon-sitemap").html("Sitemap").end();
+            writer.start("h1").html("Sitemap").end();
 
             writer.start("form",
                     "class", "sitemap-filters",
@@ -241,7 +241,7 @@ public class SiteMap extends PageServlet {
             writer.end();
 
             if (valueObject == null) {
-                writer.start("div", "class", "message message-warning sitemap-valueWarning");
+                writer.start("div", "class", "sitemap-warning sitemap-warning-value");
                     writer.start("p");
                         writer.html("Please select a ");
                         writer.start("strong").html(valueType.getLabel()).end();
@@ -250,7 +250,7 @@ public class SiteMap extends PageServlet {
                 writer.end();
 
             } else if (!result.hasItems()) {
-                writer.start("div", "class", "message message-warning");
+                writer.start("div", "class", "sitemap-warning");
                     writer.start("p");
                         writer.html("No ");
 
