@@ -530,6 +530,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     $previewHeading.click();
                 }
 
+                $edit.find('.inputContainer').trigger('fieldPreview-hide');
                 $edit.attr('style', oldEditStyle);
                 appendPreviewAction();
                 $preview.hide();
