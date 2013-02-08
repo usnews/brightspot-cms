@@ -61,25 +61,6 @@ Template template = null;
 if (selected != null) {
     template = state.as(Template.ObjectModification.class).getDefault();
 }
-if (template == null) {
-    template = Query.findById(
-            Template.class, wp.uuidParam("templateId"));
-    if (template != null) {
-        Set<ObjectType> types = template.getContentTypes();
-        if (types != null && types.size() == 1) {
-            for (ObjectType type : types) {
-                selected = wp.findOrReserve(type.getId());
-                state = State.getInstance(selected);
-            }
-        }
-    }
-    if (selected != null) {
-        state.as(Template.ObjectModification.class).setDefault(template);
-    } else {
-        wp.redirect("/");
-        return;
-    }
-}
 
 UUID newTypeId = wp.uuidParam("newTypeId");
 if (newTypeId != null) {

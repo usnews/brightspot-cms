@@ -558,6 +558,33 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        Template template = Query.from(Template.class).where("_id = ?", param(UUID.class, "templateId")).first();
+
+        if (template != null) {
+            if (object == null) {
+                Set<ObjectType> contentTypes = template.getContentTypes();
+
+                if (!contentTypes.isEmpty()) {
+                    object = contentTypes.iterator().next().createObject(objectId);
+                }
+            }
+
+            if (object != null) {
+                State.getInstance(object).as(Template.ObjectModification.class).setDefault(template);
+            }
+
+        } else if (object != null) {
+            State state = State.getInstance(object);
+
+            if (state.isNew()) {
+                List<Template> templates = Template.Static.findUsable(object);
+
+                if (!templates.isEmpty()) {
+                    state.as(Template.ObjectModification.class).setDefault(templates.iterator().next());
+                }
+            }
+        }
+
         return object;
     }
 
