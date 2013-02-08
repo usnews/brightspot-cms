@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -39,9 +41,9 @@ public class SiteMap extends PageServlet {
     }
 
     @Override
-    protected void doService(ToolPageContext page) throws IOException, ServletException {
+    protected void doService(final ToolPageContext page) throws IOException, ServletException {
         String type = page.pageParam(String.class, "type", null);
-        ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
+        final ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(Integer.class, "limit", 20);
 
@@ -64,7 +66,7 @@ public class SiteMap extends PageServlet {
         }
 
         String valueParameter = type + ".value";
-        String value = page.pageParam(String.class, valueParameter, null);
+        final String value = page.pageParam(String.class, valueParameter, null);
         Object valueObject = Query.from(Object.class).where("_id = ?", value).first();
         PaginatedResult<?> result = null;
         Long count = null;
@@ -75,21 +77,20 @@ public class SiteMap extends PageServlet {
             }
 
             if (valueObject != null) {
-                String prefix = ((Directory) valueObject).getPath();
-                List<Query<?>> queries = new ArrayList<Query<?>>();
-
-                for (Directory d : Query.
+                result = new AggregateQueryResult<Object>(offset, limit, new DirectoryQueryIterator(Query.
                         from(Directory.class).
-                        where("path startsWith ?", prefix).
-                        sortAscending("path").
-                        selectAll()) {
-                    queries.add((itemType != null ? Query.fromType(itemType) : Query.fromAll()).
-                            and(page.siteItemsPredicate()).
-                            and(d.itemsPredicate(page.getSite())).
-                            sortAscending(Directory.PATHS_FIELD));
-                }
+                        where("path startsWith ?", ((Directory) valueObject).getPath()).
+                        sortAscending("path")) {
 
-                result = new AggregateQueryResult<Object>(offset, limit, queries.toArray(new Query<?>[queries.size()]));
+                    @Override
+                    protected Query<?> createQuery(Directory directory) {
+                        return (itemType != null ? Query.fromType(itemType) : Query.fromAll()).
+                                and(page.siteItemsPredicate()).
+                                and(directory.itemsPredicate(page.getSite())).
+                                sortAscending(Directory.PATHS_FIELD);
+                    }
+                });
+
                 count = null;
             }
 
@@ -99,7 +100,25 @@ public class SiteMap extends PageServlet {
                     and("* matches ?", value).
                     and("cms.directory.paths != missing");
 
-            if (query.select(250, 1).getItems().isEmpty()) {
+            if (query.hasMoreThan(250)) {
+                result = new AggregateQueryResult<Object>(offset, limit, new DirectoryQueryIterator(Query.
+                        from(Directory.class).
+                        where("path startsWith /").
+                        sortAscending("path")) {
+
+                    @Override
+                    protected Query<?> createQuery(Directory directory) {
+                        return (itemType != null ? Query.fromType(itemType) : Query.fromAll()).
+                                and(page.siteItemsPredicate()).
+                                and(directory.itemsPredicate(page.getSite())).
+                                and("* matches ?", value).
+                                and("cms.directory.paths != missing");
+                    }
+                });
+
+                count = query.count();
+
+            } else {
                 @SuppressWarnings("unchecked")
                 List<Object> items = (List<Object>) query.selectAll();
 
@@ -115,24 +134,6 @@ public class SiteMap extends PageServlet {
 
                 result = new PaginatedResult<Object>(offset, limit, items);
                 count = (long) items.size();
-
-            } else {
-                List<Query<?>> queries = new ArrayList<Query<?>>();
-
-                for (Directory d : Query.
-                        from(Directory.class).
-                        where("path startsWith /").
-                        sortAscending("path").
-                        selectAll()) {
-                    queries.add((itemType != null ? Query.fromType(itemType) : Query.fromAll()).
-                            and(page.siteItemsPredicate()).
-                            and(d.itemsPredicate(page.getSite())).
-                            and("* matches ?", value).
-                            and("cms.directory.paths != missing"));
-                }
-
-                result = new AggregateQueryResult<Object>(offset, limit, queries.toArray(new Query<?>[queries.size()]));
-                count = query.count();
             }
         }
 
@@ -218,7 +219,7 @@ public class SiteMap extends PageServlet {
                         }
                     }
 
-                    if (!valueQuery.select(250, 1).getItems().isEmpty()) {
+                    if (valueQuery.hasMoreThan(250)) {
                         writer.tag("input",
                                 "type", "text",
                                 "class", "autoSubmit objectId",
@@ -387,5 +388,35 @@ public class SiteMap extends PageServlet {
             }
 
         writer.end();
+    }
+
+    private static abstract class DirectoryQueryIterator implements Iterator<Query<?>> {
+
+        private final Iterator<Directory> directoryIterator;
+
+        public DirectoryQueryIterator(Query<Directory> directoryQuery) {
+            this.directoryIterator = directoryQuery.iterable(0).iterator();
+        }
+
+        protected abstract Query<?> createQuery(Directory directory);
+
+        @Override
+        public boolean hasNext() {
+            return directoryIterator.hasNext();
+        }
+
+        @Override
+        public Query<?> next() {
+            if (hasNext()) {
+                return createQuery(directoryIterator.next());
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
