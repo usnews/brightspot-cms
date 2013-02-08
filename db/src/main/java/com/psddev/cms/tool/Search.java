@@ -303,7 +303,7 @@ public class Search extends Record {
             }
 
             // Search by path.
-            if (queryString.startsWith("/") && queryString.length() > 1) {
+            if (isAllSearchable && queryString.startsWith("/") && queryString.length() > 1) {
                 List<String> paths = new ArrayList<String>();
 
                 for (Directory directory : Query.

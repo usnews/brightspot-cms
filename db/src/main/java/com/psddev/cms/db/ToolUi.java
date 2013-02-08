@@ -26,6 +26,7 @@ import java.util.UUID;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private boolean globalFilter;
     private String heading;
     private Boolean hidden;
     private String inputProcessorPath;
@@ -38,6 +39,14 @@ public class ToolUi extends Modification<Object> {
     private boolean richText;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+
+    public boolean isGlobalFilter() {
+        return globalFilter;
+    }
+
+    public void setGlobalFilter(boolean globalFilter) {
+        this.globalFilter = globalFilter;
+    }
 
     /** Returns the heading to display before this object. */
     public String getHeading() {
@@ -160,6 +169,26 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    /**
+     * Specifies whether the target type shows up as a filter that can be
+     * applied to any types in search.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(GlobalFilterProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface GlobalFilter {
+        boolean value() default true;
+    }
+
+    private static class GlobalFilterProcessor implements ObjectType.AnnotationProcessor<GlobalFilter> {
+        @Override
+        public void process(ObjectType type, GlobalFilter annotation) {
+            type.as(ToolUi.class).setGlobalFilter(annotation.value());
+        }
     }
 
     /** Specifies the text to display before the target field. */

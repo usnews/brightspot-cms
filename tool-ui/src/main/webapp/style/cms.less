@@ -321,7 +321,6 @@ figure,
     &:hover {
         figcaption,
         .figcatpion {
-            overflow: auto;
             white-space: normal;
         }
     }
@@ -3933,6 +3932,72 @@ input[type="text"].dropDown-search {
 
 .inputContainer .smallInput {
     position: relative;
+}
+
+// Sitemap widget.
+.widget-sitemap {
+    h1 {
+        .icon;
+        .icon-sitemap;
+    }
+}
+
+.sitemap-filters {
+    overflow: hidden;
+
+    select {
+        width: 100%;
+    }
+}
+
+.sitemap-filters-itemType,
+.sitemap-filters-type,
+.sitemap-filters-value {
+    .box-sizing(border-box);
+    float: left;
+}
+
+.sitemap-filters-itemType {
+    width: 20%;
+}
+
+.sitemap-filters-type {
+    padding: 0 5px 0 3em;
+    width: 30%;
+}
+
+.sitemap-filters-with {
+    display: inline-block;
+    margin-left: -3em;
+    text-align: center;
+    width: 3em;
+}
+
+.sitemap-filters-value {
+    padding-right: 0;
+    width: 50%;
+
+    .objectId-select {
+        width: 100%;
+    }
+
+    .objectId-clear {
+        display: none !important;
+    }
+}
+
+.sitemap-valueWarning {
+    position: relative;
+
+    &:after {
+        content: '';
+        border-color: transparent transparent #ed9 transparent;
+        border-style: solid;
+        border-width: 10px;
+        position: absolute;
+        right: 25%;
+        top: -20px;
+    }
 }
 
 // Soft validation based on suggested sizes.
