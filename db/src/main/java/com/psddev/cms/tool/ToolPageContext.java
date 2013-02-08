@@ -991,6 +991,29 @@ public class ToolPageContext extends WebPageContext {
         private Static() {
         }
 
+        private static String notTooShort(String word) {
+            char[] letters = word.toCharArray();
+            StringBuilder not = new StringBuilder();
+            int index = 0;
+            int length = letters.length;
+
+            for (; index < 5 && index < length; ++ index) {
+                char letter = letters[index];
+
+                if (Character.isWhitespace(letter)) {
+                    not.append('\u00a0');
+                } else {
+                    not.append(letter);
+                }
+            }
+
+            if (index < length) {
+                not.append(letters, index, length - index);
+            }
+
+            return not.toString();
+        }
+
         /**
          * Returns a label, or the given {@code defaultLabel} if one can't be
          * found, for the given {@code object}.
@@ -1002,18 +1025,18 @@ public class ToolPageContext extends WebPageContext {
                 String label = state.getLabel();
 
                 if (ObjectUtils.to(UUID.class, label) == null) {
-                    return label;
+                    return notTooShort(label);
                 }
             }
 
-            return defaultLabel;
+            return notTooShort(defaultLabel);
         }
 
         /** Returns a label for the given {@code object}. */
         public static String getObjectLabel(Object object) {
             State state = State.getInstance(object);
 
-            return state != null ? state.getLabel() : "Not Available";
+            return notTooShort(state != null ? state.getLabel() : "Not Available");
         }
 
         /**
@@ -1031,7 +1054,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            return defaultLabel;
+            return notTooShort(defaultLabel);
         }
 
         /** Returns a label for the type of the given {@code object}. */
