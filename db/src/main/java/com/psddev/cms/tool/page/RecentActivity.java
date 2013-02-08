@@ -8,12 +8,14 @@ import javax.servlet.ServletException;
 
 import org.joda.time.DateTime;
 
-import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
@@ -32,13 +34,13 @@ public class RecentActivity extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         DateTime date = new DateTime(page.param(Date.class, "date"));
         UUID userId = page.pageParam(UUID.class, "userId", null);
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(Integer.class, "limit", 20);
 
-        Query<?> contentQuery = Query.
-                from(Content.class).
+        Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.from(Content.class)).
                 where(page.siteItemsPredicate()).
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(Content.UPDATE_DATE_FIELD + " <= ?", date).
@@ -52,33 +54,41 @@ public class RecentActivity extends PageServlet {
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-recentActivity");
-
-            writer.start("h1", "class", "icon icon-list");
-                writer.html("Recent Activity");
-            writer.end();
+            writer.start("h1").html("Recent Activity").end();
 
             writer.start("form",
-                    "class", "autoSubmit",
+                    "class", "recentActivity-filters autoSubmit",
                     "method", "get",
                     "action", page.url(null));
 
-                writer.tag("input",
-                        "id", page.createId(),
-                        "type", "radio",
-                        "name", "userId",
-                        "value", page.getUser().getId(),
-                        "checked", userId != null ? "checked" : null);
-                writer.start("label", "for", page.getId()).html("Me").end();
+                writer.start("span", "class", "recentActivity-filters-itemType");
+                    page.typeSelect(
+                            Template.Static.findUsedTypes(page.getSite()),
+                            itemType,
+                            "Everything",
+                            "class", "autoSubmit",
+                            "name", "itemType",
+                            "data-searchable", "true");
+                writer.end();
 
-                writer.html(" ");
+                writer.start("span", "class", "recentActivity-filters-user");
+                    writer.start("span", "class", "recentActivity-filters-by");
+                        writer.html("by");
+                    writer.end();
 
-                writer.tag("input",
-                        "id", page.createId(),
-                        "type", "radio",
-                        "name", "userId",
-                        "value", "",
-                        "checked", userId == null ? "checked" : null);
-                writer.start("label", "for", page.getId()).html("Everyone").end();
+                    writer.start("select", "name", "userId");
+                        writer.start("option",
+                                "selected", userId == null ? "selected" : null,
+                                "value", "");
+                            writer.html("Everyone");
+                        writer.end();
+                        writer.start("option",
+                                "selected", userId != null ? "selected" : null,
+                                "value", page.getUser().getId());
+                            writer.html("Me");
+                        writer.end();
+                    writer.end();
+                writer.end();
 
             writer.end();
 
