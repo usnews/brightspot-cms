@@ -252,12 +252,22 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     String idString = UUID.randomUUID().toString().replace("-", "");
                     StringBuilder pathBuilder = new StringBuilder();
                     String label = state.getLabel();
+                    String name = file.getName();
+                    int lastDotAt = name.indexOf('.');
+                    String extension;
 
-                    if (ObjectUtils.isBlank(label)) {
-                        label = file.getName();
+                    if (lastDotAt > -1) {
+                        extension = name.substring(lastDotAt);
+                        name = name.substring(0, lastDotAt);
+
+                    } else {
+                        extension = "";
                     }
 
-                    label = StringUtils.toNormalized(label);
+                    if (ObjectUtils.isBlank(label) ||
+                            ObjectUtils.to(UUID.class, label) != null) {
+                        label = name;
+                    }
 
                     if (ObjectUtils.isBlank(label)) {
                         label = UUID.randomUUID().toString().replace("-", "");
@@ -269,7 +279,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     pathBuilder.append('/');
                     pathBuilder.append(idString.substring(4));
                     pathBuilder.append('/');
-                    pathBuilder.append(label);
+                    pathBuilder.append(StringUtils.toNormalized(label));
+                    pathBuilder.append(extension);
 
                     newItem = StorageItem.Static.create();
                     newItem.setPath(pathBuilder.toString());
@@ -414,6 +425,7 @@ String existingClass = wp.createId();
                         <div class="imageEditor-tools">
                             <h2>Tools</h2>
                             <ul>
+                                <li><a class="action-preview" href="<%= wp.h(fieldValue.getPublicUrl()) %>" target="_blank">View Original</a></li>
                             </ul>
                         </div>
 
