@@ -185,6 +185,22 @@
     <!-- Functions -->
 
     <function>
+        <name>html</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            java.lang.String html(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>js</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            java.lang.String js(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>listLayouts</name>
         <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
         <function-signature>
