@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -99,6 +101,22 @@ public class Variation extends Record {
     /** Sets the operation. */
     public void setOperation(Operation operation) {
         this.operation = operation;
+    }
+
+    public static class Data extends Modification<Object> {
+
+        private Map<String, Object> variations;
+
+        public Map<String, Object> getVariations() {
+            if (variations == null) {
+                variations = new HashMap<String, Object>();
+            }
+            return variations;
+        }
+
+        public void setVariations(Map<String, Object> variations) {
+            this.variations = variations;
+        }
     }
 
     /** {@link Variation} utility methods. */
