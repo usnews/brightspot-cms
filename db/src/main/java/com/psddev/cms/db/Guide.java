@@ -15,7 +15,7 @@ import com.psddev.dari.util.StorageItem;
 
 /**
  * A Production Guide is Editor-oriented Help documentation providing guidance on how to create and organize content for a site. It's content
- * is associate with objects in the CMS so that helpful information is available contextually and can be easily kept up to date
+ * is associated with objects in the CMS so that helpful information is available contextually and can be easily kept up to date
  * as the site evolves.
  *
  * A Guide object consists of some overall descriptive content about programming, and then associations to templates/pages that
