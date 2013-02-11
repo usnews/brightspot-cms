@@ -15,6 +15,7 @@ com.psddev.dari.util.ObjectUtils,
 
 java.util.ArrayList,
 java.util.Collections,
+java.util.HashSet,
 java.util.Iterator,
 java.util.List,
 java.util.Map,
@@ -149,7 +150,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                             continue;
                         }
 
-                        Set<ObjectType> fieldTypes = field.getTypes();
+                        Set<ObjectType> fieldTypes = new HashSet<ObjectType>(field.getTypes());
 
                         for (Iterator<ObjectType> i = fieldTypes.iterator(); i.hasNext(); ) {
                             if (i.next().isEmbedded()) {
