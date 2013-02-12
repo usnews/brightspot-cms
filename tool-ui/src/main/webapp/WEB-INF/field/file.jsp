@@ -253,6 +253,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     StringBuilder pathBuilder = new StringBuilder();
                     String label = state.getLabel();
                     String name = file.getName();
+
+                    fieldValueMetadata.put("originalFilename", name);
+
                     int lastDotAt = name.indexOf('.');
                     String extension;
 

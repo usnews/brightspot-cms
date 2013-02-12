@@ -138,31 +138,12 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                     for (ObjectField field : selectedType.getIndexedFields()) {
                         ToolUi fieldUi = field.as(ToolUi.class);
 
-                        if (fieldUi.isHidden()) {
-                            continue;
-                        }
-
-                        if (!ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
-                            continue;
-                        }
-
-                        if (field.isEmbedded()) {
-                            continue;
-                        }
-
-                        Set<ObjectType> fieldTypes = new HashSet<ObjectType>(field.getTypes());
-
-                        for (Iterator<ObjectType> i = fieldTypes.iterator(); i.hasNext(); ) {
-                            if (i.next().isEmbedded()) {
-                                i.remove();
-                            }
-                        }
-
-                        if (fieldTypes.isEmpty()) {
+                        if (!fieldUi.isEffectivelyFilterable()) {
                             continue;
                         }
 
                         String fieldName = field.getInternalName();
+                        Set<ObjectType> fieldTypes = field.getTypes();
                         StringBuilder fieldTypeIds = new StringBuilder();
 
                         if (!ObjectUtils.isBlank(fieldTypes)) {

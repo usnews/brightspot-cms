@@ -18,7 +18,8 @@ var updateCalendarView = function(viewDate) {
     $calendar.data('viewDate', viewDate);
 
     var viewMonth = viewDate.getMonth();
-    $calendar.find('> .month').text(options.monthLabels[viewMonth] + ' ' + viewDate.getFullYear());
+    $calendar.find('> .monthYear > .month').val(viewMonth);
+    $calendar.find('> .monthYear > .year').val(viewDate.getFullYear());
 
     var dayDate = new Date(viewDate.getTime());
     dayDate.setDate(1);
@@ -84,8 +85,48 @@ getCalendar = function() {
 
         $calendar = $('<div/>', { 'id': 'calendar' });
 
-        // Month label.
-        var $month = $('<div/>', { 'class': 'month' });
+        // Month and year.
+        var $monthYear = $('<div/>', { 'class': 'monthYear' });
+        var $month = $('<select/>', {
+            'class': 'month',
+            'change': function() {
+                var newDate = new Date($calendar.data('viewDate').getTime());
+                newDate.setDate(1);
+                newDate.setMonth($month.val());
+                updateCalendarView(newDate);
+            }
+        });
+
+        $monthYear.append($month);
+
+        $.each(options.monthLabels, function(index, value) {
+            $month.append($('<option/>', {
+                'value': index,
+                'text': value
+            }));
+        });
+
+        var $year = $('<input/>', {
+            'type': 'text',
+            'class': 'year',
+            'bind': {
+                'input': function() {
+                    var newYear = parseInt($year.val(), 10) || 0;
+                    if (newYear < 1900) {
+                        $year.addClass('invalid');
+                    } else {
+                        var newDate = new Date($calendar.data('viewDate').getTime());
+                        newDate.setDate(1);
+                        newDate.setYear(newYear);
+                        updateCalendarView(newDate);
+                        $year.removeClass('invalid');
+                    }
+                }
+            }
+        });
+
+        $monthYear.append(' ');
+        $monthYear.append($year);
 
         // Month navigation.
         var $previousButton = $('<span/>', { 'class': 'previousButton' });
@@ -110,7 +151,7 @@ getCalendar = function() {
             $dayLabels.append($('<span/>', { 'class': 'day day' + day, 'text': label }));
         });
 
-        $calendar.append($month);
+        $calendar.append($monthYear);
         $calendar.append($previousButton);
         $calendar.append($nextButton);
         $calendar.append($dayLabels);

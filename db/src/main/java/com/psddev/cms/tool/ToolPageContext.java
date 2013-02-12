@@ -734,6 +734,7 @@ public class ToolPageContext extends WebPageContext {
             cssClassGroups.add(groupDef);
             groupDef.put("internalName", group.getInternalName());
             groupDef.put("displayName", group.getDisplayName());
+            groupDef.put("dropDown", group.isDropDown());
 
             List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
             groupDef.put("cssClasses", cssClasses);
@@ -828,7 +829,7 @@ public class ToolPageContext extends WebPageContext {
         write("</a>");
         write("</h1>");
 
-        if (user != null) {
+        if (hasPermission("area/dashboard")) {
             write("<form action=\"", cmsUrl("/misc/search.jsp"), "\" class=\"search\" method=\"get\" target=\"miscSearch\">");
             write("<input type=\"hidden\" name=\"", Search.NAME_PARAMETER, "\" value=\"global\">");
             write("<span class=\"searchInput\">");

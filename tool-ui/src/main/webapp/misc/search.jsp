@@ -18,6 +18,10 @@ wp.include(
 %>
 <script type="text/javascript">
     if (typeof jQuery !== 'undefined') (function(win, $, undef) {
-        $('.toolHeader > .search :text').val($('.frame[name="miscSearch"] .searchForm-filters .searchInput :text').val()).trigger('input');
+        var $headerInput = $('.toolHeader > .search :text');
+        if (!$headerInput.val()) {
+            $headerInput.val($('.frame[name="miscSearch"] .searchForm-filters .searchInput :text').val()).trigger('input');
+            $headerInput[0].select();
+        }
     })(window, jQuery);
 </script>
