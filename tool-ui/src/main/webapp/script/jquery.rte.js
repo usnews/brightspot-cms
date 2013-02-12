@@ -29,7 +29,9 @@ $.each(CSS_CLASS_GROUPS, function() {
 var $createToolbarGroup = function(label) {
     var $group = $('<span/>', { 'class': 'rte-group', 'data-group-name': label });
     var $label = $('<span/>', { 'class': 'rte-group-label', 'text': label });
+    var $buttons = $('<span/>', { 'class': 'rte-group-buttons' });
     $group.append($label);
+    $group.append($buttons);
     return $group;
 };
 
@@ -49,6 +51,7 @@ var createToolbar = function(inline) {
 
     var $font = $createToolbarGroup('Font');
     $toolbar.append($font);
+    $font = $font.find('.rte-group-buttons');
 
     $font.append($createToolbarCommand('Bold', 'bold'));
     $font.append($createToolbarCommand('Italic', 'italic'));
@@ -60,8 +63,14 @@ var createToolbar = function(inline) {
     $.each(CSS_CLASS_GROUPS, function() {
         var $group = $createToolbarGroup(this.displayName);
         var command = 'cms-' + this.internalName;
+
+        if (this.dropDown) {
+            $group.addClass('rte-group-dropDown');
+        }
+
         $group.addClass('rte-group-cssClass');
         $toolbar.append($group);
+        $group = $group.find('.rte-group-buttons');
 
         $.each(this.cssClasses, function() {
             var $cssClass = $createToolbarCommand(this.displayName, command);
@@ -73,6 +82,7 @@ var createToolbar = function(inline) {
     if (!inline) {
         var $alignment = $createToolbarGroup('Alignment') ;
         $toolbar.append($alignment);
+        $alignment = $alignment.find('.rte-group-buttons');
 
         $alignment.append($createToolbarCommand('Justify Left', 'textAlign').attr('data-wysihtml5-command-value', 'left'));
         $alignment.append($createToolbarCommand('Justify Center', 'textAlign').attr('data-wysihtml5-command-value', 'center'));
@@ -80,6 +90,7 @@ var createToolbar = function(inline) {
 
         var $list = $createToolbarGroup('List');
         $toolbar.append($list);
+        $list = $list.find('.rte-group-buttons');
 
         $list.append($createToolbarCommand('Unordered List', 'insertUnorderedList'));
         $list.append($createToolbarCommand('Ordered List', 'insertOrderedList'));
@@ -89,6 +100,7 @@ var createToolbar = function(inline) {
 
     var $enhancement = $createToolbarGroup('Enhancement');
     $toolbar.append($enhancement);
+    $enhancement = $enhancement.find('.rte-group-buttons');
 
     $enhancement.append($createToolbarCommand('Link', 'createLink'));
 
@@ -99,6 +111,7 @@ var createToolbar = function(inline) {
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
+    $misc = $misc.find('.rte-group-buttons');
 
     $misc.append($('<span/>', {
         'class': 'rte-button rte-button-html',
