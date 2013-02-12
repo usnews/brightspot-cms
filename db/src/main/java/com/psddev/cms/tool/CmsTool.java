@@ -231,13 +231,17 @@ public class CmsTool extends Tool {
                 String groupName = group.getInternalName();
 
                 for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                    writer.write(".cms-");
-                    writer.write(groupName);
-                    writer.write("-");
-                    writer.write(cssClass.getInternalName());
-                    writer.write("{");
-                    writer.write(cssClass.getCss());
-                    writer.write("}");
+                    String css = cssClass.getCss();
+
+                    if (css != null) {
+                        writer.write(".cms-");
+                        writer.write(groupName);
+                        writer.write("-");
+                        writer.write(cssClass.getInternalName());
+                        writer.write("{");
+                        writer.write(cssClass.getCss());
+                        writer.write("}");
+                    }
                 }
             }
 
