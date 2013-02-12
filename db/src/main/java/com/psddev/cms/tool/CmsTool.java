@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +24,7 @@ public class CmsTool extends Tool {
 
     private String companyName;
     private ToolRole defaultRole;
+    private Set<String> disabledPlugins;
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -140,6 +143,23 @@ public class CmsTool extends Tool {
      */
     public void setDefaultRole(ToolRole defaultRole) {
         this.defaultRole = defaultRole;
+    }
+
+    /**
+     * Returns the set of disabled plugin names.
+     *
+     * @return Never {@code null}.
+     */
+    public Set<String> getDisabledPlugins() {
+        if (disabledPlugins == null) {
+            disabledPlugins = new HashSet<String>();
+        }
+        return disabledPlugins;
+    }
+
+    /** Sets the set of disabled plugin names. */
+    public void setDisabledPlugins(Set<String> disabledPlugins) {
+        this.disabledPlugins = disabledPlugins;
     }
 
     /** Returns the extra CSS. */
