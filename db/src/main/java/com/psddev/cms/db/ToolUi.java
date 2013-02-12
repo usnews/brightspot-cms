@@ -96,6 +96,7 @@ public class ToolUi extends Modification<Object> {
         this.noteHtml = noteHtml;
     }
 
+    @SuppressWarnings("unchecked")
     public Class<? extends NoteRenderer> getNoteRendererClass() {
         Class<?> c = ObjectUtils.getClassByName(noteRendererClassName);
         return c != null && NoteRenderer.class.isAssignableFrom(c) ? (Class<? extends NoteRenderer>) c : null;
