@@ -213,37 +213,7 @@ public class GuideType extends Record {
             }
             return null;
         }
-        
-        /**
-         * Retrieve the field's default value for Production Guide display. This
-         * does not return all default values - only those that are
-         * 'displayable' (e.g. not complex types) and useful to editors (e.g.
-         * not true/false or the defaults of 0 or empty string)
-         */
-        public static Object getFieldDefaultValue(ObjectField field) {
-            Object defaultVal = field.getDefaultValue();
-            // For now, we are suppressing display of default values
-//            if (defaultVal != null) {
-//                if (defaultVal instanceof Number
-//                        || defaultVal instanceof String
-//                        || defaultVal instanceof Character) {
-//                    if (defaultVal instanceof Boolean) {
-//                        return null;
-//                    }
-//                    if (defaultVal instanceof Number
-//                            && ((Number) defaultVal).longValue() == 0) {
-//                        return null;
-//                    }
-//                    if (defaultVal instanceof String
-//                            && ((String) defaultVal).isEmpty()) {
-//                        return null;
-//                    }
-//                    return defaultVal;
-//                }
-//            }
-            return null;
-        }
-
+ 
         
         /**
          * Retrieve the field's minimum value for Production Guide display. For
@@ -327,8 +297,6 @@ public class GuideType extends Record {
                 return true;
             if (getFieldMinimumValue(field) != null)
                 return true;
-//            if (getFieldDefaultValue(field) != null)
-//                return true;
             ReferentialText desc = getFieldDescription(state, fieldName);
             if (desc != null && !desc.isEmpty())
                 return true;
