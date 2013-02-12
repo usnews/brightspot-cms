@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.util.List;
 
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 
 public final class ElFunctionUtils {
@@ -18,6 +19,25 @@ public final class ElFunctionUtils {
      */
     public static String html(String string) {
         return string != null ? StringUtils.escapeHtml(string) : "";
+    }
+
+    /**
+     * Returns {@code true} if the given {@code object} is an instance of the
+     * class represented by the given {@code className}.
+     *
+     * @throws IllegalArgumentException If there isn't a class with the given
+     * {@code className}.
+     */
+    public static boolean instanceOf(Object object, String className) {
+        Class<?> c = ObjectUtils.getClassByName(className);
+
+        if (c != null) {
+            return c.isInstance(object);
+
+        } else {
+            throw new IllegalArgumentException(String.format(
+                    "[%s] is not a valid class name!", className));
+        }
     }
 
     /**

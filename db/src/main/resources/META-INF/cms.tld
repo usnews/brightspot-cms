@@ -193,6 +193,14 @@
     </function>
 
     <function>
+        <name>instanceOf</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            java.lang.boolean instanceOf(java.lang.Object, java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>js</name>
         <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
         <function-signature>
