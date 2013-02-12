@@ -213,27 +213,129 @@ public class GuideType extends Record {
             }
             return null;
         }
+        
+        /**
+         * Retrieve the field's default value for Production Guide display. This
+         * does not return all default values - only those that are
+         * 'displayable' (e.g. not complex types) and useful to editors (e.g.
+         * not true/false or the defaults of 0 or empty string)
+         */
+        public static Object getFieldDefaultValue(ObjectField field) {
+            Object defaultVal = field.getDefaultValue();
+            // For now, we are suppressing display of default values
+//            if (defaultVal != null) {
+//                if (defaultVal instanceof Number
+//                        || defaultVal instanceof String
+//                        || defaultVal instanceof Character) {
+//                    if (defaultVal instanceof Boolean) {
+//                        return null;
+//                    }
+//                    if (defaultVal instanceof Number
+//                            && ((Number) defaultVal).longValue() == 0) {
+//                        return null;
+//                    }
+//                    if (defaultVal instanceof String
+//                            && ((String) defaultVal).isEmpty()) {
+//                        return null;
+//                    }
+//                    return defaultVal;
+//                }
+//            }
+            return null;
+        }
+
+        
+        /**
+         * Retrieve the field's minimum value for Production Guide display. For
+         * these purposes, we suppress some of the "less-useful" max/min values
+         * as they can be confusing to the editors
+         *
+         */
+        public static Object getFieldMinimumValue(ObjectField field) {
+            Object minVal = field.getMinimum();
+            if (minVal != null) {
+                Class javaTypeClass = minVal.getClass();
+                if (javaTypeClass.equals(long.class)
+                        || javaTypeClass.equals(Long.class)
+                        && (Long) minVal == Long.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(int.class)
+                        || javaTypeClass.equals(Integer.class)
+                        && (Integer) minVal == Integer.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(short.class)
+                        || javaTypeClass.equals(Short.class)
+                        && (Short) minVal == Short.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(byte.class)
+                        || javaTypeClass.equals(Byte.class)
+                        && (Byte) minVal == Byte.MIN_VALUE) {
+                    return null;
+                }
+            }
+            return minVal;
+        }
 
         /**
-         * Query to get a T/F as to whether the given {@code fieldName} has any information we include in
-         * the field description (e.g. used to determine whether ? link is displayed in UI
+         * Retrieve the field's maximum value for Production Guide display. For
+         * these purposes, we suppress some of the "less-useful" max/min values
+         * as they can be confusing to the editors
+         *
+         */
+        public static Object getFieldMaximumValue(ObjectField field) {
+            Object maxVal = field.getMaximum();
+            if (maxVal != null) {
+                Class javaTypeClass = maxVal.getClass();
+                if (javaTypeClass.equals(long.class)
+                        || javaTypeClass.equals(Long.class)
+                        && (Long) maxVal == Long.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(int.class)
+                        || javaTypeClass.equals(Integer.class)
+                        && (Integer) maxVal == Integer.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(short.class)
+                        || javaTypeClass.equals(Short.class)
+                        && (Short) maxVal == Short.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(byte.class)
+                        || javaTypeClass.equals(Byte.class)
+                        && (Byte) maxVal == Byte.MAX_VALUE) {
+                    return null;
+                }
+            }
+            return maxVal;
+        }
+
+        
+        /**
+         * Query to get a T/F as to whether the given {@code fieldName} has any
+         * information we include in the field description (e.g. used to
+         * determine whether ? link is displayed in UI
          */
         public static boolean hasFieldGuideInfo(State state, String fieldName) {
             ObjectField field = state.getField(fieldName);
             if (field.isRequired())
                 return true;
-            if (field.getMaximum() != null)
+            if (getFieldMaximumValue(field) != null)
                 return true;
-            if (field.getMinimum() != null)
+            if (getFieldMinimumValue(field) != null)
                 return true;
-            if (field.getDefaultValue() != null)
-                return true;
+//            if (getFieldDefaultValue(field) != null)
+//                return true;
             ReferentialText desc = getFieldDescription(state, fieldName);
             if (desc != null && !desc.isEmpty())
                 return true;
 
             return false;
         }
+
 
         /**
          * Retrieve the existing GuideType instance for a given {@code objectType}.
