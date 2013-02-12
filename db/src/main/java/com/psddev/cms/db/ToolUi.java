@@ -42,7 +42,7 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMaximum;
     private Number suggestedMinimum;
 
-    public Boolean isFilterable() {
+    public Boolean getFilterable() {
         return filterable;
     }
 
@@ -51,7 +51,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     public boolean isEffectivelyFilterable() {
-        Boolean filterable = isFilterable();
+        Boolean filterable = getFilterable();
 
         if (filterable != null) {
             return filterable;
@@ -196,7 +196,7 @@ public class ToolUi extends Modification<Object> {
         this.referenceable = referenceable;
     }
 
-    public Boolean isSortable() {
+    public Boolean getSortable() {
         return sortable;
     }
 
@@ -205,7 +205,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     public boolean isEffectivelySortable() {
-        Boolean sortable = isSortable();
+        Boolean sortable = getSortable();
 
         if (sortable != null) {
             return sortable;
