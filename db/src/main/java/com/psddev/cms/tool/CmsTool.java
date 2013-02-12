@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +24,7 @@ public class CmsTool extends Tool {
 
     private String companyName;
     private ToolRole defaultRole;
+    private Set<String> disabledPlugins;
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -142,6 +145,23 @@ public class CmsTool extends Tool {
         this.defaultRole = defaultRole;
     }
 
+    /**
+     * Returns the set of disabled plugin names.
+     *
+     * @return Never {@code null}.
+     */
+    public Set<String> getDisabledPlugins() {
+        if (disabledPlugins == null) {
+            disabledPlugins = new HashSet<String>();
+        }
+        return disabledPlugins;
+    }
+
+    /** Sets the set of disabled plugin names. */
+    public void setDisabledPlugins(Set<String> disabledPlugins) {
+        this.disabledPlugins = disabledPlugins;
+    }
+
     /** Returns the extra CSS. */
     public String getExtraCss() {
         return extraCss;
@@ -231,13 +251,17 @@ public class CmsTool extends Tool {
                 String groupName = group.getInternalName();
 
                 for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                    writer.write(".cms-");
-                    writer.write(groupName);
-                    writer.write("-");
-                    writer.write(cssClass.getInternalName());
-                    writer.write("{");
-                    writer.write(cssClass.getCss());
-                    writer.write("}");
+                    String css = cssClass.getCss();
+
+                    if (css != null) {
+                        writer.write(".cms-");
+                        writer.write(groupName);
+                        writer.write("-");
+                        writer.write(cssClass.getInternalName());
+                        writer.write("{");
+                        writer.write(cssClass.getCss());
+                        writer.write("}");
+                    }
                 }
             }
 

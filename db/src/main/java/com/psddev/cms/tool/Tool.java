@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.psddev.dari.db.Application;
@@ -103,6 +104,17 @@ public abstract class Tool extends Application {
                             plugins.add(plugin);
                         }
                     }
+                }
+            }
+
+            CmsTool cms = Application.Static.getInstance(CmsTool.class);
+            Set<String> disabled = cms.getDisabledPlugins();
+
+            for (Iterator<Plugin> i = plugins.iterator(); i.hasNext(); ) {
+                Plugin plugin = i.next();
+
+                if (disabled.contains(plugin.getInternalName())) {
+                    i.remove();
                 }
             }
 

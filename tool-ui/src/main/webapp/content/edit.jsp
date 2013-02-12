@@ -47,6 +47,10 @@ if (wp.requireUser()) {
 }
 
 Object selected = wp.findOrReserve();
+if (selected == null) {
+    wp.redirect("/");
+}
+
 State state = State.getInstance(selected);
 
 if (selected != null) {
