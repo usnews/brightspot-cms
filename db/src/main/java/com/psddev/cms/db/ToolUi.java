@@ -72,7 +72,7 @@ public class ToolUi extends Modification<Object> {
         }
 
         for (ObjectType type : field.getTypes()) {
-            if (!type.isEmbedded()) {
+            if (type.isEmbedded()) {
                 return false;
             }
         }
