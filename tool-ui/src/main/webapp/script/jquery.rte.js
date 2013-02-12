@@ -69,6 +69,7 @@ var createToolbar = function(inline) {
         }
 
         $group.addClass('rte-group-cssClass');
+        $group.addClass('rte-group-cssClass-' + this.internalName);
         $toolbar.append($group);
         $group = $group.find('.rte-group-buttons');
 
