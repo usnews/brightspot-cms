@@ -734,6 +734,7 @@ public class ToolPageContext extends WebPageContext {
             cssClassGroups.add(groupDef);
             groupDef.put("internalName", group.getInternalName());
             groupDef.put("displayName", group.getDisplayName());
+            groupDef.put("dropDown", group.isDropDown());
 
             List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
             groupDef.put("cssClasses", cssClasses);

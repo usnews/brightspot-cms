@@ -26,6 +26,7 @@ import java.util.UUID;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private Boolean filterable;
     private boolean globalFilter;
     private String heading;
     private Boolean hidden;
@@ -37,8 +38,47 @@ public class ToolUi extends Modification<Object> {
     private Boolean referenceable;
     private Boolean readOnly;
     private boolean richText;
+    private Boolean sortable;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+
+    public Boolean getFilterable() {
+        return filterable;
+    }
+
+    public void setFilterable(Boolean filterable) {
+        this.filterable = filterable;
+    }
+
+    public boolean isEffectivelyFilterable() {
+        Boolean filterable = getFilterable();
+
+        if (filterable != null) {
+            return filterable;
+        }
+
+        Object object = getOriginalObject();
+
+        if (!(object instanceof ObjectField)) {
+            return false;
+        }
+
+        ObjectField field = (ObjectField) object;
+
+        if (isHidden() ||
+                !ObjectField.RECORD_TYPE.equals(field.getInternalItemType()) ||
+                field.isEmbedded()) {
+            return false;
+        }
+
+        for (ObjectType type : field.getTypes()) {
+            if (type.isEmbedded()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public boolean isGlobalFilter() {
         return globalFilter;
@@ -96,6 +136,7 @@ public class ToolUi extends Modification<Object> {
         this.noteHtml = noteHtml;
     }
 
+    @SuppressWarnings("unchecked")
     public Class<? extends NoteRenderer> getNoteRendererClass() {
         Class<?> c = ObjectUtils.getClassByName(noteRendererClassName);
         return c != null && NoteRenderer.class.isAssignableFrom(c) ? (Class<? extends NoteRenderer>) c : null;
@@ -155,6 +196,40 @@ public class ToolUi extends Modification<Object> {
         this.referenceable = referenceable;
     }
 
+    public Boolean getSortable() {
+        return sortable;
+    }
+
+    public void setSortable(Boolean sortable) {
+        this.sortable = sortable;
+    }
+
+    public boolean isEffectivelySortable() {
+        Boolean sortable = getSortable();
+
+        if (sortable != null) {
+            return sortable;
+        }
+
+        Object object = getOriginalObject();
+
+        if (!(object instanceof ObjectField)) {
+            return false;
+        }
+
+        ObjectField field = (ObjectField) object;
+
+        if (isHidden()) {
+            return false;
+        }
+
+        String fieldType = field.getInternalType();
+
+        return ObjectField.DATE_TYPE.equals(fieldType) ||
+                ObjectField.NUMBER_TYPE.equals(fieldType) ||
+                ObjectField.TEXT_TYPE.equals(fieldType);
+    }
+
     public Number getSuggestedMaximum() {
         return suggestedMaximum;
     }
@@ -169,6 +244,26 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    /**
+     * Specifies whether the target field should be offered as a filterable
+     * field in search.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(FilterableProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Filterable {
+        boolean value() default true;
+    }
+
+    private static class FilterableProcessor implements ObjectField.AnnotationProcessor<Filterable> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Filterable annotation) {
+            field.as(ToolUi.class).setFilterable(annotation.value());
+        }
     }
 
     /**
@@ -446,6 +541,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, RichText annotation) {
             field.as(ToolUi.class).setRichText(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should be offered as a sortable
+     * field in search.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(SortableProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Sortable {
+        boolean value() default true;
+    }
+
+    private static class SortableProcessor implements ObjectField.AnnotationProcessor<Sortable> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Sortable annotation) {
+            field.as(ToolUi.class).setSortable(annotation.value());
         }
     }
 

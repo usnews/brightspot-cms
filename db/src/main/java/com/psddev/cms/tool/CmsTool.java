@@ -43,6 +43,7 @@ public class CmsTool extends Tool {
         @Required
         private String internalName;
 
+        private boolean dropDown;
         private List<CssClass> cssClasses;
 
         public String getDisplayName() {
@@ -59,6 +60,14 @@ public class CmsTool extends Tool {
 
         public void setInternalName(String internalName) {
             this.internalName = internalName;
+        }
+
+        public boolean isDropDown() {
+            return dropDown;
+        }
+
+        public void setDropDown(boolean dropDown) {
+            this.dropDown = dropDown;
         }
 
         public List<CssClass> getCssClasses() {

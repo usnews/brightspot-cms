@@ -2204,6 +2204,7 @@ input[type="text"].dropDown-search {
         border: none;
         margin: 0 0 2px 0;
         padding: 0;
+        z-index: 2;
     }
 
     .rte-group[data-group-name=List],
@@ -3190,9 +3191,9 @@ input[type="text"].dropDown-search {
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
     margin: 2px;
-    overflow: hidden;
     padding: 3px 0 0 3px;
     position: relative;
+    vertical-align: top;
     z-index: 1;
 }
 
@@ -3200,10 +3201,8 @@ input[type="text"].dropDown-search {
     background-color: @color-text;
     color: @color-background;
     .border-radius(5px);
-    list-style-type: none;
+    display: inline-block;
     margin: 3px;
-    overflow: hidden;
-    float: left;
     margin: 0 3px 3px 0;
     padding-right: 3px;
 }
@@ -3217,6 +3216,10 @@ input[type="text"].dropDown-search {
     text-transform: uppercase;
 }
 
+.rte-group-buttons {
+    display: block;
+}
+
 .rte-button {
     background-color: @color-background;
     background-position: center;
@@ -3224,11 +3227,12 @@ input[type="text"].dropDown-search {
     .border-radius(3px);
     color: @color-text;
     cursor: pointer;
-    float: left;
+    display: inline-block;
     font-size: 80%;
     height: 20px;
     line-height: 20px;
     margin: 0 0 3px 3px;
+    overflow: hidden;
     width: 20px;
 
     &:before {
@@ -3237,6 +3241,46 @@ input[type="text"].dropDown-search {
 
     &.wysihtml5-command-active {
         background-color: @color-link-lighter;
+    }
+}
+
+.rte-group-dropDown {
+    height: 36px;
+    overflow: hidden;
+
+    .rte-group-label {
+        .icon;
+        .icon-caret-right;
+
+        &:before {
+            width: 5px;
+        }
+    }
+
+    .rte-button {
+        display: block;
+    }
+
+    &:hover {
+        .box-shadow(0 0 2px @color-text);
+        padding-right: 0;
+        overflow: visible;
+
+        .rte-group-label {
+            .icon-caret-down;
+        }
+
+        .rte-group-buttons {
+            background-color: @color-text;
+            .border-radius(3px);
+            .box-shadow(0 0 2px @color-text);
+            padding-bottom: 3px;
+            padding-right: 3px;
+        }
+
+        .rte-button {
+            margin: 3px 0 0 3px;
+        }
     }
 }
 

@@ -235,14 +235,8 @@ public class Search extends Record {
 
         if (selectedType != null) {
             for (ObjectField field : selectedType.getIndexedFields()) {
-                if (!field.as(ToolUi.class).isHidden()) {
-                    String fieldType = field.getInternalType();
-
-                    if (ObjectField.DATE_TYPE.equals(fieldType) ||
-                            ObjectField.NUMBER_TYPE.equals(fieldType) ||
-                            ObjectField.TEXT_TYPE.equals(fieldType)) {
-                        sorts.put(field.getInternalName(), field.getDisplayName());
-                    }
+                if (field.as(ToolUi.class).isEffectivelySortable()) {
+                    sorts.put(field.getInternalName(), field.getDisplayName());
                 }
             }
         }
