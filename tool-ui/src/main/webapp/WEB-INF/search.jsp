@@ -71,11 +71,41 @@ String newJsp = (String) request.getAttribute("newJsp");
 String newTarget = (String) request.getAttribute("newTarget");
 boolean singleType = validTypes.size() == 1;
 
-writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm-container-singleType" : ""));
+if (selectedType == null && singleType) {
+    selectedType = validTypes.iterator().next();
+}
+
+List<ObjectType> globalFilters = new ArrayList<ObjectType>();
+
+for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+    if (t.as(ToolUi.class).isGlobalFilter()) {
+        globalFilters.add(t);
+    }
+}
+
+globalFilters.remove(selectedType);
+Collections.sort(globalFilters);
+
+List<ObjectField> fieldFilters = new ArrayList<ObjectField>();
+
+if (selectedType != null) {
+    for (ObjectField field : selectedType.getIndexedFields()) {
+        ToolUi fieldUi = field.as(ToolUi.class);
+
+        if (fieldUi.isEffectivelyFilterable() &&
+                Collections.disjoint(field.getTypes(), globalFilters)) {
+            fieldFilters.add(field);
+        }
+    }
+}
+
+writer.start("div", "class", "searchForm-container");
     writer.start("div", "class", "searchForm-controls");
 
         writer.start("div", "class", "searchForm-filters");
-            writer.start("h2").html("Filters").end();
+            if (!globalFilters.isEmpty() || !fieldFilters.isEmpty()) {
+                writer.start("h2").html("Filters").end();
+            }
 
             writer.start("form",
                     "method", "get",
@@ -92,7 +122,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                 writer.tag("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
                 writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
 
-                if (!validTypes.isEmpty()) {
+                if (!singleType && !validTypes.isEmpty()) {
                     wp.typeSelect(
                             validTypes,
                             selectedType,
@@ -135,17 +165,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                     writer.start("button").html("Go").end();
                 writer.end();
 
-                List<ObjectType> filters = new ArrayList<ObjectType>();
-
-                for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
-                    if (t.as(ToolUi.class).isGlobalFilter()) {
-                        filters.add(t);
-                    }
-                }
-
-                Collections.sort(filters);
-
-                for (ObjectType filter : filters) {
+                for (ObjectType filter : globalFilters) {
                     String filterId = filter.getId().toString();
                     State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
@@ -163,19 +183,9 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                 }
 
                 if (selectedType != null) {
-                    for (ObjectField field : selectedType.getIndexedFields()) {
+                    for (ObjectField field : fieldFilters) {
                         ToolUi fieldUi = field.as(ToolUi.class);
-
-                        if (!fieldUi.isEffectivelyFilterable()) {
-                            continue;
-                        }
-
                         Set<ObjectType> fieldTypes = field.getTypes();
-
-                        if (!Collections.disjoint(fieldTypes, filters)) {
-                            continue;
-                        }
-
                         String fieldName = field.getInternalName();
                         StringBuilder fieldTypeIds = new StringBuilder();
 
@@ -221,11 +231,9 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                         "action", wp.url(newJsp),
                         "target", ObjectUtils.isBlank(newTarget) ? null : newTarget);
 
-                    if (validTypes.size() == 1) {
-                        ObjectType type = validTypes.iterator().next();
-
-                        writer.tag("input", "type", "hidden", "name", "typeId", "value", type.getId());
-                        writer.tag("input", "type", "submit", "value", "New " + wp.getObjectLabel(type), "style", "width: auto;");
+                    if (singleType) {
+                        writer.tag("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
+                        writer.tag("input", "type", "submit", "value", "New " + wp.getObjectLabel(selectedType), "style", "width: auto;");
 
                     } else {
                         wp.typeSelect(
