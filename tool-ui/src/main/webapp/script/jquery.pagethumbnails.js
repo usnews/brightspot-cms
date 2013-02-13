@@ -24,8 +24,9 @@ $.plugin2('pageThumbnails', {
 
                 $hover,
                 previewUrl,
-                containerOffset,
-                containerWidth,
+                $anchor,
+                anchorOffset,
+                anchorWidth,
                 leftLarger;
 
         $containers = $containers.add($container);
@@ -79,20 +80,26 @@ $.plugin2('pageThumbnails', {
                 $body.append($toggle);
             }
 
+            $anchor = $hover.find('[data-preview-anchor]');
+
+            if ($anchor.length === 0) {
+                $anchor = $container;
+            }
+
             hoverTop = $hover.offset().top;
             hoverHeight = $hover.outerHeight();
-            containerOffset = $container.offset();
-            containerWidth = $container.outerWidth();
-            leftLarger = containerOffset.left > $doc.width() - containerOffset.left - containerWidth;
+            anchorOffset = $anchor.offset();
+            anchorWidth = $anchor.outerWidth();
+            leftLarger = anchorOffset.left > $doc.width() - anchorOffset.left - anchorWidth;
 
             if (leftLarger) {
-                toggleLeft = containerOffset.left -
-                        $.css($container[0], 'padding-left', true) -
-                        $.css($container[0], 'border-left-width', true) -
-                        $.css($container[0], 'margin-left', true);
+                toggleLeft = anchorOffset.left -
+                        $.css($anchor[0], 'padding-left', true) -
+                        $.css($anchor[0], 'border-left-width', true) -
+                        $.css($anchor[0], 'margin-left', true);
 
             } else {
-                toggleLeft = containerOffset.left + containerWidth - $toggle.outerWidth(true);
+                toggleLeft = anchorOffset.left + anchorWidth - $toggle.outerWidth(true);
             }
 
             $toggle.toggleClass('pageThumbnails_toggle-right', leftLarger);
@@ -172,14 +179,14 @@ $.plugin2('pageThumbnails', {
                     resizeFrame();
 
                     if (leftLarger) {
-                        previewLeft = containerOffset.left -
-                                $.css($container[0], 'padding-left', true) -
-                                $.css($container[0], 'border-left-width', true) -
-                                $.css($container[0], 'margin-left', true) -
+                        previewLeft = anchorOffset.left -
+                                $.css($anchor[0], 'padding-left', true) -
+                                $.css($anchor[0], 'border-left-width', true) -
+                                $.css($anchor[0], 'margin-left', true) -
                                 $preview.outerWidth(true);
 
                     } else {
-                        previewLeft = containerOffset.left + containerWidth;
+                        previewLeft = anchorOffset.left + anchorWidth;
                     }
 
                     $preview.toggleClass('pageThumbnails_preview-right', leftLarger);
