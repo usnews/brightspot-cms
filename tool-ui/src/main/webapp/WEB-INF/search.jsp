@@ -170,8 +170,13 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                             continue;
                         }
 
-                        String fieldName = field.getInternalName();
                         Set<ObjectType> fieldTypes = field.getTypes();
+
+                        if (!Collections.disjoint(fieldTypes, filters)) {
+                            continue;
+                        }
+
+                        String fieldName = field.getInternalName();
                         StringBuilder fieldTypeIds = new StringBuilder();
 
                         if (!ObjectUtils.isBlank(fieldTypes)) {
