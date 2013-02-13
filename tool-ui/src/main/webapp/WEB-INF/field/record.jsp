@@ -149,34 +149,6 @@ if (isEmbedded) {
     return;
 }
 
-Set<ObjectType> valueTypes = field.getTypes();
-String validTypeIds;
-if (ObjectUtils.isBlank(valueTypes)) {
-    validTypeIds = "";
-} else {
-    StringBuilder sb = new StringBuilder();
-    for (ObjectType type : valueTypes) {
-        sb.append(type.getId()).append(",");
-    }
-    sb.setLength(sb.length() - 1);
-    validTypeIds = sb.toString();
-}
-
-StorageItem preview = fieldValue != null
-        ? State.getInstance(fieldValue).getPreview()
-        : null;
-
 %><div class="smallInput">
-    <input
-            class="objectId"
-            data-searcher-path="<%= wp.h(field.as(ToolUi.class).getInputSearcherPath()) %>"
-            data-label="<%= fieldValue != null ? ((fieldValueType == null ? wp.typeLabel(fieldValue) + ": " : "") + wp.objectLabel(fieldValue)) : "" %>"
-            data-typeIds="<%= validTypeIds %>"
-            data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
-            data-additional-query="<%= wp.h(field.getPredicate()) %>"
-            data-preview="<%= preview != null ? preview.getUrl() : "" %>"
-            name="<%= wp.h(inputName) %>"
-            type="text"
-            value="<%= fieldValue != null ? State.getInstance(fieldValue).getId() : "" %>"
-            >
+    <% wp.objectSelect(field, fieldValue, "name", inputName); %>
 </div>

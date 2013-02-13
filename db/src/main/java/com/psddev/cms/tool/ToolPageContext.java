@@ -33,20 +33,24 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.util.BuildDebugServlet;
+import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.WebPageContext;
@@ -1004,6 +1008,71 @@ public class ToolPageContext extends WebPageContext {
 
             previousLabel = label;
         }
+    }
+
+    /**
+     * Writes a {@code <select>} or {@code <input>} tag that allows the user
+     * to pick a content.
+     *
+     * @param field Can't be {@code null}.
+     * @param value Initial value. May be {@code null}.
+     * @param attributes Extra attributes for the HTML tag.
+     */
+    public void objectSelect(ObjectField field, Object value, Object... attributes) throws IOException {
+        ErrorUtils.errorIfNull(field, "field");
+
+        ToolUi ui = field.as(ToolUi.class);
+        State state = State.getInstance(value);
+        PageWriter writer = getWriter();
+
+        if (ui.isDropDown()) {
+            Query<?> itemsQuery = new Search(field).toQuery();
+
+            if (!itemsQuery.hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L))) {
+                List<?> items = itemsQuery.selectAll();
+                Collections.sort(items, new ObjectFieldComparator("_label", false));
+
+                writer.start("select",
+                        "data-searchable", "true",
+                        attributes);
+                    writer.start("option", "value", "").end();
+                    for (Object item : items) {
+                        State itemState = State.getInstance(item);
+                        writer.start("option",
+                                "selected", item.equals(value) ? "selected" : null,
+                                "value", itemState.getId());
+                            writer.objectLabel(item);
+                        writer.end();
+                    }
+                writer.end();
+
+                return;
+            }
+        }
+
+        StorageItem preview = value != null ? state.getPreview() : null;
+        StringBuilder typeIds = new StringBuilder();
+
+        for (ObjectType type : field.getTypes()) {
+            typeIds.append(type.getId());
+            typeIds.append(',');
+        }
+
+        if (typeIds.length() > 0) {
+            typeIds.setLength(typeIds.length() - 1);
+        }
+
+        writer.tag("input",
+                "type", "text",
+                "class", "objectId",
+                "data-additional-query", field.getPredicate(),
+                "data-label", value != null ? getObjectLabel(value) : null,
+                "data-pathed", ToolUi.isOnlyPathed(field),
+                "data-preview", preview != null ? preview.getPublicUrl() : null,
+                "data-searcher-path", ui.getInputSearcherPath(),
+                "data-typeIds", typeIds,
+                "value", value != null ? state.getId() : null,
+                attributes);
     }
 
     // --- AuthenticationFilter bridge ---

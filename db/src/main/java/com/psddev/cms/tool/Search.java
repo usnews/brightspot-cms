@@ -67,6 +67,12 @@ public class Search extends Record {
     public Search() {
     }
 
+    public Search(ObjectField field) {
+        getTypes().addAll(field.getTypes());
+        setOnlyPathed(ToolUi.isOnlyPathed(field));
+        setAdditionalPredicate(field.getPredicate());
+    }
+
     public Search(ToolPageContext page, Iterable<UUID> typeIds) {
         this.page = page;
 
