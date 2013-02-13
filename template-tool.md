@@ -70,8 +70,6 @@ To do this, create a new object that will be our right rail module, calling it `
 		
 	}
 	
-<img src="http://docs.brightspot.s3.amazonaws.com/author-list-module.png" alt="" />
-	
 
 The jsp file to render this object could look like the example below:
 
@@ -136,8 +134,6 @@ The full list of attributes are contained within the `PageContextFilter.class`
 **Choose Content Type**
 
 As we have chosen the Article Section to contain our Main Content. We can then specify the exact Object Type we want to display within the template, this is done at the bottom of the page.
-
-<a href="#"><img src="http://docs.brightspot.s3.amazonaws.com/template-choose-type.png" alt="" /></a>
 
 The `ECMA Script` is the typical choice. A path for the template can be defined here. `objectName` defaults to the first field within the Object.
 

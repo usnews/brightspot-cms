@@ -23,7 +23,7 @@ Here's an example of an Image object:
     @ToolUi.Referenceable
     @Renderer.Engine("JSP")
     @Renderer.Script("/WEB-INF/modules/image.jsp")
-	public class Image extends Content {
+    public class Image extends Content {
 
         private StorageItem file;
         private String altText;
@@ -50,8 +50,8 @@ like `dari/storage/{storageName}/`.
 
 **Key:** `dari/defaultStorage` **Type:** `java.lang.String`
 
-> The name of the default storage configuration item. This will be used by
-> `com.psddev.dari.util.StorageItem.Static.create()`.
+The name of the default storage configuration item. This will be used by
+`com.psddev.dari.util.StorageItem.Static.create()`.
 
 #### Local StorageItem
 
@@ -59,21 +59,21 @@ StorageItem implementation that stores files on local disk.
 
 **Key:** `dari/storage/{storageName}/class` **Type:** `java.lang.String`
 
-> This should be `com.psddev.dari.util.LocalStorageItem` for local
-> filesystem storage.
+This should be `com.psddev.dari.util.LocalStorageItem` for local
+filesystem storage.
 
 **Key:** `dari/storage/{storageName}/rootPath` **Type:** `java.lang.String`
 
-> Path to location to store files on the local filesystem.
+Path to location to store files on the local filesystem.
 
 **Key:** `dari/storage/{storageName}/baseUrl` **Type:** `java.lang.String`
 
-> URL to the document root defined by `rootPath`.
+URL to the document root defined by `rootPath`.
 
 
-	<Environment name="dari/storage/local/class" override="false" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
-	<Environment name="dari/storage/local/rootPath" override="false" type="java.lang.String" value="PATH/webapps/media" />
-	<Environment name="dari/storage/local/baseUrl" override="false" type="java.lang.String" value="http://localhost:8080/media" />
+    <Environment name="dari/storage/local/class" override="false" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
+    <Environment name="dari/storage/local/rootPath" override="false" type="java.lang.String" value="PATH/webapps/media" />
+    <Environment name="dari/storage/local/baseUrl" override="false" type="java.lang.String" value="http://localhost:8080/media" />
 
 #### Amazon S3 StorageItem
 
@@ -81,32 +81,32 @@ StorageItem implementation that stores files on Amazon S3.
 
 **Key:** `dari/storage/{storageName}/class` **Type:** `java.lang.String`
 
-> This should be `com.psddev.dari.util.AmazonStorageItem.java` for
-> Amazon S3 storage.
+This should be `com.psddev.dari.util.AmazonStorageItem.java` for
+Amazon S3 storage.
 
 **Key:** `dari/storage/{storageName}/access` **Type:** `java.lang.String`
 
-> This is your AWS Access Key ID (a 20-character,
-> alphanumeric string). For example: AKIAIOSFODNN7EXAMPLE
+This is your AWS Access Key ID (a 20-character,
+alphanumeric string). For example: AKIAIOSFODNN7EXAMPLE
 
 **Key:** `dari/storage/{storageName}/secret` **Type:** `java.lang.String`
 
-> This is your AWS Secret Access Key (a 40-character string). For example:
-> wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+This is your AWS Secret Access Key (a 40-character string). For example:
+wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 **Key:** `dari/storage/{storageName}/bucket` **Type:** `java.lang.String`
 
-> The name of the S3 bucket to store objects in.
+The name of the S3 bucket to store objects in.
 
 **Key:** `dari/storage/{storageName}/baseUrl` **Type:** `java.lang.String`
 
-> URL to the bucket root defined by `bucket`.
+URL to the bucket root defined by `bucket`.
 
-	<Environment name="dari/storage/STORAGE_NAME/class" override="false" type="java.lang.String" value="com.psddev.dari.util.AmazonStorageItem" />
-	<Environment name="dari/storage/STORAGE_NAME/baseUrl" override="false" type="java.lang.String" value="CDN_URL" />
-	<Environment name="dari/storage/STORAGE_NAME/access" override="false" type="java.lang.String" value="AWS_KEY" />
-	<Environment name="dari/storage/STORAGE_NAME/secret" override="false" type="java.lang.String" value="AWS_SECRET" />
-	<Environment name="dari/storage/STORAGE_NAME/bucket" override="false" type="java.lang.String" value="BASE_URL" />
+    <Environment name="dari/storage/STORAGE_NAME/class" override="false" type="java.lang.String" value="com.psddev.dari.util.AmazonStorageItem" />
+    <Environment name="dari/storage/STORAGE_NAME/baseUrl" override="false" type="java.lang.String" value="CDN_URL" />
+    <Environment name="dari/storage/STORAGE_NAME/access" override="false" type="java.lang.String" value="AWS_KEY" />
+    <Environment name="dari/storage/STORAGE_NAME/secret" override="false" type="java.lang.String" value="AWS_SECRET" />
+    <Environment name="dari/storage/STORAGE_NAME/bucket" override="false" type="java.lang.String" value="BASE_URL" />
 
 When attempting to store uploaded files using the Dari `AmazonStorageItem` an error: ClassNotFounfException, `org.jets3t.service.ServiceException`  will appear if the correct dependency is missing from your `pom.xml`.
 
@@ -123,8 +123,8 @@ Add the following Jets3t dependency to resolve this issue:
 
 **Key:** `dari/storage/{storageName}/class` **Type:** `java.lang.String`
 
-> This should be `com.psddev.dari.util.BrightcoveStorageItem.java.java` for
-> Brightcove video storage.
+This should be `com.psddev.dari.util.BrightcoveStorageItem.java.java` for
+Brightcove video storage.
 
 **Key:** `dari/storage/{storageName}/encoding` **Type:** `java.lang.String`
 

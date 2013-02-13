@@ -1,14 +1,16 @@
 
-.scrollLabel { color: #ffffff; background-color:#B93E60; padding: 5px 10px 5px 10px; margin:0px -5px -5px 0px; }
+.scrollLabel { color: #ffffff; background-color:#A01C2D; padding: 5px 10px 5px 10px; margin:0px -5px -5px 0px; }
 
 
 h3 strong {
     font-family: Menlo,Consolas,"Courier New",monospace;
     font-weight: normal;
     font-size: 85%;
-    background: #fafafa;
+    background: #A01C2D;
     padding: 3px;
 }
+
+.span9 h2 { color:#A01C2D;}
 
 .hero-unit {
     background: none;
@@ -27,7 +29,7 @@ h3 strong {
 }
 
 h1, h2, h3, h4, h5 {
-    color: #b93e60;
+    color: #A01C2D;
     padding-top: .25em;
     padding-bottom: .25em;
 }
@@ -35,7 +37,7 @@ h1, h2, h3, h4, h5 {
 h2 {
     padding-top: 0;
     margin-top: 0;
-    color: #b93e60;
+    color: #A01C2D;
 }
 
 h3 {
@@ -100,7 +102,7 @@ blockquote p {
 }
 
 .blurb h2 {
-    color: #b93e60;
+    color: #A01C2D;
 }
 
 .blurb li {
@@ -116,8 +118,8 @@ footer div.blurb p {
 }
 
 .navbar-fixed-top .navbar-inner, .navbar-static-top .navbar-inner {
-    background: #b93e60;
-    border-bottom: 7px solid #f9e263;
+    background: #A01C2D;
+    border-bottom: 7px solid #9F9194;
     min-height: 40px;
 }
 
