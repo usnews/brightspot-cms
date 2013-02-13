@@ -295,7 +295,7 @@ public class Search extends Record {
 
         String queryString = getQueryString();
 
-        if (queryString.length() == 0) {
+        if (ObjectUtils.isBlank(queryString)) {
             if (isAllSearchable) {
                 query.and("* ~= *");
             }
