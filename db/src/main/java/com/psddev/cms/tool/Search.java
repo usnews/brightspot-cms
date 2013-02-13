@@ -32,6 +32,7 @@ import java.util.UUID;
 public class Search extends Record {
 
     public static final String ADDITIONAL_PREDICATE_PARAMETER = "aq";
+    public static final String GLOBAL_FILTER_PARAMETER_PREFIX = "gf.";
     public static final String FIELD_FILTER_PARAMETER_PREFIX = "f.";
     public static final String LIMIT_PARAMETER = "l";
     public static final String NAME_PARAMETER = "n";
@@ -56,6 +57,7 @@ public class Search extends Record {
     private boolean onlyPathed;
     private String additionalPredicate;
     private UUID parentId;
+    private Map<String, String> globalFilters;
     private Map<String, String> fieldFilters;
     private String sort;
     private boolean showMissing;
@@ -81,7 +83,10 @@ public class Search extends Record {
         }
 
         for (String name : page.paramNamesList()) {
-            if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
+            if (name.startsWith(GLOBAL_FILTER_PARAMETER_PREFIX)) {
+                getGlobalFilters().put(name.substring(GLOBAL_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
+
+            } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
                 getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
             }
         }
@@ -160,9 +165,20 @@ public class Search extends Record {
         this.parentId = parentId;
     }
 
+    public Map<String, String> getGlobalFilters() {
+        if (globalFilters == null) {
+            globalFilters = new HashMap<String, String>();
+        }
+        return globalFilters;
+    }
+
+    public void setGlobalFilters(Map<String, String> globalFilters) {
+        this.globalFilters = globalFilters;
+    }
+
     public Map<String, String> getFieldFilters() {
         if (fieldFilters == null) {
-            setFieldFilters(new HashMap<String, String>());
+            fieldFilters = new HashMap<String, String>();
         }
         return fieldFilters;
     }
@@ -367,6 +383,12 @@ public class Search extends Record {
                     from(Object.class).
                     where("_id = ?", getParentId()).
                     first());
+        }
+
+        for (String filter : getGlobalFilters().values()) {
+            if (filter != null) {
+                query.and("* matches ?", filter);
+            }
         }
 
         if (selectedType != null) {

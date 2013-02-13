@@ -7,6 +7,7 @@ com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Database,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -133,6 +134,33 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                             "value", search.getQueryString());
                     writer.start("button").html("Go").end();
                 writer.end();
+
+                List<ObjectType> filters = new ArrayList<ObjectType>();
+
+                for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+                    if (t.as(ToolUi.class).isGlobalFilter()) {
+                        filters.add(t);
+                    }
+                }
+
+                Collections.sort(filters);
+
+                for (ObjectType filter : filters) {
+                    String filterId = filter.getId().toString();
+                    State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
+
+                    writer.start("span");
+                        writer.tag("input",
+                                "type", "text",
+                                "class", "objectId",
+                                "name", "gf." + filterId,
+                                "placeholder", "Filter: " + filter.getDisplayName(),
+                                "data-editable", false,
+                                "data-label", filterState != null ? filterState.getLabel() : null,
+                                "data-typeIds", filterId,
+                                "value", filterState != null ? filterState.getId() : null);
+                    writer.end();
+                }
 
                 if (selectedType != null) {
                     for (ObjectField field : selectedType.getIndexedFields()) {
