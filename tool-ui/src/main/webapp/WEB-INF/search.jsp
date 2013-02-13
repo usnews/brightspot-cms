@@ -149,7 +149,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
                     String filterId = filter.getId().toString();
                     State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
-                    writer.start("span");
+                    writer.start("span", "class", "searchForm-filterInput");
                         writer.tag("input",
                                 "type", "text",
                                 "class", "objectId",
@@ -184,7 +184,7 @@ writer.start("div", "class", "searchForm-container" + (singleType ? " searchForm
 
                         State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getFieldFilters().get(fieldName)).first());
 
-                        writer.start("span");
+                        writer.start("span", "class", "searchForm-filterInput");
                             writer.tag("input",
                                     "type", "text",
                                     "class", "objectId",
