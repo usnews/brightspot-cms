@@ -269,7 +269,7 @@ public class Search extends Record {
 
         if (selectedType != null) {
             isAllSearchable = Content.Static.isSearchableType(selectedType);
-            query = Query.from(Object.class).where("_type = ?", selectedType);
+            query = Query.fromType(selectedType).where("_type = ?", selectedType);
 
         } else {
             for (ObjectType type : validTypes) {
