@@ -125,7 +125,7 @@ public class UnpublishedDrafts extends PageServlet {
                             writer.typeLabel(object);
                         writer.end();
 
-                        writer.start("td", "class", "main");
+                        writer.start("td", "data-preview-anchor", "");
                             writer.start("a", "href", page.objectUrl("/content/edit.jsp", draft), "target", "_top");
                                 writer.objectLabel(object);
                             writer.end();

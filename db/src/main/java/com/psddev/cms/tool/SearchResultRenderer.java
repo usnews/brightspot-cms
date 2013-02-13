@@ -308,7 +308,7 @@ public class SearchResultRenderer {
                 writer.end();
             }
 
-            writer.start("td");
+            writer.start("td", "data-preview-anchor", "");
                 renderBeforeItem(item);
                 writer.objectLabel(item);
                 renderAfterItem(item);

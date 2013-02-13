@@ -715,6 +715,8 @@ public class ToolPageContext extends WebPageContext {
         String companyName = cmsTool.getCompanyName();
         write("<title>", h(companyName), " CMS</title>");
 
+        write("<meta name=\"robots\" content=\"noindex\">");
+
         for (String href : new String[] {
                 "/style/cms.less" }) {
             write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
