@@ -1022,57 +1022,65 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
-        State state = State.getInstance(value);
         PageWriter writer = getWriter();
 
-        if (ui.isDropDown()) {
-            Query<?> itemsQuery = new Search(field).toQuery();
+        if (isObjectSelectDropDown(field)) {
+            List<?> items = new Search(field).toQuery().selectAll();
+            Collections.sort(items, new ObjectFieldComparator("_label", false));
 
-            if (!itemsQuery.hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L))) {
-                List<?> items = itemsQuery.selectAll();
-                Collections.sort(items, new ObjectFieldComparator("_label", false));
+            writer.start("select",
+                    "data-searchable", "true",
+                    attributes);
+                writer.start("option", "value", "").end();
+                for (Object item : items) {
+                    State itemState = State.getInstance(item);
+                    writer.start("option",
+                            "selected", item.equals(value) ? "selected" : null,
+                            "value", itemState.getId());
+                        writer.objectLabel(item);
+                    writer.end();
+                }
+            writer.end();
 
-                writer.start("select",
-                        "data-searchable", "true",
-                        attributes);
-                    writer.start("option", "value", "").end();
-                    for (Object item : items) {
-                        State itemState = State.getInstance(item);
-                        writer.start("option",
-                                "selected", item.equals(value) ? "selected" : null,
-                                "value", itemState.getId());
-                            writer.objectLabel(item);
-                        writer.end();
-                    }
-                writer.end();
+        } else {
+            State state = State.getInstance(value);
+            StorageItem preview = value != null ? state.getPreview() : null;
+            StringBuilder typeIds = new StringBuilder();
 
-                return;
+            for (ObjectType type : field.getTypes()) {
+                typeIds.append(type.getId());
+                typeIds.append(',');
             }
+
+            if (typeIds.length() > 0) {
+                typeIds.setLength(typeIds.length() - 1);
+            }
+
+            writer.tag("input",
+                    "type", "text",
+                    "class", "objectId",
+                    "data-additional-query", field.getPredicate(),
+                    "data-label", value != null ? getObjectLabel(value) : null,
+                    "data-pathed", ToolUi.isOnlyPathed(field),
+                    "data-preview", preview != null ? preview.getPublicUrl() : null,
+                    "data-searcher-path", ui.getInputSearcherPath(),
+                    "data-typeIds", typeIds,
+                    "value", value != null ? state.getId() : null,
+                    attributes);
         }
+    }
 
-        StorageItem preview = value != null ? state.getPreview() : null;
-        StringBuilder typeIds = new StringBuilder();
+    /**
+     * Returns {@code true} if the {@code <select>} tag would be used to allow
+     * the user to pick a content for the given {@code field}.
+     *
+     * @param field Can't be {@code null}.
+     */
+    public boolean isObjectSelectDropDown(ObjectField field) {
+        ErrorUtils.errorIfNull(field, "field");
 
-        for (ObjectType type : field.getTypes()) {
-            typeIds.append(type.getId());
-            typeIds.append(',');
-        }
-
-        if (typeIds.length() > 0) {
-            typeIds.setLength(typeIds.length() - 1);
-        }
-
-        writer.tag("input",
-                "type", "text",
-                "class", "objectId",
-                "data-additional-query", field.getPredicate(),
-                "data-label", value != null ? getObjectLabel(value) : null,
-                "data-pathed", ToolUi.isOnlyPathed(field),
-                "data-preview", preview != null ? preview.getPublicUrl() : null,
-                "data-searcher-path", ui.getInputSearcherPath(),
-                "data-typeIds", typeIds,
-                "value", value != null ? state.getId() : null,
-                attributes);
+        return field.as(ToolUi.class).isDropDown() &&
+                !new Search(field).toQuery().hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
     }
 
     // --- AuthenticationFilter bridge ---
