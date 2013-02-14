@@ -349,7 +349,9 @@ public class Search extends Record {
 
             } else if (selectedType != null) {
                 for (String field : selectedType.getLabelFields()) {
-                    query.and(selectedType.getInternalName() + "/" + field + " ^=[c] ?", queryString);
+                    if (selectedType.getIndex(field) != null) {
+                        query.and(selectedType.getInternalName() + "/" + field + " ^=[c] ?", queryString);
+                    }
                     break;
                 }
 
@@ -360,10 +362,12 @@ public class Search extends Record {
                     String prefix = type.getInternalName() + "/";
 
                     for (String field : type.getLabelFields()) {
-                        predicate = CompoundPredicate.combine(
-                                PredicateParser.OR_OPERATOR,
-                                predicate,
-                                PredicateParser.Static.parse(prefix + field + " ^=[c] ?", queryString));
+                        if (type.getIndex(field) != null) {
+                            predicate = CompoundPredicate.combine(
+                                    PredicateParser.OR_OPERATOR,
+                                    predicate,
+                                    PredicateParser.Static.parse(prefix + field + " ^=[c] ?", queryString));
+                        }
                         break;
                     }
                 }
