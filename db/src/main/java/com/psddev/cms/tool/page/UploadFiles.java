@@ -126,6 +126,7 @@ public class UploadFiles extends PageServlet {
                         item.setPath(path.toString());
                         item.setContentType(contentType);
                         item.getMetadata().put("http.headers", httpHeaders);
+                        item.getMetadata().put("originalFilename", fileName);
                         item.setData(file.getInputStream());
 
                         if (contentType != null && contentType.startsWith("image/")) {
