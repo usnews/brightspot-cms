@@ -67,6 +67,12 @@ public class Search extends Record {
     public Search() {
     }
 
+    public Search(ObjectField field) {
+        getTypes().addAll(field.getTypes());
+        setOnlyPathed(ToolUi.isOnlyPathed(field));
+        setAdditionalPredicate(field.getPredicate());
+    }
+
     public Search(ToolPageContext page, Iterable<UUID> typeIds) {
         this.page = page;
 
@@ -295,7 +301,7 @@ public class Search extends Record {
 
         String queryString = getQueryString();
 
-        if (queryString.length() == 0) {
+        if (ObjectUtils.isBlank(queryString)) {
             if (isAllSearchable) {
                 query.and("* ~= *");
             }

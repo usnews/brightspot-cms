@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Renderable,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Database,
@@ -163,10 +164,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         typeIdsQuery.setLength(typeIdsQuery.length() - 1);
     }
 
+    PageWriter writer = wp.getWriter();
     Map<String, List<String>> layouts = field.as(Renderable.FieldData.class).getListLayouts();
 
     if (layouts != null && !layouts.isEmpty()) {
-        HtmlWriter writer = new HtmlWriter(out);
         String containerId = wp.createId();
 
         writer.start("div",
@@ -335,45 +336,29 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
         return;
     }
-    %>
-    <div class="smallInput repeatableObjectId<%= previewable ? " repeatableObjectId-previewable" : "" %>">
-        <ol>
-            <%
+
+    writer.start("div", "class", "smallInput repeatableObjectId" + (previewable ? " repeatableObjectId-previewable" : ""));
+        writer.start("ol");
             if (fieldValue != null) {
                 for (Object item : fieldValue) {
-                    StorageItem preview = item != null ?
-                            State.getInstance(item).getPreview() :
-                            null;
-                    %>
-                    <li><input
-                            class="objectId"
-                            data-searcher-path="<%= wp.h(field.as(ToolUi.class).getInputSearcherPath()) %>"
-                            data-label="<%= (validTypes == null || validTypes.size() != 1 ? wp.typeLabel(item) + ": " : "") + wp.objectLabel(item) %>"
-                            data-typeIds="<%= wp.h(typeIdsCsv) %>"
-                            data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
-                            data-additional-query="<%= wp.h(field.getPredicate()) %>"
-                            data-preview="<%= preview != null ? preview.getUrl() : "" %>"
-                            name="<%= wp.h(inputName) %>"
-                            type="text"
-                            value="<%= State.getInstance(item).getId() %>"
-                            ></li>
-                    <%
+                    writer.start("li");
+                        wp.objectSelect(field, item, "name", inputName);
+                    writer.end();
                 }
             }
-            %>
-            <li class="template"><input
-                    class="objectId"
-                    data-searcher-path="<%= wp.h(field.as(ToolUi.class).getInputSearcherPath()) %>"
-                    data-typeIds="<%= wp.h(typeIdsCsv) %>"
-                    data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
-                    data-additional-query="<%= wp.h(field.getPredicate()) %>"
-                    name="<%= wp.h(inputName) %>"
-                    type="text"
-                    ></li>
-        </ol>
+            writer.start("li", "class", "template");
+                wp.objectSelect(field, null, "name", inputName);
+            writer.end();
+        writer.end();
 
-        <% if (previewable) { %>
-            <a class="action-upload" href="<%= wp.url("/content/uploadFiles?" + typeIdsQuery) %>" target="uploadFiles">Upload Files</a>
-        <% } %>
-    </div>
-<% } %>
+        if (previewable) {
+            writer.start("a",
+                    "class", "action-upload",
+                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery),
+                    "target", "uploadFiles");
+                writer.html("Upload Files");
+            writer.end();
+        }
+    writer.end();
+}
+%>

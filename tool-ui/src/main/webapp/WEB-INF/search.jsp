@@ -103,7 +103,9 @@ writer.start("div", "class", "searchForm-container");
     writer.start("div", "class", "searchForm-controls");
 
         writer.start("div", "class", "searchForm-filters");
-            if (!globalFilters.isEmpty() || !fieldFilters.isEmpty()) {
+            if ((!singleType && !validTypes.isEmpty()) ||
+                    !globalFilters.isEmpty() ||
+                    !fieldFilters.isEmpty()) {
                 writer.start("h2").html("Filters").end();
             }
 

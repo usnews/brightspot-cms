@@ -2,6 +2,8 @@
 
 com.psddev.cms.db.Content,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.tool.PageWriter,
+com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Query,
@@ -145,43 +147,43 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 <%
 } else {
-    Set<ObjectType> valueTypes = field.getTypes();
-    String validTypeIds;
-    if (ObjectUtils.isBlank(valueTypes)) {
-        validTypeIds = "";
+    PageWriter writer = wp.getWriter();
+
+    if (wp.isObjectSelectDropDown(field)) {
+        writer.start("div", "class", "smallInput");
+            List<?> items = new Search(field).toQuery().selectAll();
+            Collections.sort(items, new ObjectFieldComparator("_label", false));
+
+            writer.start("select",
+                    "multiple", "multiple",
+                    "data-searchable", "true",
+                    "name", inputName);
+                for (Object item : items) {
+                    State itemState = State.getInstance(item);
+                    writer.start("option",
+                            "selected", fieldValue.contains(item) ? "selected" : null,
+                            "value", itemState.getId());
+                        writer.objectLabel(item);
+                    writer.end();
+                }
+            writer.end();
+        writer.end();
+
     } else {
-        StringBuilder sb = new StringBuilder();
-        for (ObjectType type : valueTypes) {
-            sb.append(type.getId()).append(",");
-        }
-        sb.setLength(sb.length() - 1);
-        validTypeIds = sb.toString();
+        writer.start("div", "class", "smallInput repeatableObjectId");
+            writer.start("ul");
+                if (fieldValue != null) {
+                    for (Object item : fieldValue) {
+                        writer.start("li");
+                            wp.objectSelect(field, item, "name", inputName);
+                        writer.end();
+                    }
+                }
+                writer.start("li", "class", "template");
+                    wp.objectSelect(field, null, "name", inputName);
+                writer.end();
+            writer.end();
+        writer.end();
     }
-    %>
-    <div class="smallInput repeatableObjectId">
-        <ul>
-            <% if (fieldValue != null) for (Object item : fieldValue) { %>
-                <li><input
-                        class="objectId"
-                        data-searcher-path="<%= wp.h(field.as(ToolUi.class).getInputSearcherPath()) %>"
-                        data-label="<%= (validTypes == null || validTypes.size() != 1 ? wp.typeLabel(item) + ": " : "") + wp.objectLabel(item) %>"
-                        data-typeIds="<%= wp.h(validTypeIds) %>"
-                        data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
-                        data-additional-query="<%= wp.h(field.getPredicate()) %>"
-                        name="<%= wp.h(inputName) %>"
-                        type="text"
-                        value="<%= State.getInstance(item).getId() %>"
-                        ></li>
-            <% } %>
-            <li class="template"><input
-                    class="objectId"
-                    data-searcher-path="<%= wp.h(field.as(ToolUi.class).getInputSearcherPath()) %>"
-                    data-typeIds="<%= wp.h(validTypeIds) %>"
-                    data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
-                    data-additional-query="<%= wp.h(field.getPredicate()) %>"
-                    name="<%= wp.h(inputName) %>"
-                    type="text"
-                    ></li>
-        </ul>
-    </div>
-<% } %>
+}
+%>

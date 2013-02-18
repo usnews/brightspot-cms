@@ -1,13 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.DatabaseEnvironment;
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.TypeDefinition;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -21,11 +13,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.psddev.dari.db.DatabaseEnvironment;
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
+
 /** Controls the tool UI display. */
 @ToolUi.FieldInternalNamePrefix("cms.ui.")
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private boolean dropDown;
     private Boolean filterable;
     private boolean globalFilter;
     private String heading;
@@ -41,6 +42,14 @@ public class ToolUi extends Modification<Object> {
     private Boolean sortable;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+
+    public boolean isDropDown() {
+        return dropDown;
+    }
+
+    public void setDropDown(boolean dropDown) {
+        this.dropDown = dropDown;
+    }
 
     public Boolean getFilterable() {
         return filterable;
@@ -244,6 +253,26 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    /**
+     * Specifies whether the target field should be displayed as a drop-down
+     * menu.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DropDownProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DropDown {
+        boolean value() default true;
+    }
+
+    private static class DropDownProcessor implements ObjectField.AnnotationProcessor<DropDown> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, DropDown annotation) {
+            field.as(ToolUi.class).setDropDown(annotation.value());
+        }
     }
 
     /**
