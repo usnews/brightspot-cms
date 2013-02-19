@@ -16,7 +16,9 @@ com.psddev.dari.util.StorageItem,
 java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
+java.util.HashMap,
 java.util.List,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
@@ -54,18 +56,33 @@ String typeIdName = inputName + ".typeId";
 String publishDateName = inputName + ".publishDate";
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-
-    fieldValue.clear();
-
     if (!isValueExternal) {
+        Map<UUID, Object> existing = new HashMap<UUID, Object>();
+
+        for (Object item : fieldValue) {
+            existing.put(State.getInstance(item).getId(), item);
+        }
+
+        fieldValue.clear();
+
         UUID[] ids = wp.uuidParams(idName);
         UUID[] typeIds = wp.uuidParams(typeIdName);
         Date[] publishDates = wp.dateParams(publishDateName);
+
         for (int i = 0, s = Math.min(Math.min(ids.length, typeIds.length), publishDates.length); i < s; ++ i) {
-            ObjectType type = ObjectType.getInstance(typeIds[i]);
-            Object item = type.createObject(null);
+            Object item = existing.get(ids[i]);
             State itemState = State.getInstance(item);
-            itemState.setId(ids[i]);
+
+            if (item != null) {
+                itemState.setTypeId(typeIds[i]);
+
+            } else {
+                ObjectType type = ObjectType.getInstance(typeIds[i]);
+                item = type.createObject(null);
+                itemState = State.getInstance(item);
+                itemState.setId(ids[i]);
+            }
+
             wp.include("/WEB-INF/objectPost.jsp", "object", item);
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
@@ -73,6 +90,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
     } else {
+        fieldValue.clear();
+
         for (UUID id : wp.uuidParams(inputName)) {
             Object item = Query.findById(Object.class, id);
             if (item != null) {

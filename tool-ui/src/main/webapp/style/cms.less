@@ -1603,6 +1603,7 @@ input[type=text].expandable { min-width: 5em; }
         left: 0;
         position: absolute;
         top: -45px;
+        width: 100%;
     }
 
     .action-reset {
@@ -1619,6 +1620,19 @@ input[type=text].expandable { min-width: 5em; }
         display: block;
         margin-top: 5px;
         width: 100%;
+    }
+}
+
+.searchForm-filterInput {
+    display: block;
+    position: relative;
+
+    .objectId-clear {
+        .icon-only;
+
+        position: absolute;
+        right: 25px;
+        top: 3px;
     }
 }
 
@@ -1666,21 +1680,6 @@ input[type=text].expandable { min-width: 5em; }
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
-    }
-}
-
-.searchForm-container-singleType {
-    .searchForm-filters {
-        h2,
-        .action-reset {
-            display: none;
-        }
-    }
-
-    .searchForm-create {
-        h2 {
-            display: none;
-        }
     }
 }
 
@@ -1870,15 +1869,22 @@ h1 select:focus {
     position: relative;
     width: 210px;
 }
-#calendar > .month {
+#calendar > .monthYear {
     margin-bottom: 10px;
     text-align: center;
+}
+#calendar > .monthYear > .year {
+    width: 45px;
+
+    &.invalid {
+        border-color: @color-alert;
+    }
 }
 #calendar > .previousButton {
     .icon;
     .icon-chevron-left;
     .link;
-    left: 41px;
+    left: 0;
     position: absolute;
     top: 2px;
 }
@@ -1888,7 +1894,7 @@ h1 select:focus {
     .link;
     position: absolute;
     top: 2px;
-    right: 38px;
+    right: 0;
 }
 #calendar > * > .day {
     cursor: pointer;

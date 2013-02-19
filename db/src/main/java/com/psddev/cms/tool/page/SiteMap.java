@@ -362,7 +362,7 @@ public class SiteMap extends PageServlet {
                                     writer.start("td").end();
 
                                 } else {
-                                    writer.start("td");
+                                    writer.start("td", "data-preview-anchor", "");
                                         writer.html(permalink);
                                     writer.end();
                                 }

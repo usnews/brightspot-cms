@@ -577,8 +577,8 @@ $.plugin2('rte', {
     '_create': function(element) {
         var options = $.extend(true, { }, this.option());
 
-        if (typeof options.useLineBreaks === 'undefined') {
-            options.useLineBreaks = !!$(element).attr('data-use-line-breaks');
+        if ($(element).attr('data-use-line-breaks')) {
+            options.useLineBreaks = true;
         }
 
         new Rte(element, options);

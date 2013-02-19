@@ -572,6 +572,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (object != null) {
                 State.getInstance(object).as(Template.ObjectModification.class).setDefault(template);
+                State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
             }
 
         } else if (object != null) {
@@ -714,6 +715,8 @@ public class ToolPageContext extends WebPageContext {
         CmsTool cmsTool = getCmsTool();
         String companyName = cmsTool.getCompanyName();
         write("<title>", h(companyName), " CMS</title>");
+
+        write("<meta name=\"robots\" content=\"noindex\">");
 
         for (String href : new String[] {
                 "/style/cms.less" }) {
