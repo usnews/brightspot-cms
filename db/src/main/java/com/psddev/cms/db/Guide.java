@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;
@@ -67,6 +68,32 @@ public class Guide extends Record {
             return true;
         }
         return false;
+    }
+    
+    public static class GuideSettings extends Modification<com.psddev.cms.tool.CmsTool> {
+        @ToolUi.Note("If true, automatically generate production guide entries for all templates")
+        private boolean autoGenerateTemplateGuides = true;
+        
+        @ToolUi.Note("If true, automatically generate production guide entries for all content types referenced in a template")
+        private boolean autoGenerateContentTypeGuides = true;
+
+        public boolean isAutoGenerateTemplateGuides() {
+            return autoGenerateTemplateGuides;
+        }
+
+        public void setAutoGenerateTemplateGuides(boolean autoGenerateTemplateGuides) {
+            this.autoGenerateTemplateGuides = autoGenerateTemplateGuides;
+        }
+
+        public boolean isAutoGenerateContentTypeGuides() {
+            return autoGenerateContentTypeGuides;
+        }
+
+        public void setAutoGenerateContentTypeGuides(
+                boolean autoGenerateContentTypeGuides) {
+            this.autoGenerateContentTypeGuides = autoGenerateContentTypeGuides;
+        }
+       
     }
 
     /** Static utility methods. */
@@ -217,10 +244,13 @@ public class Guide extends Record {
             // parents are
             // evaluated before children, which is how they get returned from
             // Section
+            if (sections == null) {
+                return nameMap;
+            }
             for (Section section : sections) {
                 String sectionName = "";
                 if (!nameMap.containsKey(section.getId())) {
-                    if (!section.getName().isEmpty()) {
+                    if (section.getName() != null && !section.getName().isEmpty()) {
                         sectionName = section.getName();
                     } else {
                         // if the section wasn't given an explicit name, we use

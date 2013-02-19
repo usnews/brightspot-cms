@@ -140,7 +140,9 @@
 
         // If we haven't selected one, default to the outermost section
         if (sectionId == null) {
-            selectedId = pg.getLayout().getOutermostSection().getId();
+            if (pg.getLayout() != null && pg.getLayout().getOutermostSection() != null) {
+                selectedId = pg.getLayout().getOutermostSection().getId();
+            }
         } else {
             selectedId = sectionId;
             summaryPage = false;
