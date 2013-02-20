@@ -1,23 +1,23 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.util.ObjectUtils;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
+
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.ObjectUtils;
 
 /** Represents a generic content. */
 @Content.Searchable
@@ -63,10 +63,88 @@ public abstract class Content extends Record {
         private ObjectModification() {
         }
 
+        @Indexed(visibility = true)
+        @InternalName("cms.content.status")
+        private String status;
+
         private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
         private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
         private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
+
+        /**
+         * Returns the current content status.
+         *
+         * @return {@code null} if published and available publically.
+         */
+        public String getStatus() {
+            if (status != null) {
+                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
+
+                if (contentStatus != null) {
+                    return contentStatus.toString();
+                }
+
+                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
+
+                if (draftStatus != null) {
+                    return draftStatus.getLabel();
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Returns the unique ID associated with the current content status.
+         *
+         * @return {@code null} if published and available publically.
+         */
+        public String getStatusId() {
+            if (status != null) {
+                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
+
+                if (contentStatus != null) {
+                    return contentStatus.name();
+                }
+
+                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
+
+                if (draftStatus != null) {
+                    return draftStatus.getId().toString();
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Sets the status to published so that the content is available
+         * publically.
+         */
+        public void setStatusPublished() {
+            this.status = null;
+        }
+
+        /**
+         * Sets the status to one of the standard content statuses.
+         *
+         * @param status Can't be {@code null}.
+         */
+        public void setStatus(ContentStatus status) {
+            ErrorUtils.errorIfNull(status, "status");
+            this.status = status.name();
+        }
+
+        /**
+         * Sets the status to one of the draft statuses.
+         *
+         * @param status Can't be {@code null}.
+         */
+        public void setStatus(DraftStatus status) {
+            ErrorUtils.errorIfNull(status, "status");
+            this.status = status.getId().toString();
+        }
 
         /** Returns the date when the given {@code object} was published. */
         public Date getPublishDate() {

@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolUi;
@@ -329,6 +330,8 @@ public class SiteMap extends PageServlet {
                         for (Object item : result.getItems()) {
                             State itemState = State.getInstance(item);
                             String permalink = null;
+                            Content.ObjectModification itemContentData = itemState.as(Content.ObjectModification.class);
+                            String statusId = itemContentData.getStatusId();
 
                             if (type.equals(URL_TYPE)) {
                                 for (Directory.Path pathObject : itemState.as(Directory.ObjectModification.class).getPaths()) {
@@ -351,6 +354,14 @@ public class SiteMap extends PageServlet {
                                 writer.end();
 
                                 writer.start("td");
+                                    if (statusId != null) {
+                                        writer.start("span", "class", "contentStatusLabel contentStatusLabel-" + statusId);
+                                            writer.html(itemContentData.getStatus());
+                                        writer.end();
+                                    }
+
+                                    writer.html(" ");
+
                                     writer.start("a",
                                             "target", "_top",
                                             "href", page.objectUrl("/content/edit.jsp", item));

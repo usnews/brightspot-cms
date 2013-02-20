@@ -150,6 +150,7 @@ public class RecentActivity extends PageServlet {
                     DateTime updateDate = new DateTime(contentData.getUpdateDate());
                     ToolUser updateUser = contentData.getUpdateUser();
                     String dateString = updateDate.toString("E, MMM d, yyyy");
+                    String statusId = contentData.getStatusId();
 
                     writer.start("tr", "data-preview-url", permalink);
                         writer.start("td", "class", "date");
@@ -168,6 +169,14 @@ public class RecentActivity extends PageServlet {
                         writer.end();
 
                         writer.start("td", "data-preview-anchor", "");
+                            if (statusId != null) {
+                                writer.start("span", "class", "contentStatusLabel contentStatusLabel-" + statusId);
+                                    writer.html(contentData.getStatus());
+                                writer.end();
+                            }
+
+                            writer.html(" ");
+
                             writer.start("a",
                                     "href", page.objectUrl("/content/edit.jsp", content),
                                     "target", "_top");
