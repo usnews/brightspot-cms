@@ -44,13 +44,14 @@ String removeId = wp.createId();
         var $page = $('#<%= pageId %>');
         var $input = $page.popup('source').parent().find(':input.objectId');
 
-        $page.find('.link').click(function() {
+        $page.delegate('[data-objectId]', 'click', function() {
             var $link = $(this);
             $input.attr('data-label', $link.text());
             $input.attr('data-preview', $link.find('img').attr('src'));
             $input.val($link.attr('data-objectId'));
             $input.change();
             $page.popup('close');
+            return false;
         });
     })(jQuery);
 </script>
