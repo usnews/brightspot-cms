@@ -16,6 +16,10 @@ $.plugin2('sortable', {
         $container.find(options.itemSelector).addClass('_sortable-item');
 
         $container.delegate(options.itemSelector, 'mousedown.sortable', function(event) {
+            if ($(event.target).closest('._sortable')[0] != container) {
+                return;
+            }
+
             if ($(event.target).is(':input')) {
                 return;
             }
@@ -61,6 +65,10 @@ $.plugin2('sortable', {
                 data.$dragCover.hide();
 
                 $drop = $.elementFromPoint(event.clientX, event.clientY).closest('._sortable-item');
+
+                if ($drop.closest('._sortable')[0] != container) {
+                    $drop = $();
+                }
 
                 if ($drop.length > 0 && $drop[0] !== data.$placeholder[0]) {
                     $items = $container.find(options.itemSelector);
