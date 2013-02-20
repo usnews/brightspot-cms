@@ -69,11 +69,11 @@ public class Guide extends Record {
         }
         return false;
     }
-    
+
     public static class GuideSettings extends Modification<com.psddev.cms.tool.CmsTool> {
         @ToolUi.Note("If true, automatically generate production guide entries for all templates")
         private boolean autoGenerateTemplateGuides = true;
-        
+
         @ToolUi.Note("If true, automatically generate production guide entries for all content types referenced in a template")
         private boolean autoGenerateContentTypeGuides = true;
 
@@ -93,7 +93,7 @@ public class Guide extends Record {
                 boolean autoGenerateContentTypeGuides) {
             this.autoGenerateContentTypeGuides = autoGenerateContentTypeGuides;
         }
-       
+
     }
 
     /** Static utility methods. */

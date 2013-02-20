@@ -5,8 +5,8 @@ import java.io.Writer;
 import java.util.Locale;
 
 /**
- * Provides ability to write non-layout-related inserts (e.g. non-visible span blacks) without disrupting the page 
- * by delaying writes to the appropriate points in html 
+ * Provides ability to write non-layout-related inserts (e.g. non-visible span blacks) without disrupting the page
+ * by delaying writes to the appropriate points in html
  */
 public  class LazyWriter extends Writer {
 
@@ -29,7 +29,7 @@ public  class LazyWriter extends Writer {
     private boolean inScriptOrStyle;
     private boolean inBody;
 
-    
+
     public LazyWriter(Writer delegate) {
         this.delegate = delegate;
     }

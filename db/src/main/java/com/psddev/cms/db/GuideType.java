@@ -213,8 +213,8 @@ public class GuideType extends Record {
             }
             return null;
         }
- 
-        
+
+
         /**
          * Retrieve the field's minimum value for Production Guide display. For
          * these purposes, we suppress some of the "less-useful" max/min values
@@ -283,7 +283,7 @@ public class GuideType extends Record {
             return maxVal;
         }
 
-        
+
         /**
          * Query to get a T/F as to whether the given {@code fieldName} has any
          * information we include in the field description (e.g. used to
