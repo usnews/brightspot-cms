@@ -45,7 +45,7 @@ $.plugin2('objectId', {
 
             $selectButton = $('<a/>', {
                 'class': 'objectId-select',
-                'href': searcherPath + '?pt=' + encodeURIComponent(id) + '&p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || ''),
+                'href': searcherPath + '?pt=' + encodeURIComponent(id) + '&p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || '') + "&sg=" + encodeURIComponent($input.attr('data-suggestions') || ''),
                 'target': target
             });
 

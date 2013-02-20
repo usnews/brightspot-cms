@@ -79,7 +79,7 @@ public class SearchResultRenderer {
     }
 
     public void render() throws IOException {
-        if (ObjectUtils.isBlank(search.getQueryString())) {
+        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
 
             writer.start("div", "class", "frame", "name", frameName);

@@ -39,6 +39,7 @@ public class ToolUi extends Modification<Object> {
     private Boolean readOnly;
     private boolean richText;
     private Boolean sortable;
+    private Boolean suggestions;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
 
@@ -228,6 +229,18 @@ public class ToolUi extends Modification<Object> {
         return ObjectField.DATE_TYPE.equals(fieldType) ||
                 ObjectField.NUMBER_TYPE.equals(fieldType) ||
                 ObjectField.TEXT_TYPE.equals(fieldType);
+    }
+
+    public Boolean getSuggestions() {
+        return suggestions;
+    }
+
+    public boolean isEffectivelySuggestions() {
+        return !Boolean.FALSE.equals(suggestions);
+    }
+
+    public void setSuggestions(Boolean suggestions) {
+        this.suggestions = suggestions;
     }
 
     public Number getSuggestedMaximum() {
@@ -561,6 +574,23 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, Sortable annotation) {
             field.as(ToolUi.class).setSortable(annotation.value());
+        }
+    }
+
+    /** Specifies whether the target field should offer suggestions. */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(SuggestionsProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Suggestions {
+        boolean value() default true;
+    }
+
+    private static class SuggestionsProcessor implements ObjectField.AnnotationProcessor<Suggestions> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Suggestions annotation) {
+            field.as(ToolUi.class).setSuggestions(annotation.value());
         }
     }
 

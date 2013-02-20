@@ -168,6 +168,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         data-typeIds="<%= wp.h(validTypeIds) %>"
                         data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
                         data-additional-query="<%= wp.h(field.getPredicate()) %>"
+                        data-suggestions="<%= field.as(ToolUi.class).isEffectivelySuggestions() %>"
                         name="<%= wp.h(inputName) %>"
                         type="text"
                         value="<%= State.getInstance(item).getId() %>"
@@ -179,6 +180,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     data-typeIds="<%= wp.h(validTypeIds) %>"
                     data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
                     data-additional-query="<%= wp.h(field.getPredicate()) %>"
+                    data-suggestions="<%= field.as(ToolUi.class).isEffectivelySuggestions() %>"
                     name="<%= wp.h(inputName) %>"
                     type="text"
                     ></li>
