@@ -175,6 +175,7 @@ StorageItem preview = fieldValue != null
             data-pathed="<%= ToolUi.isOnlyPathed(field) %>"
             data-additional-query="<%= wp.h(field.getPredicate()) %>"
             data-preview="<%= preview != null ? preview.getUrl() : "" %>"
+            data-suggestions="<%= field.as(ToolUi.class).isEffectivelySuggestions() %>"
             name="<%= wp.h(inputName) %>"
             type="text"
             value="<%= fieldValue != null ? State.getInstance(fieldValue).getId() : "" %>"

@@ -572,7 +572,10 @@ public class ToolPageContext extends WebPageContext {
 
             if (object != null) {
                 State.getInstance(object).as(Template.ObjectModification.class).setDefault(template);
-                State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+
+                if (State.getInstance(object).as(Site.ObjectModification.class).getOwner() == null) {
+                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                }
             }
 
         } else if (object != null) {

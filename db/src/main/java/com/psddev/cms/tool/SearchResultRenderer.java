@@ -79,7 +79,7 @@ public class SearchResultRenderer {
     }
 
     public void render() throws IOException {
-        if (ObjectUtils.isBlank(search.getQueryString())) {
+        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
 
             writer.start("div", "class", "frame", "name", frameName);
@@ -330,6 +330,7 @@ public class SearchResultRenderer {
     public void renderBeforeItem(Object item) throws IOException {
         writer.start("a",
                 "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("", Search.NAME_PARAMETER, null)),
+                "data-objectId", State.getInstance(item).getId(),
                 "target", "_top");
     }
 

@@ -43,6 +43,7 @@ public class Search extends Record {
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
+    public static final String SUGGESTIONS_PARAMETER = "sg";
     public static final String TYPES_PARAMETER = "rt";
 
     public static final String NEWEST_SORT_LABEL = "Newest";
@@ -61,6 +62,7 @@ public class Search extends Record {
     private Map<String, String> fieldFilters;
     private String sort;
     private boolean showMissing;
+    private boolean suggestions;
     private long offset;
     private int limit;
 
@@ -98,6 +100,7 @@ public class Search extends Record {
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
+        setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
     }
@@ -201,6 +204,14 @@ public class Search extends Record {
 
     public void setShowMissing(boolean showMissing) {
         this.showMissing = showMissing;
+    }
+
+    public boolean isSuggestions() {
+        return suggestions;
+    }
+
+    public void setSuggestions(boolean suggestions) {
+        this.suggestions = suggestions;
     }
 
     public long getOffset() {
