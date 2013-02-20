@@ -40,7 +40,7 @@ public class RecentActivity extends PageServlet {
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(Integer.class, "limit", 20);
 
-        Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.from(Content.class)).
+        Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.from(Object.class)).
                 where(page.siteItemsPredicate()).
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(Content.UPDATE_DATE_FIELD + " <= ?", date).
