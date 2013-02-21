@@ -130,12 +130,23 @@ writer.start("html");
                 String groupName = group.getInternalName();
 
                 for (CmsTool.CssClass c : group.getCssClasses()) {
+                    String css = c.getCss();
+                    String cmsOnlyCss = c.getCmsOnlyCss();
+
                     wp.write(".cms-");
                     wp.write(groupName);
                     wp.write("-");
                     wp.write(c.getInternalName());
                     wp.write(" { ");
-                    wp.write(c.getCss());
+
+                    if (!ObjectUtils.isBlank(css)) {
+                        wp.write(css);
+                    }
+
+                    if (!ObjectUtils.isBlank(cmsOnlyCss)) {
+                        wp.write(cmsOnlyCss);
+                    }
+
                     wp.write(" }\n");
                 }
             }
