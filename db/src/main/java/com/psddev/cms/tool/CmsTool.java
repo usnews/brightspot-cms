@@ -93,6 +93,7 @@ public class CmsTool extends Tool {
 
         private String tag;
         private String css;
+        private String cmsOnlyCss;
 
         public String getDisplayName() {
             return displayName;
@@ -123,6 +124,15 @@ public class CmsTool extends Tool {
         }
 
         public void setCss(String css) {
+            this.css = css;
+        }
+
+        public String getCmsOnlyCss() {
+            return cmsOnlyCss;
+        }
+
+        public void setCmsOnlyCss(String cmsOnlyCss) {
+            this.cmsOnlyCss = cmsOnlyCss;
         }
     }
 
