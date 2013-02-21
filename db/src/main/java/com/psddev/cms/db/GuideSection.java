@@ -1,6 +1,5 @@
 package com.psddev.cms.db;
 
-import java.util.UUID;
 
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;

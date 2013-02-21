@@ -1,14 +1,11 @@
 package com.psddev.cms.db;
 
-
-import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.util.StorageItem;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -37,7 +34,7 @@ public class GuidePage extends Record {
     @ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
     private Content samplePage;
 
-    @ToolUi.Note("Sample Page snapshot image for used for Printouts")
+    @ToolUi.Note("Sample Page snapshot image used for Printouts")
     private StorageItem samplePageSnapshot;
 
     @ToolUi.Note("Production Guide section descriptions for this page/template")

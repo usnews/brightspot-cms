@@ -576,7 +576,10 @@ public class ToolPageContext extends WebPageContext {
 
             if (object != null) {
                 State.getInstance(object).as(Template.ObjectModification.class).setDefault(template);
-                State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+
+                if (State.getInstance(object).as(Site.ObjectModification.class).getOwner() == null) {
+                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                }
             }
 
         } else if (object != null) {
@@ -845,7 +848,9 @@ public class ToolPageContext extends WebPageContext {
             write("<button>Go</button>");
             write("</span>");
             write("</form>");
+        }
 
+        if (user != null) {
             write("<ul class=\"mainNav\">");
             String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
 
@@ -1065,6 +1070,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-pathed", ToolUi.isOnlyPathed(field),
                     "data-preview", preview != null ? preview.getPublicUrl() : null,
                     "data-searcher-path", ui.getInputSearcherPath(),
+                    "data-suggestions", ui.isEffectivelySuggestions(),
                     "data-typeIds", typeIds,
                     "value", value != null ? state.getId() : null,
                     attributes);

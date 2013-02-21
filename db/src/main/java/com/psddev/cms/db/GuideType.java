@@ -1,7 +1,6 @@
 package com.psddev.cms.db;
 
 import com.psddev.dari.db.CachingDatabase;
-import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
@@ -9,16 +8,8 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,7 +25,7 @@ public class GuideType extends Record {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(GuideType.class);
 
-    @ToolUi.Note("Content type for Production Guide information")
+    @ToolUi.Note("Content type for Production Guide information. After selecting, click Save to automatically generate field entries")
     @Required
     @Indexed
     ObjectType documentedType;
@@ -96,7 +87,7 @@ public class GuideType extends Record {
             }
         }
         if (createIfMissing == true) {
-            setFieldDescription(fieldName, fieldDisplayName, null, false);
+            setFieldDescription(fieldName, fieldDisplayName, null);
         }
         return desc;
     }
@@ -113,7 +104,7 @@ public class GuideType extends Record {
     }
 
     public void setFieldDescription(String fieldName, String fieldDisplayName,
-            ReferentialText description, boolean annotation) {
+            ReferentialText description) {
         ReferentialText desc = null;
         if (fieldDescriptions != null) {
             for (GuideField gf : fieldDescriptions) {
@@ -122,7 +113,6 @@ public class GuideType extends Record {
                         gf.setDisplayName(fieldDisplayName);
                     }
                     gf.setDescription(description);
-                    gf.setFromAnnotation(annotation);
                     return;
                 }
             }
@@ -134,7 +124,6 @@ public class GuideType extends Record {
             gf.setDisplayName(fieldDisplayName);
         }
         gf.setDescription(description);
-        gf.setFromAnnotation(annotation);
         addFieldDescription(gf);
 
     }
@@ -185,11 +174,6 @@ public class GuideType extends Record {
         @ToolUi.Note("Production Guide information about this field")
         ReferentialText description;
 
-        // True if the description was populated from an annotation (if false,
-        // annotations are ignored)
-        @ToolUi.Hidden
-        boolean fromAnnotation;
-
         public String getFieldName() {
             return fieldName;
         }
@@ -214,14 +198,6 @@ public class GuideType extends Record {
             this.description = description;
         }
 
-        public boolean isFromAnnotation() {
-            return fromAnnotation;
-        }
-
-        public void setFromAnnotation(boolean fromAnnotation) {
-            this.fromAnnotation = fromAnnotation;
-        }
-
     }
 
     public static final class Static {
@@ -238,19 +214,88 @@ public class GuideType extends Record {
             return null;
         }
 
+
         /**
-         * Query to get a T/F as to whether the given {@code fieldName} has any information we include in
-         * the field description (e.g. used to determine whether ? link is displayed in UI
+         * Retrieve the field's minimum value for Production Guide display. For
+         * these purposes, we suppress some of the "less-useful" max/min values
+         * as they can be confusing to the editors
+         *
+         */
+        public static Object getFieldMinimumValue(ObjectField field) {
+            Object minVal = field.getMinimum();
+            if (minVal != null) {
+                Class javaTypeClass = minVal.getClass();
+                if (javaTypeClass.equals(long.class)
+                        || javaTypeClass.equals(Long.class)
+                        && (Long) minVal == Long.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(int.class)
+                        || javaTypeClass.equals(Integer.class)
+                        && (Integer) minVal == Integer.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(short.class)
+                        || javaTypeClass.equals(Short.class)
+                        && (Short) minVal == Short.MIN_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(byte.class)
+                        || javaTypeClass.equals(Byte.class)
+                        && (Byte) minVal == Byte.MIN_VALUE) {
+                    return null;
+                }
+            }
+            return minVal;
+        }
+
+        /**
+         * Retrieve the field's maximum value for Production Guide display. For
+         * these purposes, we suppress some of the "less-useful" max/min values
+         * as they can be confusing to the editors
+         *
+         */
+        public static Object getFieldMaximumValue(ObjectField field) {
+            Object maxVal = field.getMaximum();
+            if (maxVal != null) {
+                Class javaTypeClass = maxVal.getClass();
+                if (javaTypeClass.equals(long.class)
+                        || javaTypeClass.equals(Long.class)
+                        && (Long) maxVal == Long.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(int.class)
+                        || javaTypeClass.equals(Integer.class)
+                        && (Integer) maxVal == Integer.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(short.class)
+                        || javaTypeClass.equals(Short.class)
+                        && (Short) maxVal == Short.MAX_VALUE) {
+                    return null;
+                }
+                if (javaTypeClass.equals(byte.class)
+                        || javaTypeClass.equals(Byte.class)
+                        && (Byte) maxVal == Byte.MAX_VALUE) {
+                    return null;
+                }
+            }
+            return maxVal;
+        }
+
+
+        /**
+         * Query to get a T/F as to whether the given {@code fieldName} has any
+         * information we include in the field description (e.g. used to
+         * determine whether ? link is displayed in UI
          */
         public static boolean hasFieldGuideInfo(State state, String fieldName) {
             ObjectField field = state.getField(fieldName);
             if (field.isRequired())
                 return true;
-            if (field.getMaximum() != null)
+            if (getFieldMaximumValue(field) != null)
                 return true;
-            if (field.getMinimum() != null)
-                return true;
-            if (field.getDefaultValue() != null)
+            if (getFieldMinimumValue(field) != null)
                 return true;
             ReferentialText desc = getFieldDescription(state, fieldName);
             if (desc != null && !desc.isEmpty())
@@ -258,6 +303,7 @@ public class GuideType extends Record {
 
             return false;
         }
+
 
         /**
          * Retrieve the existing GuideType instance for a given {@code objectType}.
@@ -315,9 +361,9 @@ public class GuideType extends Record {
         }
 
         public static void setDescription(ObjectField field,
-                ReferentialText descText, boolean fromAnnotation) {
+                ReferentialText descText) {
             GuideType guide = Static.findOrCreateGuide(field);
-            guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText, fromAnnotation);
+            guide.setFieldDescription(field.getInternalName(), field.getDisplayName(), descText);
             guide.saveImmediately();
         }
 

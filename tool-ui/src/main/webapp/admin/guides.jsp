@@ -1,6 +1,7 @@
 <%@ page
     import="
     com.psddev.cms.db.Guide,
+    com.psddev.cms.db.Guide.GuideSettings,
     com.psddev.cms.db.GuidePage,
     com.psddev.cms.db.GuidePage.Static,
     com.psddev.cms.db.GuideType,
@@ -31,9 +32,14 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
 }
 
 // Ensure that there is a GuidePage object created for any templates
-GuidePage.Static.createDefaultTemplateGuides();
+GuideSettings settings = (wp.getCmsTool()).as(GuideSettings.class);
+if (settings.isAutoGenerateTemplateGuides() == true) {
+    GuidePage.Static.createDefaultTemplateGuides();
+}
 // Ensure that there is a GuideType object created for any objects referenced by templates.
-GuideType.Static.createDefaultTypeGuides();
+if (settings.isAutoGenerateContentTypeGuides() == true) {
+    GuideType.Static.createDefaultTypeGuides();
+}
 
 List<Guide> guides = Query.from(Guide.class).sortAscending("title").select();
 List<GuideType> typeGuides = Query.from(GuideType.class).sortAscending("documentedType/name").select();
