@@ -25,7 +25,7 @@ public class GuideType extends Record {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(GuideType.class);
 
-    @ToolUi.Note("Content type for Production Guide information")
+    @ToolUi.Note("Content type for Production Guide information. After selecting, click Save to automatically generate field entries")
     @Required
     @Indexed
     ObjectType documentedType;
