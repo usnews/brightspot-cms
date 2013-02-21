@@ -844,7 +844,9 @@ public class ToolPageContext extends WebPageContext {
             write("<button>Go</button>");
             write("</span>");
             write("</form>");
+        }
 
+        if (user != null) {
             write("<ul class=\"mainNav\">");
             String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
 
