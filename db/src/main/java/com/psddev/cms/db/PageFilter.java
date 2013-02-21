@@ -427,6 +427,7 @@ public class PageFilter extends AbstractFilter {
                 marker.append(ObjectUtils.toJson(map));
                 marker.append("</span>");
                 if (lazyWriter != null) {
+                    writer.flush();
                 	lazyWriter.writeLazily(marker.toString());
                 } else {
                 	writer.write(marker.toString());
@@ -1026,6 +1027,7 @@ public class PageFilter extends AbstractFilter {
                 marker.append("\"></span>");
   
                 if (lazyWriter != null) {
+                    writer.flush();
                 	lazyWriter.writeLazily(marker.toString());
                 } else {
                 	writer.write(marker.toString());
@@ -1042,6 +1044,7 @@ public class PageFilter extends AbstractFilter {
             if (isOverlay) {
             	String endOverlayStr = "<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>";
             	if (lazyWriter != null) {
+            	    writer.flush();
             		lazyWriter.writeLazily(endOverlayStr);
             	} else {
             		writer.write(endOverlayStr);
