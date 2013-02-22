@@ -54,12 +54,4 @@ if (wp.requirePermission("area/dashboard")) {
     <% } %>
 </ul>
 
-<ul class="links">
-    <li><a href="<%= wp.url("/content/edit.jsp",
-            "typeId", ObjectType.getInstance(Page.class).getId())
-            %>" id="<%= wp.createId() %>" target="_top">One-off Page</a></li>
-
-    <li><a class="action-upload" href="<%= wp.url("/content/uploadFiles", "typeId", ObjectType.getInstance(Content.class).getId()) %>" target="uploadFiles">Upload Files</a></li>
-</ul>
-
 </div>

@@ -316,6 +316,7 @@ public class CmsTool extends Tool {
         dashboardRow = 0.0;
 
         plugins.add(createJspWidget("Page Builder", "dashboard.pageBuilder", "/misc/pageBuilder.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
+        plugins.add(createJspWidget("Bulk Upload", "dashboard.bulkUpload", "/bulkUpload", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Drafts", "dashboard.unpublishedDrafts", "/misc/unpublishedDrafts.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
 

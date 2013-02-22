@@ -397,7 +397,7 @@ $doc.delegate(':input', 'blur', function() {
         $body.append($cover);
 
         // Valid file drop zones.
-        $('.inputContainer .action-upload, .upload-droppable .action-upload').each(function() {
+        $('.inputContainer .action-upload, .upload-droppable .upload-link').each(function() {
             var $upload = $(this),
                     $container = $upload.closest('.inputContainer, .upload-droppable'),
                     overlayCss,
