@@ -34,7 +34,7 @@ if (wp.isFormPost()) {
 
 // --- Presentation ---
 
-%><h1>Settings</h1>
+%><h1 class="action-profile">Profile</h1>
 <% wp.include("/WEB-INF/errors.jsp"); %>
 <form action="<%= wp.objectUrl("", user) %>" enctype="multipart/form-data" method="post">
     <% wp.include("/WEB-INF/objectForm.jsp", "object", user, "includeFields", INCLUDE_FIELDS); %>

@@ -1063,98 +1063,6 @@ table.links.table-striped {
     font-size: 90%;
 }
 
-.tabs {
-    float: left;
-    list-style-type: none;
-    margin-left: 0;
-}
-
-.tabs-item {
-    float: left;
-    margin: 0 3px 0 0;
-    padding: 0;
-    position: relative;
-
-    > a {
-        background-color: @color-background;
-        border: 1px solid @color-note;
-        .border-top-left-radius(5px);
-        .border-top-right-radius(5px);
-        display: block;
-        font-family: @fontFamily-label;
-        font-size: 15px;
-        height: 30px;
-        line-height: 30px;
-        padding: 0 15px;
-
-        &:hover {
-            text-decoration: none;
-        }
-    }
-}
-
-.tabs-selected {
-    > a {
-        background: @color-background;
-        border-bottom-color: @color-background;
-        color: @color-text;
-        position: relative;
-    }
-}
-
-.tabs-nested {
-    &:hover > a {
-        .border-bottom-left-radius(0);
-        .border-bottom-right-radius(0);
-    }
-}
-
-.tabs-hover {
-    > a {
-        border-bottom-color: @color-background;
-    }
-
-    .tabs-dropDown {
-        display: block;
-    }
-}
-
-.tabs-dropDown {
-    background-color: @color-background;
-    .border-bottom-left-radius(5px);
-    .border-bottom-right-radius(5px);
-    .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
-    display: none;
-    left: 1px;
-    list-style-type: none;
-    margin: 0;
-    padding: 0 0 5px 0;
-    position: absolute;
-    top: 32px;
-    z-index: 200;
-}
-
-.tabs-dropDown-item {
-    > a {
-        display: block;
-        padding: 2px 15px;
-        white-space: nowrap;
-
-        &:hover {
-            background-color: @color-link;
-            color: @color-background;
-            text-decoration: none;
-        }
-    }
-}
-
-.tabs-dropDown-selected {
-    > a {
-        background-color: @color-text;
-        color: @color-background;
-    }
-}
-
 .text {
     background: transparent;
     border: none;
@@ -1247,7 +1155,7 @@ body {
     font-style: normal;
     font-weight: normal;
     line-height: @lineHeight-default;
-    margin: 80px 20px 20px 20px;
+    margin: 75px 20px 20px 20px;
     padding: 0;
     vertical-align: baseline;
     word-wrap: break-word;
@@ -1456,77 +1364,102 @@ input[type=text].expandable { min-width: 5em; }
 
 // --- Tool ---
 
-.toolHat {
-    background-color: @color-text;
-    color: @color-background;
-    font-size: 11px;
-    height: 21px;
-    left: 0;
-    line-height: 21px;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 100;
-
-    a {
-        color: @color-link-lighter;
-    }
-}
-
-.toolHat-profile {
-    margin-left: 20px;
-}
-
-.toolHat-toolbar {
-    position: absolute;
-    right: 20px;
-    top: 0;
-}
-
 .toolHeader {
     background-color: @color-note-lighter;
     border-bottom: 1px solid @color-note;
     .box-shadow(@color-background 0 8px 15px);
-    height: 43px;
+    height: 59px;
     left: 0;
     position: fixed;
-    top: 21px;
+    top: 0;
     width: 100%;
     z-index: 100;
 }
 
-.toolHeader-title {
+.toolTitle {
     float: left;
-    font-family: @fontFamily-label;
-    font-size: 25px;
-    line-height: 43px;
-    margin-left: 20px;
+    height: 46px;
+    line-height: 46px;
+    margin: 7px 0 0 20px;
 
     a {
         color: @color-text;
+        font-family: @fontFamily-label;
+        font-size: 30px;
+        line-height: 30px;
+        vertical-align: bottom;
 
         &:hover {
             text-decoration: none;
         }
-    }
 
-    @media @media-tablet {
-        display: none;
+        img {
+            height: 100%;
+        }
     }
 }
 
-.toolHeader-title-companyName {
-    color: #d31e13;
+.toolEnv {
+    background-color: @color-note-darker;
+    .box-shadow(0 0 5px fade(@color-text, 50%));
+    color: @color-background;
+    height: 22px;
+    font-size: 11px;
+    line-height: 22px;
+    position: absolute;
+    text-align: center;
+    top: 18px;
+    right: -44px;
+    width: 150px;
+    .transform(rotate(45deg));
+    text-transform: uppercase;
 }
 
-.toolHeader-search {
-    font-size: 15px;
-    line-height: 43px;
-    max-width: 300px;
+.toolProfile {
+    font-size: 11px;
+    line-height: 24px;
     position: absolute;
     right: 20px;
     top: 0;
+
+    .toolHeader-hasEnvironment & {
+        right: 77px;
+    }
+
+    ul {
+        .piped;
+
+        display: inline;
+
+        &:before {
+            color: @color-note;
+            content: ' ( ';
+            padding: 0 2px;
+        }
+
+        &:after {
+            color: @color-note;
+            content: ' ) ';
+            padding: 0 2px;
+        }
+
+        li {
+            .piped-item;
+        }
+    }
+}
+
+.toolSearch {
+    font-size: 15px;
+    max-width: 300px;
+    position: absolute;
+    right: 20px;
+    top: 24px;
     width: 25%;
+
+    .toolHeader-hasEnvironment & {
+        right: 52px;
+    }
 
     .searchInput {
         width: 100%;
@@ -1538,36 +1471,90 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.toolHeader-mainNav {
-    .tabs;
-    margin-left: 20px;
-    margin-top: 12px;
+.toolNav {
+    float: left;
+    list-style-type: none;
+    margin: 23px 0 0 20px;
 
     > li {
-        .tabs-item;
+        float: left;
+        margin: 0 3px 0 0;
+        padding: 0;
+        position: relative;
+
+        > a {
+            background-color: @color-background;
+            border: 1px solid @color-note;
+            .border-top-left-radius(5px);
+            .border-top-right-radius(5px);
+            display: block;
+            font-family: @fontFamily-label;
+            font-size: 15px;
+            height: 35px;
+            line-height: 35px;
+            padding: 0 10px;
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
 
         > ul {
-            .tabs-dropDown;
+            background-color: @color-background;
+            .border-bottom-left-radius(5px);
+            .border-bottom-right-radius(5px);
+            .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
+            display: none;
+            left: 1px;
+            list-style-type: none;
+            margin: 0;
+            padding: 0 0 5px 0;
+            position: absolute;
+            top: 37px;
+            z-index: 200;
 
             > li {
-                .tabs-dropDown-item;
+                > a {
+                    display: block;
+                    padding: 2px 15px;
+                    white-space: nowrap;
+
+                    &:hover {
+                        background-color: @color-link;
+                        color: @color-background;
+                        text-decoration: none;
+                    }
+                }
 
                 &.selected {
-                    .tabs-dropDown-selected;
+                    > a {
+                        background-color: @color-text;
+                        color: @color-background;
+                    }
                 }
             }
         }
 
         &.isNested {
-            .tabs-nested;
+            &:hover > a {
+                .border-bottom-left-radius(0);
+                .border-bottom-right-radius(0);
+            }
         }
 
         &.selected {
-            .tabs-selected;
+            > a {
+                background: @color-background;
+                border-bottom-color: @color-background;
+                color: @color-text;
+                position: relative;
+            }
         }
 
         &:hover {
-            .tabs-hover;
+            > a {
+                border-bottom-color: @color-background;
+            }
 
             > ul {
                 display: block;
@@ -3540,15 +3527,6 @@ input[type="text"].dropDown-search {
 .searchForm > .filters { .searchForm-controls; }
 .searchForm > .filters .new { .searchForm-create; }
 .searchForm > .result { .searchForm-result; }
-
-.toolHat > .profile { .toolHat-profile; }
-.toolHat > .toolbar { .toolHat-toolbar; }
-
-.toolHeader > .title { .toolHeader-title; }
-.toolHeader > .title > .cobrand,
-.toolHeader > .title > .companyName { .toolHeader-title-companyName; }
-.toolHeader > .search { .toolHeader-search; }
-.toolHeader > .mainNav { .toolHeader-mainNav; }
 
 .toolFooter .build { .toolFooter-build; }
 

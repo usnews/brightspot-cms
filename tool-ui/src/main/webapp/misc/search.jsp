@@ -18,7 +18,7 @@ wp.include(
 %>
 <script type="text/javascript">
     if (typeof jQuery !== 'undefined') (function(win, $, undef) {
-        var $headerInput = $('.toolHeader > .search :text');
+        var $headerInput = $('.toolSearch :text');
         if (!$headerInput.val()) {
             $headerInput.val($('.frame[name="miscSearch"] .searchForm-filters .searchInput :text').val()).trigger('input');
             $headerInput[0].select();

@@ -48,25 +48,19 @@ if (wp.isFormPost()) {
 %><% wp.include("/WEB-INF/header.jsp"); %>
 
 <style type="text/css">
-.toolHat {
-    display: none;
-}
 .toolHeader {
     background-color: transparent;
     border-style: none;
 }
-.toolHeader > .title {
+.toolTitle {
     float: none;
-    margin: 0 auto;
+    height: 100px;
+    margin: 30px 0 0 0;
     text-align: center;
-    width: 30em;
 }
 .toolFooter {
-    background-position: top center;
     border-style: none;
-    margin-left: auto;
-    margin-right: auto;
-    width: 30em;
+    text-align: center;
 }
 .toolFooter .build {
     background-position: top center;
@@ -75,6 +69,9 @@ if (wp.isFormPost()) {
 .widget {
     margin: 0 auto;
     width: 30em;
+}
+body {
+    margin-top: 170px;
 }
 </style>
 

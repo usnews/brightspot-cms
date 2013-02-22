@@ -29,7 +29,7 @@ wp.include("/WEB-INF/header.jsp");
 
 writer.start("style", "type", "text/css");
     writer.write("body { background-color: transparent; }");
-    writer.write(".toolHat, .toolHeader, .toolFooter { display: none; }");
+    writer.write(".toolHeader, .toolFooter { display: none; }");
 writer.end();
 
 writer.start("div", "class", "remoteOverlay-hat");

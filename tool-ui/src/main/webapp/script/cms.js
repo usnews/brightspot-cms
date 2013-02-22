@@ -515,7 +515,7 @@ $doc.ready(function() {
     (function() {
         var previousValue;
 
-        $('.toolHeader > .search :text').bind('focus input', $.throttle(500, function() {
+        $('.toolSearch :text').bind('focus input', $.throttle(500, function() {
             var $headerInput = $(this),
                     $headerForm = $headerInput.closest('form'),
                     $searchFrame,

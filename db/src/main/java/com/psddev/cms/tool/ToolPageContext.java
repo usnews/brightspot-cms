@@ -717,6 +717,8 @@ public class ToolPageContext extends WebPageContext {
 
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
+        StorageItem companyLogo = cms.getCompanyLogo();
+        String environment = cms.getEnvironment();
         String extraCss = cms.getExtraCss();
         String extraJavaScript = cms.getExtraJavaScript();
         ToolUser user = getUser();
@@ -824,56 +826,64 @@ public class ToolPageContext extends WebPageContext {
             writeEnd();
             writeTag("body");
 
-                if (user != null) {
-                    writeStart("div", "class", "toolHat");
-                        writeStart("ul", "class", "piped profile");
-                            writeStart("li");
-                                writeHtml("Hello, ");
-                                writeHtml(getObjectLabel(user));
-                            writeEnd();
+                writeStart("div", "class", "toolHeader" + (!ObjectUtils.isBlank(environment) ? " toolHeader-hasEnvironment" : ""));
 
-                            if (!Site.Static.findAll().isEmpty()) {
-                                Site currentSite = user.getCurrentSite();
+                    writeStart("h1", "class", "toolTitle");
+                        writeStart("a", "href", cmsUrl("/"));
+                            if (companyLogo != null) {
+                                writeTag("img", "src", companyLogo.getPublicUrl(), "alt", companyName);
+                            } else {
+                                writeHtml(companyName);
+                            }
+                        writeEnd();
+                    writeEnd();
+
+                    if (!ObjectUtils.isBlank(environment)) {
+                        writeStart("div", "class", "toolEnv");
+                            writeHtml(environment);
+                        writeEnd();
+                    }
+
+                    if (user != null) {
+                        writeStart("div", "class", "toolProfile");
+                            writeHtml("Hello, ");
+                            writeHtml(getObjectLabel(user));
+
+                            writeStart("ul");
+                                if (!Site.Static.findAll().isEmpty()) {
+                                    Site currentSite = user.getCurrentSite();
+
+                                    writeStart("li");
+                                        writeHtml("Site: ");
+                                        writeStart("a", "href", cmsUrl("/misc/sites.jsp"), "target", "misc");
+                                            writeHtml(currentSite != null ? currentSite.getLabel() : "Global");
+                                        writeEnd();
+                                    writeEnd();
+                                }
 
                                 writeStart("li");
-                                    writeHtml("Site: ");
-                                    writeStart("a", "href", cmsUrl("/misc/sites.jsp"), "target", "misc");
-                                        writeHtml(currentSite != null ? currentSite.getLabel() : "Global");
+                                    writeStart("a",
+                                            "class", "action-profile",
+                                            "href", cmsUrl("/misc/settings.jsp"),
+                                            "target", "misc");
+                                        writeHtml("Profile");
                                     writeEnd();
                                 writeEnd();
-                            }
 
-                            writeStart("li");
-                                writeStart("a",
-                                        "class", "action-profile",
-                                        "href", cmsUrl("/misc/settings.jsp"),
-                                        "target", "misc");
-                                    writeHtml("Profile");
-                                writeEnd();
-                            writeEnd();
-
-                            writeStart("li");
-                                writeStart("a",
-                                        "class", "action-logOut",
-                                        "href", cmsUrl("/misc/logOut.jsp"));
-                                    writeHtml("Log Out");
+                                writeStart("li");
+                                    writeStart("a",
+                                            "class", "action-logOut",
+                                            "href", cmsUrl("/misc/logOut.jsp"));
+                                        writeHtml("Log Out");
+                                    writeEnd();
                                 writeEnd();
                             writeEnd();
                         writeEnd();
-                    writeEnd();
-                }
-
-                writeStart("div", "class", "toolHeader");
-
-                    writeStart("h1", "class", "title");
-                        writeStart("a", "href", cmsUrl("/"));
-                            writeHtml(companyName);
-                        writeEnd();
-                    writeEnd();
+                    }
 
                     if (hasPermission("area/dashboard")) {
                         writeStart("form",
-                                "class", "search",
+                                "class", "toolSearch",
                                 "method", "get",
                                 "action", cmsUrl("/misc/search.jsp"),
                                 "target", "miscSearch");
@@ -892,7 +902,7 @@ public class ToolPageContext extends WebPageContext {
                     if (user != null) {
                         String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
 
-                        writeStart("ul", "class", "mainNav");
+                        writeStart("ul", "class", "toolNav");
                             for (Area top : Tool.Static.getTopAreas()) {
                                 if (!hasPermission(top.getPermissionId())) {
                                     continue;

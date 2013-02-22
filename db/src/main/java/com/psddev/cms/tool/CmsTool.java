@@ -15,6 +15,7 @@ import com.psddev.cms.db.ToolRole;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StorageItem;
 
 /** Brightspot CMS. */
 public class CmsTool extends Tool {
@@ -23,6 +24,8 @@ public class CmsTool extends Tool {
     private static final String CSS_WRITTEN = ATTRIBUTE_PREFIX + ".cssWritten";
 
     private String companyName;
+    private StorageItem companyLogo;
+    private String environment;
     private ToolRole defaultRole;
     private Set<String> disabledPlugins;
     private String extraCss;
@@ -144,6 +147,26 @@ public class CmsTool extends Tool {
     /** Sets the company name. */
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    /** Returns the company logo. */
+    public StorageItem getCompanyLogo() {
+        return companyLogo;
+    }
+
+    /** Sets the company logo. */
+    public void setCompanyLogo(StorageItem companyLogo) {
+        this.companyLogo = companyLogo;
+    }
+
+    /** Returns the environment. */
+    public String getEnvironment() {
+        return environment;
+    }
+
+    /** Sets the environment. */
+    public void setEnvironment(String environment) {
+        this.environment = environment;
     }
 
     /**
