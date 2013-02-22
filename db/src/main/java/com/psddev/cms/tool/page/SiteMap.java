@@ -138,6 +138,10 @@ public class SiteMap extends PageServlet {
             }
         }
 
+        if (count == null && result.getFirstItemIndex() == 1 && !result.hasNext()) {
+            count = (long) result.getItems().size();
+        }
+
         PageWriter writer = page.getWriter();
 
         writer.start("div", "class", "widget widget-sitemap");
