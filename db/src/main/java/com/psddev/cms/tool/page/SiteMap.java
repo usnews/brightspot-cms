@@ -138,7 +138,7 @@ public class SiteMap extends PageServlet {
             }
         }
 
-        if (count == null && result.getFirstItemIndex() == 1 && !result.hasNext()) {
+        if (count == null && result != null && result.getFirstItemIndex() == 1 && !result.hasNext()) {
             count = (long) result.getItems().size();
         }
 
