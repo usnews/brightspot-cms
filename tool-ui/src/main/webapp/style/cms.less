@@ -4119,43 +4119,40 @@ input[type="text"].dropDown-search {
 }
 
 .sitemap-filters {
-    overflow: hidden;
+    display: table;
+    width: 100%;
 
-    select {
-        width: 100%;
+    select,
+    .dropDown-input,
+    .objectId-select {
+        width: 100% !important;
     }
 }
 
 .sitemap-filters-itemType,
+.sitemap-filters-prep,
 .sitemap-filters-type,
 .sitemap-filters-value {
-    .box-sizing(border-box);
-    float: left;
+    display: table-cell;
 }
 
 .sitemap-filters-itemType {
     width: 20%;
 }
 
-.sitemap-filters-type {
-    padding: 0 5px 0 3em;
-    width: 30%;
+.sitemap-filters-prep {
+    padding: 0 6px;
+    text-align: center;
+    width: 0;
 }
 
-.sitemap-filters-with {
-    display: inline-block;
-    margin-left: -3em;
-    text-align: center;
-    width: 3em;
+.sitemap-filters-type {
+    padding-right: 6px;
+    width: 20%;
 }
 
 .sitemap-filters-value {
-    padding-right: 0;
-    width: 50%;
-
-    .objectId-select {
-        width: 100%;
-    }
+    width: 100%;
 
     .objectId-clear {
         display: none !important;

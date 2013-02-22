@@ -162,32 +162,44 @@ public class SiteMap extends PageServlet {
                             "data-searchable", "true");
                 writer.writeEnd();
 
-                writer.writeStart("span", "class", "sitemap-filters-type");
-                    writer.writeStart("span", "class", "sitemap-filters-with");
+                if (types.isEmpty()) {
+                    writer.writeStart("span", "class", "sitemap-filters-prep");
+                        writer.writeHtml("in");
+                    writer.writeEnd();
+
+                    writer.writeTag("input",
+                            "type", "hidden",
+                            "name", "type",
+                            "value", URL_TYPE);
+
+                } else {
+                    writer.writeStart("span", "class", "sitemap-filters-prep");
                         writer.writeHtml("with");
                     writer.writeEnd();
 
-                    writer.writeStart("select",
-                            "class", "autoSubmit",
-                            "name", "type");
+                    writer.writeStart("span", "class", "sitemap-filters-type");
+                        writer.writeStart("select",
+                                "class", "autoSubmit",
+                                "name", "type");
 
-                        writer.writeStart("option",
-                                "selected", type.equals(URL_TYPE) ? "selected" : null,
-                                "value", URL_TYPE);
-                            writer.writeHtml("URL");
-                        writer.writeEnd();
-
-                        for (ObjectType t : types) {
-                            String id = t.getId().toString();
                             writer.writeStart("option",
-                                    "selected", type.equals(id) ? "selected" : null,
-                                    "value", id);
-                                writer.writeHtml(t.getDisplayName());
+                                    "selected", type.equals(URL_TYPE) ? "selected" : null,
+                                    "value", URL_TYPE);
+                                writer.writeHtml("URL");
                             writer.writeEnd();
-                        }
 
+                            for (ObjectType t : types) {
+                                String id = t.getId().toString();
+                                writer.writeStart("option",
+                                        "selected", type.equals(id) ? "selected" : null,
+                                        "value", id);
+                                    writer.writeHtml(t.getDisplayName());
+                                writer.writeEnd();
+                            }
+
+                        writer.writeEnd();
                     writer.writeEnd();
-                writer.writeEnd();
+                }
 
                 writer.writeStart("span", "class", "sitemap-filters-value");
 
