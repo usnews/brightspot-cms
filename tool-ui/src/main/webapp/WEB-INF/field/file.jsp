@@ -484,7 +484,7 @@ String existingClass = wp.createId();
                                         }
                                         %>
                                         <% if (size != null) { %>
-                                            <tr data-size-width="<%= size.getWidth() %>" data-size-height="<%= size.getHeight() %>">
+                                            <tr data-size-name="<%= size.getInternalName() %>" data-size-width="<%= size.getWidth() %>" data-size-height="<%= size.getHeight() %>">
                                                 <th><%= wp.h(size.getDisplayName()) %></th>
                                         <% } else { %>
                                             <tr>
