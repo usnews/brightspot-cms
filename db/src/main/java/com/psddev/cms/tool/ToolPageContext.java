@@ -845,10 +845,10 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("li");
                                 writeStart("a",
-                                        "class", "action-settings",
+                                        "class", "action-profile",
                                         "href", cmsUrl("/misc/settings.jsp"),
                                         "target", "misc");
-                                    writeHtml("Settings");
+                                    writeHtml("Profile");
                                 writeEnd();
                             writeEnd();
 
