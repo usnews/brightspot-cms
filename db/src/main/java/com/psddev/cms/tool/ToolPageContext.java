@@ -854,15 +854,6 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("li");
                                 writeStart("a",
-                                        "class", "action-tools",
-                                        "href", cmsUrl("/misc/moreTools.jsp"),
-                                        "target", "misc");
-                                    writeHtml("More Tools");
-                                writeEnd();
-                            writeEnd();
-
-                            writeStart("li");
-                                writeStart("a",
                                         "class", "action-logOut",
                                         "href", cmsUrl("/misc/logOut.jsp"));
                                     writeHtml("Log Out");
