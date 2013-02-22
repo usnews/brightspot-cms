@@ -715,174 +715,225 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
-        write("<!doctype html>");
-        write("<html>");
-        write("<head>");
-
-        CmsTool cmsTool = getCmsTool();
-        String companyName = cmsTool.getCompanyName();
-        write("<title>", h(companyName), " CMS</title>");
-
-        write("<meta name=\"robots\" content=\"noindex\">");
-
-        for (String href : new String[] {
-                "/style/cms.less" }) {
-            write("<link href=\"", cmsResource(href), "\" rel=\"stylesheet\" type=\"text/less\">");
-        }
-
-        write("<script type=\"text/javascript\">window.less = window.less || { }; window.less.env = 'production'; window.less.poll = 500;</script>");
-        write("<script src=\"", cmsResource("/script/less-1.3.3.min.js"), "\" type=\"text/javascript\"></script>");
-
-        String extraCss = cmsTool.getExtraCss();
-        if (!ObjectUtils.isBlank(extraCss)) {
-            write("<style type=\"text/css\">", extraCss, "</style>");
-        }
-
-        List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
-        for (CmsTool.CssClassGroup group : cmsTool.getTextCssClassGroups()) {
-            Map<String, Object> groupDef = new HashMap<String, Object>();
-            cssClassGroups.add(groupDef);
-            groupDef.put("internalName", group.getInternalName());
-            groupDef.put("displayName", group.getDisplayName());
-            groupDef.put("dropDown", group.isDropDown());
-
-            List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
-            groupDef.put("cssClasses", cssClasses);
-            for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                Map<String, String> cssDef = new HashMap<String, String>();
-                cssDef.put("internalName", cssClass.getInternalName());
-                cssDef.put("displayName", cssClass.getDisplayName());
-                cssDef.put("tag", cssClass.getTag());
-                cssClasses.add(cssDef);
-            }
-        }
-
-        write("<script type=\"text/javascript\">");
-        write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
-        write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
-        write("</script>");
-
-        for (String src : new String[] {
-                "/script/jquery-1.8.3.min.js",
-                "/script/jquery.extra.js",
-                "/script/jquery.autosubmit.js",
-                "/script/jquery.calendar.js",
-                "/script/jquery.dropdown.js",
-                "/script/jquery.expandable.js",
-                "/script/jquery.popup.js",
-                "/script/jquery.frame.js",
-                "/script/jquery.imageeditor.js",
-                "/script/jquery.objectid.js",
-                "/script/jquery.pagelayout.js",
-                "/script/jquery.pagethumbnails.js",
-                "/script/jquery.repeatable.js",
-                "/script/jquery.sortable.js",
-                "/script/jquery.toggleable.js",
-                "/script/json2.min.js",
-                "/script/pixastic/pixastic.core.js",
-                "/script/pixastic/actions/brightness.js",
-                "/script/pixastic/actions/crop.js",
-                "/script/pixastic/actions/desaturate.js",
-                "/script/pixastic/actions/fliph.js",
-                "/script/pixastic/actions/flipv.js",
-                "/script/pixastic/actions/invert.js",
-                "/script/pixastic/actions/rotate.js",
-                "/script/pixastic/actions/sepia.js",
-                "/script/html5slider.js",
-                "/script/wysihtml5.min.js",
-                "/script/jquery.rte.js" }) {
-            write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
-        }
-
-        for (String src : new String[] {
-                "/script/cms.js" }) {
-            write("<script src=\"", cmsResource(src), "\" type=\"text/javascript\"></script>");
-        }
-
-        String extraJavaScript = cmsTool.getExtraJavaScript();
-        if (!ObjectUtils.isBlank(extraJavaScript)) {
-            write("<script type=\"text/javascript\">", extraJavaScript, "</script>");
-        }
-
-        write("</head>");
-        write("<body>");
-
-        write("<div class=\"toolHat\">");
-
+        CmsTool cms = getCmsTool();
+        String companyName = cms.getCompanyName();
+        String extraCss = cms.getExtraCss();
+        String extraJavaScript = cms.getExtraJavaScript();
         ToolUser user = getUser();
-        if (user != null) {
-            write("<ul class=\"piped profile\">");
-            write("<li>Hello, ", objectLabel(user), "</li>");
 
-            if (!Site.Static.findAll().isEmpty()) {
-                write("<li>Site: <a href=\"");
-                write(cmsUrl("/misc/sites.jsp"));
-                write("\" target=\"misc\">");
-                Site currentSite = user.getCurrentSite();
-                write(currentSite != null ? h(currentSite.getLabel()) : "Global");
-                write("</a></li>");
-            }
-
-            write("<li><a class=\"action-settings\" href=\"", cmsUrl("/misc/settings.jsp"), "\" target=\"misc\">Settings</a></li>");
-            write("<li><a class=\"action-tools\" href=\"", cmsUrl("/misc/moreTools.jsp"), "\" target=\"misc\">More Tools</a></li>");
-            write("<li><a class=\"action-logOut\" href=\"", cmsUrl("/misc/logOut.jsp"), "\">Log Out</a></li>");
-            write("</ul>");
+        if (ObjectUtils.isBlank(companyName)) {
+            companyName = "Brightspot";
         }
 
-        write("</div>");
+        writeTag("!doctype html");
+        writeTag("html");
+            writeStart("head");
 
-        write("<div class=\"toolHeader\">");
+                writeStart("title");
+                    writeHtml(companyName);
+                writeEnd();
 
-        write("<h1 class=\"title\">");
-        write("<a href=\"", cmsUrl("/"), "\">");
-        write("<span class=\"companyName\">", h(companyName), "</span> CMS");
-        write("</a>");
-        write("</h1>");
+                writeTag("meta", "name", "robots", "content", "noindex");
 
-        if (hasPermission("area/dashboard")) {
-            write("<form action=\"", cmsUrl("/misc/search.jsp"), "\" class=\"search\" method=\"get\" target=\"miscSearch\">");
-            write("<input type=\"hidden\" name=\"", Search.NAME_PARAMETER, "\" value=\"global\">");
-            write("<span class=\"searchInput\">");
-            write("<label for=\"", createId(), "\">Search</label>");
-            write("<input id=\"", getId(), "\" type=\"text\">");
-            write("<button>Go</button>");
-            write("</span>");
-            write("</form>");
-        }
-
-        if (user != null) {
-            write("<ul class=\"mainNav\">");
-            String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
-
-            for (Area top : Tool.Static.getTopAreas()) {
-                if (!hasPermission(top.getPermissionId())) {
-                    continue;
+                for (String href : new String[] {
+                        "/style/cms.less" }) {
+                    writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
                 }
 
-                write("<li class=\"", top.hasChildren() ? " isNested" : "", top.isSelected(getTool(), servletPath) ? " selected" : "", "\">");
-                write("<a href=\"", toolUrl(top.getTool(), top.getUrl()), "\">", objectLabel(top), "</a>");
+                writeStart("script", "type", "text/javascript");
+                    write("window.less = window.less || { }; window.less.env = 'production'; window.less.poll = 500;");
+                writeEnd();
 
-                if (top.hasChildren()) {
-                    write("<ul>");
-                    for (Area child : top.getChildren()) {
-                        if (!hasPermission(child.getPermissionId())) {
-                            continue;
-                        }
+                writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.min.js"));
+                writeEnd();
 
-                        write("<li", child.isSelected(getTool(), servletPath) ? " class=\"selected\"" : "", ">");
-                        write("<a href=\"", toolUrl(child.getTool(), child.getUrl()), "\">", objectLabel(child), "</a>");
-                        write("</li>");
+                if (!ObjectUtils.isBlank(extraCss)) {
+                    writeStart("style", "type", "text/css");
+                        write(extraCss);
+                    writeEnd();
+                }
+
+                List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
+
+                for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
+                    Map<String, Object> groupDef = new HashMap<String, Object>();
+                    cssClassGroups.add(groupDef);
+
+                    groupDef.put("internalName", group.getInternalName());
+                    groupDef.put("displayName", group.getDisplayName());
+                    groupDef.put("dropDown", group.isDropDown());
+
+                    List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
+                    groupDef.put("cssClasses", cssClasses);
+
+                    for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                        Map<String, String> cssDef = new HashMap<String, String>();
+                        cssClasses.add(cssDef);
+
+                        cssDef.put("internalName", cssClass.getInternalName());
+                        cssDef.put("displayName", cssClass.getDisplayName());
+                        cssDef.put("tag", cssClass.getTag());
                     }
-                    write("</ul>");
                 }
 
-                write("</li>");
-            }
+                writeStart("script", "type", "text/javascript");
+                    write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
+                    write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
+                writeEnd();
 
-            write("</ul>");
-        }
+                for (String src : new String[] {
+                        "/script/jquery-1.8.3.min.js",
+                        "/script/jquery.extra.js",
+                        "/script/jquery.autosubmit.js",
+                        "/script/jquery.calendar.js",
+                        "/script/jquery.dropdown.js",
+                        "/script/jquery.expandable.js",
+                        "/script/jquery.popup.js",
+                        "/script/jquery.frame.js",
+                        "/script/jquery.imageeditor.js",
+                        "/script/jquery.objectid.js",
+                        "/script/jquery.pagelayout.js",
+                        "/script/jquery.pagethumbnails.js",
+                        "/script/jquery.repeatable.js",
+                        "/script/jquery.sortable.js",
+                        "/script/jquery.toggleable.js",
+                        "/script/json2.min.js",
+                        "/script/pixastic/pixastic.core.js",
+                        "/script/pixastic/actions/brightness.js",
+                        "/script/pixastic/actions/crop.js",
+                        "/script/pixastic/actions/desaturate.js",
+                        "/script/pixastic/actions/fliph.js",
+                        "/script/pixastic/actions/flipv.js",
+                        "/script/pixastic/actions/invert.js",
+                        "/script/pixastic/actions/rotate.js",
+                        "/script/pixastic/actions/sepia.js",
+                        "/script/html5slider.js",
+                        "/script/wysihtml5.min.js",
+                        "/script/jquery.rte.js",
+                        "/script/cms.js" }) {
+                    writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                    writeEnd();
+                }
 
-        write("</div>");
+                if (!ObjectUtils.isBlank(extraJavaScript)) {
+                    writeStart("script", "type", "text/javascript");
+                        write(extraJavaScript);
+                    writeEnd();
+                }
+
+            writeEnd();
+            writeTag("body");
+
+                if (user != null) {
+                    writeStart("div", "class", "toolHat");
+                        writeStart("ul", "class", "piped profile");
+                            writeStart("li");
+                                writeHtml("Hello, ");
+                                writeHtml(getObjectLabel(user));
+                            writeEnd();
+
+                            if (!Site.Static.findAll().isEmpty()) {
+                                Site currentSite = user.getCurrentSite();
+
+                                writeStart("li");
+                                    writeHtml("Site: ");
+                                    writeStart("a", "href", cmsUrl("/misc/sites.jsp"), "target", "misc");
+                                        writeHtml(currentSite != null ? currentSite.getLabel() : "Global");
+                                    writeEnd();
+                                writeEnd();
+                            }
+
+                            writeStart("li");
+                                writeStart("a",
+                                        "class", "action-settings",
+                                        "href", cmsUrl("/misc/settings.jsp"),
+                                        "target", "misc");
+                                    writeHtml("Settings");
+                                writeEnd();
+                            writeEnd();
+
+                            writeStart("li");
+                                writeStart("a",
+                                        "class", "action-tools",
+                                        "href", cmsUrl("/misc/moreTools.jsp"),
+                                        "target", "misc");
+                                    writeHtml("More Tools");
+                                writeEnd();
+                            writeEnd();
+
+                            writeStart("li");
+                                writeStart("a",
+                                        "class", "action-logOut",
+                                        "href", cmsUrl("/misc/logOut.jsp"));
+                                    writeHtml("Log Out");
+                                writeEnd();
+                            writeEnd();
+                        writeEnd();
+                    writeEnd();
+                }
+
+                writeStart("div", "class", "toolHeader");
+
+                    writeStart("h1", "class", "title");
+                        writeStart("a", "href", cmsUrl("/"));
+                            writeHtml(companyName);
+                        writeEnd();
+                    writeEnd();
+
+                    if (hasPermission("area/dashboard")) {
+                        writeStart("form",
+                                "class", "search",
+                                "method", "get",
+                                "action", cmsUrl("/misc/search.jsp"),
+                                "target", "miscSearch");
+
+                            writeTag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
+
+                            writeStart("span", "class", "searchInput");
+                                writeStart("label", "for", createId()).writeHtml("Search").writeEnd();
+                                writeTag("input", "type", "text", "id", getId());
+                                writeStart("button").writeHtml("Go").writeEnd();
+                            writeEnd();
+
+                        writeEnd();
+                    }
+
+                    if (user != null) {
+                        String servletPath = JspUtils.getEmbeddedServletPath(getServletContext(), getRequest().getServletPath());
+
+                        writeStart("ul", "class", "mainNav");
+                            for (Area top : Tool.Static.getTopAreas()) {
+                                if (!hasPermission(top.getPermissionId())) {
+                                    continue;
+                                }
+
+                                writeStart("li",
+                                        "class", (top.hasChildren() ? " isNested" : "") + (top.isSelected(getTool(), servletPath) ? " selected" : ""));
+                                    writeStart("a", "href", toolUrl(top.getTool(), top.getUrl()));
+                                        writeHtml(getObjectLabel(top));
+                                    writeEnd();
+
+                                    if (top.hasChildren()) {
+                                        writeStart("ul");
+                                            for (Area child : top.getChildren()) {
+                                                if (!hasPermission(child.getPermissionId())) {
+                                                    continue;
+                                                }
+
+                                                writeStart("li", "class", child.isSelected(getTool(), servletPath) ? "selected" : null);
+                                                    writeStart("a", "href", toolUrl(child.getTool(), child.getUrl()));
+                                                        writeHtml(getObjectLabel(child));
+                                                    writeEnd();
+                                                writeEnd();
+                                            }
+                                        writeEnd();
+                                    }
+                                writeEnd();
+                            }
+                        writeEnd();
+                    }
+
+                writeEnd();
     }
 
     /** Writes the tool footer. */
@@ -891,36 +942,32 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
-        write("<div class=\"toolFooter\">");
-
         Properties build = BuildDebugServlet.getProperties(getServletContext());
-
-        write("<div class=\"build\">");
-
         String version = build.getProperty("version");
+        String buildNumber = build.getProperty("buildNumber");
+
         if (ObjectUtils.isBlank(version)) {
-            version = InetAddress.getLocalHost().getHostName();
-            if (ObjectUtils.isBlank(version)) {
-                version = "Unknown";
-            }
+            version = "Unknown";
         }
 
-        write(" <span class=\"version\">");
-        write(h(version));
-        write("</span>");
-
-        String buildNumber = build.getProperty("buildNumber");
         if (ObjectUtils.isBlank(buildNumber)) {
             buildNumber = "?";
         }
 
-        write(" <span class=\"buildNumber\">Build #");
-        write(h(buildNumber));
-        write("</span>");
-
-        write("</div>");
-
-        write("</div></body></html>");
+                writeStart("div", "class", "toolFooter");
+                    writeStart("div", "class", "build");
+                        writeStart("span", "class", "version");
+                            writeHtml(version);
+                        writeEnd();
+                        writeHtml(" ");
+                        writeStart("span", "class", "buildNumber");
+                            writeHtml("Build #");
+                            writeHtml(buildNumber);
+                        writeEnd();
+                    writeEnd();
+                writeEnd();
+            writeTag("/body");
+        writeTag("/html");
     }
 
     /**
