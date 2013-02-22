@@ -4081,33 +4081,65 @@ input[type="text"].dropDown-search {
 }
 
 .recentActivity-filters {
-    overflow: hidden;
+    display: table;
+    width: 100%;
 
-    select {
-        width: 100%;
+    select,
+    .dropDown-input,
+    .objectId-select {
+        width: 100% !important;
     }
 }
 
 .recentActivity-filters-itemType,
-.recentActivity-filters-user {
-    .box-sizing(border-box);
-    float: left;
+.recentActivity-filters-prep,
+.recentActivity-filters-type,
+.recentActivity-filters-value {
+    display: table-cell;
 }
 
 .recentActivity-filters-itemType {
     width: 20%;
 }
 
-.recentActivity-filters-user {
-    padding-left: 2.5em;
-    width: 80%;
+.recentActivity-filters-prep {
+    padding: 0 6px;
+    text-align: center;
+    width: 0;
 }
 
-.recentActivity-filters-by {
-    display: inline-block;
-    margin-left: -2.5em;
-    text-align: center;
-    width: 2.5em;
+.recentActivity-filters-type {
+    padding-right: 6px;
+    width: 20%;
+}
+
+.recentActivity-filters-value {
+    width: 100%;
+
+    .objectId-clear {
+        display: none !important;
+    }
+}
+
+.recentActivity-warning {
+    .message;
+    .message-warning;
+
+    margin-bottom: 0;
+
+    &.recentActivity-warning-value {
+        position: relative;
+
+        &:after {
+            content: '';
+            border-color: transparent transparent #ed9 transparent;
+            border-style: solid;
+            border-width: 10px;
+            position: absolute;
+            right: 25%;
+            top: -20px;
+        }
+    }
 }
 
 // Sitemap widget.
@@ -4162,6 +4194,8 @@ input[type="text"].dropDown-search {
 .sitemap-warning {
     .message;
     .message-warning;
+
+    margin-bottom: 0;
 
     &.sitemap-warning-value {
         position: relative;
