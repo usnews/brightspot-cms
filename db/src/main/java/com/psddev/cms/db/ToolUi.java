@@ -8,7 +8,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -40,6 +42,7 @@ public class ToolUi extends Modification<Object> {
     private Boolean readOnly;
     private boolean richText;
     private Boolean sortable;
+    private Set<String> standardImageSizes;
     private Boolean suggestions;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
@@ -238,6 +241,17 @@ public class ToolUi extends Modification<Object> {
         return ObjectField.DATE_TYPE.equals(fieldType) ||
                 ObjectField.NUMBER_TYPE.equals(fieldType) ||
                 ObjectField.TEXT_TYPE.equals(fieldType);
+    }
+
+    public Set<String> getStandardImageSizes() {
+        if (standardImageSizes == null) {
+            standardImageSizes = new LinkedHashSet<String>();
+        }
+        return standardImageSizes;
+    }
+
+    public void setStandardImageSizes(Set<String> standardImageSizes) {
+        this.standardImageSizes = standardImageSizes;
     }
 
     public Boolean getSuggestions() {
@@ -603,6 +617,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, Sortable annotation) {
             field.as(ToolUi.class).setSortable(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies the standard image sizes that would be applied to the target
+     * field.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(StandardImageSizesProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface StandardImageSizes {
+        String[] value();
+    }
+
+    private static class StandardImageSizesProcessor implements ObjectField.AnnotationProcessor<StandardImageSizes> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, StandardImageSizes annotation) {
+            Collections.addAll(field.as(ToolUi.class).getStandardImageSizes(), annotation.value());
         }
     }
 

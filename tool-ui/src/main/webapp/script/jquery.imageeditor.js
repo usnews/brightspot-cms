@@ -237,6 +237,17 @@ $.plugin2('imageEditor', {
             var $th = $(this);
             var $tr = $th.closest('tr');
 
+            var sizeName = $tr.attr('data-size-name');
+            var $source = $th.popup('source');
+            if ($source) {
+                var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
+                if (sizes) {
+                    if ($.inArray(sizeName, sizes.split(' ')) < 0) {
+                        return;
+                    }
+                }
+            }
+
             var sizeWidth = parseFloat($tr.attr('data-size-width'));
             var sizeHeight = parseFloat($tr.attr('data-size-height'));
             var sizeAspectRatio = sizeWidth / sizeHeight;
@@ -777,6 +788,11 @@ $.plugin2('imageEditor', {
 
         $sizes.before($sizeSelectors);
         $sizes.hide();
+
+        var $buttons = $sizeSelectors.find('.imageEditor-sizeButton');
+        if ($buttons.length == 1) {
+            $buttons.click();
+        }
     }
 });
 

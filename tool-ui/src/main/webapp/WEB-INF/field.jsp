@@ -69,6 +69,11 @@ try {
         wp.write(wp.h(state.getId()));
         wp.write("/");
         wp.write(wp.h(fieldName));
+        wp.write("\" data-standard-image-sizes=\"");
+        for (String size : ui.getStandardImageSizes()) {
+            wp.write(" ");
+            wp.write(wp.h(size));
+        }
         wp.write("\">");
         wp.write("<div class=\"label\">");
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
