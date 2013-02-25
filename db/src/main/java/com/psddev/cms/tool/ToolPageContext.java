@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import org.joda.time.DateTime;
+
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
@@ -844,8 +846,12 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                     if (user != null) {
+                        int nowHour = new DateTime().getHourOfDay();
+
                         writeStart("div", "class", "toolProfile");
-                            writeHtml("Hello, ");
+                            writeHtml("Good ");
+                            writeHtml(nowHour >= 2 && nowHour < 12 ? "Morning" : (nowHour >= 12 && nowHour < 6 ? "Afternoon" : "Evening"));
+                            writeHtml(", ");
                             writeHtml(getObjectLabel(user));
 
                             writeStart("ul");
