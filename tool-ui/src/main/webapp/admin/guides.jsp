@@ -54,9 +54,9 @@ wp.include("/WEB-INF/header.jsp"); %>
     <div class="leftNav">
         <div class="widget">
 
-            <h1>Guides</h1>
+            <h1>Production Guides</h1>
 
-            <h2>Guides</h2>
+            <h2>Overall Guides</h2>
             <ul class="links">
                 <li
                     class="new<%= selectedClass == Guide.class && selectedState.isNew() ? " selected" : "" %>">
