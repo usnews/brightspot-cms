@@ -203,23 +203,27 @@ public class RecentActivity extends PageServlet {
                         writer.writeEnd();
                     }
 
-                    writer.writeStart("li");
-                        writer.writeStart("form",
-                                "class", "autoSubmit",
-                                "method", "get",
-                                "action", page.url(null));
-                            writer.writeStart("select", "name", "limit");
-                                for (int l : LIMITS) {
-                                    writer.writeStart("option",
-                                            "value", l,
-                                            "selected", limit == l ? "selected" : null);
-                                        writer.writeHtml("Show ");
-                                        writer.writeHtml(l);
-                                    writer.writeEnd();
-                                }
+                    if (result.getOffset() > 0 ||
+                            result.hasNext() ||
+                            result.getItems().size() > LIMITS[0]) {
+                        writer.writeStart("li");
+                            writer.writeStart("form",
+                                    "class", "autoSubmit",
+                                    "method", "get",
+                                    "action", page.url(null));
+                                writer.writeStart("select", "name", "limit");
+                                    for (int l : LIMITS) {
+                                        writer.writeStart("option",
+                                                "value", l,
+                                                "selected", limit == l ? "selected" : null);
+                                            writer.writeHtml("Show ");
+                                            writer.writeHtml(l);
+                                        writer.writeEnd();
+                                    }
+                                writer.writeEnd();
                             writer.writeEnd();
                         writer.writeEnd();
-                    writer.writeEnd();
+                    }
 
                     if (result.hasNext()) {
                         writer.writeStart("li", "class", "next");
