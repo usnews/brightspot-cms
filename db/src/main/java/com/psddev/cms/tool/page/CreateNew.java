@@ -79,11 +79,16 @@ public class CreateNew extends PageServlet {
         } else {
             Collection<String> collapsedIds = (Collection<String>) page.getPageSetting("collapsedIds");
 
-            for (TypeTemplate typeTemplate : typeTemplates) {
-                if (collapsedIds.contains(typeTemplate.getCollapsedId())) {
-                    collapsed.add(typeTemplate);
-                } else {
-                    favorites.add(typeTemplate);
+            if (collapsedIds == null) {
+                favorites = typeTemplates;
+
+            } else {
+                for (TypeTemplate typeTemplate : typeTemplates) {
+                    if (collapsedIds.contains(typeTemplate.getCollapsedId())) {
+                        collapsed.add(typeTemplate);
+                    } else {
+                        favorites.add(typeTemplate);
+                    }
                 }
             }
         }
