@@ -632,6 +632,12 @@ figure,
     .message {
         margin-bottom: 5px;
     }
+
+    &.focus[data-count-message]:after {
+        .border-radius(3px);
+        right: 6px;
+        top: 6px;
+    }
 }
 
 .inputContainer-label {
@@ -3303,6 +3309,12 @@ input[type="text"].dropDown-search {
     position: relative;
     vertical-align: top;
     z-index: 1;
+
+    .inputContainer.focus &[data-count-message]:after {
+        .border-top-left-radius(3px);
+        bottom: -1px;
+        right: 0;
+    }
 }
 
 .rte-group {
@@ -4218,24 +4230,19 @@ input[type="text"].dropDown-search {
 }
 
 // Soft validation based on suggested sizes.
-.suggestedSize-tooShort:after,
-.suggestedSize-tooLong:after {
-    background-color: #e90;
-    .border-radius(7px);
-    border: 3px solid @color-background;
+.focus [data-count-message]:after {
+    background-color: @color-note-darker;
     color: @color-background;
-    content: 'Too Short';
-    font-family: @fontFamily-label;
-    font-size: 80%;
-    padding: 2px;
+    content: attr(data-count-message);
+    font-size: 11px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 3px;
     position: absolute;
-    right: 3px;
-    text-transform: uppercase;
-    top: 3px;
 }
 
-.suggestedSize-tooLong:after {
-    content: 'Too Long';
+.focus [data-count-message^='Too']:after {
+    background-color: #e90;
 }
 
 // --- Actions ---

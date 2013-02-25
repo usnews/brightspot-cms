@@ -374,10 +374,22 @@ var Rte = wysihtml5.Editor.extend({
             this.toolbar.hide();
 
             this.on('focus', function() {
+                $(textarea.element).parentsUntil('form').addClass('focus focused');
+                $(textarea.element).trigger('input');
+
                 for (var i = 0, length = rtes.length; i < length; ++ i) {
                     rtes[i].toolbar.hide();
                 }
+
                 this.toolbar.show();
+            });
+
+            this.on('blur', function() {
+                $(textarea.element).parentsUntil('form').removeClass('focus focused');
+            });
+
+            $(composer.element).bind('keyup', function() {
+                $(textarea.element).trigger('input');
             });
 
             setInterval(function() {

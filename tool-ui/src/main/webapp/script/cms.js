@@ -209,23 +209,31 @@ $doc.delegate('.exception > *', 'click', function() {
 });
 
 // Soft validation based on suggested sizes.
-$doc.delegate(':input[data-suggested-minimum]', 'input.suggested', function() {
-    var $input = $(this),
-            minimum = +$input.attr('data-suggested-minimum');
+(function() {
+    var TAG_RE = /<[^>]*>/g,
+            TRIM_RE = /^\s+|\s+$/g,
+            WHITESPACE_RE = /\s+/;
 
-    $input.closest('.inputContainer').toggleClass(
-            'suggestedSize-tooShort',
-            !isNaN(minimum) && $input.val().length < minimum);
-});
+    $doc.delegate('.smallInput-text :text, .smallInput-text textarea', 'change.wordCount focus.wordCount input.wordCount', function() {
+        var $input = $(this),
+                minimum = +$input.attr('data-suggested-minimum'),
+                maximum = +$input.attr('data-suggested-maximum'),
+                $container = $input.closest('.inputContainer'),
+                $toolbar = $container.find('.rte-toolbar'),
+                value = ($input.val() || '').replace(TAG_RE, '').replace(TRIM_RE, ''),
+                cc = value.length,
+                wc = value ? value.split(WHITESPACE_RE).length : 0;
 
-$doc.delegate(':input[data-suggested-maximum]', 'input.suggested', function() {
-    var $input = $(this),
-            maximum = +$input.attr('data-suggested-maximum');
+        if ($toolbar.length > 0) {
+            $container = $toolbar;
+        }
 
-    $input.closest('.inputContainer').toggleClass(
-            'suggestedSize-tooLong',
-            !isNaN(maximum) && $input.val().length > maximum);
-});
+        $container.attr('data-count-message',
+                cc < minimum ? 'Too Short' :
+                cc > maximum ? 'Too Long' :
+                wc + 'w ' + cc + 'c');
+    });
+})();
 
 // Make sure that most elements are always in view.
 (function() {
