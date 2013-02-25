@@ -2,7 +2,6 @@ package com.psddev.cms.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -1172,6 +1171,24 @@ public class ToolPageContext extends WebPageContext {
      */
     public void putUserSetting(String key, Object value) {
         AuthenticationFilter.Static.putUserSetting(getRequest(), key, value);
+    }
+
+    /**
+     * Returns the page setting value associated with the given {@code key}.
+     *
+     * @see AuthenticationFilter.Static#getPageSetting
+     */
+    public Object getPageSetting(String key) {
+        return AuthenticationFilter.Static.getPageSetting(getRequest(), key);
+    }
+
+    /**
+     * Puts the page setting {@code value} at the given {@code key}.
+     *
+     * @see AuthenticationFilter.Static#putPageSetting
+     */
+    public void putPageSetting(String key, Object value) {
+        AuthenticationFilter.Static.putPageSetting(getRequest(), key, value);
     }
 
     /**
