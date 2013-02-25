@@ -113,7 +113,7 @@ $.plugin2('frame', {
         };
 
         // Loads the page at url into the $frame.
-        loadPage = function($frame, $source, url, event) {
+        loadPage = function($frame, $source, url, method, event) {
             var plugin = this,
                     version = beginLoad($frame, $source, event),
                     extraFormData = $frame.attr('data-extra-form-data');
@@ -125,6 +125,7 @@ $.plugin2('frame', {
             $.ajax({
                 'cache': false,
                 'url': url,
+                'type': method,
                 'complete': function(response) {
                     endLoad($frame, version, response.responseText);
                 }
@@ -134,7 +135,7 @@ $.plugin2('frame', {
         // Intercept anchor clicks to see if it's targeted.
         $caller.delegate('a', 'click.frame', function(event) {
             return findTargetFrame(this, function($anchor, $frame) {
-                loadPage($frame, $anchor, $anchor.attr('href'), event);
+                loadPage($frame, $anchor, $anchor.attr('href'), 'get', event);
                 return false;
             });
         });
@@ -145,8 +146,8 @@ $.plugin2('frame', {
                 var action = $form.attr('action'),
                         extraFormData = $frame.attr('data-extra-form-data');
 
-                if ($form.attr('method') === 'get') {
-                    loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize());
+                if ($form.attr('enctype') !== 'multipart/form-data') {
+                    loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize(), $form.attr('method'));
                     return false;
                 }
 
