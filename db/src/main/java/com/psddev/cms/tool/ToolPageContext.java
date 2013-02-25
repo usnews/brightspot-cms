@@ -850,7 +850,7 @@ public class ToolPageContext extends WebPageContext {
 
                         writeStart("div", "class", "toolProfile");
                             writeHtml("Good ");
-                            writeHtml(nowHour >= 2 && nowHour < 12 ? "Morning" : (nowHour >= 12 && nowHour < 6 ? "Afternoon" : "Evening"));
+                            writeHtml(nowHour >= 2 && nowHour < 12 ? "Morning" : (nowHour >= 12 && nowHour < 18 ? "Afternoon" : "Evening"));
                             writeHtml(", ");
                             writeHtml(getObjectLabel(user));
 
