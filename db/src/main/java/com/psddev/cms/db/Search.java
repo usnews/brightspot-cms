@@ -464,7 +464,7 @@ public class Search extends Record {
 
         @Override
         public void apply(Search search, SearchQuery query, String searchQuery, List<String> searchWords) {
-            ObjectType type = getType();
+            Set<ObjectType> types = getType().findConcreteTypes();
 
             for (Iterator<String> i = searchWords.iterator(); i.hasNext(); ) {
                 String word = i.next();
@@ -472,8 +472,8 @@ public class Search extends Record {
 
                 if (similar != null) {
                     i.remove();
-                    query.and("_type = ? or _any matchesAll ?", type, word);
-                    query.sortRelevant(getBoost(), "_type = ?", type);
+                    query.and("_type = ? or _any matchesAll ?", types, word);
+                    query.sortRelevant(getBoost(), "_type = ?", types);
 
                     if (!similar.equalsIgnoreCase(word)) {
                         query.getSubstitutions().put(word, similar);
