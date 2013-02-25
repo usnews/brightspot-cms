@@ -33,6 +33,7 @@ public class CmsTool extends Tool {
     private String defaultSiteUrl;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
+    private List<ResourceItem> resources;
 
     @Embedded
     private Template modulePreviewTemplate;
@@ -253,6 +254,17 @@ public class CmsTool extends Tool {
         this.textCssClassGroups = textCssClassGroups;
     }
 
+    public List<ResourceItem> getResources() {
+        if (resources == null) {
+            resources = new ArrayList<ResourceItem>();
+        }
+        return resources;
+    }
+
+    public void setResources(List<ResourceItem> resources) {
+        this.resources = resources;
+    }
+
     public Template getModulePreviewTemplate() {
         return modulePreviewTemplate;
     }
@@ -342,6 +354,7 @@ public class CmsTool extends Tool {
         plugins.add(createJspWidget("Bulk Upload", "dashboard.bulkUpload", "/bulkUpload", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Drafts", "dashboard.unpublishedDrafts", "/misc/unpublishedDrafts.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
+        plugins.add(createJspWidget("Resources", "dashboard.resources", "/resources", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
 
         // Content right widgets.
         double rightColumn = 0.0;
@@ -365,5 +378,62 @@ public class CmsTool extends Tool {
         plugins.add(createJspWidget("Search Engine Optimization", "seo", "/WEB-INF/widget/seo.jsp", CONTENT_BOTTOM_WIDGET_POSITION, bottomColumn, bottomRow ++));
 
         return plugins;
+    }
+
+    @Embedded
+    public static abstract class ResourceItem extends Record {
+
+        private String name;
+        private boolean sameWindow;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public boolean isSameWindow() {
+            return sameWindow;
+        }
+
+        public void setSameWindow(boolean sameWindow) {
+            this.sameWindow = sameWindow;
+        }
+
+        public abstract String getUrl();
+    }
+
+    public static class ResourceLink extends ResourceItem {
+
+        private String url;
+
+        @Override
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
+
+    public static class ResourceFile extends ResourceItem {
+
+        private StorageItem file;
+
+        public StorageItem getFile() {
+            return file;
+        }
+
+        public void setFile(StorageItem file) {
+            this.file = file;
+        }
+
+        public String getUrl() {
+            StorageItem file = getFile();
+            return file != null ? file.getPublicUrl() : null;
+        }
     }
 }
