@@ -248,6 +248,7 @@ $.plugin2('imageEditor', {
                 }
             }
 
+            var independent = $tr.attr('data-size-independent') === 'true';
             var sizeWidth = parseFloat($tr.attr('data-size-width'));
             var sizeHeight = parseFloat($tr.attr('data-size-height'));
             var sizeAspectRatio = sizeWidth / sizeHeight;
@@ -261,18 +262,22 @@ $.plugin2('imageEditor', {
             var ratio = Math.floor(sizeAspectRatio * 100) / 100;
             var $mainInput = $mainInputs['' + ratio];
 
-            if ($mainInput) {
-                $.each(INPUT_NAMES, function(index, name) {
-                    $mainInput[name] = $mainInput[name].add($input[name]);
-                });
-                return;
+            if (!independent) {
+                if ($mainInput) {
+                    $mainInput['$sizeLabel'].html($mainInput['$sizeLabel'].html() + '<br>' + $th.text());
 
-            } else {
-                $mainInputs['' + (ratio - 0.02)] = $input;
-                $mainInputs['' + (ratio - 0.01)] = $input;
-                $mainInputs['' + ratio] = $input;
-                $mainInputs['' + (ratio + 0.01)] = $input;
-                $mainInputs['' + (ratio + 0.02)] = $input;
+                    $.each(INPUT_NAMES, function(index, name) {
+                        $mainInput[name] = $mainInput[name].add($input[name]);
+                    });
+                    return;
+
+                } else {
+                    $mainInputs['' + (ratio - 0.02)] = $input;
+                    $mainInputs['' + (ratio - 0.01)] = $input;
+                    $mainInputs['' + ratio] = $input;
+                    $mainInputs['' + (ratio + 0.01)] = $input;
+                    $mainInputs['' + (ratio + 0.02)] = $input;
+                }
             }
 
             var $sizeBox = $('<div/>', {
@@ -534,6 +539,7 @@ $.plugin2('imageEditor', {
                 'text': $th.text()
             });
 
+            $input['$sizeLabel'] = $sizeLabel;
             $sizeButton.append($sizeLabel);
 
             var $sizePreview = $('<div/>', {

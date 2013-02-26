@@ -52,6 +52,10 @@ public class StandardImageSize extends Record {
 
     private int width;
     private int height;
+
+    @ToolUi.Note("Check to prevent this standard image size from merging with others in the image editor.")
+    private boolean independent;
+
     private CropOption cropOption;
     private ResizeOption resizeOption;
 
@@ -90,6 +94,14 @@ public class StandardImageSize extends Record {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public boolean isIndependent() {
+        return independent;
+    }
+
+    public void setIndependent(boolean independent) {
+        this.independent = independent;
     }
 
     public CropOption getCropOption() {
