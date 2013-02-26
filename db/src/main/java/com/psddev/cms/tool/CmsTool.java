@@ -344,6 +344,7 @@ public class CmsTool extends Tool {
         double dashboardColumn = 0.0;
         double dashboardRow = 0.0;
 
+        plugins.add(createJspWidget("Work Streams", "dashboard.workStreams", "/workStreams", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Site Map", "dashboard.siteMap", "/misc/siteMap.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Recent Activity", "dashboard.recentActivity", "/misc/recentActivity.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
 

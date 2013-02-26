@@ -16,6 +16,7 @@ com.psddev.cms.db.ToolSearch,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
@@ -89,6 +90,23 @@ if (selected instanceof Page) {
             }
         }
     }
+}
+
+WorkStream workStream = Query.from(WorkStream.class).where("_id = ?", wp.param(UUID.class, "workStreamId")).first();
+
+if (workStream != null) {
+    if (wp.param(boolean.class, "action-skipWorkStream")) {
+        workStream.skip(wp.getUser(), editing);
+        wp.redirect("", "action-skipWorkStream", null);
+        return;
+
+    } else if (wp.param(boolean.class, "action-stopWorkStream")) {
+        workStream.stop(wp.getUser());
+        wp.redirect("/");
+        return;
+    }
+
+    State.getInstance(editing).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
 
 if (wp.include("/WEB-INF/objectDelete.jsp", "object", editing)
@@ -208,6 +226,69 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <h1>Publication</h1>
 
                 <%
+                if (workStream != null) {
+                    long incomplete = workStream.countIncomplete();
+                    long total = workStream.getQuery().count();
+
+                    wp.writeStart("div",
+                            "class", "block",
+                            "style", wp.cssString(
+                                    "border-bottom", "1px solid #bbb",
+                                    "padding-bottom", "5px"));
+                        wp.writeStart("a",
+                                "href", wp.url("/workStreamUsers", "id", workStream.getId()),
+                                "target", "workStream");
+                            wp.writeHtml(workStream.getUsers().size() - 1);
+                            wp.writeHtml(" others");
+                        wp.writeEnd();
+
+                        wp.writeHtml(" working on ");
+
+                        wp.writeStart("a",
+                                "href", wp.objectUrl("/content/object.jsp", workStream),
+                                "target", "workStream");
+                            wp.writeHtml(wp.getObjectLabel(workStream));
+                        wp.writeEnd();
+
+                        wp.writeHtml(" with you");
+
+                        wp.writeStart("div", "class", "progress", "style", "margin: 5px 0;");
+                            wp.writeStart("div", "class", "progressBar", "style", "width:" + ((total - incomplete) * 100.0 / total) + "%");
+                            wp.writeEnd();
+
+                            wp.writeStart("strong");
+                                wp.writeHtml(incomplete);
+                            wp.writeEnd();
+
+                            wp.writeHtml(" of ");
+
+                            wp.writeStart("strong");
+                                wp.writeHtml(total);
+                            wp.writeEnd();
+
+                            wp.writeHtml(" left");
+                        wp.writeEnd();
+
+                        wp.writeStart("ul", "class", "piped");
+                            wp.writeStart("li");
+                                wp.writeStart("a",
+                                        "class", "icon icon-step-forward",
+                                        "href", wp.url("", "action-skipWorkStream", "true"));
+                                    wp.writeHtml("Skip");
+                                wp.writeEnd();
+                            wp.writeEnd();
+
+                            wp.writeStart("li");
+                                wp.writeStart("a",
+                                        "class", "icon icon-stop",
+                                        "href", wp.url("", "action-stopWorkStream", "true"));
+                                    wp.writeHtml("Stop");
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+
                 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
                     List<Workflow> workflows = Query.from(Workflow.class).select();
 

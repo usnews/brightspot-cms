@@ -967,6 +967,25 @@ table.links.table-striped {
     .strong;
 }
 
+.progress {
+    .input;
+
+    position: relative;
+    text-align: center;
+    width: 100%;
+    z-index: 0;
+
+    .progressBar {
+        background-color: @color-link-lighter;
+        .border-radius(3px);
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        z-index: -1;
+    }
+}
+
 .searchInput {
     display: inline-block;
     position: relative;

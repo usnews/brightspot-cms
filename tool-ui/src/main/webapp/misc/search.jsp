@@ -15,6 +15,26 @@ wp.include(
         "newJsp", "/content/edit.jsp",
         "newTarget", "_top",
         "resultJsp", "/misc/searchResult.jsp");
+
+wp.writeStart("form",
+        "method", "post",
+        "action", wp.url(""),
+        "style", wp.cssString(
+                "margin-left", "200px"));
+    wp.writeStart("h2").writeHtml("Work Stream").writeEnd();
+
+    wp.writeTag("input",
+            "type", "text",
+            "name", "workStreamName",
+            "placeholder", "Name");
+
+    wp.writeHtml(" ");
+
+    wp.writeStart("button");
+        wp.writeHtml("New");
+    wp.writeEnd();
+wp.writeEnd();
+
 %>
 <script type="text/javascript">
     if (typeof jQuery !== 'undefined') (function(win, $, undef) {

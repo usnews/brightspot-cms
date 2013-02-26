@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
@@ -96,6 +97,23 @@ if (selectedType != null) {
                 Collections.disjoint(field.getTypes(), globalFilters)) {
             fieldFilters.add(field);
         }
+    }
+}
+
+if (wp.isFormPost()) {
+    String workStreamName = wp.param(String.class, "workStreamName");
+
+    if (!ObjectUtils.isBlank(workStreamName)) {
+        WorkStream workStream = new WorkStream();
+        workStream.setName(workStreamName);
+        workStream.setQuery(search.toQuery());
+        workStream.save();
+
+        wp.writeStart("script", "type", "text/javascript");
+            wp.write("window.location = window.location;");
+        wp.writeEnd();
+
+        return;
     }
 }
 

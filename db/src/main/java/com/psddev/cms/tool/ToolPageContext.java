@@ -37,6 +37,7 @@ import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
+import com.psddev.cms.db.WorkStream;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
@@ -460,7 +461,15 @@ public class ToolPageContext extends WebPageContext {
     /** Finds an existing object or reserve one. */
     public Object findOrReserve(Collection<ObjectType> validTypes) {
         UUID objectId = param(UUID.class, OBJECT_ID_PARAMETER);
-        Object object = Query.findById(Object.class, objectId);
+        Object object;
+        WorkStream workStream = Query.findById(WorkStream.class, param(UUID.class, "workStreamId"));
+
+        if (workStream != null) {
+            object = workStream.next(getUser());
+
+        } else {
+            object = Query.findById(Object.class, objectId);
+        }
 
         if (object != null) {
             ObjectType objectType = State.getInstance(object).getType();
