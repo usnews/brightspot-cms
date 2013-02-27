@@ -43,9 +43,9 @@ $doc.onCreate('.searchInput', function() {
 
 // Automatically focus on certain elements.
 $doc.onCreate('[autofocus], .autoFocus', function() {
-    var focused = doc.activeElement;
+    var focus = doc.activeElement;
 
-    if (!focused || focused === doc || focused === doc.body) {
+    if (!focus || focus === doc || focus === doc.body) {
         $(this).focus();
     }
 });
@@ -302,7 +302,7 @@ $doc.delegate('.exception > *', 'click', function() {
 $doc.delegate(':input', 'focus', function() {
     var $parents = $(this).parentsUntil('form');
 
-    $parents.addClass('focus focused');
+    $parents.addClass('focus');
 
     $win.bind('scroll.focus', $.run($.throttle(100, function() {
         var $label = $('.focusLabel'),
@@ -350,7 +350,7 @@ $doc.delegate(':input', 'blur', function() {
     var $label = $('.focusLabel');
 
     $label.hide();
-    $(this).parents('.focus').removeClass('focus focused');
+    $(this).parents('.focus').removeClass('focus');
     $win.unbind('.focus');
 });
 

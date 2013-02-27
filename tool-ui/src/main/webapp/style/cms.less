@@ -633,10 +633,16 @@ figure,
         margin-bottom: 5px;
     }
 
-    &.focus[data-count-message]:after {
-        .border-radius(3px);
-        right: 6px;
-        top: 6px;
+    &.focus {
+        > .label {
+            background-color: @color-link-lighter;
+        }
+
+        &[data-count-message]:after {
+            .border-radius(3px);
+            right: 6px;
+            top: 6px;
+        }
     }
 }
 
@@ -1376,9 +1382,6 @@ input[type=submit].link.delete {
     display: inline-block;
     width: auto;
     padding: 0 2px 0 6px;
-}
-.inputContainer.focused > .label {
-    background-color: @color-link-lighter;
 }
 
 input[type=text].expandable { min-width: 5em; }

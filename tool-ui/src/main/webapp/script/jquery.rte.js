@@ -374,7 +374,7 @@ var Rte = wysihtml5.Editor.extend({
             this.toolbar.hide();
 
             this.on('focus', function() {
-                $(textarea.element).parentsUntil('form').addClass('focus focused');
+                $(textarea.element).parentsUntil('form').addClass('focus');
                 $(textarea.element).trigger('input');
 
                 for (var i = 0, length = rtes.length; i < length; ++ i) {
@@ -385,7 +385,7 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             this.on('blur', function() {
-                $(textarea.element).parentsUntil('form').removeClass('focus focused');
+                $(textarea.element).parentsUntil('form').removeClass('focus');
             });
 
             $(composer.element).bind('keyup', function() {
