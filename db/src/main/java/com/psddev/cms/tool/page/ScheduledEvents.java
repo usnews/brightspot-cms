@@ -1,14 +1,5 @@
 package com.psddev.cms.tool.page;
 
-import com.psddev.cms.db.Draft;
-import com.psddev.cms.db.Schedule;
-import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWriter;
-import com.psddev.cms.tool.ToolPageContext;
-
-import com.psddev.dari.db.Query;
-import com.psddev.dari.util.RoutingFilter;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +10,15 @@ import java.util.TreeMap;
 import javax.servlet.ServletException;
 
 import org.joda.time.DateTime;
+
+import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.Schedule;
+import com.psddev.cms.db.Site;
+import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.PageWriter;
+import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "/misc/scheduledEvents.jsp")
 @SuppressWarnings("serial")
@@ -42,11 +42,18 @@ public class ScheduledEvents extends PageServlet {
             schedulesByDate.put(i, new ArrayList<Schedule>());
         }
 
+        Site currentSite = page.getSite();
+
         for (Schedule schedule : Query.
                 from(Schedule.class).
                 where("triggerDate >= ? and triggerDate < ?", begin, end).
                 sortAscending("triggerDate").
                 iterable(0)) {
+
+            if (currentSite != null && !currentSite.equals(schedule.getTriggerSite())) {
+                continue;
+            }
+
             DateTime scheduleDate = new DateTime(schedule.getTriggerDate()).toDateMidnight().toDateTime();
             List<Schedule> schedules = schedulesByDate.get(scheduleDate);
 
