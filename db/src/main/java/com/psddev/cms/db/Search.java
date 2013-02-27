@@ -1,13 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.ComparisonPredicate;
-import com.psddev.dari.db.CompoundPredicate;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +12,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.language.Metaphone;
+
+import com.psddev.dari.db.ComparisonPredicate;
+import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.util.CollectionUtils;
 
 public class Search extends Record {
 
@@ -200,10 +202,22 @@ public class Search extends Record {
         return addTypeKeywords(boost, ObjectType.getInstance(objectClass), keywords);
     }
 
-    public SearchQuery toQuery(String searchQuery) {
+    public SearchQuery toQuery(Object... terms) {
+        StringBuilder t = new StringBuilder();
+
+        for (Object term : CollectionUtils.recursiveIterable(terms)) {
+            t.append(' ');
+            if (term instanceof Recordable) {
+                t.append(((Recordable) term).getState().getId());
+            } else {
+                t.append(term);
+            }
+        }
+
+        String searchQuery = t.toString().trim();
         SearchQuery query = new SearchQuery();
 
-        if (searchQuery != null && (searchQuery = searchQuery.trim()).length() > 0) {
+        if (searchQuery.length() > 0) {
             char[] letters = searchQuery.toCharArray();
             int lastEnd = 0;
             List<String> searchWords = new ArrayList<String>();
