@@ -361,7 +361,7 @@ public class Search extends Record {
             } else if (selectedType != null) {
                 for (String field : selectedType.getLabelFields()) {
                     if (selectedType.getIndex(field) != null) {
-                        query.and(selectedType.getInternalName() + "/" + field + " ^=[c] ?", queryString);
+                        query.and(selectedType.getInternalName() + "/" + field + " contains[c] ?", queryString);
                     }
                     break;
                 }
