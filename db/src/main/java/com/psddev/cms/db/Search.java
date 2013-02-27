@@ -206,11 +206,13 @@ public class Search extends Record {
         StringBuilder t = new StringBuilder();
 
         for (Object term : CollectionUtils.recursiveIterable(terms)) {
-            t.append(' ');
-            if (term instanceof Recordable) {
-                t.append(((Recordable) term).getState().getId());
-            } else {
-                t.append(term);
+            if (term != null) {
+                t.append(' ');
+                if (term instanceof Recordable) {
+                    t.append(((Recordable) term).getState().getId());
+                } else {
+                    t.append(term);
+                }
             }
         }
 
