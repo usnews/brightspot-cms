@@ -34,6 +34,7 @@ public class UnpublishedDrafts extends PageServlet {
         PaginatedResult<Draft> drafts = Query.
                 from(Draft.class).
                 where(Content.UPDATE_DATE_FIELD + " != missing").
+                and(page.siteItemsPredicate()).
                 sortDescending(Content.UPDATE_DATE_FIELD).
                 select(page.param(long.class, "offset"), limit);
 
