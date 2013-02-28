@@ -30,15 +30,6 @@ PageWriter writer = wp.getWriter();
 Search search = null;
 String name = wp.param(String.class, Search.NAME_PARAMETER);
 
-if (!wp.param(boolean.class, "reset") && name != null) {
-    Map<String, Object> settings = (Map<String, Object>) wp.getUserSetting("search." + name);
-
-    if (settings != null) {
-        search = new Search(wp);
-        search.getState().setValues(settings);
-    }
-}
-
 if (search == null) {
     UUID[] typeIds = (UUID[]) request.getAttribute("validTypeIds");
 
