@@ -79,12 +79,12 @@ if (namesByColumn != null) {
 
 writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size());
     for (List<Widget> widgets : widgetsByColumn) {
-        writer.start("div", "class", "dashboard_column");
+        writer.start("div", "class", "dashboardColumn");
             for (Widget widget : widgets) {
                 if (widget instanceof JspWidget) {
                     String jsp = ((JspWidget) widget).getJsp();
 
-                    writer.start("div", "class", "dashboard_cell", "data-widget", widget.getInternalName());
+                    writer.start("div", "class", "dashboardCell", "data-widget", widget.getInternalName());
                         writer.start("div", "class", "frame");
                             writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
                         writer.end();

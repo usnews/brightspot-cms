@@ -60,7 +60,7 @@ $doc.onCreate('.inputContainer .permissions select', function() {
 });
 
 // Allow dashboard widgets to move around.
-$doc.onCreate('.dashboard_cell', function() {
+$doc.onCreate('.dashboardCell', function() {
     var $cell = $(this),
             $moveContainer,
             saveDashboard,
@@ -70,7 +70,7 @@ $doc.onCreate('.dashboard_cell', function() {
             $moveRight;
 
     $moveContainer = $('<span/>', {
-        'class': 'dashboard_cell_moveContainer'
+        'class': 'dashboardMoveContainer'
     });
 
     saveDashboard = function() {
@@ -78,14 +78,14 @@ $doc.onCreate('.dashboard_cell', function() {
                 $columns,
                 widgets = [ ];
 
-        $dashboard.find('.dashboard_column:empty').remove();
-        $columns = $dashboard.find('.dashboard_column');
+        $dashboard.find('.dashboardColumn:empty').remove();
+        $columns = $dashboard.find('.dashboardColumn');
         $dashboard.attr('data-columns', $columns.length);
 
         $columns.each(function() {
             var w = widgets[widgets.length] = [ ];
 
-            $(this).find('.dashboard_cell').each(function() {
+            $(this).find('.dashboardCell').each(function() {
                 w[w.length] = $(this).attr('data-widget');
             });
         });
@@ -98,7 +98,7 @@ $doc.onCreate('.dashboard_cell', function() {
     };
 
     $moveUp = $('<span/>', {
-        'class': 'dashboard_cell_moveUp',
+        'class': 'dashboardMoveUp',
         'click': function() {
             $cell.prev().before($cell);
             saveDashboard();
@@ -108,7 +108,7 @@ $doc.onCreate('.dashboard_cell', function() {
     });
 
     $moveDown = $('<span/>', {
-        'class': 'dashboard_cell_moveDown',
+        'class': 'dashboardMoveDown',
         'click': function() {
             $cell.next().after($cell);
             saveDashboard();
@@ -118,14 +118,14 @@ $doc.onCreate('.dashboard_cell', function() {
     });
 
     $moveLeft = $('<span/>', {
-        'class': 'dashboard_cell_moveLeft',
+        'class': 'dashboardMoveLeft',
         'click': function() {
-            var $column = $cell.closest('.dashboard_column');
+            var $column = $cell.closest('.dashboardColumn');
                     $prevColumn = $column.prev();
 
             if ($prevColumn.length === 0) {
                 $prevColumn = $('<div/>', {
-                    'class': 'dashboard_column'
+                    'class': 'dashboardColumn'
                 });
 
                 $column.before($prevColumn);
@@ -139,14 +139,14 @@ $doc.onCreate('.dashboard_cell', function() {
     });
 
     $moveRight = $('<span/>', {
-        'class': 'dashboard_cell_moveRight',
+        'class': 'dashboardMoveRight',
         'click': function() {
-            var $column = $cell.closest('.dashboard_column');
+            var $column = $cell.closest('.dashboardColumn');
                     $nextColumn = $column.next();
 
             if ($nextColumn.length === 0) {
                 $nextColumn = $('<div/>', {
-                    'class': 'dashboard_column'
+                    'class': 'dashboardColumn'
                 });
 
                 $column.after($nextColumn);
