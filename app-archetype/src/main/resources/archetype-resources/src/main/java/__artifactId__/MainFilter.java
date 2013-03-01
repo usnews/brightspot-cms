@@ -7,7 +7,7 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class DefaultRouter extends AbstractFilter {
+public class MainFilter extends AbstractFilter {
 
     @Override
     protected Iterable<Class<? extends Filter>> dependencies() {

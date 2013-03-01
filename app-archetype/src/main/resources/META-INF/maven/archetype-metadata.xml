@@ -7,17 +7,45 @@
         name="Dari: Application Archetype">
 
     <requiredProperties>
-
         <requiredProperty key="groupId" />
         <requiredProperty key="artifactId" />
 
         <requiredProperty key="version">
             <defaultValue>1.0.0-SNAPSHOT</defaultValue>
         </requiredProperty>
-
     </requiredProperties>
 
     <fileSets>
+        <fileSet encoding="UTF-8">
+            <directory></directory>
+            <includes>
+                <include>.gitignore</include>
+            </includes>
+        </fileSet>
+
+        <fileSet encoding="UTF-8">
+            <directory>data</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet encoding="UTF-8">
+            <directory>etc</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <excludes>
+                <exclude>tomcat-context.xml</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>etc</directory>
+            <includes>
+                <include>tomcat-context.xml</include>
+            </includes>
+        </fileSet>
 
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
             <directory>src/main/java</directory>
@@ -39,7 +67,6 @@
                 <include>**/*</include>
             </includes>
         </fileSet>
-
     </fileSets>
 
 </archetype-descriptor>
