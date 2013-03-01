@@ -31,7 +31,7 @@
 @fontFamily-label: 'AauxNextMedium', 'Helvetica Neue', 'Arial', sans-serif;
 
 @fontSize-default: 13px;
-@fontSize-icon: 14em / 13;
+@fontSize-icon: (14em / 13);
 
 @lineHeight-default: 20px;
 @lineHeight-input: 16px;
@@ -55,7 +55,7 @@
 }
 
 .background-image-vertical-gradient(@from, @to) {
-    background: (@from + @to) / 2;
+    background: ((@from + @to) / 2);
     .background-image-linear-gradient(~'top, @{from}, @{to}');
 }
 
@@ -103,7 +103,7 @@
 
 .opacity(@opacity) {
     opacity: @opacity;
-    @ieOpacity: @opacity * 100;
+    @ieOpacity: (@opacity * 100);
     filter: alpha(opacity=@ieOpacity);
 }
 
@@ -267,13 +267,13 @@
                 }
 
                 .calendarDayOfMonth {
-                    font-size: @width-day * 0.6;
-                    line-height: @width-day * 0.6;
+                    font-size: (@width-day * 0.6);
+                    line-height: (@width-day * 0.6);
                 }
             }
 
             .calendarCell {
-                margin-left: @width-day + @padding-cell;
+                margin-left: (@width-day + @padding-cell);
             }
         }
     }
@@ -289,7 +289,7 @@
     background-color: @color-note-darker;
     .border-radius(3px);
     color: @color-background;
-    font-size: @fontSize-default - 4;
+    font-size: (@fontSize-default - 4);
     padding: 2px 3px;
     text-transform: uppercase;
 
@@ -605,7 +605,7 @@ figure,
     .border-radius(5px);
     .box-sizing(border-box);
     display: inline-block;
-    height: @lineHeight-input + 2 * (@input-padding + @input-borderWidth);
+    height: (@lineHeight-input + 2 * (@input-padding + @input-borderWidth));
     line-height: @lineHeight-input;
     margin: 0;
     padding: @input-padding;
@@ -765,8 +765,8 @@ ul.links {
             > a {
                 background-color: inherit;
                 color: inherit;
-                left: -@marginLeft;
-                margin-right: -@marginLeft;
+                left: (0 - @marginLeft);
+                margin-right: (0 - @marginLeft);
                 padding-left: @marginLeft;
             }
         }
@@ -790,8 +790,8 @@ ul.links {
                 .icon;
                 .icon-plus-sign;
 
-                left: -@marginLeft;
-                margin-right: -@marginLeft;
+                left: (0 - @marginLeft);
+                margin-right: (0 - @marginLeft);
                 padding-left: (@marginLeft - 19px);
 
                 &:before {
@@ -1038,7 +1038,7 @@ table.links.table-striped {
 }
 
 @select-markerMargin: 2px;
-@select-markerSize: @fontSize-default + 2 * (@input-padding + @input-borderWidth - @select-markerMargin);
+@select-markerSize: (@fontSize-default + 2 * (@input-padding + @input-borderWidth - @select-markerMargin));
 
 .select {
     .icon;
@@ -1229,7 +1229,7 @@ h1 {
     .block;
     font-family: @fontFamily-label;
     font-size: 120%;
-    line-height: @lineHeight-default * 1.2;
+    line-height: (@lineHeight-default * 1.2);
     margin: 0 0 10px 0;
     padding: 0;
 }
@@ -1240,7 +1240,7 @@ h2 {
     color: @color-note-darker;
     font-family: @fontFamily-label;
     font-size: 80%;
-    line-height: @lineHeight-default * 0.8;
+    line-height: (@lineHeight-default * 0.8);
     text-transform: uppercase;
     margin: 0 0 10px 0;
     padding: 0;
@@ -2063,7 +2063,7 @@ input[type="text"].dropDown-search {
     color: @color-note-darker;
     font-family: @fontFamily-label;
     font-size: 80%;
-    line-height: @lineHeight-default * 0.8;
+    line-height: (@lineHeight-default * 0.8);
     text-transform: uppercase;
     margin: 10px 5px;
     padding: 0;
@@ -2690,7 +2690,7 @@ input[type="text"].dropDown-search {
         left: 0;
         position: absolute;
         right: 0;
-        top: @lineHeight-default + 10;
+        top: (@lineHeight-default + 10);
         z-index: 1;
     }
 
@@ -2712,7 +2712,7 @@ input[type="text"].dropDown-search {
     height: 800px;
     left: 0;
     position: absolute;
-    top: @lineHeight-default + 10;
+    top: (@lineHeight-default + 10);
     width: 1200px;
     .transform(scale(0.25));
     .transform-origin(0 0);
@@ -3179,7 +3179,7 @@ input[type="text"].dropDown-search {
                     @img-height: 100px;
 
                     display: block;
-                    height: @img-height + 2 * (@input-padding + @input-borderWidth);
+                    height: (@img-height + 2 * (@input-padding + @input-borderWidth));
                     margin-bottom: 5px;
                     width: 100%;
 
@@ -3208,17 +3208,17 @@ input[type="text"].dropDown-search {
                     content: counter(listItem);
                     height: @select-markerSize;
                     line-height: @select-markerSize;
-                    min-width: @listItem-markerSize - @select-markerMargin - @input-padding - @input-borderWidth;
+                    min-width: (@listItem-markerSize - @select-markerMargin - @input-padding - @input-borderWidth);
                     padding: 0 @input-padding;
                     position: absolute;
-                    right: @listItem-margin + @input-borderWidth;
+                    right: (@listItem-margin + @input-borderWidth);
                     text-align: center;
                     top: @input-borderWidth;
                     z-index: 1;
                 }
 
                 .objectId-select:before {
-                    top: @select-markerSize + @select-markerMargin;
+                    top: (@select-markerSize + @select-markerMargin);
                 }
             }
         }
@@ -3810,7 +3810,7 @@ input[type="text"].dropDown-search {
     border-style: none;
     height: 1500px;
     left: 0;
-    top: @lineHeight-default + 10;
+    top: (@lineHeight-default + 10);
     .transform(scale(0.30));
     .transform-origin(0 0);
     width: 1220px;
@@ -4385,10 +4385,10 @@ input[type="text"].dropDown-search {
     a {
         color: @color-text;
         display: inline-block;
-        font-size: @fontSize-default * 2;
-        line-height: @fontSize-default * 2;
+        font-size: (@fontSize-default * 2);
+        line-height: (@fontSize-default * 2);
         left: 0;
-        margin-top: -@fontSize-default;
+        margin-top: (0 - @fontSize-default);
         position: absolute;
         top: 50%;
         width: 100%;
@@ -4398,7 +4398,7 @@ input[type="text"].dropDown-search {
         }
 
         &:before {
-            font-size: @fontSize-icon * 2;
+            font-size: (@fontSize-icon * 2);
             .opacity(1);
         }
     }
