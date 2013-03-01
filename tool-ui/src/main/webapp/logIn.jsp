@@ -5,6 +5,7 @@ com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.AuthenticationFilter,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Query,
 com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.HtmlWriter,
@@ -83,6 +84,13 @@ body {
         new HtmlWriter(wp.getWriter()).object(authError);
     }
     %>
+
+    <% if (!Query.from(ToolUser.class).hasMoreThan(0)) { %>
+        <div class="message message-info">
+            <p>Welcome! You're our first user. Give us your email and
+            password and we'll make you an administrator.</p>
+        </div>
+    <% } %>
 
     <form action="<%= wp.url("") %>" method="post">
         <div class="inputContainer">

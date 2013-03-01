@@ -23,7 +23,10 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
         } else if (!ObjectUtils.isBlank(email) &&
-                Settings.get(boolean.class, "cms/tool/isAutoCreateUser")) {
+                (ObjectUtils.coalesce(
+                        Settings.get(Boolean.class, "cms/tool/autoCreateUser"),
+                        Settings.get(boolean.class, "cms/tool/isAutoCreateUser")) ||
+                !Query.from(ToolUser.class).hasMoreThan(0))) {
             String name = email;
             int atAt = email.indexOf("@");
 
