@@ -67,10 +67,10 @@ public class CreateNew extends PageServlet {
 
             for (TypeTemplate typeTemplate : typeTemplates) {
                 if (page.param(boolean.class, typeTemplate.getParameterName())) {
+                    favorites.add(typeTemplate);
+                } else {
                     collapsed.add(typeTemplate);
                     collapsedIds.add(typeTemplate.getCollapsedId());
-                } else {
-                    favorites.add(typeTemplate);
                 }
             }
 
@@ -98,7 +98,7 @@ public class CreateNew extends PageServlet {
         page.writeStart("style", "type", "text/css");
             page.writeCss("#" + widgetId, "position", "relative");
             page.writeCss("#" + widgetId + " .action-customize", "position", "absolute", "right", "32px", "top", "6px");
-            page.writeCss("#" + widgetId + " .radioContainer", "text-align", "center"); 
+            page.writeCss("#" + widgetId + " .checkboxContainer", "text-align", "center"); 
         page.writeEnd();
 
         page.writeStart("div", "class", "widget", "id", widgetId);
@@ -113,8 +113,7 @@ public class CreateNew extends PageServlet {
                         page.writeStart("thead");
                             page.writeStart("tr");
                                 page.writeStart("th").writeEnd();
-                                page.writeStart("th").writeHtml("Favorite").writeEnd();
-                                page.writeStart("th").writeHtml("Collapsed").writeEnd();
+                                page.writeStart("th").writeHtml("Favorite?").writeEnd();
                             page.writeEnd();
                         page.writeEnd();
 
@@ -123,22 +122,13 @@ public class CreateNew extends PageServlet {
                                 page.writeStart("tr");
                                     page.writeStart("td").writeHtml(page.getObjectLabel(typeTemplate.type)).writeEnd();
 
-                                    page.writeStart("td", "class", "radioContainer");
+                                    page.writeStart("td", "class", "checkboxContainer");
                                         page.writeTag("input",
-                                                "type", "radio",
-                                                "id", page.getId(),
-                                                "name", typeTemplate.getParameterName(),
-                                                "value", "false",
-                                                "checked", collapsed.contains(typeTemplate) ? null : "checked");
-                                    page.writeEnd();
-
-                                    page.writeStart("td", "class", "radioContainer");
-                                        page.writeTag("input",
-                                                "type", "radio",
+                                                "type", "checkbox",
                                                 "id", page.getId(),
                                                 "name", typeTemplate.getParameterName(),
                                                 "value", "true",
-                                                "checked", collapsed.contains(typeTemplate) ? "checked" : null);
+                                                "checked", collapsed.contains(typeTemplate) ? null : "checked");
                                     page.writeEnd();
                                 page.writeEnd();
                             }
@@ -230,7 +220,7 @@ public class CreateNew extends PageServlet {
         }
 
         public String getParameterName() {
-            return "collapsed." + type.getId() + "." + template.getId();
+            return "favorite." + type.getId() + "." + template.getId();
         }
 
         public String getCollapsedId() {
