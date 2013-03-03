@@ -40,18 +40,37 @@ String removeId = wp.createId();
 </div>
 
 <script type="text/javascript">
-    if (typeof jQuery !== 'undefined') (function($) {
-        var $page = $('#<%= pageId %>');
-        var $input = $page.popup('source').parent().find(':input.objectId');
+    if (typeof jQuery !== 'undefined') (function(win, $) {
+        var $win = $(win),
+                $page = $('#<%= pageId %>');
 
         $page.delegate('[data-objectId]', 'click', function() {
-            var $link = $(this);
+            var $source = $page.popup('source'),
+                    $input = $source.parent().find(':input.objectId'),
+                    $link = $(this),
+                    $repeatable = $source.closest('.inputContainer').find('.repeatableObjectId'),
+                    $sourceContainer,
+                    $added;
+
             $input.attr('data-label', $link.text());
             $input.attr('data-preview', $link.find('img').attr('src'));
             $input.val($link.attr('data-objectId'));
             $input.change();
+
+            if ($repeatable.length > 0) {
+                $repeatable.find('.addButton').click();
+                $sourceContainer = $source.closest('li');
+                $added = $sourceContainer.nextAll('li').eq(0);
+
+                if ($added.length > 0) {
+                    $page.popup('source', $added.find('a.objectId-select'));
+                    $win.scrollTop($win.scrollTop() + $sourceContainer.outerHeight(true));
+                    return false;
+                }
+            }
+
             $page.popup('close');
             return false;
         });
-    })(jQuery);
+    })(window, jQuery);
 </script>
