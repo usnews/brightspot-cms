@@ -1,11 +1,14 @@
 <%@ page import="
 
+com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 com.psddev.dari.util.HtmlWriter,
+com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
 
@@ -23,6 +26,16 @@ Search search = new Search(wp);
 
 if (!wp.param(boolean.class, "widget")) {
     new SearchResultRenderer(wp, search).render();
+
+    wp.writeStart("div", "class", "buttons");
+        wp.writeStart("a",
+                "class", "icon icon-tasks",
+                "href", wp.cmsUrl("/content/newWorkStream.jsp",
+                        "search", ObjectUtils.toJson(search.getState().getSimpleValues())),
+                "target", "newWorkStream");
+            wp.writeHtml("New Work Stream");
+        wp.writeEnd();
+    wp.writeEnd();
 
 } else {
     HtmlWriter writer = new HtmlWriter(wp.getWriter());
