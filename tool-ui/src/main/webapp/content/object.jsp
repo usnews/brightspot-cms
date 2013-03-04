@@ -20,7 +20,13 @@ if (wp.isFormPost()) {
         } else if ("Delete".equals(action)) {
             wp.deleteSoftly(object);
         }
-        wp.redirect("");
+        if (wp.param(boolean.class, "reload")) {
+            wp.writeStart("script", "type", "text/javascript");
+                wp.write("top.window.location = top.window.location;");
+            wp.writeEnd();
+        } else {
+            wp.redirect("");
+        }
         return;
     } catch (Exception ex) {
         wp.getErrors().add(ex);
@@ -32,6 +38,7 @@ if (wp.isFormPost()) {
 %><% wp.include("/WEB-INF/objectHeading.jsp", "object", object); %>
 <% wp.include("/WEB-INF/errors.jsp"); %>
 <form action="<%= wp.objectUrl("", object) %>" enctype="multipart/form-data" method="post">
+    <input type="hidden" name="reload" value="<%= wp.param(boolean.class, "reload") %>">
     <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
     <div class="buttons">
         <input type="submit" name="action" value="Save" />
