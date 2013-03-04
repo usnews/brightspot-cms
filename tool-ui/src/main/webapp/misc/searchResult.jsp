@@ -27,11 +27,21 @@ Search search = new Search(wp);
 if (!wp.param(boolean.class, "widget")) {
     new SearchResultRenderer(wp, search).render();
 
+    boolean hasMissing = false;
+
+    for (String value : search.getFieldFilters().values()) {
+        if ("missing".equals(value)) {
+            hasMissing = true;
+            break;
+        }
+    }
+
     wp.writeStart("div", "class", "buttons");
         wp.writeStart("a",
                 "class", "icon icon-tasks",
                 "href", wp.cmsUrl("/content/newWorkStream.jsp",
-                        "search", ObjectUtils.toJson(search.getState().getSimpleValues())),
+                        "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
+                        "incompleteIfMatching", hasMissing),
                 "target", "newWorkStream");
             wp.writeHtml("New Work Stream");
         wp.writeEnd();

@@ -23,7 +23,8 @@ if (wp.isFormPost()) {
 
         Search search = new Search();
         search.getState().setValues((Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "search")));
-        object.setQuery(search.getQuery());
+        object.setSearch(search);
+        object.setIncompleteIfMatching(wp.param(boolean.class, "incompleteIfMatching"));
 
         wp.publish(object);
 
@@ -44,6 +45,11 @@ wp.include("/WEB-INF/errors.jsp");
 wp.writeStart("form",
         "method", "post",
         "action", wp.objectUrl("", object));
+    wp.writeTag("input",
+            "type", "hidden",
+            "name", "incompleteIfMatching",
+            wp.param(boolean.class, "incompleteIfMatching"));
+
     wp.include("/WEB-INF/objectForm.jsp", "object", object);
 
     wp.writeStart("div", "class", "buttons");

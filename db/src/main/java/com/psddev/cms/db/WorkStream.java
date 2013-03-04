@@ -19,9 +19,15 @@ public class WorkStream extends Record {
     @Required
     private String name;
 
-    @Required
+    @Embedded
+    @ToolUi.Hidden
+    private com.psddev.cms.tool.Search search;
+
     @ToolUi.Hidden
     private Query query;
+
+    @ToolUi.Hidden
+    private boolean incompleteIfMatching;
 
     @ToolUi.Hidden
     private Map<String, UUID> currentItems;
@@ -39,14 +45,40 @@ public class WorkStream extends Record {
         this.name = name;
     }
 
+    /** Returns the tool search that can return all items to be worked on. */
+    public com.psddev.cms.tool.Search getSearch() {
+        return search;
+    }
+
+    /** Sets the tool search that can return all items to be worked on. */
+    public void setSearch(com.psddev.cms.tool.Search search) {
+        this.search = search;
+    }
+
     /** Returns the query that can return all items to be worked on. */
     public Query getQuery() {
-        return query;
+        return query == null && search != null ? search.toQuery() : query;
     }
 
     /** Sets the query that can return all items to be worked on. */
     public void setQuery(Query query) {
         this.query = query;
+    }
+
+    /**
+     * Returns {@code true} if the item should be considered incomplete as
+     * long as the query matches.
+     */
+    public boolean isIncompleteIfMatching() {
+        return incompleteIfMatching;
+    }
+
+    /**
+     * Sets whether the item should be considered incomplete as long as the
+     * query matches.
+     */
+    public void setIncompleteIfMatching(boolean incompleteIfMatching) {
+        this.incompleteIfMatching = incompleteIfMatching;
     }
 
     /**
