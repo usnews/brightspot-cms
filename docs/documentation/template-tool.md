@@ -2,6 +2,7 @@
 layout: default
 title: Template Tool
 id: template-tool
+section: cms-basics
 ---
 
 ## Template Tool

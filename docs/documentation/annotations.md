@@ -2,9 +2,11 @@
 layout: default
 title: Annotations
 id: annotations
+section: documentation
 ---
 
-## Annotations
+
+<div markdown="1" class="span9">
 
 Annotations provide information on how a particular field or model class
 should behave. The most commonly used annotations are `@Indexed` and
@@ -177,3 +179,15 @@ The value passed to the annotation is the limiting value.  When a user is modify
 `@ToolUi.RichText`
 
 > Specifies whether the target field should offer rich-text editing options. This allows String fields to contain Rich Text Controls.
+
+</div>
+
+<div class="span3 dari-docs-sidebar">
+<div markdown="1" style="position:scroll;" class="well sidebar-nav">
+
+
+* auto-gen TOC:
+{:toc}
+
+</div>
+</div>
