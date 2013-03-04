@@ -95,13 +95,13 @@ public class Search extends Record {
             if (name.startsWith(GLOBAL_FILTER_PARAMETER_PREFIX)) {
                 getGlobalFilters().put(name.substring(GLOBAL_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
 
-            } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
-                if (name.endsWith(MISSING_FILTER_PARAMETER_SUFFIX)) {
-                    getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length(), name.length() - MISSING_FILTER_PARAMETER_SUFFIX.length()), "missing");
-
-                } else {
-                    getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
-                }
+            } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX) &&
+                    !name.endsWith(MISSING_FILTER_PARAMETER_SUFFIX)) {
+                getFieldFilters().put(
+                        name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()),
+                        page.param(boolean.class, name + MISSING_FILTER_PARAMETER_SUFFIX) ?
+                                "missing" :
+                                page.param(String.class, name));
             }
         }
 
