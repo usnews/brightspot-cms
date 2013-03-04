@@ -41,7 +41,7 @@ public class RecentActivity extends PageServlet {
         int limit = page.pageParam(Integer.class, "limit", 20);
 
         Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.from(Content.class)).
-                where(page.siteItemsPredicate()).
+                where(page.siteItemsSearchPredicate()).
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(Content.UPDATE_DATE_FIELD + " <= ?", date).
                 sortDescending(Content.UPDATE_DATE_FIELD);

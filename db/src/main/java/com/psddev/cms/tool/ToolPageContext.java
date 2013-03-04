@@ -36,10 +36,12 @@ import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
 import com.psddev.dari.db.Application;
+import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
@@ -668,6 +670,19 @@ public class ToolPageContext extends WebPageContext {
         }
 
         return null;
+    }
+
+    public Predicate siteItemsSearchPredicate() {
+        Predicate predicate = siteItemsPredicate();
+
+        if (predicate != null) {
+            predicate = CompoundPredicate.combine(
+                    PredicateParser.AND_OPERATOR,
+                    predicate,
+                    PredicateParser.Static.parse("* matches *"));
+        }
+
+        return predicate;
     }
 
     private String cmsResource(String path, Object... parameters) {
