@@ -86,7 +86,7 @@ public class SiteMap extends PageServlet {
                     @Override
                     protected Query<?> createQuery(Directory directory) {
                         return (itemType != null ? Query.fromType(itemType) : Query.fromAll()).
-                                and(page.siteItemsPredicate()).
+                                and(page.siteItemsSearchPredicate()).
                                 and(directory.itemsPredicate(page.getSite())).
                                 sortAscending(Directory.PATHS_FIELD);
                     }

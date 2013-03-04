@@ -52,7 +52,7 @@ public class RecentActivity extends PageServlet {
 
         } else {
             Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.from(Content.class)).
-                    where(page.siteItemsPredicate()).
+                    where(page.siteItemsSearchPredicate()).
                     and(Content.UPDATE_DATE_FIELD + " != missing").
                     sortDescending(Content.UPDATE_DATE_FIELD);
 
