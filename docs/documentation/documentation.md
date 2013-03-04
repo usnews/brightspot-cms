@@ -5,8 +5,6 @@ id: documentation
 section: documentation
 ---
 
-## Installation
-
 Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org). This install will create your new Brightspot CMS application.
 
 Installing Brightspot CMS requires five main steps. We will walk through these in more detail below.

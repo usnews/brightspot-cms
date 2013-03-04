@@ -20,16 +20,19 @@ A file upload UI can be created within Brightspot by using the `StorageItem` ret
 
 Here's an example of an Image object:
 
-    @ToolUi.Referenceable
-    @Renderer.Engine("JSP")
-    @Renderer.Script("/WEB-INF/modules/image.jsp")
-	public class Image extends Content {
+<div class="codehilite">
+{% highlight java %}
+@ToolUi.Referenceable
+@Renderer.Engine("JSP")
+@Renderer.Script("/WEB-INF/modules/image.jsp")
+    public class Image extends Content {
 
-        private StorageItem file;
-        private String altText;
+    private StorageItem file;
+    private String altText;
 
-    }
-
+}
+{% endhighlight %}
+</div>
 
 By defining a renderer script for the file it can be rendered within the Rich Text Editor. The `@ToolUi.Referenceable` annotation allows the Image class to be added to a `ReferentialText` area within the CMS.
 

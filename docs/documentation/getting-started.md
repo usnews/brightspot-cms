@@ -4,10 +4,6 @@ title: Getting Started
 id: documentation
 ---
 
-
-
-## Getting Started
-
 ### The Basics
 
 Once you have your CMS instance installed you can start to become familiar with the tool itself. Here are the basics:
