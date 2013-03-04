@@ -35,6 +35,7 @@ public class Search extends Record {
     public static final String GLOBAL_FILTER_PARAMETER_PREFIX = "gf.";
     public static final String FIELD_FILTER_PARAMETER_PREFIX = "f.";
     public static final String LIMIT_PARAMETER = "l";
+    public static final String MISSING_FILTER_PARAMETER_SUFFIX = ".m";
     public static final String NAME_PARAMETER = "n";
     public static final String OFFSET_PARAMETER = "o";
     public static final String ONLY_PATHED_PARAMETER = "p";
@@ -95,7 +96,12 @@ public class Search extends Record {
                 getGlobalFilters().put(name.substring(GLOBAL_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
 
             } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
-                getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
+                if (name.endsWith(MISSING_FILTER_PARAMETER_SUFFIX)) {
+                    getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length(), name.length() - MISSING_FILTER_PARAMETER_SUFFIX.length()), "missing");
+
+                } else {
+                    getFieldFilters().put(name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
+                }
             }
         }
 
@@ -417,7 +423,9 @@ public class Search extends Record {
                 String value = entry.getValue();
 
                 if (value != null) {
-                    query.and(selectedType.getInternalName() + "/" + entry.getKey() + " = ?", value);
+                    query.and(
+                            selectedType.getInternalName() + "/" + entry.getKey() + " = ?",
+                            "missing".equals(value) ? Query.MISSING_VALUE : value);
                 }
             }
         }

@@ -84,8 +84,7 @@ if (selectedType != null) {
     for (ObjectField field : selectedType.getIndexedFields()) {
         ToolUi fieldUi = field.as(ToolUi.class);
 
-        if (fieldUi.isEffectivelyFilterable() &&
-                Collections.disjoint(field.getTypes(), globalFilters)) {
+        if (fieldUi.isEffectivelyFilterable()) {
             fieldFilters.add(field);
         }
     }
@@ -167,7 +166,7 @@ writer.start("div", "class", "searchForm-container");
                 writer.tag("input", "type", "hidden", "name", Search.LIMIT_PARAMETER, "value", search.getLimit());
                 writer.tag("input", "type", "hidden", "name", Search.SELECTED_TYPE_PARAMETER, "value", selectedType != null ? selectedType.getId() : null);
 
-                writer.start("span", "class", "searchInput");
+                writer.start("div", "class", "searchInput");
                     writer.start("label", "for", wp.createId()).html("Search").end();
                     writer.tag("input",
                             "type", "text",
@@ -178,55 +177,72 @@ writer.start("div", "class", "searchForm-container");
                     writer.start("button").html("Go").end();
                 writer.end();
 
-                for (ObjectType filter : globalFilters) {
-                    String filterId = filter.getId().toString();
-                    State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
+                if (selectedType == null) {
+                    writer.start("div", "class", "searchFilters searchFilters-global");
+                        for (ObjectType filter : globalFilters) {
+                            String filterId = filter.getId().toString();
+                            State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
-                    writer.start("span", "class", "searchForm-filterInput");
-                        writer.tag("input",
-                                "type", "text",
-                                "class", "objectId",
-                                "name", "gf." + filterId,
-                                "placeholder", "Filter: " + filter.getDisplayName(),
-                                "data-editable", false,
-                                "data-label", filterState != null ? filterState.getLabel() : null,
-                                "data-typeIds", filterId,
-                                "value", filterState != null ? filterState.getId() : null);
+                            writer.start("div", "class", "searchFilter");
+                                writer.tag("input",
+                                        "type", "text",
+                                        "class", "objectId",
+                                        "name", "gf." + filterId,
+                                        "placeholder", "Filter: " + filter.getDisplayName(),
+                                        "data-editable", false,
+                                        "data-label", filterState != null ? filterState.getLabel() : null,
+                                        "data-typeIds", filterId,
+                                        "value", filterState != null ? filterState.getId() : null);
+                            writer.end();
+                        }
                     writer.end();
-                }
 
-                if (selectedType != null) {
-                    for (ObjectField field : fieldFilters) {
-                        ToolUi fieldUi = field.as(ToolUi.class);
-                        Set<ObjectType> fieldTypes = field.getTypes();
-                        String fieldName = field.getInternalName();
-                        StringBuilder fieldTypeIds = new StringBuilder();
-
-                        if (!ObjectUtils.isBlank(fieldTypes)) {
-                            for (ObjectType fieldType : fieldTypes) {
-                                fieldTypeIds.append(fieldType.getId()).append(",");
-                            }
-
-                            fieldTypeIds.setLength(fieldTypeIds.length() - 1);
+                } else {
+                    writer.start("div", "class", "searchFilters searchFilters-local");
+                        if (!fieldFilters.isEmpty()) {
+                            writer.start("div", "class", "searchMissing");
+                                writer.html("Missing?");
+                            writer.end();
                         }
 
-                        State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getFieldFilters().get(fieldName)).first());
+                        for (ObjectField field : fieldFilters) {
+                            ToolUi fieldUi = field.as(ToolUi.class);
+                            Set<ObjectType> fieldTypes = field.getTypes();
+                            String fieldName = field.getInternalName();
+                            StringBuilder fieldTypeIds = new StringBuilder();
 
-                        writer.start("span", "class", "searchForm-filterInput");
-                            writer.tag("input",
-                                    "type", "text",
-                                    "class", "objectId",
-                                    "name", "f." + fieldName,
-                                    "placeholder", "Filter: " + field.getDisplayName(),
-                                    "data-additional-query", field.getPredicate(),
-                                    "data-editable", false,
-                                    "data-label", fieldState != null ? fieldState.getLabel() : null,
-                                    "data-pathed", ToolUi.isOnlyPathed(field),
-                                    "data-searcher-path", fieldUi.getInputSearcherPath(),
-                                    "data-typeIds", fieldTypeIds,
-                                    "value", search.getFieldFilters().get(fieldName));
-                        writer.end();
-                    }
+                            if (!ObjectUtils.isBlank(fieldTypes)) {
+                                for (ObjectType fieldType : fieldTypes) {
+                                    fieldTypeIds.append(fieldType.getId()).append(",");
+                                }
+
+                                fieldTypeIds.setLength(fieldTypeIds.length() - 1);
+                            }
+
+                            String fieldValue = search.getFieldFilters().get(fieldName);
+                            State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
+
+                            writer.start("div", "class", "searchFilter");
+                                writer.tag("input",
+                                        "type", "text",
+                                        "class", "objectId",
+                                        "name", "f." + fieldName,
+                                        "placeholder", "Filter: " + field.getDisplayName(),
+                                        "data-additional-query", field.getPredicate(),
+                                        "data-editable", false,
+                                        "data-label", fieldState != null ? fieldState.getLabel() : null,
+                                        "data-pathed", ToolUi.isOnlyPathed(field),
+                                        "data-searcher-path", fieldUi.getInputSearcherPath(),
+                                        "data-typeIds", fieldTypeIds,
+                                        "value", search.getFieldFilters().get(fieldName));
+                                writer.tag("input",
+                                        "type", "checkbox",
+                                        "name", "f." + fieldName + ".m",
+                                        "value", true,
+                                        "checked", "missing".equals(fieldValue) ? "checked" : null);
+                            writer.end();
+                        }
+                    writer.end();
                 }
 
             writer.end();

@@ -1666,8 +1666,28 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.searchForm-filterInput {
-    display: block;
+.searchMissing {
+    .icon;
+    .icon-share-alt;
+
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    line-height: (@lineHeight-default * 0.8);
+    padding-right: 20px;
+    position: relative;
+    text-align: right;
+    text-transform: uppercase;
+
+    &:before {
+        position: absolute;
+        right: 4px;
+        top: 7px;
+        .transform(rotate(90deg));
+    }
+}
+
+.searchFilter {
     position: relative;
 
     .objectId-clear {
@@ -1676,6 +1696,20 @@ input[type=text].expandable { min-width: 5em; }
         position: absolute;
         right: 25px;
         top: 3px;
+    }
+
+    .searchFilters-local & {
+        padding-right: 20px;
+
+        input[type='checkbox'] {
+            position: absolute;
+            right: 0;
+            top: 4px;
+        }
+
+        .objectId-clear {
+            right: 45px;
+        }
     }
 }
 
