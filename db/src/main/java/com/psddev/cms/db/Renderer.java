@@ -9,46 +9,50 @@ import java.lang.annotation.Target;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
-public interface Renderer {
+public interface Renderer extends Recordable {
 
     /** Modification of a type to add rendering information. */
+    @FieldInternalNamePrefix("cms.render.")
     public static class TypeModification extends Modification<ObjectType> {
 
-        private static final String FIELD_PREFIX = "cms.render.";
-
-        public static final String SCRIPT_FIELD = FIELD_PREFIX + "renderScript";
-
-        @InternalName(SCRIPT_FIELD) 
-        private String script;
+        @InternalName("renderScript")
+        private String modulePath;
 
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
             return (String) getState().get("cms.defaultRecordJsp");
         }
 
-        /** Returns the rendering script. */
-        public String getScript() {
-            if (ObjectUtils.isBlank(script)) {
+        public String getModulePath() {
+            if (ObjectUtils.isBlank(modulePath)) {
                 String jsp = getDefaultRecordJsp();
+
                 if (!ObjectUtils.isBlank(jsp)) {
-                    setScript(jsp);
+                    modulePath = jsp;
                 }
             }
-            return script;
+
+            return modulePath;
         }
 
-        /** Sets the rendering script. */
-        public void setScript(String script) {
-            this.script = script;
+        public void setModulePath(String modulePath) {
+            this.modulePath = modulePath;
         }
 
         // --- Deprecated ---
 
+        private static final String FIELD_PREFIX = "cms.render.";
+
         /** @deprecated No replacement. */
         @Deprecated
         public static final String ENGINE_FIELD = FIELD_PREFIX + "renderEngine";
+
+        /** @deprecated No replacement. */
+        @Deprecated
+        public static final String SCRIPT_FIELD = FIELD_PREFIX + "renderScript";
 
         @Deprecated
         @InternalName(ENGINE_FIELD)
@@ -71,15 +75,27 @@ public interface Renderer {
         public void setEngine(String engine) {
             this.engine = engine;
         }
+
+        /** @deprecated Use {@link #getModulePath} instead. */
+        @Deprecated
+        public String getScript() {
+            return getModulePath();
+        }
+
+        /** @deprecated Use {@link #setModulePath} instead. */
+        @Deprecated
+        public void setScript(String script) {
+            setModulePath(script);
+        }
     }
 
     /** Specifies the script used to render instances of the target type. */
     @Documented
     @Inherited
-    @ObjectType.AnnotationProcessorClass(ScriptProcessor.class)
+    @ObjectType.AnnotationProcessorClass(ModulePathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface Script {
+    public @interface ModulePath {
         String value();
     }
 
@@ -95,12 +111,23 @@ public interface Renderer {
     public @interface Engine {
         String value();
     }
+
+    /** @deprecated Use {@link ModulePath} instead. */
+    @Deprecated
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(ScriptProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface Script {
+        String value();
+    }
 }
 
-class ScriptProcessor implements ObjectType.AnnotationProcessor<Renderer.Script> {
+class ModulePathProcessor implements ObjectType.AnnotationProcessor<Renderer.ModulePath> {
     @Override
-    public void process(ObjectType type, Renderer.Script annotation) {
-        type.as(Renderer.TypeModification.class).setScript(annotation.value());
+    public void process(ObjectType type, Renderer.ModulePath annotation) {
+        type.as(Renderer.TypeModification.class).setModulePath(annotation.value());
     }
 }
 
@@ -108,5 +135,12 @@ class EngineProcessor implements ObjectType.AnnotationProcessor<Renderer.Engine>
     @Override
     public void process(ObjectType type, Renderer.Engine annotation) {
         type.as(Renderer.TypeModification.class).setEngine(annotation.value());
+    }
+}
+
+class ScriptProcessor implements ObjectType.AnnotationProcessor<Renderer.Script> {
+    @Override
+    public void process(ObjectType type, Renderer.Script annotation) {
+        type.as(Renderer.TypeModification.class).setScript(annotation.value());
     }
 }
