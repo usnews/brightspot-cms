@@ -1,10 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.util.ObjectUtils;
-
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -12,38 +7,25 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-public abstract class Renderer {
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.util.ObjectUtils;
+
+public interface Renderer {
 
     /** Modification of a type to add rendering information. */
     public static class TypeModification extends Modification<ObjectType> {
 
         private static final String FIELD_PREFIX = "cms.render.";
 
-        public static final String ENGINE_FIELD = FIELD_PREFIX + "renderEngine";
         public static final String SCRIPT_FIELD = FIELD_PREFIX + "renderScript";
 
-        private @InternalName(ENGINE_FIELD) String engine;
-        private @InternalName(SCRIPT_FIELD) String script;
+        @InternalName(SCRIPT_FIELD) 
+        private String script;
 
-        /** Returns the legacy rendering JSP. */
+        // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
-            return (String) getState().getValue("cms.defaultRecordJsp");
-        }
-
-        /** Returns the rendering engine. */
-        public String getEngine() {
-            if (ObjectUtils.isBlank(engine)) {
-                String jsp = getDefaultRecordJsp();
-                if (!ObjectUtils.isBlank(jsp)) {
-                    setEngine("JSP");
-                }
-            }
-            return engine;
-        }
-
-        /** Sets the rendering engine. */
-        public void setEngine(String engine) {
-            this.engine = engine;
+            return (String) getState().get("cms.defaultRecordJsp");
         }
 
         /** Returns the rendering script. */
@@ -61,22 +43,33 @@ public abstract class Renderer {
         public void setScript(String script) {
             this.script = script;
         }
-    }
 
-    /** Specifies the engine used to render instances of the target type. */
-    @Documented
-    @Inherited
-    @ObjectType.AnnotationProcessorClass(EngineProcessor.class)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    public @interface Engine {
-        String value();
-    }
+        // --- Deprecated ---
 
-    private static class EngineProcessor implements ObjectType.AnnotationProcessor<Engine> {
-        @Override
-        public void process(ObjectType type, Engine annotation) {
-            type.as(TypeModification.class).setEngine(annotation.value());
+        /** @deprecated No replacement. */
+        @Deprecated
+        public static final String ENGINE_FIELD = FIELD_PREFIX + "renderEngine";
+
+        @Deprecated
+        @InternalName(ENGINE_FIELD)
+        private String engine;
+
+        /** @deprecated No replacement. */
+        @Deprecated
+        public String getEngine() {
+            if (ObjectUtils.isBlank(engine)) {
+                String jsp = getDefaultRecordJsp();
+                if (!ObjectUtils.isBlank(jsp)) {
+                    setEngine("JSP");
+                }
+            }
+            return engine;
+        }
+
+        /** @deprecated No replacement. */
+        @Deprecated
+        public void setEngine(String engine) {
+            this.engine = engine;
         }
     }
 
@@ -90,10 +83,30 @@ public abstract class Renderer {
         String value();
     }
 
-    private static class ScriptProcessor implements ObjectType.AnnotationProcessor<Script> {
-        @Override
-        public void process(ObjectType type, Script annotation) {
-            type.as(TypeModification.class).setScript(annotation.value());
-        }
+    // --- Deprecated ---
+
+    /** @deprecated No replacement. */
+    @Deprecated
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(EngineProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface Engine {
+        String value();
+    }
+}
+
+class ScriptProcessor implements ObjectType.AnnotationProcessor<Renderer.Script> {
+    @Override
+    public void process(ObjectType type, Renderer.Script annotation) {
+        type.as(Renderer.TypeModification.class).setScript(annotation.value());
+    }
+}
+
+class EngineProcessor implements ObjectType.AnnotationProcessor<Renderer.Engine> {
+    @Override
+    public void process(ObjectType type, Renderer.Engine annotation) {
+        type.as(Renderer.TypeModification.class).setEngine(annotation.value());
     }
 }
