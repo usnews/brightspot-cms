@@ -21,11 +21,17 @@ public interface Renderer extends Recordable {
         @InternalName("renderScript")
         private String modulePath;
 
+        private String pagePath;
+
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
             return (String) getState().get("cms.defaultRecordJsp");
         }
 
+        /**
+         * Returns the servlet path used to render instances of this type
+         * as a module.
+         */
         public String getModulePath() {
             if (ObjectUtils.isBlank(modulePath)) {
                 String jsp = getDefaultRecordJsp();
@@ -38,8 +44,28 @@ public interface Renderer extends Recordable {
             return modulePath;
         }
 
+        /**
+         * Sets the servlet path used to render instances of this type
+         * as a module.
+         */
         public void setModulePath(String modulePath) {
             this.modulePath = modulePath;
+        }
+
+        /**
+         * Returns the servlet path used to render instances of this type
+         * as a page.
+         */
+        public String getPagePath() {
+            return pagePath;
+        }
+
+        /**
+         * Sets the servlet path used to render instances of this type
+         * as a page.
+         */
+        public void setPagePath(String pagePath) {
+            this.pagePath = pagePath;
         }
 
         // --- Deprecated ---
@@ -89,13 +115,29 @@ public interface Renderer extends Recordable {
         }
     }
 
-    /** Specifies the script used to render instances of the target type. */
+    /**
+     * Specifies the servlet path used to render instances of the target type
+     * as a module.
+     */
     @Documented
     @Inherited
     @ObjectType.AnnotationProcessorClass(ModulePathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface ModulePath {
+        String value();
+    }
+
+    /**
+     * Specifies the servlet path used to render instances of the target type
+     * as a page.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(PagePathProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface PagePath {
         String value();
     }
 
@@ -128,6 +170,13 @@ class ModulePathProcessor implements ObjectType.AnnotationProcessor<Renderer.Mod
     @Override
     public void process(ObjectType type, Renderer.ModulePath annotation) {
         type.as(Renderer.TypeModification.class).setModulePath(annotation.value());
+    }
+}
+
+class PagePathProcessor implements ObjectType.AnnotationProcessor<Renderer.PagePath> {
+    @Override
+    public void process(ObjectType type, Renderer.PagePath annotation) {
+        type.as(Renderer.TypeModification.class).setPagePath(annotation.value());
     }
 }
 
