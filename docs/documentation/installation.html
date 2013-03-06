@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{{ page.title }} - Brightspot Documentation</title>
+    <title>Installation - Brightspot Documentation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -38,9 +38,9 @@
             </a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
-                    <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
-                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Support</a></li>
+                    <li class=""><a class="main-link" href="index.html">For Editors</a></li>
+                    <li class=""><a class="main-link" href="developer.html">For Developers</a></li>
+                    <li class="active"><a class="main-link" href="support.html">Support</a></li>
                 </ul>
             </div>
             <div class="nav pull-right">
@@ -67,12 +67,60 @@
     <div class="container documentation">
         <div class="row header">
             <div class="span12">
-                <h1>{{ page.title }}</h1>
+                <h1>Installation</h1>
             </div>
         </div>
         <div class="row">
             <div class="span12">
-                {{ content }}
+                <p>Brightspot CMS is built on top of the <a href="http://dariframework.org">Dari Framework</a>. This install will create a new Brightspot CMS application and Maven project, as well as setting up Solr and H2 databases. It will all run within an embedded Tomcat application server using the <a href="http://cargo.codehaus.org/Maven2+plugin">Cargo</a> plugin</p></br>
+
+<p>The installation of Brightspot CMS requires two steps.</p>
+
+<h3 id="step-1-create-your-project">Step 1. Create your Project</h3>
+
+<p>Create your Maven project by running the archetype below from your command line. Replace <code>yourGroupID</code> with your own. Example - <code>com.psddev</code> and create your own project name. <em>Note, the GroupID and Project name must not contain spaces or hyphens</em></p>
+
+<pre><code>mvn archetype:generate -B \
+-DarchetypeRepository=http://public.psddev.com/maven \
+-DarchetypeGroupId=com.psddev \
+-DarchetypeArtifactId=cms-app-archetype \
+-DarchetypeVersion=2.1-SNAPSHOT \
+-DgroupId=yourGroupID \
+-DartifactId=yourProject
+</code></pre>
+
+<p>If you are not familiar with Maven you can get an overview of the project layout structure <a href="http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">here</a>.</p>
+
+<h3 id="step-2-run-project">Step 2. Run Project</h3>
+
+<p>Once you&#8217;ve created your project navigate to <code>yourProject</code> directory. <em>Note this directory will contain your pom.xml file</em>.</p>
+
+<p>Run <code>mvn package cargo:run</code>. This command will embed Brightspot CMS  within your project and start the app with Tomcat on port 8080 - <a href="http://localhost:8080/cms">http://localhost:8080/cms</a></p>
+
+<p><em>Note: Make sure you have nothing running on port 8080 before running this command.</em></p>
+
+<p>Navigating to http://localhost:8080/cms will bring you to the default log in screen. </p>
+
+<div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 150px; width: 370px;">
+            <div class="highlight-box">
+                    <div class="title">Log in</div>
+                    <div class="description">Follow the instructions to create an administrator account.</div>
+                </div>
+            </div>
+            <img src="img/developer/install.png" alt="" />
+            <br/>
+        </div>
+
+
+<p>Sign in to finish the install. You are now ready to start creating your first project with Brightspot CMS. Head over to the <a href="#">Getting Started</a> documentation to learn more about the CMS tool, or the example project walk through where you can learn how to build your first object.</p>
+
+<h3 id="starting-and-stopping">Starting and Stopping</h3>
+
+<p>To stop your project cancel the command line <code>Ctrl-C</code>. To restart the project, navigate to within <code>yourProject</code> directory and run <code>mvn package cargo:run</code> again.</p>
+
+    <strong style="float:right;"><a href="#">> Next up: Getting Started</a></strong>
+
             </div>
         </div>
     </div><!--/row-->
