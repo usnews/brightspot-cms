@@ -14,6 +14,7 @@ public class ToolUser extends Record {
     private ToolRole role;
 
     @Indexed
+    @Required
     private String name;
 
     @Indexed(unique = true)
