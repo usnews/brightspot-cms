@@ -241,22 +241,28 @@ public class Template extends Page {
         }
 
         /**
-         * Finds a cached list of all templates that are usable with the
-         * given {@code object}.
+         * Finds a list of all templates that are usable with the given
+         * {@code object}.
+         *
+         * @return Never {@code null}. Mutable.
          */
         public static List<Template> findUsable(Object object) {
             List<Template> templates = new ArrayList<Template>();
+
             if (object != null) {
-                State objectState = State.getInstance(object);
-                Site objectOwner = objectState.as(Site.ObjectModification.class).getOwner();
-                ObjectType objectType = objectState.getType();
+                State state = State.getInstance(object);
+                Site owner = state.as(Site.ObjectModification.class).getOwner();
+                ObjectType type = state.getType();
+
                 for (Template template : Query.from(Template.class).sortAscending("name").selectAll()) {
-                    if (Site.Static.isObjectAccessible(objectOwner, template)
-                            && template.getContentTypes().contains(objectType)) {
+                    if (template.getContentTypes().contains(type) &&
+                            (owner == null ||
+                            Site.Static.isObjectAccessible(owner, template))) {
                         templates.add(template);
                     }
                 }
             }
+
             return templates;
         }
 
