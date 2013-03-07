@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
@@ -18,6 +19,9 @@ import com.psddev.dari.util.TypeReference;
 
 @SuppressWarnings("serial")
 public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
+
+    private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
+    private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + ".gridCssWritten";
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private transient HtmlWriter writer;
@@ -69,6 +73,12 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
+                ServletRequest request = pageContext.getRequest();
+
+                if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
+                    writer.writeGridCss(pageContext.getServletContext());
+                    request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+                }
             }
 
         } catch (IOException error) {
