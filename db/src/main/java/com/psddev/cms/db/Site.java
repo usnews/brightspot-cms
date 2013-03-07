@@ -37,6 +37,7 @@ public class Site extends Record {
     public static final String CONSUMERS_FIELD = FIELD_PREFIX + "consumers";
 
     @Indexed(unique = true)
+    @Required
     private String name;
 
     @Indexed(unique = true)
