@@ -33,13 +33,6 @@ String accessName = namePrefix + "access";
 String consumerIdName = namePrefix + "consumerId";
 
 Site owner = siteData.getOwner();
-if (owner == null) {
-    ToolUser user = wp.getUser();
-    if (user != null) {
-        owner = user.getCurrentSite();
-    }
-}
-
 Set<Site> consumers = siteData.getConsumers();
 
 if (JspWidget.isUpdating(wp)) {
