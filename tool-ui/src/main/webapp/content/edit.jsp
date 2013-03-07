@@ -15,6 +15,7 @@ com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolSearch,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
+com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
@@ -62,6 +63,21 @@ if (selected != null) {
     }
 }
 
+UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
+
+if (!state.isNew() && variationId == null) {
+    Site site = wp.getSite();
+
+    if (site != null) {
+        Variation defaultVariation = site.getDefaultVariation();
+
+        if (defaultVariation != null) {
+            wp.redirect("", "variationId", defaultVariation.getId());
+            return;
+        }
+    }
+}
+
 Template template = null;
 if (selected != null) {
     template = state.as(Template.ObjectModification.class).getDefault();
@@ -78,7 +94,6 @@ if (selected instanceof Page) {
     sectionContent = Query.findById(Object.class, wp.uuidParam("contentId"));
     if (sectionContent != null) {
         editing = sectionContent;
-        UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
 
         if (variationId != null) {
             State editingState = State.getInstance(editing);

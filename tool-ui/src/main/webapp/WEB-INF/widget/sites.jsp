@@ -33,13 +33,6 @@ String accessName = namePrefix + "access";
 String consumerIdName = namePrefix + "consumerId";
 
 Site owner = siteData.getOwner();
-if (owner == null) {
-    ToolUser user = wp.getUser();
-    if (user != null) {
-        owner = user.getCurrentSite();
-    }
-}
-
 Set<Site> consumers = siteData.getConsumers();
 
 if (JspWidget.isUpdating(wp)) {
@@ -85,7 +78,7 @@ String access = siteData.isGlobal() ? "all" :
 %>
 <label for="<%= wp.createId() %>">Owner:</label><br>
 <select class="toggleable" name="<%= ownerName %>" style="width: 100%;">
-    <option<%= owner == null ? " selected" : "" %> data-hide="#<%= accessContainerId %>" value="">- NONE -</option>
+    <option<%= owner == null ? " selected" : "" %> data-hide="#<%= accessContainerId %>" value="">Global</option>
     <% for (Site site : allSites) { %>
         <option<%= site.equals(owner) ? " selected" : "" %> data-show="#<%= accessContainerId %>" value="<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
     <% } %>

@@ -37,11 +37,13 @@ public class Site extends Record {
     public static final String CONSUMERS_FIELD = FIELD_PREFIX + "consumers";
 
     @Indexed(unique = true)
+    @Required
     private String name;
 
     @Indexed(unique = true)
     private List<String> urls;
 
+    private Variation defaultVariation;
     private Boolean isAllSitesAccessible;
     private Set<Site> accessibleSites;
 
@@ -78,6 +80,14 @@ public class Site extends Record {
     /** Sets the list of URLs that prefix all pages in this site. */
     public void setUrls(List<String> urls) {
         this.urls = urls;
+    }
+
+    public Variation getDefaultVariation() {
+        return defaultVariation;
+    }
+
+    public void setDefaultVariation(Variation defaultVariation) {
+        this.defaultVariation = defaultVariation;
     }
 
     /** Returns {@code true} if this site can access all other sites. */

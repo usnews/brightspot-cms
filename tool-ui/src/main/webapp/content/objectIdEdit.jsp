@@ -8,7 +8,8 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StorageItem,
 
-java.util.List
+java.util.List,
+java.util.UUID
 " %><%!
 
 private static final String[] POSITIONS = new String[] {
@@ -39,7 +40,7 @@ wp.include("/WEB-INF/objectHeading.jsp", "object", object);
 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
     wp.write("<p style=\"position: absolute; right: 15px; top: 8px;\">");
     wp.write("<a class=\"action-edit\" href=\"");
-    wp.write(wp.objectUrl("/content/edit.jsp", object));
+    wp.write(wp.objectUrl("/content/edit.jsp", object, "variationId", wp.param(UUID.class, "variationId")));
     wp.write("\" target=\"_blank\">Edit in Full</a>");
     wp.write("</p>");
 }

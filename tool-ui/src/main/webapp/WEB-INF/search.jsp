@@ -247,7 +247,13 @@ writer.start("div", "class", "searchForm-container");
 
             writer.end();
 
-            writer.start("a", "class", "action-reset", "href", wp.url("", "reset", true)).html("Reset").end();
+            writer.start("a",
+                    "class", "action-reset",
+                    "href", wp.url(null,
+                            Search.NAME_PARAMETER, search.getName(),
+                            "reset", true));
+                writer.html("Reset");
+            writer.end();
 
         writer.end();
 
