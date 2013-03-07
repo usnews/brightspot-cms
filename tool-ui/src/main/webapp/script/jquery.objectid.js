@@ -135,7 +135,7 @@ $.plugin2('objectId', {
 
             var objectId = $input.val();
             if (objectId) {
-                $editButton.attr('href', CONTEXT_PATH + 'content/objectIdEdit.jsp?id=' + objectId);
+                $editButton.attr('href', CONTEXT_PATH + 'content/objectIdEdit.jsp?id=' + objectId + '&' + (((/[&?](variationId=[^&]+)/).exec(win.location.search) || [ ])[1] || ''));
                 $editButton.show();
                 if ($clearButton) {
                     $clearButton.show();
