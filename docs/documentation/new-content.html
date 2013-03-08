@@ -1,80 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Creating New Content - Brightspot Documentation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+---
+layout: basic
+id: support
+title: Creating New Content
+section: documentation
+---
 
-    <link href='http://fonts.googleapis.com/css?family=Copse|Droid+Serif:400,700,400italic,700italic|Inconsolata:400,700|Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700|Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700' rel='stylesheet' type='text/css'>
-
-    <link href="css/font-awesome.min.css" rel="stylesheet" />
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/main.less" rel="stylesheet/less" type="text/css" />
-    <link href="css/documentation.less" rel="stylesheet/less" type="text/css" />
-    <link href="css/pygments/zenburn.css" rel="stylesheet">
-
-    <script src="js/less-1.3.3.min.js" type="text/javascript"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery-1.9.1.min.js"></script>
-
-
-
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-</head>
-
-<body data-target=".dari-docs-sidebar" data-spy="scroll" onload="prettyPrint()">
-
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
-                    <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
-                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Support</a></li>
-                </ul>
-            </div>
-            <div class="nav pull-right">
-                <ul class="nav">
-                <li><a class="social" href="emailto:info@perfectsensedigital.com"><i class="icon-envelope"></i> Request a Demo</a></li>
-                <li><a class="social" href="https://twitter.com/brightspotcms"><i class="icon-twitter"></i> Follow on Twitter</a></li>
-                <li><a class="social" href="https://github.com/perfectsense/brightspot-cms"><i class="icon-github"></i> Follow on Github</a></li>
-                </ul>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <div style="height: 58px;"></div>
-
-    <div class="breadcrumbs">
-        <div class="container">
-            <div class="span12">
-                &laquo; <a href="/support.html">Back to Table of Contents</a> 
-            </div>
-        </div>
-    </div>
 
     <div class="container documentation">
+         <div class="breadcrumbs">
+                </br>&laquo; <a href="/support.html">Back to Table of Contents</a>
+        </div>       
         <div class="row header">
             <div class="span12">
                 <h1></h1>
                 <h3>Creating New Content</h3>
-                <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish content. In this section we are going to look at how to model your objects, and the corresponding UI that is created within the CMS.</br></br><strong>Create an object</strong></br></br>Having installed Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the Search tool. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object:</p>
+                <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish. In this section we are going to look at how to model your objects, and the corresponding UI that is created within the CMS.</br></br>
+
+                <strong>Create an object</strong></br></br>Having installed Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the <a target="_blank" href="/search.html">Search tool</a>. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object. </br></br>First take a look at the Java class, then the corresponding UI created within the CMS:</p>
 
 
-<pre><code>package com.psddev.brightspot;
+<div class="highlight">{% highlight java %}package com.psddev.brightspot;
 
 import com.psddev.cms.db.*;
 import com.psddev.cms.tool.*;
@@ -84,71 +29,91 @@ import java.util.*;
 
 public class Article extends Content {
 
-}</code></pre>
-
-
-                </br><p><strong>Adding Fields</strong></br></br>There are a range of standard UI elements that each object can use. Start by adding some to your newly created object. Refresh the CMS to see the new UI appear. Remove the code within your Java class to remove the UI element. You can reorder the UI by changing the order of the fields in the Java class. The name of your field will be reflected directly in the CMS as the UI label. Below we have called out some the UI elements within our Article object. See the full list available <a target="_blank" href="#">here</a>.</p>
-
-            <div class="highlight center span12" style="padding-top: 10px;">
-            <div class="highlight-line left" style="top: 100px; width: 180px;">
-            <div class="highlight-box">
-                    <div class="title">String Field</div>
-                    <div class="description">Add a <code>String</code> to create a new field</div>
-                </div>
-            </div>
-            <div class="highlight-line left" style="top: 204px; width: 220px;">
-            <div class="highlight-box">
-                    <div class="title">Rich Text Editor</div>
-                    <div class="description"><code>ReferentialText</code> creates a Rich Text area</div>
-                </div>
-            </div>
-            <div class="highlight-line left" style="top: 304px; width: 180px;">
-            <div class="highlight-box">
-                    <div class="title">Set / List of Strings</div>
-                    <div class="description"><code>List&lt;String&gt;</code></div>
-                </div>
-            </div>
-            <div class="highlight-line right" style="top: 245px; width: 300px;">
-                <div class="highlight-box">
-                    <div class="title">List of Objects</div>
-                    <div class="description">Create a list of objects with<code>List&lt;Tag&gt;</code></div>
-                </div>
-            </div>
-            <div class="highlight-line right" style="top: 124px; width: 387px;">
-                <div class="highlight-box">
-                    <div class="title">Referenced Object</div>
-                    <div class="description">Reference an object by name to allow an editor to choose. <code>Author</code> </div>
-                </div>
-            </div>
-            <img class="shadow" src="img/developer/new-object-article.png"/>
-            <br/>
-        </div>
-
-
-</br><p><strong>Associating Objects</strong></br></br>Once you have your first object created you can add a second. In our example we have an Author object that is associated with each Article. Associate an object by naming it as a return type in your Java class.</p>
-
-<div style="float:left; margin-left:60px; margin-right:30px; width:40%;">
-<pre><code>public class Article extends Content {
-
     private String headline;
     private Author author;
     private ReferentialText body;
-    private List&lt;Tag&gt; tags;
-    private Set&lt;String&gt; keywords;
+    private List<Tag> tags;
+    private Set<String> keywords;
 
-}</code></pre></div>
-<div style="float:left;  width:40%;">
-<pre><code>public class Author extends Content {
+}{% endhighlight %}</div>
 
-    @Required private String name;
+
+<p><strong>Adding Fields</strong></br></br>There are a range of standard UI elements that you can use. <a href="">Here</a> is a full list. Start by adding some to your newly created object. Refresh the CMS to see the new UI appear. If you want to remove any element, just remove the code within your Java class. You can always reorder the UI by changing the order of the fields in your class. The name of your field will be reflected directly in the CMS as the UI label. Below we have called out some the UI elements within our Article object:</p>
+
+            <div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 63px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title">String Field</div>
+                    <div style="width:300px!important;" class="description"><code>private String headline;</code> creates a new field</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 244px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title">Rich Text Editor</div>
+                    <div style="width:300px!important;" class="description"><code>private ReferentialText body;</code> creates a Rich Text area</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 494px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title">Set / List of Strings</div>
+                    <div style="width:300px!important;" class="description"><code>List&lt;String&gt;</code></div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 405px; width: 300px;">
+                <div class="highlight-box">
+                    <div class="title">List of Objects</div>
+                    <div style="width:300px!important;" class="description">Create a list of objects with<code>List&lt;Tag&gt;</code></div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 124px; width: 300px;">
+                <div class="highlight-box">
+                    <div class="title">Referenced Object</div>
+                    <div style="width:300px!important;" class="description">Reference an object by name to allow an editor to choose. <code>private Author author;</code> </div>
+                </div>
+            </div>
+            <img style="margin-left:320px;" class="shadow" src="img/developer/new-article-ui.png"/>
+            <br/>
+        </div>
+
+    </br><p><strong>Annotations</strong></br></br>As well as automatically generating the user interface, directly from the java class, Brightspot provides annotations that can be used to control and assist user input and business logic. Below we have used some of the most common annotations on our Article object. You can see a full list <a href="/annotations.html">here</a>.</p>
+
+<div class="highlight">{% highlight java %}
+public class Article extends Content {
+
+    @Required
+    private String headline;
+    @Indexed
+    private Author author;
+    private ReferentialText body;
+    @CollectionMaximum(5)
+    private List<Tag> tags;
+    @ToolUi.Note("Add some keywords for the article")
+    private Set<String> keywords;
+
+}{% endhighlight %}</div>
+
+</br><p><strong>Associating Objects</strong></br></br>Once you have your first object created you can add a second. In our example we have an Author object that is associated with each Article. Associate an object by naming it as a return type in your Java class. </br></br>Every object within Brightspot has a LabelField, which is used to automatically create a label for the object. As a default, the first text string field within an object is used. The label is used when returning search results. </br></br>Our Author object is a good example of when to override the default labelfield, to help label the object more clearly. Our Author object as two fields, <code>firstName</code> and <code>lastName</code>. When an Author shows up in our search results we can only see the first name, as it is the first string text field. This can be fixed to show the two names, as the example below shows: </p>
+
+
+<div class="highlight">{% highlight java %}@LabelFields({"firstName", "lastName"})
+public class Author extends Content {
+
+    @Indexed
+    @Required
+    private String firstName;
+    @Required
+    private String lastName;
     private StorageItem file;
-    @Embedded private Address address;
+    @Embedded
+    private Address address;
     private Boolean bestSeller;
     private Date dateOfBirth;
-    
+  
 }
-</code></pre></div>
 
+{% endhighlight %}</div>
+
+</br><p><strong>Author User Interface</strong></br></br>
 
                     <div class="highlight center span12" style="padding-top: 10px;">
             <div class="highlight-line left" style="top: 100px; width: 180px;">
@@ -201,46 +166,8 @@ public class Article extends Content {
 </div>
     <img class="shadow" src="img/developer/debug-schema.png"/>
     </div>
-    <strong style="float:right;"><a href="#">> Next up: Building Pages</a></strong>
 </div>
 
 </div><!--/.container-->
 
-<footer>
-    <div class="container">
-        <div class="row">
-            <div class="span6 blurb">
-                <a href="http://www.perfectsensedigital.com"><img src="img/psd-logo.png" style="max-height: 60px;"/></a>
-                <p>Brightspot CMS was built by PERFECT SENSE digital, LLC.</p>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<script type="text/javascript">
-skrollr.init({
-        forceHeight: false
-});
-$(function() {
-    $(".main-link").click(function(el) {
-        var href = $(this).attr("href");
-
-        if ($("body").scrollTop() == 0) {
-            return true;
-        } else {
-            $('html, body').animate({scrollTop: 0}, {
-                complete: function() {
-                    window.location = href;
-                }
-            }, 350);
-        }
-
-        return false;
-    });
-    
-});
-</script>
-
-</body>
-</html>
 
