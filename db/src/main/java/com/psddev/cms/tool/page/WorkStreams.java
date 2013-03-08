@@ -39,7 +39,7 @@ public class WorkStreams extends PageServlet {
         }
 
         page.writeStart("div", "class", "widget");
-            page.writeStart("h1", "class", "icon icon-tasks").writeHtml("Work Streams").writeEnd();
+            page.writeStart("h1", "class", "icon icon-object-workStream").writeHtml("Work Streams").writeEnd();
 
             if (workStreams.isEmpty()) {
                 page.writeStart("div", "class", "message message-warning");

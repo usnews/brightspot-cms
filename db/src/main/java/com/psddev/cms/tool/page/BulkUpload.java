@@ -24,7 +24,7 @@ public class BulkUpload extends PageServlet {
         page.getWriter();
 
         page.writeStart("div", "class", "widget upload-droppable");
-            page.writeStart("h1", "class", "action action-upload").writeHtml("Bulk Upload").writeEnd();
+            page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();
             page.writeStart("div", "class", "message");
                 page.writeHtml("Drag and drop or ");
                 page.writeStart("a",

@@ -32,7 +32,7 @@ public class WorkStreamUsers extends PageServlet {
 
         Collections.sort(users);
 
-        page.writeStart("h1", "class", "icon icon-tasks");
+        page.writeStart("h1", "class", "icon icon-object-workStream");
             page.writeHtml("Users Working On ");
             page.writeHtml(page.getObjectLabel(workStream));
         page.writeEnd();

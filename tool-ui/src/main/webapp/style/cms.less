@@ -596,7 +596,27 @@ figure,
 .icon-paste { &:before { content: '\f0ea'; } }
 .icon-user-md { &:before { content: '\f200'; } }
 
-.icon-cmsHistory { .icon-hdd; }
+// Standard CMS objects.
+.icon-object-directory { .icon-sitemap; }
+.icon-object-draft { .icon-edit; }
+.icon-object-guide { .icon-question-sign; }
+.icon-object-history { .icon-hdd; }
+.icon-object-toolUser { .icon-user; }
+.icon-object-workStream { .icon-tasks; }
+
+// Standard CMS actions.
+.icon-action-add { .icon-plus-sign; }
+.icon-action-create { .icon-plus-sign; }
+.icon-action-customize { .icon-cog; }
+.icon-action-delete { .icon-trash; }
+.icon-action-edit { .icon-pencil; }
+.icon-action-preview { .icon-eye-open; }
+.icon-action-print { .icon-print; }
+.icon-action-remove { .icon-minus-sign; }
+.icon-action-schedule { .icon-calendar; }
+.icon-action-search { .icon-search; }
+.icon-action-share { .icon-share; }
+.icon-action-upload { .icon-upload-alt; }
 
 @input-borderWidth: 1px;
 @input-padding: 4px;
@@ -3632,7 +3652,7 @@ input[type="text"].dropDown-search {
     top: 4px;
     z-index: 1;
 
-    > .action-new {
+    > .action-create {
         border-color: transparent;
         border-style: solid;
         border-width: 1px 1px 0 1px;
@@ -3648,7 +3668,7 @@ input[type="text"].dropDown-search {
     }
 
     &:hover {
-        > .action-new {
+        > .action-create {
             background: @color-background;
             border-color: @color-note;
             .border-top-left-radius(5px);
@@ -3782,14 +3802,14 @@ input[type="text"].dropDown-search {
 
 // --- Production Guide ---
 
-.widget-content > .action-guide {
+.widget-content > .icon-object-guide {
     position: absolute;
     right: 65px;
     top: 7px;
 }
 
 .inputContainer > .label {
-    > .action-guide {
+    > .icon-object-guide {
         .icon-only;
 
         float: right;
@@ -4306,30 +4326,30 @@ input[type="text"].dropDown-search {
 
 // --- Actions ---
 
-.action-add { .icon; .icon-plus-sign; }
+.action-add { .icon; .icon-action-add; }
+.action-create { .icon; .icon-action-create; }
+.action-customize { .icon; .icon-action-customize; }
+.action-delete { .icon; .icon-action-delete; }
+.action-edit { .icon; .icon-action-edit; }
+.action-preview { .icon; .icon-action-preview; }
+.action-print { .icon; .icon-action-print; }
+.action-remove { .icon; .icon-action-remove; }
+.action-schedule { .icon; .icon-action-schedule; }
+.action-search { .icon; .icon-action-search; }
+.action-share { .icon; .icon-action-share; }
+.action-upload { .icon; .icon-action-upload; }
+
 .action-back { .icon; .icon-arrow-left; }
 .action-copy { .icon; .icon-copy; }
-.action-edit { .icon; .icon-pencil; }
-.action-delete { .icon; .icon-trash; }
 .action-draft { .icon; .icon-save; }
-.action-guide { .icon; .icon-question-sign; }
 .action-image-edit { .icon; .icon-magic; }
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }
 .action-logOut { .icon; .icon-signout; }
-.action-new { .icon; .icon-plus-sign; }
-.action-preview { .icon; .icon-eye-open; }
-.action-print { .icon; .icon-print; }
-.action-profile { .icon; .icon-user; }
-.action-remove { .icon; .icon-minus-sign; }
 .action-reset { .icon; .icon-remove; }
 .action-result { .icon; .icon-list-alt; }
-.action-search { .icon; .icon-search; }
-.action-settings { .icon; .icon-cogs; }
-.action-share { .icon; .icon-share; }
 .action-switch { .icon; .icon-random; }
 .action-tools { .icon; .icon-wrench; }
-.action-upload { .icon; .icon-upload-alt; }
 .action-variation { .icon; .icon-columns; }
 
 // --- Bookmarklet ---

@@ -63,7 +63,7 @@ if (history != null) {
     wp.write(history.getUpdateDate());
     wp.write(" by ");
     wp.write(wp.objectLabel(history.getUpdateUser()));
-    wp.write(".</p><p><a class=\"icon icon-cmsHistory\" href=\"");
+    wp.write(".</p><p><a class=\"icon icon-object-history\" href=\"");
     wp.write(wp.url("/content/historyName.jsp", "id", history.getId()));
     wp.write("\" target=\"editHistory\">Edit Revision Name</a></p></div>");
     return;

@@ -102,7 +102,7 @@ public class CreateNew extends PageServlet {
         page.writeEnd();
 
         page.writeStart("div", "class", "widget", "id", widgetId);
-            page.writeStart("h1", "class", "icon icon-plus-sign").writeHtml("Create New").writeEnd();
+            page.writeStart("h1", "class", "icon icon-action-create").writeHtml("Create New").writeEnd();
 
             if (page.param(boolean.class, "customize")) {
                 page.writeStart("form",
@@ -152,7 +152,7 @@ public class CreateNew extends PageServlet {
 
             } else {
                 page.writeStart("a",
-                        "class", "icon icon-cog action action-customize",
+                        "class", "action action-customize",
                         "href", page.url("", "customize", "true"));
                     page.writeHtml("Customize");
                 page.writeEnd();

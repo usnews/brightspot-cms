@@ -889,7 +889,7 @@ public class ToolPageContext extends WebPageContext {
 
                                 writeStart("li");
                                     writeStart("a",
-                                            "class", "action-profile",
+                                            "class", "icon icon-object-toolUser",
                                             "href", cmsUrl("/misc/settings.jsp"),
                                             "target", "misc");
                                         writeHtml("Profile");

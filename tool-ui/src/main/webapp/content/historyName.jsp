@@ -34,7 +34,7 @@ if (wp.isFormPost()) {
 
 wp.include("/WEB-INF/header.jsp");
 
-wp.writeStart("h1", "class", "icon icon-cmsHistory");
+wp.writeStart("h1", "class", "icon icon-object-history");
     wp.writeHtml("Edit Revision Name");
 wp.writeEnd();
 

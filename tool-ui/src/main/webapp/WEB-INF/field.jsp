@@ -77,7 +77,7 @@ try {
         wp.write("\">");
         wp.write("<div class=\"label\">");
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
-            wp.write("<a class=\"action action-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
+            wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
         }
         wp.write("<label for=\"", wp.createId(), "\">");
         wp.write(wp.h(field.getLabel()));
