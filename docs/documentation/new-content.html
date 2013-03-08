@@ -40,38 +40,51 @@ public class Article extends Content {
 
 <p><strong>Adding Fields</strong></br></br>There are a range of standard UI elements that you can use. <a href="">Here</a> is a full list. Start by adding some to your newly created object. Refresh the CMS to see the new UI appear. If you want to remove any element, just remove the code within your Java class. You can always reorder the UI by changing the order of the fields in your class. The name of your field will be reflected directly in the CMS as the UI label. Below we have called out some the UI elements within our Article object:</p>
 
+<strong>Standard User Interface</strong>
             <div class="highlight center span12" style="padding-top: 10px;">
-            <div class="highlight-line left" style="top: 63px; width: 300px;">
+            <div class="highlight-line left" style="top: 18px; width: 300px;">
             <div class="highlight-box">
-                    <div class="title">String Field</div>
-                    <div style="width:300px!important;" class="description"><code>private String headline;</code> creates a new field</div>
+                    <div class="title" style="width: 300px;">Text Field, Objects & Calendar Widget</div>
+                    <div style="width:300px!important;" class="description">private String Headline;</br>private Author author;</br>private Date publishedDate;</br></div>
                 </div>
             </div>
-            <div class="highlight-line left" style="top: 244px; width: 300px;">
+            <div class="highlight-line left" style="top: 135px; width: 300px;">
             <div class="highlight-box">
-                    <div class="title">Rich Text Editor</div>
-                    <div style="width:300px!important;" class="description"><code>private ReferentialText body;</code> creates a Rich Text area</div>
+                    <div class="title" style="width: 300px;">Boolean, Enums & Lists/Sets</div>
+                    <div style="width:300px!important;" class="description">private Boolean checkbox;</br>private enum choose;</br>private List&lt;Tag&gt; tags;</br>private Set&lt;String&gt; keywords;</br></div>
                 </div>
             </div>
-            <div class="highlight-line left" style="top: 494px; width: 300px;">
+            <div class="highlight-line left" style="top: 285px; width: 300px;">
             <div class="highlight-box">
-                    <div class="title">Set / List of Strings</div>
-                    <div style="width:300px!important;" class="description"><code>List&lt;String&gt;</code></div>
+                    <div class="title" style="width: 300px;">Rich Text Editor</div>
+                    <div style="width:300px!important;" class="description">private ReferentialText body; creates a rich text editor interface with text formatting capabilities</div>
                 </div>
             </div>
-            <div class="highlight-line left" style="top: 405px; width: 300px;">
-                <div class="highlight-box">
-                    <div class="title">List of Objects</div>
-                    <div style="width:300px!important;" class="description">Create a list of objects with<code>List&lt;Tag&gt;</code></div>
+            <div class="highlight-line left" style="top: 365px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title" style="width: 300px;">File Upload</div>
+                    <div style="width:300px!important;" class="description">private StorageItem file; generates a file upload ui element</div>
                 </div>
             </div>
-            <div class="highlight-line left" style="top: 124px; width: 300px;">
-                <div class="highlight-box">
-                    <div class="title">Referenced Object</div>
-                    <div style="width:300px!important;" class="description">Reference an object by name to allow an editor to choose. <code>private Author author;</code> </div>
+            <div class="highlight-line left" style="top: 555px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title" style="width: 300px;">Embedded Objects</div>
+                    <div style="width:300px!important;" class="description">You can embed another object using the <code>@Embedded</code> annotation at the field level.</div>
                 </div>
             </div>
-            <img style="margin-left:320px;" class="shadow" src="img/developer/new-article-ui.png"/>
+            <div class="highlight-line left" style="top: 705px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title" style="width: 300px;">Dynamic Field Label</div>
+                    <div style="width:300px!important;" class="description">Using the annotation <code>@LabelFields("name")</code> the property private String name; can be used to create a label within the UI dynamically</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 825px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title" style="width: 300px;">List of Media Items</div>
+                    <div style="width:300px!important;" class="description">A list of items containing a StorageItem, where <code>@PreviewField("file")</code> references the StorageItem field automatically creates a quick bulk upload user interface</div>
+                </div>
+            </div>                     
+            <img width="690" style="margin-left:320px;" class="shadow" src="img/developer/article-ui.png"/>
             <br/>
         </div>
 
@@ -146,7 +159,7 @@ public class Author extends Content {
                     <div class="description">Use <code>StorageItem</code> return type to create a file uploader </div>
                 </div>
             </div>
-            <img class="shadow" src="img/developer/new-object-author.png"/>
+            <img style="margin-left:320px;" class="shadow" src="img/developer/new-object-author.png"/>
             <br/>
         </div>
 
