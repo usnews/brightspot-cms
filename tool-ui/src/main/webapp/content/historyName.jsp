@@ -42,7 +42,7 @@ wp.include("/WEB-INF/errors.jsp");
 
 wp.writeStart("form", "method", "post", "action", wp.url(""));
     wp.writeStart("div", "class", "inputContainer");
-        wp.writeStart("div", "class", "label");
+        wp.writeStart("div", "class", "inputLabel");
             wp.writeStart("label", "for", wp.createId()).writeHtml("Name").writeEnd();
         wp.writeEnd();
 

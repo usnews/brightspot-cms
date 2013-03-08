@@ -216,15 +216,15 @@ $.plugin2('pageLayout', {
                         '<div id="sectionSettings">' +
                             '<h1>Section: <strong class="name"></strong></h1>' +
                             '<div class="inputContainer">' +
-                                '<div class="label">Shareable?</div>' +
+                                '<div class="inputLabel">Shareable?</div>' +
                                 '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
                             '</div>' +
                             '<div class="inputContainer">' +
-                                '<div class="label">Cache Duration (in Milliseconds)</div>' +
+                                '<div class="inputLabel">Cache Duration (in Milliseconds)</div>' +
                                 '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer">' +
-                                '<div class="label">Type</div>' +
+                                '<div class="inputLabel">Type</div>' +
                                 '<div class="smallInput"><select class="toggleable" name="_type">' +
                                     '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
                                     '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
@@ -234,31 +234,31 @@ $.plugin2('pageLayout', {
                                 '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc s c">' +
-                                '<div class="label">Name</div>' +
+                                '<div class="inputLabel">Name</div>' +
                                 '<div class="smallInput"><input name="name" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i s c">' +
-                                '<div class="label">Engine</div>' +
+                                '<div class="inputLabel">Engine</div>' +
                                 '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i s c">' +
-                                '<div class="label">Script</div>' +
+                                '<div class="inputLabel">Script</div>' +
                                 '<div class="smallInput"><input name="script" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
-                                '<div class="label">Begin Engine</div>' +
+                                '<div class="inputLabel">Begin Engine</div>' +
                                 '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
-                                '<div class="label">Begin Script</div>' +
+                                '<div class="inputLabel">Begin Script</div>' +
                                 '<div class="smallInput"><input name="beginScript" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
-                                '<div class="label">End Engine</div>' +
+                                '<div class="inputLabel">End Engine</div>' +
                                 '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
-                                '<div class="label">End Script</div>' +
+                                '<div class="inputLabel">End Script</div>' +
                                 '<div class="smallInput"><input name="endScript" type="text"></div>' +
                             '</div>' +
                             '<div class="buttons">' +

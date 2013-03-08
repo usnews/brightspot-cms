@@ -24,8 +24,8 @@ input[type=submit].link.delete {
     padding-left: 20px;
 }
 
-.repeatableForm > ol > li > .label > .smallInput,
-.repeatableForm > ul > li > .label > .smallInput {
+.repeatableForm > ol > li > .inputLabel > .smallInput,
+.repeatableForm > ul > li > .inputLabel > .smallInput {
     display: inline-block;
     width: auto;
     padding: 0 2px 0 6px;
@@ -80,7 +80,7 @@ input[type=text].expandable { min-width: 5em; }
 
 .frame > h1 { .widget-heading; }
 
-.inputContainer > .label { .inputContainer-label; }
+.inputContainer > .label { .inputLabel; }
 .inputContainer > .error { .inputContainer-error; }
 .inputContainer > .smallInput { .inputContainer-smallInput; }
 .inputContainer > .largeInput { .inputContainer-largeInput; }
@@ -289,7 +289,7 @@ input[type=text].expandable { min-width: 5em; }
     top: 7px;
 }
 
-.inputContainer > .label {
+.inputLabel {
     > .icon-object-guide {
         .icon-only;
 
@@ -747,7 +747,7 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .fieldPreview-enabled {
-    .label {
+    .inputLabel {
         &,
         & * {
             cursor: pointer;

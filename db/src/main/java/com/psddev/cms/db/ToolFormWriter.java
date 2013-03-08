@@ -27,7 +27,7 @@ public class ToolFormWriter extends FormWriter {
         setLabelRenderer(new FormLabelRenderer.Default() {
             @Override
             protected void doDisplay(String inputId, String inputName, ObjectField field, HtmlWriter writer) throws IOException {
-                writer.start("div", "class", "label");
+                writer.start("div", "class", "inputLabel");
                     super.doDisplay(inputId, inputName, field, writer);
                 writer.end();
             }

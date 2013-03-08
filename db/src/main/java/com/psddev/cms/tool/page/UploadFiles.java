@@ -237,7 +237,7 @@ public class UploadFiles extends PageServlet {
             }
 
             writer.start("div", "class", "inputContainer");
-                writer.start("div", "class", "inputContainer-label");
+                writer.start("div", "class", "inputLabel");
                     writer.start("label", "for", page.createId()).html("Type").end();
                 writer.end();
                 writer.start("div", "class", "inputContainer-smallInput");
@@ -252,7 +252,7 @@ public class UploadFiles extends PageServlet {
             writer.end();
 
             writer.start("div", "class", "inputContainer");
-                writer.start("div", "class", "inputContainer-label");
+                writer.start("div", "class", "inputLabel");
                     writer.start("label", "for", page.createId()).html("Files").end();
                 writer.end();
                 writer.start("div", "class", "inputContainer-smallInput");

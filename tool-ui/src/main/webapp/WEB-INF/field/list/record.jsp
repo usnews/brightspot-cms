@@ -188,7 +188,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                             List<String> layoutNames = new ArrayList<String>(layouts.keySet());
                             Collections.sort(layoutNames);
 
-                            writer.start("div", "class", "label");
+                            writer.start("div", "class", "inputLabel");
                                 writer.start("select", "name", layoutsName);
                                     for (String layoutName : layoutNames) {
                                         writer.start("option",
@@ -266,7 +266,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     List<String> layoutNames = new ArrayList<String>(layouts.keySet());
                     Collections.sort(layoutNames);
 
-                    writer.start("div", "class", "label");
+                    writer.start("div", "class", "inputLabel");
                         writer.start("select", "name", layoutsName);
                             for (String layoutName : layoutNames) {
                                 writer.start("option",

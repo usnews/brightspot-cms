@@ -117,7 +117,7 @@ html.start("form", "action", wp.url(null, "id", search.getId()), "method", "post
                 html.start("h1").string("Advanced Search").end();
 
                 html.start("div", "class", "inputContainer");
-                    html.start("div", "class", "label");
+                    html.start("div", "class", "inputLabel");
                         html.start("label").string("Type").end();
                     html.end();
 
@@ -255,7 +255,7 @@ private static class SearchFormWriter extends FormWriter {
         setLabelRenderer(new FormLabelRenderer.Default() {
             @Override
             protected void doDisplay(String inputId, String inputName, ObjectField field, HtmlWriter writer) throws IOException {
-                writer.start("div", "class", "label");
+                writer.start("div", "class", "inputLabel");
                     super.doDisplay(inputId, inputName, field, writer);
                 writer.end();
             }

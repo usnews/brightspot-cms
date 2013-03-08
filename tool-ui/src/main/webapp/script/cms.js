@@ -355,7 +355,7 @@ $doc.delegate(':input', 'focus', function() {
                 }
             }
 
-            parentLabel = $parent.find('> .label').text();
+            parentLabel = $parent.find('> .inputLabel').text();
 
             if (parentLabel) {
                 if (labelText) {
@@ -594,7 +594,7 @@ $doc.ready(function() {
                 'type': 'post',
                 'url': CONTEXT_PATH + 'content/repeatableLabels.jsp',
                 'complete': function(request) {
-                    $container.find('> .label').text($container.attr('data-type') + ': ' + $.parseJSON(request.responseText)[id]);
+                    $container.find('> .inputLabel').text($container.attr('data-type') + ': ' + $.parseJSON(request.responseText)[id]);
                 }
             });
         }

@@ -94,7 +94,7 @@ body {
 
     <form action="<%= wp.url("") %>" method="post">
         <div class="inputContainer">
-            <div class="label">
+            <div class="inputLabel">
                 <label for="<%= wp.createId() %>">Email</label>
             </div>
             <div class="smallInput">
@@ -103,7 +103,7 @@ body {
         </div>
 
         <div class="inputContainer">
-            <div class="label">
+            <div class="inputLabel">
                 <label for="<%= wp.createId() %>">Password</label>
             </div>
             <div class="smallInput">

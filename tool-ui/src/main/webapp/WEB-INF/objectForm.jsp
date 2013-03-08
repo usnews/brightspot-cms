@@ -70,7 +70,7 @@ if (fields != null) {
 
 } else { %>
     <div class="inputContainer">
-        <div class="label"><label for="<%= wp.createId() %>">Data</label></div>
+        <div class="inputLabel"><label for="<%= wp.createId() %>">Data</label></div>
         <div class="smallInput"><textarea cols="100" id="<%= wp.getId() %>" name="data" rows="20"><%= wp.h(state.getJsonString()) %></textarea></div>
     </div>
 <% } %>

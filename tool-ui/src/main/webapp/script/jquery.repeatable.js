@@ -25,13 +25,13 @@ $.plugin2('repeatable', {
             var type = $item.attr('data-type');
             if (type) {
                 var label = $item.attr('data-label');
-                var $labelHtml = $item.find(" > .label");
-                $labelHtml.removeClass('label');
+                var $labelHtml = $item.find(" > .inputLabel");
+                $labelHtml.removeClass('inputLabel');
                 if ($item.find('.error.message').length === 0) {
                     $item.addClass('collapsed');
                 }
                 var $label = $('<div/>', {
-                    'class': 'label',
+                    'class': 'inputLabel',
                     'text': type + (label ? ': ' + label : ''),
                     'click': function() {
                         $item.toggleClass('collapsed');

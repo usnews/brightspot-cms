@@ -87,7 +87,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType itemType = itemState.getType();
                 %>
                 <li data-type="<%= wp.objectLabel(itemType) %>" data-label=" ">
-                    <div class="label smallInput">
+                    <div class="inputLabel smallInput">
                         <textArea name="<%= keyName %>"><%= entry.getKey() %></textArea>
                     </div>
                     <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
@@ -97,7 +97,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             <% } %>
             <% for (ObjectType type : validTypes) { %>
                 <li class="template" data-type="<%= wp.objectLabel(type) %>">
-                    <div class="label smallInput">
+                    <div class="inputLabel smallInput">
                         <textArea name="<%= keyName %>" value=""></textArea>
                     </div>
                     <div class="frame">
