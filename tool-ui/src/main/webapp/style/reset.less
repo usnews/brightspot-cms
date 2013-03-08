@@ -1,0 +1,232 @@
+* {
+    font-family: inherit;
+    font-size: 100%;
+    font-style: inherit;
+    font-weight: inherit;
+    text-decoration: inherit;
+    vertical-align: inherit;
+
+    &:focus {
+        outline-style: none;
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+a {
+    .link;
+}
+
+abbr {
+    .help;
+}
+
+acronym {
+    .help;
+}
+
+b {
+    .strong;
+}
+
+body {
+    background-color: @color-background;
+    color: @color-text;
+    font-family: @fontFamily-default;
+    font-size: @fontSize-default;
+    font-style: normal;
+    font-weight: normal;
+    line-height: @lineHeight-default;
+    margin: 75px 20px 20px 20px;
+    padding: 0;
+    vertical-align: baseline;
+    word-wrap: break-word;
+}
+
+button {
+    .button;
+}
+
+button.link {
+    .link;
+}
+
+code {
+    .code;
+}
+
+dd {
+    margin-left: 25px;
+}
+
+dl {
+    .block;
+}
+
+em {
+    .em;
+}
+
+form {
+    .block;
+}
+
+h1 {
+    .block;
+    font-family: @fontFamily-label;
+    font-size: 120%;
+    line-height: (@lineHeight-default * 1.2);
+    margin: 0 0 10px 0;
+    padding: 0;
+
+    select {
+        background-color: transparent;
+        border-style: none;
+        height: auto;
+        max-width: 100%;
+        padding: 0;
+
+        &:focus {
+            .box-shadow(none);
+        }
+    }
+}
+
+h2 {
+    .block;
+    border-bottom: 1px solid @color-note;
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    line-height: (@lineHeight-default * 0.8);
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+hr {
+    .block;
+    border-bottom: 1px solid @color-text;
+}
+
+i {
+    .em;
+}
+
+input {
+    &[type=password],
+    &[type=text] {
+        .input
+    }
+
+    &[type=submit] {
+        .button;
+    }
+
+    &[type=submit].link {
+        .link;
+    }
+}
+
+ol {
+    .block;
+    margin-left: 25px;
+}
+
+optgroup {
+    font-weight: bold;
+
+    option {
+        font-weight: normal;
+    }
+}
+
+p {
+    .block;
+}
+
+pre {
+    .code;
+}
+
+select {
+    .input;
+
+    cursor: pointer;
+    white-space: nowrap;
+    word-wrap: normal;
+
+    &[multiple] {
+        height: (@input-borderWidth + @input-padding) * 2 + @lineHeight-input * 5;
+        width: 100%;
+    }
+}
+
+small {
+    .small;
+}
+
+strong {
+    .strong;
+}
+
+sub {
+    line-height: 0;
+}
+
+sup {
+    line-height: 0;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-style: none;
+    margin: 0 0 15px 0;
+    padding: 0;
+    width: 100%;
+
+    td,
+    th {
+        border-style: none;
+        padding: 2px 5px;
+    }
+
+    th {
+        background-color: @color-note-darker;
+        color: @color-background;
+    }
+
+    thead th {
+        white-space: nowrap;
+    }
+
+    tbody th {
+        text-align: right;
+    }
+}
+
+.table-striped {
+    > tbody > tr:nth-child(2n+1) {
+        background-color: @color-note-lighter;
+    }
+}
+
+textarea {
+    .input;
+    display: block;
+    height: 4em;
+    resize: none;
+    width: 100%;
+}
+
+tt {
+    .code;
+}
+
+ul {
+    .block;
+    margin-left: 25px;
+}

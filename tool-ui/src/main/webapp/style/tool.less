@@ -1,0 +1,523 @@
+.toolHeader {
+    background-color: @color-note-lighter;
+    border-bottom: 1px solid @color-note;
+    .box-shadow(@color-background 0 8px 15px);
+    height: 59px;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.toolTitle {
+    float: left;
+    height: 46px;
+    line-height: 46px;
+    margin: 7px 0 0 20px;
+
+    a {
+        color: @color-text;
+        font-family: @fontFamily-label;
+        font-size: 30px;
+        line-height: 30px;
+        vertical-align: bottom;
+
+        &:hover {
+            text-decoration: none;
+        }
+
+        img {
+            height: 100%;
+        }
+    }
+}
+
+.toolEnv {
+    background-color: @color-note-darker;
+    .box-shadow(0 0 5px fade(@color-text, 50%));
+    color: @color-background;
+    height: 22px;
+    font-size: 11px;
+    line-height: 22px;
+    position: absolute;
+    text-align: center;
+    top: 18px;
+    right: -44px;
+    width: 150px;
+    .transform(rotate(45deg));
+    text-transform: uppercase;
+}
+
+.toolProfile {
+    font-size: 11px;
+    line-height: 24px;
+    position: absolute;
+    right: 20px;
+    top: 0;
+
+    .toolHeader-hasEnvironment & {
+        right: 77px;
+    }
+
+    ul {
+        .piped;
+
+        display: inline;
+
+        &:before {
+            color: @color-note;
+            content: ' ( ';
+            padding: 0 2px;
+        }
+
+        &:after {
+            color: @color-note;
+            content: ' ) ';
+            padding: 0 2px;
+        }
+
+        li {
+            .piped-item;
+        }
+    }
+}
+
+.toolSearch {
+    font-size: 15px;
+    max-width: 300px;
+    position: absolute;
+    right: 20px;
+    top: 24px;
+    width: 25%;
+
+    .toolHeader-hasEnvironment & {
+        right: 52px;
+    }
+
+    .searchInput {
+        width: 100%;
+
+        input[type=text] {
+            height: 30px;
+            width: 100%;
+        }
+    }
+}
+
+.toolNav {
+    float: left;
+    list-style-type: none;
+    margin: 23px 0 0 20px;
+
+    > li {
+        float: left;
+        margin: 0 3px 0 0;
+        padding: 0;
+        position: relative;
+
+        > a {
+            background-color: @color-background;
+            border: 1px solid @color-note;
+            .border-top-left-radius(5px);
+            .border-top-right-radius(5px);
+            display: block;
+            font-family: @fontFamily-label;
+            font-size: 15px;
+            height: 35px;
+            line-height: 35px;
+            padding: 0 10px;
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+
+        > ul {
+            background-color: @color-background;
+            .border-bottom-left-radius(5px);
+            .border-bottom-right-radius(5px);
+            .box-shadow(rgba(0, 0, 0, 0.5) 0 2px 2px);
+            display: none;
+            left: 1px;
+            list-style-type: none;
+            margin: 0;
+            padding: 0 0 5px 0;
+            position: absolute;
+            top: 37px;
+            z-index: 200;
+
+            > li {
+                > a {
+                    display: block;
+                    padding: 2px 15px;
+                    white-space: nowrap;
+
+                    &:hover {
+                        background-color: @color-link;
+                        color: @color-background;
+                        text-decoration: none;
+                    }
+                }
+
+                &.selected {
+                    > a {
+                        background-color: @color-text;
+                        color: @color-background;
+                    }
+                }
+            }
+        }
+
+        &.isNested {
+            &:hover > a {
+                .border-bottom-left-radius(0);
+                .border-bottom-right-radius(0);
+            }
+        }
+
+        &.selected {
+            > a {
+                background: @color-background;
+                border-bottom-color: @color-background;
+                color: @color-text;
+                position: relative;
+            }
+        }
+
+        &:hover {
+            > a {
+                border-bottom-color: @color-background;
+            }
+
+            > ul {
+                display: block;
+            }
+        }
+    }
+}
+
+.toolFooter {
+    border-top: 1px solid @color-note;
+    margin-top: 20px;
+    padding-top: 10px;
+}
+
+.toolFooter-build {
+    background: url(brightspot.png) no-repeat top right;
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    padding: 20px 0 10px 0;
+    text-align: right;
+    text-transform: uppercase;
+}
+
+.searchForm-container {
+    overflow: hidden;
+    margin: -5px;
+    padding: 5px;
+}
+
+@searchForm-controls-width: 200px;
+
+.searchForm-controls {
+    .box-sizing(border-box);
+    float: left;
+    padding-right: 15px;
+    width: @searchForm-controls-width;
+
+    input[type=text],
+    select {
+        width: 100%;
+    }
+}
+
+.searchForm-filters {
+    margin-bottom: 20px;
+    margin-top: 50px;
+    position: relative;
+
+    form {
+        margin-bottom: 5px;
+    }
+
+    .searchInput {
+        left: 0;
+        position: absolute;
+        top: -45px;
+        width: 100%;
+    }
+
+    .action-reset {
+        .small;
+
+        color: @color-alert;
+        position: absolute;
+        right: 0;
+        top: -2px;
+    }
+}
+
+.searchMissing {
+    .icon;
+    .icon-share-alt;
+
+    color: @color-note-darker;
+    font-family: @fontFamily-label;
+    font-size: 80%;
+    line-height: (@lineHeight-default * 0.8);
+    padding-right: 20px;
+    position: relative;
+    text-align: right;
+    text-transform: uppercase;
+
+    &:before {
+        position: absolute;
+        right: 4px;
+        top: 7px;
+        .transform(rotate(90deg));
+    }
+}
+
+.searchFilter {
+    margin-top: 5px;
+    position: relative;
+
+    .objectId,
+    .objectId-select {
+        display: block;
+        width: 100%;
+    }
+
+    .objectId-clear {
+        .icon-only;
+
+        position: absolute;
+        right: 25px;
+        top: 3px;
+    }
+
+    .searchFilters-local & {
+        padding-right: 20px;
+
+        input[type='checkbox'] {
+            position: absolute;
+            right: 0;
+            top: 4px;
+        }
+
+        .objectId-clear {
+            right: 45px;
+        }
+    }
+}
+
+.searchForm-create {
+    select {
+        width: 65%;
+    }
+
+    input[type=submit] {
+        padding-left: 10px;
+        padding-right: 10px;
+        width: 30%;
+    }
+}
+
+.searchForm-result {
+    margin-left: @searchForm-controls-width;
+    position: relative;
+}
+
+.searchForm-resultSuggestionsForm {
+    display: none;
+}
+
+.searchForm-resultSuggestions {
+    margin-bottom: 20px;
+}
+
+.searchForm-resultSorter {
+    float: left;
+
+    form {
+        display: inline;
+    }
+}
+
+.searchForm-resultPagination {
+    margin-bottom: 20px;
+}
+
+.searchForm-resultListImages {
+    overflow: hidden;
+
+    figure {
+        float: left;
+        height: 100px;
+        margin: 0 5px 5px 0;
+    }
+}
+
+.dashboard {
+    margin: -10px;
+    overflow: hidden;
+    padding: 10px;
+    width: 100%;
+
+    &[data-columns="1"] {
+        .dashboardColumn { width: 100%; }
+    }
+
+    &[data-columns="2"] {
+        .dashboardColumn:nth-child(1) { width: 60%; }
+        .dashboardColumn:nth-child(2) { width: 40%; }
+    }
+
+    &[data-columns="3"] {
+        .dashboardColumn:nth-child(1) { width: 40%; }
+        .dashboardColumn:nth-child(2) { width: 30%; }
+        .dashboardColumn:nth-child(3) { width: 30%; }
+    }
+
+    &[data-columns="4"] {
+        .dashboardColumn:nth-child(1) { width: 30%; }
+        .dashboardColumn:nth-child(2) { width: 30%; }
+        .dashboardColumn:nth-child(3) { width: 20%; }
+        .dashboardColumn:nth-child(4) { width: 20%; }
+    }
+}
+
+.dashboardColumn {
+    float: left;
+}
+
+.dashboardCell {
+    padding: 5px;
+    position: relative;
+
+    &:first-child {
+        padding-top: 0;
+    }
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+
+    .dashboardColumn:first-child & {
+        padding-left: 0;
+    }
+
+    .dashboardColumn:last-child & {
+        padding-right: 0;
+    }
+}
+
+.dashboardMoveContainer {
+    .icon;
+    .icon-move;
+    .icon-only;
+    .link;
+
+    color: @color-note;
+    position: absolute;
+    right: 15px;
+    top: 11px;
+
+    .dashboardCell:first-child & {
+        top: 6px;
+    }
+
+    .dashboardColumn:last-child & {
+        right: 10px;
+    }
+
+    &:hover {
+        background-color: fade(@color-text, 20%);
+        .border-radius(50px);
+        height: 50px;
+        margin-right: -16px;
+        margin-top: -12px;
+        width: 50px;
+        z-index: 1;
+
+        &:before {
+            display: none;
+        }
+    }
+}
+
+.dashboardMoveUp,
+.dashboardMoveDown,
+.dashboardMoveLeft,
+.dashboardMoveRight {
+    .link;
+
+    color: @color-text;
+    line-height: 1;
+    position: absolute;
+
+    .dashboardMoveContainer:hover & {
+        display: block;
+    }
+}
+
+.dashboardMoveUp,
+.dashboardMoveDown {
+    left: 19px;
+}
+
+.dashboardMoveUp {
+    .icon;
+    .icon-arrow-up;
+    .icon-only;
+
+    display: none;
+    top: 2px;
+}
+
+.dashboardMoveDown {
+    .icon;
+    .icon-arrow-down;
+    .icon-only;
+
+    display: none;
+    bottom: 2px;
+}
+
+.dashboardMoveLeft,
+.dashboardMoveRight {
+    top: 17px;
+}
+
+.dashboardMoveLeft {
+    .icon;
+    .icon-arrow-left;
+    .icon-only;
+
+    display: none;
+    left: 2px;
+}
+
+.dashboardMoveRight {
+    .icon;
+    .icon-arrow-right;
+    .icon-only;
+
+    display: none;
+    right: 0px;
+}
+
+.withLeftNav {
+    margin: -10px;
+    overflow: hidden;
+    padding: 10px;
+}
+.withLeftNav > .leftNav {
+    float: left;
+    width: 240px;
+}
+.withLeftNav > .main {
+    margin-left: 255px;
+}

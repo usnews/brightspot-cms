@@ -1,0 +1,212 @@
+.rte-container {
+    border: 1px solid @color-note;
+    .border-radius(5px);
+    display: block;
+    margin: 0;
+
+    iframe {
+        width: 100%;
+    }
+}
+
+.rte-source {
+    border-style: none;
+    .box-shadow(none);
+    font-family: @fontFamily-code;
+    font-size: 11px;
+    min-height: 10em;
+    padding: 4px;
+
+    &:focus {
+        .box-shadow(none);
+    }
+}
+
+.rte-toolbar {
+    background-color: @color-note-lighter;
+    border-bottom: 1px solid @color-note;
+    .border-top-left-radius(5px);
+    .border-top-right-radius(5px);
+    margin: 2px;
+    padding: 3px 0 0 3px;
+    position: relative;
+    vertical-align: top;
+    z-index: 1;
+
+    .inputContainer.focus &[data-count-message]:after {
+        .border-top-left-radius(3px);
+        bottom: -1px;
+        right: 0;
+    }
+}
+
+.rte-group {
+    background-color: @color-text;
+    color: @color-background;
+    .border-radius(5px);
+    display: inline-block;
+    margin: 3px;
+    margin: 0 3px 3px 0;
+    padding-right: 3px;
+}
+
+.rte-group-label {
+    display: block;
+    font-family: @fontFamily-label;
+    font-size: 60%;
+    line-height: 8px;
+    margin: 2px 0 3px 3px;
+    text-transform: uppercase;
+}
+
+.rte-group-buttons {
+    display: block;
+}
+
+.rte-button {
+    background-color: @color-background;
+    background-position: center;
+    background-repeat: no-repeat;
+    .border-radius(3px);
+    color: @color-text;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 80%;
+    height: 20px;
+    line-height: 20px;
+    margin: 0 0 3px 3px;
+    overflow: hidden;
+    width: 20px;
+
+    &:before {
+        padding: 1px 20px 0 3px;
+    }
+
+    &.wysihtml5-command-active {
+        background-color: @color-link-lighter;
+    }
+}
+
+.rte-group-dropDown {
+    height: 36px;
+    overflow: hidden;
+
+    .rte-group-label {
+        .icon;
+        .icon-caret-right;
+
+        &:before {
+            width: 5px;
+        }
+    }
+
+    .rte-button {
+        display: block;
+    }
+
+    &:hover {
+        .box-shadow(0 0 2px @color-text);
+        padding-right: 0;
+        overflow: visible;
+
+        .rte-group-label {
+            .icon-caret-down;
+        }
+
+        .rte-group-buttons {
+            background-color: @color-text;
+            .border-radius(3px);
+            .box-shadow(0 0 2px @color-text);
+            padding-bottom: 3px;
+            padding-right: 3px;
+        }
+
+        .rte-button {
+            margin: 3px 0 0 3px;
+        }
+    }
+}
+
+.rte-button-bold { .icon; .icon-bold; }
+.rte-button-italic { .icon; .icon-italic; }
+.rte-button-underline { .icon; .icon-underline; }
+.rte-button-strike { .icon; .icon-strikethrough; }
+.rte-button-superscript { .icon; .icon-chevron-up; }
+.rte-button-subscript { .icon; .icon-chevron-down; }
+.rte-button-textAlign[data-wysihtml5-command-value=left] { .icon; .icon-align-left; }
+.rte-button-textAlign[data-wysihtml5-command-value=center] { .icon; .icon-align-center; }
+.rte-button-textAlign[data-wysihtml5-command-value=right] { .icon; .icon-align-right; }
+.rte-button-insertUnorderedList { .icon; .icon-list-ul; }
+.rte-button-insertOrderedList { .icon; .icon-list-ol; }
+.rte-button-outdent { .icon; .icon-indent-right; }
+.rte-button-indent { .icon; .icon-indent-left; }
+.rte-button-createLink { .icon; .icon-link; }
+.rte-button-moveLeft { .icon; .icon-arrow-left; }
+.rte-button-moveUp { .icon; .icon-arrow-up; }
+.rte-button-moveCenter { .icon; .icon-fullscreen; }
+.rte-button-moveDown { .icon; .icon-arrow-down; }
+.rte-button-moveRight { .icon; .icon-arrow-right; }
+.rte-button-remove { .icon; .icon-remove-sign; color: @color-alert; }
+
+.rte-group-cssClass .rte-button,
+.rte-button-insertEnhancement,
+.rte-button-insertMarker,
+.rte-button-editEnhancement,
+.rte-button-selectMarker,
+.rte-button-html {
+    padding: 0 3px;
+    white-space: nowrap;
+    width: auto;
+}
+
+.rte-button:before {
+    font-size: 14px !important;
+}
+
+.rte-dialog {
+    clear: left;
+    margin-bottom: 3px;
+
+    [data-wysihtml5-dialog-field=href] {
+        width: 50%;
+    }
+
+    [data-wysihtml5-dialog-action=save] {
+        .icon;
+        .icon-ok;
+        .icon-only;
+    }
+
+    [data-wysihtml5-dialog-action=cancel] {
+        .icon;
+        .icon-remove;
+        .icon-only;
+
+        color: @color-alert;
+    }
+}
+
+.rte-enhancement {
+    background-color: @color-note;
+
+    .rte-toolbar {
+        background-color: transparent;
+        border-style: none;
+    }
+}
+
+.rte-enhancement-label {
+    font-size: 120%;
+    text-align: center;
+}
+
+.rte-marker {
+
+    .rte-toolbar {
+        float: left;
+    }
+
+    .rte-enhancement-label {
+        line-height: 46px;
+    }
+}

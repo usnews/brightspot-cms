@@ -765,7 +765,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 writeStart("script", "type", "text/javascript");
-                    write("window.less = window.less || { }; window.less.env = 'production'; window.less.poll = 500;");
+                    write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
                 writeEnd();
 
                 writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.min.js"));
