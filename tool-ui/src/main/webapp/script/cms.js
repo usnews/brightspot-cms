@@ -203,6 +203,29 @@ $doc.onCreate('.searchForm-resultSuggestionsForm', function() {
     });
 });
 
+// Mark changed inputs.
+$doc.onCreate('.inputContainer', function() {
+    var $container = $(this),
+            getValues,
+            initialValues;
+
+    initialValues = (getValues = function() {
+        return $container.find(':input, select, textarea').serialize();
+    })();
+
+    $container.on('input change', function() {
+        var $target = $(this);
+
+        $target.toggleClass('changed', initialValues !== getValues());
+
+        $target.parents().each(function() {
+            var $parent = $(this);
+
+            $parent.toggleClass('changed', $parent.find('.changed').length > 0);
+        });
+    });
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
