@@ -56,9 +56,6 @@ input[type=text].expandable { min-width: 5em; }
 
 // --- Legacy support ---
 
-.breadcrumb > li { .breadcrumb-item; }
-.breadcrumb > li.selected { .breadcrumb-selected; }
-
 .buttons {
     > input[type=submit].save {
         float: left;
@@ -99,9 +96,6 @@ input[type=text].expandable { min-width: 5em; }
 .pagination > li.next { .pagination-next; }
 .pagination > li.last { .pagination-last; }
 
-.piped > li { .piped-item; }
-.piped > li.selected { .piped-selected; }
-
 .popup > .content { .popup-content; }
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
@@ -131,7 +125,7 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .widget-content > h1 { .breadcrumb; margin-left: -10px; }
-.widget-content > h1 > .action { .breadcrumb-item; }
+.widget-content > h1 > .action { .breadcrumbItem; }
 
 .widget-content-new {
     position: absolute;
@@ -474,10 +468,6 @@ input[type=text].expandable { min-width: 5em; }
     form {
         display: inline;
     }
-
-    li {
-        .piped-item;
-    }
 }
 
 .popup[name='guideType'] {
@@ -566,10 +556,6 @@ input[type=text].expandable { min-width: 5em; }
     form {
         display: inline;
     }
-
-    li {
-        .piped-item;
-    }
 }
 
 .widget-publication {
@@ -587,10 +573,6 @@ input[type=text].expandable { min-width: 5em; }
         border-top: 1px solid @color-note;
         clear: both;
         padding-top: 5px;
-
-        li {
-            .piped-item;
-        }
     }
 
     .action-save,
@@ -871,10 +853,6 @@ input[type=text].expandable { min-width: 5em; }
     display: none;
     margin-bottom: 0;
     margin-left: 20px;
-
-    li {
-        .piped-item;
-    }
 
     .remoteOverlay-hat:hover & {
         display: inline-block;

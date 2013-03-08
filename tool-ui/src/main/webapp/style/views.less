@@ -11,20 +11,24 @@
 .breadcrumb {
     list-style-type: none;
     margin-left: 0;
+
+    > li {
+        .breadcrumbItem;
+    }
 }
 
-.breadcrumb-item {
+.breadcrumbItem {
     display: inline;
 
     &:not(:last-child):after {
         color: @color-note;
-        content: '\2192';
-        padding: 0 0.5em;
+        content: ' \2192 ';
+        padding: 0 2px;
     }
-}
 
-.breadcrumb-selected {
-    .strong;
+    &.selected {
+        .strong;
+    }
 }
 
 .button {
@@ -811,9 +815,13 @@ table.links.table-striped {
 .piped {
     list-style-type: none;
     margin-left: 0;
+
+    > li {
+        .pipedItem;
+    }
 }
 
-.piped-item {
+.pipedItem {
     display: inline;
 
     &:not(:last-child):after {
@@ -821,10 +829,10 @@ table.links.table-striped {
         content: ' | ';
         padding: 0 2px;
     }
-}
 
-.piped-selected {
-    .strong;
+    &.selected {
+        .strong;
+    }
 }
 
 .progress {
