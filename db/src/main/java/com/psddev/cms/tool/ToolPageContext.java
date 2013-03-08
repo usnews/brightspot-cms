@@ -29,6 +29,7 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
+import com.psddev.cms.db.LayoutTag;
 import com.psddev.cms.db.Page;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
@@ -1162,6 +1163,12 @@ public class ToolPageContext extends WebPageContext {
 
         return field.as(ToolUi.class).isDropDown() &&
                 !new Search(field).toQuery().hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
+    }
+
+    /** Writes all grid CSS, or does nothing if it's already written. */
+    public ToolPageContext writeGridCssOnce() throws IOException {
+        LayoutTag.Static.writeGridCss(this, getServletContext(), getRequest());
+        return this;
     }
 
     // --- AuthenticationFilter bridge ---

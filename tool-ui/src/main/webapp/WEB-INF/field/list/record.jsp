@@ -170,6 +170,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     if (layouts != null && !layouts.isEmpty()) {
         String containerId = wp.createId();
 
+        wp.writeGridCssOnce();
+
         writer.start("div",
                 "class", "largeInput repeatableLayout",
                 "id", containerId);
