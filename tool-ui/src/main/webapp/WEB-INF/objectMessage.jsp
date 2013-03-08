@@ -56,16 +56,16 @@ if (draft != null) {
 
 History history = wp.getOverlaidHistory(object);
 if (history != null) {
-    wp.write("<div class=\"message\"><p>");
+    wp.write("<div class=\"message message-warning\"><p>");
     wp.write("This is a past revision of the <a href=\"");
     wp.write(wp.originalUrl(null, object));
     wp.write("\">original document</a> saved ");
     wp.write(history.getUpdateDate());
     wp.write(" by ");
     wp.write(wp.objectLabel(history.getUpdateUser()));
-    wp.write(".</p><p><a href=\"");
+    wp.write(".</p><p><a class=\"icon icon-cmsHistory\" href=\"");
     wp.write(wp.url("/content/historyName.jsp", "id", history.getId()));
-    wp.write("\" target=\"editHistory\">Edit History</a></p></div>");
+    wp.write("\" target=\"editHistory\">Edit Revision Name</a></p></div>");
     return;
 }
 
