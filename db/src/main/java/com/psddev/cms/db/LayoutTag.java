@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
@@ -73,12 +74,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
-                ServletRequest request = pageContext.getRequest();
-
-                if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
-                    writer.writeGridCss(pageContext.getServletContext());
-                    request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
-                }
+                LayoutTag.Static.writeGridCss(writer, pageContext.getServletContext(), pageContext.getRequest());
             }
 
         } catch (IOException error) {
@@ -126,6 +122,29 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         }
 
         return EVAL_PAGE;
+    }
+
+    /** {@link LayoutTag} utility methods. */
+    public static final class Static {
+
+        private Static() {
+        }
+
+        /**
+         * Writes all grid CSS found in the given {@code context} to the
+         * given {@code writer} unless it's already been written within the
+         * given {@code request}.
+         *
+         * @param writer Can't be {@code null}.
+         * @param context Can't be {@code null}.
+         * @param request Can't be {@code null}.
+         */
+        public static void writeGridCss(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
+            if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
+                writer.writeGridCss(context);
+                request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+            }
+        }
     }
 
     private static class CssClassHtmlGrid {
