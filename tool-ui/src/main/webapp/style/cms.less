@@ -1657,13 +1657,6 @@ input[type=text].expandable { min-width: 5em; }
         right: 0;
         top: -2px;
     }
-
-    .objectId,
-    .objectId-select {
-        display: block;
-        margin-top: 5px;
-        width: 100%;
-    }
 }
 
 .searchMissing {
@@ -1688,7 +1681,14 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .searchFilter {
+    margin-top: 5px;
     position: relative;
+
+    .objectId,
+    .objectId-select {
+        display: block;
+        width: 100%;
+    }
 
     .objectId-clear {
         .icon-only;
