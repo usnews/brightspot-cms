@@ -122,7 +122,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 %><% if (!isValueExternal) { %>
-    <div class="largeInput repeatableForm">
+    <div class="inputLarge repeatableForm">
         <ul>
             <%
             for (Object item : fieldValue) {
@@ -150,7 +150,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     PageWriter writer = wp.getWriter();
 
     if (wp.isObjectSelectDropDown(field)) {
-        writer.start("div", "class", "smallInput");
+        writer.start("div", "class", "inputSmall");
             List<?> items = new Search(field).toQuery().selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
@@ -170,7 +170,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         writer.end();
 
     } else {
-        writer.start("div", "class", "smallInput repeatableObjectId");
+        writer.start("div", "class", "inputSmall repeatableObjectId");
             writer.start("ul");
                 if (fieldValue != null) {
                     for (Object item : fieldValue) {

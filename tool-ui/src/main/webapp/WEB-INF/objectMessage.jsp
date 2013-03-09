@@ -28,7 +28,7 @@ if (errors != null && errors.size() > 0) {
 
 Trash deleted = Query.findById(Trash.class, wp.uuidParam("deleted"));
 if (deleted != null) {
-    wp.write("<div class=\"warning message\"><p>");
+    wp.write("<div class=\"message message-warning\"><p>");
     wp.write("Deleted ", deleted.getDeleteDate());
     wp.write(" by ", wp.objectLabel(deleted.getDeleteUser()));
     wp.write(".<p></div>");
@@ -71,7 +71,7 @@ if (history != null) {
 
 Date published = wp.dateParam("published");
 if (published != null) {
-    wp.write("<div class=\"success message\"><p>");
+    wp.write("<div class=\"message message-success\"><p>");
     wp.write("Published ", published);
     wp.write(".</p>");
     wp.write("</div>");
@@ -80,7 +80,7 @@ if (published != null) {
 
 Date saved = wp.dateParam("saved");
 if (saved != null) {
-    wp.write("<div class=\"success message\"><p>");
+    wp.write("<div class=\"message message-success\"><p>");
     wp.write("Saved ", saved);
     wp.write(".</p></div>");
     return;

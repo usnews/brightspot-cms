@@ -66,7 +66,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 %><% if (ObjectUtils.isBlank(validValues)) { %>
-    <div class="smallInput repeatableText">
+    <div class="inputSmall repeatableText">
         <ol>
             <% if (fieldValue!= null) { %>
                 <% for (Object text : fieldValue) { %>
@@ -83,7 +83,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         </ol>
     </div>
 <% } else { %>
-    <div class="smallInput">
+    <div class="inputSmall">
         <select multiple name="<%= wp.h(textName) %>">
             <% for (ObjectField.Value value : validValues) { %>
                 <%

@@ -46,7 +46,7 @@ wp.writeStart("form", "method", "post", "action", wp.url(""));
             wp.writeStart("label", "for", wp.createId()).writeHtml("Name").writeEnd();
         wp.writeEnd();
 
-        wp.writeStart("div", "class", "smallInput");
+        wp.writeStart("div", "class", "inputSmall");
             wp.writeTag("input",
                     "type", "text",
                     "id", wp.getId(),
@@ -56,7 +56,9 @@ wp.writeStart("form", "method", "post", "action", wp.url(""));
     wp.writeEnd();
 
     wp.writeStart("div", "class", "buttons");
-        wp.writeTag("input", "type", "submit", "value", "Save");
+        wp.writeStart("button", "class", "action action-save");
+            wp.writeHtml("Save");
+        wp.writeEnd();
     wp.writeEnd();
 wp.writeEnd();
 %>

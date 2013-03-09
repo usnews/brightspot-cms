@@ -983,7 +983,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
                 writeStart("div", "class", "toolFooter");
-                    writeStart("div", "class", "build");
+                    writeStart("div", "class", "toolBuild");
                         writeStart("span", "class", "version");
                             writeHtml(version);
                         writeEnd();

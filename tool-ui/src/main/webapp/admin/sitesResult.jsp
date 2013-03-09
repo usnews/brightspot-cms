@@ -46,7 +46,7 @@ for (Iterator<Site> i = sites.iterator(); i.hasNext(); ) {
     </ul>
 
 <% } else { %>
-    <div class="warning message">
+    <div class="message message-warning">
         <p>No matching items!</p>
     </div>
 <% } %>

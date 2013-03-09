@@ -24,7 +24,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <input<%= Boolean.TRUE.equals(state.getValue(fieldName)) ? " checked" : "" %> id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>" type="checkbox" value="true">
     <input name="<%= wp.h(inputName) %>" type="hidden" value="false">
 </div>

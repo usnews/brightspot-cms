@@ -240,7 +240,7 @@ public class UploadFiles extends PageServlet {
                 writer.start("div", "class", "inputLabel");
                     writer.start("label", "for", page.createId()).html("Type").end();
                 writer.end();
-                writer.start("div", "class", "inputContainer-smallInput");
+                writer.start("div", "class", "inputSmall");
                     writer.start("select", "id", page.getId(), "name", "type");
                         for (ObjectType type : types) {
                             writer.start("option", "value", type.getId());
@@ -255,7 +255,7 @@ public class UploadFiles extends PageServlet {
                 writer.start("div", "class", "inputLabel");
                     writer.start("label", "for", page.createId()).html("Files").end();
                 writer.end();
-                writer.start("div", "class", "inputContainer-smallInput");
+                writer.start("div", "class", "inputSmall");
                     writer.tag("input",
                             "id", page.getId(),
                             "type", "file",

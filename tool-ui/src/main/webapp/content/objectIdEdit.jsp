@@ -38,11 +38,12 @@ StorageItem preview = state.getPreview();
 wp.writeHeader();
 wp.include("/WEB-INF/objectHeading.jsp", "object", object);
 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-    wp.write("<p style=\"position: absolute; right: 15px; top: 8px;\">");
-    wp.write("<a class=\"action-edit\" href=\"");
-    wp.write(wp.objectUrl("/content/edit.jsp", object, "variationId", wp.param(UUID.class, "variationId")));
-    wp.write("\" target=\"_blank\">Edit in Full</a>");
-    wp.write("</p>");
+    wp.writeStart("div", "class", "widgetControls");
+        wp.write("<a class=\"action-edit\" href=\"");
+        wp.write(wp.objectUrl("/content/edit.jsp", object, "variationId", wp.param(UUID.class, "variationId")));
+        wp.write("\" target=\"_blank\">Edit in Full</a>");
+        wp.write("</p>");
+    wp.writeEnd();
 }
 %>
 <form action="<%= wp.objectUrl("", object) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
@@ -75,7 +76,7 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
             wp.write("<input type=\"submit\" name=\"action\" value=\"Publish\" />");
             wp.write("</div>");
         }else{
-            wp.write("<div class=\"warning message\"><p>You cannot edit this ");
+            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
             wp.write(wp.typeLabel(state));
             wp.write("!</p></div>");
         }

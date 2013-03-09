@@ -154,56 +154,65 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             data-object-id="<%= State.getInstance(selected).getId() %>">
         <div class="contentForm-main">
             <div class="widget widget-content">
-                <h1><%
+                <h1 class="breadcrumbs"><%
                     String search = wp.param(String.class, "search");
 
                     if (search != null) {
-                        wp.write("<span class=\"action content-searchResult frame\">");
-                        wp.write("<a href=\"");
-                        wp.write(StringUtils.addQueryParameters(search, "widget", true));
-                        wp.write("\">Search Result</a>");
-                        wp.write("</span>");
+                        wp.writeStart("span", "class", "breadcrumbItem frame");
+                            wp.writeStart("a", "href", StringUtils.addQueryParameters(search, "widget", true));
+                                wp.writeHtml("Search Result");
+                            wp.writeEnd();
+                        wp.writeEnd();
                     }
-                %><span class="action action-edit"><%
-                    wp.write(state.isNew() ? "New " : "Edit ");
 
-                    if (compatibleTypes.size() < 2) {
-                        wp.write(wp.objectLabel(state.getType()));
-                    } else {
-                        wp.write("<select name=\"newTypeId\">");
-                            for (ObjectType type : compatibleTypes) {
-                                wp.write("<option");
-                                wp.write(state.getType().equals(type) ? " selected" : "");
-                                wp.write(" value=\"");
-                                wp.write(type.getId());
-                                wp.write("\">");
-                                wp.write(wp.objectLabel(type));
-                                wp.write("</option>");
-                            }
-                        wp.write("</select>");
-                    }
+                    wp.writeStart("span", "class", "breadcrumbItem icon icon-object");
+                        wp.writeHtml(state.isNew() ? "New " : "Edit ");
+
+                        if (compatibleTypes.size() < 2) {
+                            wp.write(wp.objectLabel(state.getType()));
+
+                        } else {
+                            wp.write("<select name=\"newTypeId\">");
+                                for (ObjectType type : compatibleTypes) {
+                                    wp.write("<option");
+                                    wp.write(state.getType().equals(type) ? " selected" : "");
+                                    wp.write(" value=\"");
+                                    wp.write(type.getId());
+                                    wp.write("\">");
+                                    wp.write(wp.objectLabel(type));
+                                    wp.write("</option>");
+                                }
+                            wp.write("</select>");
+                        }
+                    wp.writeEnd();
 
                     if (selected instanceof Page) {
-                        wp.write(": <a href=\"");
-                        wp.write(wp.returnableUrl("/content/editableSections.jsp"));
-                        wp.write("\" target=\"contentPageSections-");
-                        wp.write(state.getId());
-                        wp.write("\">");
-                            if (sectionContent != null) {
-                                wp.write(wp.objectLabel(State.getInstance(editing).getType()));
-                            } else {
-                                wp.write("Layout");
-                            }
-                        wp.write("</a>");
+                        wp.writeStart("span", "class", "breadcrumbItem");
+                            wp.write("<a href=\"");
+                            wp.write(wp.returnableUrl("/content/editableSections.jsp"));
+                            wp.write("\" target=\"contentPageSections-");
+                            wp.write(state.getId());
+                            wp.write("\">");
+                                if (sectionContent != null) {
+                                    wp.write(wp.objectLabel(State.getInstance(editing).getType()));
+                                } else {
+                                    wp.write("Layout");
+                                }
+                            wp.write("</a>");
+                        wp.writeEnd();
                     }
-                %></span><% wp.include("/WEB-INF/objectVariation.jsp", "object", editing); %></h1>
 
-                <%
-                GuidePage guide = Guide.Static.getPageProductionGuide(template);
-                if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
-                    wp.write("<a class=\"icon icon-object-guide\" target=\"guideType\" href=\"", wp.objectUrl("/content/guideType.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">PG</a>");
-                }
-                %>
+                    wp.include("/WEB-INF/objectVariation.jsp", "object", editing);
+                %></h1>
+
+                <div class="widgetControls">
+                    <%
+                    GuidePage guide = Guide.Static.getPageProductionGuide(template);
+                    if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
+                        wp.write("<a class=\"icon icon-object-guide\" target=\"guideType\" href=\"", wp.objectUrl("/content/guideType.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">PG</a>");
+                    }
+                    %>
+                </div>
 
                 <% if (!State.getInstance(editing).isNew()) { %>
                     <div class="widget-content-new">
@@ -224,7 +233,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <% } %>
 
                 <% if (sectionContent != null) { %>
-                    <p><a class="action-back" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
+                    <p><a class="icon icon-arrow-left" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
                 <% } %>
 
                 <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
@@ -357,7 +366,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
 
                 } else {
-                    wp.write("<div class=\"warning message\"><p>You cannot edit this ");
+                    wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
                     wp.write(wp.typeLabel(state));
                     wp.write("!</p></div>");
                 }
@@ -369,7 +378,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 <ul class="extraActions">
                     <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                        <li><button class="action-draft" name="action" value="Save Draft">Save Draft</button></li>
+                        <li><button class="icon icon-object-draft link" name="action" value="Save Draft">Save Draft</button></li>
                     <% } %>
                 </ul>
             </div>
@@ -378,7 +387,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 </div>
 
 <% if (wp.isPreviewable(selected)) { %>
-    <div class="content-preview">
+    <div class="contentPreview">
         <div class="widget widget-preview">
             <h1>Preview</h1>
 
@@ -438,7 +447,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     appendPreviewAction,
                     removePreviewAction,
 
-                    $preview = $('.content-preview'),
+                    $preview = $('.contentPreview'),
                     $previewWidget = $preview.find('.widget-preview'),
                     $previewHeading = $preview.find('h1'),
                     showPreview,
@@ -492,7 +501,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 if (!previewEventsBound) {
                     $preview.append($('<span/>', {
-                        'class': 'content-preview_close',
+                        'class': 'contentPreviewClose',
                         'text': 'Close',
                         'click': function() {
                             hidePreview();
@@ -923,7 +932,7 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
                     StringWriter sw = new StringWriter();
                     HtmlWriter hw = new HtmlWriter(sw);
                     hw.putAllStandardDefaults();
-                    hw.start("pre", "class", "error message").object(ex).end();
+                    hw.start("pre", "class", "message message-error").object(ex).end();
                     display = sw.toString();
                 }
 

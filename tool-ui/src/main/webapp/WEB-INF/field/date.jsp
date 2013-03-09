@@ -30,6 +30,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <input class="date" name="<%= wp.h(inputName) %>" type="text" value="<%= wp.h(DateUtils.toString(fieldValue, "yyyy-MM-dd HH:mm:ss")) %>">
 </div>

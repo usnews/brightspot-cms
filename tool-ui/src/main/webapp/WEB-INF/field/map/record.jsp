@@ -78,7 +78,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 %><% if (!isValueExternal) { %>
-    <div class="largeInput repeatableForm">
+    <div class="inputLarge repeatableForm">
         <ul>
             <%
             for (Map.Entry<String, Object> entry : fieldValue.entrySet()) {
@@ -87,7 +87,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType itemType = itemState.getType();
                 %>
                 <li data-type="<%= wp.objectLabel(itemType) %>" data-label=" ">
-                    <div class="inputLabel smallInput">
+                    <div class="repeatableLabel inputSmall">
                         <textArea name="<%= keyName %>"><%= entry.getKey() %></textArea>
                     </div>
                     <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
@@ -97,7 +97,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             <% } %>
             <% for (ObjectType type : validTypes) { %>
                 <li class="template" data-type="<%= wp.objectLabel(type) %>">
-                    <div class="inputLabel smallInput">
+                    <div class="repeatableLabel inputSmall">
                         <textArea name="<%= keyName %>" value=""></textArea>
                     </div>
                     <div class="frame">
@@ -123,7 +123,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     }
     %>
 
-    <div class="smallInput repeatableObjectId">
+    <div class="inputSmall repeatableObjectId">
         <textarea class="json" id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>"><%= wp.h(ObjectUtils.toJson(fieldValue, true)) %></textarea>
     </div>
 

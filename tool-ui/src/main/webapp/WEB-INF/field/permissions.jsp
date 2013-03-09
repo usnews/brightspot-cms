@@ -83,7 +83,7 @@ List<Workflow> workflows = Query
 
 // --- Presentation ---
 
-%><div class="smallInput permissions"><ul>
+%><div class="inputSmall permissions"><ul>
 
 <li><% writeParent(wp, permissions, "Systems", ""); %>
 <ul>

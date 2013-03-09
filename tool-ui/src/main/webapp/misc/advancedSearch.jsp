@@ -121,7 +121,7 @@ html.start("form", "action", wp.url(null, "id", search.getId()), "method", "post
                         html.start("label").string("Type").end();
                     html.end();
 
-                    html.start("div", "class", "smallInput");
+                    html.start("div", "class", "inputSmall");
                         html.start("select", "name", "typeId", "onchange", "$(this).closest('form').submit();", "style", "max-width: 100%;");
                             html.start("option").end();
 
@@ -280,7 +280,7 @@ private static class SearchFormWriter extends FormWriter {
         start("div", "class", "inputContainer");
             write(getLabelRenderer().display(inputId, inputName, field));
             if (processor == null) {
-                start("div", "class", "smallInput").string("N/A").end();
+                start("div", "class", "inputSmall").string("N/A").end();
             } else {
                 write(processor.display(inputId, inputName, field, state.get(ToolSearch.FIELD_PREFIX + fieldName)));
             }
@@ -320,7 +320,7 @@ private static class SearchFormWriter extends FormWriter {
                 validTypeIds = idsBuilder.toString();
             }
 
-            writer.start("div", "class", "smallInput repeatableObjectId");
+            writer.start("div", "class", "inputSmall repeatableObjectId");
                 writer.start("ul");
 
                     if (value != null) {
@@ -398,7 +398,7 @@ private static class SearchFormWriter extends FormWriter {
             Set<ObjectField.Value> validValues = field.getValues();
             String textName = createTextName(inputName);
 
-            writer.start("div", "class", "smallInput repeatableText");
+            writer.start("div", "class", "inputSmall repeatableText");
                 writer.start("ul");
 
                     if (validValues == null || validValues.isEmpty()) {

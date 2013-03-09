@@ -17,15 +17,8 @@
 @import 'views.less';
 @import 'reset.less';
 
-button.link.delete,
-input[type=submit].link.delete {
-    background: transparent url(icon/cross.png) no-repeat left center;
-    color: @color-alert;
-    padding-left: 20px;
-}
-
-.repeatableForm > ol > li > .inputLabel > .smallInput,
-.repeatableForm > ul > li > .inputLabel > .smallInput {
+.repeatableForm > ol > li > .inputLabel > .inputSmall,
+.repeatableForm > ul > li > .inputLabel > .inputSmall {
     display: inline-block;
     width: auto;
     padding: 0 2px 0 6px;
@@ -33,16 +26,8 @@ input[type=submit].link.delete {
 
 input[type=text].expandable { min-width: 5em; }
 
-.number { text-align: right; white-space: nowrap; }
-
-.text { }
-    .text.add, .text.save { color: #8dc522; }
-    .text.delete, .text.err, .text.remove, .text.purge { color: #d31e13; }
-    .text.edit { color: #40a4d7; }
-    .text.warn { color: orange; }
-    .text.note, .text.schedule { color: yellow; }
-
 @import 'tool.less';
+@import 'guide.less';
 @import 'jquery.calendar.less';
 @import 'jquery.dropdown.less';
 @import 'jquery.frame.less';
@@ -57,11 +42,11 @@ input[type=text].expandable { min-width: 5em; }
 // --- Legacy support ---
 
 .buttons {
-    > input[type=submit].save {
+    > input[type='submit'].save {
         float: left;
     }
 
-    > input[type=submit].delete {
+    > input[type='submit'].delete {
         float: right;
     }
 }
@@ -78,19 +63,23 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.frame > h1 { .widget-heading; }
+.frame > h1 { .widgetHeading; }
 
 .inputContainer > .label { .inputLabel; }
 .inputContainer > .error { .inputContainer-error; }
-.inputContainer > .smallInput { .inputContainer-smallInput; }
-.inputContainer > .largeInput { .inputContainer-largeInput; }
-.inputContainer > .note { .inputContainer-note; }
+.inputContainer > .smallInput { .inputSmall; }
+.inputContainer > .largeInput { .inputLarge; }
+.inputContainer > .note { .inputNote; }
 
 .message.error { .message-error; }
 .message.success { .message-success; }
 .message.warning { .message-warning; }
 
-.pagination > li { .pagination-item; }
+.number {
+    text-align: right;
+    white-space: nowrap;
+}
+
 .pagination > li.first { .pagination-first; }
 .pagination > li.previous { .pagination-previous; }
 .pagination > li.next { .pagination-next; }
@@ -100,37 +89,17 @@ input[type=text].expandable { min-width: 5em; }
 .popup > .content > .marker { .popup-marker; }
 .popup > .content > .closeButton { .popup-closeButton; }
 
-.searchForm { .searchForm-container; }
-.searchForm > .filters { .searchForm-controls; }
-.searchForm > .filters .new { .searchForm-create; }
-.searchForm > .result { .searchForm-result; }
-
-.toolFooter .build { .toolFooter-build; }
-
-.widget > h1 { .widget-heading; }
-
-// --- Bootstrap support ---
-
-.alert { .message-warning; }
-.alert-error { .message-error; }
-.alert-info { .message-info; }
-.alert-success { .message-success; }
-
 // --- Local ---
 
-.widget:not(.widget-content) > .action-variation {
-    position: absolute;
-    right: 10px;
-    top: 6px;
+.widget-content > .widgetControls {
+    right: 65px;
+    z-index: 2;
 }
-
-.widget-content > h1 { .breadcrumb; margin-left: -10px; }
-.widget-content > h1 > .action { .breadcrumbItem; }
 
 .widget-content-new {
     position: absolute;
-    right: 4px;
-    top: 4px;
+    right: 3px;
+    top: 3px;
     z-index: 1;
 
     > .action-create {
@@ -220,10 +189,6 @@ input[type=text].expandable { min-width: 5em; }
 
 // --- Content form ---
 
-.content-searchResult {
-    margin-bottom: 10px;
-}
-
 .contentForm {
     margin: -10px;
     overflow: hidden;
@@ -255,7 +220,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.content-preview {
+.contentPreview {
     display: none;
     overflow: hidden;
     margin: -10px;
@@ -269,7 +234,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.content-preview_close {
+.contentPreviewClose {
     .icon;
     .icon-remove-sign;
     .icon-only;
@@ -280,29 +245,6 @@ input[type=text].expandable { min-width: 5em; }
     right: 20px;
     top: 86px;
 }
-
-// --- Production Guide ---
-
-.widget-content > .icon-object-guide {
-    position: absolute;
-    right: 65px;
-    top: 7px;
-}
-
-.inputLabel {
-    > .icon-object-guide {
-        .icon-only;
-
-        float: right;
-        color: fade(@color-text, 25%);
-
-        &:hover {
-            color: fade(@color-text, 40%);
-        }
-    }
-}
-
-@import 'guide.less';
 
 // --- Widgets ---
 
@@ -427,10 +369,6 @@ input[type=text].expandable { min-width: 5em; }
         right: 10px;
     }
 
-    .action-draft {
-        .link;
-    }
-
     .action-tools {
         .icon-only;
 
@@ -451,10 +389,6 @@ input[type=text].expandable { min-width: 5em; }
 .inputContainer .permissions select {
     height: 1.5;
     line-height: 1.5;
-}
-
-.inputContainer .smallInput {
-    position: relative;
 }
 
 // Recent activity widget.
@@ -612,34 +546,6 @@ input[type=text].expandable { min-width: 5em; }
 .focus [data-count-message^='Too']:after {
     background-color: #e90;
 }
-
-// --- Actions ---
-
-.action-add { .icon; .icon-action-add; }
-.action-create { .icon; .icon-action-create; }
-.action-customize { .icon; .icon-action-customize; }
-.action-delete { .icon; .icon-action-delete; }
-.action-edit { .icon; .icon-action-edit; }
-.action-preview { .icon; .icon-action-preview; }
-.action-print { .icon; .icon-action-print; }
-.action-remove { .icon; .icon-action-remove; }
-.action-schedule { .icon; .icon-action-schedule; }
-.action-search { .icon; .icon-action-search; }
-.action-share { .icon; .icon-action-share; }
-.action-upload { .icon; .icon-action-upload; }
-
-.action-back { .icon; .icon-arrow-left; }
-.action-copy { .icon; .icon-copy; }
-.action-draft { .icon; .icon-save; }
-.action-image-edit { .icon; .icon-magic; }
-.action-image-viewMetadata { .icon; .icon-table; }
-.action-live { .icon; .icon-bullhorn; }
-.action-logOut { .icon; .icon-signout; }
-.action-reset { .icon; .icon-remove; }
-.action-result { .icon; .icon-list-alt; }
-.action-switch { .icon; .icon-random; }
-.action-tools { .icon; .icon-wrench; }
-.action-variation { .icon; .icon-columns; }
 
 // --- Bookmarklet ---
 

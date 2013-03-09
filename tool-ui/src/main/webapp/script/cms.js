@@ -167,7 +167,7 @@ $doc.onCreate('.dashboardCell', function() {
     $cell.append($moveContainer);
 });
 
-$doc.onCreate('.searchForm-resultSuggestionsForm', function() {
+$doc.onCreate('.searchSuggestionsForm', function() {
     var $suggestionsForm = $(this),
             $source = $suggestionsForm.popup('source'),
             $contentForm = $source.closest('.contentForm'),
@@ -237,7 +237,7 @@ $doc.delegate('.exception > *', 'click', function() {
             TRIM_RE = /^\s+|\s+$/g,
             WHITESPACE_RE = /\s+/;
 
-    $doc.delegate('.smallInput-text :text, .smallInput-text textarea', 'change.wordCount focus.wordCount input.wordCount', function() {
+    $doc.delegate('.inputSmall-text :text, .inputSmall-text textarea', 'change.wordCount focus.wordCount input.wordCount', function() {
         var $input = $(this),
                 minimum = +$input.attr('data-suggested-minimum'),
                 maximum = +$input.attr('data-suggested-maximum'),
@@ -561,7 +561,7 @@ $doc.ready(function() {
 
             } else {
                 $searchFrame.popup('open');
-                $searchInput = $searchFrame.find('.searchForm-filters .searchInput :text');
+                $searchInput = $searchFrame.find('.searchFilters .searchInput :text');
                 headerInputValue = $headerInput.val();
 
                 if (headerInputValue !== $searchInput.val()) {

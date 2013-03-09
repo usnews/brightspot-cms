@@ -97,7 +97,7 @@ body {
             <div class="inputLabel">
                 <label for="<%= wp.createId() %>">Email</label>
             </div>
-            <div class="smallInput">
+            <div class="inputSmall">
                 <input class="autoFocus" id="<%= wp.getId() %>" name="email" type="text" value="<%= wp.h(email) %>">
             </div>
         </div>
@@ -106,13 +106,13 @@ body {
             <div class="inputLabel">
                 <label for="<%= wp.createId() %>">Password</label>
             </div>
-            <div class="smallInput">
+            <div class="inputSmall">
                 <input id="<%= wp.getId() %>" name="password" type="password">
             </div>
         </div>
 
         <div class="buttons">
-            <input type="submit" value="Log in">
+            <button class="action action-logIn">Log In</button>
         </div>
     </form>
 </div>

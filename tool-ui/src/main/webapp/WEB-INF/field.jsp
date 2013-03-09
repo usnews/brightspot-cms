@@ -86,7 +86,7 @@ try {
         // Field-specific error messages.
         List<String> errors = state.getErrors(field);
         if (!ObjectUtils.isBlank(errors)) {
-            wp.write("<div class=\"error message\">");
+            wp.write("<div class=\"message message-error\">");
             for (String error : errors) {
                 wp.write(wp.h(error), " ");
             }
@@ -96,7 +96,7 @@ try {
         // Write out a helpful note if available.
         String noteHtml = ui.getEffectiveNoteHtml(request.getAttribute("object"));
         if (!ObjectUtils.isBlank(noteHtml)) {
-            wp.write("<small class=\"note\">");
+            wp.write("<small class=\"inputNote\">");
             wp.write(noteHtml);
             wp.write("</small>");
         }

@@ -63,7 +63,7 @@ PaginatedResult<ToolUser> users = query.select(offset, wp.intParam("limit", 10))
     </ul>
 
 <% } else { %>
-    <div class="warning message">
+    <div class="message message-warning">
         <p>No matching items!</p>
     </div>
 <% } %>

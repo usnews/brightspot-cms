@@ -42,7 +42,7 @@ for (Variation variation : variations) {
 PageWriter writer = wp.getWriter();
 
 writer.start("a",
-        "class", "action action-variation",
+        "class", "icon icon-object-variation",
         "target", "objectVariation-" + state.getId(),
         "href", wp.returnableUrl("/content/variations.jsp",
                 "typeId", type != null ? type.getId() : null,

@@ -27,6 +27,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <input id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>" type="text" value="<%= wp.h(fieldValue) %>">
 </div>

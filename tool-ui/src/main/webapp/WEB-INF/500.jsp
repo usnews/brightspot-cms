@@ -11,7 +11,7 @@ java.util.List
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 wp.include("/WEB-INF/header.jsp");
-wp.write("<div class=\"error message\">");
+wp.write("<div class=\"message message-error\">");
 wp.write("<p>There was an unexpected error!</p>");
 
 Throwable error = (Throwable) request.getAttribute("javax.servlet.error.exception");

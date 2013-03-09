@@ -86,7 +86,7 @@ public class SearchResultRenderer {
             writer.end();
 
             writer.start("form",
-                    "class", "searchForm-resultSuggestionsForm",
+                    "class", "searchSuggestionsForm",
                     "method", "post",
                     "action", page.url("/content/suggestions.jsp"),
                     "target", frameName);
@@ -100,16 +100,16 @@ public class SearchResultRenderer {
         writer.start("h2").html("Result").end();
 
         if (search.findSorts().size() > 1) {
-            writer.start("div", "class", "searchForm-resultSorter");
+            writer.start("div", "class", "searchSorter");
                 renderSorter();
             writer.end();
         }
 
-        writer.start("div", "class", "searchForm-resultPagination");
+        writer.start("div", "class", "searchPagination");
             renderPagination();
         writer.end();
 
-        writer.start("div", "class", "searchForm-resultList");
+        writer.start("div", "class", "searchResultList");
             if (result.hasItems()) {
                 renderList(result.getItems());
             } else {
@@ -220,7 +220,7 @@ public class SearchResultRenderer {
         }
 
         if (!previews.isEmpty()) {
-            writer.start("div", "class", "searchForm-resultListImages");
+            writer.start("div", "class", "searchResultImages");
                 for (Map.Entry<Object, StorageItem> entry : previews.entrySet()) {
                     renderImage(entry.getKey(), entry.getValue());
                 }
@@ -228,7 +228,7 @@ public class SearchResultRenderer {
         }
 
         if (!items.isEmpty()) {
-            writer.start("table", "class", "searchForm-resultListTable links table-striped pageThumbnails");
+            writer.start("table", "class", "searchResultTable links table-striped pageThumbnails");
                 writer.start("tbody");
                     for (Object item : items) {
                         renderRow(item);

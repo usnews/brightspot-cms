@@ -78,7 +78,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 String isNewInputId = wp.getId();
 String passwordContainerId = wp.createId();
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <select class="toggleable" id="<%= isNewInputId %>" name="<%= isNewName %>">
         <option data-hide="#<%= passwordContainerId %>" value="false"<%= wp.boolParam(isNewName) ? "" : " selected" %>>Keep Same</option>
         <option data-show="#<%= passwordContainerId %>" value="true"<%= wp.boolParam(isNewName) ? " selected" : "" %>>Change</option>

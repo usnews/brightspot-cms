@@ -21,7 +21,7 @@ wp.include(
     if (typeof jQuery !== 'undefined') (function(win, $, undef) {
         var $headerInput = $('.toolSearch :text');
         if (!$headerInput.val()) {
-            $headerInput.val($('.frame[name="miscSearch"] .searchForm-filters .searchInput :text').val()).trigger('input');
+            $headerInput.val($('.frame[name="miscSearch"] .searchFilters .searchInput :text').val()).trigger('input');
             $headerInput[0].select();
         }
     })(window, jQuery);

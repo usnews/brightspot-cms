@@ -41,7 +41,7 @@ if (wp.isFormPost()) {
     <input type="hidden" name="reload" value="<%= wp.param(boolean.class, "reload") %>">
     <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
     <div class="buttons">
-        <input type="submit" name="action" value="Save" />
-        <input class="delete text link" type="submit" name="action" value="Delete" onclick="return confirm('Are you sure you want to delete?');" />
+        <button class="action action-save" name="action" value="Save">Save</button>
+        <button class="action action-delete action-pullRight link" name="action" value="Delete" onclick="return confirm('Are you sure you want to delete?');">Delete</button>
     </div>
 </form>

@@ -1,7 +1,3 @@
-.strong {
-    font-weight: bold;
-}
-
 .block {
     display: block;
     margin: 0 0 15px 0;
@@ -22,8 +18,8 @@
 
     &:not(:last-child):after {
         color: @color-note;
-        content: ' \2192 ';
-        padding: 0 2px;
+        content: '\00a0\2192\00a0';
+        padding: 0 0.3em;
     }
 
     &.selected {
@@ -32,6 +28,8 @@
 }
 
 .button {
+    .strong;
+
     .background-image-vertical-gradient(@color-background, @color-note-lighter);
     border: 1px solid @color-note;
     .border-radius(5px);
@@ -40,7 +38,6 @@
     color: @color-link;
     cursor: pointer;
     display: inline-block;
-    font-weight: bold;
     height: 26px;
     line-height: @lineHeight-input;
     margin: 0;
@@ -91,8 +88,12 @@
                 width: @width-day;
 
                 &.calendarDay-today {
-                    background-color: @color-text;
+                    background-color: @color-note-darker;
                     color: @color-background;
+
+                    .calendarDayOfWeek {
+                        color: @color-background;
+                    }
                 }
 
                 .calendarDayOfWeek {
@@ -433,22 +434,30 @@ figure,
 .icon-user-md { &:before { content: '\f200'; } }
 
 // Standard CMS objects.
+.icon-object { .icon-file; }
 .icon-object-directory { .icon-sitemap; }
 .icon-object-draft { .icon-edit; }
 .icon-object-guide { .icon-question-sign; }
 .icon-object-history { .icon-hdd; }
 .icon-object-toolUser { .icon-user; }
+.icon-object-variation { .icon-columns; }
 .icon-object-workStream { .icon-tasks; }
 
 // Standard CMS actions.
 .icon-action-add { .icon-plus-sign; }
+.icon-action-cancel { .icon-ban-circle; }
+.icon-action-change { .icon-random; }
+.icon-action-copy { .icon-copy; }
 .icon-action-create { .icon-plus-sign; }
 .icon-action-customize { .icon-cog; }
 .icon-action-delete { .icon-trash; }
 .icon-action-edit { .icon-pencil; }
+.icon-action-logIn { .icon-signin; }
+.icon-action-logOut { .icon-signout; }
 .icon-action-preview { .icon-eye-open; }
 .icon-action-print { .icon-print; }
 .icon-action-remove { .icon-minus-sign; }
+.icon-action-save { .icon-ok; }
 .icon-action-schedule { .icon-calendar; }
 .icon-action-search { .icon-search; }
 .icon-action-share { .icon-share; }
@@ -539,12 +548,13 @@ figure,
     margin-left: 145px;
 }
 
-.inputContainer-smallInput {
+.inputSmall {
     margin-left: 140px;
     padding: 2px 2px 2px 6px;
+    position: relative;
 
-    > input[type=password],
-    > input[type=text],
+    > input[type='password'],
+    > input[type='text'],
     > textarea {
         display: block;
         width: 100%;
@@ -557,7 +567,7 @@ figure,
     }
 }
 
-.inputContainer-largeInput {
+.inputLarge {
     background-color: rgba(255, 255, 255, 0.7);
     clear: left;
     padding: 6px 0 6px 20px;
@@ -565,7 +575,7 @@ figure,
     z-index: 0;
 }
 
-.inputContainer-note {
+.inputNote {
     display: block;
     margin-left: 146px;
 
@@ -588,6 +598,7 @@ figure,
     background: transparent;
     .border-radius(0);
     border-style: none;
+    .box-shadow(none);
     color: @color-link;
     cursor: pointer;
     display: inline;
@@ -773,18 +784,22 @@ table.links.table-striped {
     margin-left: 0;
     text-align: right;
 
+    > li {
+        .paginationItem;
+    }
+
     form {
         display: inline;
     }
 }
 
-.pagination-item {
+.paginationItem {
     display: inline;
 
     &:not(:last-child):after {
         color: @color-note;
-        content: ' | ';
-        padding: 0 2px;
+        content: '\00a0|\00a0';
+        padding: 0 0.3em;
     }
 }
 
@@ -832,8 +847,8 @@ table.links.table-striped {
 
     &:not(:last-child):after {
         color: @color-note;
-        content: ' | ';
-        padding: 0 2px;
+        content: '\00a0|\00a0';
+        padding: 0 0.3em;
     }
 
     &.selected {
@@ -848,16 +863,16 @@ table.links.table-striped {
     text-align: center;
     width: 100%;
     z-index: 0;
+}
 
-    .progressBar {
-        background-color: @color-link-lighter;
-        .border-radius(3px);
-        height: 100%;
-        left: 0;
-        position: absolute;
-        top: 0;
-        z-index: -1;
-    }
+.progressBar {
+    background-color: @color-link-lighter;
+    .border-radius(3px);
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: -1;
 }
 
 .searchInput {
@@ -967,6 +982,10 @@ table.links.table-striped {
     font-size: 90%;
 }
 
+.strong {
+    font-weight: bold;
+}
+
 .text {
     background: transparent;
     border: none;
@@ -1003,9 +1022,13 @@ table.links.table-striped {
     margin-bottom: 10px;
     padding: 10px;
     position: relative;
+
+    > h1 {
+        .widgetHeading;
+    }
 }
 
-.widget-heading {
+.widgetHeading {
     .background-image-vertical-gradient(@color-background, @color-note-lighter);
     border-bottom: 1px solid darken(@color-note-lighter, 5%);
     .border-top-left-radius(5px);
@@ -1015,3 +1038,33 @@ table.links.table-striped {
     padding: 4px 10px;
     text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
 }
+
+.widgetControls {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+}
+
+.action-add { .icon; .icon-action-add; }
+.action-cancel { .icon; .icon-action-cancel; color: @color-alert; }
+.action-change { .icon; .icon-action-change; }
+.action-copy { .icon; .icon-action-copy; }
+.action-create { .icon; .icon-action-create; }
+.action-customize { .icon; .icon-action-customize; }
+.action-delete { .icon; .icon-action-delete; color: @color-alert; }
+.action-edit { .icon; .icon-action-edit; }
+.action-logIn { .icon; .icon-action-logIn; }
+.action-logOut { .icon; .icon-action-logOut; }
+.action-preview { .icon; .icon-action-preview; }
+.action-print { .icon; .icon-action-print; }
+.action-remove { .icon; .icon-action-remove; color: @color-alert; }
+.action-save { .icon; .icon-action-save; }
+.action-schedule { .icon; .icon-action-schedule; }
+.action-search { .icon; .icon-action-search; }
+.action-share { .icon; .icon-action-share; }
+.action-upload { .icon; .icon-action-upload; }
+
+.action-image-edit { .icon; .icon-magic; }
+.action-image-viewMetadata { .icon; .icon-table; }
+.action-live { .icon; .icon-bullhorn; }
+.action-tools { .icon; .icon-wrench; }

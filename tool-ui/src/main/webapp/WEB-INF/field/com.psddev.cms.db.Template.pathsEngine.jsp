@@ -44,7 +44,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <select id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>">
         <option value=""></option>
         <% for (Option engine : engines) { %>

@@ -19,7 +19,7 @@ if (ObjectUtils.isBlank(errors)) {
     return;
 }
 
-wp.write("<div class=\"error message\"><ul>");
+wp.write("<div class=\"message message-error\"><ul>");
 for (Throwable error : errors) {
     wp.write("<li>");
 

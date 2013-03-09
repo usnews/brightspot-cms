@@ -15,7 +15,7 @@
             padding: 0 6px;
             position: relative;
 
-            > .inputLabel {
+            > .repeatableLabel {
                 background-color: @color-note-lighter;
                 color: @color-text;
                 cursor: pointer;
@@ -51,7 +51,7 @@
             &.focus {
                 border-color: @color-link-lighter;
 
-                > .inputLabel {
+                > .repeatableLabel {
                     background-color: @color-link-lighter;
                 }
             }
@@ -59,7 +59,7 @@
             &.collapsed {
                 padding-bottom: 0;
 
-                > .inputLabel {
+                > .repeatableLabel {
                     border-bottom-style: none;
                     margin-bottom: 0;
 
@@ -74,7 +74,7 @@
                 border-color: #fdd;
                 padding-bottom: 0;
 
-                > .inputLabel {
+                > .repeatableLabel {
                     background-color: #fdd;
                     border-bottom-style: none;
                     color: @color-alert;
@@ -181,17 +181,15 @@
             padding: 0 6px;
             position: relative;
 
-            > .inputLabel {
+            > .repeatableLabel {
                 background-color: @color-note-lighter;
                 color: @color-text;
                 cursor: pointer;
-                float: none;
                 font-family: @fontFamily-label;
                 left: 0;
                 margin: 0 -6px 6px -6px;
                 min-height: 22px;
                 padding: 5px;
-                width: auto;
             }
 
             > .layouts {
@@ -212,7 +210,7 @@
             &.focus {
                 border-color: @color-link-lighter;
 
-                > .inputLabel {
+                > .repeatableLabel {
                     background-color: @color-link-lighter;
                 }
             }
@@ -221,7 +219,7 @@
                 border-color: #fdd;
                 padding-bottom: 0;
 
-                > .inputLabel {
+                > .repeatableLabel {
                     background-color: #fdd;
                     border-bottom-style: none;
                     color: @color-alert;

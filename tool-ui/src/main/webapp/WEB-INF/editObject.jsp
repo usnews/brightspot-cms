@@ -11,7 +11,9 @@ Object object = request.getAttribute("object");
 // --- Presentation ---
 
 wp.include("/WEB-INF/objectHeading.jsp");
-wp.include("/WEB-INF/objectVariation.jsp", "object", object);
+wp.writeStart("div", "class", "widgetControls");
+    wp.include("/WEB-INF/objectVariation.jsp", "object", object);
+wp.writeEnd();
 wp.include("/WEB-INF/objectMessage.jsp");
 wp.write("<form action=\"", wp.objectUrl("", object), "\"");
 wp.write(" autocomplete=\"off\"");

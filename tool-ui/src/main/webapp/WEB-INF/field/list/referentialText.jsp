@@ -74,7 +74,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-wp.write("<div class=\"smallInput repeatableInputs\"><ol>");
+wp.write("<div class=\"inputSmall repeatableInputs\"><ol>");
 
 if (!ObjectUtils.isBlank(fieldValue)) {
     for (ReferentialText referentialText : fieldValue) {

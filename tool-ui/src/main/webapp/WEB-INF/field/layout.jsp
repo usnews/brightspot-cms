@@ -32,6 +32,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="largeInput">
+%><div class="inputLarge">
     <textarea class="pageLayout" data-pageid="<%= selected.getId() %>" id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>"><%= wp.h(ObjectUtils.toJson(layout.toDefinition(), true)) %></textarea>
 </div>

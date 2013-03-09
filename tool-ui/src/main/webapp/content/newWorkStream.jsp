@@ -39,23 +39,25 @@ if (wp.isFormPost()) {
     }
 }
 
-wp.include("/WEB-INF/objectHeading.jsp", "object", object);
-wp.include("/WEB-INF/errors.jsp");
+wp.writeStart("div", "class", "widget");
+    wp.include("/WEB-INF/objectHeading.jsp", "object", object);
+    wp.include("/WEB-INF/errors.jsp");
 
-wp.writeStart("form",
-        "method", "post",
-        "action", wp.objectUrl("", object));
-    wp.writeTag("input",
-            "type", "hidden",
-            "name", "incompleteIfMatching",
-            wp.param(boolean.class, "incompleteIfMatching"));
-
-    wp.include("/WEB-INF/objectForm.jsp", "object", object);
-
-    wp.writeStart("div", "class", "buttons");
+    wp.writeStart("form",
+            "method", "post",
+            "action", wp.objectUrl("", object));
         wp.writeTag("input",
-                "type", "submit",
-                "value", "Save");
+                "type", "hidden",
+                "name", "incompleteIfMatching",
+                wp.param(boolean.class, "incompleteIfMatching"));
+
+        wp.include("/WEB-INF/objectForm.jsp", "object", object);
+
+        wp.writeStart("div", "class", "buttons");
+            wp.writeStart("button", "class", "action action-save");
+                wp.writeHtml("Save");
+            wp.writeEnd();
+        wp.writeEnd();
     wp.writeEnd();
 wp.writeEnd();
 %>

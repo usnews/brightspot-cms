@@ -38,7 +38,7 @@ if (!wp.param(boolean.class, "widget")) {
 
     wp.writeStart("div", "class", "buttons");
         wp.writeStart("a",
-                "class", "icon icon-tasks",
+                "class", "icon icon-object-workStream",
                 "href", wp.cmsUrl("/content/newWorkStream.jsp",
                         "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                         "incompleteIfMatching", hasMissing),
@@ -57,7 +57,7 @@ if (!wp.param(boolean.class, "widget")) {
     }
 
     writer.start("a",
-            "class", "action action-result",
+            "class", "action action-search",
             "href", StringUtils.addQueryParameters(url, "widget", null),
             "target", "miscSavedSearch");
         writer.html("Search Result");

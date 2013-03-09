@@ -172,7 +172,7 @@ try {
 
     PageWriter writer = wp.getWriter();
 
-    writer.start("div", "class", "searchForm-resultSuggestions");
+    writer.start("div", "class", "searchSuggestions");
         writer.start("h2").html("Suggestions").end();
         new SearchResultRenderer(wp, search).renderList(sortedSuggestions);
     writer.end();

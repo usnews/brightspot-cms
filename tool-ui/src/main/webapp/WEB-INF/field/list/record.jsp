@@ -120,7 +120,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 %><% if (!isValueExternal) { %>
-    <div class="largeInput repeatableForm">
+    <div class="inputLarge repeatableForm">
         <ol>
             <%
             for (Object item : fieldValue) {
@@ -173,7 +173,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         wp.writeGridCssOnce();
 
         writer.start("div",
-                "class", "largeInput repeatableLayout",
+                "class", "inputLarge repeatableLayout",
                 "id", containerId);
             writer.start("ol");
 
@@ -188,7 +188,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                             List<String> layoutNames = new ArrayList<String>(layouts.keySet());
                             Collections.sort(layoutNames);
 
-                            writer.start("div", "class", "inputLabel");
+                            writer.start("div", "class", "repeatableLabel");
                                 writer.start("select", "name", layoutsName);
                                     for (String layoutName : layoutNames) {
                                         writer.start("option",
@@ -266,7 +266,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     List<String> layoutNames = new ArrayList<String>(layouts.keySet());
                     Collections.sort(layoutNames);
 
-                    writer.start("div", "class", "inputLabel");
+                    writer.start("div", "class", "repeatableLabel");
                         writer.start("select", "name", layoutsName);
                             for (String layoutName : layoutNames) {
                                 writer.start("option",
@@ -339,7 +339,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         return;
     }
 
-    writer.start("div", "class", "smallInput repeatableObjectId" + (previewable ? " repeatableObjectId-previewable" : ""));
+    writer.start("div", "class", "inputSmall repeatableObjectId" + (previewable ? " repeatableObjectId-previewable" : ""));
         writer.start("ol");
             if (fieldValue != null) {
                 for (Object item : fieldValue) {

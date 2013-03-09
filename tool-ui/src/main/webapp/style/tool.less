@@ -199,7 +199,7 @@
     padding-top: 10px;
 }
 
-.toolFooter-build {
+.toolBuild {
     background: url(brightspot.png) no-repeat top right;
     color: @color-note-darker;
     font-family: @fontFamily-label;
@@ -209,19 +209,19 @@
     text-transform: uppercase;
 }
 
-.searchForm-container {
+.searchForm {
     overflow: hidden;
     margin: -5px;
     padding: 5px;
 }
 
-@searchForm-controls-width: 200px;
+@searchControls-width: 200px;
 
-.searchForm-controls {
+.searchControls {
     .box-sizing(border-box);
     float: left;
     padding-right: 15px;
-    width: @searchForm-controls-width;
+    width: @searchControls-width;
 
     input[type=text],
     select {
@@ -229,9 +229,8 @@
     }
 }
 
-.searchForm-filters {
+.searchFilters {
     margin-bottom: 20px;
-    margin-top: 50px;
     position: relative;
 
     form {
@@ -245,7 +244,7 @@
         width: 100%;
     }
 
-    .action-reset {
+    .action-cancel {
         .small;
 
         color: @color-alert;
@@ -309,32 +308,26 @@
     }
 }
 
-.searchForm-create {
-    select {
-        width: 65%;
-    }
-
-    input[type=submit] {
-        padding-left: 10px;
-        padding-right: 10px;
-        width: 30%;
+.searchCreate {
+    button {
+        margin-top: 5px;
     }
 }
 
-.searchForm-result {
-    margin-left: @searchForm-controls-width;
+.searchResult {
+    margin-left: @searchControls-width;
     position: relative;
 }
 
-.searchForm-resultSuggestionsForm {
+.searchSuggestionsForm {
     display: none;
 }
 
-.searchForm-resultSuggestions {
+.searchSuggestions {
     margin-bottom: 20px;
 }
 
-.searchForm-resultSorter {
+.searchSorter {
     float: left;
 
     form {
@@ -342,11 +335,11 @@
     }
 }
 
-.searchForm-resultPagination {
+.searchPagination {
     margin-bottom: 20px;
 }
 
-.searchForm-resultListImages {
+.searchResultImages {
     overflow: hidden;
 
     figure {
@@ -509,11 +502,13 @@
     margin: -10px;
     overflow: hidden;
     padding: 10px;
-}
-.withLeftNav > .leftNav {
-    float: left;
-    width: 240px;
-}
-.withLeftNav > .main {
-    margin-left: 255px;
+
+    > .leftNav {
+        float: left;
+        width: 240px;
+    }
+
+    > .main {
+        margin-left: 255px;
+    }
 }

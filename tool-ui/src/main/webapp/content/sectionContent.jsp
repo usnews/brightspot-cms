@@ -48,7 +48,7 @@ if (state != null && wp.isFormPost()) {
         <% wp.include("/WEB-INF/errors.jsp"); %>
         <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
         <div class="buttons">
-            <input type="submit" value="Save" />
+            <button class="action action-save">Save</button>
         </div>
     </form>
 

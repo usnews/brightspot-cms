@@ -217,15 +217,15 @@ $.plugin2('pageLayout', {
                             '<h1>Section: <strong class="name"></strong></h1>' +
                             '<div class="inputContainer">' +
                                 '<div class="inputLabel">Shareable?</div>' +
-                                '<div class="smallInput"><input name="isShareable" type="checkbox"></div>' +
+                                '<div class="inputSmall"><input name="isShareable" type="checkbox"></div>' +
                             '</div>' +
                             '<div class="inputContainer">' +
                                 '<div class="inputLabel">Cache Duration (in Milliseconds)</div>' +
-                                '<div class="smallInput"><input name="cacheDuration" type="text"></div>' +
+                                '<div class="inputSmall"><input name="cacheDuration" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer">' +
                                 '<div class="inputLabel">Type</div>' +
-                                '<div class="smallInput"><select class="toggleable" name="_type">' +
+                                '<div class="inputSmall"><select class="toggleable" name="_type">' +
                                     '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .hc" value="com.psddev.cms.db.HorizontalContainerSection">Container (Horizontal)</option>' +
                                     '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .vc" value="com.psddev.cms.db.VerticalContainerSection">Container (Vertical)</option>' +
                                     '<option data-hide="#sectionSettings .i" data-show="#sectionSettings .s" value="com.psddev.cms.db.ScriptSection">Script</option>' +
@@ -235,31 +235,31 @@ $.plugin2('pageLayout', {
                             '</div>' +
                             '<div class="inputContainer i hc vc s c">' +
                                 '<div class="inputLabel">Name</div>' +
-                                '<div class="smallInput"><input name="name" type="text"></div>' +
+                                '<div class="inputSmall"><input name="name" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i s c">' +
                                 '<div class="inputLabel">Engine</div>' +
-                                '<div class="smallInput"><select name="engine">' + engines + '</select></div>' +
+                                '<div class="inputSmall"><select name="engine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i s c">' +
                                 '<div class="inputLabel">Script</div>' +
-                                '<div class="smallInput"><input name="script" type="text"></div>' +
+                                '<div class="inputSmall"><input name="script" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
                                 '<div class="inputLabel">Begin Engine</div>' +
-                                '<div class="smallInput"><select name="beginEngine">' + engines + '</select></div>' +
+                                '<div class="inputSmall"><select name="beginEngine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
                                 '<div class="inputLabel">Begin Script</div>' +
-                                '<div class="smallInput"><input name="beginScript" type="text"></div>' +
+                                '<div class="inputSmall"><input name="beginScript" type="text"></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
                                 '<div class="inputLabel">End Engine</div>' +
-                                '<div class="smallInput"><select name="endEngine">' + engines + '</select></div>' +
+                                '<div class="inputSmall"><select name="endEngine">' + engines + '</select></div>' +
                             '</div>' +
                             '<div class="inputContainer i hc vc">' +
                                 '<div class="inputLabel">End Script</div>' +
-                                '<div class="smallInput"><input name="endScript" type="text"></div>' +
+                                '<div class="inputSmall"><input name="endScript" type="text"></div>' +
                             '</div>' +
                             '<div class="buttons">' +
                                 '<a class="button continueButton" href="#">Continue Editing</a>' +

@@ -107,10 +107,10 @@ if (wp.isFormPost()) {
     }
 }
 
-writer.start("div", "class", "searchForm-container");
-    writer.start("div", "class", "searchForm-controls");
+writer.start("div", "class", "searchForm");
+    writer.start("div", "class", "searchControls");
 
-        writer.start("div", "class", "searchForm-filters");
+        writer.start("div", "class", "searchFilters");
             if ((!singleType && !validTypes.isEmpty()) ||
                     !globalFilters.isEmpty() ||
                     !fieldFilters.isEmpty()) {
@@ -272,7 +272,7 @@ writer.start("div", "class", "searchForm-container");
             writer.end();
 
             writer.start("a",
-                    "class", "action-reset",
+                    "class", "action action-cancel",
                     "href", wp.url(null,
                             Search.NAME_PARAMETER, search.getName(),
                             "reset", true));
@@ -282,7 +282,7 @@ writer.start("div", "class", "searchForm-container");
         writer.end();
 
         if (!ObjectUtils.isBlank(newJsp)) {
-            writer.start("div", "class", "searchForm-create");
+            writer.start("div", "class", "searchCreate");
                 writer.start("h2").html("Create").end();
 
                 writer.start("form",
@@ -292,7 +292,9 @@ writer.start("div", "class", "searchForm-container");
 
                     if (singleType) {
                         writer.tag("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
-                        writer.tag("input", "type", "submit", "value", "New " + wp.getObjectLabel(selectedType), "style", "width: auto;");
+                        writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
+                            writer.writeHtml("New " + wp.getObjectLabel(selectedType));
+                        writer.writeEnd();
 
                     } else {
                         wp.typeSelect(
@@ -301,7 +303,9 @@ writer.start("div", "class", "searchForm-container");
                                 null,
                                 "name", "typeId",
                                 "data-searchable", true);
-                        writer.tag("input", "type", "submit", "value", "New");
+                        writer.writeStart("button", "class", "action action-create");
+                            writer.writeHtml("New");
+                        writer.writeEnd();
                     }
 
                 writer.end();
@@ -310,7 +314,7 @@ writer.start("div", "class", "searchForm-container");
 
     writer.end();
 
-    writer.start("div", "class", "searchForm-result frame", "name", resultTarget);
+    writer.start("div", "class", "searchResult frame", "name", resultTarget);
     writer.end();
 
 writer.end();

@@ -83,7 +83,7 @@ if (pathsMode == null) {
 
 %><div id="<%= widgetContainerId %>">
     <% if (!ObjectUtils.isBlank(errors)) { %>
-        <div class="error message">
+        <div class="message message-error">
             <% for (String error : errors) { %>
                 <%= wp.h(error) %>
             <% } %>
@@ -107,7 +107,7 @@ if (pathsMode == null) {
     <% } %>
 
     <div class="repeatableInputs" id="<%= manualContainerId %>">
-        <div class="warning message" id="<%= warningContainerId %>" style="display: none;">
+        <div class="message message-warning" id="<%= warningContainerId %>" style="display: none;">
             <p>More than one permalink per content isn't recommended!</p>
         </div>
 

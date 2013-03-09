@@ -32,7 +32,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 HtmlWriter writer = new HtmlWriter(wp.getWriter());
 Location location = (Location) fieldValue;
 
-writer.start("div", "class", "smallInput");
+writer.start("div", "class", "inputSmall");
     writer.string("Latitude").tag("br");
     writer.tag("input", "type", "text", "name", xInputName, "value", location != null ? location.getX() : null);
     writer.string("Longitude").tag("br");

@@ -166,6 +166,17 @@
     }
 }
 
+.inputLabel > .icon-object-guide {
+    .icon-only;
+
+    float: right;
+    color: fade(@color-text, 25%);
+
+    &:hover {
+        color: fade(@color-text, 40%);
+    }
+}
+
 .popup[name='guideType'] {
     width: 1010px;
 }
@@ -178,4 +189,10 @@
     @media print {
         visibility: visible;
     }
+}
+
+.widget-content > .icon-object-guide {
+    position: absolute;
+    right: 65px;
+    top: 7px;
 }

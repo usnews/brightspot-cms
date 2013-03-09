@@ -27,6 +27,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <textarea class="json" id="<%= wp.getId() %>" name="<%= wp.h(inputName) %>"><%= wp.h(ObjectUtils.toJson(fieldValue, true)) %></textarea>
 </div>

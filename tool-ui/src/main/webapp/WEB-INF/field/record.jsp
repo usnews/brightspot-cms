@@ -99,7 +99,7 @@ if (isEmbedded) {
     if (fieldValueType != null) {
         State fieldValueState = State.getInstance(fieldValue);
         Date fieldValuePublishDate = fieldValueState.as(Content.ObjectModification.class).getPublishDate();
-        wp.write("<div class=\"largeInput\">");
+        wp.write("<div class=\"inputLarge\">");
         wp.write("<input name=\"", wp.h(idName), "\" type=\"hidden\" value=\"", fieldValueState.getId(), "\">");
         wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", fieldValueState.getTypeId(), "\">");
         wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(fieldValuePublishDate != null ? fieldValuePublishDate.getTime() : null), "\">");
@@ -119,7 +119,7 @@ if (isEmbedded) {
         Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
 
         String validObjectClass = wp.createId();
-        wp.write("<div class=\"smallInput\">");
+        wp.write("<div class=\"inputSmall\">");
         wp.write("<select class=\"toggleable\" name=\"", wp.h(idName), "\">");
         wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\"></option>");
         for (Object validObject : validObjects) {
@@ -138,7 +138,7 @@ if (isEmbedded) {
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
             Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
-            wp.write("<div class=\"largeInput ", validObjectClass, "\" id=\"i", validState.getId(), "\">");
+            wp.write("<div class=\"inputLarge ", validObjectClass, "\" id=\"i", validState.getId(), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
             wp.include("/WEB-INF/objectForm.jsp", "object", validObject);
@@ -149,6 +149,6 @@ if (isEmbedded) {
     return;
 }
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <% wp.objectSelect(field, fieldValue, "name", inputName); %>
 </div>

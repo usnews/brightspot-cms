@@ -42,7 +42,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-wp.write("<div class=\"smallInput smallInput-text\">");
+wp.write("<div class=\"inputSmall inputSmall-text\">");
 
 Set<ObjectField.Value> validValues = field.getValues();
 if (validValues != null) {

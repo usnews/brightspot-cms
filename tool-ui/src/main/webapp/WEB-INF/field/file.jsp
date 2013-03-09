@@ -398,7 +398,7 @@ String newUploadClass = wp.createId();
 String newUrlClass = wp.createId();
 String existingClass = wp.createId();
 
-%><div class="smallInput">
+%><div class="inputSmall">
     <div class="fileSelector">
         <select class="toggleable" id="<%= wp.getId() %>" name="<%= wp.h(actionName) %>">
             <% if (fieldValue != null) { %>

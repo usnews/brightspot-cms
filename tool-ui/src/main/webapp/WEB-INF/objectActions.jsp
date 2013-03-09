@@ -13,8 +13,8 @@ State state = State.getInstance(request.getAttribute("object"));
 // --- Presentation ---
 
 %><div class="buttons">
-    <input name="action" type="submit" value="Save" />
+    <button class="action action-save" name="action" value="Save">Save</button>
     <% if (state != null && !state.isNew()) { %>
-        <input class="delete link" name="action" type="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?');" />
+        <button class="action action-delete action-pullRight link" name="action" value="Delete" onclick="return confirm('Are you sure you want to delete?');">Delete</button>
     <% } %>
 </div>

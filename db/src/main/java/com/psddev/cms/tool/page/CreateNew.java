@@ -136,13 +136,13 @@ public class CreateNew extends PageServlet {
                     page.writeEnd();
 
                     page.writeStart("div", "class", "actions");
-                        page.writeTag("input",
-                                "class", "action",
-                                "type", "submit",
-                                "value", "Save");
+                        page.writeStart("button",
+                                "class", "action action-save");
+                            page.writeHtml("Save");
+                        page.writeEnd();
 
                         page.writeStart("a",
-                                "class", "action action-pullRight",
+                                "class", "action action-cancel action-pullRight",
                                 "href", page.url(null));
                             page.writeHtml("Cancel");
                         page.writeEnd();
@@ -200,9 +200,9 @@ public class CreateNew extends PageServlet {
 
                         page.writeHtml(" ");
 
-                        page.writeTag("input",
-                                "type", "submit",
-                                "value", "New");
+                        page.writeStart("button", "class", "action action-create");
+                            page.writeHtml("New");
+                        page.writeEnd();
                     page.writeEnd();
                 }
             }
