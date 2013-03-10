@@ -1235,14 +1235,18 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Returns {@code true} if the {@linkplain #getUser() current user}
+     * Returns {@code true} if the {@linkplain #getUser current user}
      * is allowed access to the resources identified by the given
      * {@code permissionId}.
+     *
+     * @param If {@code null}, returns {@code true}.
      */
     public boolean hasPermission(String permissionId) {
         ToolUser user = getUser();
 
-        return user != null ? user.hasPermission(permissionId) : false;
+        return user != null &&
+                (permissionId == null ||
+                user.hasPermission(permissionId));
     }
 
     public boolean requirePermission(String permissionId) throws IOException {
