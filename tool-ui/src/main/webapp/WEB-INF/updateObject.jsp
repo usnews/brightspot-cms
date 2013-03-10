@@ -11,6 +11,6 @@ java.util.Date
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 if (wp.include("/WEB-INF/objectSave.jsp")) {
-} else if (wp.include("/WEB-INF/objectDelete.jsp")) {
+} else if (wp.tryDelete()) {
 }
 %>

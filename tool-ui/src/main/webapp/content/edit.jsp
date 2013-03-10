@@ -124,7 +124,7 @@ if (workStream != null) {
     State.getInstance(editing).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
 
-if (wp.include("/WEB-INF/objectDelete.jsp", "object", editing)
+if (wp.tryDelete(editing)
         || wp.include("/WEB-INF/objectDraft.jsp", "object", editing)
         || wp.include("/WEB-INF/objectPublish.jsp", "object", editing)) {
     return;

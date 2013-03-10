@@ -1171,6 +1171,38 @@ public class ToolPageContext extends WebPageContext {
         return this;
     }
 
+    /**
+     * Tries to delete the given {@code object} if the user has ask for it
+     * in the current request.
+     *
+     * @return {@code true} if the delete is tried.
+     */
+    public boolean tryDelete(Object object) {
+        if (!(isFormPost() &&
+                (param(String.class, "action-delete") != null ||
+                "delete".equalsIgnoreCase(param(String.class, "action"))))) {
+            return false;
+        }
+
+        try {
+            Draft draft = getOverlaidDraft(object);
+
+            if (draft != null) {
+                draft.delete();
+                redirect("", "discarded", System.currentTimeMillis());
+
+            } else {
+                deleteSoftly(object);
+                redirect("", "id", null, "saved", null);
+            }
+
+        } catch (Exception error) {
+            getErrors().add(error);
+        }
+
+        return true;
+    }
+
     // --- AuthenticationFilter bridge ---
 
     /** @see AuthenticationFilter.Static#requireUser */
