@@ -82,7 +82,7 @@ public class RecentActivity extends PageServlet {
             writer.writeStart("h1").writeHtml("Recent Activity").writeEnd();
 
             writer.writeStart("form",
-                    "class", "recentActivity-filters autoSubmit",
+                    "class", "recentActivity-filters",
                     "method", "get",
                     "action", page.url(null));
 
@@ -101,7 +101,7 @@ public class RecentActivity extends PageServlet {
                 writer.writeEnd();
 
                 writer.writeStart("span", "class", "recentActivity-filters-type");
-                    writer.writeStart("select", "name", "type");
+                    writer.writeStart("select", "class", "autoSubmit", "name", "type");
                         for (Type t : Type.values()) {
                             if (t != Type.ROLE || Query.from(ToolRole.class).first() != null) {
                                 writer.writeStart("option",
