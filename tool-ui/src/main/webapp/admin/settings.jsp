@@ -5,7 +5,6 @@ com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.Tool,
 com.psddev.cms.tool.ToolPageContext,
-com.psddev.cms.tool.Plugin,
 com.psddev.cms.tool.Widget,
 
 com.psddev.dari.db.Application,
@@ -85,15 +84,6 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
                         select()) { %>
                     <li<%= marker.equals(selected) ? " class=\"selected\"" : "" %>>
                         <a href="<%= wp.objectUrl(null, marker) %>"><%= wp.objectLabel(marker) %></a>
-                    </li>
-                <% } %>
-            </ul>
-
-            <h2>Plugins</h2>
-            <ul class="links">
-                <% for (Plugin plugin : Tool.Static.getPlugins()) { %>
-                    <li<%= plugin.equals(selected) ? " class=\"selected\"" : "" %>>
-                        <a href="<%= wp.objectUrl(null, plugin) %>"><%= wp.objectLabel(plugin) %></a>
                     </li>
                 <% } %>
             </ul>
