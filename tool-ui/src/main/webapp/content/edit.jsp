@@ -215,7 +215,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 </div>
 
                 <% if (!State.getInstance(editing).isNew()) { %>
-                    <div class="widget-content-new">
+                    <div class="widget-contentCreate">
                         <div class="action action-create">New</div>
                         <ul>
                             <li><a class="action action-create" href="<%= wp.url("/content/edit.jsp",
@@ -679,7 +679,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 if ($preview.is(':visible')) {
                     if (!$toggle) {
                         $toggle = $('<span/>', {
-                            'class': 'fieldPreview-toggle'
+                            'class': 'fieldPreviewToggle'
                         });
 
                         $.data($container[0], 'fieldPreview-$toggle', $toggle);
@@ -691,7 +691,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 }
             });
 
-            $edit.delegate('.inputContainer .fieldPreview-toggle', 'click', function() {
+            $edit.delegate('.inputContainer .fieldPreviewToggle', 'click', function() {
                 var $toggle = $(this),
                         $container = $toggle.closest('.inputContainer');
 
@@ -717,8 +717,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     'color': ''
                 });
 
-                $('.fieldPreview-target[data-name="' + name + '"]').remove();
-                $('.fieldPreview-paths[data-name="' + name + '"]').remove();
+                $('.fieldPreviewTarget[data-name="' + name + '"]').remove();
+                $('.fieldPreviewPaths[data-name="' + name + '"]').remove();
             });
 
             $edit.delegate('.inputContainer', 'fieldPreview-toggle', function(event, $source) {
@@ -752,7 +752,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                 // Draw arrows between the label and the previews.
                 $paths = $('<canvas/>', {
-                    'class': 'fieldPreview-paths',
+                    'class': 'fieldPreviewPaths',
                     'data-name': name,
                     'css': {
                         'left': 0,
@@ -808,7 +808,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     targetOffset = $target.offset();
 
                     $body.append($('<span/>', {
-                        'class': 'fieldPreview-target',
+                        'class': 'fieldPreviewTarget',
                         'data-name': name,
                         'css': {
                             'outline-color': color,

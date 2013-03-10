@@ -23,12 +23,12 @@ public class BulkUpload extends PageServlet {
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
         page.getWriter();
 
-        page.writeStart("div", "class", "widget upload-droppable");
+        page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();
             page.writeStart("div", "class", "message");
                 page.writeHtml("Drag and drop or ");
                 page.writeStart("a",
-                        "class", "upload-link",
+                        "class", "uploadableLink",
                         "href", page.url("/content/uploadFiles", "typeId", ObjectType.getInstance(Content.class).getId()),
                         "target", "uploadFiles");
                     page.writeHtml("select");

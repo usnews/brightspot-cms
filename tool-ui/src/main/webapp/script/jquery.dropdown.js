@@ -122,8 +122,8 @@ $.plugin2('dropDown', {
             $input.add($marker).add($list).toggleClass(plugin.className('input-larger'), inputLarger);
             $input.addClass(plugin.className('list-open'));
 
-            $list.find('.' + plugin.className('listItem')).removeClass('hover');
-            $list.find('.' + plugin.className('listItem') + (isMultiple ? ':first' : ':has(:checked)')).addClass('hover');
+            $list.find('.' + plugin.className('listItem')).removeClass('state-hover');
+            $list.find('.' + plugin.className('listItem') + (isMultiple ? ':first' : ':has(:checked)')).addClass('state-hover');
 
             if ($openList) {
                 $openList.trigger('dropDown-close');
@@ -145,10 +145,10 @@ $.plugin2('dropDown', {
         });
 
         $list.bind('dropDown-hover', function(event, $item) {
-            $list.find('.' + plugin.className('listItem')).removeClass('hover');
+            $list.find('.' + plugin.className('listItem')).removeClass('state-hover');
 
             if ($item) {
-                $item.addClass('hover');
+                $item.addClass('state-hover');
             }
         });
 
@@ -329,7 +329,7 @@ $doc.keydown(function(event) {
             LIST_ITEM_CLASS = $openOriginal.dropDown('className', 'listItem');
 
             if (isUp || which === 40) {
-                $hover = $openList.find('.hover:visible.' + LIST_ITEM_CLASS).eq(0);
+                $hover = $openList.find('.state-hover:visible.' + LIST_ITEM_CLASS).eq(0);
 
                 if ($hover.length === 0) {
                     $hover = $openList.find(':visible.' + LIST_ITEM_CLASS).eq(isUp ? -1 : 0);
@@ -361,7 +361,7 @@ $doc.keydown(function(event) {
                 return false;
 
             } else if (which === 13) {
-                $openList.find('.hover.' + LIST_ITEM_CLASS).click();
+                $openList.find('.state-hover.' + LIST_ITEM_CLASS).click();
 
                 return false;
 

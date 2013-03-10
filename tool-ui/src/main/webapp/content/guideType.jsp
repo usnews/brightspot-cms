@@ -176,7 +176,7 @@
 </style>
 
 <% if (!wp.param(boolean.class, "popup")) { %>
-    <div class="widget widget-content">
+    <div class="widget">
 <% } %>
 
     <h1 class="icon-page_white_find">
@@ -473,7 +473,6 @@
                             List<Template> relatedTemplates = Guide.Static
                                     .getRelatedTemplates(selected, pg);
                             if (relatedTemplates != null && !relatedTemplates.isEmpty()) {
-                                //wp.write("<div class=\"widget widget-content\">");
                                 wp.write("<h3>Related Templates - Click on a Template Name to View Summary</h3>");
 
                                 // Display samples of related templates
@@ -727,7 +726,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
 
           // Create the canvas area where line can be drawn
           $paths = $('<canvas/>', {
-                      'class': 'fieldPreview-paths',
+                      'class': 'fieldPreviewPaths',
                       'id' : 'pgCanvas',
                       'css': {
                              'left': 0,

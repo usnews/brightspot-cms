@@ -216,12 +216,12 @@ $doc.onCreate('.inputContainer', function() {
     $container.on('input change', function() {
         var $target = $(this);
 
-        $target.toggleClass('changed', initialValues !== getValues());
+        $target.toggleClass('state-changed', initialValues !== getValues());
 
         $target.parents().each(function() {
             var $parent = $(this);
 
-            $parent.toggleClass('changed', $parent.find('.changed').length > 0);
+            $parent.toggleClass('state-changed', $parent.find('.state-changed').length > 0);
         });
     });
 });
@@ -325,7 +325,7 @@ $doc.delegate('.exception > *', 'click', function() {
 $doc.delegate(':input', 'focus', function() {
     var $parents = $(this).parentsUntil('form');
 
-    $parents.addClass('focus');
+    $parents.addClass('state-focus');
 
     $win.bind('scroll.focus', $.run($.throttle(100, function() {
         var $label = $('.focusLabel'),
@@ -373,8 +373,8 @@ $doc.delegate(':input', 'blur', function() {
     var $label = $('.focusLabel');
 
     $label.hide();
-    $(this).parents('.focus').removeClass('focus');
-    $win.unbind('.focus');
+    $(this).parents('.state-focus').removeClass('state-focus');
+    $win.unbind('.state-focus');
 });
 
 // Handle file uploads from drag-and-drop.
@@ -395,7 +395,7 @@ $doc.delegate(':input', 'blur', function() {
 
         // Cover is required to detect mouse leaving the window.
         $cover = $('<div/>', {
-            'class': 'upload-cover',
+            'class': 'uploadableCover',
             'css': {
                 'left': 0,
                 'height': '100%',
@@ -415,8 +415,8 @@ $doc.delegate(':input', 'blur', function() {
         $cover.bind('dragleave', function() {
             docEntered = false;
             $cover.remove();
-            $('.upload-dropZone').remove();
-            $('.upload-fileInput').remove();
+            $('.uploadableDrop').remove();
+            $('.uploadableFile').remove();
         });
 
         $cover.bind('drop', function(event) {
@@ -428,9 +428,9 @@ $doc.delegate(':input', 'blur', function() {
         $body.append($cover);
 
         // Valid file drop zones.
-        $('.inputContainer .action-upload, .upload-droppable .upload-link').each(function() {
+        $('.inputContainer .action-upload, .uploadable .uploadableLink').each(function() {
             var $upload = $(this),
-                    $container = $upload.closest('.inputContainer, .upload-droppable'),
+                    $container = $upload.closest('.inputContainer, .uploadable'),
                     overlayCss,
                     $dropZone,
                     $dropLink,
@@ -444,7 +444,7 @@ $doc.delegate(':input', 'blur', function() {
             });
 
             $dropZone = $('<div/>', {
-                'class': 'upload-dropZone',
+                'class': 'uploadableDrop',
                 'css': overlayCss
             });
 
@@ -452,7 +452,7 @@ $doc.delegate(':input', 'blur', function() {
             $dropLink.text("Drop Files Here");
 
             $fileInputContainer = $('<div/>', {
-                'class': 'upload-fileInput',
+                'class': 'uploadbleFile',
                 'css': $.extend(overlayCss, {
                     'z-index': 2000000
                 })

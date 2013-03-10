@@ -479,7 +479,7 @@ figure,
     white-space: pre-wrap;
 
     &:focus,
-    &.focus {
+    &.state-focus {
         border-color: @color-link-lighter;
         .box-shadow(@color-link-lighter 0 0 4px);
     }
@@ -500,13 +500,13 @@ figure,
         margin-bottom: 5px;
     }
 
-    &.changed {
+    &.state-changed {
         > .inputLabel {
             background-color: #ed9;
         }
     }
 
-    &.focus {
+    &.state-focus {
         > .inputLabel {
             background-color: @color-link-lighter;
         }
@@ -999,12 +999,12 @@ table.links.table-striped {
     width: auto;
 
     &:focus,
-    &.focus {
+    &.state-focus {
         .box-shadow(none);
     }
 
     &:hover,
-    &.hover {
+    &.state-hover {
         text-decoration: none;
     }
 }
