@@ -16,7 +16,7 @@ import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "/content/editableSections.jsp")
 @SuppressWarnings("serial")
-public class EditableSections extends PageServlet {
+public class ContentSections extends PageServlet {
 
     @Override
     protected String getPermissionId() {
