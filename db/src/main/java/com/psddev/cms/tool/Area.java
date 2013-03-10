@@ -82,8 +82,10 @@ public class Area extends Plugin {
             Collections.sort(areas, new Comparator<Area>() {
                 @Override
                 public int compare(Area x, Area y) {
-                    int xUrlLength = x.getUrl().length();
-                    int yUrlLength = y.getUrl().length();
+                    String xUrl = x.getUrl();
+                    String yUrl = y.getUrl();
+                    int xUrlLength = xUrl != null ? xUrl.length() : 0;
+                    int yUrlLength = yUrl != null ? yUrl.length() : 0;
                     return xUrlLength < yUrlLength ? 1 : xUrlLength > yUrlLength ? -1 : 0;
                 }
             });

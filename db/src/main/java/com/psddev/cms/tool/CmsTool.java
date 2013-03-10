@@ -330,7 +330,7 @@ public class CmsTool extends Tool {
 
         // Areas.
         plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
-        plugins.add(createArea2("Admin", "admin", "admin", "/admin/"));
+        plugins.add(createArea2("Admin", "admin", "admin", null));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));

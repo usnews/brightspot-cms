@@ -935,10 +935,13 @@ public class ToolPageContext extends WebPageContext {
                                     continue;
                                 }
 
+                                String topUrl = top.getUrl();
+                                String topLabel = getObjectLabel(top);
+
                                 writeStart("li",
                                         "class", (top.hasChildren() ? " isNested" : "") + (top.isSelected(getTool(), servletPath) ? " selected" : ""));
-                                    writeStart("a", "href", toolUrl(top.getTool(), top.getUrl()));
-                                        writeHtml(getObjectLabel(top));
+                                    writeStart("a", "href", topUrl == null ? "#" : toolUrl(top.getTool(), topUrl));
+                                        writeHtml(topLabel);
                                     writeEnd();
 
                                     if (top.hasChildren()) {
