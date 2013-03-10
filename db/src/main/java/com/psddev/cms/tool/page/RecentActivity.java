@@ -87,7 +87,7 @@ public class RecentActivity extends PageServlet {
                     "action", page.url(null));
 
                 writer.writeStart("span", "class", "recentActivity-filters-itemType");
-                    page.typeSelect(
+                    page.writeTypeSelect(
                             Template.Static.findUsedTypes(page.getSite()),
                             itemType,
                             "Everything",

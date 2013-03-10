@@ -134,7 +134,7 @@ writer.start("div", "class", "searchForm");
                 writer.tag("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
 
                 if (!singleType && !validTypes.isEmpty()) {
-                    wp.typeSelect(
+                    wp.writeTypeSelect(
                             validTypes,
                             selectedType,
                             "All Types",
@@ -297,7 +297,7 @@ writer.start("div", "class", "searchForm");
                         writer.writeEnd();
 
                     } else {
-                        wp.typeSelect(
+                        wp.writeTypeSelect(
                                 validTypes,
                                 selectedType,
                                 null,

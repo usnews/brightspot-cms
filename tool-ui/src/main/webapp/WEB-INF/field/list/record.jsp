@@ -344,12 +344,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (fieldValue != null) {
                 for (Object item : fieldValue) {
                     writer.start("li");
-                        wp.objectSelect(field, item, "name", inputName);
+                        wp.writeObjectSelect(field, item, "name", inputName);
                     writer.end();
                 }
             }
             writer.start("li", "class", "template");
-                wp.objectSelect(field, null, "name", inputName);
+                wp.writeObjectSelect(field, null, "name", inputName);
             writer.end();
         writer.end();
 

@@ -150,5 +150,5 @@ if (isEmbedded) {
 }
 
 %><div class="inputSmall">
-    <% wp.objectSelect(field, fieldValue, "name", inputName); %>
+    <% wp.writeObjectSelect(field, fieldValue, "name", inputName); %>
 </div>
