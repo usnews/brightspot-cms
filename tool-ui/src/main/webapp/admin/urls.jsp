@@ -52,7 +52,7 @@ PaginatedResult<Object> items = Query
     <div class="leftNav">
 
         <div class="widget">
-            <h1>URLs</h1>
+            <h1 class="icon icon-object-directory">URLs</h1>
             <ul class="links">
                 <li class="new<%= State.getInstance(selected).isNew() ? " selected" : "" %>">
                     <a href="<%= wp.url(null) %>">New Directory</a>

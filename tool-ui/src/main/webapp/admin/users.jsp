@@ -37,7 +37,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     <div class="leftNav">
 
         <div class="widget">
-            <h1>Users</h1>
+            <h1 class="icon icon-object-toolUser">Users</h1>
 
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolUser.class && selectedState.isNew() ? " selected" : "" %>">
@@ -60,7 +60,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
         </div>
 
         <div class="widget">
-            <h1>Roles</h1>
+            <h1 class="icon icon-object-toolRole">Roles</h1>
             <ul class="links">
                 <li class="new<%= selected.getClass() == ToolRole.class && selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.typeUrl(null, ToolRole.class) %>">New Role</a>

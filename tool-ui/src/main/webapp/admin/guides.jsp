@@ -54,7 +54,7 @@ wp.include("/WEB-INF/header.jsp"); %>
     <div class="leftNav">
         <div class="widget">
 
-            <h1>Production Guides</h1>
+            <h1 class="icon icon-object-guide">Production Guides</h1>
 
             <h2>Overall Guides</h2>
             <ul class="links">

@@ -36,7 +36,7 @@ List<Workflow> workflows = Query.from(Workflow.class).sortAscending("name").sele
     <div class="leftNav">
         <div class="widget">
 
-            <h1>Workflows</h1>
+            <h1 class="icon icon-object-workflow">Workflows</h1>
 
             <h2>Statuses</h2>
             <ul class="links">

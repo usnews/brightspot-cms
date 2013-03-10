@@ -48,7 +48,7 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
     <div class="leftNav">
 
         <div class="widget">
-            <h1>Settings</h1>
+            <h1 class="icon icon-cogs">Settings</h1>
 
             <h2>Applications</h2>
             <ul class="links">

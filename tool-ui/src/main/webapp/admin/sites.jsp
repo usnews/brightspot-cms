@@ -31,7 +31,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     <div class="leftNav">
         <div class="widget">
 
-            <h1>Sites</h1>
+            <h1 class="icon icon-object-site">Sites</h1>
             <ul class="links">
                 <li class="new<%= selectedState.isNew() ? " selected" : "" %>">
                     <a href="<%= wp.url(null) %>">New Site</a>

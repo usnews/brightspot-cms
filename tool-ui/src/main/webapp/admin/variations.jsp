@@ -53,7 +53,7 @@ List<Profile> profiles = Query.from(Profile.class).sortAscending("name").select(
     <div class="leftNav">
         <div class="widget">
 
-            <h1>Variations &amp; Profiles</h1>
+            <h1 class="icon icon-object-variation">Variations &amp; Profiles</h1>
 
             <h2>Variations</h2>
             <ol class="links">

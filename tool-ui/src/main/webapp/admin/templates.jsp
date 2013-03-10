@@ -37,7 +37,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     <div class="leftNav">
 
         <div class="widget">
-            <h1>Templates &amp; Sections</h1>
+            <h1 class="icon icon-object-template">Templates &amp; Sections</h1>
 
             <h2>Templates</h2>
             <ul class="links">
