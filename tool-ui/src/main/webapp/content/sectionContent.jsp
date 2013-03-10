@@ -41,7 +41,7 @@ if (state != null && wp.isFormPost()) {
             "resultJsp", "/content/sectionContentResult.jsp"); %>
 
 <% } else { %>
-    <% wp.include("/WEB-INF/objectHeading.jsp", "object", object); %>
+    <% wp.writeFormHeading(object); %>
 
     <form action="<%= wp.url("", "typeId", state.getTypeId(), "id", state.getId()) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
         <p><a class="icon icon-arrow_switch" href="<%= wp.url("", "typeId", null, "id", null) %>">Change Content</a>

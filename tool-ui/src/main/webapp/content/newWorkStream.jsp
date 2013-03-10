@@ -40,7 +40,7 @@ if (wp.isFormPost()) {
 }
 
 wp.writeStart("div", "class", "widget");
-    wp.include("/WEB-INF/objectHeading.jsp", "object", object);
+    wp.writeFormHeading(object);
     wp.include("/WEB-INF/errors.jsp");
 
     wp.writeStart("form",

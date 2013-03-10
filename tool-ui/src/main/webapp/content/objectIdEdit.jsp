@@ -36,7 +36,7 @@ StorageItem preview = state.getPreview();
 // --- Presentation ---
 
 wp.writeHeader();
-wp.include("/WEB-INF/objectHeading.jsp", "object", object);
+wp.writeFormHeading(object);
 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
     wp.writeStart("div", "class", "widgetControls");
         wp.write("<a class=\"action-edit\" href=\"");

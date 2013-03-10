@@ -28,7 +28,7 @@ if (wp.isFormPost()) {
 
 // --- Presentation ---
 
-%><% wp.include("/WEB-INF/objectHeading.jsp", "object", object); %>
+wp.writeFormHeading(object); %>
 
 <p style="position: absolute; right: 15px; top: 8px;"><a class="icon icon-pencil" href="<%= wp.objectUrl("/content/edit.jsp", object) %>" target="_blank">Edit in Full</a></p>
 

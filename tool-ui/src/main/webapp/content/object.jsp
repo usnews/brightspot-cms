@@ -35,7 +35,7 @@ if (wp.isFormPost()) {
 
 // --- Presentation ---
 
-%><% wp.include("/WEB-INF/objectHeading.jsp", "object", object); %>
+wp.writeFormHeading(object); %>
 <% wp.include("/WEB-INF/errors.jsp"); %>
 <form action="<%= wp.objectUrl("", object) %>" enctype="multipart/form-data" method="post">
     <input type="hidden" name="reload" value="<%= wp.param(boolean.class, "reload") %>">

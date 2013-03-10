@@ -10,7 +10,7 @@ Object object = request.getAttribute("object");
 
 // --- Presentation ---
 
-wp.include("/WEB-INF/objectHeading.jsp");
+wp.writeFormHeading(object);
 wp.writeStart("div", "class", "widgetControls");
     wp.include("/WEB-INF/objectVariation.jsp", "object", object);
 wp.writeEnd();

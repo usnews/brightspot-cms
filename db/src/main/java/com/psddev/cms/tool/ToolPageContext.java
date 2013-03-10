@@ -1172,6 +1172,31 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes the heading that precedes the form to create or update the
+     * given {@code object}.
+     *
+     * @param attributes Extra attributes for the heading element.
+     */
+    public void writeFormHeading(Object object, Object... attributes) throws IOException {
+        String typeLabel = getTypeLabel(object);
+
+        writeStart("h1",
+                "class", "icon icon-object",
+                attributes);
+            if (State.getInstance(object).isNew()) {
+                writeHtml("New ");
+                writeHtml(typeLabel);
+
+            } else {
+                writeHtml("Edit ");
+                writeHtml(typeLabel);
+                writeHtml(": ");
+                writeHtml(getObjectLabel(object));
+            }
+        writeEnd();
+    }
+
+    /**
      * Tries to delete the given {@code object} if the user has ask for it
      * in the current request.
      *
