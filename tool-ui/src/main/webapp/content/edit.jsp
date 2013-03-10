@@ -188,7 +188,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     if (selected instanceof Page) {
                         wp.writeStart("span", "class", "breadcrumbItem");
-                            wp.write("<a href=\"");
+                            wp.write("<a class=\"icon icon-object-template\" href=\"");
                             wp.write(wp.returnableUrl("/content/editableSections.jsp"));
                             wp.write("\" target=\"contentPageSections-");
                             wp.write(state.getId());
