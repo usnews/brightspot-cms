@@ -19,53 +19,47 @@ public interface Renderer extends Recordable {
     public static class TypeModification extends Modification<ObjectType> {
 
         @InternalName("renderScript")
-        private String modulePath;
+        private String path;
 
-        private String pagePath;
+        private String layoutPath;
 
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
             return (String) getState().get("cms.defaultRecordJsp");
         }
 
-        /**
-         * Returns the servlet path used to render instances of this type
-         * as a module.
-         */
-        public String getModulePath() {
-            if (ObjectUtils.isBlank(modulePath)) {
+        /** Returns the servlet path used to render instances of this type. */
+        public String getPath() {
+            if (ObjectUtils.isBlank(path)) {
                 String jsp = getDefaultRecordJsp();
 
                 if (!ObjectUtils.isBlank(jsp)) {
-                    modulePath = jsp;
+                    path = jsp;
                 }
             }
 
-            return modulePath;
+            return path;
+        }
+
+        /** Returns the servlet path used to render instances of this type. */
+        public void setPath(String path) {
+            this.path = path;
         }
 
         /**
-         * Sets the servlet path used to render instances of this type
-         * as a module.
+         * Returns the servlet path used to render the layout around the
+         * instances of this type.
          */
-        public void setModulePath(String modulePath) {
-            this.modulePath = modulePath;
+        public String getLayoutPath() {
+            return layoutPath;
         }
 
         /**
-         * Returns the servlet path used to render instances of this type
-         * as a page.
+         * Sets the servlet path used to render the layout around the
+         * instances of this type.
          */
-        public String getPagePath() {
-            return pagePath;
-        }
-
-        /**
-         * Sets the servlet path used to render instances of this type
-         * as a page.
-         */
-        public void setPagePath(String pagePath) {
-            this.pagePath = pagePath;
+        public void setLayoutPath(String layoutPath) {
+            this.layoutPath = layoutPath;
         }
 
         // --- Deprecated ---
@@ -102,16 +96,16 @@ public interface Renderer extends Recordable {
             this.engine = engine;
         }
 
-        /** @deprecated Use {@link #getModulePath} instead. */
+        /** @deprecated Use {@link #getPath} instead. */
         @Deprecated
         public String getScript() {
-            return getModulePath();
+            return getPath();
         }
 
-        /** @deprecated Use {@link #setModulePath} instead. */
+        /** @deprecated Use {@link #setPath} instead. */
         @Deprecated
         public void setScript(String script) {
-            setModulePath(script);
+            setPath(script);
         }
     }
 
@@ -121,10 +115,10 @@ public interface Renderer extends Recordable {
      */
     @Documented
     @Inherited
-    @ObjectType.AnnotationProcessorClass(ModulePathProcessor.class)
+    @ObjectType.AnnotationProcessorClass(PathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface ModulePath {
+    public @interface Path {
         String value();
     }
 
@@ -134,10 +128,10 @@ public interface Renderer extends Recordable {
      */
     @Documented
     @Inherited
-    @ObjectType.AnnotationProcessorClass(PagePathProcessor.class)
+    @ObjectType.AnnotationProcessorClass(LayoutPathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface PagePath {
+    public @interface LayoutPath {
         String value();
     }
 
@@ -154,7 +148,7 @@ public interface Renderer extends Recordable {
         String value();
     }
 
-    /** @deprecated Use {@link ModulePath} instead. */
+    /** @deprecated Use {@link Path} instead. */
     @Deprecated
     @Documented
     @Inherited
@@ -166,17 +160,17 @@ public interface Renderer extends Recordable {
     }
 }
 
-class ModulePathProcessor implements ObjectType.AnnotationProcessor<Renderer.ModulePath> {
+class PathProcessor implements ObjectType.AnnotationProcessor<Renderer.Path> {
     @Override
-    public void process(ObjectType type, Renderer.ModulePath annotation) {
-        type.as(Renderer.TypeModification.class).setModulePath(annotation.value());
+    public void process(ObjectType type, Renderer.Path annotation) {
+        type.as(Renderer.TypeModification.class).setPath(annotation.value());
     }
 }
 
-class PagePathProcessor implements ObjectType.AnnotationProcessor<Renderer.PagePath> {
+class LayoutPathProcessor implements ObjectType.AnnotationProcessor<Renderer.LayoutPath> {
     @Override
-    public void process(ObjectType type, Renderer.PagePath annotation) {
-        type.as(Renderer.TypeModification.class).setPagePath(annotation.value());
+    public void process(ObjectType type, Renderer.LayoutPath annotation) {
+        type.as(Renderer.TypeModification.class).setLayoutPath(annotation.value());
     }
 }
 

@@ -357,7 +357,7 @@ public class PageFilter extends AbstractFilter {
             if (page == null) {
                 State state = State.getInstance(mainObject);
                 ObjectType type = state.getType();
-                String script = type.as(Renderer.TypeModification.class).getModulePath();
+                String script = type.as(Renderer.TypeModification.class).getPath();
 
                 if (!ObjectUtils.isBlank(script)) {
                     page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
@@ -461,7 +461,7 @@ public class PageFilter extends AbstractFilter {
             String rendererPath = page.getRendererPath();
 
             if (ObjectUtils.isBlank(rendererPath)) {
-                rendererPath = page.as(Renderer.TypeModification.class).getModulePath();
+                rendererPath = page.as(Renderer.TypeModification.class).getPath();
             }
 
             if (!ObjectUtils.isBlank(rendererPath)) {
@@ -987,7 +987,7 @@ public class PageFilter extends AbstractFilter {
                 if (type != null) {
                     Renderer.TypeModification typeRenderer = type.as(Renderer.TypeModification.class);
                     engine = typeRenderer.getEngine();
-                    script = typeRenderer.getModulePath();
+                    script = typeRenderer.getPath();
                 }
             }
         }

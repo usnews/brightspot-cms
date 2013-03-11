@@ -161,7 +161,7 @@ public class ToolPageContext extends WebPageContext {
 
                 if (type != null) {
                     return Template.Static.findUsedTypes(getSite()).contains(type) ||
-                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getModulePath());
+                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getPath());
                 }
             }
         }
