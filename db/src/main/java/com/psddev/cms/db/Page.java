@@ -19,10 +19,6 @@ public class Page extends Content {
     @Required
     private String name;
 
-    private String rendererPath;
-    private List<Area> areas;
-    private transient Map<String, Area> areasMap;
-
     /** Returns the unique name. */
     public String getName() {
         return name;
@@ -33,17 +29,58 @@ public class Page extends Content {
         this.name = name;
     }
 
-    /** Returns the renderer path. */
+    // --- Deprecated ---
+
+    @Deprecated
+    @DisplayName("Layout")
+    @InternalName("layout.v2")
+    @ToolUi.FieldDisplayType("layout")
+    @ToolUi.NoteHtml("Deprecated. Please use <code>@Renderer.LayoutPath</code> instead.")
+    private Layout layout;
+
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please use <code>@Renderer.LayoutPath</code> instead.")
+    private String rendererPath;
+
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please extend <code>com.psddev.cms.db.Page</code> instead.")
+    private List<Area> areas;
+
+    private transient Map<String, Area> areasMap;
+
+    /** @deprecated Use {@link Renderer.LayoutPath} instead. */
+    @Deprecated
+    public Layout getLayout() {
+        if (layout == null) {
+            Section legacySection = resolveReference(Section.class, getState().getValue("layout"));
+            if (legacySection != null) {
+                layout = new Layout();
+                layout.setOutermostSection(convertLegacySection(layout, legacySection));
+            }
+        }
+        return layout;
+    }
+
+    /** @deprecated Use {@link Renderer.LayoutPath} instead. */
+    @Deprecated
+    public void setLayout(Layout layout) {
+        this.layout = layout;
+    }
+
+    /** @deprecated Use {@link Renderer.LayoutPath} instead. */
+    @Deprecated
     public String getRendererPath() {
         return rendererPath;
     }
 
-    /** Sets the renderer path. */
+    /** @deprecated Use {@link Renderer.LayoutPath} instead. */
+    @Deprecated
     public void setRendererPath(String rendererPath) {
         this.rendererPath = rendererPath;
     }
 
-    /** Returns the areas. */
+    /** @deprecated Extend {@link Page} instead. */
+    @Deprecated
     public Map<String, Area> getAreas() {
         if (areas == null) {
             areas = new ArrayList<Area>();
@@ -61,82 +98,14 @@ public class Page extends Content {
         return areasMap;
     }
 
-    /** Sets the areas. */
+    /** @deprecated Extend {@link Page} instead. */
+    @Deprecated
     public void setAreas(List<Area> areas) {
         this.areas = areas;
         this.areasMap = null;
     }
 
-    @Embedded
-    public static class Area extends Record {
-
-        private String displayName;
-        private String internalName;
-        private List<Content> contents;
-
-        /** Returns the display name. */
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        /** Sets the display name. */
-        public void setDisplayName(String displayName) {
-            this.displayName = displayName;
-        }
-
-        /** Returns the internal name. */
-        public String getInternalName() {
-            return internalName;
-        }
-
-        /** Sets the internal name. */
-        public void setInternalName(String internalName) {
-            this.internalName = internalName;
-        }
-
-        /** Returns the contents. */
-        public List<Content> getContents() {
-            if (contents == null) {
-                contents = new ArrayList<Content>();
-            }
-            return contents;
-        }
-
-        /** Sets the contents. */
-        public void setContents(List<Content> contents) {
-            this.contents = contents;
-        }
-    }
-
-    // --- Deprecated ---
-
-    @Deprecated
-    @DisplayName("Layout")
-    @InternalName("layout.v2")
-    @ToolUi.FieldDisplayType("layout")
-    @ToolUi.Note("Deprecated. Please use Renderer Path and Areas instead.")
-    private Layout layout;
-
-    /** @deprecated Use {@link #getRendererPath} and {@link #getAreas} instead. */
-    @Deprecated
-    public Layout getLayout() {
-        if (layout == null) {
-            Section legacySection = resolveReference(Section.class, getState().getValue("layout"));
-            if (legacySection != null) {
-                layout = new Layout();
-                layout.setOutermostSection(convertLegacySection(layout, legacySection));
-            }
-        }
-        return layout;
-    }
-
-    /** @deprecated Use {@link #setRendererPath} and {@link #setAreas} instead. */
-    @Deprecated
-    public void setLayout(Layout layout) {
-        this.layout = layout;
-    }
-
-    /** @deprecated Use {@link #getAreas} instead. */
+    /** @deprecated No replacement. */
     @Deprecated
     public Iterable<Section> findSections() {
         List<Section> sections = new ArrayList<Section>();
@@ -159,7 +128,7 @@ public class Page extends Content {
         }
     }
 
-    /** @deprecated Use {@link #getRendererPath} and {@link #getAreas} instead. */
+    /** @deprecated Use {@link Renderer.LayoutPath} instead. */
     @Deprecated
     @Embedded
     @SuppressWarnings("all")
@@ -360,6 +329,49 @@ public class Page extends Content {
             return (T) reference;
         } else {
             return null;
+        }
+    }
+
+    /** @deprecated Extend {@link Page} instead. */
+    @Deprecated
+    @Embedded
+    public static class Area extends Record {
+
+        private String displayName;
+        private String internalName;
+        private List<Content> contents;
+
+        /** Returns the display name. */
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        /** Sets the display name. */
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        /** Returns the internal name. */
+        public String getInternalName() {
+            return internalName;
+        }
+
+        /** Sets the internal name. */
+        public void setInternalName(String internalName) {
+            this.internalName = internalName;
+        }
+
+        /** Returns the contents. */
+        public List<Content> getContents() {
+            if (contents == null) {
+                contents = new ArrayList<Content>();
+            }
+            return contents;
+        }
+
+        /** Sets the contents. */
+        public void setContents(List<Content> contents) {
+            this.contents = contents;
         }
     }
 }
