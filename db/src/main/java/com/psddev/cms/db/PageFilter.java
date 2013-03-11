@@ -352,30 +352,14 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
+            State mainState = State.getInstance(mainObject);
+            ObjectType mainType = mainState.getType();
             Page page = Static.getPage(request);
 
-            if (page == null) {
-                State state = State.getInstance(mainObject);
-                ObjectType type = state.getType();
-                String script = type.as(Renderer.TypeModification.class).getPath();
-
-                if (!ObjectUtils.isBlank(script)) {
-                    page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
-                }
-
-                if (page == null) {
-                    if (Settings.isProduction()) {
-                        chain.doFilter(request, response);
-                        return;
-
-                    } else {
-                        throw new IllegalStateException(String.format(
-                                "No template for [%s] [%s]! (ID: %s)",
-                                mainObject.getClass().getName(),
-                                state.getLabel(),
-                                state.getId().toString().replaceAll("-", "")));
-                    }
-                }
+            if (page == null &&
+                    mainType != null &&
+                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getPath())) {
+                page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
             PrintWriter writer = response.getWriter();
@@ -458,20 +442,37 @@ public class PageFilter extends AbstractFilter {
                 request.getSession();
             }
 
-            String rendererPath = page.getRendererPath();
+            String layoutPath = mainType != null ? mainType.as(Renderer.TypeModification.class).getLayoutPath() : null;
 
-            if (ObjectUtils.isBlank(rendererPath)) {
-                rendererPath = page.as(Renderer.TypeModification.class).getPath();
+            if (page != null && ObjectUtils.isBlank(layoutPath)) {
+                layoutPath = page.as(Renderer.TypeModification.class).getLayoutPath();
+
+                if (ObjectUtils.isBlank(layoutPath)) {
+                    layoutPath = page.getRendererPath();
+                }
             }
 
-            if (!ObjectUtils.isBlank(rendererPath)) {
-                JspUtils.include(request, response, writer, StringUtils.ensureStart(rendererPath, "/"));
+            if (!ObjectUtils.isBlank(layoutPath)) {
+                JspUtils.include(request, response, writer, StringUtils.ensureStart(layoutPath, "/"));
 
-            } else {
+            } else if (page != null) {
                 Page.Layout layout = page.getLayout();
 
                 if (layout != null) {
                     renderSection(request, response, html, layout.getOutermostSection());
+                }
+
+            } else {
+                if (Settings.isProduction()) {
+                    chain.doFilter(request, response);
+                    return;
+
+                } else {
+                    throw new IllegalStateException(String.format(
+                            "No template for [%s] [%s]! (ID: %s)",
+                            mainObject.getClass().getName(),
+                            mainState.getLabel(),
+                            mainState.getId().toString().replaceAll("-", "")));
                 }
             }
 
