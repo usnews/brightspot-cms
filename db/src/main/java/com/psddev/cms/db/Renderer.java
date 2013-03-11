@@ -6,15 +6,38 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
 public interface Renderer extends Recordable {
 
-    /** Modification of a type to add rendering information. */
+    /** Global modification that stores rendering hints. */
+    @FieldInternalNamePrefix("cms.renderable.")
+    public static class Data extends Modification<Object> {
+
+        public Map<String, List<String>> listLayouts;
+
+        public Map<String, List<String>> getListLayouts() {
+            if (listLayouts == null) {
+                listLayouts = new HashMap<String, List<String>>();
+            }
+            return listLayouts;
+        }
+
+        public void setListLayouts(Map<String, List<String>> listLayouts) {
+            this.listLayouts = listLayouts;
+        }
+    }
+
+    /** Type modification that stores how objects should be rendered. */
     @FieldInternalNamePrefix("cms.render.")
     public static class TypeModification extends Modification<ObjectType> {
 
@@ -110,6 +133,26 @@ public interface Renderer extends Recordable {
     }
 
     /**
+     * Field modification that stores how field values should be
+     * rendered.
+     */
+    public static class FieldData extends Modification<ObjectField> {
+
+        private Map<String, List<String>> listLayouts;
+
+        public Map<String, List<String>> getListLayouts() {
+            if (listLayouts == null) {
+                listLayouts = new HashMap<String, List<String>>();
+            }
+            return listLayouts;
+        }
+
+        public void setListLayouts(Map<String, List<String>> listLayouts) {
+            this.listLayouts = listLayouts;
+        }
+    }
+
+    /**
      * Specifies the servlet path used to render instances of the target type
      * as a module.
      */
@@ -133,6 +176,23 @@ public interface Renderer extends Recordable {
     @Target(ElementType.TYPE)
     public @interface LayoutPath {
         String value();
+    }
+
+    @Documented
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface ListLayout {
+        String name();
+        Class<?>[] itemClasses();
+    }
+
+    @Documented
+    @Inherited
+    @ObjectField.AnnotationProcessorClass(ListLayoutsProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ListLayouts {
+        String[] value() default { };
+        ListLayout[] map() default { };
     }
 
     // --- Deprecated ---
@@ -174,6 +234,30 @@ class LayoutPathProcessor implements ObjectType.AnnotationProcessor<Renderer.Lay
     }
 }
 
+class ListLayoutsProcessor implements ObjectField.AnnotationProcessor<Renderer.ListLayouts> {
+    @Override
+    public void process(ObjectType type, ObjectField field, Renderer.ListLayouts annotation) {
+        String[] value = annotation.value();
+        Renderer.ListLayout[] map = annotation.map();
+
+        Map<String, List<String>> listLayouts = field.as(Renderer.FieldData.class).getListLayouts();
+
+        for (String layoutName : value) {
+            listLayouts.put(layoutName, new ArrayList<String>());
+        }
+
+        for (Renderer.ListLayout layout : map) {
+            List<String> layoutItems = new ArrayList<String>();
+            listLayouts.put(layout.name(), layoutItems);
+
+            for (Class<?> itemClass : layout.itemClasses()) {
+                layoutItems.add(itemClass.getName());
+            }
+        }
+    }
+}
+
+@Deprecated
 class EngineProcessor implements ObjectType.AnnotationProcessor<Renderer.Engine> {
     @Override
     public void process(ObjectType type, Renderer.Engine annotation) {
@@ -181,6 +265,7 @@ class EngineProcessor implements ObjectType.AnnotationProcessor<Renderer.Engine>
     }
 }
 
+@Deprecated
 class ScriptProcessor implements ObjectType.AnnotationProcessor<Renderer.Script> {
     @Override
     public void process(ObjectType type, Renderer.Script annotation) {

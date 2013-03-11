@@ -7,50 +7,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 
+/** @deprecated Use {@link Renderer} instead. */
+@Deprecated
 public interface Renderable extends Recordable {
 
-    @FieldInternalNamePrefix("cms.renderable.")
-    public static class Data extends Modification<Object> {
-
-        public Map<String, List<String>> listLayouts;
-
-        public Map<String, List<String>> getListLayouts() {
-            if (listLayouts == null) {
-                listLayouts = new HashMap<String, List<String>>();
-            }
-            return listLayouts;
-        }
-
-        public void setListLayouts(Map<String, List<String>> listLayouts) {
-            this.listLayouts = listLayouts;
-        }
-    }
-
-    public static class FieldData extends Modification<ObjectField> {
-
-        private Map<String, List<String>> listLayouts;
-
-        public Map<String, List<String>> getListLayouts() {
-            if (listLayouts == null) {
-                listLayouts = new HashMap<String, List<String>>();
-            }
-            return listLayouts;
-        }
-
-        public void setListLayouts(Map<String, List<String>> listLayouts) {
-            this.listLayouts = listLayouts;
-        }
-    }
-
+    /** @deprecated Use {@link Renderer.ListLayout} instead. */
+    @Deprecated
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     public @interface ListLayout {
@@ -58,9 +27,11 @@ public interface Renderable extends Recordable {
         Class<?>[] itemClasses();
     }
 
+    /** @deprecated Use {@link Renderer.ListLayouts} instead. */
+    @Deprecated
     @Documented
     @Inherited
-    @ObjectField.AnnotationProcessorClass(ListLayoutsProcessor.class)
+    @ObjectField.AnnotationProcessorClass(RenderableListLayoutsProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface ListLayouts {
@@ -69,13 +40,14 @@ public interface Renderable extends Recordable {
     }
 }
 
-class ListLayoutsProcessor implements ObjectField.AnnotationProcessor<Renderable.ListLayouts> {
+@Deprecated
+class RenderableListLayoutsProcessor implements ObjectField.AnnotationProcessor<Renderable.ListLayouts> {
     @Override
     public void process(ObjectType type, ObjectField field, Renderable.ListLayouts annotation) {
         String[] value = annotation.value();
         Renderable.ListLayout[] map = annotation.map();
 
-        Map<String, List<String>> listLayouts = field.as(Renderable.FieldData.class).getListLayouts();
+        Map<String, List<String>> listLayouts = field.as(Renderer.FieldData.class).getListLayouts();
 
         for (String layoutName : value) {
             listLayouts.put(layoutName, new ArrayList<String>());

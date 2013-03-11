@@ -1,7 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
-com.psddev.cms.db.Renderable,
+com.psddev.cms.db.Renderer,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.ToolPageContext,
@@ -108,8 +108,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             }
         }
 
-        if (!ObjectUtils.isBlank(field.as(Renderable.FieldData.class).getListLayouts())) {
-            state.as(Renderable.Data.class).getListLayouts().put(fieldName, wp.params(String.class, layoutsName));
+        if (!ObjectUtils.isBlank(field.as(Renderer.FieldData.class).getListLayouts())) {
+            state.as(Renderer.Data.class).getListLayouts().put(fieldName, wp.params(String.class, layoutsName));
         }
     }
 
@@ -165,7 +165,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     }
 
     PageWriter writer = wp.getWriter();
-    Map<String, List<String>> layouts = field.as(Renderable.FieldData.class).getListLayouts();
+    Map<String, List<String>> layouts = field.as(Renderer.FieldData.class).getListLayouts();
 
     if (layouts != null && !layouts.isEmpty()) {
         String containerId = wp.createId();
@@ -177,7 +177,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 "id", containerId);
             writer.start("ol");
 
-                List<String> fieldLayoutNames = state.as(Renderable.Data.class).getListLayouts().get(fieldName);
+                List<String> fieldLayoutNames = state.as(Renderer.Data.class).getListLayouts().get(fieldName);
 
                 if (fieldLayoutNames != null) {
                     int itemIndex = 0;

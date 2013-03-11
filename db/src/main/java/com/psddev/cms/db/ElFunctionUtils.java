@@ -52,6 +52,6 @@ public final class ElFunctionUtils {
     }
 
     public static List<String> listLayouts(Object object, String field) {
-        return State.getInstance(object).as(Renderable.Data.class).getListLayouts().get(field);
+        return State.getInstance(object).as(Renderer.Data.class).getListLayouts().get(field);
     }
 }
