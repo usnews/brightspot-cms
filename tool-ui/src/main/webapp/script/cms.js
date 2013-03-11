@@ -523,7 +523,7 @@ $doc.ready(function() {
     $(this).trigger('create');
 
     // Add the name of the sub-selected item on the main nav.
-    $('.mainNav .selected').each(function() {
+    $('.toolNav .selected').each(function() {
         var $selected = $(this),
                 $subList = $selected.find('> ul'),
                 $subSelected = $subList.find('> .selected > a'),
@@ -538,7 +538,7 @@ $doc.ready(function() {
     });
 
     // Don't allow main nav links to be clickable if they have any children.
-    $('.mainNav li.isNested > a').click(function() {
+    $('.toolNav li.isNested > a').click(function() {
         return false;
     });
 
