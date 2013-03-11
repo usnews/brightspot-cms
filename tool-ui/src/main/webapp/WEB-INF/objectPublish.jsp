@@ -35,7 +35,7 @@ try {
 
     state.beginWrites();
     wp.include("/WEB-INF/objectPost.jsp", "object", object);
-    wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object);
+    wp.updateUsingAllWidgets(object);
 
     UUID variationId = wp.uuidParam("variationId");
     if (variationId != null) {

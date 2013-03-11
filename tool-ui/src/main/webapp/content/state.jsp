@@ -48,7 +48,7 @@ State editingState = State.getInstance(editing);
 try {
     editingState.beginWrites();
     wp.include("/WEB-INF/objectPost.jsp", "object", editing);
-    wp.include("/WEB-INF/widgetsUpdate.jsp", "object", editing);
+    wp.updateUsingAllWidgets(editing);
     wp.publish(editing);
 } catch (Exception error) {
 } finally {

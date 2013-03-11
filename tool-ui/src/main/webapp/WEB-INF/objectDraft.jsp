@@ -38,7 +38,7 @@ try {
 
     state.beginWrites();
     wp.include("/WEB-INF/objectPost.jsp", "object", object);
-    wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object);
+    wp.updateUsingAllWidgets(object);
 
     if (draft == null || draft.getSchedule() != null) {
         draft = new Draft();

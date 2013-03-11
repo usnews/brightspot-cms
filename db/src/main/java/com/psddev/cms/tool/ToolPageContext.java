@@ -51,6 +51,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.util.BuildDebugServlet;
+import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -1197,6 +1198,45 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(getObjectLabel(object));
             }
         writeEnd();
+    }
+
+    /**
+     * Updates the given {@code object} using all widgets with the data from
+     * the current request.
+     *
+     * @param object Can't be {@code null}.
+     */
+    @SuppressWarnings("deprecation")
+    public void updateUsingAllWidgets(Object object) throws Exception {
+        ErrorUtils.errorIfNull(object, "object");
+
+        State state = State.getInstance(object);
+        List<String> requestWidgets = params(String.class, state.getId() + "/_widget");
+
+        if (requestWidgets.isEmpty()) {
+            return;
+        }
+
+        DependencyResolver<Widget> widgets = new DependencyResolver<Widget>();
+
+        for (Widget widget : Tool.Static.getPluginsByClass(Widget.class)) {
+            widgets.addRequired(widget, widget.getUpdateDependencies());
+        }
+
+        for (Widget widget : widgets.resolve()) {
+            for (String requestWidget : requestWidgets) {
+                if (widget.getInternalName().equals(requestWidget)) {
+                    widget.update(this, object);
+                    break;
+                }
+            }
+        }
+
+        Page.Layout layout = (Page.Layout) getRequest().getAttribute("layoutHack");
+
+        if (layout != null) {
+            ((Page) object).setLayout(layout);
+        }
     }
 
     /**
