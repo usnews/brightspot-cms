@@ -182,12 +182,3 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 </div>
 
-<div class="span3 dari-docs-sidebar">
-<div markdown="1" style="position:scroll;" class="well sidebar-nav">
-
-
-* auto-gen TOC:
-{:toc}
-
-</div>
-</div>

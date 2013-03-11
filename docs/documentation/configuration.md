@@ -1,11 +1,10 @@
 ---
-layout: documentation
+layout: default
 title: Configuration
 id: configuration
 section: documentation
 ---
 
-## Configuration
 
 There are a number of configuration properties that control Dari at runtime.
 Optional values will have a reasonable default value.  These settings can be
@@ -16,18 +15,22 @@ configured in `settings.properties` or for a servlet container like Tomcat, in
 
 To enable debug tools add the following to your web.xml:
 
-    <filter>
-        <filter-name>ApplicationFilter</filter-name>
-        <filter-class>com.psddev.dari.db.ApplicationFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>ApplicationFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>ERROR</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
+<div class="highlight">{% highlight java %}
+
+<filter>
+    <filter-name>ApplicationFilter</filter-name>
+    <filter-class>com.psddev.dari.db.ApplicationFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>ApplicationFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>ERROR</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>REQUEST</dispatcher>
+</filter-mapping>
+
+{% endhighlight %}</div>
 
 ### Database Configuration
 
@@ -91,13 +94,14 @@ All database specific configuration parameters are prefixed with
 > Enable or disable compression of Dari object data in the database. Dari uses the Snappy
 > compression library for compression. To use this you must include
 > Snappy in your pom.xml file as follows:
->
+
+<div class="highlight">{% highlight java %}
         <dependency>
             <groupId>org.iq80.snappy</groupId>
             <artifactId>snappy</artifactId>
             <version>0.2</version>
         </dependency>
-
+{% endhighlight %}</div>
 > *The default is false.* We recommend only enabling compression if you
 > know your dataset is large (over 50GB).
 
@@ -153,6 +157,7 @@ Solr.
 This is an example configuration that reads from a MySQL slave and writes to a
 MySQL master. Solr is configured to read and write to the same host.
 
+<div class="highlight">{% highlight java %}
     # Aggregate Database Configuration
     dari/defaultDatabase = production
     dari/database/production/defaultDelegate = sql
@@ -173,6 +178,7 @@ MySQL master. Solr is configured to read and write to the same host.
     dari/database/production/delegate/solr/class = com.psddev.dari.db.SolrDatabase
     dari/database/production/delegate/solr/serverUrl = http://solr.mycompany.com/solr
 
+{% endhighlight %}</div>
 ### Solr Database Configuration
 
 **Key:** `dari/database/{databaseName}/class` **Type:** `java.lang.String`

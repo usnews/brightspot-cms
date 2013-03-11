@@ -4,8 +4,6 @@ title: Debugging
 id: debugging
 ---
 
-## Debugging
-
 
 ### Contextual Debugger 
 
