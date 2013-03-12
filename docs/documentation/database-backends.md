@@ -1,11 +1,10 @@
 ---
-layout: documentation
+layout: default
 title: Database Backends
-id: backends
+id: databaseBackends
 section: documentation
 ---
-
-## Database Backends
+<div markdown="1" class="span12">
 
 Dari is designed in such a way that it can have multiple storage
 backends. It can, and usually does, use several of them at once. For

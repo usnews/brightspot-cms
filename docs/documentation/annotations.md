@@ -6,7 +6,7 @@ section: documentation
 ---
 
 
-<div markdown="1" class="span9">
+<div markdown="1" class="span12">
 
 Annotations provide information on how a particular field or model class
 should behave. The most commonly used annotations are `@Indexed` and

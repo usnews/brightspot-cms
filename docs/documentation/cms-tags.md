@@ -4,10 +4,11 @@ title: CMS Tags
 id: cms-tags
 ---
 
+<div markdown="1" class="span12">
 
 There are several unique CMS tags that can be used when building the JSP files for your project. These can be included with `<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>`
 
-**cms:img**
+## cms:img
 
 Used to display an image file added within the CMS. Objects or a URL can be passed in to the src attribute provided the image class contains `getUrl()`.
 
@@ -49,7 +50,7 @@ Used to display an image file added within the CMS. Objects or a URL can be pass
 
 {% endhighlight %}</div>
 
-**cms:a**
+## cms:a
 
 A tag for creating links, much like a normal `a href`. If the object has a defined URL, passing the object itself will be all that is required.
 
@@ -71,7 +72,7 @@ A tag for creating links, much like a normal `a href`. If the object has a defin
 
 {% endhighlight %}</div>
 
-**cms:render**
+## cms:render
 
 Used to render areas of ReferentialText, it can be implemented in the following way:
 
@@ -79,7 +80,7 @@ Used to render areas of ReferentialText, it can be implemented in the following 
 
 This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine. This can also render any `Referencable` modules added to the RTE.
 
-**cms:cache**
+## cms:cache
 
 Specify a duration (milliseconds) for an item to be cached. Within the CMS Template tool this feature has a UI control element for each section.
 
@@ -104,7 +105,7 @@ Specify a duration (milliseconds) for an item to be cached. Within the CMS Templ
  
 {% endhighlight %}</div>
 
-**cms:resource**
+## cms:resource
 
 The `cms:resource` function allows files to be automatically uploaded to your default CDN on their first view.
 

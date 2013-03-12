@@ -4,7 +4,7 @@ title: Configuration
 id: configuration
 section: documentation
 ---
-
+<div markdown="1" class="span12">
 
 There are a number of configuration properties that control Dari at runtime.
 Optional values will have a reasonable default value.  These settings can be
