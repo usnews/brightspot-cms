@@ -5,7 +5,7 @@ id: cms-tools-dev
 section: cms-tools-dev
 ---
 
-## CMS Developer Tools
+<div markdown="1" class="span12">
 
 With Brightspot CMS there are a number of tools that make life easier for the developer. We're going to take a look at the Wireframe and Preview Tool, both of which assist when building out page templates.
 
