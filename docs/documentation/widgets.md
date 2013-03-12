@@ -5,9 +5,12 @@ id: extendingBrightspot
 section: documentation
 ---
 
+<div markdown="1" class="span12">
+
 You can add your own Tools, Applications or Settings to Brightspot. By extending the Tool class you can add new areas (Top Navigation) and Dashboard and Remote Widgets, as well as Application specific settings, such as email addresses for form submissions, Analytics IDs etc.
 
-#### Adding a Dashboard Widget
+
+## Adding a Dashboard Widget
 
 A dashboard widget can be added for all users, providing the ability to customize a tool that is immediately available when first logged in.
 
@@ -56,7 +59,7 @@ Render your widget content here.
 </div>
 {% endhighlight %}</div>
 	
-#### Adding a Content Editor Widget
+## Adding a Content Editor Widget
 
 The content edit view has several widgets that come as standard within Brightspot. New widgets can be added, allowing new actions or information to be made available when creating or editing content.
 
@@ -97,7 +100,7 @@ The widget can be placed on the right side, or directly below the content.
 <a id="tool-widget"></a> 
 The title of the widget defined in the Java will act as the title. Note, the widget will only appear if the JSP has content within it, so if after rebuilding your project and running `_debug/init` it isn't appearing, make sure to test with some placeholder text.
 
-#### Custom Application Settings
+## Custom Application Settings
 
 Application settings can be configured from within the CMS by creating a class to extend the default Tool class.
 
@@ -166,7 +169,7 @@ A basic example of an application setting that you may want to access within a J
 
 <a id="menu-widget"></a>
 
-#### Adding a Tab or Menu Item
+## Adding a Tab or Menu Item
 
 **Adding a new Main Tab (Area)**
 
