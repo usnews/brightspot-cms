@@ -178,7 +178,7 @@ writer.start("div", "class", "searchForm");
                 writer.end();
 
                 if (selectedType == null) {
-                    writer.start("div", "class", "searchFilters searchFilters-global");
+                    writer.start("div", "class", "searchFiltersGlobal");
                         for (ObjectType filter : globalFilters) {
                             String filterId = filter.getId().toString();
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
@@ -198,7 +198,7 @@ writer.start("div", "class", "searchForm");
                     writer.end();
 
                 } else {
-                    writer.start("div", "class", "searchFilters searchFilters-local");
+                    writer.start("div", "class", "searchFiltersLocal");
                         if (!fieldFilters.isEmpty()) {
                             writer.start("div", "class", "searchMissing");
                                 writer.html("Missing?");
