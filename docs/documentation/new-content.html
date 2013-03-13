@@ -9,11 +9,9 @@ section: documentation
     <div class="container">
         <div class="row header">
             <div class="span12">
-                <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish. In this section we are going to look at how to model your objects, and the corresponding UI that is created within the CMS.</br></br>
+                <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish. In this section we are going to look at how to model your objects, and the corresponding UI that is created within the CMS.</br>
 
-                This guide will use an example project as a guide to creating new objects and getting started developing with Brightspot. If you haven't already, download the <a href="#">example project</a> to follow along.
-
-                </br><h2>Creating an object</h2>Having installed Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the <a target="_blank" href="/search.html">Search tool</a>. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object.</p>
+                <h2>Creating an object</h2>Having <a href="/installation.html">installed</a> Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the <a target="_blank" href="/search.html">Search tool</a>. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object.</p>
 
 
 <div class="highlight">{% highlight java %}package com.psddev.brightspot;
@@ -32,6 +30,8 @@ public class Article extends Content {
     private List<Tag> tags;
     private Set<String> keywords;
 
+    // Getters and Setters
+
 }{% endhighlight %}</div>
 
 
@@ -40,7 +40,7 @@ public class Article extends Content {
 
             <div class="highlight center span12" style="padding-top: 10px;">
                 <h2>Standard User Interface</h2>
-                    Standard Java elements are converted into a Brightspot user interface, as the example below shows. Adding <code>String</code> provides a text field, and associating an object simply requires a reference to it, <code>private Author author;</code>. The example below shows other options available, all of them standard Java</br>
+                    Standard Java elements are converted into a Brightspot user interface, as the example below shows. Adding <code>String</code> provides a text field, and associating an object simply requires a reference to it, <code>private Author author;</code>. The example below shows other options available, all of them standard Java.</br>
             <div class="highlight-line left" style="top: 168px; width: 300px;">
             <div class="highlight-box">
                     <div class="title" style="width: 300px;">Text Field, Objects & Calendar Widget</div>
@@ -59,7 +59,7 @@ public class Article extends Content {
 
             <div class="highlight center span12" style="padding-top: 10px;">
                 <h2>Dari User Interface Objects</h2>
-                There are two elements that are not standard Java types, the first <code>ReferentialText</code> provides a rich text editor interface, the second <code>StorageItem</code> allows a file, such as an image, to be uploaded/stored.</br>
+                There are two elements that are not standard Java types, the first, <code>ReferentialText</code>, provides a rich text editor interface, the second <code>StorageItem</code> allows a file, such as an image, to be uploaded/stored. Note, storage configurations can be seen <a href="/configuration.html">here</a>.</br></br>
             <div class="highlight-line left" style="top: 185px; width: 300px;">
             <div class="highlight-box">
                     <div class="title" style="width: 300px;">Rich Text Editor</div>
@@ -79,7 +79,7 @@ public class Article extends Content {
 
             <div class="highlight center span12" style="padding-top: 10px;">
                 <h2>Advanced User Interface</h2>
-                More advanced user interfaces can be build, using annotations. Below we have created some examples, an embedded type, and a dynamic label field.</br>
+                More advanced user interfaces can be built, with the help of annotations. Below we have created some examples, an embedded type, and a dynamic label field.</br>
             <div class="highlight-line left" style="top: 175px; width: 300px;">
             <div class="highlight-box">
                     <div class="title" style="width: 300px;">Embedded Objects</div>
@@ -121,7 +121,7 @@ public class Article extends Content {
 <p></br></br>The <code>@Indexed</code> annotation is key in defining data that you want to be able to query.
 It is a common mistake to get carried away and add the @Indexed annotation to all the fields on every class you create. Doing so creates extra potentially unnecessary rows in the underlying database and can lead to poor performance in systems with large amounts of data. Only add the annotation to fields that you think you will query on. We have added the annotation to the Author property, as we may want to query for all the articles by a particular author. For more information on Querying with Brightspot see the dedicated <a href="querying.html">Querying</a> section. </p>
 
-</br><p><h2>Associating Objects</h2>Once you have your first object created you can add a second. In our example we have an Author object that is associated with each Article. Associate an object by naming it as a return type in your Java class, <code>private Author author;</code>. </br></br>With objects created we can start to use annotations to control aspects of them. For example, every object within Brightspot has a LabelField, which is used to automatically create a label. As a default, the first text string field within an object is used. This label is used when returning search results within the CMS. </br></br>Our Author object is a good example of when to override the default LabelField, to help label the object more clearly. Our Author object has two fields, <code>firstName</code> and <code>lastName</code>. When an Author shows up in our search results we can only see the first name, as it is the first string text field. This can be fixed to show the two names, as the example below shows: </p>
+<p><h2>Associating Objects</h2>Once you have your first object created you can add a second. In our example we have an Author object that is associated with each Article. Associate an object by naming it as a return type in your Java class, <code>private Author author;</code>. </br></br>With objects created we can start to use annotations to control aspects of them. For example, every object within Brightspot has a LabelField, which is used to automatically create a label. As a default, the first text string field within an object is used. This label is used when returning search results within the CMS. </br></br>Our Author object is a good example of when to override the default LabelField, to help label the object more clearly. Our Author object has two fields, <code>firstName</code> and <code>lastName</code>. When an Author shows up in our search results we can only see the first name, as it is the first string text field. This can be fixed to show the two names, as the example below shows: </p>
 
 
 <div class="highlight">{% highlight java %}@LabelFields({"firstName", "lastName"})
