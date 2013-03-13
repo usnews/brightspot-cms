@@ -191,6 +191,7 @@ writer.start("div", "class", "searchForm");
                                         "placeholder", "Filter: " + filter.getDisplayName(),
                                         "data-editable", false,
                                         "data-label", filterState != null ? filterState.getLabel() : null,
+                                        "data-restorable", false,
                                         "data-typeIds", filterId,
                                         "value", filterState != null ? filterState.getId() : null);
                             writer.end();
@@ -255,6 +256,7 @@ writer.start("div", "class", "searchForm");
                                             "data-editable", false,
                                             "data-label", fieldState != null ? fieldState.getLabel() : null,
                                             "data-pathed", ToolUi.isOnlyPathed(field),
+                                            "data-restorable", false,
                                             "data-searcher-path", fieldUi.getInputSearcherPath(),
                                             "data-typeIds", fieldTypeIds,
                                             "value", search.getFieldFilters().get(fieldName));

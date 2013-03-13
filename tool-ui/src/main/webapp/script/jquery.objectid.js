@@ -98,11 +98,18 @@ $.plugin2('objectId', {
 
                         var currentValue = $input.val();
                         if (currentValue) {
-                            previousValue = currentValue;
-                            $selectButton.addClass('toBeRemoved');
-                            $editButton.addClass('toBeRemoved');
-                            $clearButton.addClass('restore');
-                            $clearButton.text('Restore');
+                            if ($input.attr('data-restorable') === 'false') {
+                                $input.removeAttr('data-label');
+                                $input.removeAttr('data-preview');
+
+                            } else {
+                                previousValue = currentValue;
+                                $selectButton.addClass('toBeRemoved');
+                                $editButton.addClass('toBeRemoved');
+                                $clearButton.addClass('restore');
+                                $clearButton.text('Restore');
+                            }
+
                             $input.val('');
                             $input.change();
 
