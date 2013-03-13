@@ -5,7 +5,7 @@ id: querying
 section: documentation
 ---
 
-<div markdown="1" class="span9">
+<div markdown="1" class="span8">
 
 Through Dari, Brightspot provides a database-abstraction API that lets you retrieve 
 content. Queries are represented by instances of the Dari Query class. This
@@ -321,7 +321,7 @@ PaginatedResult<Venue> venues = Query.from(Venue.class).
 
 </div>
 
-<div class="span3 dari-docs-sidebar">
+<div class="span4 dari-docs-sidebar">
 <div markdown="1" style="position:scroll;" class="well sidebar-nav">
 
 
@@ -330,4 +330,3 @@ PaginatedResult<Venue> venues = Query.from(Venue.class).
 
 </div>
 </div>
-

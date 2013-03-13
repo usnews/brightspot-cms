@@ -4,15 +4,17 @@ title: CMS Tags
 id: cms-tags
 ---
 
-## CMS Tags
+<div markdown="1" class="span12">
 
 There are several unique CMS tags that can be used when building the JSP files for your project. These can be included with `<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>`
 
-**cms:img**
+## cms:img
 
 Used to display an image file added within the CMS. Objects or a URL can be passed in to the src attribute provided the image class contains `getUrl()`.
 
 `<cms:img src="${content.photo}" size="internalCropName"/>`
+
+<div class="highlight">{% highlight java %}
 
 	<tag>
         <name>img</name>
@@ -46,12 +48,15 @@ Used to display an image file added within the CMS. Objects or a URL can be pass
         </attribute>
     </tag>
 
+{% endhighlight %}</div>
 
-**cms:a**
+## cms:a
 
 A tag for creating links, much like a normal `a href`. If the object has a defined URL, passing the object itself will be all that is required.
 
 `<cms:a href="${objectName}"></cms:a>`
+
+<div class="highlight">{% highlight java %}
     
     <tag>
         <name>a</name>
@@ -65,7 +70,9 @@ A tag for creating links, much like a normal `a href`. If the object has a defin
         </attribute>
     </tag>
 
-**cms:render**
+{% endhighlight %}</div>
+
+## cms:render
 
 Used to render areas of ReferentialText, it can be implemented in the following way:
 
@@ -73,13 +80,13 @@ Used to render areas of ReferentialText, it can be implemented in the following 
 
 This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine. This can also render any `Referencable` modules added to the RTE.
 
-**cms:cache**
+## cms:cache
 
 Specify a duration (milliseconds) for an item to be cached. Within the CMS Template tool this feature has a UI control element for each section.
 
 `<cms:cache name="${}" duration="60000"> </cms:cache>`
 
-
+<div class="highlight">{% highlight java %}
     <tag>
         <name>cache</name>
         <tag-class>com.psddev.cms.db.CacheTag</tag-class>
@@ -95,8 +102,10 @@ Specify a duration (milliseconds) for an item to be cached. Within the CMS Templ
             <required>true</required>
         </attribute>
     </tag>
-    
-**cms:resource**
+ 
+{% endhighlight %}</div>
+
+## cms:resource
 
 The `cms:resource` function allows files to be automatically uploaded to your default CDN on their first view.
 
@@ -116,7 +125,8 @@ On first view, files that are rendered using the tag will automatically be place
 
 
 On subsequent runs, file changes are automatically detected, and new versions are uploaded to the CDN. CSS files are also parsed at runtime, therefore files contained within CSS, such as background images, are also automatically uploaded
-	
+
+<div class="highlight">{% highlight java %}
 	<function>
         <name>resource</name>
         <function-class>com.psddev.cms.db.PageFilter</function-class>
@@ -124,7 +134,7 @@ On subsequent runs, file changes are automatically detected, and new versions ar
             java.lang.String getResource(java.lang.String)
         </function-signature>
     </function>
-
+{% endhighlight %}</div>
 
 To add https to the resource, simply update your context.xml file:
 

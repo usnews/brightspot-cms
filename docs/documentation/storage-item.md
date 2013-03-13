@@ -4,12 +4,9 @@ title: Storage Item
 id: storage-item
 ---
 
+<div markdown="1" class="span12">
 
-
-## Storage Item
-
-
-### Uploading Files
+## Uploading Files
 
 A file upload UI can be created within Brightspot by using the `StorageItem` return type. This allows a file to be stored either locally, in a database, or using a service such as Amazon S3.
 
@@ -20,12 +17,12 @@ A file upload UI can be created within Brightspot by using the `StorageItem` ret
 
 Here's an example of an Image object:
 
-<div class="codehilite">
+<div class="highlight">
 {% highlight java %}
 @ToolUi.Referenceable
 @Renderer.Engine("JSP")
 @Renderer.Script("/WEB-INF/modules/image.jsp")
-    public class Image extends Content {
+public class Image extends Content {
 
     private StorageItem file;
     private String altText;
@@ -73,10 +70,13 @@ StorageItem implementation that stores files on local disk.
 
 > URL to the document root defined by `rootPath`.
 
-
+<div class="highlight">
+{% highlight java %}
 	<Environment name="dari/storage/local/class" override="false" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
 	<Environment name="dari/storage/local/rootPath" override="false" type="java.lang.String" value="PATH/webapps/media" />
 	<Environment name="dari/storage/local/baseUrl" override="false" type="java.lang.String" value="http://localhost:8080/media" />
+{% endhighlight %}
+</div>
 
 #### Amazon S3 StorageItem
 
@@ -104,23 +104,28 @@ StorageItem implementation that stores files on Amazon S3.
 **Key:** `dari/storage/{storageName}/baseUrl` **Type:** `java.lang.String`
 
 > URL to the bucket root defined by `bucket`.
-
+<div class="highlight">
+{% highlight java %}
 	<Environment name="dari/storage/STORAGE_NAME/class" override="false" type="java.lang.String" value="com.psddev.dari.util.AmazonStorageItem" />
 	<Environment name="dari/storage/STORAGE_NAME/baseUrl" override="false" type="java.lang.String" value="CDN_URL" />
 	<Environment name="dari/storage/STORAGE_NAME/access" override="false" type="java.lang.String" value="AWS_KEY" />
 	<Environment name="dari/storage/STORAGE_NAME/secret" override="false" type="java.lang.String" value="AWS_SECRET" />
 	<Environment name="dari/storage/STORAGE_NAME/bucket" override="false" type="java.lang.String" value="BASE_URL" />
+{% endhighlight %}
+</div>
 
 When attempting to store uploaded files using the Dari `AmazonStorageItem` an error: ClassNotFounfException, `org.jets3t.service.ServiceException`  will appear if the correct dependency is missing from your `pom.xml`.
 
 Add the following Jets3t dependency to resolve this issue:
-
+<div class="highlight">
+{% highlight java %}
         <dependency>
             <groupId>net.java.dev.jets3t</groupId>
             <artifactId>jets3t</artifactId>
             <version>0.8.0</version>
         </dependency>
-
+{% endhighlight %}
+</div>
 
 #### Brightcove StorageItem
 
