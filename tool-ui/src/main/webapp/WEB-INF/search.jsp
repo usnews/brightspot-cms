@@ -178,7 +178,7 @@ writer.start("div", "class", "searchForm");
                 writer.end();
 
                 if (selectedType == null) {
-                    writer.start("div", "class", "searchFilters searchFilters-global");
+                    writer.start("div", "class", "searchFiltersGlobal");
                         for (ObjectType filter : globalFilters) {
                             String filterId = filter.getId().toString();
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
@@ -191,6 +191,7 @@ writer.start("div", "class", "searchForm");
                                         "placeholder", "Filter: " + filter.getDisplayName(),
                                         "data-editable", false,
                                         "data-label", filterState != null ? filterState.getLabel() : null,
+                                        "data-restorable", false,
                                         "data-typeIds", filterId,
                                         "value", filterState != null ? filterState.getId() : null);
                             writer.end();
@@ -198,7 +199,7 @@ writer.start("div", "class", "searchForm");
                     writer.end();
 
                 } else {
-                    writer.start("div", "class", "searchFilters searchFilters-local");
+                    writer.start("div", "class", "searchFiltersLocal");
                         if (!fieldFilters.isEmpty()) {
                             writer.start("div", "class", "searchMissing");
                                 writer.html("Missing?");
@@ -255,6 +256,7 @@ writer.start("div", "class", "searchForm");
                                             "data-editable", false,
                                             "data-label", fieldState != null ? fieldState.getLabel() : null,
                                             "data-pathed", ToolUi.isOnlyPathed(field),
+                                            "data-restorable", false,
                                             "data-searcher-path", fieldUi.getInputSearcherPath(),
                                             "data-typeIds", fieldTypeIds,
                                             "value", search.getFieldFilters().get(fieldName));

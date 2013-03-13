@@ -231,6 +231,7 @@
 
 .searchFilters {
     margin-bottom: 20px;
+    margin-top: 50px;
     position: relative;
 
     form {
@@ -292,19 +293,23 @@
         right: 25px;
         top: 3px;
     }
+}
 
-    .searchFilters-local & {
+.searchFiltersLocal {
+    position: relative;
+
+    input[type='checkbox'] {
+        position: absolute;
+        right: 0;
+        top: 4px;
+    }
+
+    .searchFilter {
         padding-right: 20px;
+    }
 
-        input[type='checkbox'] {
-            position: absolute;
-            right: 0;
-            top: 4px;
-        }
-
-        .objectId-clear {
-            right: 45px;
-        }
+    .objectId-clear {
+        right: 45px;
     }
 }
 

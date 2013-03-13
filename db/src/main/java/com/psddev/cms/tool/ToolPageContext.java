@@ -152,7 +152,8 @@ public class ToolPageContext extends WebPageContext {
     /** Returns {@code true} is the given {@code object} is previewable. */
     public boolean isPreviewable(Object object) {
         if (object != null) {
-            if (object.getClass() == Page.class) {
+            if (object instanceof Page &&
+                    !(object instanceof Template)) {
                 return true;
 
             } else {
