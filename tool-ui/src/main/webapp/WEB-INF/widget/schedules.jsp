@@ -47,14 +47,14 @@ Collections.sort(drafts, new Comparator<Draft>() {
     }
 });
 
-%><ul class="links">
+%><ul class="links pageThumbnails">
     <% if (!state.isNew()) { %>
         <li<%= overlaidDraft == null && selected == null ? " class=\"selected\"" : "" %>>
             <a href="<%= wp.originalUrl(null, object) %>" target="_top">Current</a>
         </li>
     <% } %>
     <% for (Draft draft : drafts) { %>
-        <li<%= draft.equals(selected) ? " class=\"selected\"" : "" %>>
+        <li<%= draft.equals(selected) ? " class=\"selected\"" : "" %> data-preview-url="/_preview?_cms.db.previewId=<%= draft.getId() %>">
             <a href="<%= wp.objectUrl(null, draft) %>" target="_top"><%= wp.h(draft.getSchedule().getTriggerDate()) %></a>
         </li>
     <% } %>
