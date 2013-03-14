@@ -226,6 +226,12 @@ $doc.onCreate('.inputContainer', function() {
     });
 });
 
+$win.bind('beforeunload', function() {
+    if ($doc.find('.state-changed').length > 0) {
+        return "There are unsaved changes. Are you sure you want to discard them?";
+    }
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
