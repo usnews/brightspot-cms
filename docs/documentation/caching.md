@@ -2,6 +2,7 @@
 layout: default
 title: Caching
 id: caching
+section: documentation
 ---
 <div markdown="1" class="span12">
 

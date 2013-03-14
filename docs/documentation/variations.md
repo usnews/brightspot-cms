@@ -2,10 +2,10 @@
 layout: default
 title: Variations
 id: variations
-section: variations
+section: documentation
 ---
 
-## Variations
+<div markdown="1" class="span12">
 
 
 The Variation Tool within Brightspot provides a powerful way to define a host of actions that are based on specified input. The simplest example is a variation based on the device that is accessing the website. Let's look at how to use the Variation Tool to present a different page template for users accessing with a mobile device.
@@ -62,23 +62,26 @@ Extend from class `Operation` to create a new Operator:
 
 <img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/new_operation.png" alt="" />
 
-    @Operation.DisplayName("This is a new Operation")
-    public class Test extends Operation {
+<div class="highlight">{% highlight java %}
+@Operation.DisplayName("This is a new Operation")
+public class Test extends Operation {
 
-        @Override
-        public void evaluate (Variation variation, Profile profile, Object object) {
-            State state = State.getInstance(object);
-            Map<String, Object> variationData = (Map<String, Object>)
-            state.getValue("variations/" + variation.getId());
-        
-            if (variationData != null) {
-                state.getValues().putAll(variationData);
-            }
+    @Override
+    public void evaluate (Variation variation, Profile profile, Object object) {
+        State state = State.getInstance(object);
+        Map<String, Object> variationData = (Map<String, Object>)
+        state.getValue("variations/" + variation.getId());
+    
+        if (variationData != null) {
+            state.getValues().putAll(variationData);
         }
-     }
+    }
+ }
+{% endhighlight %}</div>
 
 Adding your own rule is done through extending the `Rule` class:
 
+<div class="highlight">{% highlight java %}
     public class TestRule extends Rule {
 
      private string name;
@@ -86,3 +89,4 @@ Adding your own rule is done through extending the `Rule` class:
      public boolean evaluate(Variation variation, Profile profile, Object object){
 
 	}
+{% endhighlight %}</div>

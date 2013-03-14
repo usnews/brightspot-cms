@@ -2,6 +2,7 @@
 layout: default
 title: SEO
 id: SEO
+section: documentation
 ---
 
 <div markdown="1" class="span12">

@@ -2,6 +2,7 @@
 layout: default
 title: Dari Developer Tools
 id: dari-developer-tools
+section: documentation
 ---
 
 <div markdown="1" class="span12">

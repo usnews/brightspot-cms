@@ -2,43 +2,44 @@
 layout: default
 title: Modifications
 id: modifications
-section: modifications
+section: documentation
 ---
 
-## Modifications
+<div markdown="1" class="span12">
 
 The `Modification` class, found within [Dari](http://www.dariframework.org/javadocs/com/psddev/dari/db/Modification.html) can be used to provide inheritance to multiple object types from one singular class. It is typically used when a property, not common among a group of objects, needs to be added after they have already been created.
 
 Normal inheritance can be achieved as would be expected with Java. Here is an example of an abstract Link class, with an internal link object extending from it.
 
-	
-	public abstract class Link extends Content {
-	
-	    private String name;
+<div class="highlight">{% highlight java %}
+public abstract class Link extends Content {
 
-	    // Getters Setters
+    private String name;
 
-	}
-	
+    // Getters Setters
+
+}
+{% endhighlight %}</div>
+
 The User interface that is created in Brightspot when extending a parent class is automatically generated.
-	
-	public class InternalLink extends Link {
 
-    
-        @ToolUi.OnlyPathed
-        private Record pageContent;
-
-	    public Record getPageContent() {
-		    return pageContent;
-	    }
-
-	    public void setPageContent(Record pageContent) {
-		    this.pageContent = pageContent;
-	    }
-
-	}
+<div class="highlight">{% highlight java %}	
+public class InternalLink extends Link {
 
 
+    @ToolUi.OnlyPathed
+    private Record pageContent;
+
+    public Record getPageContent() {
+	    return pageContent;
+    }
+
+    public void setPageContent(Record pageContent) {
+	    this.pageContent = pageContent;
+    }
+
+}
+{% endhighlight %}</div>
 
 
 **Example of a Modification, using a common Interface
@@ -48,35 +49,39 @@ A good example use case of implementing a modification would be in the case of a
 
 **Step 1. Create Common Interface**
 
-	import com.psddev.dari.db.Recordable;
+<div class="highlight">{% highlight java %}
+import com.psddev.dari.db.Recordable;
 
-	public interface FacebookLikesInterface extends Recordable {
-    
-    }
-    
+public interface FacebookLikesInterface extends Recordable {
+
+}
+{% endhighlight %}</div>
+
 **Step 2. Create your Modification**
 
+<div class="highlight">{% highlight java %}
+import com.psddev.dari.db.Modification;
 
-	import com.psddev.dari.db.Modification;
+public class FacebookLikes extends Modification<FacebookLikesInterface> {
 
-	public class FacebookLikes extends Modification<FacebookLikesInterface> {
+    @FieldIndexed
+    private String new;
 
-        @FieldIndexed
-        private String new;
+    // Getters Setters
 
-	    // Getters Setters
-	
-	}
+}
+{% endhighlight %}</div>
 
 **Step 3. Implement Modification** 
 
-	public class Author extends Content implements FacebookLikesInterface {
+<div class="highlight">{% highlight java %}
+public class Author extends Content implements FacebookLikesInterface {
 
-	    private String firstName;
-	    private String lastName;
-	    
-	}
-
+    private String firstName;
+    private String lastName;
+    
+}
+{% endhighlight %}</div>
 
 **No Common Interface**
 
@@ -84,13 +89,15 @@ With Dari there is another method by which we can implement multiple inheritance
 
 **Step 1. Implement Modification** 
 
-	@Modification.Classes({Person.class, Author.class})
-	public class ExampleModification extends Modification<Object> {
-	
-	    private String newField;
-	
-	}
-	
+<div class="highlight">{% highlight java %}
+@Modification.Classes({Person.class, Author.class})
+public class ExampleModification extends Modification<Object> {
+
+    private String newField;
+
+}
+{% endhighlight %}</div>
+
 **When not to use Modifications**
 
 Modifications, while providing the ability to group objects, and apply properties across them all, should not be used to replace sub classes. See below for an example:

@@ -2,6 +2,7 @@
 layout: default
 title: Image Cropping
 id: image-cropping
+section: documentation
 ---
 
 <div markdown="1" class="span12">

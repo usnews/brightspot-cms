@@ -383,7 +383,7 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini{*padding-top:1px;*padding-
 .icon-glass{background-position:0 0;}
 .icon-music{background-position:-24px 0;}
 .icon-search{background-position:-48px 0;}
-.icon-envelope{background-position:-72px 0;}
+.icon-envelope/*{background-position:-72px 0;}*/
 .icon-heart{background-position:-96px 0;}
 .icon-star{background-position:-120px 0;}
 .icon-star-empty{background-position:-144px 0;}

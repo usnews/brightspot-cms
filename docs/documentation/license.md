@@ -2,6 +2,7 @@
 layout: default
 title: License
 id: license
+section: documentation
 ---
 
 <div markdown="1" class="span12">
