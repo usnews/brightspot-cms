@@ -120,7 +120,7 @@ public class CreateNew extends PageServlet {
                         page.writeStart("tbody");
                             for (TypeTemplate typeTemplate : typeTemplates) {
                                 page.writeStart("tr");
-                                    page.writeStart("td").writeHtml(page.getObjectLabel(typeTemplate.type)).writeEnd();
+                                    page.writeStart("td").writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate)).writeEnd();
 
                                     page.writeStart("td", "class", "checkboxContainer");
                                         page.writeTag("input",
@@ -174,12 +174,7 @@ public class CreateNew extends PageServlet {
                                     "href", page.url("/content/edit.jsp",
                                             "typeId", type.getId(),
                                             "templateId", template.getId()));
-                                page.writeHtml(page.getObjectLabel(type));
-
-                                if (typeCounts.get(type) > 1) {
-                                    page.writeHtml(" - ");
-                                    page.writeHtml(page.getObjectLabel(template));
-                                }
+                                page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
                             page.writeEnd();
                         page.writeEnd();
                     }
@@ -193,7 +188,7 @@ public class CreateNew extends PageServlet {
                         page.writeStart("select", "name", "redirect");
                             for (TypeTemplate typeTemplate : collapsed) {
                                 page.writeStart("option", "value", typeTemplate.getCollapsedId());
-                                    page.writeHtml(page.getObjectLabel(typeTemplate.type));
+                                    page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
                                 page.writeEnd();
                             }
                         page.writeEnd();
@@ -207,6 +202,20 @@ public class CreateNew extends PageServlet {
                 }
             }
         page.writeEnd();
+    }
+
+    private String getTypeTemplateLabel(Map<ObjectType, Integer> typeCounts, TypeTemplate typeTemplate) {
+        ObjectType type = typeTemplate.type;
+        StringBuilder label = new StringBuilder();
+
+        label.append(ToolPageContext.Static.getObjectLabel(type));
+
+        if (typeCounts.get(type) > 1) {
+            label.append(" - ");
+            label.append(ToolPageContext.Static.getObjectLabel(typeTemplate.template));
+        }
+
+        return label.toString();
     }
 
     private static class TypeTemplate implements Comparable<TypeTemplate> {
