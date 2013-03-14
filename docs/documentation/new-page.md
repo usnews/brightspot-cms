@@ -11,7 +11,7 @@ Brightspot implements a subset of the [W3 Grid Layout specification](http://www.
 for defining grid layouts. This provides a flexible way to define grid layouts using
 a compact CSS format.
 
-Using the <cms:render> JSP Tag content can be rendered into the CSS grid items defined by
+Using the `<cms:render>` JSP Tag content can be rendered into the CSS grid items defined by
 CSS layouts.
 
 ### Overview
@@ -22,7 +22,7 @@ css files in the project and find any defined grid layouts.
 For each content type being rendered there should be a grid layout defined in
 css, a JSP to use the css grid layout and a JSP to render the content.
 
-Brightspot does not required the use of css grid layouts but it makes defining
+Note: Brightspot does not require the use of css grid layouts but it makes defining
 layouts much easier and is recommended.
 
 ### Creating a Grid Layout
