@@ -22,12 +22,15 @@
     }
 }
 
+.rte-toolbarContainer-fixed {
+    z-index: 101;
+}
+
 .rte-toolbar {
     background-color: @color-note-lighter;
     border-bottom: 1px solid @color-note;
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
-    margin: 2px;
     padding: 3px 0 0 3px;
     position: relative;
     vertical-align: top;
@@ -36,7 +39,7 @@
     .inputContainer.state-focus &[data-count-message]:after {
         .border-top-left-radius(3px);
         bottom: -1px;
-        right: 0;
+        right: -1px;
     }
 }
 
@@ -187,17 +190,34 @@
 }
 
 .rte-enhancement {
-    background-color: @color-note;
+    background-color: @color-note-lighter;
+    border: 1px solid @color-note;
+    .border-radius(5px);
+    .box-sizing(border-box);
 
     .rte-toolbar {
         background-color: transparent;
         border-style: none;
     }
+
+    figure {
+        height: 153px;
+    }
+
+    img {
+        max-height: 100%;
+        max-width: 100%;
+    }
 }
 
 .rte-enhancement-label {
+    font-family: @fontFamily-label;
     font-size: 120%;
-    text-align: center;
+    line-height: (@lineHeight-default * 1.2);
+    overflow: hidden;
+    padding-left: 3px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .rte-marker {

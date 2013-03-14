@@ -97,10 +97,15 @@ writer.start("html");
                     "text-align", "right");
 
             writer.css(".enhancement",
+                    "background", "transparent",
+                    "border", "none",
                     "display", "block",
-                    "height", "100px",
-                    "margin", "1em 0",
+                    "height", "72px",
+                    "margin", "0 0 1em 0",
                     "width", "100%");
+
+            writer.css(".enhancement[data-preview]",
+                    "height", "200px");
 
             writer.css(".enhancement[data-alignment=left]",
                     "float", "left",
