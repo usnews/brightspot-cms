@@ -28,6 +28,13 @@ java.util.UUID
 ToolPageContext wp = new ToolPageContext(pageContext);
 PageWriter writer = wp.getWriter();
 Search search = null;
+String searchJson = wp.param(String.class, "search");
+
+if (searchJson != null) {
+    search = new Search();
+    search.getState().setValues((Map<String, Object>) ObjectUtils.fromJson(searchJson));
+}
+
 String name = wp.param(String.class, Search.NAME_PARAMETER);
 
 if (search == null) {
