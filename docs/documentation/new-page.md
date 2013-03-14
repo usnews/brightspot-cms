@@ -104,11 +104,6 @@ the [ &lt;cms:render&gt; references documentation](lkjfalsdkjf).
 
 > `value` - Value to render. This can be Content, ReferentialText, an Iterable or a String.
 
-### Rendering Content
-
-
-
-### Implicit Variables
 
 </div>
 

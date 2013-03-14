@@ -81,12 +81,11 @@ public class Test extends Operation {
 
 Adding your own rule is done through extending the `Rule` class:
 
-<div class="highlight">{% highlight java %}
-    public class TestRule extends Rule {
+<div class="highlight">{% highlight java %}public class TestRule extends Rule {
 
-     private string name;
+    private string name;
      
-     public boolean evaluate(Variation variation, Profile profile, Object object){
+    public boolean evaluate(Variation variation, Profile profile, Object object){
 
-	}
+}
 {% endhighlight %}</div>

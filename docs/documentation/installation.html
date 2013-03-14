@@ -13,20 +13,23 @@ section: documentation
         <div class="row">
             <div class="span12">
                 <p>Brightspot CMS is built on top of the <a href="http://dariframework.org">Dari Framework</a>. This install will create a new Brightspot CMS application and Maven project, as well as setting up Solr and H2 databases. It will all run within an embedded Tomcat application server using the <a href="http://cargo.codehaus.org/Maven2+plugin">Cargo</a> plugin</p>
-                <p>The installation of Brightspot CMS requires two steps.</p>
+                <p>The quick installation of Brightspot CMS requires two steps. Note, a guide to <a href="/prod-installation.html">production installation</a> is also available.</p>
 
                 <h2>Step 1. Create your Project</h2>
 
-                <p>Create your Maven project by running the archetype below from your command line. Replace <code>yourGroupID</code> with your own. Example - <code>com.psddev</code> and create your own project name. <em>Note, the GroupID and Project name must not contain spaces or hyphens.</em> If you are not familiar with Maven you can get an overview of the project layout structure <a href="http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">here</a>.</br></p>
+                <p>Create your Maven project by running the archetype below from your command line. The snippet below is editable. Replace <code>yourGroupID</code> with your own. Example - <code>com.psddev</code> and create your own project name, then copy and paste onto your command line. <em>Note, the GroupID and Project name must not contain spaces or hyphens.</em> If you are not familiar with Maven you can get an overview of the project layout structure <a href="http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">here</a>.</br></p>
+<div id="input" contenteditable>
+<div class="highlight">{% highlight java %}
 
-<div class="highlight">{% highlight java %}mvn archetype:generate -B \
+mvn archetype:generate -B \
 -DarchetypeRepository=http://public.psddev.com/maven \
 -DarchetypeGroupId=com.psddev \
 -DarchetypeArtifactId=cms-app-archetype \
 -DarchetypeVersion=2.1-SNAPSHOT \
 -DgroupId=yourGroupID \
--DartifactId=yourProject{% endhighlight %}
-</div>
+-DartifactId=yourProject
+{% endhighlight %}
+</div></div>
 
             <h2>Step 2. Run Project</h2>
 

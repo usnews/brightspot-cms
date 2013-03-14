@@ -96,11 +96,11 @@ All database specific configuration parameters are prefixed with
 > Snappy in your pom.xml file as follows:
 
 <div class="highlight">{% highlight java %}
-        <dependency>
-            <groupId>org.iq80.snappy</groupId>
-            <artifactId>snappy</artifactId>
-            <version>0.2</version>
-        </dependency>
+<dependency>
+    <groupId>org.iq80.snappy</groupId>
+    <artifactId>snappy</artifactId>
+    <version>0.2</version>
+</dependency>
 {% endhighlight %}</div>
 > *The default is false.* We recommend only enabling compression if you
 > know your dataset is large (over 50GB).

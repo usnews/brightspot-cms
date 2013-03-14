@@ -11,8 +11,7 @@ The `Modification` class, found within [Dari](http://www.dariframework.org/javad
 
 Normal inheritance can be achieved as would be expected with Java. Here is an example of an abstract Link class, with an internal link object extending from it.
 
-<div class="highlight">{% highlight java %}
-public abstract class Link extends Content {
+<div class="highlight">{% highlight java %}public abstract class Link extends Content {
 
     private String name;
 
@@ -23,9 +22,8 @@ public abstract class Link extends Content {
 
 The User interface that is created in Brightspot when extending a parent class is automatically generated.
 
-<div class="highlight">{% highlight java %}	
+<div class="highlight">{% highlight java %}
 public class InternalLink extends Link {
-
 
     @ToolUi.OnlyPathed
     private Record pageContent;
@@ -42,15 +40,13 @@ public class InternalLink extends Link {
 {% endhighlight %}</div>
 
 
-**Example of a Modification, using a common Interface
-**
+**Example of a Modification, using a common Interface**
 
 A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore we have no quick means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
 
 **Step 1. Create Common Interface**
 
-<div class="highlight">{% highlight java %}
-import com.psddev.dari.db.Recordable;
+<div class="highlight">{% highlight java %}import com.psddev.dari.db.Recordable;
 
 public interface FacebookLikesInterface extends Recordable {
 
@@ -59,8 +55,7 @@ public interface FacebookLikesInterface extends Recordable {
 
 **Step 2. Create your Modification**
 
-<div class="highlight">{% highlight java %}
-import com.psddev.dari.db.Modification;
+<div class="highlight">{% highlight java %}import com.psddev.dari.db.Modification;
 
 public class FacebookLikes extends Modification<FacebookLikesInterface> {
 
@@ -74,8 +69,7 @@ public class FacebookLikes extends Modification<FacebookLikesInterface> {
 
 **Step 3. Implement Modification** 
 
-<div class="highlight">{% highlight java %}
-public class Author extends Content implements FacebookLikesInterface {
+<div class="highlight">{% highlight java %}public class Author extends Content implements FacebookLikesInterface {
 
     private String firstName;
     private String lastName;
@@ -89,8 +83,7 @@ With Dari there is another method by which we can implement multiple inheritance
 
 **Step 1. Implement Modification** 
 
-<div class="highlight">{% highlight java %}
-@Modification.Classes({Person.class, Author.class})
+<div class="highlight">{% highlight java %}@Modification.Classes({Person.class, Author.class})
 public class ExampleModification extends Modification<Object> {
 
     private String newField;

@@ -8,6 +8,8 @@ section: cms-basics
 <div markdown="1" class="span12">
 
 
+The most recent versions of Brightspot, namely 2.1 and up, use a new template tool and rendering approach. This guide is for Brightspot Version 2.0.
+
 There are two types of template that can be created in Brightspot, a template for a dynamic page, or a static page. The dynamic page templates are created in Admin -> Templates & Sections. The static pages are created by selecting 'One-off Page' from the Page Builder section on the dashboard.
 
 
@@ -34,7 +36,7 @@ We want three sections within our Container, once added we can begin to define e
 
 Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual JSP file that will be used for rendering.
 
-For the header we will just be using a script. We then select JSP and path to a `header.jsp` file. For the example this header could contain some simple HTML, our < head> section and CSS.
+For the header we will just be using a script. We then select JSP and path to a `header.jsp` file. For the example this header could contain some simple HTML, our `<head>` section and CSS.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-header-detail.png" alt="" />
 
@@ -52,7 +54,7 @@ By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right
 
 **Add Article Detail**
 
-The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Create an Object](/brightspot-cms/getting-started.html#creating-objects) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it associates it with this Template.
+The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Creating New Objects](/new-content.html) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it associates it with this Template.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" />
 
