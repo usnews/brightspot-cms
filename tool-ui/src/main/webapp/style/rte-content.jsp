@@ -53,7 +53,15 @@ writer.start("html");
                     "padding", "0",
                     "vertical-align", "baseline",
                     "word-wrap", "break-word",
-                    "-rte-loaded", "true");
+                    "-rte-loaded", "true",
+                    "*zoom", 1);
+
+            writer.css("body:before, body:after",
+                    "content", "' '",
+                    "display", "table");
+
+            writer.css("body:after",
+                    "clear", "both");
 
             writer.css("body.imageEditor-textOverlayInput",
                     "word-wrap", "normal");
