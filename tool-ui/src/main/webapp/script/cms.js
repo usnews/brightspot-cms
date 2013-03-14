@@ -242,7 +242,7 @@ $doc.delegate('.exception > *', 'click', function() {
                 minimum = +$input.attr('data-suggested-minimum'),
                 maximum = +$input.attr('data-suggested-maximum'),
                 $container = $input.closest('.inputContainer'),
-                $toolbar = $container.find('.rte-toolbar'),
+                $toolbar = $container.find('.rte-toolbar').eq(0),
                 value = ($input.val() || '').replace(TAG_RE, '').replace(TRIM_RE, ''),
                 cc = value.length,
                 wc = value ? value.split(WHITESPACE_RE).length : 0;
