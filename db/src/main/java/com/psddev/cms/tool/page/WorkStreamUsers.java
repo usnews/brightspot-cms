@@ -34,43 +34,52 @@ public class WorkStreamUsers extends PageServlet {
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-workStream");
-                page.writeHtml("Users Working On ");
+                page.writeHtml("Users Working On: ");
                 page.writeHtml(page.getObjectLabel(workStream));
             page.writeEnd();
 
-            page.writeStart("table", "class", "table-striped");
-                page.writeStart("thead");
-                    page.writeStart("tr");
-                        page.writeStart("th").writeHtml("User").writeEnd();
-                        page.writeStart("th").writeHtml("Currently On").writeEnd();
-                        page.writeStart("th").writeHtml("Completed").writeEnd();
+            if (users.isEmpty()) {
+                page.writeStart("div", "class", "message message-info");
+                    page.writeStart("p");
+                        page.writeHtml("No users working on this work stream yet!");
                     page.writeEnd();
                 page.writeEnd();
 
-                page.writeStart("tbody");
-                    for (ToolUser user : users) {
-                        Object currentItem = workStream.getCurrentItem(user);
-
+            } else {
+                page.writeStart("table", "class", "table-striped");
+                    page.writeStart("thead");
                         page.writeStart("tr");
-                            page.writeStart("td");
-                                page.writeHtml(page.getObjectLabel(user));
-                            page.writeEnd();
+                            page.writeStart("th").writeHtml("User").writeEnd();
+                            page.writeStart("th").writeHtml("Currently On").writeEnd();
+                            page.writeStart("th").writeHtml("Completed").writeEnd();
+                        page.writeEnd();
+                    page.writeEnd();
 
-                            page.writeStart("td");
-                                page.writeStart("a",
-                                        "href", page.objectUrl("/content/edit.jsp", currentItem),
-                                        "target", "_top");
-                                    page.writeHtml(page.getObjectLabel(currentItem));
+                    page.writeStart("tbody");
+                        for (ToolUser user : users) {
+                            Object currentItem = workStream.getCurrentItem(user);
+
+                            page.writeStart("tr");
+                                page.writeStart("td");
+                                    page.writeHtml(page.getObjectLabel(user));
+                                page.writeEnd();
+
+                                page.writeStart("td");
+                                    page.writeStart("a",
+                                            "href", page.objectUrl("/content/edit.jsp", currentItem),
+                                            "target", "_top");
+                                        page.writeHtml(page.getObjectLabel(currentItem));
+                                    page.writeEnd();
+                                page.writeEnd();
+
+                                page.writeStart("td");
+                                    page.writeHtml(workStream.countComplete(user));
                                 page.writeEnd();
                             page.writeEnd();
-
-                            page.writeStart("td");
-                                page.writeHtml(workStream.countComplete(user));
-                            page.writeEnd();
-                        page.writeEnd();
-                    }
+                        }
+                    page.writeEnd();
                 page.writeEnd();
-            page.writeEnd();
+            }
         page.writeEnd();
     }
 }
