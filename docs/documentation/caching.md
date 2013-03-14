@@ -3,17 +3,16 @@ layout: default
 title: Caching
 id: caching
 ---
+<div markdown="1" class="span12">
 
-## Caching
-
-When using the CMS [Template Tool](/brightspot-cms/template-tool.html) to build pages, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
+When using the CMS Template Tool to build pages, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
 
 `<cms:cache name="${}" duration="60000"> </cms:cache>`
 
 ![](http://docs.brightspot.s3.amazonaws.com/cache-duration.png)
 
 
-### Dari Utils Caching
+## Dari Utils Caching
 
 Dari provides a number of utility classes which may be used to cache any content (although typically from 3rd party providers) which generally is time-consuming to refresh and/or doesn't change frequently.
 
@@ -23,7 +22,7 @@ Dari provides a number of utility classes which may be used to cache any content
 
 Each time `cache.get()` is called, `isExpired()` is called to determine if the cache has expired. If `isExpired()` returns true a call is made to `produce()` to refresh the cache.
 
-
+<div class="highlight">{% highlight java %}
     public class PullThroughValueExample {
         
         private final static Logger logger =    
@@ -63,17 +62,17 @@ Each time `cache.get()` is called, `isExpired()` is called to determine if the c
             return cache.get();
         }
     }
+{% endhighlight %}</div>
 
 
 
-
-### PullThroughCache
+## PullThroughCache
 
 **Used to cache key, value pairs.**
 
 Each time `cache.get(key)` is called, `isExpired()` is called to determine if the cache has expired for this key. If `isExpired()` returns true a call is made to `produce()` to refresh the cache for this key.
 
-
+<div class="highlight">{% highlight java %}
     public class PullThroughCacheExample {
 
         private final static Logger logger =
@@ -120,16 +119,16 @@ Each time `cache.get(key)` is called, `isExpired()` is called to determine if th
             return cache.get(key);
         }
     }
+{% endhighlight %}</div>
 
 
-
-### PeriodicCache
+## PeriodicCache
 
 **Used to cache key value pairs and is updated at a specified interval.**
 
 For periodic cache, `update()` is called at the specified interval to refresh the cache
 
-
+<div class="highlight">{% highlight java %}
     public class PeriodicCacheExample {
 
         private final static Logger logger =
@@ -175,3 +174,4 @@ For periodic cache, `update()` is called at the specified interval to refresh th
             return cache.get(key);
         }
     }
+{% endhighlight %}</div>

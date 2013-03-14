@@ -30,8 +30,7 @@ Start by adding the `@ToolUi.Referenceable` class annotation, so the Image can b
 <div class="highlight">{% highlight java %}
 	@ToolUi.Referenceable
 	@Renderer.Engine("JSP")
-	@Renderer.Script("/WEB-INF/modules/image.jsp")
-
+	@Renderer.Script("/WEB-INF/common/image.jsp")
 	public class Image extends Content {
 
 	private StorageItem file;
@@ -42,7 +41,7 @@ Start by adding the `@ToolUi.Referenceable` class annotation, so the Image can b
 
 ## Creating the Image JSP
 
-The Image object .jsp file can be as simple as the example below. The size refers to the internal crop name which we will provide from within the CMS UI, and that we will refer to within the object .jsp.
+The Image object .jsp file can be as simple as the example below. The size refers to the internal crop name which we will provide from within the CMS UI, and that we will refer to within the object .jsp. Note the use of the `cms:img` tag.
 
 <div class="highlight">{% highlight java %}
     <cms:img src="${content}" size="${imageSize}" alt="${content.altText}" />
@@ -66,11 +65,11 @@ We have defined a crop for our Blog Posts, and within the CMS UI, when adding an
 The .jsp file used to render the Blog post object will reference the crop that is desired directly. We use the `<cms:render` tag to render the Rich Text area `blog.body`, and any images added within it as enhancements are rendered.
 
 <div class="highlight">{% highlight java %}
-    <%@ include file="/WEB-INF/modules/includes.jsp" %>
+<%@ include file="/WEB-INF/modules/includes.jsp" %>
 
-    <c:set var="imageSize" value="blogCrop" scope="request" />
+<c:set var="imageSize" value="blogCrop" scope="request" />
 
-        <div>
-          <cms:render value="${blog.body}" />
-	  	</div>
+<div>
+<cms:render value="${blog.body}" />
+</div>
 {% endhighlight %}</div>
