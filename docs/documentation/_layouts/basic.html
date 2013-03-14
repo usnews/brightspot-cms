@@ -21,6 +21,15 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/skrollr.min.js"></script>
 
+
+    <style>
+    @media print {
+        .page-break	{ display: block; page-break-before: always; }
+        .print-hidden { display: none; }
+        .highlight-mini { border-bottom: none; }
+    }
+    </style>
+
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -60,7 +69,7 @@
                    background: blue;
         "> -->
     
-    <div id="header">
+    <div id="header" class="print-hidden">
         <div class="container">
             <div class="row">
                 <div class="lead-section span12">
@@ -83,7 +92,7 @@
         </div>
     </div>
 
-    <div id="navigation" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
+    <div id="navigation" class="print-hidden" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
         <div class="container">
             <div class="row">
                 <div class="span12">
@@ -120,7 +129,7 @@
     {{ content }}
 
     <footer>
-        <div class="container">
+        <div class="container print-hidden">
             <div class="row">
                 <div class="span6 blurb">
                     <a href="http://www.perfectsensedigital.com"><img src="img/psd-logo.png" style="max-height: 60px;"/></a>
