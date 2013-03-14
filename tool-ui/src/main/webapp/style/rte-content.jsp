@@ -53,7 +53,15 @@ writer.start("html");
                     "padding", "0",
                     "vertical-align", "baseline",
                     "word-wrap", "break-word",
-                    "-rte-loaded", "true");
+                    "-rte-loaded", "true",
+                    "*zoom", 1);
+
+            writer.css("body:before, body:after",
+                    "content", "' '",
+                    "display", "table");
+
+            writer.css("body:after",
+                    "clear", "both");
 
             writer.css("body.imageEditor-textOverlayInput",
                     "word-wrap", "normal");
@@ -97,10 +105,15 @@ writer.start("html");
                     "text-align", "right");
 
             writer.css(".enhancement",
+                    "background", "transparent",
+                    "border", "none",
                     "display", "block",
-                    "height", "100px",
-                    "margin", "1em 0",
+                    "height", "72px",
+                    "margin", "0 0 1em 0",
                     "width", "100%");
+
+            writer.css(".enhancement[data-preview]",
+                    "height", "200px");
 
             writer.css(".enhancement[data-alignment=left]",
                     "float", "left",

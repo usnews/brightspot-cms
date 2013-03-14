@@ -50,6 +50,7 @@ public class WorkStreams extends PageServlet {
 
             } else {
                 for (WorkStream workStream : workStreams) {
+                    List<ToolUser> users = workStream.getUsers();
                     long incomplete = workStream.countIncomplete();
                     long total = workStream.getQuery().count();
                     boolean working = workStream.isWorking(user);
@@ -59,17 +60,22 @@ public class WorkStreams extends PageServlet {
                             "style", page.cssString(
                                     "padding-right", working ? "165px" : "75px",
                                     "position", "relative"));
-                        page.writeStart("a",
-                                "href", page.url("/workStreamUsers", "id", workStream.getId()),
-                                "target", "workStream");
-                            page.writeHtml(workStream.getUsers().size());
-                            page.writeHtml(" users");
-                        page.writeEnd();
+                        if (users.isEmpty()) {
+                            page.writeHtml("No users");
+
+                        } else {
+                            page.writeStart("a",
+                                    "href", page.url("/workStreamUsers", "id", workStream.getId()),
+                                    "target", "workStream");
+                                page.writeHtml(users.size());
+                                page.writeHtml(" users");
+                            page.writeEnd();
+                        }
 
                         page.writeHtml(" working on ");
 
                         page.writeStart("a",
-                                "href", page.objectUrl("/content/object.jsp", workStream, "reload", true),
+                                "href", page.objectUrl("/content/workStreamEdit.jsp", workStream, "reload", true),
                                 "target", "workStream");
                             page.writeHtml(page.getObjectLabel(workStream));
                         page.writeEnd();

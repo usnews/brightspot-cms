@@ -371,7 +371,9 @@ var Rte = wysihtml5.Editor.extend({
             textarea.element.className += ' rte-source';
 
             // Make sure only one toolbar is visible at a time.
-            this.toolbar.hide();
+            if (this !== rtes[0]) {
+                this.toolbar.hide();
+            }
 
             this.on('focus', function() {
                 $(textarea.element).parentsUntil('form').addClass('state-focus');
@@ -468,9 +470,21 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             // Copy the enhancement label.
-            $enhancement.find('.rte-enhancement-label').text(
-                    $placeholder.attr('data-label') ||
-                    'Empty ' + (isMarker ? 'Marker' : 'Enhancement'));
+            var $label = $enhancement.find('.rte-enhancement-label');
+            var preview = $placeholder.attr('data-preview');
+
+            if (preview) {
+                $label.html($('<figure/>', {
+                    'html': $('<img/>', {
+                        'src': preview
+                    })
+                }));
+
+            } else {
+                $label.text(
+                        $placeholder.attr('data-label') ||
+                        'Empty ' + (isMarker ? 'Marker' : 'Enhancement'));
+            }
         });
 
         // Remove orphaned enhancements.
@@ -663,6 +677,7 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         // Completely in view.
         if (windowTop < containerTop) {
             $container.css('padding-top', 0);
+            $toolbar.removeClass('rte-toolbar-fixed');
             $toolbar.attr('style', this._toolbarOldStyle);
             this._toolbarOldStyle = null;
 
@@ -672,16 +687,17 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
             // Partially in view.
             if (windowTop < containerTop + $container.height()) {
                 $container.css('padding-top', $toolbar.outerHeight());
+                $toolbar.addClass('rte-toolbarContainer-fixed');
                 $toolbar.css({
                     'left': $toolbar.offset().left,
                     'position': 'fixed',
                     'top': headerBottom,
-                    'width': $toolbar.width(),
-                    'z-index': $container.zIndex() + 1
+                    'width': $toolbar.width()
                 });
 
             // Completely out of view.
             } else {
+                $toolbar.addClass('rte-toolbarContainer-fixed');
                 $toolbar.css({
                     'top': -10000,
                     'position': 'fixed'
