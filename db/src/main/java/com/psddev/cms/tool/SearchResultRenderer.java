@@ -43,24 +43,9 @@ public class SearchResultRenderer {
         this.page = page;
         this.writer = page.getWriter();
         this.search = search;
+        this.result = search.toQuery().and(page.siteItemsPredicate()).select(search.getOffset(), search.getLimit());
 
         ObjectType selectedType = search.getSelectedType();
-        String hash = search.getQueryString();
-
-        if (selectedType != null) {
-            hash += selectedType.getId().toString();
-        }
-
-        String name = search.getName();
-
-        if (!ObjectUtils.equals(
-                page.getUserSetting("search." + name + ".hash"),
-                hash)) {
-            search.setSort(null);
-            search.setOffset(0);
-        }
-
-        this.result = search.toQuery().and(page.siteItemsPredicate()).select(search.getOffset(), search.getLimit());
 
         if (selectedType != null) {
             this.sortField = selectedType.getField(search.getSort());
