@@ -354,7 +354,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             crop.setTextWidths(textWidths);
 
             for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
-                if (ObjectUtils.isBlank(j.next().getText())) {
+                String text = j.next().getText();
+
+                if (text != null &&
+                        ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
                     j.remove();
                 }
             }
