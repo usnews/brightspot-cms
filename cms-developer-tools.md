@@ -2,18 +2,18 @@
 layout: default
 title: CMS Tools
 id: cms-tools-dev
-section: cms-tools-dev
+section: documentation
 ---
 
-## CMS Developer Tools
+<div markdown="1" class="span12">
 
-With Brightspot CMS there are a number of tools that make life easier for the developer. We're going to take a look at the Wireframe and Preview Tool, both of which assist when building out page templates.
+With Brightspot CMS there are a number of tools that make life easier for the developer. This section will look at the Wireframe and Preview Tool, both of which assist when building out page templates.
 
 ### Preview Tool
 
 ![](http://docs.brightspot.s3.amazonaws.com/new_preview_tool.png)
 
-The inline preview tool provides the ability to see a visual representation of a page right within the CMS. Any changes made to the page template or content are seen automatically. An additional `Mode` drop down allows the choice of view to be changed, with developers now able to run the [Contextual Debugger](/brightspot-cms/debugging.html) inline. Production mode can also be viewed using the drop down, which previews the page when running using Production settings (Hidden JSP errors etc).
+The inline preview tool provides the ability to see a visual representation of a page right within the CMS. Any changes made to the page template or content are seen automatically. An additional `Mode` drop down allows the choice of view to be changed, with developers now able to run the [Contextual Debugger](/debugging.html) inline. Production mode can also be viewed using the drop down, which previews the page when running using Production settings (Hidden JSP errors etc).
 
 When using a smaller screen size, the preview tool slides to the right, hidden out of sight, it can be moved into view by toggling the top bar.
 

@@ -1,0 +1,124 @@
+---
+layout: basic
+id: support
+title: Creating New Content
+section: documentation
+---
+
+
+    <div class="container documentation">
+         <div class="breadcrumbs">
+                </br>&laquo; <a href="/support.html">Back to Table of Contents</a>
+        </div>       
+        <div class="row header">
+            <div class="span12">
+                <h1></h1>
+                <h3>Creating New Content</h3>
+                <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish content. In this section we are going to look at how to model your objects, and the corresponding UI that is created within the CMS.</br></br><strong>Create an object</strong></br></br>Having installed Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the Search tool. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object. First take a look at the Java class, then below, the corresponding UI created within the CMS:</p>
+
+
+<div class="highlight">{% highlight java %}package com.psddev.brightspot;
+
+import com.psddev.cms.db.*;
+import com.psddev.cms.tool.*;
+import com.psddev.dari.db.*;
+import com.psddev.dari.util.*;
+import java.util.*;
+
+public class Article extends Content {
+
+    private String headline;
+    private Author author;
+    private ReferentialText body;
+    private List<Tag> tags;
+    private Set<String> keywords;
+
+}{% endhighlight %}</div>
+
+
+<p><strong>Adding Fields</strong></br></br>There are a range of standard UI elements that each object can use. Start by adding some to your newly created object. Refresh the CMS to see the new UI appear. Remove the code within your Java class to remove the UI element. You can reorder the UI by changing the order of the fields in the Java class. The name of your field will be reflected directly in the CMS as the UI label. Below we have called out some the UI elements within our Article object. See the full list available <a target="_blank" href="#">here</a>.</p>
+
+            <div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 100px; width: 180px;">
+            <div class="highlight-box">
+                    <div class="title">String Field</div>
+                    <div class="description"><code>private String</code> will create a new field</div>
+                </div>
+            </div>
+            <img style="margin-left:300px;" class="shadow" src="img/developer/new-article-ui.png"/>
+            <br/>
+        </div>
+
+
+</br><p><strong>Associating Objects</strong></br></br>Once you have your first object created you can add a second. In our example we have an Author object that is associated with each Article. Associate an object by naming it as a return type in your Java class.</p>
+
+
+<div class="highlight">{% highlight java %}public class Author extends Content {
+
+    @Required private String name;
+    private StorageItem file;
+    @Embedded private Address address;
+    private Boolean bestSeller;
+    private Date dateOfBirth;
+    
+}
+{% endhighlight %}</div></div>
+
+
+                    <div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 100px; width: 180px;">
+            <div class="highlight-box">
+                    <div class="title">Annotations</div>
+                    <div class="description">Add a <code>@Required</code> annotation to make the field required.</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 195px; width: 220px;">
+            <div class="highlight-box">
+                    <div class="title">Embedded Objects</div>
+                    <div class="description">Other objects can be embedded using the<code>@Embedded</code> annotation</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 344px; width: 240px;">
+            <div class="highlight-box">
+                    <div class="title">Calendar Widget</div>
+                    <div class="description">Use the<code>Date</code> return type to add a calendar tool.</div>
+                </div>
+            </div>
+            <div class="highlight-line right" style="top: 215px; width: 650px;">
+                <div class="highlight-box">
+                    <div class="title">Boolean</div>
+                    <div class="description">Standard<code>Boolean</code> or <code>enum</code> can be added</div>
+                </div>
+            </div>
+            <div class="highlight-line right" style="top: 120px; width: 537px;">
+                <div class="highlight-box">
+                    <div class="title">File Upload</div>
+                    <div class="description">Use <code>StorageItem</code> return type to create a file uploader </div>
+                </div>
+            </div>
+            <img class="shadow" src="img/developer/new-object-author.png"/>
+            <br/>
+        </div>
+
+    </br><p><strong>Dari Schema Tool</strong></br></br>With several objects created you can leverage the Dari Schema Tool, which gives an instant view of your data model. Navigate to <a target="_blank" href="http://localhost:8080/_debug/db-schema">http://localhost:8080/_debug/db-schema</a> and select one of your objects. Below is a view of our Article object, the associated objects, Tag and Author, and an embedded object, Address.</p>
+    <div class="highlight center span12" style="padding-top: 10px;">
+        <div class="highlight-line left" style="top: 75px; width: 170px;">
+            <div class="highlight-box">
+                    <div class="title">Find your object</div>
+                    <div class="description">Start typing to find your objects, click to view</div>
+            </div>
+        </div>
+            <div class="highlight-line right" style="top: 140px; width: 220px;">
+            <div class="highlight-box">
+                <div class="title">Edit in browser</div>
+                <div class="description">When running locally, click into your object to edit the java class</div>
+            </div>
+</div>
+    <img class="shadow" src="img/developer/debug-schema.png"/>
+    </div>
+    <strong style="float:right;"><a href="#">> Next up: Building Pages</a></strong>
+</div>
+
+</div><!--/.container-->
+
+

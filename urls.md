@@ -2,14 +2,13 @@
 layout: default
 title: URLs
 id: urls
+section: documentation
 ---
+<div markdown="1" class="span12">
 
-## URLS
+## Basic URL creation
 
-
-**Basic URL creation**
-
-In the [Template Tool](/brightspot-cms/template-tool.html) section we looked at how to construct URLs when creating dynamic templates. These URLs are then automatically generated, based on editor input for each object name. The basic example is to prefix all content with a directory structure, and then attach the specific `objectName` field as the unique URL path. *Note `objectName` is the first `String` field within any Java object you create.*
+URLs are typically automatically generated, based on editor input for each object name. The basic example is to prefix all content with a directory structure, and then attach the specific `objectName` field as the unique URL path. *Note `objectName` is the first LabelField, or the first `String` field within any Java object you create.*
 
 Brightspot automatically follows SEO practices, lowercasing all words, and adding hyphens where spaces are used by the editor. If a duplicate URL exists a number is added to the end of the URL as a default
 
@@ -42,12 +41,13 @@ If we remove the category field, you can see the URL automatically returns to th
 
 The script below created this feature:
 
+<div class="highlight">{% highlight java %}
+importPackage(com.psddev.dari.util);
 
-	importPackage(com.psddev.dari.util);
-
-	var category = object.getState().getValue("category");
-	if (!ObjectUtils.isBlank(category)) {
-	    "/article/" + StringUtils.toNormalized(category.getState().getValue("name")) + "/" + objectName;
-	} else {
-	    "/article/" + objectName;
-	}
+var category = object.getState().getValue("category");
+if (!ObjectUtils.isBlank(category)) {
+    "/article/" + StringUtils.toNormalized(category.getState().getValue("name")) + "/" + objectName;
+} else {
+    "/article/" + objectName;
+}
+{% endhighlight %}</div>
