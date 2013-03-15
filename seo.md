@@ -15,19 +15,21 @@ Within the respective .jsp files these fields must be chosen specifically, so as
 By clicking on `Raw Content` found to the right of `Save Draft` in the content edit screen, and shown as a wrench icon, a view of the SEO fields can be seen in code.
 
 <div class="highlight">{% highlight java %}
-    "cms.seo.title" : "Our New Title",
-      "cms.seo.description" : "This description is very different from the default",
-      "cms.seo.keywords" : [ "Added", "Are", "Here", "Keywords", "Shown" ],
-      "cms.directory.pathsMode" : "MANUAL",
-      "cms.directory.paths" : [ "8b48aee0-42d1-11e1-9309-12313d23e8f7/seotest" ],
-      "cms.directory.pathTypes" : {
-        "8b48aee0-42d1-11e1-9309-12313d23e8f7/seotest" : "PERMALINK"
+"cms.seo.title" : "Our New Title",
+"cms.seo.description" : "This description is very different from the default",
+"cms.seo.keywords" : [ "Added", "Are", "Here", "Keywords", "Shown" ],
+"cms.directory.pathsMode" : "MANUAL",
+"cms.directory.paths" : [ "8b48aee0-42d1-11e1-9309-12313d23e8f7/seotest" ],
+"cms.directory.pathTypes" : {
+"8b48aee0-42d1-11e1-9309-12313d23e8f7/seotest" : "PERMALINK"
 {% endhighlight %}</div>
 
 A typical implementation would be to test to see if an SEO Title has been added. If not, the standard object title can be used instead.
 
-	<title>Perfect Sense Digital<c:if test="${!empty seo.title}" >: <c:out value="${seo.title}" /></c:if></title>
-	
-Using the wireframe tool on a particular page, we can see the JSTL expression needed and available within our header section, to render the SEO content.
+<div class="highlight">{% highlight java %}
+<title>Perfect Sense Digital<c:if test="${!empty seo.title}" >: <c:out value="${seo.title}" /></c:if></title>
+{% endhighlight %}</div>
+
+Using the wireframe tool on a particular page, you can see the JSTL expression needed and available within the header section, to render the SEO content.
 
 ![Screenshot of UI](http://docs.brightspot.s3.amazonaws.com/seo_wireframe.png)
