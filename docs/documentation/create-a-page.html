@@ -1,0 +1,103 @@
+---
+layout: default
+title: Create a Page
+id: support
+section: documentation
+---
+<div class="span12">
+<div class="container documentation">
+        <div class="row header">
+            <div class="span12">
+                <p>Having created your own objects and published them in the CMS, the next step is to build pages on which to display your content. In this section we will build a simple page on which we will render our Article object, that we created in the <a href="/new-content.html">previous section</a>.</br></br>We start by adding rendering logic to our already created Article object. We add two annotations to the object, one to define the <code>JSP</code> that renders the Article content, and another that creates the page structure to be associated with it.
+                </br></br>
+                </p>
+                <h2>Add Renderer Paths</h2>
+                <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layouts/article-template.jsp")
+@Renderer.Path("/article-object.jsp")
+public class Article extends Content {
+
+    private String headline;
+    private ReferentialText body;
+    private Author author;
+
+    // Getters and Setters
+
+}
+{% endhighlight %}</div>
+
+                </br>
+                <h2>Create JSP Files</h2>
+                <p>To start, we will create two very simple files to render our page. The first is the entire page layout. As per our path specified in the annotation on our Article object, we can create a <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing taglibs and then create a simple structure for your page. We have added a header, which will render our headline, and a content section, which will render the rest of the object.
+                </br></br>
+                </p>
+<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div id="container">
+
+    <div id="header">
+        <h1><cms:render value="${mainContent.headline}"></cms:render></h1>
+    </div>
+
+    <div id="content">
+        <cms:render value="${mainContent}"></cms:render>
+    </div>
+
+</div>
+{% endhighlight %}</div>
+<p>In the content div in the layout above we have set the value of the render as <code>mainContent</code>, this is defined when we create our template within the CMS, which is the final step. Now let's create the jsp file that will render the Article object. Using JSTL for our example, we call <code>content.fieldName</code>, where the field name is defined in our Article class. Referenced objects, such as our Author, can be accessed by name, as well as fields within them. We are rendering the Author first and last name. For text fields we can use <code><c:out></code>, whereas for rich text, we use the <code><cms:render></code> tag.
+                </br></br>
+<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div class="article">
+    <h3>Written by: <c:out value="${content.author.firstName}"/> <c:out value="${content.author.lastName}"/></h3>
+    <cms:render value="${content.body}" />
+</div>
+{% endhighlight %}</div>
+                </p>
+            </div>
+        </div>
+<h2>Create the Template</h2>
+                </br></br>To complete the page, in the CMS under Admin > Templates & Sections create a new template, name it Article Template. See the example below:</br>
+                </p>
+            </div>
+        </div>
+    <div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 50px; width: 141px;">
+                <div class="highlight-box">
+                    <div class="title">Name your Template</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 149px;">
+                <div class="highlight-box">
+                    <div class="title">Create a URL path</div>
+                </div>
+            </div>
+            <div class="highlight-line right" style="top: 78px; width: 271px;">
+                <div class="highlight-box">
+                    <div class="title">Select Article as Main Content</div>
+                </div>
+            </div>
+            <img width="690" src="img/developer/article-template.png"/>
+        </div></br></br>
+                <p>Once you have created a template, the next step is to create a new Article and publish it. In the 'Create New' widget on the dashboard select your new Article page. Clicking in will display the content edit view, with a URL that is automatically created from your headline. Publish and access the URL to see your page with content displayed. Note, for standalone pages, such as a homepage, use the Create New drop down to build a <code>Page</code>, rather than a Template
+                </p>
+    <div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 149px;">
+                <div class="highlight-box">
+                    <div class="title">Rich text renders automatically</div>
+                </div>
+            </div>
+            <div class="highlight-line right" style="top: 208px; width: 241px;">
+                <div class="highlight-box">
+                    <div class="title">URL structure defined from Template</div>
+                </div>
+            </div>
+            <img width="690" src="img/developer/first-article.png"/>
+        </div>
+</div>
+
+</div><!--/.container-->
+
+
