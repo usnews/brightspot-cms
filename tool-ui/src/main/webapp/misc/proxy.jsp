@@ -4,6 +4,8 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.util.IoUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.Settings,
+com.psddev.dari.util.StringUtils,
 
 java.io.InputStream,
 java.net.URL,
@@ -19,6 +21,13 @@ if (wp.requireUser()) {
 }
 
 URL url = wp.param(URL.class, "url");
+
+if (url == null ||
+        !StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), url.toString())).equals(wp.param(String.class, "hash"))) {
+    response.sendError(404);
+    return;
+}
+
 URLConnection urlConnection = url.openConnection();
 InputStream urlInput = urlConnection.getInputStream();
 
