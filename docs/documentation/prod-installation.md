@@ -144,7 +144,7 @@ The new file will need to be configured. Replace the values outlined below with 
 
 If you do not already have Maven, [download](http://maven.apache.org/download.html) and install. On the command line type `mvn -v` to see your Maven Version number.
 
-You will need to create a Maven project in which we will embed the CMS application. 
+You will need to create a Maven project in which you embed the CMS application. 
 
 Run the following Archetype to create the project structure.
 
