@@ -86,6 +86,7 @@ mkdir $TOMCAT_HOME/webapps/media
 
 This is an example `context.xml` file. Replace the default file found in $TOMCAT_HOME/conf/context.xml. 
 
+<div id="input" contenteditable>
 <div class="highlight">{% highlight java %}
 <?xml version='1.0' encoding='utf-8'?>
 <Context allowLinking="true" crossContext="true">
@@ -124,9 +125,9 @@ This is an example `context.xml` file. Replace the default file found in $TOMCAT
 <Environment name="cookieSecret" type="java.lang.String" value="Deem2oenoot1Ree5veinu8" override="true" />
 
 </Context>
-{% endhighlight %}</div>
+{% endhighlight %}</div></div>
 
-The new file will need to be configured. Replace the values outlined below with your own.
+The new file will need to be configured. Replace the values outlined below with your own. Note, the snippet above is editable.
 
 `$DB_NAME` - the name of the MySQL database you created.
 

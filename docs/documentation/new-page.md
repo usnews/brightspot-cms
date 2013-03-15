@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Creating New Layouts and Rendering Content
+title: Creating New Layouts
 id: templates
 section: documentation
 ---
