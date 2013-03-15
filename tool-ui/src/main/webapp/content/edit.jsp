@@ -926,25 +926,21 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
                 wp.write(wp.h(widget.getInternalName()));
                 wp.write("\">");
 
-                String display;
+                String displayHtml;
+
                 try {
-                    display = widget.display(wp, object);
+                    displayHtml = widget.createDisplayHtml(wp, object);
+
                 } catch (Exception ex) {
                     StringWriter sw = new StringWriter();
                     HtmlWriter hw = new HtmlWriter(sw);
                     hw.putAllStandardDefaults();
                     hw.start("pre", "class", "message message-error").object(ex).end();
-                    display = sw.toString();
+                    displayHtml = sw.toString();
                 }
 
-                if (!ObjectUtils.isBlank(display)) {
-                    wp.write("<div class=\"widget widget-");
-                    wp.write(wp.h(widget.getInternalName()));
-                    wp.write("\"><h1>");
-                    wp.write(wp.objectLabel(widget));
-                    wp.write("</h1>");
-                    wp.write(display);
-                    wp.write("</div>");
+                if (!ObjectUtils.isBlank(displayHtml)) {
+                    wp.write(displayHtml);
                 }
             }
         }
