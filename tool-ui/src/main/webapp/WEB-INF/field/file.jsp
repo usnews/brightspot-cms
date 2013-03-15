@@ -510,7 +510,9 @@ String existingClass = wp.createId();
                     </div>
 
                     <div class="imageEditor-image">
-                        <img alt="" src="<%= wp.url("/misc/proxy.jsp", "url", fieldValue.getUrl()) %>">
+                        <img alt="" src="<%= wp.url("/misc/proxy.jsp",
+                                "url", fieldValue.getPublicUrl(),
+                                "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValue.getPublicUrl()))) %>">
                     </div>
 
                 </div>
