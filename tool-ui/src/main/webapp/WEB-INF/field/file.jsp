@@ -354,7 +354,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             crop.setTextWidths(textWidths);
 
             for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
-                if (ObjectUtils.isBlank(j.next().getText())) {
+                String text = j.next().getText();
+
+                if (text != null &&
+                        ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
                     j.remove();
                 }
             }
@@ -507,7 +510,9 @@ String existingClass = wp.createId();
                     </div>
 
                     <div class="imageEditor-image">
-                        <img alt="" src="<%= wp.url("/misc/proxy.jsp", "url", fieldValue.getUrl()) %>">
+                        <img alt="" src="<%= wp.url("/misc/proxy.jsp",
+                                "url", fieldValue.getPublicUrl(),
+                                "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValue.getPublicUrl()))) %>">
                     </div>
 
                 </div>

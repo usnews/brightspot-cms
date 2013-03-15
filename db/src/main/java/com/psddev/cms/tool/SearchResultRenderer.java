@@ -60,8 +60,6 @@ public class SearchResultRenderer {
             search.setOffset(0);
         }
 
-        page.putUserSetting("search." + name + ".hash", hash);
-
         this.result = search.toQuery().and(page.siteItemsPredicate()).select(search.getOffset(), search.getLimit());
 
         if (selectedType != null) {
@@ -71,10 +69,6 @@ public class SearchResultRenderer {
         } else {
             this.sortField = null;
             this.showTypeLabel = search.findValidTypes().size() != 1;
-        }
-
-        if (name != null) {
-            page.putUserSetting("search." + name, search.getState().getSimpleValues());
         }
     }
 
