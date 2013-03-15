@@ -368,7 +368,7 @@ public class CmsTool extends Tool {
         plugins.add(template = createJspWidget("Template", "template", "/WEB-INF/widget/template.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(createJspWidget("Sites", "sites", "/WEB-INF/widget/sites.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(createJspWidget("History", "history", "/WEB-INF/widget/history.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
-        plugins.add(createJspWidget("References", "references", "/WEB-INF/widget/references.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
+        plugins.add(createPageWidget("References", "references", "/content/references", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
 
         urls.getUpdateDependencies().add(template);
 

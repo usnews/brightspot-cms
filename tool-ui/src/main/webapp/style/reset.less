@@ -193,6 +193,7 @@ table {
     th {
         background-color: @color-note-darker;
         color: @color-background;
+        text-align: left;
     }
 
     thead th {
@@ -201,6 +202,27 @@ table {
 
     tbody th {
         text-align: right;
+    }
+
+    img {
+        vertical-align: top;
+    }
+}
+
+.table-bordered {
+    td,
+    th {
+        border-color: @color-note;
+        border-style: solid;
+        border-width: 0 1px;
+
+        &:first-child {
+            border-left-width: 0;
+        }
+
+        &:last-child {
+            border-right-width: 0;
+        }
     }
 }
 

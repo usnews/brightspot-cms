@@ -62,6 +62,15 @@ public abstract class Tool extends Application {
         return widget;
     }
 
+    protected PageWidget createPageWidget(String displayName, String internalName, String path, String positionName, double positionColumn, double positionRow) {
+        PageWidget widget = new PageWidget();
+        widget.setDisplayName(displayName);
+        widget.setInternalName(internalName);
+        widget.setPath(path);
+        widget.addPosition(positionName, positionColumn, positionRow);
+        return widget;
+    }
+
     /** {@link Tool} utility methods. */
     public static final class Static {
 

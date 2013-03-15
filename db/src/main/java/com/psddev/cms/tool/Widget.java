@@ -1,11 +1,12 @@
 package com.psddev.cms.tool;
 
-import com.psddev.dari.db.Record;
-import com.psddev.dari.util.ObjectUtils;
-
-import java.util.Iterator;
+import java.io.StringWriter;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.psddev.dari.db.Record;
+import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectUtils;
 
 /** Small */
 public class Widget extends Plugin {
@@ -70,9 +71,34 @@ public class Widget extends Plugin {
         getPositions().add(position);
     }
 
-    /** Displays the given {@code object}. */
-    public String display(ToolPageContext page, Object object) throws Exception {
-        throw new UnsupportedOperationException();
+    /**
+     * Creates the display HTML of this widget for the given {@code object}.
+     */
+    @SuppressWarnings("resource")
+    public String createDisplayHtml(ToolPageContext page, Object object) throws Exception {
+        try {
+            String displayHtml = display(page, object);
+
+            if (ObjectUtils.isBlank(displayHtml)) {
+                return null;
+
+            } else {
+                StringWriter sw = new StringWriter();
+                HtmlWriter writer = new HtmlWriter(sw);
+
+                writer.writeStart("div", "class", "widget widget-" + getInternalName());
+                    writer.writeStart("h1");
+                        writer.writeHtml(page.getObjectLabel(this));
+                    writer.writeEnd();
+                    writer.write(displayHtml);
+                writer.writeEnd();
+
+                return sw.toString();
+            }
+
+        } catch (UnsupportedOperationException error) {
+            throw error;
+        }
     }
 
     /** Updates the given {@code object}. */
@@ -116,5 +142,13 @@ public class Widget extends Plugin {
         public void setRow(double row) {
             this.row = row;
         }
+    }
+
+    // --- Deprecated ---
+
+    /** @deprecated Use {@link #createDisplayHtml} instead. */
+    @Deprecated
+    public String display(ToolPageContext page, Object object) throws Exception {
+        throw new UnsupportedOperationException();
     }
 }

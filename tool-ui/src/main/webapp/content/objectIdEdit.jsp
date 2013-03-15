@@ -5,9 +5,11 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 
 com.psddev.dari.db.State,
+com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StorageItem,
 
+java.io.StringWriter,
 java.util.List,
 java.util.UUID
 " %><%!
@@ -63,8 +65,22 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
                     wp.write(wp.h(widget.getInternalName()));
                     wp.write("\">");
 
-                    String display = widget.display(wp, object);
-                    wp.write(display);
+                    String displayHtml;
+
+                    try {
+                        displayHtml = widget.createDisplayHtml(wp, object);
+
+                    } catch (Exception ex) {
+                        StringWriter sw = new StringWriter();
+                        HtmlWriter hw = new HtmlWriter(sw);
+                        hw.putAllStandardDefaults();
+                        hw.start("pre", "class", "message message-error").object(ex).end();
+                        displayHtml = sw.toString();
+                    }
+
+                    if (!ObjectUtils.isBlank(displayHtml)) {
+                        wp.write(displayHtml);
+                    }
                 }
             }
         }
