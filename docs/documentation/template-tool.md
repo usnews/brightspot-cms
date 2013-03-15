@@ -15,7 +15,7 @@ There are two types of template that can be created in Brightspot, a template fo
 
 ## Dynamic Template Creation
 
-We will walk through the creation of an example template for an Article Page.
+This guide will walk through the creation of an example template for an Article Page.
 
 Create a new Template, access the tool at `Admin -> Templates & Sections`.  Name it and save.
 
@@ -26,43 +26,43 @@ Under the Visual `Unnamed Section` click Settings to start building. Create a `C
 
 **Add Sections**
 
-Once the `Page Container` is in place a blue `Add Section` bar will appear, with a green plus icon for adding new sections. Because we picked a Vertical Container our sections will be added in a vertical position, below one another.
+Once the `Page Container` is in place a blue `Add Section` bar will appear, with a green plus icon for adding new sections. Picking a Vertical Container means sections will be added in a vertical position, below one another.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-three-sections.png" alt="" />
 
-We want three sections within our Container, once added we can begin to define each. **Save.**
+Add three within the Container, once added you can begin to define each. **Save.**
 
 **Add Section Detail**
 
 Clicking on `Settings` within the newly created sections allows you to define a name, what type will be within the section, an engine for rendering the content, and a path to the actual JSP file that will be used for rendering.
 
-For the header we will just be using a script. We then select JSP and path to a `header.jsp` file. For the example this header could contain some simple HTML, our `<head>` section and CSS.
+For the header use a script. Select JSP and path to a `header.jsp` file. For the example your header could contain some simple HTML, `<head>` section and CSS.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-header-detail.png" alt="" />
 
 **Sections within a section**
 
-We are creating an Article template page, which will need to have the article content on the left, and a right rail with another module. Our middle section can contain both these new sections.
+This example is an Article template page, which will need to have the article content on the left, and a right rail with another module. The middle section can contain both these new sections.
 
-We start by clicking on Settings, and choosing the `Container (Horizontal)` type. We also add the JSP files for the start and end of the section. These typically are the HTML needed to define page structure.
+Start by clicking on Settings, and choosing the `Container (Horizontal)` type. Add the JSP files for the start and end of the section. These typically are the HTML needed to define page structure.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-body-detail.png" />
 
-By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right, we can now add two new sections, both of which are added next to one another.
+By adding `Container (Horizontal)` the blue `Add Section` bar jumps to the right, you can now add two new sections, both of which are added next to one another.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-body.png" />
 
 **Add Article Detail**
 
-The left section will contain our `Article` content. As this template will be the base for multiple Articles, we simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Creating New Objects](/new-content.html) section. In the Types drop down we select `Script with Main Content`. By doing this, we have specified that each time we create an Article object, it associates it with this Template.
+The left section will contain the `Article` content. As this template will be the base for multiple Articles, simply define the Object Type - Article. If you have not created an Article you can find out how to do so in the [Creating New Objects](/new-content.html) section. In the Types drop down select `Script with Main Content`. By doing this, you have specified that each time you create an Article object, it associates it with this Template.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-article-detail.png" alt="" />
 
 **Add RightRail Detail**
 
-There are two types of Right Rail Module we can try to create. The first, allows the editor to select a specific piece of content from within the CMS and render it. 
+There are two types of Right Rail Module to create. The first, allows the editor to select a specific piece of content from within the CMS and render it. 
 
-To do this, create a new object that will be our right rail module, calling it `AuthorList.java`. It can be built like the example below. It will be an object that contains a list of other authors, hand picked by the Editor:
+To do this, create a new object that will be your right rail module, calling it `AuthorList.java`. It can be built like the example below. It will be an object that contains a list of other authors, hand picked by the Editor:
 
 <div class="highlight">{% highlight java %}
 public class AuthorList extends Content {
@@ -95,7 +95,7 @@ The jsp file to render this object could look like the example below:
 {% endhighlight %}</div>
 	
 
-If, however, we wanted to return a list of all Author objects, automatically created, we could use a script with a query like the following:
+If, however, you wanted to return a list of all Author objects, automatically created, you could use a script with a query like the following:
 
 <div class="highlight">{% highlight java %}
 <%  List<Author> authors = Query.from(Author.class).selectAll();
@@ -140,7 +140,7 @@ The full list of attributes are contained within the `PageContextFilter.class`
 
 **Choose Content Type**
 
-As we have chosen the Article Section to contain our Main Content. We can then specify the exact Object Type we want to display within the template, this is done at the bottom of the page.
+The Article Section contains the Main Content. Specify the exact Object Type to display within the template, this is done at the bottom of the page.
 
 <img src="http://docs.brightspot.s3.amazonaws.com/template-choose-type.png" />
 

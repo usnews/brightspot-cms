@@ -52,7 +52,7 @@ As well as running queries, existing objects from your project can be accessed f
 
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/code_tool_modify_objects.png"/></a>
 
-You can also select the New Class option in the drop down to create an entirely new object. Here we are creating a new Category object.
+You can also select the New Class option in the drop down to create an entirely new object. The example shows creating a new Category object.
 
 <a href="javascript:;" ><img src="http://docs.brightspot.s3.amazonaws.com/code_tool_create_objects.png"/></a>
 
@@ -70,7 +70,7 @@ The Copy tool, also seen here, is used to copy data from one database to another
 
 A unique view of your data model is available through the Dari Schema tool. All content types within your project are listed. Simply select the type you want to view, or type to find from the list.
 
-The schema outlines the model, showing all fields and associated content types. Here we can see our Blog object with associated Author and Category objects.
+The schema outlines the model, showing all fields and associated content types. The examples shows a Blog object with associated Author and Category objects.
 
 <a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/db-schema-tool.png"/></a>
 
@@ -124,7 +124,7 @@ Also, search within an object. Example, an Article with an image. Return Article
 For results, clicking into each result provides a detailed look at each object, in JSON format.
 
 
-You can return results for a specific field within an object. In the example screen grab above we have specified the `twitterHandle` and the `lastName`.
+You can return results for a specific field within an object. The example screen grab above specifies the `twitterHandle` and the `lastName`.
 
 Clicking on a result shows the `JSON`, `Raw JSON` and `Fielded` view that allows control of the object content.
 
@@ -149,7 +149,7 @@ The Task Tool shows all background tasks being implemented on the server. New ta
 
 ## <a id="webdb"></a>Web Database Tool
 
-The Web Database tool allows data from other instances of Brightspot to be accessed. From within the code tool you can query objects that exist in other Brightspot instances. Below we return Article objects from another instance.
+The Web Database tool allows data from other instances of Brightspot to be accessed. From within the code tool you can query objects that exist in other Brightspot instances. Below shows the return of Article objects from another instance.
 
 <div class="highlight">{% highlight java %}
 

@@ -8,7 +8,7 @@ section: documentation
 <div class="container documentation">
         <div class="row header">
             <div class="span12">
-                <p>Having created your own objects and published them in the CMS, the next step is to build pages on which to display your content. In this section we will build a simple page on which we will render our Article object, that we created in the <a href="/new-content.html">previous section</a>.</br></br>We start by adding rendering logic to our already created Article object. We add two annotations to the object, one to define the <code>JSP</code> that renders the Article content, and another that creates the page structure to be associated with it.
+                <p>Once objects are modeled, and published in the CMS, the next step is to build pages on which to display them.</br></br>Start by adding rendering logic an already created object. Add two annotations to the object, one to define the <code>JSP</code> that renders the Article content, and another that creates the page structure to be associated with it. Note, users of Brightspot 2.0 should see the <a href="/template-tool.html">template guide</a> for that version, which is also available.
                 </br></br>
                 </p>
                 <h2>Add Renderer Paths</h2>
@@ -27,7 +27,7 @@ public class Article extends Content {
 
                 </br>
                 <h2>Create JSP Files</h2>
-                <p>To start, we will create two very simple files to render our page. The first is the entire page layout. As per our path specified in the annotation on our Article object, we can create a <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing taglibs and then create a simple structure for your page. We have added a header, which will render our headline, and a content section, which will render the rest of the object.
+                <p>To start, create two files to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing taglibs and then create a simple structure for your page. You can add a header, to render the headline, and a content section, which will render the rest of the object.
                 </br></br>
                 </p>
 <div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -45,7 +45,7 @@ public class Article extends Content {
 
 </div>
 {% endhighlight %}</div>
-<p>In the content div in the layout above we have set the value of the render as <code>mainContent</code>, this is defined when we create our template within the CMS, which is the final step. Now let's create the jsp file that will render the Article object. Using JSTL for our example, we call <code>content.fieldName</code>, where the field name is defined in our Article class. Referenced objects, such as our Author, can be accessed by name, as well as fields within them. We are rendering the Author first and last name. For text fields we can use <code><c:out></code>, whereas for rich text, we use the <code><cms:render></code> tag.
+<p>In the content div set the value of the render as <code>mainContent</code>, this is defined when you create your template within the CMS, which is the final step. Create the jsp file that will render the Article object. Using JSTL in this example, call <code>content.fieldName</code>, where the field name is defined in the class. Referenced objects, such as our Author, can be accessed by name, as well as fields within them. The example is rendering the Author first and last name. For text fields use <code><c:out></code>, whereas for rich text, use the <code><cms:render></code> tag.
                 </br></br>
 <div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>

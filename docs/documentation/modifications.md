@@ -42,7 +42,7 @@ public class InternalLink extends Link {
 
 **Example of a Modification, using a common Interface**
 
-A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore we have no quick means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
+A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore there is no quick means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
 
 **Step 1. Create Common Interface**
 
@@ -79,7 +79,7 @@ public class FacebookLikes extends Modification<FacebookLikesInterface> {
 
 **No Common Interface**
 
-With Dari there is another method by which we can implement multiple inheritance with modifications, without the need for the common interface. By using `Modification.Classes` for a new class, and then defining the classes that are to inherit, we can modify multiple objects from one single class.
+With Dari there is another method by which you can implement multiple inheritance with modifications, without the need for the common interface. By using `Modification.Classes` for a new class, and then defining the classes that are to inherit, you can modify multiple objects from one single class.
 
 **Step 1. Implement Modification** 
 

@@ -40,7 +40,7 @@ public class ReadArticle extends Activity { ... }
 public class PostedArticle extends Activity { ... }
 {% endhighlight %}
 
-Given this class hierarchy we can query for user's activity by querying
+Given this class hierarchy you can query for user's activity by querying
 from the `Activity` class. This will also retrieve any
 records that are subclasses of `Activity`.
 
@@ -123,8 +123,7 @@ public class Author extends Content {
 }
 {% endhighlight %}
 
-There are two ways we can find articles by a specific author. We can
-query for the author first and then query for articles by that
+There are two ways to can find articles by a specific author. Query for the author first and then query for articles by that
 author.
 
 {% highlight java %}
@@ -144,7 +143,7 @@ List<Articles> = Query.from(Articles.class).where("author/email = 'john.smith@ps
 ### Bind variables
 
 
-In the previous section we used `?` in our `WHERE` clause when specifying the author. Dari supports bind
+In the previous section `?` was used in the `WHERE` clause when specifying the author. Dari supports bind
 variables in query strings using `?` for placeholders.
 
 
@@ -187,11 +186,11 @@ List<Author> authors = Query.from(Author.class).sortAscending("name");
 
 
 Using the `groupBy` method allows queries to return items in
-groupings, based on associations.  In the example below we will return a count
+groupings, based on associations.  The example below returns a count
 of articles grouped by the tags associated with each.
 
-To show how group works we'll use the following example Article that
-contains the Tag field that we will group by.
+The following example shows how Group By works, using Articles that
+contain the Tag field that can be grouped by.
 
 
 {% highlight java %}

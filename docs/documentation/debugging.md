@@ -9,7 +9,7 @@ section: documentation
 
 ## Contextual Debugger 
 
-The Contextual Debugging Tool gives you an instant view of webpage metrics. By adding `?_debug=true` to a page URL the Dari Contextual Debugger is activated. This provides a view of the load time, in milliseconds, for each module (jsp) on the page. Color hotspots are added, with relative size, to provide a clear illustration of the slowest loading modules on the page. The larger the circle, and the darker the red, the slower the load time. Below, we can see the 90 milliseconds load time is the slowest on our page.
+The Contextual Debugging Tool gives you an instant view of webpage metrics. By adding `?_debug=true` to a page URL the Dari Contextual Debugger is activated. This provides a view of the load time, in milliseconds, for each module (jsp) on the page. Color hotspots are added, with relative size, to provide a clear illustration of the slowest loading modules on the page. The larger the circle, and the darker the red, the slower the load time. Below, you can see the 90 milliseconds load time is the slowest on our page.
 
 #### Getting Context
 
@@ -25,7 +25,7 @@ At the bottom of the browser window is a full waterfall view, in order, of all i
 
 #### Finding Code
 
-Clicking on a specific hotspot brings you to the full waterfall view of the page load at the bottom of the browser window. The anchor from the hotspot will be found automatically. Here we have clicked on the 90 milliseconds hotspot, and can see the top of the page anchored at our `page_js_start.jsp`
+Clicking on a specific hotspot brings you to the full waterfall view of the page load at the bottom of the browser window. The anchor from the hotspot will be found automatically. In the example clicking on the 90 milliseconds hotspot, brings us to the `page_js_start.jsp`
 
 ![](http://docs.brightspot.s3.amazonaws.com/waterfall-profile.png)
 

@@ -37,7 +37,7 @@ return Query.from(Author.class).where("firstName matches 'Alex'").selectAll();
 
 ## Using Search
 
-As well as powering the search within the CMS application, Solr can also be used for your website search. In this section we will outline how to enable these capabilities, and how to customize them.
+As well as powering the search within the CMS application, Solr can also be used for your website search. This section will outline how to enable these capabilities, and how to customize them.
 
 
 **Search API**
@@ -52,7 +52,7 @@ return search.toQuery("Top Java CMS Platforms").select(0, 5);
 
 **Boosted Search**
 
-In Brightspot we can boost items where the search query matches the representative labels for each of the types included. This boosted search uses the Relevancy standards present in Solr, which are explained here, on the [Solr Wiki](http://wiki.apache.org/solr/SolrRelevancyFAQ#How_can_I_increase_the_score_for_specific_documents). 
+In Brightspot you can boost items where the search query matches the representative labels for each of the types included. This boosted search uses the Relevancy standards present in Solr, which are explained here, on the [Solr Wiki](http://wiki.apache.org/solr/SolrRelevancyFAQ#How_can_I_increase_the_score_for_specific_documents). 
 
 The default behavior in Brightspot is for the first `String` field in any object to become the label field. This can be programmed to be any field with the annotation `@LabelFields` (See below) 
 
@@ -66,7 +66,7 @@ public class Article extends Content {
 }
 {% endhighlight %}</div>
 
-If we want to boost the designated label field in an object, it must be `@Indexed`. Our new boosted search for the headline field in our Article will include `search.boostLabels(5.0);`
+If you want to boost the designated label field in an object, it must be `@Indexed`. The new boosted search for the headline field in the Article will include `search.boostLabels(5.0);`
 
 <div class="highlight">{% highlight java %}
 Search search = new Search();
@@ -82,13 +82,13 @@ search.boostFields(5.0, Article.class, "headline");
 search.boostFields(5.0, Blog.class, "title");
 {% endhighlight %}</div>
 
-If we want to broaden our search we can add a keyword within a particular class. This allows certain keywords to be associated directly with objects. For example, below we have defined the search term "CMS", therefore any user input matching that term will automatically boost references found in the News class.
+If you want to broaden the search you can add a keyword within a particular class. This allows certain keywords to be associated directly with objects. For example, below the search term "CMS" has been defined, therefore any user input matching that term will automatically boost references found in the News class.
 
 <div class="highlight">{% highlight java %}
 search.addTypeKeywords(1.5, News.class, "CMS");
 {% endhighlight %}</div>
 
-We can filter out words that are not adding to our search, for example we can add 'top' as a stop word so that it isn't required to be in the text of the object:
+You can filter out words that are not adding to search, for example add 'top' as a stop word so that it isn't required to be in the text of the object:
 
 <div class="highlight">{% highlight java %}
 search.addStopWords("top");

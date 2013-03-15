@@ -42,7 +42,7 @@ Start by adding the `@ToolUi.Referenceable` class annotation, so the Image can b
 
 ## Creating the Image JSP
 
-The Image object .jsp file can be as simple as the example below. The size refers to the internal crop name which we will provide from within the CMS UI, and that we will refer to within the object .jsp. Note the use of the `cms:img` tag.
+The Image object .jsp file can be as simple as the example below. The size refers to the internal crop name which we will provide from within the CMS UI, and that can be refered to within the object .jsp. Note the use of the `cms:img` tag.
 
 <div class="highlight">{% highlight java %}
     <cms:img src="${content}" size="${imageSize}" alt="${content.altText}" />
@@ -50,7 +50,7 @@ The Image object .jsp file can be as simple as the example below. The size refer
 
 ## Adding the Crop
 
-From within Brightspot, we need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. We have created a crop for use with all blog post images, the internal name is `blogCrop`.
+From within Brightspot, you need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. Create a crop for use with all blog post images, the internal name is `blogCrop`.
 
 The simplest implementation does not require any other option to be selected.
 
@@ -59,11 +59,11 @@ The simplest implementation does not require any other option to be selected.
 
 ## Creating the Blog Page JSP
 
-We have defined a crop for our Blog Posts, and within the CMS UI, when adding an image, the crop option Blog Post Crop now appears. 
+Once you have defined a crop for Blog Posts, and within the CMS UI, when adding an image, the crop option Blog Post Crop now appears. 
 
 ![](http://docs.Brightspot.s3.amazonaws.com/crop-ui-choice.png)
 
-The .jsp file used to render the Blog post object will reference the crop that is desired directly. We use the `<cms:render` tag to render the Rich Text area `blog.body`, and any images added within it as enhancements are rendered.
+The .jsp file used to render the Blog post object will reference the crop that is desired directly. Use the `<cms:render` tag to render the Rich Text area `blog.body`, and any images added within it as enhancements are rendered.
 
 <div class="highlight">{% highlight java %}
 <%@ include file="/WEB-INF/modules/includes.jsp" %>
