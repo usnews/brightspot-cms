@@ -105,22 +105,44 @@ public class ToolPageContext extends WebPageContext {
      * found, either the {@linkplain #getPageSetting page setting value} or
      * the given {@code defaultValue}.
      */
+    @SuppressWarnings("unchecked")
     public <T> T pageParam(Class<T> returnClass, String name, T defaultValue) {
+        Class<?> valueClass = PRIMITIVE_CLASSES.get(returnClass);
+
+        if (valueClass == null) {
+            valueClass = returnClass;
+        }
+
         HttpServletRequest request = getRequest();
         String valueString = request.getParameter(name);
-        T value = ObjectUtils.to(returnClass, valueString);
-        T userValue = ObjectUtils.to(returnClass, AuthenticationFilter.Static.getPageSetting(request, name));
+        Object value = ObjectUtils.to(valueClass, valueString);
+        Object userValue = ObjectUtils.to(valueClass, AuthenticationFilter.Static.getPageSetting(request, name));
 
         if (valueString == null) {
-            return ObjectUtils.isBlank(userValue) ? defaultValue : userValue;
+            return ObjectUtils.isBlank(userValue) ? defaultValue : (T) userValue;
 
         } else {
             if (!ObjectUtils.equals(value, userValue)) {
                 AuthenticationFilter.Static.putPageSetting(request, name, value);
             }
 
-            return value;
+            return (T) value;
         }
+    }
+
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_CLASSES; static {
+        Map<Class<?>, Class<?>> m = new HashMap<Class<?>, Class<?>>();
+
+        m.put(boolean.class, Boolean.class);
+        m.put(byte.class, Byte.class);
+        m.put(char.class, Character.class);
+        m.put(double.class, Double.class);
+        m.put(float.class, Float.class);
+        m.put(int.class, Integer.class);
+        m.put(long.class, Long.class);
+        m.put(short.class, Short.class);
+
+        PRIMITIVE_CLASSES = Collections.unmodifiableMap(m);
     }
 
     /**
