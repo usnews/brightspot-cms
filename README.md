@@ -7,7 +7,7 @@ to the application it powers, as it is automatically generated from the
 objects it handles. Brightspot CMS is uniquely adaptable to change, and
 delivers a uniquely easy-to-use and familiar editorial experience.
 
-To learn more, take a look at the [documentation](http://perfectsense.github.com/brightspot-cms/).
+To learn more, take a look at the [documentation](http://www.brightspotcms.com).
 
 License
 =======
