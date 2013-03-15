@@ -4,6 +4,7 @@ com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.tool.page.ContentSearchAdvanced,
 
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
@@ -44,6 +45,15 @@ if (!wp.param(boolean.class, "widget")) {
                         "incompleteIfMatching", hasMissing),
                 "target", "newWorkStream");
             wp.writeHtml("New Work Stream");
+        wp.writeEnd();
+
+        wp.writeStart("a",
+                "class", "action action-search",
+                "target", "_top",
+                "href", wp.cmsUrl("/content/searchAdvanced",
+                        ContentSearchAdvanced.TYPE_PARAMETER, search.getSelectedType() != null ? search.getSelectedType().getId() : null,
+                        ContentSearchAdvanced.PREDICATE_PARAMETER, search.getQuery().getPredicate()));
+            wp.writeHtml("Advanced Search");
         wp.writeEnd();
     wp.writeEnd();
 
