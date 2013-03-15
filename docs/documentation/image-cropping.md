@@ -35,6 +35,7 @@ public class Image extends Content {
 	private StorageItem file;
 	private String altText;
 
+	// Getters and Setters
 }
 {% endhighlight %}</div>
 
