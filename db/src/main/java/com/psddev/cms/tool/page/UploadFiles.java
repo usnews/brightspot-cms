@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -35,6 +36,8 @@ import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 
@@ -54,6 +57,7 @@ public class UploadFiles extends PageServlet {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
         PageWriter writer = page.getWriter();
         Exception postError = null;
+        ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
 
         if (page.isFormPost()) {
             try {
@@ -62,8 +66,6 @@ public class UploadFiles extends PageServlet {
                 if (request == null) {
                     throw new IllegalStateException("Not multipart!");
                 }
-
-                ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
 
                 ErrorUtils.errorIfNull(selectedType, "type");
 
@@ -87,6 +89,77 @@ public class UploadFiles extends PageServlet {
 
                 if (files != null) {
                     for (FileItem file : files) {
+
+                        // Checks to make sure the file's content type is valid
+                        String groupsPattern = Settings.get(String.class, "cms/tool/fileContentTypeGroups");
+                        Set<String> contentTypeGroups = new SparseSet(ObjectUtils.isBlank(groupsPattern) ? "+/" : groupsPattern);
+
+                        if (!contentTypeGroups.contains(file.getContentType())) {
+                            page.getErrors().add(new IllegalArgumentException(String.format(
+                                    "Invalid content type [%s]. Must match the pattern [%s].",
+                                    file.getContentType(), contentTypeGroups)));
+                            continue;
+                        }
+
+                        // Disallow HTML disguising as other content types per:
+                        // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
+                        if (!contentTypeGroups.contains("text/html")) {
+                            InputStream input = file.getInputStream();
+
+                            try {
+                                byte[] buffer = new byte[1024];
+                                String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
+                                String ptr = data.trim();
+
+                                if (ptr.startsWith("<!") ||
+                                        ptr.startsWith("<?") ||
+                                        data.startsWith("<html") ||
+                                        data.startsWith("<script") ||
+                                        data.startsWith("<title") ||
+                                        data.startsWith("<body") ||
+                                        data.startsWith("<head") ||
+                                        data.startsWith("<plaintext") ||
+                                        data.startsWith("<table") ||
+                                        data.startsWith("<img") ||
+                                        data.startsWith("<pre") ||
+                                        data.startsWith("text/html") ||
+                                        data.startsWith("<a") ||
+                                        ptr.startsWith("<frameset") ||
+                                        ptr.startsWith("<iframe") ||
+                                        ptr.startsWith("<link") ||
+                                        ptr.startsWith("<base") ||
+                                        ptr.startsWith("<style") ||
+                                        ptr.startsWith("<div") ||
+                                        ptr.startsWith("<p") ||
+                                        ptr.startsWith("<font") ||
+                                        ptr.startsWith("<applet") ||
+                                        ptr.startsWith("<meta") ||
+                                        ptr.startsWith("<center") ||
+                                        ptr.startsWith("<form") ||
+                                        ptr.startsWith("<isindex") ||
+                                        ptr.startsWith("<h1") ||
+                                        ptr.startsWith("<h2") ||
+                                        ptr.startsWith("<h3") ||
+                                        ptr.startsWith("<h4") ||
+                                        ptr.startsWith("<h5") ||
+                                        ptr.startsWith("<h6") ||
+                                        ptr.startsWith("<b") ||
+                                        ptr.startsWith("<br")) {
+                                    page.getErrors().add(new IllegalArgumentException(String.format(
+                                            "Can't upload [%s] file disguising as HTML!",
+                                            file.getContentType())));
+                                    continue;
+                                }
+
+                            } finally {
+                                input.close();
+                            }
+                        }
+
+                        if (file.getSize() == 0) {
+                            continue;
+                        }
+
                         StringBuilder path = new StringBuilder();
                         String random = UUID.randomUUID().toString().replace("-", "");
                         String fileName = file.getName();
@@ -178,24 +251,26 @@ public class UploadFiles extends PageServlet {
                     }
                 }
 
-                writer.start("div", "id", page.createId()).end();
+                if (page.getErrors().isEmpty()) {
+                    writer.start("div", "id", page.createId()).end();
 
-                writer.start("script", "type", "text/javascript");
-                    writer.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
-                        writer.write("var $page = $('#" + page.getId() + "'),");
-                        writer.write("$init = $page.popup('source').repeatable('closestInit'),");
-                        writer.write("$addButton = $init.find('.addButton').eq(0),");
-                        writer.write("$input;");
-                        writer.write("if ($addButton.length > 0) {");
-                            writer.write(js.toString());
-                            writer.write("$page.popup('close');");
-                        writer.write("} else {");
-                            writer.write("win.location.reload();");
-                        writer.write("}");
-                    writer.write("})(jQuery, window);");
-                writer.end();
+                    writer.start("script", "type", "text/javascript");
+                        writer.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
+                            writer.write("var $page = $('#" + page.getId() + "'),");
+                            writer.write("$init = $page.popup('source').repeatable('closestInit'),");
+                            writer.write("$addButton = $init.find('.addButton').eq(0),");
+                            writer.write("$input;");
+                            writer.write("if ($addButton.length > 0) {");
+                                writer.write(js.toString());
+                                writer.write("$page.popup('close');");
+                            writer.write("} else {");
+                                writer.write("win.location.reload();");
+                            writer.write("}");
+                        writer.write("})(jQuery, window);");
+                    writer.end();
 
-                return;
+                    return;
+                }
 
             } catch (Exception error) {
                 postError = error;
@@ -229,9 +304,20 @@ public class UploadFiles extends PageServlet {
                 "enctype", "multipart/form-data",
                 "action", page.url(null));
 
+            for (ObjectType type : types) {
+                writer.tag("input", "type", "hidden", "name", "typeId", "value", type.getId());
+            }
+
             if (postError != null) {
                 writer.start("div", "class", "message message-error");
                     writer.object(postError);
+                writer.end();
+
+            } else if (!page.getErrors().isEmpty()) {
+                writer.start("div", "class", "message message-error");
+                    for (Throwable error : page.getErrors()) {
+                        writer.html(error.getMessage());
+                    }
                 writer.end();
             }
 
@@ -242,7 +328,9 @@ public class UploadFiles extends PageServlet {
                 writer.start("div", "class", "inputContainer-smallInput");
                     writer.start("select", "id", page.getId(), "name", "type");
                         for (ObjectType type : types) {
-                            writer.start("option", "value", type.getId());
+                            writer.start("option",
+                                    "selected", type.equals(selectedType) ? "selected" : null,
+                                    "value", type.getId());
                                 writer.html(type.getDisplayName());
                             writer.end();
                         }
