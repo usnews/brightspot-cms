@@ -45,7 +45,7 @@ from the `Activity` class. This will also retrieve any
 records that are subclasses of `Activity`.
 
 {% highlight java %}
-PaginatedResults<Activity> results = Query.from(Activity.class).
+PaginatedResult<Activity> results = Query.from(Activity.class).
         where("user = ?", user).
         sortDescending("activityDate").
         select(0, 10);
@@ -56,7 +56,7 @@ PaginatedResults<Activity> results = Query.from(Activity.class).
 Dari supports limiting the number of results returned.
 
 {% highlight java %}
-PaginatedResults<Article> articles = Query.from(Article.class).
+PaginatedResult<Article> articles = Query.from(Article.class).
         sortAscending("title").
         select(1000, 10);
 List<Article> items = articles.getItems();
