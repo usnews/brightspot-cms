@@ -163,29 +163,53 @@ footer {
     text-size: 15px;
     box-shadow: none;
     //font-weight: bold;
+
+    background: #fafafa;
+    color: #444;
+    text-size: 15px;
+    box-shadow: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 11px;
+    margin-top: 10px;
+    line-height: 28px;
 }
 
 .navbar .nav > li {
-    height: 58px;
-    line-height: 38px;
-
     a {
         padding-left: 0;
         padding-right: 30px;
+        color: #ccc;
+        text-size: 15px;
+        text-shadow: none;
+        position: relative;
+        background: #983334;
+        margin-top: 10px;
+        line-height: 28px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        padding: 11px;
+        margin-right: 3px;
+
+        &:hover {
+            background: #9E3D3F;
+            color: #eee;
+        }
     }
 }
 
-.navbar .nav > li > a,
-.navbar .nav > li > a:focus,
-.navbar .nav > li > a:hover {
+.navbar .nav > li > a {
     color: #ccc;
     text-size: 15px;
     text-shadow: none;
     position: relative;
 
     &.social {
-        background: #983334;
-        margin-left: 9px;
+        .gradient(#C1BABD, #CBC3C6);
+        color: #555;
+        font-weight: normal;
+
+        margin-right: 9px;
         margin-top: 10px;
         margin-bottom: 10px;
         border-radius: 3px;
