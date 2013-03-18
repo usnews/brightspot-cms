@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>{{ page.title }} - Brightspot CMS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -20,6 +19,16 @@
     <script src="js/jquery-1.9.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/skrollr.min.js"></script>
+
+    <meta name="viewport" content="width=480, initial-scale=.25">
+
+    <style>
+    @media print {
+        .page-break	{ display: block; page-break-before: always; }
+        .print-hidden { display: none; }
+        .highlight-mini { border-bottom: none; }
+    }
+    </style>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -60,7 +69,7 @@
                    background: blue;
         "> -->
     
-    <div id="header">
+    <div id="header" class="print-hidden">
         <div class="container">
             <div class="row">
                 <div class="lead-section span12">
@@ -83,7 +92,7 @@
         </div>
     </div>
 
-    <div id="navigation" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
+    <div id="navigation" class="print-hidden" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
         <div class="container">
             <div class="row">
                 <div class="span12">
@@ -120,7 +129,7 @@
     {{ content }}
 
     <footer>
-        <div class="container">
+        <div class="container print-hidden">
             <div class="row">
                 <div class="span6 blurb">
                     <a href="http://www.perfectsensedigital.com"><img src="img/psd-logo.png" style="max-height: 60px;"/></a>
