@@ -35,6 +35,7 @@
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
+    {% if site.url != 'dev' %}
     <script type="text/javascript">
 
           var _gaq = _gaq || [];
@@ -48,6 +49,7 @@
           })();
 
     </script>
+    {% endif %}
 </head>
 
 <body data-target=".dari-docs-sidebar">
@@ -107,7 +109,7 @@
                                 <ul class="nav">
                                     <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
                                     <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
-                                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Support</a></li>
+                                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Documentation/Support</a></li>
                                 </ul>
                             </div>
                             <div class="nav pull-right">
