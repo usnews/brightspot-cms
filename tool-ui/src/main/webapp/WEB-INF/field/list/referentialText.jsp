@@ -42,7 +42,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             ReferentialText referentialText = new ReferentialText();
             fieldValue.add(referentialText);
 
-            Matcher enhancementMatcher = StringUtils.getMatcher(newText, "(?is)<(\\S+)([^>]+class=(['\"])[^'\"]*enhancement[^'\"]*\\3[^>]*)>.*?</\\1>");
+            Matcher enhancementMatcher = StringUtils.getMatcher(newText, "(?is)<([^>\\s]+)([^>]+class=(['\"])[^'\"]*enhancement[^'\"]*\\3[^>]*)>.*?</\\1>");
             int lastMatchAt = 0;
             while (enhancementMatcher.find()) {
 
