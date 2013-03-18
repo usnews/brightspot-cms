@@ -34,6 +34,14 @@
     <!--[if lt IE 9]>
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    {% if site.url == 'dev' %}
+    <script type="text/javascript">
+    less = {
+        env: "development",
+    };
+
+    </script>
+    {% endif %}
 
     {% if site.url != 'dev' %}
     <script type="text/javascript">
