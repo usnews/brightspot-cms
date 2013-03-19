@@ -105,8 +105,14 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                         items.put(areaEntry.getKey(), new GridItem(areaEntry.getValue()));
                     }
 
-                    for (int i = 0; i < gridAreaSize && gridOffset + i < areaSize; ++ i) {
+                    int i = 0;
+
+                    for (; i < gridAreaSize && gridOffset + i < areaSize; ++ i) {
                         items.put(String.valueOf(i), new GridItem(areasList.get(gridOffset + i)));
+                    }
+
+                    for (; i < gridAreaSize; ++ i) {
+                        items.put(String.valueOf(i), null);
                     }
 
                     gridOffset += gridAreaSize;
