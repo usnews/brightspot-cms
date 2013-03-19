@@ -539,17 +539,7 @@ wysihtml5.commands.insertEnhancement = {
         }
 
         button.setAttribute('class', 'enhancement');
-
-        composer.selection.insertNode(button);
-
-        if (wysihtml5.browser.hasProblemsSettingCaretAfterImg()) {
-            var textNode = doc.createTextNode(wysihtml5.INVISIBLE_SPACE);
-            composer.selection.insertNode(textNode);
-            composer.selection.setAfter(textNode);
-
-        } else {
-            composer.selection.setAfter(button);
-        }
+        $(composer.selection.getSelectedNode()).closest('body > *').before(button);
     },
 
     'state': function(composer) {
@@ -571,17 +561,7 @@ wysihtml5.commands.insertMarker = {
         }
 
         button.setAttribute('class', 'enhancement marker');
-
-        composer.selection.insertNode(button);
-
-        if (wysihtml5.browser.hasProblemsSettingCaretAfterImg()) {
-            var textNode = doc.createTextNode(wysihtml5.INVISIBLE_SPACE);
-            composer.selection.insertNode(textNode);
-            composer.selection.setAfter(textNode);
-
-        } else {
-            composer.selection.setAfter(button);
-        }
+        $(composer.selection.getSelectedNode()).closest('body > *').before(button);
     },
 
     'state': function(composer) {
