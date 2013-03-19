@@ -23,7 +23,7 @@ if (allSites.isEmpty()) {
     return;
 }
 
-Object object = JspWidget.getObject(wp);
+Object object = JspWidget.getOriginal(wp);
 State state = State.getInstance(object);
 Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
 

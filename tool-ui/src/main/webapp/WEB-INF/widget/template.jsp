@@ -14,7 +14,7 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-Object object = JspWidget.getObject(wp);
+Object object = JspWidget.getOriginal(wp);
 State objectState = State.getInstance(object);
 Template.ObjectModification objectTemplateMod = objectState.as(Template.ObjectModification.class);
 

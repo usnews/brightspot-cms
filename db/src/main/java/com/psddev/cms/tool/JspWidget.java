@@ -36,6 +36,12 @@ public class JspWidget extends Widget {
         return (JspWidget) page.getRequest().getAttribute(WIDGET_ATTRIBUTE);
     }
 
+    /** Returns the original object associated with the given {@code page}. */
+    public static Object getOriginal(ToolPageContext page) {
+        Object object = page.getRequest().getAttribute("original");
+        return object != null ? object : getObject(page);
+    }
+
     /** Returns the JSP. */
     public String getJsp() {
         return jsp;

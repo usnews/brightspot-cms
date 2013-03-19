@@ -19,7 +19,7 @@ java.util.Map
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-Object object = JspWidget.getObject(wp);
+Object object = JspWidget.getOriginal(wp);
 boolean isPage = Page.class.isInstance(object) && !Template.class.isInstance(object);
 State objectState = State.getInstance(object);
 Directory.ObjectModification objectAsDirMod = objectState.as(Directory.ObjectModification.class);

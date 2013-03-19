@@ -1,17 +1,9 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PeriodicValue;
-import com.psddev.dari.util.PullThroughValue;
-
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +16,16 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PeriodicValue;
+import com.psddev.dari.util.PullThroughValue;
 
 /** Group of pages that's regarded as one entity. */
 public class Site extends Record {
@@ -210,7 +212,14 @@ public class Site extends Record {
             try {
                 requestUri = new URI(url);
             } catch (URISyntaxException ex) {
-                return null;
+                try {
+                    URL urlObject = new URL(url);
+                    requestUri = new URI(urlObject.getProtocol(), urlObject.getAuthority(), urlObject.getHost(), urlObject.getPort(), urlObject.getPath(), urlObject.getQuery(), urlObject.getRef());
+                } catch (MalformedURLException error2) {
+                    return null;
+                } catch (URISyntaxException error2) {
+                    return null;
+                }
             }
 
             Map<String, Site> checkUrlsMap = new HashMap<String, Site>();
