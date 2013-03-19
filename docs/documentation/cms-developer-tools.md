@@ -31,11 +31,11 @@ If you would like to revert to a hidden preview and pop-up window format you can
 
 ![](http://docs.brightspot.s3.amazonaws.com/wireframe_tool.png)
 
-Also available within the inline preview, the wireframe tool uses the page template to create a wire framed visual of any page. Section names and layouts are used to produce a wireframe mock of your page layout. This feature is available from any Brightspot built page, by adding `?_wireframe=true` to a URL.
+Also available within the inline preview, the wireframe tool uses the page template to create a wire framed visual of any page. Section names and layouts are used to produce a wireframe mock of your page layout. This feature is available from any Brightspot built page, by adding `?_wireframe=true` to a URL. Note, Production mode must be offf `?_prod=false`
 
 ![](http://docs.brightspot.s3.amazonaws.com/wireframe_tool_browser.png)
 
-Within each page section the content chosen, or if nothing has been chosen chosen can be accessed directly. The tool helps to highlight any gaps in development, as well as providing a detailed list of all the JSTL hooks available for each section. The drop down menus for each section highlight the properties available on that page section.
+Within each page section the content chosen can be accessed directly. The tool helps to highlight any gaps in development, as well as providing a detailed list of all the JSTL hooks available for each section. The drop down menus for each section highlight the properties available on that page section.
 
 ![](http://docs.brightspot.s3.amazonaws.com/wireframe_detail.png)
 

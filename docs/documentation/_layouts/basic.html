@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>{{ page.title }} - Brightspot CMS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -21,24 +20,51 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/skrollr.min.js"></script>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+
+    <style>
+    @media print {
+        .page-break	{ display: block; page-break-before: always; }
+        .print-hidden { display: none; }
+        .highlight-mini { border-bottom: none; }
+    }
+    </style>
+
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <script type="text/javascript">
+        if (window.location.href.indexOf("http://perfectsense.github.com/brightspot-cms/") != -1) {
+            var url = window.location.href.replace(
+                    "http://perfectsense.github.com/brightspot-cms/", 
+                    "http://www.brightspotcms.com/");
+            window.location = url;
+        }
+    </script>
 
-          var _gaq = _gaq || [];
-          _gaq.push(['_setAccount', 'UA-32403198-1']);
-          _gaq.push(['_trackPageview']);
+    {% if site.url == 'dev' %}
+    <script type="text/javascript">
+    less = {
+        env: "development",
+    };
+    </script>
+    {% endif %}
 
-          (function() {
+    {% if site.url != 'dev' %}
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-32403198-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-          })();
-
+        })();
     </script>
+    {% endif %}
 </head>
 
 <body data-target=".dari-docs-sidebar">
@@ -60,7 +86,7 @@
                    background: blue;
         "> -->
     
-    <div id="header">
+    <div id="header" class="print-hidden">
         <div class="container">
             <div class="row">
                 <div class="lead-section span12">
@@ -71,10 +97,10 @@
 
                         <div class="install row">
                             <div class="span2">
-                                <a class="install-button" href="/installation.html">Install</a>
+                                <a class="install-button" href="installation.html">Install</a>
                             </div>
                             <div class="span3">
-                                <div class="release">Release 2.0.0 <p>(<a href="/release-notes.html">release notes</a>)</p></div>
+                                <div class="release">Release 2.0.0 <p>(<a href="release-notes.html">release notes</a>)</p></div>
                             </div>
                         </div>
                     </div>
@@ -83,7 +109,7 @@
         </div>
     </div>
 
-    <div id="navigation" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
+    <div id="navigation" class="print-hidden" data-0="position:static; z-index: 100;" data-top-top="position:fixed;top:0px;width:100%;">
         <div class="container">
             <div class="row">
                 <div class="span12">
@@ -98,12 +124,12 @@
                                 <ul class="nav">
                                     <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
                                     <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
-                                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Support</a></li>
+                                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Documentation/Support</a></li>
                                 </ul>
                             </div>
                             <div class="nav pull-right">
                                 <ul class="nav">
-                                <li><a class="social" href="mailto:info@perfectsensedigital.com"><i class="icon-envelope"></i> Request a Demo</a></li>
+                                <li><a class="social" href="mailto:brightspotcms@perfectsensedigital.com"><i class="icon-envelope"></i> Contact Us</a></li>
                                 <li><a class="social" href="https://twitter.com/brightspotcms"><i class="icon-twitter"></i> Follow on Twitter</a></li>
                                 <li><a class="social" href="https://github.com/perfectsense/brightspot-cms"><i class="icon-github"></i> Follow on Github</a></li>
                                 </ul>
@@ -115,12 +141,12 @@
         </div>
     </div>
 
-    <div style="height:58px;" data-0="display:none;" data-top-top="display:block;" data-anchor-target="#navigation">&nbsp;</div>
+    <div class="desktop" style="height:58px;" data-0="display:none;" data-top-top="display:block;" data-anchor-target="#navigation">&nbsp;</div>
 
     {{ content }}
 
     <footer>
-        <div class="container">
+        <div class="container print-hidden">
             <div class="row">
                 <div class="span6 blurb">
                     <a href="http://www.perfectsensedigital.com"><img src="img/psd-logo.png" style="max-height: 60px;"/></a>
@@ -132,8 +158,9 @@
 
     <script type="text/javascript">
     skrollr.init({
-            forceHeight: false
+        forceHeight: false
     });
+
     $(function() {
         $(".main-link").click(function(el) {
             var href = $(this).attr("href");
