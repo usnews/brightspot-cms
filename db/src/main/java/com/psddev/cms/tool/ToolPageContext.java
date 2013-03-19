@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -871,7 +872,19 @@ public class ToolPageContext extends WebPageContext {
                 }
 
             writeEnd();
-            writeTag("body");
+
+            String broadcastMessage = cms.getBroadcastMessage();
+            Date broadcastExpiration = cms.getBroadcastExpiration();
+            boolean hasBroadcast = !ObjectUtils.isBlank(broadcastMessage) &&
+                    (broadcastExpiration == null ||
+                    broadcastExpiration.after(new Date()));
+
+            writeTag("body", "class", hasBroadcast ? "hasToolBroadcast" : null);
+                if (hasBroadcast) {
+                    writeStart("div", "class", "toolBroadcast");
+                        writeHtml(broadcastMessage);
+                    writeEnd();
+                }
 
                 writeStart("div", "class", "toolHeader" + (!ObjectUtils.isBlank(environment) ? " toolHeader-hasEnvironment" : ""));
 

@@ -1,3 +1,36 @@
+.toolBroadcast {
+    .message;
+    .message-error;
+
+    .border-radius(0);
+    height: 25px;
+    left: 0;
+    line-height: 25px;
+    overflow: hidden;
+    padding: 0 20px 0 40px;
+    position: fixed;
+    text-overflow: ellipsis;
+    top: 0;
+    white-space: nowrap;
+    width: 100%;
+    z-index: 100;
+
+    &:before {
+        height: 25px;
+        left: 20px;
+        line-height: 25px;
+        top: 0;
+    }
+}
+
+.hasToolBroadcast {
+    margin-top: 100px;
+
+    .toolHeader {
+        top: 25px;
+    }
+}
+
 .toolHeader {
     background-color: @color-note-lighter;
     border-bottom: 1px solid @color-note;
@@ -43,8 +76,8 @@
     position: absolute;
     text-align: center;
     top: 18px;
-    right: -44px;
-    width: 150px;
+    right: -120px;
+    width: 300px;
     .transform(rotate(45deg));
     text-transform: uppercase;
 }

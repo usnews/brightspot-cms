@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,8 @@ public class CmsTool extends Tool {
     private String environment;
     private ToolRole defaultRole;
     private Set<String> disabledPlugins;
+    private String broadcastMessage;
+    private Date broadcastExpiration;
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -203,6 +206,43 @@ public class CmsTool extends Tool {
     /** Sets the set of disabled plugin names. */
     public void setDisabledPlugins(Set<String> disabledPlugins) {
         this.disabledPlugins = disabledPlugins;
+    }
+
+    /**
+     * Returns the broadcast message.
+     *
+     * @return May be {@code null}.
+     */
+    public String getBroadcastMessage() {
+        return broadcastMessage;
+    }
+
+    /**
+     * Sets the broadcast message.
+     *
+     * @param broadcastMessage May be {@code null}.
+     */
+    public void setBroadcastMessage(String broadcastMessage) {
+        this.broadcastMessage = broadcastMessage;
+    }
+
+    /**
+     * Returns the broadcast message expiration.
+     *
+     * @return If {@code null}, the message never expires.
+     */
+    public Date getBroadcastExpiration() {
+        return broadcastExpiration;
+    }
+
+    /**
+     * Sets the broadcast message expiration.
+     *
+     * @param broadcastExpiration If {@code null}, the message never
+     * expires.
+     */
+    public void setBroadcastExpiration(Date broadcastExpiration) {
+        this.broadcastExpiration = broadcastExpiration;
     }
 
     /** Returns the extra CSS. */
