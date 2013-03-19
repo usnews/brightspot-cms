@@ -97,8 +97,7 @@ API Definitions for JSP tags used in the grid layout system.
 **&lt;cms:render&gt;**
 
 The render tag will render the contents of the `value` attribute into a
-provded area. For complete documentation of <cms:render> see 
-the [ &lt;cms:render&gt; references documentation](lkjfalsdkjf).
+provided area.
 
 > `area` - Name of area to render content into.
 
