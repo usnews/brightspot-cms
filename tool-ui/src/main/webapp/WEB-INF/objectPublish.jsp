@@ -8,8 +8,13 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.CachingDatabase,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.ObjectUtils,
 
 java.util.Date,
+java.util.LinkedHashMap,
+java.util.LinkedHashSet,
+java.util.Map,
+java.util.Set,
 java.util.UUID
 " %><%
 
@@ -31,22 +36,41 @@ if (!("Publish".equals(action)
 Object object = request.getAttribute("object");
 State state = State.getInstance(object);
 Draft draft = wp.getOverlaidDraft(object);
+UUID variationId = wp.uuidParam("variationId");
+
 try {
-
     state.beginWrites();
-    wp.include("/WEB-INF/objectPost.jsp", "object", object);
-    wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object);
 
-    UUID variationId = wp.uuidParam("variationId");
-    if (variationId != null) {
+    if (variationId == null) {
+        wp.include("/WEB-INF/objectPost.jsp", "object", object, "original", object);
+        wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object, "original", object);
+
+    } else {
+        Map<String, Object> oldStateValues = state.getSimpleValues();
         Object original = Query.
                 from(Object.class).
                 where("_id = ?", state.getId()).
                 option(CachingDatabase.IS_DISABLED_QUERY_OPTION, Boolean.TRUE).
                 first();
-        State.getInstance(original).putValue(
-                "variations/" + variationId.toString(),
-                state.getSimpleFieldedValues());
+
+        wp.include("/WEB-INF/objectPost.jsp", "object", object, "original", original);
+        wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object, "original", original);
+
+        Map<String, Object> newStateValues = state.getSimpleValues();
+        Set<String> stateKeys = new LinkedHashSet<String>();
+        Map<String, Object> stateValues = new LinkedHashMap<String, Object>();
+
+        stateKeys.addAll(oldStateValues.keySet());
+        stateKeys.addAll(newStateValues.keySet());
+
+        for (String key : stateKeys) {
+            Object value = newStateValues.get(key);
+            if (!ObjectUtils.equals(oldStateValues.get(key), value)) {
+                stateValues.put(key, value);
+            }
+        }
+
+        State.getInstance(original).putValue("variations/" + variationId.toString(), stateValues);
         object = original;
         state = State.getInstance(object);
     }

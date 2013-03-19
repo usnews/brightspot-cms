@@ -556,7 +556,7 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, Object> variationValues = (Map<String, Object>) state.getValue("variations/" + variationId.toString());
 
                 if (variationValues != null) {
-                    state.setValues(variationValues);
+                    state.putAll(variationValues);
                 }
             }
         }
