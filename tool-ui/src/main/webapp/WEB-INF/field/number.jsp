@@ -3,7 +3,8 @@
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
-com.psddev.dari.db.State
+com.psddev.dari.db.State,
+com.psddev.dari.util.ObjectUtils
 " %><%
 
 // --- Logic ---
@@ -18,11 +19,34 @@ String fieldName = field.getInternalName();
 String inputName = (String) request.getAttribute("inputName");
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-    if (field.getStep() != null && field.getStep().doubleValue() * 10 % 10 == 0.0) {
-        state.putValue(fieldName, wp.longParam(inputName));
+    Object value = wp.param(String.class, inputName);
+
+    if (value == null) {
+        state.put(fieldName, null);
+
+    } else if (field.getStep() != null && field.getStep().doubleValue() * 10 % 10 == 0.0) {
+        Long valueLong = ObjectUtils.to(Long.class, value);
+
+        if (valueLong != null) {
+            state.put(fieldName, valueLong);
+
+        } else {
+            state.addError(field, String.format(
+                    "[%s] is not an integer!", value));
+        }
+
     } else {
-        state.putValue(fieldName, wp.doubleParam(inputName));
+        Double valueDouble = ObjectUtils.to(Double.class, value);
+
+        if (valueDouble != null) {
+            state.put(fieldName, valueDouble);
+
+        } else {
+            state.addError(field, String.format(
+                    "[%s] is not an number!", value));
+        }
     }
+
     return;
 }
 
