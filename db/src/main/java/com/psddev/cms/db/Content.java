@@ -16,7 +16,6 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ObjectUtils;
 
 /** Represents a generic content. */
@@ -64,86 +63,17 @@ public abstract class Content extends Record {
         }
 
         @Indexed(visibility = true)
-        @InternalName("cms.content.status")
-        private String status;
+        @InternalName("cms.content.trashed")
+        private Boolean trashed;
 
         private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
         private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
         private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
 
-        /**
-         * Returns the current content status.
-         *
-         * @return {@code null} if published and available publically.
-         */
-        public String getStatus() {
-            if (status != null) {
-                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
-
-                if (contentStatus != null) {
-                    return contentStatus.toString();
-                }
-
-                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
-
-                if (draftStatus != null) {
-                    return draftStatus.getLabel();
-                }
-            }
-
-            return null;
-        }
-
-        /**
-         * Returns the unique ID associated with the current content status.
-         *
-         * @return {@code null} if published and available publically.
-         */
-        public String getStatusId() {
-            if (status != null) {
-                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
-
-                if (contentStatus != null) {
-                    return contentStatus.name();
-                }
-
-                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
-
-                if (draftStatus != null) {
-                    return draftStatus.getId().toString();
-                }
-            }
-
-            return null;
-        }
-
-        /**
-         * Sets the status to published so that the content is available
-         * publically.
-         */
-        public void setStatusPublished() {
-            this.status = null;
-        }
-
-        /**
-         * Sets the status to one of the standard content statuses.
-         *
-         * @param status Can't be {@code null}.
-         */
-        public void setStatus(ContentStatus status) {
-            ErrorUtils.errorIfNull(status, "status");
-            this.status = status.name();
-        }
-
-        /**
-         * Sets the status to one of the draft statuses.
-         *
-         * @param status Can't be {@code null}.
-         */
-        public void setStatus(DraftStatus status) {
-            ErrorUtils.errorIfNull(status, "status");
-            this.status = status.getId().toString();
+        /** Returns {@code true} if this content is in trash. */
+        public boolean isTrashed() {
+            return Boolean.TRUE.equals(trashed);
         }
 
         /** Returns the date when the given {@code object} was published. */
@@ -295,7 +225,7 @@ public abstract class Content extends Record {
             if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
                 ObjectModification contentData = state.as(ObjectModification.class);
 
-                contentData.setStatus(ContentStatus.DELETED);
+                contentData.trashed = true;
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
                 state.save();
