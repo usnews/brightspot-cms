@@ -196,7 +196,10 @@ public abstract class Content extends Record {
         /**
          * Deletes the given {@code object}, and returns a trash object
          * that can be used later to restore it.
+         *
+         * @deprecated Use {@link #trash} instead.
          */
+        @Deprecated
         public static Trash deleteSoftly(Object object, Site site, ToolUser user) {
             State objectState = State.getInstance(object);
             Site.ObjectModification objectSiteMod = objectState.as(Site.ObjectModification.class);
@@ -282,6 +285,31 @@ public abstract class Content extends Record {
         }
 
         /**
+         * Trashes the given {@code object} so that it's not usable in
+         * the given {@code site}.
+         */
+        public static void trash(Object object, Site site, ToolUser user) {
+            State state = State.getInstance(object);
+            Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
+
+            if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
+                ObjectModification contentData = state.as(ObjectModification.class);
+
+                contentData.setStatus(ContentStatus.DELETED);
+                contentData.setUpdateDate(new Date());
+                contentData.setUpdateUser(user);
+                state.save();
+
+            } else {
+                siteData.getConsumers().remove(site);
+
+                if (siteData.isGlobal()) {
+                    siteData.getBlacklist().add(site);
+                }
+            }
+        }
+
+        /**
          * Purges the given {@code object} completely, including all of
          * its drafts, histories, and trashes.
          */
@@ -290,7 +318,7 @@ public abstract class Content extends Record {
             Site.ObjectModification objectSiteMod = objectState.as(Site.ObjectModification.class);
 
             if (!ObjectUtils.equals(objectSiteMod.getOwner(), site)) {
-                deleteSoftly(object, site, user);
+                trash(object, site, user);
                 return;
             }
 

@@ -21,7 +21,7 @@ if (wp.isFormPost()) {
             wp.publish(object);
 
         } else if (wp.param(String.class, "action-delete") != null) {
-            wp.deleteSoftly(object);
+            wp.trash(object);
         }
 
         wp.writeStart("script", "type", "text/javascript");

@@ -1296,7 +1296,7 @@ public class ToolPageContext extends WebPageContext {
                 redirect("", "discarded", System.currentTimeMillis());
 
             } else {
-                deleteSoftly(object);
+                trash(object);
                 redirect("", "id", null, "saved", null);
             }
 
@@ -1404,7 +1404,11 @@ public class ToolPageContext extends WebPageContext {
 
     // --- Content.Static bridge ---
 
-    /** @see Content.Static#deleteSoftly */
+    /**
+     * @see Content.Static#deleteSoftly
+     * @deprecated Use {@link #trash} instead.
+     */
+    @Deprecated
     public Trash deleteSoftly(Object object) {
         return Content.Static.deleteSoftly(object, getSite(), getUser());
     }
@@ -1412,6 +1416,13 @@ public class ToolPageContext extends WebPageContext {
     /** @see Content.Static#publish */
     public History publish(Object object) {
         return Content.Static.publish(object, getSite(), getUser());
+    }
+
+    /**
+     * @see Content.Static#trash
+     */
+    public void trash(Object object) {
+        Content.Static.trash(object, getSite(), getUser());
     }
 
     /** @see Content.Static#purge */
