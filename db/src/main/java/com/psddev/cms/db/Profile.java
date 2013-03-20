@@ -21,6 +21,7 @@ public class Profile extends Record {
     private String name;
 
     private String userAgent;
+    private Integer deviceWidth;
 
     /** Returns the name. Displayed in the tool UI. */
     public String getName() {
@@ -40,6 +41,16 @@ public class Profile extends Record {
     /** Sets the user agent used by the visitor. */
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+    }
+
+    /** Returns the device width. */
+    public Integer getDeviceWidth() {
+        return deviceWidth;
+    }
+
+    /** Sets the device width. */
+    public void setDeviceWidth(Integer deviceWidth) {
+        this.deviceWidth = deviceWidth;
     }
 
     /**
