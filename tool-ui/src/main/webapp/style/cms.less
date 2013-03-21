@@ -39,6 +39,7 @@ input[type=text].expandable { min-width: 5em; }
 @import 'jquery.popup.less';
 @import 'jquery.repeatable.less';
 @import 'jquery.rte.less';
+@import 'jquery.workflow.less';
 
 // --- Legacy support ---
 
@@ -353,7 +354,8 @@ input[type=text].expandable { min-width: 5em; }
         margin-top: 5px;
         text-shadow: #fff 0px 0px 2px;
 
-        &[value=Publish] {
+        &[value='Publish'],
+        &[value='Restore'] {
             background: #9c2;
             background: -moz-linear-gradient(top, #ad3, #7a0);
             background: -webkit-gradient(linear, left top, left bottom, from(#ad3), to(#7a0));

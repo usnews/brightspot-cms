@@ -3,6 +3,9 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.Schedule,
+com.psddev.cms.db.Workflow2,
+com.psddev.cms.db.WorkflowState,
+com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.CachingDatabase,
@@ -26,10 +29,12 @@ if (!wp.isFormPost()) {
 }
 
 String action = wp.param("action");
+String workflowTransitionName = wp.param(String.class, "action-workflow");
 if (!("Publish".equals(action)
         || "Update".equals(action)
         || "Schedule".equals(action)
-        || "Reschedule".equals(action))) {
+        || "Reschedule".equals(action)) &&
+        workflowTransitionName == null) {
     return;
 }
 
@@ -75,6 +80,22 @@ try {
         State.getInstance(original).putValue("variations/" + variationId.toString(), stateValues);
         object = original;
         state = State.getInstance(object);
+    }
+
+    if (workflowTransitionName == null) {
+        state.as(Workflow2.Data.class).setWorkflowState(null);
+
+    } else {
+        Workflow2 workflow = Query.from(Workflow2.class).where("contentTypes = ?", state.getType()).first();
+
+        if (workflow != null) {
+            WorkflowTransition transition = workflow.getTransitions().get(workflowTransitionName);
+            WorkflowState target = transition.getTarget();
+
+            if (target != null) {
+                state.as(Workflow2.Data.class).setWorkflowState(target.getName());
+            }
+        }
     }
 
     Date publishDate = wp.dateParam("publishDate");
