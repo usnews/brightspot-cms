@@ -78,7 +78,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
             if (cssGrids.isEmpty()) {
                 areas = null;
-                writer.start("div",
+                writer.writeStart("div",
                         attributes,
                         "class", cssClasses != null && !cssClasses.isEmpty() ?
                                 cssClasses.get(0) :
@@ -100,7 +100,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     public int doEndTag() throws JspException {
         try {
             if (cssGrids.isEmpty()) {
-                writer.end();
+                writer.writeEnd();
 
             } else {
                 List<Object> areasList = new ArrayList<Object>(areas.values());
@@ -129,9 +129,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
                     gridOffset += gridAreaSize;
 
-                    writer.start("div", attributes, "class", cssClass);
-                        writer.grid(items, grid);
-                    writer.end();
+                    writer.writeStart("div", attributes, "class", cssClass);
+                        writer.writeGrid(items, grid);
+                    writer.writeEnd();
                 }
             }
 
