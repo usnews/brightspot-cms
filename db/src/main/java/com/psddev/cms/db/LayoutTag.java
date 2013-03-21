@@ -22,11 +22,12 @@ import com.psddev.dari.util.TypeReference;
 public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
-    private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + ".gridCssWritten";
+    private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssWritten";
+    private static final String GRIDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "grids";
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private transient HtmlWriter writer;
-    private transient List<CssClassHtmlGrid> grids;
+    private transient List<CssClassHtmlGrid> cssGrids;
     private transient Map<String, Object> areas;
 
     public Map<String, Object> getAreas() {
@@ -46,25 +47,36 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     @Override
     public int doStartTag() throws JspException {
+        ServletContext context = pageContext.getServletContext();
+        ServletRequest request = pageContext.getRequest();
+
         try {
             writer = new HtmlWriter(pageContext.getOut());
-            grids = new ArrayList<CssClassHtmlGrid>();
+            cssGrids = new ArrayList<CssClassHtmlGrid>();
             List<String> cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
 
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
                     if (cssClassObject != null) {
                         String cssClass = cssClassObject.toString();
-                        HtmlGrid grid = HtmlGrid.Static.find(pageContext.getServletContext(), cssClass);
+                        @SuppressWarnings("unchecked")
+                        Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
+
+                        if (grids == null) {
+                            grids = HtmlGrid.Static.findAll(context);
+                            request.setAttribute(GRIDS_ATTRIBUTE, grids);
+                        }
+
+                        HtmlGrid grid = grids.get("." + cssClass);
 
                         if (grid != null) {
-                            grids.add(new CssClassHtmlGrid(cssClass, grid));
+                            cssGrids.add(new CssClassHtmlGrid(cssClass, grid));
                         }
                     }
                 }
             }
 
-            if (grids.isEmpty()) {
+            if (cssGrids.isEmpty()) {
                 areas = null;
                 writer.start("div",
                         attributes,
@@ -74,7 +86,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
-                LayoutTag.Static.writeGridCss(writer, pageContext.getServletContext(), pageContext.getRequest());
+                LayoutTag.Static.writeGridCss(writer, context, request);
             }
 
         } catch (IOException error) {
@@ -87,7 +99,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     @Override
     public int doEndTag() throws JspException {
         try {
-            if (grids.isEmpty()) {
+            if (cssGrids.isEmpty()) {
                 writer.end();
 
             } else {
@@ -95,9 +107,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                 int areaSize = areasList.size();
                 int gridOffset = 0;
 
-                for (CssClassHtmlGrid gridEntry : grids) {
-                    String cssClass = gridEntry.cssClass;
-                    HtmlGrid grid = gridEntry.grid;
+                for (CssClassHtmlGrid cssGrid : cssGrids) {
+                    String cssClass = cssGrid.cssClass;
+                    HtmlGrid grid = cssGrid.grid;
                     Map<String, GridItem> items = new LinkedHashMap<String, GridItem>();
                     int gridAreaSize = grid.getAreas().size();
 
