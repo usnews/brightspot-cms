@@ -131,19 +131,6 @@
     white-space: pre-wrap;
 }
 
-.contentStatusLabel {
-    background-color: @color-note-darker;
-    .border-radius(3px);
-    color: @color-background;
-    font-size: (@fontSize-default - 4);
-    padding: 2px 3px;
-    text-transform: uppercase;
-
-    &.contentStatusLabel-DELETED {
-        background-color: @color-alert-darker;
-    }
-}
-
 .date {
     width: 80px;
     white-space: nowrap;
@@ -1028,6 +1015,15 @@ table.links.table-striped {
     text-align: right;
     width: 55px;
     white-space: nowrap;
+}
+
+.visibilityLabel {
+    background-color: @color-note-darker;
+    .border-radius(3px);
+    color: @color-background;
+    font-size: (@fontSize-default - 4);
+    padding: 2px 3px;
+    text-transform: uppercase;
 }
 
 .widget {

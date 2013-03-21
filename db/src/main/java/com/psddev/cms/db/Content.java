@@ -12,10 +12,12 @@ import java.util.UUID;
 
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
+import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.util.ObjectUtils;
 
 /** Represents a generic content. */
@@ -57,7 +59,7 @@ public abstract class Content extends Record {
     }
 
     /** Modification that adds CMS content information. */
-    public static final class ObjectModification extends Modification<Object> {
+    public static final class ObjectModification extends Modification<Object> implements VisibilityLabel {
 
         private ObjectModification() {
         }
@@ -114,6 +116,13 @@ public abstract class Content extends Record {
         /** Sets the tool user that last updated the given {@code object}. */
         public void setUpdateUser(ToolUser updateUser) {
             this.updateUser = updateUser;
+        }
+
+        // --- VisibilityLabel support ---
+
+        @Override
+        public String createVisibilityLabel(ObjectField field) {
+            return isTrashed() ? "Trashed" : null;
         }
     }
 
