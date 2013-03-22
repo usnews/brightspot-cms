@@ -74,6 +74,9 @@ if (wp.isFormPost()) {
 body {
     margin-top: 170px;
 }
+body.hasToolBroadcast {
+    margin-top: 195px;
+}
 </style>
 
 <div class="widget">

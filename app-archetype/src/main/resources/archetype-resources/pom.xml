@@ -211,6 +211,16 @@
                             <artifactId>cms-tool-ui</artifactId>
                             <targetPath>cms</targetPath>
                         </overlay>
+                        <overlay>
+                            <groupId>com.psddev</groupId>
+                            <artifactId>dari-reloader-tomcat6</artifactId>
+                            <skip>true</skip>
+                        </overlay>
+                        <overlay>
+                            <groupId>org.apache.solr</groupId>
+                            <artifactId>solr</artifactId>
+                            <skip>true</skip>
+                        </overlay>
                     </overlays>
                 </configuration>
             </plugin>
