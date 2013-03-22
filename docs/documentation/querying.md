@@ -51,6 +51,14 @@ PaginatedResult<Activity> results = Query.from(Activity.class).
         select(0, 10);
 {% endhighlight %}
 
+### The **FIELDS** clause
+
+Specific fields from within a Dari object can be returned for a given object:
+
+{% highlight java %}
+Author author = Query.from(Author.class).fields("name", "age").selectAll();
+{% endhighlight %}
+
 ### The **LIMIT** clause
 
 Dari supports limiting the number of results returned.
@@ -78,7 +86,7 @@ Author author = Query.from(Author.class).where("name = 'John Smith'").first();
 
 This will return the first instance of `Author` with the name 'John Smith'.
 
-Logical operations `not, or, and` are supported.
+Logical operations `not, or, and` are supported. For a full list of supported predicates see the [Predicate section](predicate.html).
 
 {% highlight java %}
 List<Author> authors = Query.from(Author.class).
@@ -95,7 +103,7 @@ List<Author> authors = Query.from(Author.class).
         selectAll();
 {% endhighlight %}
 
-For a full list of supported predicates see [link here].
+
 
 
 ### Querying Relationships
