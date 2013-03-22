@@ -165,6 +165,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
     fieldValueMetadata.put("cms.edits", edits);
 
+    InputStream newItemData = null;
+
     if ("keep".equals(action)) {
         if (fieldValue != null) {
             newItem = fieldValue;
@@ -175,8 +177,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
     } else if ("newUpload".equals(action) || "newUrl".equals(action)) {
-
-        InputStream newItemData = null;
 
         if ("newUpload".equals(action)) {
             if (request instanceof MultipartRequest) {
@@ -306,24 +306,30 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
             newItemData = newItem.getData();
         }
+    }
 
-        // Automatic image metadata extraction.
-        if (newItem != null) {
-            String contentType = newItem.getContentType();
+    // Automatic image metadata extraction.
+    if (newItem != null && (
+            fieldValueMetadata.get("width") == null ||
+            fieldValueMetadata.get("height") == null)) {
+        if (newItemData == null) {
+            newItemData = newItem.getData();
+        }
 
-            if (contentType != null && contentType.startsWith("image/")) {
-                try {
-                    ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
-                    fieldValueMetadata.putAll(metadata);
+        String contentType = newItem.getContentType();
 
-                    List<Throwable> errors = metadata.getErrors();
-                    if (!errors.isEmpty()) {
-                        LOGGER.info("Can't read image metadata!", new AggregateException(errors));
-                    }
+        if (contentType != null && contentType.startsWith("image/")) {
+            try {
+                ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
+                fieldValueMetadata.putAll(metadata);
 
-                } finally {
-                    IoUtils.closeQuietly(newItemData);
+                List<Throwable> errors = metadata.getErrors();
+                if (!errors.isEmpty()) {
+                    LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
                 }
+
+            } finally {
+                IoUtils.closeQuietly(newItemData);
             }
         }
     }
