@@ -23,6 +23,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
     private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssWritten";
+    private static final String GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridJavaScriptWritten";
     private static final String GRIDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "grids";
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
@@ -87,6 +88,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
             } else {
                 areas = new LinkedHashMap<String, Object>();
                 LayoutTag.Static.writeGridCss(writer, context, request);
+                LayoutTag.Static.writeGridJavaScript(writer, context, request);
             }
 
         } catch (IOException error) {
@@ -161,6 +163,22 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
             if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
                 writer.writeGridCss(context);
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+            }
+        }
+
+        /**
+         * Writes all grid JavaScript found in the given {@code context} to the
+         * given {@code writer} unless it's already been written within the
+         * given {@code request}.
+         *
+         * @param writer Can't be {@code null}.
+         * @param context Can't be {@code null}.
+         * @param request Can't be {@code null}.
+         */
+        public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
+            if (request.getAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE) == null) {
+                writer.writeGridJavaScript(context);
+                request.setAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
         }
     }
