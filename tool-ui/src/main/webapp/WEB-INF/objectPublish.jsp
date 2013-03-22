@@ -46,12 +46,12 @@ try {
         wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object, "original", object);
 
     } else {
-        Map<String, Object> oldStateValues = state.getSimpleValues();
         Object original = Query.
                 from(Object.class).
                 where("_id = ?", state.getId()).
                 option(CachingDatabase.IS_DISABLED_QUERY_OPTION, Boolean.TRUE).
                 first();
+        Map<String, Object> oldStateValues = State.getInstance(original).getSimpleValues();
 
         wp.include("/WEB-INF/objectPost.jsp", "object", object, "original", original);
         wp.include("/WEB-INF/widgetsUpdate.jsp", "object", object, "original", original);
