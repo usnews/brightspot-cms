@@ -230,6 +230,19 @@ section: documentation
         </div></br></br>
         <h4>Inline Editing</h4>
             Often editors want to review their web content visually, not from within the CMS interface. When doing so, Brightspot now gives you the ability to edit the content from a web view, without having to navigate back into the CMS to make changes.</br></br>The inline editor allows live content to be updated, images changed and if needed, full CMS access at a single click. The tool is accessed via a link within your browser. Start by logging into the CMS. Once logged in, open your site and navigate to a page to start using.</br></br>
+    <h2>Developer Release Notes</h2>
+    Brightspot CMS version 2.0 contains many improvements focused on making life even easier for the developer. If you want to know more about any of the items in this section see the <a href="support.html">documentation</a>, <a target="_blank" href="http://www.brightspotcms.com/javadocs/">JavaDocs</a> or <a href="https://brightspot.tenderapp.com/discussion/new">ask us a question</a>.
+    <h4>Wireframe Tool</h4>
+    Available within the inline preview on a page the new wireframe tool uses the page template to create a wire framed visual of any page. Section names and layouts are used to produce a wireframe mock of your page layout. This feature is available from any Brightspot built page, by adding <code>?_wireframe=true</code> to a URL. Note, Production mode must be off <code>?_prod=false</code>. Within each page section the content chosen can be accessed directly. The tool helps to highlight any gaps in development, as well as providing a detailed list of all the JSTL hooks available for each section. The drop down menus for each section highlight the properties available on that page section. You can see the tool in the dedicated <a href="cms-developer-tools.html">CMS Tools</a> section
+    <h4>Fields Clause</h4>
+    Specific fields can now be returned directly from a Dari object, without the need to return the entire object. See the <a href="querying.html">Querying</a> section for more.
+    <h4>Improved Debug Tools</h4>
+    The entire <code>_debug</code> tool has had a refresh. The <code>code</code> tool now includes a sandbox, and within the UI object types can be found through typeahead search.
+    <h4>Stats Tool</h4>
+    Recently added to the Dari Debug tools is a Stats Tool. It provides insight into the performance of Dari when running inside a servlet container. It provides information on SQL and Solr Throughput and Latency as well as JSP includes, averages and HTTP Response Throughput and Latency. See more in the dedicated <a href="dari-developer-tools.html#stats">Dari Tools</a> section.
+    </br></br>
+    
+    </br></br>
     </div>
 </div>
 
