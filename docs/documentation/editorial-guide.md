@@ -11,7 +11,7 @@ section: documentation
 
 Once logged into Brightspot you are brought to the Dashboard. Here you will find common widgets, your navigation to other areas of the CMS, a global search, and access to your admin and settings.
 
-![](http://localhost:4000/img/editor/dashboard.png)
+![](/img/editor/dashboard.png)
 
 
 **Tool Hat**
@@ -71,7 +71,7 @@ Create a new webpage using this widget. Select from a list of existing templates
 
 **Work Streams**
 
-Once a work stream has been created it appears in the widget. Click start to get to work on the task, or click into the users link to see who else is working on the work stream.
+Once a work stream has been created it appears in the widget. Click start to get to work on the task, or click into the users link to see who else is working on the work stream. In the right rail of your content edit screen you can see the work stream options, including skipping content.
 
 ![](http://docs.brightspot.s3.amazonaws.com/stream_widget_2.1.png)
 
@@ -114,40 +114,42 @@ Hovering over any content on the dashboard that is an individual page allows you
 
 ## Publishing
 
+#### Intro
+
 For the following publisher tasks, the example will be a Demo Brightspot instance. This example CMS powers a version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same names or UI elements, as it is derived from your own objects, but these examples should give you a clear understanding of how to carry out basic editorial tasks, and use the widgets.
 
-Start by creating a new Article. From the Dashboard select ‘News Article’, found in the Create New section on the right. *(Note, Content that has an assigned Template will appear in this section. Creating content from here results in a new page, with a dedicated URL)*
+To create a new content type select one found in the Create New section on the right. *(Note, Content that has an assigned Template will appear in this section. Creating content from here results in a new page, with a dedicated URL)*
 
 ![](http://cdn.psddev.com/cb/28/012be3a74ca5befec610361b44a1/editorial-work-view-20.40.01%20AM.png)
 
-There are lots of options here, but for now, focus on creating your first piece of content.
+There are lots of options in the content edit screen, but for now, focus on creating your first piece of content.
 
 - Enter a Title, a blurb and some body text.
 - When clicking into an area of text notice how a toolbar appears. This is your Rich Text Editor, allowing you to style your content, add images and links.
 
 ## Previewing
 
-Now you have your content in place, make sure it is looking correct by reviewing the preview window. If you do not see the preview window on the right side of the content look for the `Preview` link text under Publish. If you are using the inline preview on a small screen click on the preview bar at the top to slide out the live preview view. The preview feature provides a live preview of your content positioned on your site, and allows you to check and then make edits before the content goes live.
+Once you have your content complete make sure it is looking correct by reviewing the preview window. If you do not see the preview window on the right side of the content look for the `Preview` link text under Publish. If you are using the inline preview on a small screen click on the preview bar at the top to slide out the live preview view. The preview feature provides a live preview of your content positioned on your site, and allows you to check and then make edits before the content goes live.
 
 
 ![](http://cdn.psddev.com/87/ea/abe373bb4a5aac5f20f1f2178c6d/preview-tool-20.43.00%20AM.png)
 
 ## Creating URLs
 
-Once you have everything as it should be close your preview window, or slide in the preview tool. URLs are automatically generated, visible in the right rail widget.  The logic at play grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can select 'Manual' and add item, a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’.
+When you are happy with your content close your preview window, or slide in the preview tool. URLs are automatically generated, visible in the right rail widget.  The logic at play grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can select 'Manual' and add item, a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’.
 
 ## Versioning
 
 
-Notice that a new ‘History’ section appears in the right rail once you click publish. In Brightspot all versions are archived automatically.
+After editing or publishing content a new ‘History’ section appears in the right rail of the content edit screen. In Brightspot all versions are archived automatically.
 
-Also, notice the ‘Create Another’ button that appeared in the top green bar.
+Also, once published a ‘Create Another’ button appears at the top of the screen as a green bar.
 
 ## Saving a Draft
 
-If you are not ready to publish, you have the option to 'Save as Draft', which saves a version for you to access later. The Drafts widget on the dashboard contains a reference to content saved in that status.
+If you are not ready to publish your content, you have the option to 'Save as Draft', which saves a version for you to access later. The Drafts widget on the dashboard contains a reference to content saved in that status.
 
-Your content is now published. Return to the Dashboard by clicking the ‘Pages & Content’ tab.
+When your content is published you can return to the Dashboard by clicking the ‘Pages & Content’ tab.
 
 ## Adding Images
 
