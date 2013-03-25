@@ -278,6 +278,22 @@ Brightspot adheres to, and encourages SEO best practices. Where an editor has no
 
 ![](http://cdn.psddev.com/dims4/PSD/e3cbdab/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2F24%2Fd2%2Fc58cb78f4b03b2b6d7fdd3ee0650%2Fseo.png)
 
+## Administration 
+
+#### User Admin
+
+Found in Admin -> Users and Roles, Brightspot provides a simple user interface that allows Administrators to add new users, and define their roles.
+
+Create a new user, by default, all new users inherit the same role. This is configraued in Admin > Settings. The `Current Site` allows users with MultiSite access to define the default site for the user. 
+
+![](http://docs.brightspot.s3.amazonaws.com/users-roles.png)
+
+Once a user has been created, a `New Role` can be added, with customizable access setup. In the dropdowns you can choose to limit access to specific types, for example a role can have read only access to an Article. Find the object type you want access limited to, and change the check boxes. The `Areas` dropdown controls the top navigation the user sees within the CMS. Giving no access means no Admin access for that role within Brightspot
+
+![](http://docs.brightspot.s3.amazonaws.com/users_roles.png)
+
+![](http://docs.brightspot.s3.amazonaws.com/add-user.png)
+
 
 </div>
 <div class="span4 dari-docs-sidebar">
