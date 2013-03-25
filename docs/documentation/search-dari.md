@@ -9,7 +9,40 @@ section: documentation
 
 Brightspot CMS uses [Lucene Solr](http://lucene.apache.org/solr/) to provide full text search capabilities.
 
-Within the CMS itself, the global search is powered by Solr. The Admin panel for Solr can be reached on your application at `http://localhost:8080/solr/admin/` - assuming you are running on port 8080.
+Within the CMS itself, the global search is powered by Solr. The Admin panel for Solr can be reached on your application at [http://localhost:8080/solr/admin/](http://localhost:8080/solr/admin/) - assuming you are running on port 8080.
+
+## CMS Tool Search
+
+Out of the box, filtering and advanced searches are enabled within the CMS tool, for editors, however there are a number of ways in which developers can help make the search tool even more useful.
+
+Each of the dashboard widgets that allow filtering allow customization, as well as the object types themselves in the global search. Annotations placed on target fields or content types can help make the experience even easier for the editor.
+
+#### Global Filter
+
+By default, the sitemap and search widgets can be used to filter by object type, (and the URL path, for sitemap specifically). A global custom filter can be added, however, by adding the annotation `@ToolUi.GlobalFilter` to a content type. The example below shows how you can help editors filter projects by client. This was done with the following addition:
+
+<div class="highlight">{% highlight java %}
+@Indexed
+@ToolUi.GlobalFilter
+public class Client extends Content {
+{% endhighlight %}</div>
+
+![](http://docs.brightspot.s3.amazonaws.com/sitemap_custom_filter.png)
+
+#### Global Search
+
+The `@ToolUi.GlobalFilter` annotation also adds filters to global search:
+
+![](http://docs.brightspot.s3.amazonaws.com/search_custom_filter.png)
+
+#### Search Filter
+
+A field can be called out as being added as a default filter for a particular object type by adding the annotation `@ToolUi.Filterable`. This will show up on the global search widget, but not the sitemap, as `@ToolUi.GlobalFilter` would.
+
+#### Sort Filter
+
+Another annotation, `@ToolUi.Sortable` can be added to a field, allowing the search results to be sorted by that field.
+
 
 ## Querying with Solr
 

@@ -178,7 +178,31 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 `@ToolUi.RichText`
 
-> Specifies whether the target field should offer rich-text editing options. This allows String fields to contain Rich Text Controls.
+Specifies whether the target field should offer rich-text editing options. This allows String fields to contain rich text controls.
+
+`@ToolUi.Suggestions`
+
+Specifies whether the target field should offer suggestions.
+
+`@ToolUi.DropDown`
+
+Specifies whether the target field should be displayed as a drop-down menu.
+
+`@ToolUi.GlobalFilter`
+
+Specifies whether the target type shows up as a filter that can be applied to any types in search.
+
+`@ToolUi.Filterable`
+
+Specifies whether the target field should be offered as a filterable field in search.
+
+`@ToolUi.Sortable`
+
+Specifies whether the target field should be offered as a sortable field in search.
+
+
+
+
 
 </div>
 
