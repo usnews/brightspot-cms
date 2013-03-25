@@ -161,7 +161,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
          */
         public static void writeGridCss(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
             if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
-                writer.writeGridCss(context);
+                writer.writeStart("style", "type", "text/css");
+                    writer.writeGridCss(context);
+                writer.writeEnd();
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
         }
@@ -177,7 +179,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
          */
         public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
             if (request.getAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE) == null) {
-                writer.writeGridJavaScript(context);
+                writer.writeStart("script", "type", "text/javascript");
+                    writer.writeGridJavaScript(context);
+                writer.writeEnd();
                 request.setAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
         }
