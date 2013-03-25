@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -54,7 +53,6 @@ import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlFormatter;
-import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -62,7 +60,6 @@ import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Profiler;
 import com.psddev.dari.util.PullThroughCache;
 import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
@@ -1579,69 +1576,16 @@ public class PageFilter extends AbstractFilter {
             return null;
         }
 
-        // --- EL functions ---
-
-        /**
-         * Returns the plain {@linkplain StorageItem CDN} URL associated
-         * with the given {@code servletPath}.
-         */
+        /** @deprecated Use {@link ElFunctionUtils#plainResource} instead. */
+        @Deprecated
         public static String getPlainResource(String servletPath) {
-            if (ObjectUtils.coalesce(
-                    Settings.get(Boolean.class, "cms/isResourceInStorage"),
-                    Settings.isProduction())) {
-
-                ServletContext servletContext = null;
-                HttpServletRequest request = null;
-                try {
-                    servletContext = PageContextFilter.Static.getServletContext();
-                    request = PageContextFilter.Static.getRequest();
-                } catch (IllegalStateException ex) {
-                }
-
-                if (servletContext != null && request != null) {
-                    StorageItem item = StorageItem.Static.getPlainResource(null, servletContext, servletPath);
-                    if (item != null) {
-                        return request.isSecure() ?
-                                item.getSecurePublicUrl() :
-                                item.getPublicUrl();
-                    }
-                }
-            }
-
-            return servletPath;
+            return ElFunctionUtils.plainResource(servletPath);
         }
 
-        /**
-         * Returns the plain or gzipped {@linkplain StorageItem CDN} URL
-         * associated with the given {@code servletPath}.
-         */
+        /** @deprecated Use {@link ElFunctionUtils#resource} instead. */
+        @Deprecated
         public static String getResource(String servletPath) {
-            if (ObjectUtils.coalesce(
-                    Settings.get(Boolean.class, "cms/isResourceInStorage"),
-                    Settings.isProduction())) {
-
-                ServletContext servletContext = null;
-                HttpServletRequest request = null;
-                try {
-                    servletContext = PageContextFilter.Static.getServletContext();
-                    request = PageContextFilter.Static.getRequest();
-                } catch (IllegalStateException ex) {
-                }
-
-                if (servletContext != null && request != null) {
-                    String encodings = request.getHeader("Accept-Encoding");
-                    StorageItem item = ObjectUtils.isBlank(encodings) || !encodings.contains("gzip") ?
-                            StorageItem.Static.getPlainResource(null, servletContext, servletPath) :
-                            StorageItem.Static.getGzippedResource(null, servletContext, servletPath);
-                    if (item != null) {
-                        return request.isSecure() ?
-                                item.getSecurePublicUrl() :
-                                item.getPublicUrl();
-                    }
-                }
-            }
-
-            return servletPath;
+            return ElFunctionUtils.resource(servletPath);
         }
     }
 
