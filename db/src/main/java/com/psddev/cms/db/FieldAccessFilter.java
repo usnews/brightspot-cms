@@ -1,21 +1,19 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.AbstractFilter;
-import com.psddev.dari.util.JspBufferFilter;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Locale;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.JspBufferFilter;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Internal filter that adds {@code <span data-field>} to the response
@@ -39,7 +37,7 @@ public class FieldAccessFilter extends AbstractFilter {
 
             } else {
                 try {
-                    JspBufferFilter.Static.setBufferOverride(0);
+                    JspBufferFilter.Static.overrideBuffer(0);
 
                     FieldAccessResponse fieldAccessResponse = new FieldAccessResponse(response);
 
@@ -58,7 +56,7 @@ public class FieldAccessFilter extends AbstractFilter {
                     }
 
                 } finally {
-                    JspBufferFilter.Static.removeBufferOverride();
+                    JspBufferFilter.Static.restoreBuffer();
                 }
             }
         }
@@ -119,5 +117,4 @@ public class FieldAccessFilter extends AbstractFilter {
             fieldAccessWriter.writePending();
         }
     }
-
 }
