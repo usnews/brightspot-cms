@@ -65,11 +65,13 @@ Create a new Homepage, as the example below shows. Name it according to the site
 
 ## Access Control
 
-Switching between your sites shows that each homepage is only available within the site in which it was created, as well as both being available within the Global site:
+Switching between your sites shows that each newly added homepage is only available within the site in which it was created, as well as both being available within the Global site:
 
 ![Adding Homepage Multisite](http://docs.brightspot.s3.amazonaws.com/global-dashboard.png)
 
-You can control the access that each has site grants to the objects created within them. Navigate back to one of your Homepage objects. In the right rail you will see a **Sites** widget. The default owner is the site in which it was created. As well as changing the ownership, you can grant access to other sites. To test, select some others and allow your second site to see the homepage. Publish, then access your second site. You will now see two Homepage objects. The new Homepage object you have been given access to has no URL, as each site has control over the URL to access content. Navigate back to the original site and remove access and publish.
+You can control the access that each site grants to the objects created within them. Navigate back to one of your Homepage objects. In the right rail you will see a **Sites** widget. The default owner is the site in which it was created. As well as changing the ownership, you can grant access to other sites. To test, select some others and allow your second site to see the homepage. Publish, then access your second site. You will now see two Homepage objects. The new Homepage object you have been given access to has no URL, as each site has control over the URL to access content. Navigate back to the original site and remove access and publish.
+
+As a default, all object types within Brightspot are accessible by all sites. To limit access, use [Users and Roles](editorial-guide.html#user-admin) to create a role within a Site, and limit access to creating new objects.
 
 ## Preview
 
@@ -79,16 +81,16 @@ Using the domain names you created in your hosts file, navigate to each Homepage
 
 ## Creating Templates
 
-Both editor.com and developer.com will have article template pages, using the same Article object. Start by choosing the **Global Site**. Templates can be created within Global, and the ownership specified.
+Both **editor.com** and **developer.com** will have article template pages, using the same Article object. Start by choosing the **Global Site**. Templates should be created within Global, and then the ownership site set.
 
 In the search tool, click into the **Create** drop-down and select Template. Name your template and choose a content type as `mainContent`. This example uses an existing Article object.
 
-Add a custom path. In the right rail, change the Owner from Global to the site you are creating the template for. Do the same for the other site, making sure to create from within Global, and set ownership prior to publishing.
+Add a custom path. In the right rail, change the **Owner** from **Global** to the site you are creating the template for. Do the same for the other site, making sure to create it from within **Global**, and set ownership prior to publishing.
 
 
 ![Adding Homepage Multisite](http://docs.brightspot.s3.amazonaws.com/developer-template.png)
 
-In the Create New widget on the dashboard, you should now see two options when viewing withinGlobal, and one for each of the sites. 
+In the Create New widget on the dashboard, you should now see two options when viewing within Global, and one for each of the sites. 
 
 ## Options
 
@@ -96,3 +98,28 @@ When you create a site you can also specify the access control that is applied a
 
 ![Previewing Options Multisite](http://docs.brightspot.s3.amazonaws.com/multi-sites-options.png)
 
+## Site Settings
+
+When multiple sites are running within one instance of Brightspot, often Site Settings need to be applied to each individual site. Rather than extending the `Tool` class, and creating a new tool to store the settings globally, the `Site` object can be modified so that each **Site** has settings defined individually.
+
+
+{% highlight java %}import com.psddev.cms.db.Site;
+import com.psddev.dari.db.Modification;
+
+@Modification.Classes({Site.class})
+public class SiteModification extends Modification<Object>{
+	
+  private String analyticsID;
+
+  // Getters and Setters
+}
+{% endhighlight %}
+
+Now, when creating or editing a site, the `String analyticsID` is present.
+
+![Site Modification](http://docs.brightspot.s3.amazonaws.com/site-modification.png)
+
+#### Querying Site Settings
+
+
+![Site Modification](http://docs.brightspot.s3.amazonaws.com/site-modification-code.png)
