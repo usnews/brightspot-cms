@@ -121,5 +121,6 @@ Now, when creating or editing a site, the `String analyticsID` is present.
 
 #### Querying Site Settings
 
+You can get access to any Modification on a Site object by querying for it. As you can see in the example below all **Site** objects are returned. The Developer Site has the `analyticsId` property on it.
 
 ![Site Modification](http://docs.brightspot.s3.amazonaws.com/site-modification-code.png)
