@@ -11,176 +11,155 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 
+java.util.ArrayList,
 java.util.LinkedHashMap,
 java.util.List,
 java.util.Map
 " %><%
 
-// --- Logic ---
-
 ToolPageContext wp = new ToolPageContext(pageContext);
 Object object = JspWidget.getOriginal(wp);
 boolean isPage = Page.class.isInstance(object) && !Template.class.isInstance(object);
-State objectState = State.getInstance(object);
-Directory.ObjectModification objectAsDirMod = objectState.as(Directory.ObjectModification.class);
+Site site = wp.getSite();
+State state = State.getInstance(object);
 
-if (!(isPage || Template.Static.findUsedTypes(wp.getSite()).contains(objectState.getType()))) {
+if (!(isPage || Template.Static.findUsedTypes(site).contains(state.getType()))) {
     return;
 }
 
-String namePrefix = objectState.getId() + "/directory/";
-String modeName = namePrefix + "mode";
+String namePrefix = state.getId() + "/directory.";
+String automaticName = namePrefix + "automatic";
 String typeName = namePrefix + "type";
 String addName = namePrefix + "add";
 
-Template objectTemplate = objectState.as(Template.ObjectModification.class).getDefault();
-boolean hasPathScript = !isPage
-        && objectTemplate != null
-        && !ObjectUtils.isBlank(objectTemplate.getPathsEngine())
-        && !ObjectUtils.isBlank(objectTemplate.getPathsScript());
-
-ToolUser user = wp.getUser();
-Site site = wp.getSite();
+Directory.ObjectModification dirData = state.as(Directory.ObjectModification.class);
+Template template = state.as(Template.ObjectModification.class).getDefault();
+boolean hasPathScript = !isPage &&
+        template != null &&
+        !ObjectUtils.isBlank(template.getPathsEngine()) &&
+        !ObjectUtils.isBlank(template.getPathsScript());
 
 if (JspWidget.isUpdating(wp)) {
-    objectAsDirMod.clearSitePaths(site);
-    objectAsDirMod.setPathsMode(Directory.PathsMode.valueOf(wp.param(modeName, Directory.PathsMode.MANUAL.name())));
+    List<String> automatic = wp.params(String.class, automaticName);
+    List<Directory.PathType> types = wp.params(Directory.PathType.class, typeName);
+    List<String> adds = wp.params(String.class, addName);
 
-    if (Directory.PathsMode.AUTOMATIC.name().equals(wp.param(modeName))) {
-        if (objectTemplate != null) {
-            for (Directory.Path path : objectTemplate.makePaths(site, object)) {
-                objectAsDirMod.addSitePath(path.getSite(), path.getPath(), path.getType());
+    if (automatic.size() > 0) {
+        dirData.setPathsMode(automatic.size() != 1 ? null : Directory.PathsMode.MANUAL);
+    }
+
+    dirData.clearSitePaths(site);
+
+    for (int i = 0, size = Math.min(types.size(), adds.size()); i < size; i ++) {
+        dirData.addSitePath(site, adds.get(i), types.get(i));
+    }
+
+    if (automatic.size() != 1 && template != null) {
+        List<Directory.Path> manualPaths = dirData.getSitePaths(site);
+        List<Directory.Path> automaticPaths = new ArrayList<Directory.Path>();
+
+        state.getExtras().put("cms.automaticPaths", automaticPaths);
+
+        for (Directory.Path path : template.makePaths(site, object)) {
+            dirData.addSitePath(path.getSite(), path.getPath(), path.getType());
+
+            if (!manualPaths.contains(path)) {
+                automaticPaths.add(path);
             }
-        }
-
-    } else {
-        String[] types = wp.params(typeName);
-        String[] adds = wp.params(addName);
-        for (int i = 0, length = Math.min(types.length, adds.length); i < length; i ++) {
-            objectAsDirMod.addSitePath(site, adds[i], Directory.PathType.valueOf(types[i]));
         }
     }
 
     return;
 }
 
-String widgetContainerId = wp.createId();
-String modeInputId = wp.createId();
-String warningContainerId = wp.createId();
 String automaticContainerId = wp.createId();
-String manualContainerId = wp.createId();
+List<String> errors = state.getErrors(state.getField(Directory.PATHS_FIELD));
 
-List<String> errors = objectState.getErrors(objectState.getField(Directory.PATHS_FIELD));
-
-Directory.PathsMode pathsMode = objectAsDirMod.getPathsMode();
-if (pathsMode == null) {
-    pathsMode = objectState.isNew() && hasPathScript ?
-            Directory.PathsMode.AUTOMATIC :
-            Directory.PathsMode.MANUAL;
+if (!ObjectUtils.isBlank(errors)) {
+    wp.writeStart("div", "class", "message message-error");
+        for (String error : errors) {
+            wp.writeHtml(error);
+        }
+    wp.writeEnd();
 }
 
-// --- Presentation ---
+List<Directory.Path> paths = dirData.getSitePaths(site);
 
-%><div id="<%= widgetContainerId %>">
-    <% if (!ObjectUtils.isBlank(errors)) { %>
-        <div class="message message-error">
-            <% for (String error : errors) { %>
-                <%= wp.h(error) %>
-            <% } %>
-        </div>
-    <% } %>
+if (!paths.isEmpty()) {
+    wp.writeStart("ul");
+        for (Directory.Path path : paths) {
+            wp.writeStart("li", "class", "widget-urlsItem");
+                wp.writeStart("div", "class", "widget-urlsItemRemove");
+                    wp.writeTag("input",
+                            "type", "checkbox",
+                            "id", wp.createId(),
+                            "name", addName,
+                            "value", path.getPath(),
+                            "checked", "checked");
 
-    <% if (hasPathScript) { %>
-        <p><select id="<%= modeInputId %>" name="<%= modeName %>">
-            <% for (Directory.PathsMode mode : Directory.PathsMode.values()) { %>
-                <option value="<%= wp.h(mode.name()) %>"<%= mode.equals(pathsMode) ? " selected" : "" %>><%= wp.h(mode) %></option>
-            <% } %>
-        </select></p>
+                    wp.writeHtml(" ");
 
-        <ul id="<%= automaticContainerId %>">
-            <% if (objectTemplate != null) { %>
-                <% for (Directory.Path path : objectTemplate.makePaths(site, object)) { %>
-                    <li><%= wp.h(path.getPath()) %> (<%= wp.h(path.getType()) %>)</li>
+                    wp.writeStart("label", "for", wp.getId());
+                        wp.writeHtml("Keep");
+                    wp.writeEnd();
+                wp.writeEnd();
+
+                wp.writeStart("div", "class", "widget-urlsItemLabel").writeHtml(path.getPath()).writeEnd();
+
+                wp.writeStart("select", "name", typeName);
+                    for (Directory.PathType pathType : Directory.PathType.values()) {
+                        wp.writeStart("option",
+                                "selected", pathType.equals(path.getType()) ? "selected" : null,
+                                "value", pathType.name());
+                            wp.writeHtml(pathType);
+                        wp.writeEnd();
+                    }
+                wp.writeEnd();
+            wp.writeEnd();
+        }
+    wp.writeEnd();
+}
+
+if (hasPathScript) {
+    wp.writeStart("div", "id", automaticContainerId);
+    wp.writeEnd();
+}
+%>
+
+<div class="repeatableInputs">
+    <ul>
+        <li class="template widget-urlsItem" data-type="URL">
+            <textarea class="widget-urlsItemLabel" name="<%= wp.h(addName) %>"></textarea>
+            <select name="<%= wp.h(typeName) %>">
+                <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
+                    <option value="<%= wp.h(pathType.name()) %>"><%= wp.h(pathType) %></option>
                 <% } %>
-            <% } %>
-        </ul>
-    <% } %>
-
-    <div class="repeatableInputs" id="<%= manualContainerId %>">
-        <div class="message message-warning" id="<%= warningContainerId %>" style="display: none;">
-            <p>More than one permalink per content isn't recommended!</p>
-        </div>
-
-        <ul>
-            <% for (Directory.Path path : objectAsDirMod.getSitePaths(site)) { %>
-                <li><div style="margin-bottom: 10px;">
-                    <textarea name="<%= wp.h(addName) %>" style="display: block; margin-bottom: 5px;"><%= wp.h(path.getPath()) %></textarea>
-                    <select name="<%= wp.h(typeName) %>">
-                        <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
-                            <option value="<%= wp.h(pathType.name()) %>"<%= pathType.equals(path.getType()) ? " selected" : "" %>><%= wp.h(pathType) %></option>
-                        <% } %>
-                    </select>
-                </div></li>
-            <% } %>
-
-            <li class="template"><div style="margin-bottom: 10px;">
-                <textarea name="<%= wp.h(addName) %>" style="display: block; margin-bottom: 5px;"></textarea>
-                <select name="<%= wp.h(typeName) %>">
-                    <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
-                        <option value="<%= wp.h(pathType.name()) %>"><%= wp.h(pathType) %></option>
-                    <% } %>
-                </select>
-            </div></li>
-        </ul>
-    </div>
+            </select>
+        </li>
+    </ul>
 </div>
 
 <script type="text/javascript">
-if (typeof jQuery !== 'undefined') jQuery(function($) {
-    var $widgetContainer = $('#<%= widgetContainerId %>');
-    var $modeInput = $('#<%= modeInputId %>');
-    var $warningContainer = $('#<%= warningContainerId %>');
-    var $automaticContainer = $('#<%= automaticContainerId %>');
-    var $manualContainer = $('#<%= manualContainerId %>');
+if (typeof jQuery !== 'undefined') (function($, win, undef) {
+    var $automaticContainer = $('#<%= automaticContainerId %>'),
+            $form = $automaticContainer.closest('form'),
+            updateAutomatic;
 
-    var updateWarning = function() {
-        if ($widgetContainer.find('select:not(:disabled) option:selected[value=<%= Directory.PathType.PERMALINK.name() %>]').length > 1) {
-            $warningContainer.show();
-        } else {
-            $warningContainer.hide();
-        }
-    };
-    updateWarning();
+    updateAutomatic = $.throttle(100, function() {
+        var action = $form.attr('action'),
+                questionAt = action.indexOf('?');
 
-    <% if (!isPage) { %>
-        var $form = $widgetContainer.closest('form');
-        var updateAutomaticUrls = function() {
-            var action = $form.attr('action');
-            var questionAt = action.indexOf('?');
-            $.ajax({
-                'data': $form.serialize(),
-                'type': 'post',
-                'url': CONTEXT_PATH + 'content/automaticPaths.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
-                'complete': function(request) {
-                    $automaticContainer.html(request.responseText);
-                }
-            });
-        };
-
-        $modeInput.change(function() {
-            if ($modeInput.val() === '<%= Directory.PathsMode.AUTOMATIC.name() %>') {
-                $automaticContainer.show();
-                $manualContainer.hide();
-                $form.bind('change keyup', updateAutomaticUrls);
-                $widgetContainer.die('change', updateWarning);
-            } else {
-                $automaticContainer.hide();
-                $manualContainer.show();
-                $form.unbind('change keyup', updateAutomaticUrls);
-                $widgetContainer.live('change', updateWarning);
+        $.ajax({
+            'data': $form.serialize(),
+            'type': 'post',
+            'url': CONTEXT_PATH + 'content/automaticPaths.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
+            'complete': function(request) {
+                $automaticContainer.html(request.responseText);
             }
         });
-        $modeInput.change();
-    <% } %>
-});
+    });
+
+    updateAutomatic();
+    $form.bind('change input', updateAutomatic);
+})(jQuery, window);
 </script>

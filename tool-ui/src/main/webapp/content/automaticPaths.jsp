@@ -1,80 +1,76 @@
 <%@ page import="
 
 com.psddev.cms.db.Directory,
-com.psddev.cms.db.Page,
-com.psddev.cms.db.Template,
 com.psddev.cms.tool.ToolPageContext,
-com.psddev.cms.tool.Widget,
 
-com.psddev.dari.db.Query,
-com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
-com.psddev.dari.util.DependencyResolver,
-com.psddev.dari.util.ObjectUtils,
 
-java.util.Set,
-java.util.UUID
+java.util.List
 " %><%
 
-// --- Logic ---
-
 ToolPageContext wp = new ToolPageContext(pageContext);
+
 if (wp.requireUser()) {
     return;
 }
 
 Object selected = wp.findOrReserve();
-State selectedState = State.getInstance(selected);
-
-Template template = null;
-if (selected != null) {
-    template = selectedState.as(Template.ObjectModification.class).getDefault();
-}
 
 if (selected == null) {
     return;
 }
 
+State selectedState = State.getInstance(selected);
+Directory.ObjectModification dirData = selectedState.as(Directory.ObjectModification.class);
+
 try {
     selectedState.beginWrites();
     wp.include("/WEB-INF/objectPost.jsp", "object", selected);
-
-    String[] widgetNames = wp.params(selectedState.getId() + "/_widget");
-    if (!ObjectUtils.isBlank(widgetNames)) {
-
-        DependencyResolver<Widget> updateWidgets = new DependencyResolver<Widget>();
-        for (Widget widget : wp.getTool().findPlugins(Widget.class)) {
-            updateWidgets.addRequired(widget, widget.getUpdateDependencies());
-        }
-
-        for (Widget widget : updateWidgets.resolve()) {
-            if (!"urls".equals(widget.getInternalName())) {
-                for (String widgetName : widgetNames) {
-                    if (widget.getInternalName().equals(widgetName)) {
-                        widget.update(wp, selected);
-                        break;
-                    }
-                }
-            }
-        }
-
-        Page.Layout layout = (Page.Layout) request.getAttribute("layoutHack");
-        if (layout != null) {
-            ((Page) selected).setLayout(layout);
-        }
-    }
+    wp.updateUsingAllWidgets(selected);
 
 } finally {
     selectedState.endWrites();
 }
 
-template = selectedState.as(Template.ObjectModification.class).getDefault();
-if (template == null) {
-    return;
+List<Directory.Path> automaticPaths = (List<Directory.Path>) selectedState.getExtras().get("cms.automaticPaths");
+boolean manual = Directory.PathsMode.MANUAL.equals(dirData.getPathsMode());
+
+if ((automaticPaths != null && !automaticPaths.isEmpty()) || manual) {
+    String automaticName = selectedState.getId() + "/directory.automatic";
+
+    wp.writeStart("div", "class", "widget-urlsAutomatic");
+        wp.writeStart("p");
+            wp.tag("input",
+                    "type", "hidden",
+                    "name", automaticName,
+                    "value", true);
+
+            wp.tag("input",
+                    "type", "checkbox",
+                    "id", wp.createId(),
+                    "name", automaticName,
+                    "value", true,
+                    "checked", manual ? null : "checked");
+
+            wp.writeHtml(" ");
+
+            wp.writeStart("label", "for", wp.getId());
+                wp.writeHtml("Generate Permalink?");
+            wp.writeEnd();
+        wp.writeEnd();
+
+        if (!manual) {
+            wp.writeStart("ul");
+                for (Directory.Path p : automaticPaths) {
+                    wp.writeStart("li");
+                        wp.writeHtml(p.getPath());
+                        wp.writeHtml(" (");
+                        wp.writeHtml(p.getType());
+                        wp.writeHtml(")");
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+        }
+    wp.writeEnd();
 }
-
-// --- Presentation ---
-
-%><% for (Directory.Path path : template.makePaths(wp.getSite(), selected)) { %>
-    <li><%= wp.h(path.getPath()) %> (<%= wp.h(path.getType()) %>)</li>
-<% } %>
+%>
