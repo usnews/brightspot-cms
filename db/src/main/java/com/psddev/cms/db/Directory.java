@@ -186,6 +186,11 @@ public class Directory extends Record {
         }
 
         @Override
+        public int hashCode() {
+            return ObjectUtils.hashCode(getSite(), getPath());
+        }
+
+        @Override
         public String toString() {
             StringBuilder s = new StringBuilder();
             Site site = getSite();
