@@ -31,13 +31,8 @@ String namePrefix = state.getId() + "/directory.";
 String automaticName = namePrefix + "automatic";
 String typeName = namePrefix + "type";
 String addName = namePrefix + "add";
-
 Directory.ObjectModification dirData = state.as(Directory.ObjectModification.class);
 Template template = state.as(Template.ObjectModification.class).getDefault();
-boolean hasPathScript = !isPage &&
-        template != null &&
-        !ObjectUtils.isBlank(template.getPathsEngine()) &&
-        !ObjectUtils.isBlank(template.getPathsScript());
 
 if (JspWidget.isUpdating(wp)) {
     List<String> automatic = wp.params(String.class, automaticName);
@@ -60,7 +55,7 @@ if (JspWidget.isUpdating(wp)) {
 
         state.getExtras().put("cms.automaticPaths", automaticPaths);
 
-        for (Directory.Path path : template.makePaths(site, object)) {
+        for (Directory.Path path : dirData.createPaths(site)) {
             dirData.addSitePath(path.getSite(), path.getPath(), path.getType());
 
             if (!manualPaths.contains(path)) {
@@ -120,10 +115,8 @@ if (!paths.isEmpty()) {
     wp.writeEnd();
 }
 
-if (hasPathScript) {
-    wp.writeStart("div", "id", automaticContainerId);
-    wp.writeEnd();
-}
+wp.writeStart("div", "id", automaticContainerId);
+wp.writeEnd();
 %>
 
 <div class="repeatableInputs">

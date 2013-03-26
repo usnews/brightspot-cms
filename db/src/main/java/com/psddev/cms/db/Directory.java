@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 
@@ -211,6 +213,12 @@ public class Directory extends Record {
 
             return s.toString();
         }
+    }
+
+    public interface Item {
+
+        /** Creates the permalink appropriate for the given {@code site}. */
+        public String createPermalink(Site site);
     }
 
     /** Cache of all directory instances. */
@@ -541,6 +549,23 @@ public class Directory extends Record {
                 permalink = getSitePermalink(null);
             }
             return permalink;
+        }
+
+        /** Creates paths appropriate for the given {@code site}. */
+        public Set<Path> createPaths(Site site) {
+            Object object = getOriginalObject();
+            Set<Path> paths = new LinkedHashSet<Path>();
+            Template template = as(Template.ObjectModification.class).getDefault();
+
+            if (object instanceof Item) {
+                paths.add(new Path(site, ((Item) object).createPermalink(site), PathType.PERMALINK));
+            }
+
+            if (template != null) {
+                paths.addAll(template.makePaths(site, object));
+            }
+
+            return paths;
         }
     }
 
