@@ -31,7 +31,7 @@ public class Homepage extends Page {
 {% endhighlight %}</div>
                 <h4>Create the Template JSP</h4>
                 The template JSP is used to render the entire page. To include the new object on the page use the <code>cms:render</code> tag with the value as <code>mainContent</code>.</br></br>
-                <div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+                <div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div id="container">
@@ -40,7 +40,7 @@ public class Homepage extends Page {
 {% endhighlight %}</div>
                 <h4>Create the Object JSP</h4>
                 The example object above, Homepage, has two fields. This JSP renders those when the object is called on a page.</br></br>
-                <div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+                <div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div class="homepage-container">
@@ -81,7 +81,7 @@ public class Article extends Content {
                 <p>To start, create two files to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing taglibs and then create a simple structure for your page. You can add a header, to render the headline, and a content section, which will render the rest of the object.
                 </br></br><h4>Layout JSP</h4>
                 </p>
-<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div id="container">
@@ -98,7 +98,7 @@ public class Article extends Content {
 {% endhighlight %}</div>
 <p>In the content div set the value of the render as <code>mainContent</code>, this is defined when you create your template within the CMS, which is the final step. Create the jsp file that will render the Article object. Using JSTL in this example, call <code>content.fieldName</code>, where the field name is defined in the class. Referenced objects, such as Author, can be accessed by name, as well as fields within them. The example is rendering the Author first and last name. For text fields use <code><c:out></code>, whereas for rich text, use the <code><cms:render></code> tag.
                 </br></br><h4>Object JSP</h4>
-<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div class="article">
@@ -183,7 +183,7 @@ Once the object has been created in the CMS, you can create a new Content Sectio
         </div>
 </br></br><h4>Top Authors JSP</h4>
 The JSP file used to render the Top Authors object can be defined on the object itself, using the <code>@Renderer.Path("/top-authors.jsp")</code> annotation, or in the New Content Section. The JSP uses <code>content.fieldName</code> to render any properties on the object. <code>Content</code> has been defined in our New Content Section.</br></br>
-<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div class="authors">
@@ -222,7 +222,7 @@ Some sections of a page may not require any use of a CMS content object, but rat
             </div></br>
 <h4>Create the JSP</h4>
 In the new Script Section you have provided a path to a JSP file that will be called when the section is included on a page. Create the JSP and place it within your webapp directory (Note, it can be placed anywhere within webapp or WEB-INF, as long as the path is correct).</br></br>The JSP queries from the Author object, and returns all. You can test the <code>Order By</code> clause by adding <code>sortAscending("firstName");</code> to the query.</br></br>
-<div class="highlight">{% highlight java %}<%  List<Author> authors = Query.from(Author.class).selectAll();
+<div class="highlight">{% highlight jsp %}<%  List<Author> authors = Query.from(Author.class).selectAll();
     pageContext.setAttribute("authors", authors);
 %>
 <ul>
@@ -233,7 +233,7 @@ In the new Script Section you have provided a path to a JSP file that will be ca
 {% endhighlight %}</div>
 <h4>Add to Layout</h4>
 To include the new Script Section on a page add a reference to it within the template layout JSP. Use the internal name from the Script Section and the <code>cms:render</code> tag.</br></br>
-<div class="highlight">{% highlight java %}<cms:render value="${sections.allAuthors}" />
+<div class="highlight">{% highlight jsp %}<cms:render value="${sections.allAuthors}" />
 {% endhighlight %}</div></br>
 When creating your page, you should now see a query returning all Authors that have been published.
     <div class="highlight center span12" style="padding-top: 10px;">
@@ -248,7 +248,7 @@ When creating your page, you should now see a query returning all Authors that h
 <h2>Template Content</h2>
 Sections used on a page template have access to several aspects of the Template on which they are used. The Wireframe tool, which is available by running <code>?_wireframe=true</code> on any page shows the available JSTL expressions for the page template. These include:</br></br>
 
-<div class="highlight">{% highlight java %}${content} // The content object rendered by the JSP
+<div class="highlight">{% highlight jsp %}${content} // The content object rendered by the JSP
 ${mainContent} // The content object chosen on the Template as Main Content
 ${profile} // Device and User Agent information
 ${section} // Current Section information, including CMS profile info
