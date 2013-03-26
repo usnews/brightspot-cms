@@ -403,8 +403,9 @@ public class Directory extends Record {
 
             if (!rawPaths.contains(rawPath)) {
                 rawPaths.add(rawPath);
-                getPathTypes().put(rawPath, type);
             }
+
+            getPathTypes().put(rawPath, type);
         }
 
         /**
