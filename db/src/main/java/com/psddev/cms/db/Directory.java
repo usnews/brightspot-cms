@@ -366,12 +366,19 @@ public class Directory extends Record {
          * the given {@code type} to this object.
          */
         public void addSitePath(Site site, String path, PathType type) {
-            if (!ObjectUtils.isBlank(path)) {
-                if (path.endsWith("/")) {
-                    path += "index";
-                }
-                String rawPath = makeRawPath(site, path);
-                getRawPaths().add(rawPath);
+            if (ObjectUtils.isBlank(path)) {
+                return;
+            }
+
+            if (path.endsWith("/")) {
+                path += "index";
+            }
+
+            List<String> rawPaths = getRawPaths();
+            String rawPath = makeRawPath(site, path);
+
+            if (!rawPaths.contains(rawPath)) {
+                rawPaths.add(rawPath);
                 getPathTypes().put(rawPath, type);
             }
         }
