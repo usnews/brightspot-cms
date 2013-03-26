@@ -174,13 +174,37 @@ public class Directory extends Record {
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
+
             } else if (other instanceof Path) {
                 Path otherPath = (Path) other;
                 return ObjectUtils.equals(getSite(), otherPath.getSite()) &&
                         ObjectUtils.equals(getPath(), otherPath.getPath());
+
             } else {
                 return false;
             }
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder s = new StringBuilder();
+            Site site = getSite();
+
+            s.append("{");
+
+            if (site != null) {
+                s.append("site=");
+                s.append(site.getLabel());
+                s.append(", ");
+            }
+
+            s.append("path=");
+            s.append(getPath());
+            s.append(", type=");
+            s.append(getType());
+            s.append("}");
+
+            return s.toString();
         }
     }
 
