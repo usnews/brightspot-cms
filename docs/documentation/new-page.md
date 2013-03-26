@@ -101,7 +101,7 @@ provided area.
 
 > `area` - Name of area to render content into.
 
-> `value` - Value to render. This can be Content, ReferentialText, an Iterable or a String.
+> `value` - Value to render. This can be Content, ReferentialText, an Iterable or a String. Render a Content or Script section using `sections.internalName`
 
 
 </div>
