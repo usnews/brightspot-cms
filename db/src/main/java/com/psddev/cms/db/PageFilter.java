@@ -361,8 +361,6 @@ public class PageFilter extends AbstractFilter {
             }
 
             // Set up a profile.
-            debugObject(request, writer, "Main object is", mainObject);
-
             Map<String, Object> seo = new HashMap<String, Object>();
             seo.put("title", Seo.Static.findTitle(mainObject));
             seo.put("description", Seo.Static.findDescription(mainObject));
@@ -524,8 +522,6 @@ public class PageFilter extends AbstractFilter {
             Writer writer,
             Page page)
             throws IOException, ServletException {
-
-        debugObject(request, writer, "Beginning page", page);
     }
 
     /** Renders the end of the given {@code page}. */
@@ -535,8 +531,6 @@ public class PageFilter extends AbstractFilter {
             Writer writer,
             Page page)
             throws IOException, ServletException {
-
-        debugObject(request, writer, "Ending page", page);
     }
 
     /** Renders the given {@code section}. */
@@ -745,7 +739,6 @@ public class PageFilter extends AbstractFilter {
             }
         }
 
-        debugObject(request, writer, "Rendering", object);
         boolean isOverlay = Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER));
         LazyWriter lazyWriter = null;
         if (isOverlay && request.getAttribute("lazyWriter") != null) {
@@ -816,12 +809,7 @@ public class PageFilter extends AbstractFilter {
             String script)
             throws IOException, ServletException {
 
-        long startTime = System.nanoTime();
-
         try {
-            debugMessage(request, writer, "Engine is [%s]", engine);
-            debugMessage(request, writer, "Script is [%s]", script);
-
             if ("RawText".equals(engine)) {
                 writer.write(script);
                 return;
@@ -848,62 +836,8 @@ public class PageFilter extends AbstractFilter {
             } else {
                 throw new RuntimeException(ex);
             }
-
-        } finally {
-            debugMessage(request, writer,
-                    "Rendering [%s: %s] took [%s] milliseconds",
-                    engine,
-                    script,
-                    (System.nanoTime() - startTime) / 1000000.0);
         }
     }
-
-    /**
-     * Writes the given debug {@code message} to both the log and the given
-     * {@code response}.
-     */
-    private static void debugMessage(
-            HttpServletRequest request,
-            Writer writer,
-            String message,
-            Object... arguments) throws IOException {
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format(message, arguments));
-        }
-
-        if (Boolean.parseBoolean(request.getParameter(DEBUG_PARAMETER))) {
-            writer.write("<!--CMS: ");
-            writer.write(String.format(message, arguments).replace("--", "- -"));
-            writer.write("-->");
-        }
-    }
-
-    /**
-     * Writes the given debug {@code message} with a short description
-     * about the given {@code object} to both the log and the given
-     * {@code response}.
-     */
-    private static void debugObject(
-            HttpServletRequest request,
-            Writer writer,
-            String message,
-            Object object) throws IOException {
-
-        if (object == null) {
-            debugMessage(request, writer, message);
-
-        } else {
-            State state = State.getInstance(object);
-            debugMessage(request, writer, "%s [%s #%s] [%s]",
-                    message,
-                    object.getClass().getSimpleName(),
-                    state.getId(),
-                    state.getLabel());
-        }
-    }
-
-    // ---
 
     /** {@link PageFilter} utility methods. */
     public static final class Static {
@@ -1427,7 +1361,6 @@ public class PageFilter extends AbstractFilter {
             ContainerSection container)
             throws IOException, ServletException {
 
-        debugObject(request, writer, "Beginning container", container);
         renderScript(request, response, writer, container.getBeginEngine(), container.getBeginScript());
     }
 
@@ -1441,7 +1374,6 @@ public class PageFilter extends AbstractFilter {
             throws IOException, ServletException {
 
         renderScript(request, response, writer, container.getEndEngine(), container.getEndScript());
-        debugObject(request, writer, "Ending container", container);
     }
 
     /** @deprecated No replacement. */
