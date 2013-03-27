@@ -19,6 +19,7 @@ java.util.Map
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 Object object = JspWidget.getOriginal(wp);
+Object varied = JspWidget.getObject(wp);
 boolean isPage = Page.class.isInstance(object) && !Template.class.isInstance(object);
 Site site = wp.getSite();
 State state = State.getInstance(object);
@@ -55,7 +56,7 @@ if (JspWidget.isUpdating(wp)) {
 
         state.getExtras().put("cms.automaticPaths", automaticPaths);
 
-        for (Directory.Path path : dirData.createPaths(site)) {
+        for (Directory.Path path : State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site)) {
             dirData.addSitePath(path.getSite(), path.getPath(), path.getType());
 
             if (!manualPaths.contains(path)) {
