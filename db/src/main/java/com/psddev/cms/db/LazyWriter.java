@@ -4,12 +4,18 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Locale;
 
-/**
- * Provides ability to write non-layout-related inserts (e.g. non-visible span blacks) without disrupting the page
- * by delaying writes to the appropriate points in html
- */
-public  class LazyWriter extends Writer {
+import javax.servlet.http.HttpServletRequest;
 
+/**
+ * For writing invisible {@code <span>} blocks without disrupting the natural
+ * page layout by delaying the writes until the appropriate points in the HTML.
+ */
+public class LazyWriter extends Writer {
+
+    private static final String ATTRIBUTE_PREFIX = LazyWriter.class.getName() + ".";
+    private static final String IN_BODY_ATTRIBUTE = ATTRIBUTE_PREFIX + "inBody";
+
+    private final HttpServletRequest request;
     private final Writer delegate;
     private final StringBuilder lazy = new StringBuilder();
     private final StringBuilder pending = new StringBuilder();
@@ -29,9 +35,21 @@ public  class LazyWriter extends Writer {
     private boolean inScriptOrStyle;
     private boolean inBody;
 
-
-    public LazyWriter(Writer delegate) {
+    public LazyWriter(HttpServletRequest request, Writer delegate) {
+        this.request = request;
         this.delegate = delegate;
+    }
+
+    /** @deprecated Use {@link #LazyWriter(HttpServletRequest, Writer)} instead. */
+    @Deprecated
+    public LazyWriter(Writer delegate) {
+        this(null, delegate);
+    }
+
+    private boolean isInBody() {
+        return inBody ||
+                (request != null &&
+                Boolean.TRUE.equals(request.getAttribute(IN_BODY_ATTRIBUTE)));
     }
 
     @Override
@@ -106,11 +124,15 @@ public  class LazyWriter extends Writer {
 
                     } else if ("body".equals(tagNameLc)) {
                         inBody = true;
+
+                        if (request != null) {
+                            request.setAttribute(IN_BODY_ATTRIBUTE, Boolean.TRUE);
+                        }
                     }
 
                     writePending();
 
-                    if (inBody && lazy.length() > 0) {
+                    if (isInBody() && lazy.length() > 0) {
                         delegate.append(lazy);
                         lazy.setLength(0);
                     }
@@ -135,7 +157,7 @@ public  class LazyWriter extends Writer {
     }
 
     public void writeLazily(String string) throws IOException {
-        if (!inBody || inTag || inScriptOrStyle) {
+        if (!isInBody() || inTag || inScriptOrStyle) {
             lazy.append(string);
 
         } else {
