@@ -423,7 +423,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             <option value="_">Default</option>
                             <option value="_prod">Production</option>
                             <option value="_debug">Debug</option>
-                            <option value="_wireframe">Wireframe</option>
                         </select>
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
