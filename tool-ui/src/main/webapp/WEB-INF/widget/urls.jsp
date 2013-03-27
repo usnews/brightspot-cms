@@ -81,7 +81,9 @@ if (!ObjectUtils.isBlank(errors)) {
 
 List<Directory.Path> paths = dirData.getSitePaths(site);
 
-if (!paths.isEmpty()) {
+if (!paths.isEmpty() &&
+        (Directory.PathsMode.MANUAL.equals(dirData.getPathsMode()) ||
+        !wp.getCmsTool().isSingleGeneratedPermalink())) {
     wp.writeStart("ul");
         for (Directory.Path path : paths) {
             wp.writeStart("li", "class", "widget-urlsItem");
