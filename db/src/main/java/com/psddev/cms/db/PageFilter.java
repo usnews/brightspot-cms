@@ -150,7 +150,7 @@ public class PageFilter extends AbstractFilter {
             isInside = new HashMap<String, Boolean>();
             request.setAttribute("inside", isInside);
         }
-        isInside.put(section.getName(), Boolean.TRUE);
+        isInside.put(section.getInternalName(), Boolean.TRUE);
     }
 
     /**
@@ -161,7 +161,7 @@ public class PageFilter extends AbstractFilter {
     protected static void removeLastParentSection(HttpServletRequest request) {
         List<Section> parents = (List<Section>) request.getAttribute(PARENT_SECTIONS_ATTRIBUTE);
         Section section = parents.remove(parents.size() - 1);
-        ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getName());
+        ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getInternalName());
     }
 
     /**
@@ -247,6 +247,7 @@ public class PageFilter extends AbstractFilter {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void doRequest(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -354,7 +355,7 @@ public class PageFilter extends AbstractFilter {
             LazyWriter lazyWriter = null;
             // If we are marking the sections, use lazy writing so spans don't interrupt page layout
             if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
-                lazyWriter = new LazyWriter(response.getWriter());
+                lazyWriter = new LazyWriter(request, response.getWriter());
                 request.setAttribute("lazyWriter", lazyWriter);
                 writer = new PrintWriter(lazyWriter);
             }
@@ -474,7 +475,7 @@ public class PageFilter extends AbstractFilter {
                 ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
                 PageWriter writer = page.getWriter();
 
-                writer.start("div", "style", writer.cssString(
+                writer.writeStart("div", "style", writer.cssString(
                         "background", "rgba(0, 0, 0, 0.7)",
                         "border-bottom-left-radius", "5px",
                         "color", "white",
@@ -486,7 +487,7 @@ public class PageFilter extends AbstractFilter {
                         "top", 0,
                         "right", 0,
                         "z-index", 2000000));
-                    writer.start("a",
+                    writer.writeStart("a",
                             "href", "javascript:" + StringUtils.encodeUri(
                                     "(function(){document.body.appendChild(document.createElement('script')).src='" +
                                     page.cmsUrl("/content/bookmarklet.jsp") +
@@ -496,12 +497,12 @@ public class PageFilter extends AbstractFilter {
                                     "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                     "font-size", "13px",
                                     "line-height", "20px"));
-                        writer.html("Edit Inline");
-                    writer.end();
+                        writer.writeHtml("Edit Inline");
+                    writer.writeEnd();
 
-                    writer.html(" | ");
+                    writer.writeHtml(" | ");
 
-                    writer.start("a",
+                    writer.writeStart("a",
                             "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
                             "target", "_blank",
                             "style", writer.cssString(
@@ -509,9 +510,9 @@ public class PageFilter extends AbstractFilter {
                                     "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                     "font-size", "13px",
                                     "line-height", "20px"));
-                        writer.html("Edit In CMS");
-                    writer.end();
-                writer.end();
+                        writer.writeHtml("Edit In CMS");
+                    writer.writeEnd();
+                writer.writeEnd();
             }
         }
     }
