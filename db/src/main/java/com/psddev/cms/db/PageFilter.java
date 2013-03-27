@@ -44,6 +44,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.JspBufferFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
@@ -246,9 +247,47 @@ public class PageFilter extends AbstractFilter {
         doRequest(request, response, chain);
     }
 
+    private static boolean isOverlay(HttpServletRequest request) {
+        return ObjectUtils.to(boolean.class, request.getParameter(OVERLAY_PARAMETER));
+    }
+
     @Override
-    @SuppressWarnings("deprecation")
+    protected void doInclude(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws Exception {
+
+        if (isOverlay(request)) {
+            response = new LazyWriterResponse(request, response);
+        }
+
+        super.doInclude(request, response, chain);
+    }
+
+    @Override
     protected void doRequest(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws IOException, ServletException {
+
+        if (isOverlay(request)) {
+            try {
+                JspBufferFilter.Static.overrideBuffer(0);
+                foo(request, response, chain);
+
+            } finally {
+                JspBufferFilter.Static.restoreBuffer();
+            }
+
+        } else {
+            foo(request, response, chain);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void foo(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain)
@@ -351,15 +390,6 @@ public class PageFilter extends AbstractFilter {
                 page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
-            PrintWriter writer = response.getWriter();
-            LazyWriter lazyWriter = null;
-            // If we are marking the sections, use lazy writing so spans don't interrupt page layout
-            if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
-                lazyWriter = new LazyWriter(request, response.getWriter());
-                request.setAttribute("lazyWriter", lazyWriter);
-                writer = new PrintWriter(lazyWriter);
-            }
-
             // Set up a profile.
             Map<String, Object> seo = new HashMap<String, Object>();
             seo.put("title", Seo.Static.findTitle(mainObject));
@@ -387,26 +417,28 @@ public class PageFilter extends AbstractFilter {
             response.setContentType((ObjectUtils.isBlank(contentType) ? "text/html" : contentType) + ";charset=UTF-8");
 
             // Render the page.
-            if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
-                StringBuilder marker = new StringBuilder();
-                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\">");
+            if (isOverlay(request)) {
+                LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
+                response = lazyResponse;
+
                 Map<String, String> map = new HashMap<String, String>();
                 State state = State.getInstance(mainObject);
+                StringBuilder marker = new StringBuilder();
+
                 map.put("id", state.getId().toString());
                 map.put("label", state.getLabel());
                 map.put("typeLabel", state.getType().getLabel());
-                marker.append(ObjectUtils.toJson(map));
+
+                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\">");
+                marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("</span>");
-                if (lazyWriter != null) {
-                    writer.flush();
-                    lazyWriter.writeLazily(marker.toString());
-                } else {
-                    writer.write(marker.toString());
-                }
+
+                lazyResponse.getLazyWriter().writeLazily(marker.toString());
             }
 
-            HtmlWriter html = new HtmlWriter(writer);
-            html.putAllStandardDefaults();
+            HtmlWriter writer = new HtmlWriter(response.getWriter());
+
+            writer.putAllStandardDefaults();
 
             request.setAttribute("sections", new PullThroughCache<String, Section>() {
                 @Override
@@ -415,7 +447,7 @@ public class PageFilter extends AbstractFilter {
                 }
             });
 
-            beginPage(request, response, html, page);
+            beginPage(request, response, writer, page);
 
             if (!response.isCommitted()) {
                 request.getSession();
@@ -438,7 +470,7 @@ public class PageFilter extends AbstractFilter {
                 Page.Layout layout = page.getLayout();
 
                 if (layout != null) {
-                    renderSection(request, response, html, layout.getOutermostSection());
+                    renderSection(request, response, writer, layout.getOutermostSection());
                 }
 
             } else {
@@ -455,7 +487,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            endPage(request, response, html, page);
+            endPage(request, response, writer, page);
 
         } finally {
             Database.Static.restoreDefault();
@@ -739,10 +771,14 @@ public class PageFilter extends AbstractFilter {
             }
         }
 
-        boolean isOverlay = Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER));
-        LazyWriter lazyWriter = null;
-        if (isOverlay && request.getAttribute("lazyWriter") != null) {
-            lazyWriter = (LazyWriter) request.getAttribute("lazyWriter");
+        LazyWriter lazyWriter;
+
+        if (isOverlay(request)) {
+            lazyWriter = new LazyWriter(request, writer);
+            writer = lazyWriter;
+
+        } else {
+            lazyWriter = null;
         }
 
         try {
@@ -750,35 +786,29 @@ public class PageFilter extends AbstractFilter {
                 Static.pushObject(request, object);
             }
 
-
-            if (isOverlay) {
-                StringBuilder marker = new StringBuilder();
-                marker.append("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
+            if (lazyWriter != null) {
                 Map<String, String> map = new HashMap<String, String>();
+                Object concrete = Static.peekConcreteObject(request);
+                StringBuilder marker = new StringBuilder();
 
                 if (section != null) {
                     map.put("sectionName", section.getName());
                     map.put("sectionId", section.getId().toString());
                 }
 
-                Object concrete = Static.peekConcreteObject(request);
-
                 if (concrete != null) {
                     State state = State.getInstance(concrete);
+
                     map.put("id", state.getId().toString());
                     map.put("label", state.getLabel());
                     map.put("typeLabel", state.getType().getLabel());
                 }
 
+                marker.append("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("\"></span>");
 
-                if (lazyWriter != null) {
-                    writer.flush();
-                    lazyWriter.writeLazily(marker.toString());
-                } else {
-                    writer.write(marker.toString());
-                }
+                lazyWriter.writeLazily(marker.toString());
             }
 
             renderScript(request, response, writer, engine, script);
@@ -788,14 +818,8 @@ public class PageFilter extends AbstractFilter {
                 Static.popObject(request);
             }
 
-            if (isOverlay) {
-                String endOverlayStr = "<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>";
-                if (lazyWriter != null) {
-                    writer.flush();
-                    lazyWriter.writeLazily(endOverlayStr);
-                } else {
-                    writer.write(endOverlayStr);
-                }
+            if (lazyWriter != null) {
+                lazyWriter.writeLazily("<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>");
             }
         }
     }
