@@ -1,13 +1,11 @@
 package com.psddev.cms.db;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
@@ -48,15 +46,15 @@ public class FieldAccessFilter extends AbstractFilter {
             throws IOException, ServletException {
 
         Object current = request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
-        FieldAccessResponse fieldAccessResponse = new FieldAccessResponse(request, response);
+        LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
 
         try {
-            request.setAttribute(CURRENT_RESPONSE_ATTRIBUTE, fieldAccessResponse);
-            chain.doFilter(request, fieldAccessResponse);
+            request.setAttribute(CURRENT_RESPONSE_ATTRIBUTE, lazyResponse);
+            chain.doFilter(request, lazyResponse);
 
         } finally {
             request.setAttribute(CURRENT_RESPONSE_ATTRIBUTE, current);
-            fieldAccessResponse.getLazyWriter().writePending();
+            lazyResponse.getLazyWriter().writePending();
         }
     }
 
@@ -104,7 +102,7 @@ public class FieldAccessFilter extends AbstractFilter {
             marker.append("\">");
             marker.append("</span>");
 
-            FieldAccessResponse response = (FieldAccessResponse) request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
+            LazyWriterResponse response = (LazyWriterResponse) request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
 
             if (response != null) {
                 try {
@@ -112,33 +110,6 @@ public class FieldAccessFilter extends AbstractFilter {
                 } catch (IOException error) {
                 }
             }
-        }
-    }
-
-    private static class FieldAccessResponse extends HttpServletResponseWrapper {
-
-        private final HttpServletRequest request;
-        private LazyWriter lazyWriter;
-        private PrintWriter writer;
-
-        public FieldAccessResponse(HttpServletRequest request, HttpServletResponse response) {
-            super(response);
-            this.request = request;
-        }
-
-        public LazyWriter getLazyWriter() throws IOException {
-            if (lazyWriter == null) {
-                lazyWriter = new LazyWriter(request, super.getWriter());
-            }
-            return lazyWriter;
-        }
-
-        @Override
-        public PrintWriter getWriter() throws IOException {
-            if (writer == null) {
-                writer = new PrintWriter(getLazyWriter());
-            }
-            return writer;
         }
     }
 }
