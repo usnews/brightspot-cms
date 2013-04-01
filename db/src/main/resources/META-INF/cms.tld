@@ -80,7 +80,7 @@
     <tag>
         <name>input</name>
         <tag-class>com.psddev.dari.db.InputTag</tag-class>
-        <body-content>JSP</body-content>
+        <body-content>empty</body-content>
         <attribute>
             <name>name</name>
             <rtexprvalue>true</rtexprvalue>
