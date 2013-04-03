@@ -73,6 +73,7 @@ try {
         }
 
         State.getInstance(original).putValue("variations/" + variationId.toString(), stateValues);
+        State.getInstance(original).getExtras().put("cms.variedObject", object);
         object = original;
         state = State.getInstance(object);
     }

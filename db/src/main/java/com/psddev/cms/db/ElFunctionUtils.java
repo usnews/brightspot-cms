@@ -6,6 +6,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
@@ -67,20 +68,21 @@ public final class ElFunctionUtils {
      * with the given {@code servletPath}.
      */
     public static String plainResource(String servletPath) {
-        if (ObjectUtils.coalesce(
-                Settings.get(Boolean.class, "cms/isResourceInStorage"),
-                Settings.isProduction())) {
+        ServletContext servletContext = null;
+        HttpServletRequest request = null;
 
-            ServletContext servletContext = null;
-            HttpServletRequest request = null;
+        try {
+            servletContext = PageContextFilter.Static.getServletContext();
+            request = PageContextFilter.Static.getRequest();
+        } catch (IllegalStateException ex) {
+        }
 
-            try {
-                servletContext = PageContextFilter.Static.getServletContext();
-                request = PageContextFilter.Static.getRequest();
-            } catch (IllegalStateException ex) {
-            }
+        if (servletContext != null && request != null) {
+            HtmlGrid.Static.addStyleSheet(request, servletPath);
 
-            if (servletContext != null && request != null) {
+            if (ObjectUtils.coalesce(
+                    Settings.get(Boolean.class, "cms/isResourceInStorage"),
+                    Settings.isProduction())) {
                 StorageItem item = StorageItem.Static.getPlainResource(null, servletContext, servletPath);
 
                 if (item != null) {
@@ -99,20 +101,22 @@ public final class ElFunctionUtils {
      * associated with the given {@code servletPath}.
      */
     public static String resource(String servletPath) {
-        if (ObjectUtils.coalesce(
-                Settings.get(Boolean.class, "cms/isResourceInStorage"),
-                Settings.isProduction())) {
+        ServletContext servletContext = null;
+        HttpServletRequest request = null;
 
-            ServletContext servletContext = null;
-            HttpServletRequest request = null;
+        try {
+            servletContext = PageContextFilter.Static.getServletContext();
+            request = PageContextFilter.Static.getRequest();
+        } catch (IllegalStateException ex) {
+        }
 
-            try {
-                servletContext = PageContextFilter.Static.getServletContext();
-                request = PageContextFilter.Static.getRequest();
-            } catch (IllegalStateException ex) {
-            }
+        if (servletContext != null && request != null) {
+            HtmlGrid.Static.addStyleSheet(request, servletPath);
 
-            if (servletContext != null && request != null) {
+            if (ObjectUtils.coalesce(
+                    Settings.get(Boolean.class, "cms/isResourceInStorage"),
+                    Settings.isProduction())) {
+
                 String encodings = request.getHeader("Accept-Encoding");
                 StorageItem item = ObjectUtils.isBlank(encodings) || !encodings.contains("gzip") ?
                         StorageItem.Static.getPlainResource(null, servletContext, servletPath) :
