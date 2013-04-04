@@ -33,7 +33,7 @@ public class VaryingDatabase extends ForwardingDatabase {
         HttpServletRequest request = getRequest();
 
         if (request != null &&
-                AuthenticationFilter.Static.getUser(request) == null) {
+                request.getAttribute(AuthenticationFilter.USER_ATTRIBUTE) == null) {
             return profile;
 
         } else {
