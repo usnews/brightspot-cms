@@ -83,7 +83,21 @@ public class ToolUser extends Record {
     }
 
     public Site getCurrentSite() {
-        return currentSite;
+        if ((currentSite == null &&
+                hasPermission("site/global")) ||
+                (currentSite != null &&
+                hasPermission(currentSite.getPermissionId()))) {
+            return currentSite;
+
+        } else {
+            for (Site s : Site.Static.findAll()) {
+                if (hasPermission(s.getPermissionId())) {
+                    return s;
+                }
+            }
+
+            throw new IllegalStateException("No accessible site!");
+        }
     }
 
     public void setCurrentSite(Site site) {
