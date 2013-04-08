@@ -766,6 +766,17 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
+        List<Tool> tools = new ArrayList<Tool>();
+
+        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            Class<? extends Tool> toolClass = (Class) type.getObjectClass();
+
+            if (toolClass != null) {
+                tools.add(Application.Static.getInstance(toolClass));
+            }
+        }
+
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
         StorageItem companyLogo = cms.getCompanyLogo();
@@ -791,6 +802,10 @@ public class ToolPageContext extends WebPageContext {
                 for (String href : new String[] {
                         "/style/cms.less" }) {
                     writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
+                }
+
+                for (Tool tool : tools) {
+                    tool.writeHeaderAfterStyles(this);
                 }
 
                 writeStart("script", "type", "text/javascript");
@@ -866,6 +881,10 @@ public class ToolPageContext extends WebPageContext {
                         "/script/cms.js" }) {
                     writeStart("script", "type", "text/javascript", "src", cmsResource(src));
                     writeEnd();
+                }
+
+                for (Tool tool : tools) {
+                    tool.writeHeaderAfterScripts(this);
                 }
 
                 if (!ObjectUtils.isBlank(extraJavaScript)) {
