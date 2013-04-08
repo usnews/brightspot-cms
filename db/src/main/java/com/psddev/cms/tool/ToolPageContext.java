@@ -959,7 +959,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("span", "class", "searchInput");
                                 writeStart("label", "for", createId()).writeHtml("Search").writeEnd();
-                                writeTag("input", "type", "text", "id", getId());
+                                writeTag("input", "type", "text", "id", getId(), "name", "q");
                                 writeStart("button").writeHtml("Go").writeEnd();
                             writeEnd();
 
