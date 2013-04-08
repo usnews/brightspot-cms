@@ -530,7 +530,7 @@ $doc.ready(function() {
 
             } else {
                 $searchFrame.popup('open');
-                $searchInput = $searchFrame.find('.searchForm-filters .searchInput :text');
+                $searchInput = $searchFrame.find('.searchForm-filters :input[name="q"]');
                 headerInputValue = $headerInput.val();
 
                 if (headerInputValue !== $searchInput.val()) {

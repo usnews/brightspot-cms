@@ -116,6 +116,11 @@ writer.start("div", "class", "searchForm-container");
                 writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
                 writer.tag("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
 
+                writer.tag("input",
+                        "type", "hidden",
+                        "name", Search.QUERY_STRING_PARAMETER,
+                        "value", search.getQueryString());
+
                 if (!singleType && !validTypes.isEmpty()) {
                     wp.typeSelect(
                             validTypes,
