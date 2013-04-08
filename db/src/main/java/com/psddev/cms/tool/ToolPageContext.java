@@ -852,7 +852,7 @@ public class ToolPageContext extends WebPageContext {
             write("<input type=\"hidden\" name=\"", Search.NAME_PARAMETER, "\" value=\"global\">");
             write("<span class=\"searchInput\">");
             write("<label for=\"", createId(), "\">Search</label>");
-            write("<input id=\"", getId(), "\" type=\"text\">");
+            write("<input id=\"", getId(), "\" type=\"text\" name=\"q\">");
             write("<button>Go</button>");
             write("</span>");
             write("</form>");

@@ -515,7 +515,7 @@ $doc.ready(function() {
     (function() {
         var previousValue;
 
-        $('.toolHeader > .search :text').bind('focus input', $.throttle(500, function() {
+        $('.toolHeader > .search :text').bind('focus input', $.throttle(500, function(event) {
             var $headerInput = $(this),
                     $headerForm = $headerInput.closest('form'),
                     $searchFrame,
@@ -525,7 +525,9 @@ $doc.ready(function() {
             $headerInput.attr('autocomplete', 'off');
             $searchFrame = $('.frame[name="' + $headerForm.attr('target') + '"]');
 
-            if ($searchFrame.length === 0) {
+            if ($searchFrame.length === 0 ||
+                    (event.type === 'focus' &&
+                    $searchFrame.find('.searchForm-resultList .message-warning').length > 0)) {
                 $headerForm.submit();
 
             } else {
