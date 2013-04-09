@@ -769,11 +769,15 @@ public class ToolPageContext extends WebPageContext {
         List<Tool> tools = new ArrayList<Tool>();
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
-            @SuppressWarnings({ "rawtypes", "unchecked" })
-            Class<? extends Tool> toolClass = (Class) type.getObjectClass();
+            try {
+                @SuppressWarnings({ "rawtypes", "unchecked" })
+                Class<? extends Tool> toolClass = (Class) type.getObjectClass();
 
-            if (toolClass != null) {
-                tools.add(Application.Static.getInstance(toolClass));
+                if (toolClass != null) {
+                    tools.add(Application.Static.getInstance(toolClass));
+                }
+
+            } catch (ClassCastException error) {
             }
         }
 
