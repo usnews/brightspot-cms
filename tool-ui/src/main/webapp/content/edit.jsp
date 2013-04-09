@@ -66,15 +66,20 @@ if (selected != null) {
 
 UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
 
-if (!state.isNew() && variationId == null) {
+if (variationId == null) {
     Site site = wp.getSite();
 
     if (site != null) {
         Variation defaultVariation = site.getDefaultVariation();
 
         if (defaultVariation != null) {
-            wp.redirect("", "variationId", defaultVariation.getId());
-            return;
+            if (state.isNew()) {
+                state.as(Variation.Data.class).setInitialVariation(defaultVariation);
+
+            } else if (state.as(Variation.Data.class).getInitialVariation() == null) {
+                wp.redirect("", "variationId", defaultVariation.getId());
+                return;
+            }
         }
     }
 }

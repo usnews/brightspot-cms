@@ -24,9 +24,7 @@ public class WorkStreams extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        page.getWriter();
-
-        List<WorkStream> workStreams = Query.from(WorkStream.class).selectAll();
+        List<WorkStream> workStreams = Query.from(WorkStream.class).where(page.siteItemsPredicate()).selectAll();
         UUID stop = page.param(UUID.class, "stop");
         ToolUser user = page.getUser();
 

@@ -16,6 +16,7 @@ java.util.List
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 State state = State.getInstance(request.getAttribute("object"));
+State originalState = State.getInstance(request.getAttribute("original"));
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
 ToolUi ui = field.as(ToolUi.class);
@@ -85,6 +86,9 @@ try {
 
         // Field-specific error messages.
         List<String> errors = state.getErrors(field);
+        if (originalState != null && ObjectUtils.isBlank(errors)) {
+            errors = originalState.getErrors(field);
+        }
         if (!ObjectUtils.isBlank(errors)) {
             wp.write("<div class=\"message message-error\">");
             for (String error : errors) {

@@ -90,6 +90,7 @@ List<Workflow> workflows = Query
 
 <li><% writeParent(wp, permissions, "Sites", "site"); %>
 <ul>
+<li><% writeChild(wp, permissions, "Global", "site/global"); %></li>
 <% for (Site site : Site.findAll()) { %>
     <li><% writeChild(wp, permissions, site, site.getPermissionId()); %></li>
 <% } %>

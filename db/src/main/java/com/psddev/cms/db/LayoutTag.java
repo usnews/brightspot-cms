@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
@@ -49,7 +49,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     @Override
     public int doStartTag() throws JspException {
         ServletContext context = pageContext.getServletContext();
-        ServletRequest request = pageContext.getRequest();
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
         try {
             writer = new HtmlWriter(pageContext.getOut());
@@ -59,19 +59,23 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
                     if (cssClassObject != null) {
-                        String cssClass = cssClassObject.toString();
-                        @SuppressWarnings("unchecked")
-                        Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
+                        String cssClassString = cssClassObject.toString();
 
-                        if (grids == null) {
-                            grids = HtmlGrid.Static.findAll(context);
-                            request.setAttribute(GRIDS_ATTRIBUTE, grids);
-                        }
+                        for (String cssClass : cssClassString.split(" ")) {
+                            cssClass = cssClass.trim();
+                            @SuppressWarnings("unchecked")
+                            Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
 
-                        HtmlGrid grid = grids.get("." + cssClass);
+                            if (grids == null) {
+                                grids = HtmlGrid.Static.findAll(context, request);
+                                request.setAttribute(GRIDS_ATTRIBUTE, grids);
+                            }
 
-                        if (grid != null) {
-                            cssGrids.add(new CssClassHtmlGrid(cssClass, grid));
+                            HtmlGrid grid = grids.get("." + cssClass);
+
+                            if (grid != null) {
+                                cssGrids.add(new CssClassHtmlGrid(cssClassString, grid));
+                            }
                         }
                     }
                 }
@@ -159,10 +163,10 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
          * @param context Can't be {@code null}.
          * @param request Can't be {@code null}.
          */
-        public static void writeGridCss(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
+        public static void writeGridCss(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
             if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
                 writer.writeStart("style", "type", "text/css");
-                    writer.writeGridCss(context);
+                    writer.writeGridCss(context, request);
                 writer.writeEnd();
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
@@ -177,10 +181,10 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
          * @param context Can't be {@code null}.
          * @param request Can't be {@code null}.
          */
-        public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
+        public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
             if (request.getAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE) == null) {
                 writer.writeStart("script", "type", "text/javascript");
-                    writer.writeGridJavaScript(context);
+                    writer.writeGridJavaScript(context, request);
                 writer.writeEnd();
                 request.setAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }

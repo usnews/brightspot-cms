@@ -107,6 +107,9 @@ public class Variation extends Record {
 
         private Map<String, Object> variations;
 
+        @InternalName("cms.variation.initialVariation")
+        private Variation initialVariation;
+
         public Map<String, Object> getVariations() {
             if (variations == null) {
                 variations = new HashMap<String, Object>();
@@ -116,6 +119,14 @@ public class Variation extends Record {
 
         public void setVariations(Map<String, Object> variations) {
             this.variations = variations;
+        }
+
+        public Variation getInitialVariation() {
+            return initialVariation;
+        }
+
+        public void setInitialVariation(Variation initialVariation) {
+            this.initialVariation = initialVariation;
         }
     }
 
