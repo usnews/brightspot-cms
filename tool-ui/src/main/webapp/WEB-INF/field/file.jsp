@@ -525,6 +525,7 @@ String existingClass = wp.createId();
                             fieldValueUrl = new ImageTag.Builder(fieldValue).
                                     setWidth(1000).
                                     setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                                    setEdits(false).
                                     toUrl();
                         } else {
                             fieldValueUrl = fieldValue.getPublicUrl();

@@ -59,19 +59,23 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
                     if (cssClassObject != null) {
-                        String cssClass = cssClassObject.toString();
-                        @SuppressWarnings("unchecked")
-                        Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
+                        String cssClassString = cssClassObject.toString();
 
-                        if (grids == null) {
-                            grids = HtmlGrid.Static.findAll(context, request);
-                            request.setAttribute(GRIDS_ATTRIBUTE, grids);
-                        }
+                        for (String cssClass : cssClassString.split(" ")) {
+                            cssClass = cssClass.trim();
+                            @SuppressWarnings("unchecked")
+                            Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
 
-                        HtmlGrid grid = grids.get("." + cssClass);
+                            if (grids == null) {
+                                grids = HtmlGrid.Static.findAll(context, request);
+                                request.setAttribute(GRIDS_ATTRIBUTE, grids);
+                            }
 
-                        if (grid != null) {
-                            cssGrids.add(new CssClassHtmlGrid(cssClass, grid));
+                            HtmlGrid grid = grids.get("." + cssClass);
+
+                            if (grid != null) {
+                                cssGrids.add(new CssClassHtmlGrid(cssClassString, grid));
+                            }
                         }
                     }
                 }

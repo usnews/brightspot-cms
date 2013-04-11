@@ -495,55 +495,50 @@ public class PageFilter extends AbstractFilter {
 
         Object mainObject = PageFilter.Static.getMainObject(request);
 
-        if (mainObject != null) {
-            long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
-            UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, AuthenticationFilter.USER_COOKIE, sessionTimeout));
-            ToolUser user = Query.findById(ToolUser.class, userId);
+        if (mainObject != null &&
+                AuthenticationFilter.Static.getUser(request) != null) {
+            @SuppressWarnings("all")
+            ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
+            PageWriter writer = page.getWriter();
 
-            if (user != null) {
-                @SuppressWarnings("all")
-                ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
-                PageWriter writer = page.getWriter();
-
-                writer.writeStart("div", "style", writer.cssString(
-                        "background", "rgba(0, 0, 0, 0.7)",
-                        "border-bottom-left-radius", "5px",
-                        "color", "white",
-                        "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                        "font-size", "13px",
-                        "line-height", "20px",
-                        "padding", "5px 10px",
-                        "position", "fixed",
-                        "top", 0,
-                        "right", 0,
-                        "z-index", 2000000));
-                    writer.writeStart("a",
-                            "href", "javascript:" + StringUtils.encodeUri(
-                                    "(function(){document.body.appendChild(document.createElement('script')).src='" +
-                                    page.cmsUrl("/content/bookmarklet.jsp") +
-                                    "';}());"),
-                            "style", writer.cssString(
-                                    "color", "#83cbea",
-                                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                    "font-size", "13px",
-                                    "line-height", "20px"));
-                        writer.writeHtml("Edit Inline");
-                    writer.writeEnd();
-
-                    writer.writeHtml(" | ");
-
-                    writer.writeStart("a",
-                            "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
-                            "target", "_blank",
-                            "style", writer.cssString(
-                                    "color", "#83cbea",
-                                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                    "font-size", "13px",
-                                    "line-height", "20px"));
-                        writer.writeHtml("Edit In CMS");
-                    writer.writeEnd();
+            writer.writeStart("div", "style", writer.cssString(
+                    "background", "rgba(0, 0, 0, 0.7)",
+                    "border-bottom-left-radius", "5px",
+                    "color", "white",
+                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                    "font-size", "13px",
+                    "line-height", "20px",
+                    "padding", "5px 10px",
+                    "position", "fixed",
+                    "top", 0,
+                    "right", 0,
+                    "z-index", 2000000));
+                writer.writeStart("a",
+                        "href", "javascript:" + StringUtils.encodeUri(
+                                "(function(){document.body.appendChild(document.createElement('script')).src='" +
+                                page.cmsUrl("/content/bookmarklet.jsp") +
+                                "';}());"),
+                        "style", writer.cssString(
+                                "color", "#83cbea",
+                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                                "font-size", "13px",
+                                "line-height", "20px"));
+                    writer.writeHtml("Edit Inline");
                 writer.writeEnd();
-            }
+
+                writer.writeHtml(" | ");
+
+                writer.writeStart("a",
+                        "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
+                        "target", "_blank",
+                        "style", writer.cssString(
+                                "color", "#83cbea",
+                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
+                                "font-size", "13px",
+                                "line-height", "20px"));
+                    writer.writeHtml("Edit In CMS");
+                writer.writeEnd();
+            writer.writeEnd();
         }
     }
 

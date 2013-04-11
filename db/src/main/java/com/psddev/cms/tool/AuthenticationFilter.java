@@ -24,6 +24,7 @@ public class AuthenticationFilter extends AbstractFilter {
     private static final String ATTRIBUTE_PREFIX = AuthenticationFilter.class.getName() + ".";
     public static final String AUTHENTICATED_ATTRIBUTE = ATTRIBUTE_PREFIX + "authenticated";
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
+    public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
 
     public static final String LOG_IN_PATH = "/logIn.jsp";
@@ -64,10 +65,8 @@ public class AuthenticationFilter extends AbstractFilter {
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
 
             cookie.setPath("/");
-            cookie.setSecure(JspUtils.isSecureRequest(request));
+            cookie.setSecure(JspUtils.isSecure(request));
             JspUtils.setSignedCookie(response, cookie);
-
-            request.setAttribute(USER_ATTRIBUTE, user);
         }
 
         /** Logs out the current tool user. */
@@ -81,15 +80,14 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         public static boolean requireUser(ServletContext context, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
-            UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, USER_COOKIE, sessionTimeout));
-            ToolUser user = Query.findById(ToolUser.class, userId);
+            ToolUser user = getUser(request);
 
             if (user != null) {
                 logIn(request, response, user);
                 Database.Static.setIgnoreReadConnection(true);
 
             } else if (!JspUtils.getEmbeddedServletPath(context, request.getServletPath()).equals(LOG_IN_PATH)) {
+                @SuppressWarnings("resource")
                 ToolPageContext page = new ToolPageContext(context, request, response);
                 String loginUrl = page.cmsUrl(LOG_IN_PATH, RETURN_PATH_PARAMETER, JspUtils.getAbsolutePath(request, ""));
 
@@ -103,7 +101,21 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /** Returns the tool user associated with the given {@code request}. */
         public static ToolUser getUser(HttpServletRequest request) {
-            return (ToolUser) request.getAttribute(USER_ATTRIBUTE);
+            ToolUser user;
+
+            if (Boolean.TRUE.equals(request.getAttribute(USER_CHECKED_ATTRIBUTE))) {
+                user = (ToolUser) request.getAttribute(USER_ATTRIBUTE);
+
+            } else {
+                long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
+                UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, USER_COOKIE, sessionTimeout));
+                user = Query.findById(ToolUser.class, userId);
+
+                request.setAttribute(USER_ATTRIBUTE, user);
+                request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            }
+
+            return user;
         }
 
         /**
