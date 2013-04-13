@@ -456,7 +456,11 @@ public class PageFilter extends AbstractFilter {
             String layoutPath = mainType != null ? mainType.as(Renderer.TypeModification.class).getLayoutPath() : null;
 
             if (page != null && ObjectUtils.isBlank(layoutPath)) {
-                layoutPath = page.as(Renderer.TypeModification.class).getLayoutPath();
+                ObjectType pageType = page.getState().getType();
+
+                if (pageType != null) {
+                    layoutPath = pageType.as(Renderer.TypeModification.class).getLayoutPath();
+                }
 
                 if (ObjectUtils.isBlank(layoutPath)) {
                     layoutPath = page.getRendererPath();
