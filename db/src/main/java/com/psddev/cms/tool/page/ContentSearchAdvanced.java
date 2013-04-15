@@ -105,6 +105,8 @@ public class ContentSearchAdvanced extends PageServlet {
                 }
             });
 
+            page.write('\ufeff');
+
             page.write("\"");
             writeCsvItem(page, "Type");
             page.write("\",\"");
