@@ -16,6 +16,7 @@ java.util.List
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 Object object = request.getAttribute("object");
+Collection<String> includeFields = ObjectUtils.to(new TypeReference<Collection<String>>() { }, request.getAttribute("includeFields"));
 Collection<String> excludeFields = ObjectUtils.to(new TypeReference<Collection<String>>() { }, request.getAttribute("excludeFields"));
 State state = State.getInstance(object);
 ObjectType type = state.getType();
@@ -23,7 +24,12 @@ List<ObjectField> fields = type != null ? type.getFields() : null;
 
 if (fields != null) {
     for (ObjectField field : fields) {
-        if (excludeFields == null || !excludeFields.contains(field.getInternalName())) {
+        String name = field.getInternalName();
+
+        if ((includeFields == null ||
+                includeFields.contains(name)) &&
+                (excludeFields == null ||
+                !excludeFields.contains(name))) {
             wp.processField(object, field);
         }
     }
