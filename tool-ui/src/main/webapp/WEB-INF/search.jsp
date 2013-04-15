@@ -248,6 +248,7 @@ writer.start("div", "class", "searchForm");
                                             writer.writeHtml(displayPrefix);
                                             writer.writeHtml("Yes");
                                         writer.writeEnd();
+
                                         writer.writeStart("option",
                                                 "selected", "false".equals(fieldValue) ? "selected" : null,
                                                 "value", "false");
@@ -255,6 +256,27 @@ writer.start("div", "class", "searchForm");
                                             writer.writeHtml("No");
                                         writer.writeEnd();
                                     writer.writeEnd();
+
+                                } else if (ObjectField.TEXT_TYPE.equals(fieldInternalItemType) &&
+                                        field.getValues() != null &&
+                                        !field.getValues().isEmpty()) {
+                                    writer.writeStart("select", "name", inputName);
+                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
+
+                                        for (ObjectField.Value v : field.getValues()) {
+                                            writer.writeStart("option",
+                                                    "selected", v.getValue().equals(fieldValue) ? "selected" : null,
+                                                    "value", v.getValue());
+                                                writer.writeHtml(v.getLabel());
+                                            writer.writeEnd();
+                                        }
+                                    writer.end();
+
+                                    writer.writeTag("input",
+                                            "type", "checkbox",
+                                            "name", inputName + ".m",
+                                            "value", true,
+                                            "checked", "missing".equals(fieldValue) ? "checked" : null);
 
                                 } else {
                                     State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
