@@ -3,6 +3,7 @@
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.JspWidget,
+com.psddev.cms.tool.PageWidget,
 com.psddev.cms.tool.Tool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
@@ -81,9 +82,16 @@ writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size()
     for (List<Widget> widgets : widgetsByColumn) {
         writer.start("div", "class", "dashboardColumn");
             for (Widget widget : widgets) {
-                if (widget instanceof JspWidget) {
-                    String jsp = ((JspWidget) widget).getJsp();
+                String jsp = null;
 
+                if (widget instanceof JspWidget) {
+                    jsp = ((JspWidget) widget).getJsp();
+
+                } else if (widget instanceof PageWidget) {
+                    jsp = ((PageWidget) widget).getPath();
+                }
+
+                if (jsp != null) {
                     writer.start("div", "class", "dashboardCell", "data-widget", widget.getInternalName());
                         writer.start("div", "class", "frame");
                             writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
