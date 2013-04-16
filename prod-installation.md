@@ -176,13 +176,6 @@ A war file will now be created in the `target` directory. The CMS application wi
 
 Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename this to be `ROOT.war`. *Note, the default Apache ROOT directory must be removed.*
 
-Alternatively, create a symbolic link from your project directory to a ROOT directory within webapp:
-
-<div class="highlight">{% highlight bash %}
-ln -s /path/to/your/PROJETNAME/src/main/webapp /path/to/your/tomcat/webapps/ROOT
-{% endhighlight %}</div>
-
-When using a symbolic link, build your project with `mvn clean install war:inplace` to embed the CMS.\
 
 ## Start Tomcat
 
