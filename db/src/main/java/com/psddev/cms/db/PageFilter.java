@@ -68,6 +68,7 @@ public class PageFilter extends AbstractFilter {
     public static final String OVERLAY_PARAMETER = PARAMETER_PREFIX + "overlay";
     public static final String PREVIEW_DATA_PARAMETER = PARAMETER_PREFIX + "previewData";
     public static final String PREVIEW_ID_PARAMETER = PARAMETER_PREFIX + "previewId";
+    public static final String PREVIEW_SITE_ID_PARAMETER = "_previewSiteId";
     public static final String PREVIEW_TYPE_ID_PARAMETER = PARAMETER_PREFIX + "previewTypeId";
     public static final String PREVIEW_OBJECT_PARAMETER = "_previewObject";
 
@@ -983,7 +984,7 @@ public class PageFilter extends AbstractFilter {
                     }
 
                     if (mainObject != null) {
-                        setSite(request, State.getInstance(mainObject).as(Site.ObjectModification.class).getOwner());
+                        setSite(request, Query.from(Site.class).where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).first());
                     }
 
                 } else {

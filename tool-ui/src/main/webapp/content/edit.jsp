@@ -398,6 +398,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <h1>Preview</h1>
 
             <%
+            Site site = wp.getSite();
             String previewFormId = wp.createId();
             String previewTarget = wp.createId();
             String modeId = wp.createId();
@@ -408,6 +409,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <% if (site != null) { %>
+                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
+                        <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                         <button class="action-share">Share</button>
                     </form>
@@ -430,6 +434,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             <option value="_debug">Debug</option>
                         </select>
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <% if (site != null) { %>
+                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
+                        <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                     </form>
                 </li>
