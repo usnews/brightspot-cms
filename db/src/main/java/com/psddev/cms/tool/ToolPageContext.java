@@ -808,6 +808,8 @@ public class ToolPageContext extends WebPageContext {
                     writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
                 }
 
+                writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
+
                 for (Tool tool : tools) {
                     tool.writeHeaderAfterStyles(this);
                 }
@@ -882,6 +884,8 @@ public class ToolPageContext extends WebPageContext {
                         "/script/html5slider.js",
                         "/script/wysihtml5.min.js",
                         "/script/jquery.rte.js",
+                        "/script/d3.v2.js",
+                        "/script/nv.d3.min.js",
                         "/script/cms.js" }) {
                     writeStart("script", "type", "text/javascript", "src", cmsResource(src));
                     writeEnd();
