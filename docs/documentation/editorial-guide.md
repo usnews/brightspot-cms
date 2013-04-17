@@ -9,7 +9,7 @@ section: documentation
 
 ## Introduction
 
-Once logged into Brightspot you are brought to the Dashboard. Here you will find common widgets, your navigation to other areas of the CMS, a global search, and access to your admin and settings.
+Logging into Brightspot brings you to the Dashboard. Here you will find common widgets, your navigation to other areas of the CMS, a global search, and access to admin and settings.
 
 ![](/img/editor/dashboard.png)
 
@@ -23,7 +23,7 @@ The Tools at the top of the screen remain visible on all pages in Brightspot. Fr
 
 **Search**
 
-The search tool can be accessed from any screen within Brightspot. Simply place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content.
+The search tool can be accessed from any screen in Brightspot. Place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content.
 
 ![](http://docs.brightspot.s3.amazonaws.com/dashboard_search_2.1.png)
 
@@ -36,7 +36,7 @@ Found within the Search tool pop-up, you have the ability to create new content 
 
 **Work Stream Creation**
 
-Work Steams allow editors to group together content that needs editing, and then work through the task quickly. A new work stream is created directly from a set of search results. Narrow your search results to what you want to work through then click to create a new work stream, consisting of those items. The work stream will then appear within the dedicated widget on the dashboard.	
+Work Steams allow editors to group together content for editing, and then work through the task quickly. A new work stream is created directly from a set of search results. Narrow your search results to match the content you want to work through, then click to create a new work stream, consisting of those items. The work stream will then appear within the dedicated widget on the dashboard.	
 
 ![](http://docs.brightspot.s3.amazonaws.com/dashboard_workstream_2.1.png)
 
@@ -57,7 +57,7 @@ The Site Map is a hierarchical view of your website content, showing the structu
 
 **Recent Activity**
 
-Using the Recent Activity, you can jump to a piece of content that has just been edited, or scroll through all edits made in one day. It can also be used to verify when content was started and finished by a user. You can also adjust results by filtering between content types or other roles or users.
+Using the Recent Activity, you can jump to a piece of content that has just been edited, or scroll through all edits made in one day. It can also be used to verify when content was started and finished by a user. You can also adjust results by filtering between content types or other roles or users. Example, showing all recent Blogs written by John.
 
 ![](http://docs.brightspot.s3.amazonaws.com/recent_widget_2.1.png)
 
@@ -71,7 +71,7 @@ Create a new webpage using this widget. Select from a list of existing templates
 
 **Work Streams**
 
-Once a work stream has been created it appears in the widget. Click start to get to work on the task, or click into the users link to see who else is working on the work stream. In the right rail of your content edit screen you can see the work stream options, including skipping content.
+Once a work stream has been created it appears in the dashboard widget. Click start to get to work on the task, or click into the users link to see who else is working on the work stream. Once within a work stream, the right rail of your content edit screen shows the work stream options, including skipping content, and your progress.
 
 ![](http://docs.brightspot.s3.amazonaws.com/stream_widget_2.1.png)
 
@@ -99,14 +99,14 @@ All content that is not yet completed, but saved in a draft status, appears in t
 
 **Resources**
 
-The resources widget allows you to create custom links to content, internal, or resources, external that you want access to from within the CMS. Add as many links as you like from within Admin > Settings. You can also directly upload files, such as PDFs.
+The resources widget allows you to create custom links to content, internal or external that you want access to from within the CMS. Add as many links as you like from within Admin > Settings. You can also directly upload files, such as PDFs.
 
 ![](http://docs.brightspot.s3.amazonaws.com/resource_widget_2.1.png)
 
 
 **Page Thumbnails**
 
-Hovering over any content on the dashboard that is an individual page allows you to see a quick inline preview of the page. This allows editors to get a visual idea of what they want to create or edit. Hovering over the eye preview symbol toggles the view - click to see.
+Hovering over any content on the dashboard that is an individual page shows a quick inline preview of the page. This allows editors to get a visual idea of what they want to create or edit. Hovering over the eye preview symbol toggles the view - click it to see the page.
 
 ![](http://docs.brightspot.s3.amazonaws.com/thumb_preview_2.1.png)
 
@@ -114,9 +114,9 @@ Hovering over any content on the dashboard that is an individual page allows you
 
 ## Publishing
 
-#### Intro
+**Intro**
 
-For the following publisher tasks, the example will be a Demo Brightspot instance. This example CMS powers a version of a Perfect Sense Digital company website. Your Brightspot interface will not share all of the same names or UI elements, as it is derived from your own objects, but these examples should give you a clear understanding of how to carry out basic editorial tasks, and use the widgets.
+The examples used in this guide will are from a demo Brightspot instance. Your Brightspot interface will not share all of the same names or UI elements, as it is derived from your own objects, but these examples should give you a clear understanding of how to carry out basic editorial tasks, and use the widgets.
 
 To create a new content type select one found in the Create New section on the right. *(Note, Content that has an assigned Template will appear in this section. Creating content from here results in a new page, with a dedicated URL)*
 
@@ -136,14 +136,16 @@ Once you have your content complete make sure it is looking correct by reviewing
 
 ## Creating URLs
 
-When you are happy with your content close your preview window, or slide in the preview tool. URLs are automatically generated, visible in the right rail widget.  The logic at play grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can select 'Manual' and add item, a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’.
+When you are happy with your content close your preview window, or slide in the preview tool. URLs are generally automatically generated, visible in the right rail widget.  The logic at play typically grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can click 'Add URL' and add a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’. You can also add redirects and aliases.
 
-## Versioning
+## History
 
 
-After editing or publishing content a new ‘History’ section appears in the right rail of the content edit screen. In Brightspot all versions are archived automatically.
+After editing or publishing content a new ‘History’ section appears in the right rail of the content edit screen. In Brightspot all versions of content are archived automatically.
 
-Also, once published a ‘Create Another’ button appears at the top of the screen as a green bar.
+Click on any past version to view. Clicking publish will replace the current content with the past version you are viewing, allowing rolling back in a single click.
+
+If you wish to save the past historic version specifically, edit the revision name, which in turn, once saved, places it in the right rail. From there it can be easily found and reused later.
 
 ## Saving a Draft
 
@@ -163,23 +165,23 @@ Once clicked you will see an 'Empty Enhancement' in your content. Click the Edit
 
 ![](http://cdn.psddev.com/e1/da/ecc133814354b5ce060030a05a3e/adding-an-enhancement-20.49.37%20AM.png)
 
-You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name. (You will see the image previewed on save)
+You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name. Clicking publish on the content will show the actual image inline.
 
 Once an enhancement has been added, you can use the same menu to position it within your content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow. Often images are added to a piece of content outside of a rich text area, an example would be a promo image, or gallery of images. 
 
 ## Bulk Image Upload
 
-Multiple image files can be uploaded at once within Brightspot. On the dashboard, use the `Bulk Upload` widget select files, or drag and drop onto the widget.
+Multiple image files can be uploaded at once in Brightspot. On the dashboard, use the `Bulk Upload` widget select files, or drag and drop onto the widget.
 
 Once uploaded, the new files are moved into Draft status, and can be accessed in the Drafts widget on the homepage, where each can be populated with the correct metadata.
 
 ## Image Editing
 
-With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset.
+With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset. Edits apply to each crop, so each version of a crop can have different image edits.
 
 ![](http://cdn.psddev.com/65/ac/eb22b9f34d7dbc4a169da5770c8c/image-editing-20.54.10%20AM.png)
 
-A new text overlay tool has also been added, allowing rich text to be added to any image and moved to anywhere on the crop. The text overlay is added by clicking "Add Text", which is found beside a given crop size.
+The text overlay tool allows rich text to be added to any image and moved to anywhere on the crop. The text overlay is added by clicking "Add Text", which is found beside a given crop size. Each crop can contain a new overlay.
 
 ![](http://cdn.psddev.com/88/07/ee4cb627440e9c6e1fedcace1cab/text-overlay-20.55.44%20AM.png)
 
@@ -205,13 +207,15 @@ Once content has been accessed using the search tool, the results are still avai
 
 ## Inline Editing
 
+![](http://cdn.psddev.com/dims4/PSD/07068b3/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2Fce%2F8c%2Fafc400b2427e8f279b1a41c8a696%2Fbookmarklet-tool-20.16.11%20PM.png)
+
 Often editors will want to review their web content visually, not from within the CMS interface. When doing so, Brightspot gives you the ability to edit the content from the actual web view, without having to log back into the CMS to make changes.
 
 The Inline Editor allows live content to be updated, images changed and if needed, full CMS access at a single click. The tool is accessed via a link within your browser. Start by logging into the CMS. Once logged in, open your site homepage and navigate to a page you would like to edit.
 
 In the top right, you will see an `Edit Inline` link. Click it to start the Inline Editor. Once loaded, each piece of editable content has a small pencil icon, roll over and click to start editing. Once you have made your changes, click save and then refresh your page to see the new content. If you want to access and edit the content within the CMS, click `Edit in CMS`.
 
-![](http://cdn.psddev.com/dims4/PSD/07068b3/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2Fce%2F8c%2Fafc400b2427e8f279b1a41c8a696%2Fbookmarklet-tool-20.16.11%20PM.png)
+
 
 ## Scheduling Content
 
@@ -237,7 +241,7 @@ What drives the direction and substance of your content? Do you have rules and g
 
 A simple to use interface enables each page, module or content type to have a corresponding guide, that allows production values, rules and tips to be made available to each editor as they create the content themselves.
 
-No configuration is needed, the guides automatically appear for each page, your role is simply to write your own guide for the content you wish.
+No configuration is needed, the guides automatically appear for each page, your role as an editor is simply to write the guide for the content.
 
 #### Creating a new Guide
 
@@ -284,11 +288,11 @@ Brightspot adheres to, and encourages SEO best practices. Where an editor has no
 
 Found in Admin -> Users and Roles, Brightspot provides a simple user interface that allows Administrators to add new users, and define their roles.
 
-Create a new user, by default, all new users inherit the same role. This is configraued in Admin > Settings. The `Current Site` allows users with MultiSite access to define the default site for the user. 
+Create a new user, by default, all new users inherit the same role. This is configured in Admin > Settings. The `Current Site` allows users with MultiSite access to define the default site for the user. 
 
 ![](http://docs.brightspot.s3.amazonaws.com/users-roles.png)
 
-Once a user has been created, a `New Role` can be added, with customizable access setup. In the dropdowns you can choose to limit access to specific types, for example a role can have read only access to an Article. Find the object type you want access limited to, and change the check boxes. The `Areas` dropdown controls the top navigation the user sees within the CMS. Giving no access means no Admin access for that role within Brightspot
+Once a user has been created, a `New Role` can be added, with customizable access setup. In the drop-downs you can choose to limit access to specific types, for example a role can have read only access to an Article. Find the object type you want access limited to, and change the check boxes. The `Areas` drop-down controls the top navigation the user sees within the CMS. Giving no access means no Admin access for that role in Brightspot
 
 ![](http://docs.brightspot.s3.amazonaws.com/users_roles.png)
 

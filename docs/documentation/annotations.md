@@ -60,7 +60,7 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 `@Step(double)`
 
-> Specifies the margin between entries in the target field, in the example below every 0.5 is allowed. 0.5, 1.0, 1.5 etc.
+> Specifies the margin between entries in the target field.
 
 `@Regex(String)`
 
@@ -178,29 +178,31 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 `@ToolUi.RichText`
 
-Specifies whether the target field should offer rich-text editing options. This allows String fields to contain rich text controls.
+> Specifies whether the target field should offer rich-text editing options. This allows String fields to contain rich text controls.
 
 `@ToolUi.Suggestions`
 
-Specifies whether the target field should offer suggestions.
+> Specifies whether the target field should offer suggestions.
 
 `@ToolUi.DropDown`
 
-Specifies whether the target field should be displayed as a drop-down menu.
+> Specifies whether the target field should be displayed as a drop-down menu.
 
 `@ToolUi.GlobalFilter`
 
-Specifies whether the target type shows up as a filter that can be applied to any types in search.
+> Specifies whether the target type shows up as a filter that can be applied to any types in search.
 
 `@ToolUi.Filterable`
 
-Specifies whether the target field should be offered as a filterable field in search.
+> Specifies whether the target field should be offered as a filterable field in search.
 
 `@ToolUi.Sortable`
 
-Specifies whether the target field should be offered as a sortable field in search.
+> Specifies whether the target field should be offered as a sortable field in search.
 
+`@ToolUi.Where` 
 
+> Limits results on the returned objects. Example `@ToolUi.Where("title = ^ a" )` would limit the returned objects to ones whose title starts with a.
 
 
 
