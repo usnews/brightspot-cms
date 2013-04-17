@@ -43,7 +43,7 @@ An example grid:
 .layout-global {
     display: grid;
     grid-template: ".    header  .   "
-                   "main main    main"
+                   "main  main   main"
                    ".    footer  .   ";
  
     grid-definition-columns: 1fr 1140px 1fr;
@@ -81,6 +81,8 @@ each named grid item.
 {% endhighlight %}
 
 It is also possible to render content objects directly using the `<cms:render>` tag.
+
+To view your grid on a page you have created add `?_prod=false&_grid=true` to the end of the URL.
 
 {% highlight jsp %}
 <cms:render value="${mainContent}" area="main">
