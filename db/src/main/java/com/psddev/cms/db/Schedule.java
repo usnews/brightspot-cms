@@ -54,7 +54,13 @@ public class Schedule extends Record {
      * @return {@code true} if this schedule was triggered.
      */
     public boolean trigger() {
-        if (!getTriggerDate().before(new Date())) {
+        Date triggerDate = getTriggerDate();
+
+        if (triggerDate == null) {
+            return true;
+        }
+
+        if (!triggerDate.before(new Date())) {
             return false;
         }
 
