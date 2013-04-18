@@ -547,7 +547,7 @@ $doc.ready(function() {
     (function() {
         var previousValue;
 
-        $('.toolSearch :text').bind('focus input', $.throttle(500, function() {
+        $('.toolSearch :text').bind('focus input', $.throttle(500, function(event) {
             var $headerInput = $(this),
                     $headerForm = $headerInput.closest('form'),
                     $searchFrame,
@@ -557,12 +557,14 @@ $doc.ready(function() {
             $headerInput.attr('autocomplete', 'off');
             $searchFrame = $('.frame[name="' + $headerForm.attr('target') + '"]');
 
-            if ($searchFrame.length === 0) {
+            if ($searchFrame.length === 0 ||
+                    (event.type === 'focus' &&
+                    $searchFrame.find('.searchResultList .message-warning').length > 0)) {
                 $headerForm.submit();
 
             } else {
                 $searchFrame.popup('open');
-                $searchInput = $searchFrame.find('.searchFilters .searchInput :text');
+                $searchInput = $searchFrame.find('.searchFilters :input[name="q"]');
                 headerInputValue = $headerInput.val();
 
                 if (headerInputValue !== $searchInput.val()) {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
@@ -22,11 +22,13 @@ import com.psddev.dari.util.TypeReference;
 public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
-    private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + ".gridCssWritten";
+    private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssWritten";
+    private static final String GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridJavaScriptWritten";
+    private static final String GRIDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "grids";
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private transient HtmlWriter writer;
-    private transient List<CssClassHtmlGrid> grids;
+    private transient List<CssClassHtmlGrid> cssGrids;
     private transient Map<String, Object> areas;
 
     public Map<String, Object> getAreas() {
@@ -46,27 +48,42 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     @Override
     public int doStartTag() throws JspException {
+        ServletContext context = pageContext.getServletContext();
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+
         try {
             writer = new HtmlWriter(pageContext.getOut());
-            grids = new ArrayList<CssClassHtmlGrid>();
+            cssGrids = new ArrayList<CssClassHtmlGrid>();
             List<String> cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
 
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
                     if (cssClassObject != null) {
-                        String cssClass = cssClassObject.toString();
-                        HtmlGrid grid = HtmlGrid.Static.find(pageContext.getServletContext(), cssClass);
+                        String cssClassString = cssClassObject.toString();
 
-                        if (grid != null) {
-                            grids.add(new CssClassHtmlGrid(cssClass, grid));
+                        for (String cssClass : cssClassString.split(" ")) {
+                            cssClass = cssClass.trim();
+                            @SuppressWarnings("unchecked")
+                            Map<String, HtmlGrid> grids = (Map<String, HtmlGrid>) request.getAttribute(GRIDS_ATTRIBUTE);
+
+                            if (grids == null) {
+                                grids = HtmlGrid.Static.findAll(context, request);
+                                request.setAttribute(GRIDS_ATTRIBUTE, grids);
+                            }
+
+                            HtmlGrid grid = grids.get("." + cssClass);
+
+                            if (grid != null) {
+                                cssGrids.add(new CssClassHtmlGrid(cssClassString, grid));
+                            }
                         }
                     }
                 }
             }
 
-            if (grids.isEmpty()) {
+            if (cssGrids.isEmpty()) {
                 areas = null;
-                writer.start("div",
+                writer.writeStart("div",
                         attributes,
                         "class", cssClasses != null && !cssClasses.isEmpty() ?
                                 cssClasses.get(0) :
@@ -74,7 +91,8 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
-                LayoutTag.Static.writeGridCss(writer, pageContext.getServletContext(), pageContext.getRequest());
+                LayoutTag.Static.writeGridCss(writer, context, request);
+                LayoutTag.Static.writeGridJavaScript(writer, context, request);
             }
 
         } catch (IOException error) {
@@ -87,17 +105,17 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     @Override
     public int doEndTag() throws JspException {
         try {
-            if (grids.isEmpty()) {
-                writer.end();
+            if (cssGrids.isEmpty()) {
+                writer.writeEnd();
 
             } else {
                 List<Object> areasList = new ArrayList<Object>(areas.values());
                 int areaSize = areasList.size();
                 int gridOffset = 0;
 
-                for (CssClassHtmlGrid gridEntry : grids) {
-                    String cssClass = gridEntry.cssClass;
-                    HtmlGrid grid = gridEntry.grid;
+                for (CssClassHtmlGrid cssGrid : cssGrids) {
+                    String cssClass = cssGrid.cssClass;
+                    HtmlGrid grid = cssGrid.grid;
                     Map<String, GridItem> items = new LinkedHashMap<String, GridItem>();
                     int gridAreaSize = grid.getAreas().size();
 
@@ -117,9 +135,9 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
                     gridOffset += gridAreaSize;
 
-                    writer.start("div", attributes, "class", cssClass);
-                        writer.grid(items, grid);
-                    writer.end();
+                    writer.writeStart("div", attributes, "class", cssClass);
+                        writer.writeGrid(items, grid);
+                    writer.writeEnd();
                 }
             }
 
@@ -145,10 +163,30 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
          * @param context Can't be {@code null}.
          * @param request Can't be {@code null}.
          */
-        public static void writeGridCss(HtmlWriter writer, ServletContext context, ServletRequest request) throws IOException {
+        public static void writeGridCss(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
             if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
-                writer.writeGridCss(context);
+                writer.writeStart("style", "type", "text/css");
+                    writer.writeGridCss(context, request);
+                writer.writeEnd();
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+            }
+        }
+
+        /**
+         * Writes all grid JavaScript found in the given {@code context} to the
+         * given {@code writer} unless it's already been written within the
+         * given {@code request}.
+         *
+         * @param writer Can't be {@code null}.
+         * @param context Can't be {@code null}.
+         * @param request Can't be {@code null}.
+         */
+        public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
+            if (request.getAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE) == null) {
+                writer.writeStart("script", "type", "text/javascript");
+                    writer.writeGridJavaScript(context, request);
+                writer.writeEnd();
+                request.setAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
         }
     }

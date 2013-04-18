@@ -30,9 +30,11 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
+import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.LayoutTag;
 import com.psddev.cms.db.Page;
 import com.psddev.cms.db.Renderer;
+import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
@@ -54,6 +56,7 @@ import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
@@ -763,6 +766,21 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
+        List<Tool> tools = new ArrayList<Tool>();
+
+        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
+            try {
+                @SuppressWarnings({ "rawtypes", "unchecked" })
+                Class<? extends Tool> toolClass = (Class) type.getObjectClass();
+
+                if (toolClass != null) {
+                    tools.add(Application.Static.getInstance(toolClass));
+                }
+
+            } catch (ClassCastException error) {
+            }
+        }
+
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
         StorageItem companyLogo = cms.getCompanyLogo();
@@ -788,6 +806,12 @@ public class ToolPageContext extends WebPageContext {
                 for (String href : new String[] {
                         "/style/cms.less" }) {
                     writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
+                }
+
+                writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
+
+                for (Tool tool : tools) {
+                    tool.writeHeaderAfterStyles(this);
                 }
 
                 writeStart("script", "type", "text/javascript");
@@ -861,9 +885,15 @@ public class ToolPageContext extends WebPageContext {
                         "/script/html5slider.js",
                         "/script/wysihtml5.min.js",
                         "/script/jquery.rte.js",
+                        "/script/d3.v2.js",
+                        "/script/nv.d3.min.js",
                         "/script/cms.js" }) {
                     writeStart("script", "type", "text/javascript", "src", cmsResource(src));
                     writeEnd();
+                }
+
+                for (Tool tool : tools) {
+                    tool.writeHeaderAfterScripts(this);
                 }
 
                 if (!ObjectUtils.isBlank(extraJavaScript)) {
@@ -957,7 +987,7 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("span", "class", "searchInput");
                                 writeStart("label", "for", createId()).writeHtml("Search").writeEnd();
-                                writeTag("input", "type", "text", "id", getId());
+                                writeTag("input", "type", "text", "id", getId(), "name", "q");
                                 writeStart("button").writeHtml("Go").writeEnd();
                             writeEnd();
 
@@ -1167,7 +1197,20 @@ public class ToolPageContext extends WebPageContext {
         } else {
             State state = State.getInstance(value);
             StorageItem preview = value != null ? state.getPreview() : null;
+            String previewUrl = null;
             StringBuilder typeIds = new StringBuilder();
+
+            if (preview != null) {
+                if (ImageEditor.Static.getDefault() != null) {
+                    previewUrl = new ImageTag.Builder(preview).
+                            setWidth(1000).
+                            setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                            toUrl();
+
+                } else {
+                    previewUrl = preview.getPublicUrl();
+                }
+            }
 
             for (ObjectType type : field.getTypes()) {
                 typeIds.append(type.getId());
@@ -1184,7 +1227,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-additional-query", field.getPredicate(),
                     "data-label", value != null ? getObjectLabel(value) : null,
                     "data-pathed", ToolUi.isOnlyPathed(field),
-                    "data-preview", preview != null ? preview.getPublicUrl() : null,
+                    "data-preview", previewUrl,
                     "data-searcher-path", ui.getInputSearcherPath(),
                     "data-suggestions", ui.isEffectivelySuggestions(),
                     "data-typeIds", typeIds,

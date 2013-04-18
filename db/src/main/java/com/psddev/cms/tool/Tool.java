@@ -1,5 +1,6 @@
 package com.psddev.cms.tool;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +33,20 @@ public abstract class Tool extends Application {
      */
     public List<Plugin> getPlugins() {
         return null;
+    }
+
+    /**
+     * Writes arbitrary HTML in the header after the styles are defined.
+     * Does nothing by default.
+     */
+    public void writeHeaderAfterStyles(ToolPageContext page) throws IOException {
+    }
+
+    /**
+     * Writes arbitrary HTML in the header after the scripts are defined.
+     * Does nothing by default.
+     */
+    public void writeHeaderAfterScripts(ToolPageContext page) throws IOException {
     }
 
     /**

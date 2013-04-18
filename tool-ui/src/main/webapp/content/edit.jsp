@@ -67,15 +67,20 @@ if (selected != null) {
 
 UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
 
-if (!state.isNew() && variationId == null) {
+if (variationId == null) {
     Site site = wp.getSite();
 
     if (site != null) {
         Variation defaultVariation = site.getDefaultVariation();
 
         if (defaultVariation != null) {
-            wp.redirect("", "variationId", defaultVariation.getId());
-            return;
+            if (state.isNew()) {
+                state.as(Variation.Data.class).setInitialVariation(defaultVariation);
+
+            } else if (state.as(Variation.Data.class).getInitialVariation() == null) {
+                wp.redirect("", "variationId", defaultVariation.getId());
+                return;
+            }
         }
     }
 }
@@ -436,6 +441,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <h1>Preview</h1>
 
             <%
+            Site site = wp.getSite();
             String previewFormId = wp.createId();
             String previewTarget = wp.createId();
             String modeId = wp.createId();
@@ -446,6 +452,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <% if (site != null) { %>
+                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
+                        <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                         <button class="action-share">Share</button>
                     </form>
@@ -466,9 +475,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             <option value="_">Default</option>
                             <option value="_prod">Production</option>
                             <option value="_debug">Debug</option>
-                            <option value="_wireframe">Wireframe</option>
                         </select>
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <% if (site != null) { %>
+                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
+                        <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                     </form>
                 </li>

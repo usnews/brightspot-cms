@@ -43,7 +43,7 @@ public class SearchResultRenderer {
         this.page = page;
         this.writer = page.getWriter();
         this.search = search;
-        this.result = search.toQuery().and(page.siteItemsPredicate()).select(search.getOffset(), search.getLimit());
+        this.result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
 
         ObjectType selectedType = search.getSelectedType();
 

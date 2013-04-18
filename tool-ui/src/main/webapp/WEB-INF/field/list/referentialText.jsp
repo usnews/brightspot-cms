@@ -50,7 +50,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                 Reference reference = new Reference();
                 String attrs = enhancementMatcher.group(2);
-                Matcher attrMatcher = StringUtils.getMatcher(attrs, "data-([^=]+)=(['\"])([^'\"]*)\\2");
+                Matcher attrMatcher = StringUtils.getMatcher(attrs, "data-([^=]+)=(['\"])((?:(?!\\2).)*)\\2");
                 while (attrMatcher.find()) {
                     reference.put(attrMatcher.group(1), attrMatcher.group(3));
                 }

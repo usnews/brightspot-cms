@@ -1,27 +1,62 @@
 package com.psddev.cms.db;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.JspBufferFilter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Locale;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-
 /**
  * Internal filter that adds {@code <span data-field>} to the response
  * whenever an object field is accessed.
  */
 public class FieldAccessFilter extends AbstractFilter {
+
+    private static final String ATTRIBUTE_PREFIX = FieldAccessFilter.class.getName() + ".";
+    private static final String CURRENT_RESPONSE_ATTRIBUTE = ATTRIBUTE_PREFIX + "currentResponse";
+
+    @Override
+    protected void doDispatch(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws Exception {
+
+        if (ObjectUtils.to(boolean.class, request.getParameter("_fields")) &&
+                PageFilter.Static.getMainObject(request) != null) {
+            super.doDispatch(request, response, chain);
+
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
+
+    @Override
+    protected void doInclude(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws IOException, ServletException {
+
+        Object current = request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
+        LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
+
+        try {
+            request.setAttribute(CURRENT_RESPONSE_ATTRIBUTE, lazyResponse);
+            chain.doFilter(request, lazyResponse);
+
+        } finally {
+            request.setAttribute(CURRENT_RESPONSE_ATTRIBUTE, current);
+            lazyResponse.getLazyWriter().writePending();
+        }
+    }
 
     @Override
     protected void doRequest(
@@ -30,46 +65,30 @@ public class FieldAccessFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (!ObjectUtils.to(boolean.class, request.getParameter("_fields"))) {
-            chain.doFilter(request, response);
+        try {
+            JspBufferFilter.Static.overrideBuffer(0);
 
-        } else {
-            if (PageFilter.Static.getMainObject(request) == null) {
-                chain.doFilter(request, response);
+            FieldAccessListener listener = new FieldAccessListener(request);
 
-            } else {
-                try {
-                    JspBufferFilter.Static.setBufferOverride(0);
+            try {
+                State.Static.addListener(listener);
+                doInclude(request, response, chain);
 
-                    FieldAccessResponse fieldAccessResponse = new FieldAccessResponse(response);
-
-                    try {
-                        FieldAccessListener listener = new FieldAccessListener(fieldAccessResponse);
-
-                        try {
-                            State.Static.addListener(listener);
-                            chain.doFilter(request, fieldAccessResponse);
-                        } finally {
-                            State.Static.removeListener(listener);
-                        }
-
-                    } finally {
-                        fieldAccessResponse.writePending();
-                    }
-
-                } finally {
-                    JspBufferFilter.Static.removeBufferOverride();
-                }
+            } finally {
+                State.Static.removeListener(listener);
             }
+
+        } finally {
+            JspBufferFilter.Static.restoreBuffer();
         }
     }
 
     private static class FieldAccessListener extends State.Listener {
 
-        private final FieldAccessResponse response;
+        private final HttpServletRequest request;
 
-        public FieldAccessListener(FieldAccessResponse response) {
-            this.response = response;
+        public FieldAccessListener(HttpServletRequest request) {
+            this.request = request;
         }
 
         @Override
@@ -83,41 +102,14 @@ public class FieldAccessFilter extends AbstractFilter {
             marker.append("\">");
             marker.append("</span>");
 
-            try {
-                response.writeLazily(marker.toString());
-            } catch (IOException error) {
+            LazyWriterResponse response = (LazyWriterResponse) request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
+
+            if (response != null) {
+                try {
+                    response.getLazyWriter().writeLazily(marker.toString());
+                } catch (IOException error) {
+                }
             }
         }
     }
-
-    private static class FieldAccessResponse extends HttpServletResponseWrapper {
-
-        private LazyWriter fieldAccessWriter;
-        private PrintWriter writer;
-
-        public FieldAccessResponse(HttpServletResponse response) {
-            super(response);
-        }
-
-        @Override
-        public PrintWriter getWriter() throws IOException {
-            if (writer == null) {
-                fieldAccessWriter = new LazyWriter(super.getWriter());
-                writer = new PrintWriter(fieldAccessWriter);
-            }
-
-            return writer;
-        }
-
-        public void writeLazily(String string) throws IOException {
-            getWriter();
-            fieldAccessWriter.writeLazily(string);
-        }
-
-        public void writePending() throws IOException {
-            getWriter();
-            fieldAccessWriter.writePending();
-        }
-    }
-
 }

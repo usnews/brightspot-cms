@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Create a Page
+title: Creating Pages and Templates
 id: support
 section: documentation
 ---
@@ -8,10 +8,85 @@ section: documentation
 <div class="container documentation">
         <div class="row header">
             <div class="span12">
-                <p>Once objects are modeled, and published in the CMS, the next step is to build pages on which to display them.</br></br>Start by adding rendering logic to an already created object. Add two annotations to the object, one to define the <code>JSP</code> that renders the Article content, and another that creates the page structure to be associated with it. Note, users of Brightspot 2.0 should see the <a href="/template-tool.html">template guide</a> for that version, which is also available.
+                <p>Once objects are modeled and then published in the CMS, the next step is to build pages on which to display them. Within Brightspot there are two types of page templates:</br>
+                <h4>Pages</h4>
+                Pages are created when a one-off use is needed. Examples would be a homepage or contact page. New Pages are created by extending the <code>Page</code> class
+                <h4>Templates</h4>
+                Templates are used when an object is used to create multiple instances, using the same layout. Examples would be a blog template, or gallery template. New Templates are created in Admin > Templates & Sections.
+                </br></br>If you are using Brightspot 2.0, see the 2.0 <a href="template-tool.html">Template Tool</a> section to build pages and templates.
+                <hr>
+                <h2>Creating a Page</h2>
+                Brightspot contains a <code>Page</code> class as default. In the CMS, in the search tool, click into Create New, and select Page. You will notice that the object contains a <code>Name</code> and can also have a <code>URL</code>.
+                <h4>Extend the Page class</h2>
+                    To build your first page, create a new object, extending this Page class. Using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> add two paths to two new JSP files, one to render the entire page (LayoutPath) and one to render the new object that extends Page.</br></br>
+                <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layout/homepage-template.jsp")
+@Renderer.Path("/homepage-object.jsp")
+public class Homepage extends Page {
+
+    private String welcomeText;
+    private ReferentialText welcomeMessage;
+
+    // Getters and Setters
+
+}
+{% endhighlight %}</div>
+                <h4>Create the Template JSP</h4>
+                The template JSP is used to render the entire page. To include the new object on the page use the <code>cms:render</code> tag with the value as <code>mainContent</code>.</br></br>
+                <div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div id="container">
+    <cms:render value="${mainContent}" />
+</div>
+{% endhighlight %}</div>
+                <h4>Create the Object JSP</h4>
+                The example object above, Homepage, has two fields. This JSP renders those when the object is called on a page.</br></br>
+                <div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div class="homepage-container">
+    <h3><c:out value="${content.welcomeText}"/></h3>
+    <cms:render value="${content.welcomeMessage}" />
+</div>
+{% endhighlight %}</div></br>
+<h4>Create the Page</h4>
+Using the search tool, in the Create New drop down, find your new object and create a new instance of it. Give it a URL and visit it on the front end or use the Preview tool. To include an instance of an object on a one-off page, create a New Content Section, and include it on the layout template JSP using <code>cms:render value="${sections.internalName}"</code>. This is covered in the Adding sections part of the documentation.
+<div class="highlight center span12" style="padding-top: 10px;">
+                <div class="highlight-line right" style="top: 203px; width: 0px;">
+                    <div class="highlight-box">
+                        <div class="title"></div>
+                    </div>
+                </div>
+                <img width="690" src="http://docs.brightspot.s3.amazonaws.com/extend-page-class.png"/>
+    </div>
+                <h2>Creating Templates</h2>
+                Start by adding URL and rendering logic to an already created object. Note, users of Brightspot 2.0 should see the <a href="/template-tool.html">template guide</a> for that version, which is also available.
                 </br></br>
                 </p>
+                <h2>Add URL logic</h2>
+                To create a permalink automatically for a template, based on editorial input on the main content object, implement <code>Directory.Item</code> and use <code>createPermalink</code> to generate logic around how the URL should be formed within the Java class. In the example below the headline entered is used to generate the permalink for the Article.</br></br>
+                <div class="highlight">{% highlight java %}public class Article extends Content implements Directory.Item {
+
+    private String headline;
+    private ReferentialText body;
+    private Author author;
+
+    @Override
+    public String createPermalink(Site site) {
+
+        if (this.getHeadline() != null){
+            return "/article/" + StringUtils.toNormalized(headline);
+        } else {
+            return null;
+        }    
+    }
+
+}
+{% endhighlight %}</div>
+
+                </br>
                 <h2>Add Renderer Paths</h2>
+                Using the <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations, the JSP files used to render the template layout, and the object content are associated.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layouts/article-template.jsp")
 @Renderer.Path("/article-object.jsp")
 public class Article extends Content {
@@ -20,17 +95,26 @@ public class Article extends Content {
     private ReferentialText body;
     private Author author;
 
-    // Getters and Setters
+    @Override
+    public String createPermalink(Site site) {
+
+        if (this.getHeadline() != null){
+            return "/article/" + StringUtils.toNormalized(headline);
+        } else {
+            return null;
+        }    
+    }
 
 }
 {% endhighlight %}</div>
 
                 </br>
+                
                 <h2>Create JSP Files</h2>
-                <p>To start, create two files to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing taglibs and then create a simple structure for your page. You can add a header, to render the headline, and a content section, which will render the rest of the object.
-                </br></br>
+                <p>Create the two files used to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing any taglibs and then create a simple structure for your page. You can add a header, to render the headline, and a content section, which will render the rest of the object.
+                </br></br><h4>Layout JSP</h4>
                 </p>
-<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div id="container">
@@ -46,8 +130,8 @@ public class Article extends Content {
 </div>
 {% endhighlight %}</div>
 <p>In the content div set the value of the render as <code>mainContent</code>, this is defined when you create your template within the CMS, which is the final step. Create the jsp file that will render the Article object. Using JSTL in this example, call <code>content.fieldName</code>, where the field name is defined in the class. Referenced objects, such as Author, can be accessed by name, as well as fields within them. The example is rendering the Author first and last name. For text fields use <code><c:out></code>, whereas for rich text, use the <code><cms:render></code> tag.
-                </br></br>
-<div class="highlight">{% highlight java %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+                </br></br><h4>Object JSP</h4>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
 <div class="article">
@@ -59,7 +143,7 @@ public class Article extends Content {
             </div>
         </div>
 <h2>Create the Template</h2>
-                </br></br>To complete the page, in the CMS under Admin > Templates & Sections create a new template, name it Article Template. See the example below:</br>
+                To complete the page, in the CMS under Admin > Templates & Sections create a new template, name it Article Template. See the example below:</br>
                 </p>
             </div>
         </div>
@@ -69,11 +153,6 @@ public class Article extends Content {
                     <div class="title">Name your Template</div>
                 </div>
             </div>
-            <div class="highlight-line left" style="top: 149px;">
-                <div class="highlight-box">
-                    <div class="title">Create a URL path</div>
-                </div>
-            </div>
             <div class="highlight-line right" style="top: 78px; width: 271px;">
                 <div class="highlight-box">
                     <div class="title">Select Article as</br>Main Content</div>
@@ -81,23 +160,139 @@ public class Article extends Content {
             </div>
             <img width="690" src="img/developer/article-template.png"/>
         </div></br></br>
-                <p>Once you have created a template, the next step is to create a new Article and publish it. In the 'Create New' widget on the dashboard select your new Article page. Clicking in will display the content edit view, with a URL that is automatically created from your headline. Publish and access the URL to see your page with content displayed. Note, for standalone pages, such as a homepage, use the Create New drop down to build a <code>Page</code>, rather than a Template
+                <p>Once you have created a template, the next step is to create a new Article and publish it. In the 'Create New' widget on the dashboard select your new Article page. Clicking in will display the content edit view, with a URL that is automatically created from your headline. Publish and access the URL to see your page with content displayed. 
                 </p>
     <div class="highlight center span12" style="padding-top: 10px;">
             <div class="highlight-line left" style="top: 149px;">
                 <div class="highlight-box">
-                    <div class="title">Rich text renders automatically</div>
+                    <div class="title">Rich text renders with <code>cms:render</code></div>
                 </div>
             </div>
             <div class="highlight-line right" style="top: 208px; width: 241px;">
                 <div class="highlight-box">
-                    <div class="title">URL structure</br>defined from</br>Template</div>
+                    <div class="title">URL structure</br>defined from</br>Java object</div>
                 </div>
             </div>
             <img width="690" src="img/developer/first-article.png"/>
         </div>
     </div>
+<h2>Adding Sections</h2>
+Page Templates are typically made up of multiple sections. Brightspot allows the creation of individual sections, to be used on one, or shared on many page templates. There are several types of Sections available in Brightspot.</br></br>
+Every page template contains a defined <code>Main Content</code> type. In the example above, the basic page displays an Article object. To illustrate the use of another content type on the same page template, create a new object, and render it on the same page as <code>content</code>. The new object in the example below is a list of top authors. The object simply contains a list of Authors, editorially created within the CMS. Create the new object in your text editor or IDE, and refresh or rebuild your project. Then publish a version in the CMS. Click into Search > Create New and find the Top Authors in the drop-down.
+</br></br><h4>Top Authors Object</h4>
+<div class="highlight">{% highlight java %}public class TopAuthors extends Content {
 
+    private String name;
+    private List<Author> topAuthors;
+
+    // Getters and Setters
+}
+
+{% endhighlight %}</div></br>
+<h4>New Content Section</h4>
+Once the object has been created in the CMS, you can create a new Content Section to contain the object on the page. In Admin > Templates & Sections create a <code>New Content Section</code>. See below for an example. <i>Note, the internal name for your section must not contain hyphens or spaces</i>. The next step is to create the rendering <code>JSP</code> that is pathed to in the section.</br>
+<div class="highlight center span12" style="padding-top: 10px;">
+            <div class="highlight-line left" style="top: 79px; width: 141px;">
+                <div class="highlight-box">
+                    <div class="title">Set an internalName</div>
+                </div>
+            </div>
+            <div class="highlight-line left" style="top: 179px; width: 131px;">
+                <div class="highlight-box">
+                    <div class="title">Choose your</br>Author List object</div>
+                </div>
+            </div>
+            <div class="highlight-line right" style="top: 153px; width: 101px;">
+                <div class="highlight-box">
+                    <div class="title">Path to</br>rendering <code>JSP</code></div>
+                </div>
+            </div>
+            <img width="690" src="img/developer/content-section.png"/>
+        </div>
+</br></br><h4>Top Authors JSP</h4>
+The JSP file used to render the Top Authors object can be defined on the object itself, using the <code>@Renderer.Path("/top-authors.jsp")</code> annotation, or in the New Content Section. The JSP uses <code>content.fieldName</code> to render any properties on the object. <code>Content</code> has been defined in our New Content Section.</br></br>
+<div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div class="authors">
+    <c:out value="${content.name}" />
+    <ul>
+      <c:forEach var="item" items="${content.topAuthors}" >
+        <li>
+            <cms:render value="${item.firstName}" />
+            <cms:render value="${item.lastName}" />
+        </li>
+      </c:forEach>
+    </ul>
+</div>
+{% endhighlight %}</div></br><h4>Include Section in Layout</h4>
+The page layout <code>JSP</code> will need to be updated, to reference the new section that is to be included on the page. Using <code>cms:render</code> the internal section name is used to include the Author List content on the page.</br></br>
+<div class="highlight">{% highlight java %}<cms:render value="${sections.topAuthors}" />
+{% endhighlight %}</div></br><h4>Publish Content</h4>
+Finish and test by creating a new instance of your object, in the example below the Article object template now shows the Top Authors object on the same page. See the <a href="new-page.html">Grid Layout</a> section to learn how to control the layout of the sections on your page template.</br>
+    <div class="highlight center span12" style="padding-top: 10px;">
+                <div class="highlight-line right" style="top: 153px; width: 121px;">
+                    <div class="highlight-box">
+                        <div class="title">Use the Live</br>Preview to test</div>
+                    </div>
+                </div>
+                <img width="690" src="img/developer/top-authors-section.png"/>
+    </div>
+<h4>New Script Section</h4>
+Some sections of a page may not require any use of a CMS content object, but rather require a <code>JSP</code> script to return a result set. When this is the case, a <code>New Script Section</code> can be created.</br></br>Navigate to Admin > Templates & Sections and create a new Script Section. <i>Note, the internal name for your section must not contain hyphens or spaces</i>. The example below creates a new section for displaying all the authors existing in the CMS.
+            <div class="highlight center span12" style="padding-top: 10px;">
+                <div class="highlight-line right" style="top: 153px; width: 121px;">
+                    <div class="highlight-box">
+                        <div class="title">Path to JSP file</br> to render section</div>
+                    </div>
+                </div>
+                <img width="690" src="http://docs.brightspot.s3.amazonaws.com/new-script-section.png"/>
+            </div></br>
+<h4>Create the JSP</h4>
+In the new Script Section you have provided a path to a JSP file that will be called when the section is included on a page. Create the JSP and place it within your webapp directory (Note, it can be placed anywhere within webapp or WEB-INF, as long as the path is correct).</br></br>The JSP queries from the Author object, and returns all. You can test the <code>Order By</code> clause by adding <code>sortAscending("firstName");</code> to the query.</br></br>
+<div class="highlight">{% highlight jsp %}<%  List<Author> authors = Query.from(Author.class).selectAll();
+    pageContext.setAttribute("authors", authors);
+%>
+<ul>
+  <c:forEach var="item" items="${authors}">
+    <li><c:out value="${item.firstName}" /> <c:out value="${item.lastName}" /></li>
+  </c:forEach>
+</ul>
+{% endhighlight %}</div>
+<h4>Add to Layout</h4>
+To include the new Script Section on a page add a reference to it within the template layout JSP. Use the internal name from the Script Section and the <code>cms:render</code> tag.</br></br>
+<div class="highlight">{% highlight jsp %}<cms:render value="${sections.allAuthors}" />
+{% endhighlight %}</div></br>
+When creating your page, you should now see a query returning all Authors that have been published.
+    <div class="highlight center span12" style="padding-top: 10px;">
+                <div class="highlight-line right" style="top: 203px; width: 121px;">
+                    <div class="highlight-box">
+                        <div class="title">Script Section</br>showing all</br>Authors</div>
+                    </div>
+                </div>
+                <img width="690" src="http://docs.brightspot.s3.amazonaws.com/all-authors-script.png"/>
+    </div>
+
+<h2>Template Content</h2>
+Sections used on a page template have access to several aspects of the Template on which they are used. The Wireframe tool, which is available by running <code>?_wireframe=true</code> on any page shows the available JSTL expressions for the page template. These include:</br></br>
+
+<div class="highlight">{% highlight jsp %}${content} // The content object rendered by the JSP
+${mainContent} // The content object chosen on the Template as Main Content
+${profile} // Device and User Agent information
+${section} // Current Section information, including CMS profile info
+${sections} // Current Section JSON
+${seo} // SEO widget content for the page
+${template} // Information from the entire template
+{% endhighlight %}</div>
+
+    <div class="highlight center span12" style="padding-top: 10px;">
+                <div class="highlight-line right" style="top: 203px; width: 121px;">
+                    <div class="highlight-box">
+                        <div class="title">Select to see</br>all available data</div>
+                    </div>
+                </div>
+                <img width="690" src="http://docs.brightspot.s3.amazonaws.com/wireframe-tool-2.1.png"/>
+    </div>
 </div><!--/.container-->
 
 

@@ -256,7 +256,58 @@ input[type=text].expandable { min-width: 5em; }
 .widget-schedules h1 { .icon; .icon-calendar; }
 .widget-seo h1 { .icon; .icon-tags; }
 .widget-template h1 { .icon; .icon-th; }
-.widget-urls h1 { .icon; .icon-sitemap; }
+
+.widget-urls {
+    h1 {
+        .icon;
+        .icon-sitemap;
+    }
+
+    ul {
+        list-style-type: none;
+        margin-left: 0;
+    }
+
+    li {
+        border-bottom: 1px solid @color-note;
+        padding-bottom: 10px;
+    }
+
+    .repeatableInputs {
+        margin-top: 15px;
+    }
+
+    .repeatableLabel {
+        display: none;
+    }
+}
+
+.widget-urlsAutomatic {
+    background-color: @color-note-lighter;
+    .border-radius(5px);
+    padding: 5px;
+
+    li {
+        border-bottom-style: none;
+        padding-bottom: 0;
+    }
+}
+
+.widget-urlsItem {
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.widget-urlsItemLabel {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.widget-urlsItemRemove {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+}
 
 .widget-scheduledEvents-empty {
     position: relative;

@@ -1,18 +1,8 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PeriodicValue;
-import com.psddev.dari.util.PullThroughValue;
-import com.psddev.dari.util.StringUtils;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,24 +11,44 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 public class Template extends Page {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Template.class);
-
+    /** @deprecated Use {@link Directory.Item#createPermalink} instead. */
+    @Deprecated
     public static final String CSV_NORMALIZE_PATHS_ENGINE = "CSV/Normalize";
 
+    /** @deprecated Use the fields directly. */
+    @Deprecated
     public static final String FIELD_PREFIX = "cms.template.";
+
+    /** @deprecated Use the field directly. */
+    @Deprecated
     public static final String DEFAULT_FIELD = FIELD_PREFIX + "default";
 
     private Set<ObjectType> contentTypes;
+
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please use <code>Directory.Item#createPermalink</code> instead.")
     private String pathsEngine;
+
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please use <code>Directory.Item#createPermalink</code> instead.")
     private String pathsScript;
 
-    private @ToolUi.Hidden Set<Directory> defaultDirectories;
-    private @ToolUi.Hidden ObjectType mainContentType;
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please use <code>Directory.Item#createPermalink</code> instead.")
+    private Set<Directory> defaultDirectories;
+
+    @Deprecated
+    @ToolUi.NoteHtml("Deprecated. Please use Content Types instead.")
+    private ObjectType mainContentType;
 
     /** Returns the set of types that can be used with this template. */
     public Set<ObjectType> getContentTypes() {
@@ -56,22 +66,42 @@ public class Template extends Page {
         this.contentTypes = contentTypes;
     }
 
-    /** Returns the script engine used to create the directory paths. */
+    /**
+     * Returns the script engine used to create the directory paths.
+     *
+     * @deprecated Use {@link Directory.Item#createPermalink} instead.
+     */
+    @Deprecated
     public String getPathsEngine() {
         return pathsEngine;
     }
 
-    /** Sets the script engine used to create the directory paths. */
+    /**
+     * Sets the script engine used to create the directory paths.
+     *
+     * @deprecated Use {@link Directory.Item#createPermalink} instead.
+     */
+    @Deprecated
     public void setPathsEngine(String pathsEngine) {
         this.pathsEngine = pathsEngine;
     }
 
-    /** Returns the script used to create the directory paths. */
+    /**
+     * Returns the script used to create the directory paths.
+     *
+     * @deprecated Use {@link Directory.Item#createPermalink} instead.
+     */
+    @Deprecated
     public String getPathsScript() {
         return pathsScript;
     }
 
-    /** Set the script used to create the directory paths. */
+    /**
+     * Set the script used to create the directory paths.
+     *
+     * @deprecated Use {@link Directory.Item#createPermalink} instead.
+     */
+    @Deprecated
     public void setPathsScript(String pathsScript) {
         this.pathsScript = pathsScript;
     }

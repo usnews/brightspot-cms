@@ -1,31 +1,31 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.ValidationException;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PeriodicCache;
-import com.psddev.dari.util.PullThroughCache;
-import com.psddev.dari.util.PullThroughValue;
-import com.psddev.dari.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PeriodicCache;
+import com.psddev.dari.util.PullThroughCache;
+import com.psddev.dari.util.PullThroughValue;
+import com.psddev.dari.util.StringUtils;
 
 public class Directory extends Record {
 
@@ -176,14 +176,49 @@ public class Directory extends Record {
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
+
             } else if (other instanceof Path) {
                 Path otherPath = (Path) other;
                 return ObjectUtils.equals(getSite(), otherPath.getSite()) &&
                         ObjectUtils.equals(getPath(), otherPath.getPath());
+
             } else {
                 return false;
             }
         }
+
+        @Override
+        public int hashCode() {
+            return ObjectUtils.hashCode(getSite(), getPath());
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder s = new StringBuilder();
+            Site site = getSite();
+
+            s.append("{");
+
+            if (site != null) {
+                s.append("site=");
+                s.append(site.getLabel());
+                s.append(", ");
+            }
+
+            s.append("path=");
+            s.append(getPath());
+            s.append(", type=");
+            s.append(getType());
+            s.append("}");
+
+            return s.toString();
+        }
+    }
+
+    public interface Item {
+
+        /** Creates the permalink appropriate for the given {@code site}. */
+        public String createPermalink(Site site);
     }
 
     /** Cache of all directory instances. */
@@ -368,14 +403,22 @@ public class Directory extends Record {
          * the given {@code type} to this object.
          */
         public void addSitePath(Site site, String path, PathType type) {
-            if (!ObjectUtils.isBlank(path)) {
-                if (path.endsWith("/")) {
-                    path += "index";
-                }
-                String rawPath = makeRawPath(site, path);
-                getRawPaths().add(rawPath);
-                getPathTypes().put(rawPath, type);
+            if (ObjectUtils.isBlank(path)) {
+                return;
             }
+
+            if (path.endsWith("/")) {
+                path += "index";
+            }
+
+            List<String> rawPaths = getRawPaths();
+            String rawPath = makeRawPath(site, path);
+
+            if (!rawPaths.contains(rawPath)) {
+                rawPaths.add(rawPath);
+            }
+
+            getPathTypes().put(rawPath, type);
         }
 
         /**
@@ -506,6 +549,23 @@ public class Directory extends Record {
                 permalink = getSitePermalink(null);
             }
             return permalink;
+        }
+
+        /** Creates paths appropriate for the given {@code site}. */
+        public Set<Path> createPaths(Site site) {
+            Object object = getOriginalObject();
+            Set<Path> paths = new LinkedHashSet<Path>();
+            Template template = as(Template.ObjectModification.class).getDefault();
+
+            if (object instanceof Item) {
+                paths.add(new Path(site, ((Item) object).createPermalink(site), PathType.PERMALINK));
+            }
+
+            if (template != null) {
+                paths.addAll(template.makePaths(site, object));
+            }
+
+            return paths;
         }
     }
 

@@ -468,6 +468,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         private String srcAttribute;
         private boolean hideDimensions;
         private boolean overlay;
+        private boolean edits = true;
 
         private final Map<String, String> attributes = new LinkedHashMap<String, String>();
 
@@ -604,6 +605,15 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         public void setOverlay(boolean overlay) {
             this.overlay = overlay;
+        }
+
+        public boolean isEdits() {
+            return edits;
+        }
+
+        public Builder setEdits(boolean edits) {
+            this.edits = edits;
+            return this;
         }
 
         /**
@@ -880,16 +890,18 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     options.put(ImageEditor.RESIZE_OPTION, resizeOption.getImageEditorOption());
                 }
 
-                @SuppressWarnings("unchecked")
-                Map<String, Object> edits = (Map<String, Object>) item.getMetadata().get("cms.edits");
+                if (isEdits()) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> edits = (Map<String, Object>) item.getMetadata().get("cms.edits");
 
-                if (edits != null) {
-                    ImageEditor realEditor = editor;
-                    if (realEditor == null) {
-                        realEditor = ImageEditor.Static.getDefault();
-                    }
-                    for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
-                        item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+                    if (edits != null) {
+                        ImageEditor realEditor = editor;
+                        if (realEditor == null) {
+                            realEditor = ImageEditor.Static.getDefault();
+                        }
+                        for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
+                            item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+                        }
                     }
                 }
 

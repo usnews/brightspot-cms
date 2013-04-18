@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
@@ -31,6 +32,10 @@ public class CmsTool extends Tool {
     private Set<String> disabledPlugins;
     private String broadcastMessage;
     private Date broadcastExpiration;
+
+    @ToolUi.Note("Check this to force the generated permalink to replace the existing URLs. This is useful before the site is live when the URL structure is still in flux.")
+    private boolean singleGeneratedPermalink;
+
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
@@ -243,6 +248,14 @@ public class CmsTool extends Tool {
      */
     public void setBroadcastExpiration(Date broadcastExpiration) {
         this.broadcastExpiration = broadcastExpiration;
+    }
+
+    public boolean isSingleGeneratedPermalink() {
+        return singleGeneratedPermalink;
+    }
+
+    public void setSingleGeneratedPermalink(boolean singleGeneratedPermalink) {
+        this.singleGeneratedPermalink = singleGeneratedPermalink;
     }
 
     /** Returns the extra CSS. */

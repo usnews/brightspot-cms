@@ -8,59 +8,44 @@ section: documentation
 <div markdown="1" class="span12">
 
 
-The Variation Tool within Brightspot provides a powerful way to define a host of actions that are based on specified input. The simplest example is a variation based on the device that is accessing the website. Let's look at how to use the Variation Tool to present a different page template for users accessing with a mobile device.
+The Variation Tool within Brightspot provides a powerful way to define a host of actions that are based on specified input. The simplest example is a variation based on the device that is accessing the website. In this example the Variation Tool will be used to present different content for users accessing with a mobile device.
 
-**Create the Variation**
+## Create the Variation
 
-Navigate to the Variations Tool, found at Admin -> Variations and Profiles. Add a new variation, name it and save.
+Navigate to the Variations Tool, found at Admin -> Variations and Profiles. Add a new variation, name it and save. In this example the variation will be applied to an existing Homepage object, which is selected. To apply a global variations, which can be added to Content sections, templates etc, leave the Content Type blank.
 
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/variation-new.png" alt="" /></a>
+![](http://docs.brightspot.s3.amazonaws.com/mobile-variation-2.1.png)
 
-**Define the Variation**
+## Define the Variation
 
-We are going to create a mobile variation. Select `Match Any` in the top drop-down and then add `Device`. We have chosen three, `Android`, `iPad` and `iPhone`. Select `Use Embedded Variation Data` in the final drop-down.
+The Rule will match a **Device** and the type for the example is **iPhone**. The operation can use a custom script, or the default embedded CMS variation data.
 
 Save.
 
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/variation-create.png" alt="" /></a>
+## Create the Content Variation
 
-**Create the new Template**
+Now that your variation `Mobile` has been saved, you can create new content with two variations, one using the default, and one with the new rule.
 
-Now that our variation `Mobile` has been saved we want to create the template that users viewing the site with a mobile device will access.
+This example uses a Homepage object. Clicking into `Original` offers a new choice, `Mobile`.
 
-Access the Templates and Sections Tool, select the Template you want to create a new version of. We are going to add a new Client Full Page template. In the upper right of the template, select Variation, and choose your new variation. It will say "Default".
+![](http://docs.brightspot.s3.amazonaws.com/switching-variations-2.1.png)
 
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/template-variation.png" alt="" /></a>
+Choosing Mobile shows an exact copy of the Default original. To test the variation, change the content to reflect a Mobile view. In the example a mobile welcome message has been added:
 
-The new template will be an exact copy of the Default original. To test the variation, we are going to add a Raw Script of `Hello World`. We rename this template, adding `Mobile`. Save.
+![](http://docs.brightspot.s3.amazonaws.com/mobile-variation-created-2.1.png)
 
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/template-variation-test.png" alt="" /></a>
+## Test the new variation
 
-**Test the new variation**
+Access the page in a Desktop browser, and on a mobile device that matches your Rule, in this case an iPhone.
 
-Once you have saved your new template, simply access the page with your browser, and also with the device. As you can see below, access with an iPhone shows the added `Hello World` text at the bottom of the page (Bottom right).
+<img class="no-shadow" src="http://docs.brightspot.s3.amazonaws.com/mobile-variation.png" alt="" />
 
-<img width="300" src="http://docs.brightspot.s3.amazonaws.com/test-variation.png" alt="" />
 
-Now that we have confirmed the variation is working, we can create a completely new page template, with new .jsp files and layout, designed for mobile devices, or if we have a module we don't want to be shown on mobile devices, we can remove it from the template.
-
-This is a basic example, of how to implement a variation for a page Template. Take a look around the rules, such as Browser access, to test further.
-
-### Object Variations
-
-As well as variations of templates, variations of objects can exist, with logic in place to access a specific version. Once a new object is created the ability to add a variant is given. In our example we can choose the Spanish variation of a blog post, allowing an editor to create the same content in Spanish.
-
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/object-variation-choose.png" alt="" /></a>
-
-Once saved, the two variations are part of the object. We can use the `_debug/query` tool to look at the object, where we see the variation.
-
-<a href="javascript:;"><img src="http://docs.brightspot.s3.amazonaws.com/object-variation-result.png" alt="" /></a>
-
-### Creating New Operators
+## Creating New Operators
 
 Extend from class `Operation` to create a new Operator:
 
-<img class="smaller" src="http://docs.brightspot.s3.amazonaws.com/new_operation.png" alt="" />
+<img src="http://docs.brightspot.s3.amazonaws.com/new_operation.png" alt="" />
 
 <div class="highlight">{% highlight java %}
 @Operation.DisplayName("This is a new Operation")

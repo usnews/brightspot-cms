@@ -96,7 +96,7 @@ public class ExampleModification extends Modification<Object> {
 Modifications, while providing the ability to group objects, and apply properties across them all, should not be used to replace sub classes. See below for an example:
 
 
-We have three objects, `Blog`, `Video` and `News`, none of which have a common class they are abstracted from. The requirement is to query from the three objects, and return a list of the most recent items.
+Take three objects, `Blog`, `Video` and `News`, none of which have a common class they are abstracted from. The requirement is to query from the three objects, and return a list of the most recent items.
 
 With a modification, a `RecentItems` interface could be created, and the modification could contain the property on which the query would be run, however the limitation is that the interface, which groups them cannot be queried directly. Namely, `Query.from(RecentItems.class).sortDescending('date').selectAll();` will not work. In order for it to work, the methods from your modification would need to be moved into your interface.
 

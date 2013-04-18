@@ -42,16 +42,15 @@ if (JspWidget.isUpdating(wp)) {
     String access = wp.param(accessName);
     consumers.clear();
 
-    if (owner == null) {
-        siteData.setGlobal(true);
+    if ("no".equals(access)) {
+        siteData.setGlobal(false);
         siteData.setBlacklist(null);
         siteData.setConsumers(null);
 
-    } else if ("no".equals(access)) {
-        siteData.setGlobal(false);
-
     } else if ("all".equals(access)) {
         siteData.setGlobal(true);
+        siteData.setBlacklist(null);
+        siteData.setConsumers(null);
 
     } else if ("some".equals(access)) {
         siteData.setGlobal(false);
@@ -69,7 +68,6 @@ if (JspWidget.isUpdating(wp)) {
 
 // --- Presentation ---
 
-String accessContainerId = wp.createId();
 String sitesContainerId = wp.createId();
 String access = siteData.isGlobal() ? "all" :
         consumers.isEmpty() ? "no" :
@@ -78,27 +76,23 @@ String access = siteData.isGlobal() ? "all" :
 %>
 <label for="<%= wp.createId() %>">Owner:</label><br>
 <select class="toggleable" name="<%= ownerName %>" style="width: 100%;">
-    <option<%= owner == null ? " selected" : "" %> data-hide="#<%= accessContainerId %>" value="">Global</option>
+    <option<%= owner == null ? " selected" : "" %> value="" data-show=".siteItem">None</option>
     <% for (Site site : allSites) { %>
-        <option<%= site.equals(owner) ? " selected" : "" %> data-show="#<%= accessContainerId %>" value="<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
+        <option<%= site.equals(owner) ? " selected" : "" %> value="<%= site.getId() %>" data-hide=".siteItem-<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
     <% } %>
 </select>
 
-<div id="<%= accessContainerId %>">
-    <label for="<%= wp.createId() %>">Access:</label><br>
-    <select class="toggleable" id="<%= wp.getId() %>" name="<%= accessName %>" style="width: 100%;">
-        <option<%= "no".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="no">No Others</option>
-        <option<%= "all".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="all">All Others</option>
-        <option<%= "some".equals(access) ? " selected" : "" %> data-show="#<%= sitesContainerId %>" value="some">Some Others</option>
-    </select>
-    <ul id="<%= sitesContainerId %>">
-        <% for (Site site : allSites) { %>
-            <% if (!site.equals(owner)) { %>
-                <li>
-                    <input<%= consumers.contains(site) ? " checked" : "" %> id="<%= wp.createId() %>" name="<%= consumerIdName %>" type="checkbox" value="<%= site.getId() %>">
-                    <label for="<%= wp.getId() %>"><%= wp.objectLabel(site) %></label>
-                </li>
-            <% } %>
-        <% } %>
-    </ul>
-</div>
+<label for="<%= wp.createId() %>">Access:</label><br>
+<select class="toggleable" id="<%= wp.getId() %>" name="<%= accessName %>" style="width: 100%;">
+    <option<%= "no".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="no">No Others</option>
+    <option<%= "all".equals(access) ? " selected" : "" %> data-hide="#<%= sitesContainerId %>" value="all">All Others</option>
+    <option<%= "some".equals(access) ? " selected" : "" %> data-show="#<%= sitesContainerId %>" value="some">Some Others</option>
+</select>
+<ul id="<%= sitesContainerId %>">
+    <% for (Site site : allSites) { %>
+        <li class="siteItem siteItem-<%= site.getId() %>">
+            <input<%= consumers.contains(site) ? " checked" : "" %> id="<%= wp.createId() %>" name="<%= consumerIdName %>" type="checkbox" value="<%= site.getId() %>">
+            <label for="<%= wp.getId() %>"><%= wp.objectLabel(site) %></label>
+        </li>
+    <% } %>
+</ul>

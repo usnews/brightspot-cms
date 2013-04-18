@@ -1,7 +1,9 @@
 <%@ page import="
 
 com.psddev.cms.db.ImageCrop,
+com.psddev.cms.db.ImageTag,
 com.psddev.cms.db.ImageTextOverlay,
+com.psddev.cms.db.ResizeOption,
 com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.ToolPageContext,
 
@@ -10,6 +12,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
 com.psddev.dari.util.BrightcoveStorageItem,
 com.psddev.dari.util.MultipartRequest,
+com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
 com.psddev.dari.util.ObjectUtils,
@@ -165,6 +168,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
     fieldValueMetadata.put("cms.edits", edits);
 
+    InputStream newItemData = null;
+
     if ("keep".equals(action)) {
         if (fieldValue != null) {
             newItem = fieldValue;
@@ -175,8 +180,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
     } else if ("newUpload".equals(action) || "newUrl".equals(action)) {
-
-        InputStream newItemData = null;
 
         if ("newUpload".equals(action)) {
             if (request instanceof MultipartRequest) {
@@ -306,24 +309,30 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
             newItemData = newItem.getData();
         }
+    }
 
-        // Automatic image metadata extraction.
-        if (newItem != null) {
-            String contentType = newItem.getContentType();
+    // Automatic image metadata extraction.
+    if (newItem != null && (
+            fieldValueMetadata.get("width") == null ||
+            fieldValueMetadata.get("height") == null)) {
+        if (newItemData == null) {
+            newItemData = newItem.getData();
+        }
 
-            if (contentType != null && contentType.startsWith("image/")) {
-                try {
-                    ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
-                    fieldValueMetadata.putAll(metadata);
+        String contentType = newItem.getContentType();
 
-                    List<Throwable> errors = metadata.getErrors();
-                    if (!errors.isEmpty()) {
-                        LOGGER.info("Can't read image metadata!", new AggregateException(errors));
-                    }
+        if (contentType != null && contentType.startsWith("image/")) {
+            try {
+                ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
+                fieldValueMetadata.putAll(metadata);
 
-                } finally {
-                    IoUtils.closeQuietly(newItemData);
+                List<Throwable> errors = metadata.getErrors();
+                if (!errors.isEmpty()) {
+                    LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
                 }
+
+            } finally {
+                IoUtils.closeQuietly(newItemData);
             }
         }
     }
@@ -510,9 +519,21 @@ String existingClass = wp.createId();
                     </div>
 
                     <div class="imageEditor-image">
+                        <%
+                        String fieldValueUrl;
+                        if (ImageEditor.Static.getDefault() != null) {
+                            fieldValueUrl = new ImageTag.Builder(fieldValue).
+                                    setWidth(1000).
+                                    setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                                    setEdits(false).
+                                    toUrl();
+                        } else {
+                            fieldValueUrl = fieldValue.getPublicUrl();
+                        }
+                        %>
                         <img alt="" src="<%= wp.url("/misc/proxy.jsp",
-                                "url", fieldValue.getPublicUrl(),
-                                "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValue.getPublicUrl()))) %>">
+                                "url", fieldValueUrl,
+                                "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))) %>">
                     </div>
 
                 </div>

@@ -1,21 +1,5 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Content;
-import com.psddev.cms.db.Directory;
-import com.psddev.cms.db.ToolUi;
-import com.psddev.cms.tool.ToolPageContext;
-
-import com.psddev.dari.db.CompoundPredicate;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PaginatedResult;
-import com.psddev.dari.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +12,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Site;
+import com.psddev.cms.db.ToolUi;
+import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PaginatedResult;
+import com.psddev.dari.util.StringUtils;
 
 public class Search extends Record {
 
@@ -283,7 +282,7 @@ public class Search extends Record {
         return sorts;
     }
 
-    public Query<?> toQuery() {
+    public Query<?> toQuery(Site site) {
         Query<?> query = null;
         Set<ObjectType> types = getTypes();
         ObjectType selectedType = getSelectedType();
@@ -461,7 +460,37 @@ public class Search extends Record {
             }
         }
 
+        if (site != null) {
+            Set<ObjectType> globalTypes = new HashSet<ObjectType>();
+
+            if (selectedType != null) {
+                addGlobalTypes(globalTypes, selectedType);
+
+            } else {
+                for (ObjectType type : validTypes) {
+                    addGlobalTypes(globalTypes, type);
+                }
+            }
+
+            query.and(CompoundPredicate.combine(
+                    PredicateParser.OR_OPERATOR,
+                    site.itemsPredicate(),
+                    PredicateParser.Static.parse("_type = ?", globalTypes)));
+        }
+
         return query;
+    }
+
+    private void addGlobalTypes(Set<ObjectType> globalTypes, ObjectType type) {
+        if (type != null && type.getGroups().contains(ObjectType.class.getName())) {
+            globalTypes.add(type);
+        }
+    }
+
+    /** @deprecated Use {@link #toQuery(Site)} instead. */
+    @Deprecated
+    public Query<?> toQuery() {
+        return toQuery(null);
     }
 
     // --- Deprecated ---
@@ -495,16 +524,10 @@ public class Search extends Record {
         return findValidTypes();
     }
 
-    @Deprecated
-    private transient Query<?> query;
-
     /** @deprecated Use {@link #toQuery} instead. */
     @Deprecated
     public Query<?> getQuery() {
-        if (query == null) {
-            query = toQuery();
-        }
-        return query;
+        return toQuery();
     }
 
     @Deprecated
@@ -517,7 +540,7 @@ public class Search extends Record {
     @Deprecated
     public PaginatedResult<?> getResult() {
         if (result == null) {
-            result = getQuery().and(page.siteItemsPredicate()).select(getOffset(), getLimit());
+            result = toQuery(page != null ? page.getSite() : null).select(getOffset(), getLimit());
         }
         return result;
     }

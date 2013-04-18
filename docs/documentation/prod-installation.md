@@ -10,13 +10,13 @@ section: documentation
 
 Brightspot CMS is built on top of the [Dari Framework](http://dariframework.org). This install will create your new Brightspot CMS application, setting up a local instance with a local SQL and Solr database.
 
-Installing Brightspot CMS requires five main steps. We will walk through these in more detail below.
+Installing Brightspot CMS requires five main steps. This installation will walk through these in more detail.
 
-- Create Database
-- Install Application Server
-- Install Solr DB
-- Use Maven to run archetype embed Brightspot CMS
-- Start Application Server
+- **Step 1.** Create Database
+- **Step 2.** Install Application Server
+- **Step 3.** Install Solr Database
+- **Step 4.** Create Brightspot CMS project using Maven
+- **Step 5.** Run project in Application Server
 
 
 ## Create Database
@@ -76,7 +76,7 @@ Place the [MySQL Connector jar](http://dev.mysql.com/downloads/connector/j/) fil
 cp mysql-connector-java-5.1.18-bin.jar $TOMCAT_HOME/lib
 {% endhighlight %}</div>
 
-Create a media directory on the Tomcat server where the CMS can store uploaded files:
+Create a media directory on the Tomcat server where Brightspot can store uploaded files:
 
 <div class="highlight">{% highlight java %}
 mkdir $TOMCAT_HOME/webapps/media
@@ -142,9 +142,7 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-If you do not already have Maven, [download](http://maven.apache.org/download.html) and install. On the command line type `mvn -v` to see your Maven Version number.
-
-You will need to create a Maven project in which you embed the CMS application. 
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven.
 
 Run the following Archetype to create the project structure.
 
@@ -162,7 +160,7 @@ mvn archetype:generate -B \
 
 Once your project has been created access your new pom.xml and add the following dependency, for Solr.
 
-<div class="highlight">{% highlight java %}
+<div class="highlight">{% highlight xml %}
 <dependency>
     <groupId>org.apache.solr</groupId>
     <artifactId>solr-solrj</artifactId>
@@ -178,13 +176,6 @@ A war file will now be created in the `target` directory. The CMS application wi
 
 Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename this to be `ROOT.war`. *Note, the default Apache ROOT directory must be removed.*
 
-Alternatively, create a symbolic link from your project directory to a ROOT directory within webapp:
-
-<div class="highlight">{% highlight java %}
-ln -s /path/to/your/PROJETNAME/src/main/webapp /path/to/your/tomcat/webapps/ROOT
-{% endhighlight %}</div>
-
-When using a symbolic link, build your project with `mvn clean install war:inplace` to embed the CMS.\
 
 ## Start Tomcat
 
@@ -220,3 +211,5 @@ To do this simply access `$TOMCAT_HOME/conf/context.xml` and change `value="true
 <div class="highlight">{% highlight java %}
 <Environment name="cms/tool/isAutoCreateUser" override="false" type="java.lang.Boolean" value="false" />
 {% endhighlight %}</div>
+
+The default project contains an `index.jsp` file within your webapp directory, remove this to create your own ROOT file.

@@ -160,6 +160,7 @@ public abstract class Content extends Record {
                 if (objectSiteMod.isGlobal()) {
                     objectSiteMod.getBlacklist().add(site);
                 }
+                objectState.save();
                 return null;
             }
         }
