@@ -276,7 +276,7 @@ Read the page summary, and then choose a particular section to find out more abo
 
 ## SEO
 
-Custom SEO can be added to any page through an SEO widget found at the bottom of the content edit screen. Editors can added Title, Description and Keywords, to be referenced by search engines. Other options, such as setting no-index or no-follow can be configured here as well.
+Custom SEO can be added to any page through an SEO widget found at the bottom of the content edit screen. Editors can add a Title, Description and Keywords, to be referenced by search engines. Other options, such as setting no-index or no-follow can be configured here as well.
 
 Brightspot adheres to, and encourages SEO best practices. Where an editor has not specified tags, Brightspot defaults to fill in the information with text from the object itself.
 

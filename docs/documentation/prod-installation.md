@@ -142,16 +142,16 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven.
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.0. You can, however, use the 2.1 snapshot in your archetype, as below does. This will build against the latest version of Brightspot, in Snapshot status.*
 
-Run the following Archetype to create the project structure.
+Run the following Archetype to create the project structure. 
 
 <div class="highlight">{% highlight java %}
 mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.0-SNAPSHOT \
+   -DarchetypeVersion=2.1-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
