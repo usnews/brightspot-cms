@@ -20,6 +20,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
+import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -98,6 +99,13 @@ public class ContentSearchAdvanced extends PageServlet {
                 }
             });
 
+            page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
+                @Override
+                public void format(HtmlWriter writer, Metric object) throws IOException {
+                    writer.write(new Double(object.getValue()).toString());
+                }
+            });
+
             page.putOverride(StorageItem.class, new HtmlFormatter<StorageItem>() {
                 @Override
                 public void format(HtmlWriter writer, StorageItem item) throws IOException {
@@ -158,6 +166,13 @@ public class ContentSearchAdvanced extends PageServlet {
             public void format(HtmlWriter writer, Recordable object) throws IOException {
                 ToolPageContext page = (ToolPageContext) writer;
                 page.writeHtml(page.getObjectLabel(object));
+            }
+        });
+
+        page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
+            @Override
+            public void format(HtmlWriter writer, Metric object) throws IOException {
+                writer.write(new Double(object.getValue()).toString());
             }
         });
 
