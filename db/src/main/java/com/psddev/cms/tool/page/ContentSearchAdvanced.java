@@ -295,6 +295,10 @@ public class ContentSearchAdvanced extends PageServlet {
                         page.writeTag("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
                         page.writeTag("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
 
+                        for (ObjectField field : fields) {
+                            page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
+                        }
+
                         page.writeStart("ul", "class", "pagination");
                             if (result.hasPrevious()) {
                                 page.writeStart("li", "class", "next");
