@@ -152,6 +152,7 @@ public class PageFilter extends AbstractFilter {
             isInside = new HashMap<String, Boolean>();
             request.setAttribute("inside", isInside);
         }
+        isInside.put(section.getDisplayName(), Boolean.TRUE);
         isInside.put(section.getInternalName(), Boolean.TRUE);
     }
 
