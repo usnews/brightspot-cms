@@ -213,3 +213,10 @@ To do this simply access `$TOMCAT_HOME/conf/context.xml` and change `value="true
 {% endhighlight %}</div>
 
 The default project contains an `index.jsp` file within your webapp directory, remove this to create your own ROOT file.
+
+#### Java Heap Size
+
+You may need to configure the memory allocation for Tomcat. If you see errors regarding Java Heap Size add the following to your catalina.sh file, found at $TOMCAT_HOME/bin/catalina.sh. This can be added directly above the # OS specific support config.
+
+    # ----- Adding more Memory
+    CATALINA_OPTS="-Xmx1024m -XX:MaxPermSize=256M -Djava.awt.headless=true "
