@@ -46,7 +46,7 @@ try {
             (wp.getSite() != null &&
             ((state.isNew() && wp.getSite().getDefaultVariation() != null) ||
             ObjectUtils.equals(wp.getSite().getDefaultVariation(), state.as(Variation.Data.class).getInitialVariation())))) {
-        if (state.isNew() && wp.getSite().getDefaultVariation() != null) {
+        if (state.isNew() && wp.getSite() != null && wp.getSite().getDefaultVariation() != null) {
             state.as(Variation.Data.class).setInitialVariation(wp.getSite().getDefaultVariation());
         }
 
