@@ -76,9 +76,12 @@ if (variationId == null) {
             if (state.isNew()) {
                 state.as(Variation.Data.class).setInitialVariation(defaultVariation);
 
-            } else if (state.as(Variation.Data.class).getInitialVariation() == null) {
-                wp.redirect("", "variationId", defaultVariation.getId());
-                return;
+            } else {
+                Variation initialVariation = state.as(Variation.Data.class).getInitialVariation();
+                if (initialVariation == null || !defaultVariation.equals(initialVariation)) {
+                    wp.redirect("", "variationId", defaultVariation.getId());
+                    return;
+                }
             }
         }
     }

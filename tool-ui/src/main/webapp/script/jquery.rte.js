@@ -326,6 +326,10 @@ var Rte = wysihtml5.Editor.extend({
             var textarea = this.textarea;
             var lastTextareaValue;
 
+            if (config.useLineBreaks && !$(textarea.element).val()) {
+                $(textarea.element).val('<br>');
+            }
+
             textarea._originalGetValue = textarea.getValue;
             textarea.getValue = function(parse) {
                 var value = this._originalGetValue(parse),
