@@ -813,7 +813,15 @@ public class PageFilter extends AbstractFilter {
                 lazyWriter.writeLazily(marker.toString());
             }
 
-            renderScript(request, response, writer, engine, script);
+            if (ObjectUtils.isBlank(script) && object instanceof Renderer) {
+                ((Renderer) object).renderObject(
+                        request,
+                        response,
+                        writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer));
+
+            } else {
+                renderScript(request, response, writer, engine, script);
+            }
 
         } finally {
             if (object != null) {
