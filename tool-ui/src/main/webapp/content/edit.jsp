@@ -73,16 +73,8 @@ if (variationId == null) {
         Variation defaultVariation = site.getDefaultVariation();
 
         if (defaultVariation != null) {
-            if (state.isNew()) {
-                state.as(Variation.Data.class).setInitialVariation(defaultVariation);
-
-            } else {
-                Variation initialVariation = state.as(Variation.Data.class).getInitialVariation();
-                if (initialVariation == null || !defaultVariation.equals(initialVariation)) {
-                    wp.redirect("", "variationId", defaultVariation.getId());
-                    return;
-                }
-            }
+            wp.redirect("", "variationId", defaultVariation.getId());
+            return;
         }
     }
 }

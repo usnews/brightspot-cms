@@ -164,6 +164,7 @@ public class PageFilter extends AbstractFilter {
     protected static void removeLastParentSection(HttpServletRequest request) {
         List<Section> parents = (List<Section>) request.getAttribute(PARENT_SECTIONS_ATTRIBUTE);
         Section section = parents.remove(parents.size() - 1);
+        ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getDisplayName());
         ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getInternalName());
     }
 
