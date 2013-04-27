@@ -24,7 +24,7 @@ boolean isPage = Page.class.isInstance(object) && !Template.class.isInstance(obj
 Site site = wp.getSite();
 State state = State.getInstance(object);
 
-if (!(isPage || Template.Static.findUsedTypes(site).contains(state.getType()))) {
+if (!(isPage || Template.Static.findUsedTypes(site).contains(state.getType()) || object instanceof Directory.Item)) {
     return;
 }
 
