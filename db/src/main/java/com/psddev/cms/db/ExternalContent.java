@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -19,11 +18,11 @@ import com.psddev.dari.util.TypeReference;
 /**
  * @see <a href="http://oembed.com/">oEmbed Specification</a>
  */
-@Record.Embedded
-public class OEmbed extends Record implements Renderer {
+@ToolUi.Referenceable
+public class ExternalContent extends Content implements Renderer {
 
     @Required
-    @ToolUi.NoteHtml("<a class=\"icon icon-action-preview\" target=\"contentOEmbedPreview\" onclick=\"this.href = CONTEXT_PATH + '/content/oEmbedPreview.jsp?url=' + encodeURIComponent($(this).closest('.inputLarge').find('> [data-field$=&quot;/url&quot;] textarea').val() || ''); return true;\">Preview</a>")
+    @ToolUi.NoteHtml("<a class=\"icon icon-action-preview\" target=\"contentExternalPreview\" onclick=\"this.href = CONTEXT_PATH + '/content/externalPreview?url=' + encodeURIComponent($(this).closest('.inputContainer').find('> .inputSmall > textarea').val() || ''); return true;\">Preview</a>")
     private String url;
 
     private Integer maximumWidth;
@@ -67,6 +66,7 @@ public class OEmbed extends Record implements Renderer {
                 !ObjectUtils.equals(width, response.get("_maximumWidth")) ||
                 !ObjectUtils.equals(height, response.get("_maximumHeight")))) {
             try {
+                    System.out.println(url);
                 for (Element link : Jsoup.connect(url).get().select("link[rel=alternate][type=application/json+oembed]")) {
                     String oEmbedUrl = link.attr("href");
 
