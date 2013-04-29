@@ -79,7 +79,7 @@ $.plugin2('workflow', {
                 'z-index': -1
             }
         }));
-        
+
         $arrows.bind('redraw', function(event, $source, targetX, targetY) {
             var context = this.getContext('2d'),
                     width = $arrows.outerWidth(),

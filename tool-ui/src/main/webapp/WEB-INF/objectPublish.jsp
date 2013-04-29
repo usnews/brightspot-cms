@@ -4,7 +4,7 @@ com.psddev.cms.db.Content,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Variation,
-com.psddev.cms.db.Workflow2,
+com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.ToolPageContext,
@@ -92,17 +92,17 @@ try {
     }
 
     if (workflowTransitionName == null) {
-        state.as(Workflow2.Data.class).setWorkflowState(null);
+        state.as(Workflow.Data.class).setWorkflowState(null);
 
     } else {
-        Workflow2 workflow = Query.from(Workflow2.class).where("contentTypes = ?", state.getType()).first();
+        Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
 
         if (workflow != null) {
             WorkflowTransition transition = workflow.getTransitions().get(workflowTransitionName);
             WorkflowState target = transition.getTarget();
 
             if (target != null) {
-                state.as(Workflow2.Data.class).setWorkflowState(target.getName());
+                state.as(Workflow.Data.class).setWorkflowState(target.getName());
             }
         }
     }

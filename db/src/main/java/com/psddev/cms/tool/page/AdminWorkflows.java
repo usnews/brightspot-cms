@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import com.psddev.cms.db.Workflow2;
+import com.psddev.cms.db.Workflow;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
@@ -22,7 +22,7 @@ public class AdminWorkflows extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        Object selected = page.findOrReserve(Workflow2.class);
+        Object selected = page.findOrReserve(Workflow.class);
         State selectedState = State.getInstance(selected);
 
         if (page.include("/WEB-INF/updateObject.jsp", "object", selected)) {
@@ -44,8 +44,8 @@ public class AdminWorkflows extends PageServlet {
                                 page.writeEnd();
                             page.writeEnd();
 
-                            for (Workflow2 workflow : Query.
-                                    from(Workflow2.class).
+                            for (Workflow workflow : Query.
+                                    from(Workflow.class).
                                     sortAscending("name").
                                     selectAll()) {
                                 page.writeStart("li", "class", workflow.equals(selected) ? "selected" : null);

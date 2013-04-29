@@ -17,7 +17,6 @@ com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
-com.psddev.cms.db.Workflow2,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -327,66 +326,20 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 }
 
                 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-                    List<Workflow> workflows = Query.from(Workflow.class).select();
+                    Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
 
-                    if (draft != null) {
-                        DraftStatus status = draft.getStatus();
-                        if (status != null) {
+                    if (workflow != null) {
+                        String currentState = state.as(Workflow.Data.class).getWorkflowState();
 
-                            wp.write("<div class=\"otherWorkflows\">");
-                            wp.write("<p>Status: ");
-                            wp.write(wp.objectLabel(status));
-                            wp.write("</p>");
-
-                            for (Workflow workflow : workflows) {
-                                if (status.equals(workflow.getSource())
-                                        && wp.hasPermission("type/" + state.getTypeId() + "/" + workflow.getPermissionId())) {
-                                    wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                                    wp.write(wp.objectLabel(workflow));
-                                    wp.write("\"> ");
-                                }
-                            }
-
-                            wp.write("</div>");
-                        }
-
-                    } else {
-                        Workflow2 workflow2 = Query.from(Workflow2.class).where("contentTypes = ?", state.getType()).first();
-
-                        if (workflow2 != null) {
-                            String currentState = state.as(Workflow2.Data.class).getWorkflowState();
-
-                            wp.writeStart("div", "class", "otherWorkflows");
-                                if (!ObjectUtils.isBlank(currentState)) {
-                                    wp.writeStart("p");
-                                        wp.writeHtml("Status: ");
-                                        wp.writeHtml(currentState);
+                        wp.writeStart("div", "class", "otherWorkflows");
+                            for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                if (wp.hasPermission("type/" + state.getTypeId() + "/" + transitionName)) {
+                                    wp.writeStart("button", "name", "action-workflow", "value", transitionName);
+                                        wp.writeHtml(transitionName);
                                     wp.writeEnd();
                                 }
-
-                                for (String transitionName : workflow2.getTransitionsFrom(currentState).keySet()) {
-                                    if (wp.hasPermission("type/" + state.getTypeId() + "/" + transitionName)) {
-                                        wp.writeStart("div");
-                                            wp.writeStart("button", "name", "action-workflow", "value", transitionName);
-                                                wp.writeHtml(transitionName);
-                                            wp.writeEnd();
-                                        wp.writeEnd();
-                                    }
-                                }
-                            wp.writeEnd();
-
-                        } else if (!wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                            wp.write("<div class=\"otherWorkflows\">");
-                            wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                            for (Workflow workflow : workflows) {
-                                if (workflow.getSource() == null) {
-                                    wp.write(wp.h(workflow.getName()));
-                                    break;
-                                }
                             }
-                            wp.write("\">");
-                            wp.write("</div>");
-                        }
+                        wp.writeEnd();
                     }
 
                     if (state.as(Content.ObjectModification.class).isTrashed()) {
