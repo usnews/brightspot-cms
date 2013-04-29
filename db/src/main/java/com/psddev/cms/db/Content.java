@@ -78,6 +78,11 @@ public abstract class Content extends Record {
             return Boolean.TRUE.equals(trashed);
         }
 
+        /** Sets whether this content is in trash. */
+        public void setTrashed(boolean trashed) {
+            this.trashed = trashed ? Boolean.TRUE : null;
+        }
+
         /** Returns the date when the given {@code object} was published. */
         public Date getPublishDate() {
             return publishDate;

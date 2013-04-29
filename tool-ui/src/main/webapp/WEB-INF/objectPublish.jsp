@@ -32,6 +32,7 @@ if (!wp.isFormPost()) {
 String action = wp.param("action");
 String workflowTransitionName = wp.param(String.class, "action-workflow");
 if (!("Publish".equals(action)
+        || "Restore".equals(action)
         || "Update".equals(action)
         || "Schedule".equals(action)
         || "Reschedule".equals(action)) &&
@@ -43,6 +44,10 @@ Object object = request.getAttribute("object");
 State state = State.getInstance(object);
 Draft draft = wp.getOverlaidDraft(object);
 UUID variationId = wp.uuidParam("variationId");
+
+if ("Restore".equals(action)) {
+    state.as(Content.ObjectModification.class).setTrashed(false);
+}
 
 try {
     state.beginWrites();
