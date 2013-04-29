@@ -152,6 +152,7 @@ public class PageFilter extends AbstractFilter {
             isInside = new HashMap<String, Boolean>();
             request.setAttribute("inside", isInside);
         }
+        isInside.put(section.getDisplayName(), Boolean.TRUE);
         isInside.put(section.getInternalName(), Boolean.TRUE);
     }
 
@@ -163,6 +164,7 @@ public class PageFilter extends AbstractFilter {
     protected static void removeLastParentSection(HttpServletRequest request) {
         List<Section> parents = (List<Section>) request.getAttribute(PARENT_SECTIONS_ATTRIBUTE);
         Section section = parents.remove(parents.size() - 1);
+        ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getDisplayName());
         ((Map<String, Boolean>) request.getAttribute("inside")).remove(section.getInternalName());
     }
 
@@ -811,7 +813,15 @@ public class PageFilter extends AbstractFilter {
                 lazyWriter.writeLazily(marker.toString());
             }
 
-            renderScript(request, response, writer, engine, script);
+            if (ObjectUtils.isBlank(script) && object instanceof Renderer) {
+                ((Renderer) object).renderObject(
+                        request,
+                        response,
+                        writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer));
+
+            } else {
+                renderScript(request, response, writer, engine, script);
+            }
 
         } finally {
             if (object != null) {

@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.Schedule,
+com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow2,
 com.psddev.cms.db.WorkflowState,
 com.psddev.cms.db.WorkflowTransition,
@@ -46,7 +47,14 @@ UUID variationId = wp.uuidParam("variationId");
 try {
     state.beginWrites();
 
-    if (variationId == null) {
+    if (variationId == null ||
+            (wp.getSite() != null &&
+            ((state.isNew() && wp.getSite().getDefaultVariation() != null) ||
+            ObjectUtils.equals(wp.getSite().getDefaultVariation(), state.as(Variation.Data.class).getInitialVariation())))) {
+        if (state.isNew() && wp.getSite() != null && wp.getSite().getDefaultVariation() != null) {
+            state.as(Variation.Data.class).setInitialVariation(wp.getSite().getDefaultVariation());
+        }
+
         request.setAttribute("original", object);
         wp.include("/WEB-INF/objectPost.jsp", "object", object, "original", object);
         wp.updateUsingAllWidgets(object);
