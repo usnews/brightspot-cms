@@ -918,6 +918,17 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
                 }
 
+                String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
+
+                if (!ObjectUtils.isBlank(dropboxAppKey)) {
+                    writeStart("script",
+                            "type", "text/javascript",
+                            "src", "https://www.dropbox.com/static/api/1/dropins.js",
+                            "id", "dropboxjs",
+                            "data-app-key", dropboxAppKey);
+                    writeEnd();
+                }
+
                 for (Tool tool : tools) {
                     tool.writeHeaderAfterScripts(this);
                 }
