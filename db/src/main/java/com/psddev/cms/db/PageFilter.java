@@ -369,7 +369,7 @@ public class PageFilter extends AbstractFilter {
             Directory.Path redirectPath = null;
             boolean isRedirect = false;
             for (Directory.Path p : State.getInstance(mainObject).as(Directory.ObjectModification.class).getPaths()) {
-                if (p.getType() == Directory.PathType.REDIRECT && path.equals(p.getPath())) {
+                if (p.getType() == Directory.PathType.REDIRECT && path.equalsIgnoreCase(p.getPath())) {
                     isRedirect = true;
                 } else if (p.getType() == Directory.PathType.PERMALINK) {
                     redirectPath = p;
