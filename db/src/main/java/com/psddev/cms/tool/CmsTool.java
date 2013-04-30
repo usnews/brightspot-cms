@@ -378,6 +378,11 @@ public class CmsTool extends Tool {
     // --- Tool support ---
 
     @Override
+    public String getApplicationName() {
+        return "cms";
+    }
+
+    @Override
     public List<Plugin> getPlugins() {
         List<Plugin> plugins = new ArrayList<Plugin>();
 
