@@ -67,6 +67,9 @@ public class AuthenticationFilter extends AbstractFilter {
             cookie.setPath("/");
             cookie.setSecure(JspUtils.isSecure(request));
             JspUtils.setSignedCookie(response, cookie);
+
+            request.setAttribute(USER_ATTRIBUTE, user);
+            request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
 
         /** Logs out the current tool user. */
