@@ -59,6 +59,7 @@ import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
@@ -331,42 +332,63 @@ public class ToolPageContext extends WebPageContext {
     /**
      * Returns an absolute version of the given {@code path} in context
      * of the given {@code tool}, modified by the given {@code parameters}.
+     *
+     * @param tool Can't be {@code null}.
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
      */
+    @SuppressWarnings("deprecation")
     public String toolUrl(Tool tool, String path, Object... parameters) {
         String url = null;
+        String appName = tool.getApplicationName();
 
-        for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
-            if (entry.getValue().equals(tool)) {
-                url = entry.getKey();
-                break;
-            }
-        }
-
-        if (url == null) {
-            url = tool.getUrl();
-
-            if (ObjectUtils.isBlank(url)) {
-                return "javascript:alert('" + js(String.format(
-                        "No tool URL for [%s]! (must be set under Admin/Settings)",
-                        tool.getName())) + "');";
-            }
+        if (appName != null) {
+            url = getServletContext().getContextPath() + RoutingFilter.Static.getApplicationPath(appName);
 
         } else {
-            url = getServletContext().getContextPath() + url;
+            for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
+                if (entry.getValue().equals(tool)) {
+                    url = entry.getKey();
+                    break;
+                }
+            }
+
+            if (url == null) {
+                url = tool.getUrl();
+
+                if (ObjectUtils.isBlank(url)) {
+                    url = getServletContext().getContextPath();
+                }
+
+            } else {
+                url = getServletContext().getContextPath() + url;
+            }
         }
 
-        if (!path.equals("") && !path.startsWith("/")) {
-            url += "/";
-        }
-
-        url += path;
+        url = url + StringUtils.ensureStart(path, "/");
 
         return StringUtils.addQueryParameters(url, parameters);
     }
 
     /**
      * Returns an absolute version of the given {@code path} in context
+     * of the instance of the given {@code toolClass}, modified by the given
+     * {@code parameters}.
+     *
+     * @param toolClass Can't be {@code null}.
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
+     */
+    public String toolUrl(Class<? extends Tool> toolClass, String path, Object... parameters) {
+        return toolUrl(getToolByClass(toolClass), path, parameters);
+    }
+
+    /**
+     * Returns an absolute version of the given {@code path} in context
      * of the CMS, modified by the given {@code parameters}.
+     *
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
      */
     public String cmsUrl(String path, Object... parameters) {
         return toolUrl(getCmsTool(), path, parameters);
