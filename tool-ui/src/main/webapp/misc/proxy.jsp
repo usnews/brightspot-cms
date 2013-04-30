@@ -34,8 +34,13 @@ InputStream urlInput = urlConnection.getInputStream();
 try {
     for (Map.Entry<String, List<String>> entry : urlConnection.getHeaderFields().entrySet()) {
         String name = entry.getKey();
-        for (String value : entry.getValue()) {
-            response.addHeader(name, value);
+
+        if (!ObjectUtils.isBlank(name)) {
+            for (String value : entry.getValue()) {
+                if (!ObjectUtils.isBlank(value)) {
+                    response.addHeader(name, value);
+                }
+            }
         }
     }
 
