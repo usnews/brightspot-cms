@@ -112,31 +112,49 @@ try {
         }
     }
 
-    Date publishDate = wp.dateParam("publishDate");
-    if (publishDate != null && publishDate.before(new Date())) {
-        state.as(Content.ObjectModification.class).setPublishDate(publishDate);
-        publishDate = null;
+    Schedule schedule = Query.from(Schedule.class).where("_id = ?", wp.param(UUID.class, "scheduleId")).first();
+    Date publishDate = null;
+
+    if (schedule == null) {
+        publishDate = wp.param(Date.class, "publishDate");
+
+        if (publishDate != null && publishDate.before(new Date())) {
+            state.as(Content.ObjectModification.class).setPublishDate(publishDate);
+            publishDate = null;
+        }
+
+    } else if (draft == null) {
+        draft = Query.
+                from(Draft.class).
+                where("schedule = ?", schedule).
+                and("objectId = ?", object).
+                first();
     }
 
-    if (publishDate != null) {
+    if (schedule != null || publishDate != null) {
         state.validate();
 
         if (draft == null) {
             draft = new Draft();
             draft.setOwner(wp.getUser());
-            draft.setObject(object);
-        } else {
-            draft.setObject(object);
         }
 
-        Schedule schedule = draft.getSchedule();
+        draft.setObject(object);
+
+        if (schedule == null) {
+            schedule = draft.getSchedule();
+        }
+
         if (schedule == null) {
             schedule = new Schedule();
             schedule.setTriggerSite(wp.getSite());
             schedule.setTriggerUser(wp.getUser());
         }
-        schedule.setTriggerDate(publishDate);
-        schedule.save();
+
+        if (publishDate != null) {
+            schedule.setTriggerDate(publishDate);
+            schedule.save();
+        }
 
         draft.setSchedule(schedule);
         draft.save();

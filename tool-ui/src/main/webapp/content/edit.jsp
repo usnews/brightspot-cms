@@ -9,6 +9,7 @@ com.psddev.cms.db.Guide,
 com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
+com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
@@ -347,13 +348,26 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     } else {
                         if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                            wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
-                            wp.write(wp.getId());
-                            wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                            wp.write(draft != null && draft.getSchedule() != null ?
-                                    DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
-                                    wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
-                            wp.write("\">");
+                            Schedule currentSchedule = wp.getUser().getCurrentSchedule();
+
+                            if (currentSchedule != null) {
+                                wp.writeTag("input",
+                                        "type", "hidden",
+                                        "name", "scheduleId",
+                                        "value", currentSchedule.getId());
+
+                            } else {
+                                wp.writeTag("input",
+                                        "type", "text",
+                                        "class", "date dateInput",
+                                        "data-emptylabel", "Now",
+                                        "name", "publishDate",
+                                        "size", 9,
+                                        "value", draft != null && draft.getSchedule() != null ?
+                                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
+                                                wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
+                            }
+
                             wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
                         }
 

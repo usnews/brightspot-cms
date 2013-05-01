@@ -436,6 +436,7 @@ figure,
 .icon-object-draft { .icon-edit; }
 .icon-object-guide { .icon-question-sign; }
 .icon-object-history { .icon-hdd; }
+.icon-object-schedule { .icon-calendar; }
 .icon-object-site { .icon-globe; }
 .icon-object-template { .icon-th; }
 .icon-object-toolRole { .icon-group; }
@@ -625,6 +626,7 @@ figure,
     padding: 0;
 
     &:hover {
+        background: inherit;
         text-decoration: underline;
     }
 
@@ -776,6 +778,11 @@ table.links.table-striped {
 
     background-color: @color-alert-darker;
     color: @color-background;
+
+    .link,
+    a {
+        color: @color-link-lighter;
+    }
 }
 
 .message-success {

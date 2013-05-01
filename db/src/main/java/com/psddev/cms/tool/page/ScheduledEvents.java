@@ -97,6 +97,26 @@ public class ScheduledEvents extends PageServlet {
 
             writer.writeEnd();
 
+            writer.writeStart("ul", "class", "piped");
+                writer.writeStart("li");
+                    writer.writeStart("a",
+                            "class", "icon icon-action-create",
+                            "href", page.cmsUrl("/scheduleEdit"),
+                            "target", "scheduleEdit");
+                        writer.writeHtml("New Schedule");
+                    writer.writeEnd();
+                writer.writeEnd();
+
+                writer.writeStart("li");
+                    writer.writeStart("a",
+                            "class", "icon icon-action-search",
+                            "href", page.cmsUrl("/scheduleList"),
+                            "target", "scheduleList");
+                        writer.writeHtml("Available Schedules");
+                    writer.writeEnd();
+                writer.writeEnd();
+            writer.writeEnd();
+
             /*
             writer.writeStart("form", "method", "get", "class", "autoSubmit", "action", page.url(null));
                 writer.writeStart("select", "name", "mode");

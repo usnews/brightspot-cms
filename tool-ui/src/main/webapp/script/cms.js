@@ -612,11 +612,16 @@ $doc.ready(function() {
                 oldDate = $dateInput.val();
 
         // Change the save button label if scheduling.
-        $dateInput.change($.run(function() {
-            $saveButton.val($dateInput.val() ?
-                    (oldDate ? 'Reschedule' : 'Schedule') :
-                    oldSaveButton);
-        }));
+        if ($dateInput.length === 0) {
+            $saveButton.val('Schedule');
+
+        } else {
+            $dateInput.change($.run(function() {
+                $saveButton.val($dateInput.val() ?
+                        (oldDate ? 'Reschedule' : 'Schedule') :
+                        oldSaveButton);
+            }));
+        }
 
         // Move the widget to the top if within aside section.
         $widget.closest('.contentForm-aside').each(function() {

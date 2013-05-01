@@ -35,6 +35,7 @@ import com.psddev.cms.db.LayoutTag;
 import com.psddev.cms.db.Page;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ResizeOption;
+import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
@@ -941,16 +942,44 @@ public class ToolPageContext extends WebPageContext {
 
             writeEnd();
 
+            Schedule currentSchedule = getUser().getCurrentSchedule();
             String broadcastMessage = cms.getBroadcastMessage();
             Date broadcastExpiration = cms.getBroadcastExpiration();
             boolean hasBroadcast = !ObjectUtils.isBlank(broadcastMessage) &&
                     (broadcastExpiration == null ||
                     broadcastExpiration.after(new Date()));
 
-            writeTag("body", "class", hasBroadcast ? "hasToolBroadcast" : null);
-                if (hasBroadcast) {
+            writeTag("body", "class", currentSchedule != null || hasBroadcast ? "hasToolBroadcast" : null);
+                if (currentSchedule != null || hasBroadcast) {
                     writeStart("div", "class", "toolBroadcast");
-                        writeHtml(broadcastMessage);
+                        if (currentSchedule != null) {
+                            writeHtml("All editorial changes will be scheduled for: ");
+
+                            writeStart("a",
+                                    "href", cmsUrl("/scheduleEdit", "id", currentSchedule.getId()),
+                                    "target", "scheduleEdit");
+                                writeHtml(getObjectLabel(currentSchedule));
+                            writeEnd();
+
+                            writeHtml(" - ");
+
+                            writeStart("form",
+                                    "method", "post",
+                                    "style", "display: inline;",
+                                    "action", cmsUrl("/misc/updateUserSettings",
+                                            "action", "scheduleSet",
+                                            "returnUrl", url("")));
+                                writeStart("button",
+                                        "class", "link icon icon-action-cancel");
+                                    writeHtml("Stop Scheduling");
+                                writeEnd();
+                            writeEnd();
+                        }
+
+                        if (hasBroadcast) {
+                            writeHtml(" - ");
+                            writeHtml(broadcastMessage);
+                        }
                     writeEnd();
                 }
 

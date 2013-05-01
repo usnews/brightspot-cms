@@ -8,6 +8,7 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.ObjectUtils,
 
 java.util.ArrayList,
 java.util.Collections,
@@ -43,7 +44,7 @@ if (drafts.isEmpty()) {
 
 Collections.sort(drafts, new Comparator<Draft>() {
     public int compare(Draft x, Draft y) {
-        return x.getSchedule().getTriggerDate().compareTo(y.getSchedule().getTriggerDate());
+        return ObjectUtils.compare(x.getSchedule().getTriggerDate(), y.getSchedule().getTriggerDate(), true);
     }
 });
 
@@ -55,7 +56,7 @@ Collections.sort(drafts, new Comparator<Draft>() {
     <% } %>
     <% for (Draft draft : drafts) { %>
         <li<%= draft.equals(selected) ? " class=\"selected\"" : "" %> data-preview-url="/_preview?_cms.db.previewId=<%= draft.getId() %>">
-            <a href="<%= wp.objectUrl(null, draft) %>" target="_top"><%= wp.h(draft.getSchedule().getTriggerDate()) %></a>
+            <a href="<%= wp.objectUrl(null, draft) %>" target="_top"><%= wp.h(draft.getSchedule().getLabel()) %></a>
         </li>
     <% } %>
 </ul>
