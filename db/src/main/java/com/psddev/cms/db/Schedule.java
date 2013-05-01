@@ -84,4 +84,30 @@ public class Schedule extends Record {
             endWrites();
         }
     }
+
+    @Override
+    public String getLabel() {
+        String name = getName();
+        StringBuilder label = new StringBuilder();
+
+        if (ObjectUtils.isBlank(name)) {
+            label.append(getTriggerDate().toString());
+
+        } else {
+            label.append(name);
+        }
+
+        long draftCount = Query.
+                from(Draft.class).
+                where("schedule = ?", this).
+                count();
+
+        if (draftCount > 1) {
+            label.append(" (");
+            label.append(draftCount);
+            label.append(" items)");
+        }
+
+        return label.toString();
+    }
 }
