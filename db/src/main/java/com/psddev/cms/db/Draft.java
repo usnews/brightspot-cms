@@ -162,4 +162,10 @@ public class Draft extends Record {
             */
         }
     }
+
+    @Override
+    public String getLabel() {
+        Object object = getObject();
+        return object != null ? State.getInstance(object).getLabel() : getLabel();
+    }
 }
