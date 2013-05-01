@@ -942,7 +942,7 @@ public class ToolPageContext extends WebPageContext {
 
             writeEnd();
 
-            Schedule currentSchedule = getUser().getCurrentSchedule();
+            Schedule currentSchedule = getUser() != null ? getUser().getCurrentSchedule() : null;
             String broadcastMessage = cms.getBroadcastMessage();
             Date broadcastExpiration = cms.getBroadcastExpiration();
             boolean hasBroadcast = !ObjectUtils.isBlank(broadcastMessage) &&
