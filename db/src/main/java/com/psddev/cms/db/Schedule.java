@@ -56,11 +56,8 @@ public class Schedule extends Record {
     public boolean trigger() {
         Date triggerDate = getTriggerDate();
 
-        if (triggerDate == null) {
-            return true;
-        }
-
-        if (!triggerDate.before(new Date())) {
+        if (triggerDate == null ||
+                !triggerDate.before(new Date())) {
             return false;
         }
 
