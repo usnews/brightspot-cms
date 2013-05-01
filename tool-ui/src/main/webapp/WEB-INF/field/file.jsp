@@ -476,10 +476,10 @@ String existingClass = wp.createId();
             <% } %>
         </select>
 
-        <input class="<%= allClass %> <%= newUploadClass %>" type="file" name="<%= wp.h(fileName) %>">
-        <input class="<%= allClass %> <%= newUrlClass %>" type="text" name="<%= wp.h(urlName) %>">
+        <input class="<%= allClass + " " + newUploadClass %>" type="file" name="<%= wp.h(fileName) %>">
+        <input class="<%= allClass + " " + newUrlClass %>" type="text" name="<%= wp.h(urlName) %>">
         <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
-            <span class="<%= allClass %> <%= dropboxClass %>" style="display: inline-block; vertical-align: bottom;">
+            <span class="<%= allClass + " " + dropboxClass %>" style="display: inline-block; vertical-align: bottom;">
                 <input type="dropbox-chooser" name="<%= wp.h(dropboxName) %>" data-link-type="direct" style="visibility: hidden;">
             </span>
             <script type="text/javascript">
@@ -494,7 +494,7 @@ String existingClass = wp.createId();
     if (fieldValue != null) {
         String contentType = fieldValue.getContentType();
         %>
-        <div class="<%= allClass %> <%= existingClass %> filePreview">
+        <div class="<%= allClass + " " + existingClass %> filePreview">
             <input name="<%= wp.h(storageName) %>" type="hidden" value="<%= wp.h(fieldValue.getStorage()) %>">
             <input name="<%= wp.h(pathName) %>" type="hidden" value="<%= wp.h(fieldValue.getPath()) %>">
             <input name="<%= wp.h(contentTypeName) %>" type="hidden" value="<%= wp.h(contentType) %>">
