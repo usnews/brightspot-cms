@@ -24,17 +24,29 @@ public class ScheduleEdit extends PageServlet {
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
         Schedule schedule = (Schedule) page.findOrReserve(Schedule.class);
+        boolean newSchedule = schedule.getState().isNew();
 
         if (page.isFormPost()) {
             try {
-                boolean newSchedule = schedule.getState().isNew();
+                if (page.param(String.class, "action-save") != null) {
+                    page.include("/WEB-INF/objectPost.jsp", "object", schedule);
+                    page.publish(schedule);
 
-                page.include("/WEB-INF/objectPost.jsp", "object", schedule);
-                page.publish(schedule);
+                    if (newSchedule) {
+                        page.getUser().setCurrentSchedule(schedule);
+                        page.getUser().save();
+                    }
 
-                if (newSchedule) {
-                    page.getUser().setCurrentSchedule(schedule);
-                    page.getUser().save();
+                } else if (page.param(String.class, "action-delete") != null) {
+                    try {
+                        schedule.beginWrites();
+                        Query.from(Draft.class).where("schedule = ?", schedule).deleteAll();
+                        schedule.delete();
+                        schedule.commitWrites();
+
+                    } finally {
+                        schedule.endWrites();
+                    }
                 }
 
                 page.writeStart("script", "type", "text/javascript");
@@ -58,9 +70,21 @@ public class ScheduleEdit extends PageServlet {
                 page.include("/WEB-INF/objectForm.jsp", "object", schedule);
 
                 page.writeStart("div", "class", "buttons");
-                    page.writeStart("button", "class", "action action-save");
+                    page.writeStart("button",
+                            "class", "action action-save",
+                            "name", "action-save",
+                            "value", "action-save");
                         page.writeHtml("Save");
                     page.writeEnd();
+
+                    if (!newSchedule) {
+                        page.writeStart("button",
+                                "class", "action action-delete action-pullRight link",
+                                "name", "action-delete",
+                                "value", "action-delete");
+                            page.writeHtml("Delete");
+                        page.writeEnd();
+                    }
                 page.writeEnd();
             page.writeEnd();
 
