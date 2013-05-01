@@ -1,7 +1,6 @@
 package com.psddev.cms.db;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLConnection;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
-import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Application;
@@ -309,15 +307,17 @@ public class PageFilter extends AbstractFilter {
         varying.setProfile(profile);
         Database.Static.overrideDefault(varying);
 
+        Writer writer = null;
+
         try {
             String servletPath = request.getServletPath();
 
             // Serve a special robots.txt file for non-production.
             if (servletPath.equals("/robots.txt") && !Settings.isProduction()) {
                 response.setContentType("text/plain");
-                PrintWriter writer = response.getWriter();
-                writer.println("User-agent: *");
-                writer.println("Disallow: /");
+                writer = response.getWriter();
+                writer.write("User-agent: *\n");
+                writer.write("Disallow: /\n");
                 return;
 
             // Render a single section.
@@ -439,9 +439,9 @@ public class PageFilter extends AbstractFilter {
                 lazyResponse.getLazyWriter().writeLazily(marker.toString());
             }
 
-            HtmlWriter writer = new HtmlWriter(response.getWriter());
+            writer = new HtmlWriter(response.getWriter());
 
-            writer.putAllStandardDefaults();
+            ((HtmlWriter) writer).putAllStandardDefaults();
 
             request.setAttribute("sections", new PullThroughCache<String, Section>() {
                 @Override
@@ -506,9 +506,10 @@ public class PageFilter extends AbstractFilter {
                 AuthenticationFilter.Static.getUser(request) != null) {
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
-            PageWriter writer = page.getWriter();
+            @SuppressWarnings("resource")
+            HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
 
-            writer.writeStart("div", "style", writer.cssString(
+            htmlWriter.writeStart("div", "style", htmlWriter.cssString(
                     "background", "rgba(0, 0, 0, 0.7)",
                     "border-bottom-left-radius", "5px",
                     "color", "white",
@@ -520,32 +521,32 @@ public class PageFilter extends AbstractFilter {
                     "top", 0,
                     "right", 0,
                     "z-index", 2000000));
-                writer.writeStart("a",
+                htmlWriter.writeStart("a",
                         "href", "javascript:" + StringUtils.encodeUri(
                                 "(function(){document.body.appendChild(document.createElement('script')).src='" +
                                 page.cmsUrl("/content/bookmarklet.jsp") +
                                 "';}());"),
-                        "style", writer.cssString(
+                        "style", htmlWriter.cssString(
                                 "color", "#83cbea",
                                 "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                 "font-size", "13px",
                                 "line-height", "20px"));
-                    writer.writeHtml("Edit Inline");
-                writer.writeEnd();
+                    htmlWriter.writeHtml("Edit Inline");
+                htmlWriter.writeEnd();
 
-                writer.writeHtml(" | ");
+                htmlWriter.writeHtml(" | ");
 
-                writer.writeStart("a",
+                htmlWriter.writeStart("a",
                         "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
                         "target", "_blank",
-                        "style", writer.cssString(
+                        "style", htmlWriter.cssString(
                                 "color", "#83cbea",
                                 "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                 "font-size", "13px",
                                 "line-height", "20px"));
-                    writer.writeHtml("Edit In CMS");
-                writer.writeEnd();
-            writer.writeEnd();
+                    htmlWriter.writeHtml("Edit In CMS");
+                htmlWriter.writeEnd();
+            htmlWriter.writeEnd();
         }
     }
 
