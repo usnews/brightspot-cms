@@ -141,10 +141,26 @@ $.plugin2('frame', {
         });
 
         // Intercept form submits to see if it's targeted.
+        $caller.delegate('form', 'click.frame', function(event) {
+            $.data(this, 'frame-clicked', event.target);
+        });
+
         $caller.delegate('form', 'submit.frame', function() {
             return findTargetFrame(this, function($form, $frame) {
                 var action = $form.attr('action'),
-                        extraFormData = $frame.attr('data-extra-form-data');
+                        extraFormData = $frame.attr('data-extra-form-data'),
+                        clicked = $.data($form[0], 'frame-clicked'),
+                        clickedName,
+                        clickedValue;
+
+                if (clicked) {
+                    clickedName = $(clicked).prop('name');
+                    clickedValue = $(clicked).prop('value');
+
+                    if (clickedName && clickedValue) {
+                        action += (action.indexOf('?') > -1 ? '&' : '?') + encodeURIComponent(clickedName) + '=' + encodeURIComponent(clickedValue);
+                    }
+                }
 
                 if ($form.attr('enctype') !== 'multipart/form-data') {
                     loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize(), $form.attr('method'));
