@@ -278,13 +278,15 @@ public class PageFilter extends AbstractFilter {
         varying.setProfile(profile);
         Database.Static.overrideDefault(varying);
 
+        PrintWriter writer = null;
+
         try {
             String servletPath = request.getServletPath();
 
             // Serve a special robots.txt file for non-production.
             if (servletPath.equals("/robots.txt") && !Settings.isProduction()) {
                 response.setContentType("text/plain");
-                PrintWriter writer = response.getWriter();
+                writer = response.getWriter();
                 writer.println("User-agent: *");
                 writer.println("Disallow: /");
                 return;
@@ -378,7 +380,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            PrintWriter writer = response.getWriter();
+            writer = response.getWriter();
             LazyWriter lazyWriter = null;
             // If we are marking the sections, use lazy writing so spans don't interrupt page layout
             if (Boolean.parseBoolean(request.getParameter(OVERLAY_PARAMETER))) {
@@ -477,9 +479,9 @@ public class PageFilter extends AbstractFilter {
             if (user != null) {
                 @SuppressWarnings("all")
                 ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
-                PageWriter writer = page.getWriter();
+                HtmlWriter htmlWriter = new HtmlWriter(writer);
 
-                writer.start("div", "style", writer.cssString(
+                htmlWriter.start("div", "style", htmlWriter.cssString(
                         "background", "rgba(0, 0, 0, 0.7)",
                         "border-bottom-left-radius", "5px",
                         "color", "white",
@@ -491,32 +493,32 @@ public class PageFilter extends AbstractFilter {
                         "top", 0,
                         "right", 0,
                         "z-index", 2000000));
-                    writer.start("a",
+                    htmlWriter.start("a",
                             "href", "javascript:" + StringUtils.encodeUri(
                                     "(function(){document.body.appendChild(document.createElement('script')).src='" +
                                     page.cmsUrl("/content/bookmarklet.jsp") +
                                     "';}());"),
-                            "style", writer.cssString(
+                            "style", htmlWriter.cssString(
                                     "color", "#83cbea",
                                     "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                     "font-size", "13px",
                                     "line-height", "20px"));
-                        writer.html("Edit Inline");
-                    writer.end();
+                        htmlWriter.html("Edit Inline");
+                    htmlWriter.end();
 
-                    writer.html(" | ");
+                    htmlWriter.html(" | ");
 
-                    writer.start("a",
+                    htmlWriter.start("a",
                             "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
                             "target", "_blank",
-                            "style", writer.cssString(
+                            "style", htmlWriter.cssString(
                                     "color", "#83cbea",
                                     "font-family", "'Helvetica Neue', 'Arial', sans-serif",
                                     "font-size", "13px",
                                     "line-height", "20px"));
-                        writer.html("Edit In CMS");
-                    writer.end();
-                writer.end();
+                        htmlWriter.html("Edit In CMS");
+                    htmlWriter.end();
+                htmlWriter.end();
             }
         }
     }
