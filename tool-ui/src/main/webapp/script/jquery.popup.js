@@ -165,9 +165,10 @@ $.plugin2('popup', {
                 'left': left,
                 'margin': 0,
                 'position': isFixedPosition ? 'fixed' : 'absolute',
-                'top': top,
-                'z-index': $newSource.parent().zIndex() + 1
+                'top': top
             });
+
+            doc.body.appendChild($container[0]);
 
             return this.$caller;
         }
