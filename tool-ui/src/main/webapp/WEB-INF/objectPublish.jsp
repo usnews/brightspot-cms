@@ -4,6 +4,9 @@ com.psddev.cms.db.Content,
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Variation,
+com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowState,
+com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.CachingDatabase,
@@ -27,10 +30,13 @@ if (!wp.isFormPost()) {
 }
 
 String action = wp.param("action");
+String workflowTransitionName = wp.param(String.class, "action-workflow");
 if (!("Publish".equals(action)
+        || "Restore".equals(action)
         || "Update".equals(action)
         || "Schedule".equals(action)
-        || "Reschedule".equals(action))) {
+        || "Reschedule".equals(action)) &&
+        workflowTransitionName == null) {
     return;
 }
 
@@ -38,6 +44,10 @@ Object object = request.getAttribute("object");
 State state = State.getInstance(object);
 Draft draft = wp.getOverlaidDraft(object);
 UUID variationId = wp.uuidParam("variationId");
+
+if ("Restore".equals(action)) {
+    state.as(Content.ObjectModification.class).setTrashed(false);
+}
 
 try {
     state.beginWrites();
@@ -86,36 +96,72 @@ try {
         state = State.getInstance(object);
     }
 
-    Date publishDate = wp.dateParam("publishDate");
-    if (publishDate != null && publishDate.before(new Date())) {
-        state.as(Content.ObjectModification.class).setPublishDate(publishDate);
-        publishDate = null;
+    if (workflowTransitionName == null) {
+        state.as(Workflow.Data.class).setWorkflowState(null);
+
+    } else {
+        Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
+
+        if (workflow != null) {
+            WorkflowTransition transition = workflow.getTransitions().get(workflowTransitionName);
+            WorkflowState target = transition.getTarget();
+
+            if (target != null) {
+                state.as(Workflow.Data.class).setWorkflowState(target.getName());
+            }
+        }
     }
 
-    if (publishDate != null) {
+    Schedule schedule = wp.getUser().getCurrentSchedule();
+    Date publishDate = null;
+
+    if (schedule == null) {
+        publishDate = wp.param(Date.class, "publishDate");
+
+        if (publishDate != null && publishDate.before(new Date())) {
+            state.as(Content.ObjectModification.class).setPublishDate(publishDate);
+            publishDate = null;
+        }
+
+    } else if (draft == null) {
+        draft = Query.
+                from(Draft.class).
+                where("schedule = ?", schedule).
+                and("objectId = ?", object).
+                first();
+    }
+
+    if (schedule != null || publishDate != null) {
         state.validate();
 
         if (draft == null) {
             draft = new Draft();
             draft.setOwner(wp.getUser());
-            draft.setObject(object);
-        } else {
-            draft.setObject(object);
         }
 
-        Schedule schedule = draft.getSchedule();
+        draft.setObject(object);
+
+        if (schedule == null) {
+            schedule = draft.getSchedule();
+        }
+
         if (schedule == null) {
             schedule = new Schedule();
             schedule.setTriggerSite(wp.getSite());
             schedule.setTriggerUser(wp.getUser());
         }
-        schedule.setTriggerDate(publishDate);
-        schedule.save();
+
+        if (publishDate != null) {
+            schedule.setTriggerDate(publishDate);
+            schedule.save();
+        }
 
         draft.setSchedule(schedule);
         draft.save();
         state.commitWrites();
-        wp.redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+        wp.redirect("",
+                "_isFrame", wp.boolParam("_isFrame"),
+                ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
 
     } else {
         if (draft != null) {

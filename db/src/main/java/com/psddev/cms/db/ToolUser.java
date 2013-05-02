@@ -29,6 +29,9 @@ public class ToolUser extends Record {
 
     private Site currentSite;
 
+    @ToolUi.Hidden
+    private Schedule currentSchedule;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -102,6 +105,14 @@ public class ToolUser extends Record {
 
     public void setCurrentSite(Site site) {
         this.currentSite = site;
+    }
+
+    public Schedule getCurrentSchedule() {
+        return currentSchedule;
+    }
+
+    public void setCurrentSchedule(Schedule currentSchedule) {
+        this.currentSchedule = currentSchedule;
     }
 
     /**

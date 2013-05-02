@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -11,13 +12,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
 public interface Renderer extends Recordable {
+
+    public void renderObject(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            HtmlWriter writer)
+            throws IOException, ServletException;
 
     /** Global modification that stores rendering hints. */
     @FieldInternalNamePrefix("cms.renderable.")

@@ -9,6 +9,7 @@ com.psddev.cms.db.Guide,
 com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
+com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
@@ -251,6 +252,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 <h1>Publication</h1>
 
                 <%
+                String visibilityLabel = state.getVisibilityLabel();
+
+                if (!ObjectUtils.isBlank(visibilityLabel)) {
+                    wp.writeStart("div", "class", "message message-warning");
+                        wp.writeStart("p");
+                            wp.writeHtml("Status: ");
+                            wp.writeHtml(visibilityLabel);
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+
                 if (workStream != null) {
                     long incomplete = workStream.countIncomplete();
                     long total = workStream.getQuery().count();
@@ -315,55 +327,45 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 }
 
                 if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-                    List<Workflow> workflows = Query.from(Workflow.class).select();
+                    Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
 
-                    if (draft != null) {
-                        DraftStatus status = draft.getStatus();
-                        if (status != null) {
+                    if (workflow != null) {
+                        String currentState = state.as(Workflow.Data.class).getWorkflowState();
 
-                            wp.write("<div class=\"otherWorkflows\">");
-                            wp.write("<p>Status: ");
-                            wp.write(wp.objectLabel(status));
-                            wp.write("</p>");
-
-                            for (Workflow workflow : workflows) {
-                                if (status.equals(workflow.getSource())
-                                        && wp.hasPermission("type/" + state.getTypeId() + "/" + workflow.getPermissionId())) {
-                                    wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                                    wp.write(wp.objectLabel(workflow));
-                                    wp.write("\"> ");
+                        wp.writeStart("div", "class", "otherWorkflows");
+                            for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                if (wp.hasPermission("type/" + state.getTypeId() + "/" + transitionName)) {
+                                    wp.writeStart("button", "name", "action-workflow", "value", transitionName);
+                                        wp.writeHtml(transitionName);
+                                    wp.writeEnd();
                                 }
                             }
+                        wp.writeEnd();
+                    }
 
-                            wp.write("</div>");
-                        }
+                    if (state.as(Content.ObjectModification.class).isTrashed()) {
+                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Restore\">");
 
-                    } else if (!wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                        wp.write("<div class=\"otherWorkflows\">");
-                        wp.write("<input name=\"action\" type=\"submit\" value=\"");
-                        for (Workflow workflow : workflows) {
-                            if (workflow.getSource() == null) {
-                                wp.write(wp.h(workflow.getName()));
-                                break;
+                    } else {
+                        if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                            if (wp.getUser().getCurrentSchedule() == null) {
+                                wp.writeTag("input",
+                                        "type", "text",
+                                        "class", "date dateInput",
+                                        "data-emptylabel", "Now",
+                                        "name", "publishDate",
+                                        "size", 9,
+                                        "value", draft != null && draft.getSchedule() != null ?
+                                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
+                                                wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
                             }
+
+                            wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
                         }
-                        wp.write("\">");
-                        wp.write("</div>");
-                    }
 
-                    if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                        wp.write("<input class=\"date dateInput\" data-emptylabel=\"Now\" id=\"");
-                        wp.write(wp.getId());
-                        wp.write("\" name=\"publishDate\" size=\"9\" type=\"text\" value=\"");
-                        wp.write(draft != null && draft.getSchedule() != null ?
-                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
-                                wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
-                        wp.write("\">");
-                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
-                    }
-
-                    if (!state.isNew() || draft != null) {
-                        wp.write("<button class=\"action-delete\" name=\"action\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">Delete</button>");
+                        if (!state.isNew() || draft != null) {
+                            wp.write("<button class=\"action-delete\" name=\"action\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">Delete</button>");
+                        }
                     }
 
                 } else {

@@ -131,19 +131,6 @@
     white-space: pre-wrap;
 }
 
-.contentStatusLabel {
-    background-color: @color-note-darker;
-    .border-radius(3px);
-    color: @color-background;
-    font-size: (@fontSize-default - 4);
-    padding: 2px 3px;
-    text-transform: uppercase;
-
-    &.contentStatusLabel-DELETED {
-        background-color: @color-alert-darker;
-    }
-}
-
 .date {
     width: 80px;
     white-space: nowrap;
@@ -449,6 +436,7 @@ figure,
 .icon-object-draft { .icon-edit; }
 .icon-object-guide { .icon-question-sign; }
 .icon-object-history { .icon-hdd; }
+.icon-object-schedule { .icon-calendar; }
 .icon-object-site { .icon-globe; }
 .icon-object-template { .icon-th; }
 .icon-object-toolRole { .icon-group; }
@@ -513,6 +501,14 @@ figure,
 
     .message {
         margin-bottom: 5px;
+    }
+
+    .message-error {
+        margin-left: 145px;
+
+        @media @media-tablet {
+            margin-left: 0;
+        }
     }
 
     &.state-changed {
@@ -599,9 +595,15 @@ figure,
     }
 }
 
+.inputContainer-listLayoutItemContainer {
+    height: 100%;
+    overflow: hidden;
+}
+
 .inputContainer-listLayoutItem {
     background-color: @color-note-lighter;
-    padding: 5px;
+    margin-bottom: -30000px;
+    padding: 5px 5px 30005px 5px;
 
     .objectId,
     .objectId-select {
@@ -624,6 +626,7 @@ figure,
     padding: 0;
 
     &:hover {
+        background: inherit;
         text-decoration: underline;
     }
 
@@ -775,6 +778,11 @@ table.links.table-striped {
 
     background-color: @color-alert-darker;
     color: @color-background;
+
+    .link,
+    a {
+        color: @color-link-lighter;
+    }
 }
 
 .message-success {
@@ -1028,6 +1036,15 @@ table.links.table-striped {
     text-align: right;
     width: 55px;
     white-space: nowrap;
+}
+
+.visibilityLabel {
+    background-color: @color-note-darker;
+    .border-radius(3px);
+    color: @color-background;
+    font-size: (@fontSize-default - 4);
+    padding: 2px 3px;
+    text-transform: uppercase;
 }
 
 .widget {

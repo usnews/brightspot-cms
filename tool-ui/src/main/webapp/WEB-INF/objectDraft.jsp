@@ -2,7 +2,6 @@
 
 com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
-com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Query,
@@ -18,14 +17,6 @@ if (!wp.isFormPost()) {
 
 String action = wp.param("action");
 boolean isDraft = "Save".equals(action) || "Save Draft".equals(action);
-DraftStatus status = null;
-if (!isDraft) {
-    Workflow workflow = Query.from(Workflow.class).where("name = ?", action).first();
-    if (workflow != null) {
-        isDraft = true;
-        status = workflow.getTarget();
-    }
-}
 
 if (!isDraft) {
     return;
@@ -48,7 +39,6 @@ try {
         draft.setObject(object);
     }
 
-    draft.setStatus(status);
     wp.publish(draft);
     state.commitWrites();
     wp.redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());

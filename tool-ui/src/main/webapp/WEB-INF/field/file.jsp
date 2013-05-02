@@ -24,8 +24,11 @@ com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.TypeReference,
 
 java.io.File,
+java.io.FileInputStream,
+java.io.FileOutputStream,
 java.io.InputStream,
 java.io.IOException,
+java.net.URL,
 java.util.AbstractMap,
 java.util.Collections,
 java.util.HashMap,
@@ -65,6 +68,7 @@ String pathName = inputName + ".path";
 String contentTypeName = inputName + ".contentType";
 String fileName = inputName + ".file";
 String urlName = inputName + ".url";
+String dropboxName = inputName + ".dropbox";
 String cropsName = inputName + ".crops.";
 
 String brightnessName = inputName + ".brightness";
@@ -127,79 +131,119 @@ for (StandardImageSize size : StandardImageSize.findAll()) {
 }
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-    String action = wp.param(actionName);
-    StorageItem newItem = null;
+    File file = null;
 
-    brightness = wp.param(double.class, brightnessName);
-    contrast = wp.param(double.class, contrastName);
-    flipH = wp.param(boolean.class, flipHName);
-    flipV = wp.param(boolean.class, flipVName);
-    grayscale = wp.param(boolean.class, grayscaleName);
-    invert = wp.param(boolean.class, invertName);
-    rotate = wp.param(int.class, rotateName);
-    sepia = wp.param(boolean.class, sepiaName);
+    try {
+        String action = wp.param(actionName);
+        StorageItem newItem = null;
 
-    edits = new HashMap<String, Object>();
+        brightness = wp.param(double.class, brightnessName);
+        contrast = wp.param(double.class, contrastName);
+        flipH = wp.param(boolean.class, flipHName);
+        flipV = wp.param(boolean.class, flipVName);
+        grayscale = wp.param(boolean.class, grayscaleName);
+        invert = wp.param(boolean.class, invertName);
+        rotate = wp.param(int.class, rotateName);
+        sepia = wp.param(boolean.class, sepiaName);
 
-    if (brightness != 0.0) {
-        edits.put("brightness", brightness);
-    }
-    if (contrast != 0.0) {
-        edits.put("contrast", contrast);
-    }
-    if (flipH) {
-        edits.put("flipH", flipH);
-    }
-    if (flipV) {
-        edits.put("flipV", flipV);
-    }
-    if (invert) {
-        edits.put("invert", invert);
-    }
-    if (rotate != 0) {
-        edits.put("rotate", rotate);
-    }
-    if (grayscale) {
-        edits.put("grayscale", grayscale);
-    }
-    if (sepia) {
-        edits.put("sepia", sepia);
-    }
+        edits = new HashMap<String, Object>();
 
-    fieldValueMetadata.put("cms.edits", edits);
-
-    InputStream newItemData = null;
-
-    if ("keep".equals(action)) {
-        if (fieldValue != null) {
-            newItem = fieldValue;
-        } else {
-            newItem = StorageItem.Static.createIn(wp.param(storageName));
-            newItem.setPath(wp.param(pathName));
-            newItem.setContentType(wp.param(contentTypeName));
+        if (brightness != 0.0) {
+            edits.put("brightness", brightness);
+        }
+        if (contrast != 0.0) {
+            edits.put("contrast", contrast);
+        }
+        if (flipH) {
+            edits.put("flipH", flipH);
+        }
+        if (flipV) {
+            edits.put("flipV", flipV);
+        }
+        if (invert) {
+            edits.put("invert", invert);
+        }
+        if (rotate != 0) {
+            edits.put("rotate", rotate);
+        }
+        if (grayscale) {
+            edits.put("grayscale", grayscale);
+        }
+        if (sepia) {
+            edits.put("sepia", sepia);
         }
 
-    } else if ("newUpload".equals(action) || "newUrl".equals(action)) {
+        fieldValueMetadata.put("cms.edits", edits);
 
-        if ("newUpload".equals(action)) {
-            if (request instanceof MultipartRequest) {
+        InputStream newItemData = null;
+
+        if ("keep".equals(action)) {
+            if (fieldValue != null) {
+                newItem = fieldValue;
+            } else {
+                newItem = StorageItem.Static.createIn(wp.param(storageName));
+                newItem.setPath(wp.param(pathName));
+                newItem.setContentType(wp.param(contentTypeName));
+            }
+
+        } else if ("newUpload".equals(action) ||
+                "dropbox".equals(action)) {
+            String name = null;
+            String fileContentType = null;
+            long fileSize = 0;
+            file = File.createTempFile("cms.", ".tmp");
+
+            if ("dropbox".equals(action)) {
+                Map<String, Object> fileData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, dropboxName));
+
+                if (fileData != null) {
+                    name = ObjectUtils.to(String.class, fileData.get("name"));
+                    fileContentType = ObjectUtils.getContentType(name);
+                    fileSize = ObjectUtils.to(int.class, fileData.get("bytes"));
+                    InputStream fileInput = new URL(ObjectUtils.to(String.class, fileData.get("link"))).openStream();
+
+                    try {
+                        FileOutputStream fileOutput = new FileOutputStream(file);
+
+                        try {
+                            IoUtils.copy(fileInput, fileOutput);
+
+                        } finally {
+                            fileOutput.close();
+                        }
+
+                    } finally {
+                        fileInput.close();
+                    }
+                }
+
+            } else if (request instanceof MultipartRequest) {
                 MultipartRequest mpRequest = (MultipartRequest) request;
-                FileItem file = mpRequest.getFileItem(fileName);
+                FileItem fileItem = mpRequest.getFileItem(fileName);
+                name = fileItem.getName();
+                fileContentType = fileItem.getContentType();
+                fileSize = fileItem.getSize();
+
+                fileItem.write(file);
+            }
+
+            if (name != null &&
+                    fileContentType != null) {
 
                 // Checks to make sure the file's content type is valid
                 String groupsPattern = Settings.get(String.class, "cms/tool/fileContentTypeGroups");
                 Set<String> contentTypeGroups = new SparseSet(ObjectUtils.isBlank(groupsPattern) ? "+/" : groupsPattern);
-                if (!contentTypeGroups.contains(file.getContentType())) {
+                if (!contentTypeGroups.contains(fileContentType)) {
                     state.addError(field, String.format(
                             "Invalid content type [%s]. Must match the pattern [%s].",
-                            file.getContentType(), contentTypeGroups));
+                            fileContentType, contentTypeGroups));
                     return;
                 }
 
                 // Disallow HTML disguising as other content types per:
                 // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
                 if (!contentTypeGroups.contains("text/html")) {
-                    InputStream input = file.getInputStream();
+                    InputStream input = new FileInputStream(file);
 
                     try {
                         byte[] buffer = new byte[1024];
@@ -242,7 +286,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                 ptr.startsWith("<br")) {
                             state.addError(field, String.format(
                                     "Can't upload [%s] file disguising as HTML!",
-                                    file.getContentType()));
+                                    fileContentType));
                             return;
                         }
 
@@ -251,11 +295,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     }
                 }
 
-                if (file.getSize() > 0) {
+                if (fileSize > 0) {
                     String idString = UUID.randomUUID().toString().replace("-", "");
                     StringBuilder pathBuilder = new StringBuilder();
                     String label = state.getLabel();
-                    String name = file.getName();
 
                     fieldValueMetadata.put("originalFilename", name);
 
@@ -290,17 +333,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                     newItem = StorageItem.Static.create();
                     newItem.setPath(pathBuilder.toString());
-                    newItem.setContentType(file.getContentType());
+                    newItem.setContentType(fileContentType);
 
                     Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
                     httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
-                    httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(file.getSize())));
-                    httpHeaders.put("Content-Type", Collections.singletonList(file.getContentType()));
+                    httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(fileSize)));
+                    httpHeaders.put("Content-Type", Collections.singletonList(fileContentType));
                     fieldValueMetadata.put("http.headers", httpHeaders);
 
-                    newItem.setData(file.getInputStream());
+                    newItem.setData(new FileInputStream(file));
 
-                    newItemData = file.getInputStream();
+                    newItemData = new FileInputStream(file);
                 }
             }
 
@@ -309,126 +352,149 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
             newItemData = newItem.getData();
         }
-    }
 
-    // Automatic image metadata extraction.
-    if (newItem != null && (
-            fieldValueMetadata.get("width") == null ||
-            fieldValueMetadata.get("height") == null)) {
-        if (newItemData == null) {
-            newItemData = newItem.getData();
-        }
-
-        String contentType = newItem.getContentType();
-
-        if (contentType != null && contentType.startsWith("image/")) {
-            try {
-                ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
-                fieldValueMetadata.putAll(metadata);
-
-                List<Throwable> errors = metadata.getErrors();
-                if (!errors.isEmpty()) {
-                    LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
-                }
-
-            } finally {
-                IoUtils.closeQuietly(newItemData);
+        // Automatic image metadata extraction.
+        if (newItem != null && (
+                fieldValueMetadata.get("width") == null ||
+                fieldValueMetadata.get("height") == null)) {
+            if (newItemData == null) {
+                newItemData = newItem.getData();
             }
-        }
-    }
 
-    // Standard sizes.
-    for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext(); ) {
-        Map.Entry<String, ImageCrop> e = i.next();
-        String cropId = e.getKey();
-        double x = wp.doubleParam(cropsName + cropId + ".x");
-        double y = wp.doubleParam(cropsName + cropId + ".y");
-        double width = wp.doubleParam(cropsName + cropId + ".width");
-        double height = wp.doubleParam(cropsName + cropId + ".height");
-        String texts = wp.param(cropsName + cropId + ".texts");
-        String textSizes = wp.param(cropsName + cropId + ".textSizes");
-        String textXs = wp.param(cropsName + cropId + ".textXs");
-        String textYs = wp.param(cropsName + cropId + ".textYs");
-        String textWidths = wp.param(cropsName + cropId + ".textWidths");
-        if (x != 0.0 || y != 0.0 || width != 0.0 || height != 0.0 || !ObjectUtils.isBlank(texts)) {
-            ImageCrop crop = e.getValue();
-            crop.setX(x);
-            crop.setY(y);
-            crop.setWidth(width);
-            crop.setHeight(height);
-            crop.setTexts(texts);
-            crop.setTextSizes(textSizes);
-            crop.setTextXs(textXs);
-            crop.setTextYs(textYs);
-            crop.setTextWidths(textWidths);
+            String contentType = newItem.getContentType();
 
-            for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
-                String text = j.next().getText();
+            if (contentType != null && contentType.startsWith("image/")) {
+                try {
+                    ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
+                    fieldValueMetadata.putAll(metadata);
 
-                if (text != null &&
-                        ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
-                    j.remove();
+                    List<Throwable> errors = metadata.getErrors();
+                    if (!errors.isEmpty()) {
+                        LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
+                    }
+
+                } finally {
+                    IoUtils.closeQuietly(newItemData);
                 }
             }
-
-        } else {
-            i.remove();
         }
-    }
-    fieldValueMetadata.put("cms.crops", crops);
-    // Removes legacy cropping information
-    if (state.getValue(cropsFieldName) != null) {
-        state.remove(cropsFieldName);
-    }
 
-    // Transfers legacy metadata over to it's new location within the StorageItem object
-    Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
-    if (legacyMetadata != null && !legacyMetadata.isEmpty()) {
-        for (Map.Entry<String, Object> entry : legacyMetadata.entrySet()) {
-            if (!fieldValueMetadata.containsKey(entry.getKey())) {
-                fieldValueMetadata.put(entry.getKey(), entry.getValue());
+        // Standard sizes.
+        for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry<String, ImageCrop> e = i.next();
+            String cropId = e.getKey();
+            double x = wp.doubleParam(cropsName + cropId + ".x");
+            double y = wp.doubleParam(cropsName + cropId + ".y");
+            double width = wp.doubleParam(cropsName + cropId + ".width");
+            double height = wp.doubleParam(cropsName + cropId + ".height");
+            String texts = wp.param(cropsName + cropId + ".texts");
+            String textSizes = wp.param(cropsName + cropId + ".textSizes");
+            String textXs = wp.param(cropsName + cropId + ".textXs");
+            String textYs = wp.param(cropsName + cropId + ".textYs");
+            String textWidths = wp.param(cropsName + cropId + ".textWidths");
+            if (x != 0.0 || y != 0.0 || width != 0.0 || height != 0.0 || !ObjectUtils.isBlank(texts)) {
+                ImageCrop crop = e.getValue();
+                crop.setX(x);
+                crop.setY(y);
+                crop.setWidth(width);
+                crop.setHeight(height);
+                crop.setTexts(texts);
+                crop.setTextSizes(textSizes);
+                crop.setTextXs(textXs);
+                crop.setTextYs(textYs);
+                crop.setTextWidths(textWidths);
+
+                for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
+                    String text = j.next().getText();
+
+                    if (text != null &&
+                            ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
+                        j.remove();
+                    }
+                }
+
+            } else {
+                i.remove();
             }
         }
-        state.remove(metadataFieldName);
-    }
+        fieldValueMetadata.put("cms.crops", crops);
+        // Removes legacy cropping information
+        if (state.getValue(cropsFieldName) != null) {
+            state.remove(cropsFieldName);
+        }
 
-    if (newItem != null) {
-        newItem.setMetadata(fieldValueMetadata);
-    }
+        // Transfers legacy metadata over to it's new location within the StorageItem object
+        Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
+        if (legacyMetadata != null && !legacyMetadata.isEmpty()) {
+            for (Map.Entry<String, Object> entry : legacyMetadata.entrySet()) {
+                if (!fieldValueMetadata.containsKey(entry.getKey())) {
+                    fieldValueMetadata.put(entry.getKey(), entry.getValue());
+                }
+            }
+            state.remove(metadataFieldName);
+        }
 
-    if (newItem != null && "newUpload".equals(action)) {
-        newItem.save();
-    }
+        if (newItem != null) {
+            newItem.setMetadata(fieldValueMetadata);
+        }
 
-    state.putValue(fieldName, newItem);
-    return;
+        if (newItem != null &&
+                ("newUpload".equals(action) ||
+                "dropbox".equals(action))) {
+            newItem.save();
+        }
+
+        state.putValue(fieldName, newItem);
+        return;
+
+    } finally {
+        if (file != null && file.exists()) {
+            // file.delete();
+        }
+    }
 }
 
 // --- Presentation ---
 
+String allClass = wp.createId();
 String newUploadClass = wp.createId();
 String newUrlClass = wp.createId();
+String dropboxClass = wp.createId();
 String existingClass = wp.createId();
 
 %><div class="inputSmall">
     <div class="fileSelector">
         <select class="toggleable" id="<%= wp.getId() %>" name="<%= wp.h(actionName) %>">
             <% if (fieldValue != null) { %>
-                <option data-hide=".<%= newUploadClass %>, .<%= newUrlClass %>" data-show=".<%= existingClass %>" value="keep">Keep Existing</option>
+                <option data-hide=".<%= allClass %>" data-show=".<%= existingClass %>" value="keep">Keep Existing</option>
             <% } %>
-            <option data-hide=".<%= newUploadClass %>, .<%= newUrlClass %>, .<%= existingClass %>" value="none">None</option>
-            <option data-hide=".<%= newUrlClass %>, .<%= existingClass %>" data-show=".<%= newUploadClass %>" value="newUpload">New Upload</option>
-            <option data-hide=".<%= newUploadClass %>, .<%= existingClass %>" data-show=".<%= newUrlClass %>" value="newUrl">New URL</option>
+            <option data-hide=".<%= allClass %>" value="none">None</option>
+            <option data-hide=".<%= allClass %>" data-show=".<%= newUploadClass %>" value="newUpload">New Upload</option>
+            <option data-hide=".<%= allClass %>" data-show=".<%= newUrlClass %>" value="newUrl">New URL</option>
+            <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
+                <option data-hide=".<%= allClass %>" data-show=".<%= dropboxClass %>" value="dropbox">Dropbox</option>
+            <% } %>
         </select>
-        <input class="<%= newUploadClass %>" type="file" name="<%= wp.h(fileName) %>">
-        <input class="<%= newUrlClass %>" type="text" name="<%= wp.h(urlName) %>">
+
+        <input class="<%= allClass + " " + newUploadClass %>" type="file" name="<%= wp.h(fileName) %>">
+        <input class="<%= allClass + " " + newUrlClass %>" type="text" name="<%= wp.h(urlName) %>">
+        <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
+            <span class="<%= allClass + " " + dropboxClass %>" style="display: inline-block; vertical-align: bottom;">
+                <input type="dropbox-chooser" name="<%= wp.h(dropboxName) %>" data-link-type="direct" style="visibility: hidden;">
+            </span>
+            <script type="text/javascript">
+                $('.<%= dropboxClass %> input').on('DbxChooserSuccess', function(event) {
+                    $(this).val(JSON.stringify(event.originalEvent.files[0]));
+                });
+            </script>
+        <% } %>
     </div>
 
     <%
     if (fieldValue != null) {
         String contentType = fieldValue.getContentType();
         %>
-        <div class="<%= existingClass %> filePreview">
+        <div class="<%= allClass + " " + existingClass %> filePreview">
             <input name="<%= wp.h(storageName) %>" type="hidden" value="<%= wp.h(fieldValue.getStorage()) %>">
             <input name="<%= wp.h(pathName) %>" type="hidden" value="<%= wp.h(fieldValue.getPath()) %>">
             <input name="<%= wp.h(contentTypeName) %>" type="hidden" value="<%= wp.h(contentType) %>">

@@ -13,6 +13,7 @@ com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 
+com.psddev.dari.util.CssUnit,
 com.psddev.dari.util.HtmlGrid,
 com.psddev.dari.util.HtmlObject,
 com.psddev.dari.util.HtmlWriter,
@@ -170,7 +171,39 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     if (layouts != null && !layouts.isEmpty()) {
         String containerId = wp.createId();
 
-        wp.writeGridCssOnce();
+        Map<String, HtmlGrid> grids = new HashMap<String, HtmlGrid>();
+
+        writer.writeStart("style", "type", "text/css");
+            writer.writeCommonGridCss();
+
+            for (String layoutName : layouts.keySet()) {
+                HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+                List<CssUnit> frColumns = new ArrayList<CssUnit>();
+                List<List<String>> frTemplate = new ArrayList<List<String>>();
+
+                for (CssUnit column : grid.getColumns()) {
+                    String unit = column.getUnit();
+
+                    if ("px".equals(unit)) {
+                        column = new CssUnit(column.getNumber() / 200, "fr");
+
+                    } else if ("em".equals(unit)) {
+                        column = new CssUnit(column.getNumber() / 20, "fr");
+                    }
+
+                    frColumns.add(column);
+                }
+
+                for (List<String> t : grid.getTemplate()) {
+                    frTemplate.add(new ArrayList<String>(t));
+                }
+
+                grid = new HtmlGrid(frColumns, grid.getRows(), frTemplate);
+
+                grids.put(layoutName, grid);
+                writer.writeGridCss("." + layoutName, grid);
+            }
+        writer.writeEnd();
 
         writer.start("div",
                 "class", "inputLarge repeatableLayout",
@@ -202,7 +235,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                             writer.start("div", "class", "layouts");
                                 for (String layoutName : layoutNames) {
-                                    HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+                                    HtmlGrid grid = grids.get(layoutName);
                                     List<HtmlObject> values = new ArrayList<HtmlObject>();
 
                                     for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
@@ -234,18 +267,20 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                             public void format(HtmlWriter writer) throws IOException {
                                                 StorageItem preview = itemState != null ? itemState.getPreview() : null;
 
-                                                writer.start("div", "class", "inputContainer-listLayoutItem");
-                                                    writer.tag("input",
-                                                            "type", "text",
-                                                            "class", "objectId",
-                                                            "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
-                                                            "data-label", itemState != null ? itemState.getLabel() : null,
-                                                            "data-typeIds", itemTypeIdsCsv,
-                                                            "data-pathed", ToolUi.isOnlyPathed(field),
-                                                            "data-additional-query", field.getPredicate(),
-                                                            "data-preview", preview != null ? preview.getUrl() : null,
-                                                            "name", inputName,
-                                                            "value", itemState != null ? itemState.getId() : null);
+                                                writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                                    writer.start("div", "class", "inputContainer-listLayoutItem");
+                                                        writer.tag("input",
+                                                                "type", "text",
+                                                                "class", "objectId",
+                                                                "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
+                                                                "data-label", itemState != null ? itemState.getLabel() : null,
+                                                                "data-typeIds", itemTypeIdsCsv,
+                                                                "data-pathed", ToolUi.isOnlyPathed(field),
+                                                                "data-additional-query", field.getPredicate(),
+                                                                "data-preview", preview != null ? preview.getUrl() : null,
+                                                                "name", inputName,
+                                                                "value", itemState != null ? itemState.getId() : null);
+                                                    writer.end();
                                                 writer.end();
                                             }
                                         });
@@ -279,7 +314,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                     writer.start("div", "class", "layouts");
                         for (String layoutName : layoutNames) {
-                            HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+                            HtmlGrid grid = grids.get(layoutName);
                             List<HtmlObject> values = new ArrayList<HtmlObject>();
 
                             for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
@@ -299,15 +334,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                                 values.add(new HtmlObject() {
                                     public void format(HtmlWriter writer) throws IOException {
-                                        writer.start("div", "class", "inputContainer-listLayoutItem");
-                                            writer.tag("input",
-                                                    "type", "text",
-                                                    "class", "objectId",
-                                                    "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
-                                                    "data-typeIds", itemTypeIdsCsv,
-                                                    "data-pathed", ToolUi.isOnlyPathed(field),
-                                                    "data-additional-query", field.getPredicate(),
-                                                    "name", inputName);
+                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                            writer.start("div", "class", "inputContainer-listLayoutItem");
+                                                writer.tag("input",
+                                                        "type", "text",
+                                                        "class", "objectId",
+                                                        "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
+                                                        "data-typeIds", itemTypeIdsCsv,
+                                                        "data-pathed", ToolUi.isOnlyPathed(field),
+                                                        "data-additional-query", field.getPredicate(),
+                                                        "name", inputName);
+                                            writer.end();
                                         writer.end();
                                     }
                                 });

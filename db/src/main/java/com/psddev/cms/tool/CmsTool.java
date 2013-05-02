@@ -46,6 +46,9 @@ public class CmsTool extends Tool {
     @Embedded
     private Template modulePreviewTemplate;
 
+    @ToolUi.Heading("3rd Party")
+    private String dropboxApplicationKey;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -326,6 +329,14 @@ public class CmsTool extends Tool {
         this.modulePreviewTemplate = modulePreviewTemplate;
     }
 
+    public String getDropboxApplicationKey() {
+        return dropboxApplicationKey;
+    }
+
+    public void setDropboxApplicationKey(String dropboxApplicationKey) {
+        this.dropboxApplicationKey = dropboxApplicationKey;
+    }
+
     /** Returns the preview URL. */
     public String getPreviewUrl() {
         String url = getDefaultSiteUrl();
@@ -376,6 +387,11 @@ public class CmsTool extends Tool {
     }
 
     // --- Tool support ---
+
+    @Override
+    public String getApplicationName() {
+        return "cms";
+    }
 
     @Override
     public List<Plugin> getPlugins() {

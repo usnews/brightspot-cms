@@ -171,7 +171,7 @@ $.plugin2('popup', {
                 'margin': 0,
                 'position': isFixedPosition ? 'fixed' : 'absolute',
                 'top': top,
-                'z-index': $newSourceParent.zIndex() + 1
+                'z-index': $newSource.parent().zIndex() + 1
             });
 
             return this.$caller;

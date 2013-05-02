@@ -12,11 +12,12 @@ import java.util.UUID;
 
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.util.ObjectUtils;
 
 /** Represents a generic content. */
@@ -58,92 +59,28 @@ public abstract class Content extends Record {
     }
 
     /** Modification that adds CMS content information. */
-    public static final class ObjectModification extends Modification<Object> {
+    public static final class ObjectModification extends Modification<Object> implements VisibilityLabel {
 
         private ObjectModification() {
         }
 
         @Indexed(visibility = true)
-        @InternalName("cms.content.status")
-        private String status;
+        @InternalName("cms.content.trashed")
+        private Boolean trashed;
 
         private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
         private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
         private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
 
-        /**
-         * Returns the current content status.
-         *
-         * @return {@code null} if published and available publically.
-         */
-        public String getStatus() {
-            if (status != null) {
-                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
-
-                if (contentStatus != null) {
-                    return contentStatus.toString();
-                }
-
-                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
-
-                if (draftStatus != null) {
-                    return draftStatus.getLabel();
-                }
-            }
-
-            return null;
+        /** Returns {@code true} if this content is in trash. */
+        public boolean isTrashed() {
+            return Boolean.TRUE.equals(trashed);
         }
 
-        /**
-         * Returns the unique ID associated with the current content status.
-         *
-         * @return {@code null} if published and available publically.
-         */
-        public String getStatusId() {
-            if (status != null) {
-                ContentStatus contentStatus = ObjectUtils.to(ContentStatus.class, status);
-
-                if (contentStatus != null) {
-                    return contentStatus.name();
-                }
-
-                DraftStatus draftStatus = Query.from(DraftStatus.class).where("_id = ?", status).first();
-
-                if (draftStatus != null) {
-                    return draftStatus.getId().toString();
-                }
-            }
-
-            return null;
-        }
-
-        /**
-         * Sets the status to published so that the content is available
-         * publically.
-         */
-        public void setStatusPublished() {
-            this.status = null;
-        }
-
-        /**
-         * Sets the status to one of the standard content statuses.
-         *
-         * @param status Can't be {@code null}.
-         */
-        public void setStatus(ContentStatus status) {
-            ErrorUtils.errorIfNull(status, "status");
-            this.status = status.name();
-        }
-
-        /**
-         * Sets the status to one of the draft statuses.
-         *
-         * @param status Can't be {@code null}.
-         */
-        public void setStatus(DraftStatus status) {
-            ErrorUtils.errorIfNull(status, "status");
-            this.status = status.getId().toString();
+        /** Sets whether this content is in trash. */
+        public void setTrashed(boolean trashed) {
+            this.trashed = trashed ? Boolean.TRUE : null;
         }
 
         /** Returns the date when the given {@code object} was published. */
@@ -185,6 +122,13 @@ public abstract class Content extends Record {
         public void setUpdateUser(ToolUser updateUser) {
             this.updateUser = updateUser;
         }
+
+        // --- VisibilityLabel support ---
+
+        @Override
+        public String createVisibilityLabel(ObjectField field) {
+            return isTrashed() ? "Trashed" : null;
+        }
     }
 
     /** Static utility methods. */
@@ -196,7 +140,10 @@ public abstract class Content extends Record {
         /**
          * Deletes the given {@code object}, and returns a trash object
          * that can be used later to restore it.
+         *
+         * @deprecated Use {@link #trash} instead.
          */
+        @Deprecated
         public static Trash deleteSoftly(Object object, Site site, ToolUser user) {
             State objectState = State.getInstance(object);
             Site.ObjectModification objectSiteMod = objectState.as(Site.ObjectModification.class);
@@ -283,6 +230,31 @@ public abstract class Content extends Record {
         }
 
         /**
+         * Trashes the given {@code object} so that it's not usable in
+         * the given {@code site}.
+         */
+        public static void trash(Object object, Site site, ToolUser user) {
+            State state = State.getInstance(object);
+            Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
+
+            if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
+                ObjectModification contentData = state.as(ObjectModification.class);
+
+                contentData.trashed = true;
+                contentData.setUpdateDate(new Date());
+                contentData.setUpdateUser(user);
+                state.save();
+
+            } else {
+                siteData.getConsumers().remove(site);
+
+                if (siteData.isGlobal()) {
+                    siteData.getBlacklist().add(site);
+                }
+            }
+        }
+
+        /**
          * Purges the given {@code object} completely, including all of
          * its drafts, histories, and trashes.
          */
@@ -291,7 +263,7 @@ public abstract class Content extends Record {
             Site.ObjectModification objectSiteMod = objectState.as(Site.ObjectModification.class);
 
             if (!ObjectUtils.equals(objectSiteMod.getOwner(), site)) {
-                deleteSoftly(object, site, user);
+                trash(object, site, user);
                 return;
             }
 

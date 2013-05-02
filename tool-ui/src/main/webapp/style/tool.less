@@ -384,6 +384,11 @@
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
+
+        img {
+            max-height: 100%;
+            max-width: 100%;
+        }
     }
 }
 
@@ -421,16 +426,8 @@
 }
 
 .dashboardCell {
-    padding: 5px;
+    padding: 0 5px;
     position: relative;
-
-    &:first-child {
-        padding-top: 0;
-    }
-
-    &:last-child {
-        padding-bottom: 0;
-    }
 
     .dashboardColumn:first-child & {
         padding-left: 0;

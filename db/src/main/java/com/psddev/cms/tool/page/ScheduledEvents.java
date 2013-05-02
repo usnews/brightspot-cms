@@ -65,86 +65,106 @@ public class ScheduledEvents extends PageServlet {
 
         PageWriter writer = page.getWriter();
 
-        writer.start("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
-            writer.start("h1", "class", "icon icon-action-schedule");
+        writer.writeStart("div", "class", "widget widget-scheduledEvents" + (hasSchedules ? "" : " widget-scheduledEvents-empty"));
+            writer.writeStart("h1", "class", "icon icon-action-schedule");
 
-                writer.html("Scheduled Events: ");
+                writer.writeHtml("Scheduled Events: ");
 
                 String beginMonth = begin.monthOfYear().getAsText();
                 int beginYear = begin.year().get();
                 String endMonth = end.monthOfYear().getAsText();
                 int endYear = end.year().get();
 
-                writer.html(beginMonth);
-                writer.html(" ");
-                writer.html(begin.dayOfMonth().get());
+                writer.writeHtml(beginMonth);
+                writer.writeHtml(" ");
+                writer.writeHtml(begin.dayOfMonth().get());
 
                 if (beginYear != endYear) {
-                    writer.html(", ");
-                    writer.html(beginYear);
+                    writer.writeHtml(", ");
+                    writer.writeHtml(beginYear);
                 }
 
-                writer.html(" - ");
+                writer.writeHtml(" - ");
 
                 if (!endMonth.equals(beginMonth)) {
-                    writer.html(endMonth);
-                    writer.html(" ");
+                    writer.writeHtml(endMonth);
+                    writer.writeHtml(" ");
                 }
 
-                writer.html(end.dayOfMonth().get());
-                writer.html(", ");
-                writer.html(endYear);
+                writer.writeHtml(end.dayOfMonth().get());
+                writer.writeHtml(", ");
+                writer.writeHtml(endYear);
 
-            writer.end();
+            writer.writeEnd();
+
+            writer.writeStart("ul", "class", "piped");
+                writer.writeStart("li");
+                    writer.writeStart("a",
+                            "class", "icon icon-action-create",
+                            "href", page.cmsUrl("/scheduleEdit"),
+                            "target", "scheduleEdit");
+                        writer.writeHtml("New Schedule");
+                    writer.writeEnd();
+                writer.writeEnd();
+
+                writer.writeStart("li");
+                    writer.writeStart("a",
+                            "class", "icon icon-action-search",
+                            "href", page.cmsUrl("/scheduleList"),
+                            "target", "scheduleList");
+                        writer.writeHtml("Available Schedules");
+                    writer.writeEnd();
+                writer.writeEnd();
+            writer.writeEnd();
 
             /*
-            writer.start("form", "method", "get", "class", "autoSubmit", "action", page.url(null));
-                writer.start("select", "name", "mode");
+            writer.writeStart("form", "method", "get", "class", "autoSubmit", "action", page.url(null));
+                writer.writeStart("select", "name", "mode");
                     for (Mode m : Mode.values()) {
-                        writer.start("option",
+                        writer.writeStart("option",
                                 "value", m.name(),
                                 "selected", m.equals(mode) ? "selected" : null);
-                            writer.html(m);
-                        writer.end();
+                            writer.writeHtml(m);
+                        writer.writeEnd();
                     }
-                writer.end();
-            writer.end();
+                writer.writeEnd();
+            writer.writeEnd();
             */
 
-            writer.start("ul", "class", "pagination");
+            writer.writeStart("ul", "class", "pagination");
 
                 DateTime previous = mode.getPrevious(date);
                 DateTime today = new DateTime().toDateMidnight().toDateTime();
 
                 if (!previous.isBefore(today)) {
-                    writer.start("li", "class", "previous");
-                        writer.start("a",
+                    writer.writeStart("li", "class", "previous");
+                        writer.writeStart("a",
                                 "href", page.url("", "date", previous.getMillis()));
-                            writer.html("Previous ").html(mode);
-                        writer.end();
-                    writer.end();
+                            writer.writeHtml("Previous ").writeHtml(mode);
+                        writer.writeEnd();
+                    writer.writeEnd();
                 }
 
                 if (begin.isAfter(today) || end.isBefore(today)) {
-                    writer.start("li");
-                        writer.start("a",
+                    writer.writeStart("li");
+                        writer.writeStart("a",
                                 "href", page.url("", "date", System.currentTimeMillis()));
-                            writer.html("Today");
-                        writer.end();
-                    writer.end();
+                            writer.writeHtml("Today");
+                        writer.writeEnd();
+                    writer.writeEnd();
                 }
 
-                writer.start("li", "class", "next");
-                    writer.start("a",
+                writer.writeStart("li", "class", "next");
+                    writer.writeStart("a",
                             "href", page.url("", "date", mode.getNext(date).getMillis()));
-                        writer.html("Next ").html(mode);
-                    writer.end();
-                writer.end();
+                        writer.writeHtml("Next ").writeHtml(mode);
+                    writer.writeEnd();
+                writer.writeEnd();
 
-            writer.end();
+            writer.writeEnd();
 
             mode.display(page, schedulesByDate);
-        writer.end();
+        writer.writeEnd();
     }
 
     private enum Mode {
@@ -174,18 +194,18 @@ public class ScheduledEvents extends PageServlet {
             public void display(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
                 PageWriter writer = page.getWriter();
 
-                writer.start("div", "class", "calendar calendar-week");
+                writer.writeStart("div", "class", "calendar calendar-week");
                     for (Map.Entry<DateTime, List<Schedule>> entry : schedulesByDate.entrySet()) {
                         DateTime date = entry.getKey();
                         List<Schedule> schedules = entry.getValue();
 
-                        writer.start("div", "class", "calendarRow");
-                            writer.start("div", "class", "calendarDay" + (date.equals(new DateTime().toDateMidnight()) ? " calendarDay-today" : ""));
-                                writer.start("span", "class", "calendarDayOfWeek").html(date.dayOfWeek().getAsShortText()).end();
-                                writer.start("span", "class", "calendarDayOfMonth").html(date.dayOfMonth().get()).end();
-                            writer.end();
+                        writer.writeStart("div", "class", "calendarRow");
+                            writer.writeStart("div", "class", "calendarDay" + (date.equals(new DateTime().toDateMidnight()) ? " calendarDay-today" : ""));
+                                writer.writeStart("span", "class", "calendarDayOfWeek").writeHtml(date.dayOfWeek().getAsShortText()).writeEnd();
+                                writer.writeStart("span", "class", "calendarDayOfMonth").writeHtml(date.dayOfMonth().get()).writeEnd();
+                            writer.writeEnd();
 
-                            writer.start("div", "class", "calendarCell").start("table", "class", "links table-striped pageThumbnails").start("tbody");
+                            writer.writeStart("div", "class", "calendarCell").writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
                                 for (Schedule schedule : schedules) {
                                     DateTime triggerDate = new DateTime(schedule.getTriggerDate());
                                     List<Draft> drafts = Query.from(Draft.class).where("schedule = ?", schedule).selectAll();
@@ -199,32 +219,32 @@ public class ScheduledEvents extends PageServlet {
                                     for (Draft draft : drafts) {
                                         Object draftObject = draft.getObject();
 
-                                        writer.start("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draft.getId());
-                                            writer.start("td", "class", "time");
+                                        writer.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draft.getId());
+                                            writer.writeStart("td", "class", "time");
                                                 if (first) {
-                                                    writer.html(triggerDate.toString("hh:mm a"));
+                                                    writer.writeHtml(triggerDate.toString("hh:mm a"));
                                                     first = false;
                                                 }
-                                            writer.end();
+                                            writer.writeEnd();
 
-                                            writer.start("td");
+                                            writer.writeStart("td");
                                                 writer.typeLabel(draftObject);
-                                            writer.end();
+                                            writer.writeEnd();
 
-                                            writer.start("td", "data-preview-anchor", "");
-                                                writer.start("a",
+                                            writer.writeStart("td", "data-preview-anchor", "");
+                                                writer.writeStart("a",
                                                         "href", page.objectUrl("/content/edit.jsp", draft),
                                                         "target", "_top");
                                                     writer.objectLabel(draftObject);
-                                                writer.end();
-                                            writer.end();
-                                        writer.end();
+                                                writer.writeEnd();
+                                            writer.writeEnd();
+                                        writer.writeEnd();
                                     }
                                 }
-                            writer.end().end().end();
-                        writer.end();
+                            writer.writeEnd().writeEnd().writeEnd();
+                        writer.writeEnd();
                     }
-                writer.end();
+                writer.writeEnd();
             }
         },
 

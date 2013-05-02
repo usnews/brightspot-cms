@@ -32,9 +32,6 @@ writer.start("html");
             writer.css("*:focus",
                     "outline-style", "none");
 
-            writer.css("*:last-child",
-                    "margin-bottom", "0");
-
             writer.css("a",
                     "color", "#29c",
                     "text-decoration", "underline");

@@ -35,6 +35,7 @@ import com.psddev.cms.db.LayoutTag;
 import com.psddev.cms.db.Page;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ResizeOption;
+import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
@@ -59,6 +60,7 @@ import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
@@ -331,42 +333,63 @@ public class ToolPageContext extends WebPageContext {
     /**
      * Returns an absolute version of the given {@code path} in context
      * of the given {@code tool}, modified by the given {@code parameters}.
+     *
+     * @param tool Can't be {@code null}.
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
      */
+    @SuppressWarnings("deprecation")
     public String toolUrl(Tool tool, String path, Object... parameters) {
         String url = null;
+        String appName = tool.getApplicationName();
 
-        for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
-            if (entry.getValue().equals(tool)) {
-                url = entry.getKey();
-                break;
-            }
-        }
-
-        if (url == null) {
-            url = tool.getUrl();
-
-            if (ObjectUtils.isBlank(url)) {
-                return "javascript:alert('" + js(String.format(
-                        "No tool URL for [%s]! (must be set under Admin/Settings)",
-                        tool.getName())) + "');";
-            }
+        if (appName != null) {
+            url = getServletContext().getContextPath() + RoutingFilter.Static.getApplicationPath(appName);
 
         } else {
-            url = getServletContext().getContextPath() + url;
+            for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
+                if (entry.getValue().equals(tool)) {
+                    url = entry.getKey();
+                    break;
+                }
+            }
+
+            if (url == null) {
+                url = tool.getUrl();
+
+                if (ObjectUtils.isBlank(url)) {
+                    url = getServletContext().getContextPath();
+                }
+
+            } else {
+                url = getServletContext().getContextPath() + url;
+            }
         }
 
-        if (!path.equals("") && !path.startsWith("/")) {
-            url += "/";
-        }
-
-        url += path;
+        url = url + StringUtils.ensureStart(path, "/");
 
         return StringUtils.addQueryParameters(url, parameters);
     }
 
     /**
      * Returns an absolute version of the given {@code path} in context
+     * of the instance of the given {@code toolClass}, modified by the given
+     * {@code parameters}.
+     *
+     * @param toolClass Can't be {@code null}.
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
+     */
+    public String toolUrl(Class<? extends Tool> toolClass, String path, Object... parameters) {
+        return toolUrl(getToolByClass(toolClass), path, parameters);
+    }
+
+    /**
+     * Returns an absolute version of the given {@code path} in context
      * of the CMS, modified by the given {@code parameters}.
+     *
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
      */
     public String cmsUrl(String path, Object... parameters) {
         return toolUrl(getCmsTool(), path, parameters);
@@ -875,6 +898,7 @@ public class ToolPageContext extends WebPageContext {
                         "/script/jquery.repeatable.js",
                         "/script/jquery.sortable.js",
                         "/script/jquery.toggleable.js",
+                        "/script/jquery.workflow.js",
                         "/script/json2.min.js",
                         "/script/pixastic/pixastic.core.js",
                         "/script/pixastic/actions/brightness.js",
@@ -895,6 +919,17 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
                 }
 
+                String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
+
+                if (!ObjectUtils.isBlank(dropboxAppKey)) {
+                    writeStart("script",
+                            "type", "text/javascript",
+                            "src", "https://www.dropbox.com/static/api/1/dropins.js",
+                            "id", "dropboxjs",
+                            "data-app-key", dropboxAppKey);
+                    writeEnd();
+                }
+
                 for (Tool tool : tools) {
                     tool.writeHeaderAfterScripts(this);
                 }
@@ -907,16 +942,44 @@ public class ToolPageContext extends WebPageContext {
 
             writeEnd();
 
+            Schedule currentSchedule = getUser() != null ? getUser().getCurrentSchedule() : null;
             String broadcastMessage = cms.getBroadcastMessage();
             Date broadcastExpiration = cms.getBroadcastExpiration();
             boolean hasBroadcast = !ObjectUtils.isBlank(broadcastMessage) &&
                     (broadcastExpiration == null ||
                     broadcastExpiration.after(new Date()));
 
-            writeTag("body", "class", hasBroadcast ? "hasToolBroadcast" : null);
-                if (hasBroadcast) {
+            writeTag("body", "class", currentSchedule != null || hasBroadcast ? "hasToolBroadcast" : null);
+                if (currentSchedule != null || hasBroadcast) {
                     writeStart("div", "class", "toolBroadcast");
-                        writeHtml(broadcastMessage);
+                        if (currentSchedule != null) {
+                            writeHtml("All editorial changes will be scheduled for: ");
+
+                            writeStart("a",
+                                    "href", cmsUrl("/scheduleEdit", "id", currentSchedule.getId()),
+                                    "target", "scheduleEdit");
+                                writeHtml(getObjectLabel(currentSchedule));
+                            writeEnd();
+
+                            writeHtml(" - ");
+
+                            writeStart("form",
+                                    "method", "post",
+                                    "style", "display: inline;",
+                                    "action", cmsUrl("/misc/updateUserSettings",
+                                            "action", "scheduleSet",
+                                            "returnUrl", url("")));
+                                writeStart("button",
+                                        "class", "link icon icon-action-cancel");
+                                    writeHtml("Stop Scheduling");
+                                writeEnd();
+                            writeEnd();
+                        }
+
+                        if (hasBroadcast) {
+                            writeHtml(" - ");
+                            writeHtml(broadcastMessage);
+                        }
                     writeEnd();
                 }
 
@@ -1343,7 +1406,7 @@ public class ToolPageContext extends WebPageContext {
                 redirect("", "discarded", System.currentTimeMillis());
 
             } else {
-                deleteSoftly(object);
+                trash(object);
                 redirect("", "id", null, "saved", null);
             }
 
@@ -1451,7 +1514,11 @@ public class ToolPageContext extends WebPageContext {
 
     // --- Content.Static bridge ---
 
-    /** @see Content.Static#deleteSoftly */
+    /**
+     * @see Content.Static#deleteSoftly
+     * @deprecated Use {@link #trash} instead.
+     */
+    @Deprecated
     public Trash deleteSoftly(Object object) {
         return Content.Static.deleteSoftly(object, getSite(), getUser());
     }
@@ -1459,6 +1526,13 @@ public class ToolPageContext extends WebPageContext {
     /** @see Content.Static#publish */
     public History publish(Object object) {
         return Content.Static.publish(object, getSite(), getUser());
+    }
+
+    /**
+     * @see Content.Static#trash
+     */
+    public void trash(Object object) {
+        Content.Static.trash(object, getSite(), getUser());
     }
 
     /** @see Content.Static#purge */
