@@ -51,14 +51,6 @@ PaginatedResult<Activity> results = Query.from(Activity.class).
         select(0, 10);
 {% endhighlight %}
 
-### The **FIELDS** clause
-
-Specific fields from within a Dari object can be returned for a given object:
-
-{% highlight java %}
-Author author = Query.from(Author.class).fields("name", "age").selectAll();
-{% endhighlight %}
-
 ### The **LIMIT** clause
 
 Dari supports limiting the number of results returned.
@@ -70,7 +62,7 @@ PaginatedResult<Article> articles = Query.from(Article.class).
 List<Article> items = articles.getItems();
 {% endhighlight %}
 
-This will start at offset 100 and return the next 10 instances of `Article`. The
+This will start at offset 1000 and return the next 10 instances of `Article`. The
 object returned from a limit query is a `PaginatedResult`. This is a pagination
 helper class that provides efficient methods for building pagination, such as
 `hasNext()` and `getNextOffset()`.
@@ -136,7 +128,7 @@ author.
 
 {% highlight java %}
 Author author = Query.from(Author.class).where("email = 'john.smith@psddev.com'");
-List<Articles> = Query.from(Articles.class).where("author = ?", author);
+List<Articles> = Query.from(Article.class).where("author = ?", author);
 {% endhighlight %}
 
 However, it's easier and more efficient to do this in a single query
@@ -144,7 +136,7 @@ using path notation.
 
 
 {% highlight java %}
-List<Articles> = Query.from(Articles.class).where("author/email = 'john.smith@psddev.com'");
+List<Articles> = Query.from(Article.class).where("author/email = 'john.smith@psddev.com'");
 {% endhighlight %}
 
 
@@ -230,7 +222,7 @@ method will return a `Query` object.
 
 
 {% highlight java %}
-List<Grouping<Article>> groupings = Query.from(Article.class).groupBy("tag")
+List<Grouping<Article>> groupings = Query.from(Article.class).groupBy("tag");
 
 for (Grouping grouping : groupings) {
     Tag tag = (Tag) grouping.getKeys().get(0);
@@ -244,7 +236,7 @@ possible as well.
 
 
 {% highlight java %}
-List<Grouping<Article>> groupings = Query.from(Article.class).groupBy("tag" , "author") 
+List<Grouping<Article>> groupings = Query.from(Article.class).groupBy("tag" , "author");
 
 for (Grouping grouping : groupings) {
     Tag tag = (Tag) grouping.getKeys().get(0);
@@ -258,7 +250,7 @@ To sort the count, add standard sorters;
 
 
 {% highlight java %}
-List<Grouping<Article>> groupings = Query.from(Article.class).sortAscending("tag").groupBy("tag")
+List<Grouping<Article>> groupings = Query.from(Article.class).sortAscending("tag").groupBy("tag");
 
 for (Grouping grouping : groupings) {
     Tag tag = (Tag) grouping.getKeys().get(0);
@@ -325,6 +317,14 @@ PaginatedResult<Venue> venues = Query.from(Venue.class).
     a given distance with a <code>WHERE</code> clause. This will speed up your query.
     </p>
 </div>
+
+### The **FIELDS** clause
+
+Specific fields from within a Dari object can be returned for a given object. Other fields will return null when you access them. The use of the `.fields` clause requires a (MySQL Plugin)[https://github.com/perfectsense/dari/tree/master/mysql] to be installed.
+
+{% highlight java %}
+Author author = Query.from(Author.class).fields("name", "age").selectAll();
+{% endhighlight %}
 
 </div>
 
