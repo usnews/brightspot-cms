@@ -508,6 +508,7 @@ public class PageFilter extends AbstractFilter {
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
             @SuppressWarnings("resource")
             HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
+            Schedule currentSchedule = AuthenticationFilter.Static.getUser(request).getCurrentSchedule();
 
             htmlWriter.writeStart("div", "style", htmlWriter.cssString(
                     "background", "rgba(0, 0, 0, 0.7)",
@@ -521,6 +522,11 @@ public class PageFilter extends AbstractFilter {
                     "top", 0,
                     "right", 0,
                     "z-index", 2000000));
+                if (currentSchedule != null) {
+                    htmlWriter.writeHtml(page.getObjectLabel(currentSchedule));
+                    htmlWriter.writeHtml(" - ");
+                }
+
                 htmlWriter.writeStart("a",
                         "href", "javascript:" + StringUtils.encodeUri(
                                 "(function(){document.body.appendChild(document.createElement('script')).src='" +
