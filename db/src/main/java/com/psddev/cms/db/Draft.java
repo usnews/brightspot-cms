@@ -1,16 +1,17 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Database;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ObjectUtils;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /** Unpublished object or unsaved changes to an existing object. */
 public class Draft extends Record {
@@ -105,62 +106,64 @@ public class Draft extends Record {
     /**
      * Returns a copy of the originating object with all the changes
      * applied.
+     *
+     * @return {@code null} if {@code objectType} isn't set.
      */
     public Object getObject() {
-
         ObjectType type = getObjectType();
+
         if (type == null) {
             return null;
-
-        } else {
-            UUID id = getObjectId();
-            Object object = Database.Static.findById(getState().getDatabase(), Object.class, id);
-            if (object == null) {
-                object = type.createObject(id);
-            }
-
-            Map<String, Object> changes = getObjectChanges();
-            if (changes != null) {
-                State.getInstance(object).getValues().putAll(changes);
-            }
-
-            return object;
         }
+
+        UUID id = getObjectId();
+        Object object = Query.from(Object.class).where("_id = ?", id).using(getState().getDatabase()).noCache().first();
+
+        if (object == null) {
+            object = type.createObject(id);
+        }
+
+        State.getInstance(object).putAll(getObjectChanges());
+        return object;
     }
 
-    /** Sets all the field values based on the given {@code object}. */
+    /**
+     * Sets all the field values based on the given {@code object}.
+     *
+     * @param object Can't be {@code null}.
+     */
     public void setObject(Object object) {
+        ErrorUtils.errorIfNull(object, "object");
 
-        State state = State.getInstance(object);
-        getState().setDatabase(state.getDatabase());
-        setObjectType(state.getType());
-        setObjectId(state.getId());
+        State newState = State.getInstance(object);
 
-        Object oldObject = Database.Static.findById(state.getDatabase(), Object.class, state.getId());
-        Map<String, Object> values = state.getValues();
+        getState().setDatabase(newState.getDatabase());
+        setObjectType(newState.getType());
+        setObjectId(newState.getId());
 
-        if (oldObject == null) {
-            setObjectChanges(values);
+        Object oldObject = Query.from(Object.class).where("_id = ?", object).using(newState.getDatabase()).noCache().first();
+        Map<String, Object> newValues = newState.getSimpleValues();
 
-        } else {
-            Map<String, Object> changes = getObjectChanges();
-            changes.clear();
+        if (oldObject != null) {
+            Map<String, Object> oldValues = State.getInstance(oldObject).getSimpleValues();
+            Set<String> keys = new HashSet<String>();
 
-            Map<String, Object> oldValues = State.getInstance(oldObject).getValues();
-            for (Map.Entry<String, Object> e : values.entrySet()) {
-                String key = e.getKey();
-                Object value = e.getValue();
-                // if (!ObjectUtils.equals(value, oldValues.remove(key))) {
-                    changes.put(key, value);
-                // }
+            keys.addAll(oldValues.keySet());
+            keys.addAll(newValues.keySet());
+
+            for (String key : keys) {
+                Object newValue = newValues.get(key);
+
+                if (ObjectUtils.equals(oldValues.get(key), newValue)) {
+                    newValues.remove(key);
+
+                } else if (newValue == null) {
+                    newValues.put(key, null);
+                }
             }
-
-            /*
-            for (String key : oldValues.keySet()) {
-                changes.put(key, null);
-            }
-            */
         }
+
+        setObjectChanges(newValues);
     }
 
     @Override
