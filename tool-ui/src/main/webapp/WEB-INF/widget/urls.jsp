@@ -103,7 +103,11 @@ if (!paths.isEmpty() &&
                     wp.writeEnd();
                 wp.writeEnd();
 
-                wp.writeStart("div", "class", "widget-urlsItemLabel").writeHtml(path.getPath()).writeEnd();
+                wp.writeStart("div", "class", "widget-urlsItemLabel");
+                    wp.writeStart("a", "href", path.getPath(), "target", "_blank");
+                        wp.writeHtml(path.getPath());
+                    wp.writeEnd();
+                wp.writeEnd();
 
                 wp.writeStart("select", "name", typeName);
                     for (Directory.PathType pathType : Directory.PathType.values()) {
