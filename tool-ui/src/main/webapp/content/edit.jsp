@@ -348,15 +348,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     } else {
                         if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
-                            Schedule currentSchedule = wp.getUser().getCurrentSchedule();
-
-                            if (currentSchedule != null) {
-                                wp.writeTag("input",
-                                        "type", "hidden",
-                                        "name", "scheduleId",
-                                        "value", currentSchedule.getId());
-
-                            } else {
+                            if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",
                                         "type", "text",
                                         "class", "date dateInput",

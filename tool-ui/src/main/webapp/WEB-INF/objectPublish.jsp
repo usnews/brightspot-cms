@@ -112,7 +112,7 @@ try {
         }
     }
 
-    Schedule schedule = Query.from(Schedule.class).where("_id = ?", wp.param(UUID.class, "scheduleId")).first();
+    Schedule schedule = wp.getUser().getCurrentSchedule();
     Date publishDate = null;
 
     if (schedule == null) {
