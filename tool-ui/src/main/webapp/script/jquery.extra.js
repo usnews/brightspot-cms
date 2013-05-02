@@ -295,7 +295,7 @@ $.fn.zIndex = function() {
         } catch (error) {
             break;
         }
-        if (!isNaN(zIndex)) {
+        if (!isNaN(zIndex) && zIndex !== 0) {
             break;
         }
     }

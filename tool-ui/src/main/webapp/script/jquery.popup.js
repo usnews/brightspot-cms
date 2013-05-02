@@ -170,10 +170,9 @@ $.plugin2('popup', {
                 'left': left,
                 'margin': 0,
                 'position': isFixedPosition ? 'fixed' : 'absolute',
-                'top': top
+                'top': top,
+                'z-index': $newSource.parent().zIndex() + 1
             });
-
-            doc.body.appendChild($container[0]);
 
             return this.$caller;
         }
