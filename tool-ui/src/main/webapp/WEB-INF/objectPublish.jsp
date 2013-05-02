@@ -159,7 +159,9 @@ try {
         draft.setSchedule(schedule);
         draft.save();
         state.commitWrites();
-        wp.redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+        wp.redirect("",
+                "_isFrame", wp.boolParam("_isFrame"),
+                ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
 
     } else {
         if (draft != null) {
