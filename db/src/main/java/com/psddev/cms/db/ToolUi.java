@@ -46,6 +46,7 @@ public class ToolUi extends Modification<Object> {
     private Boolean suggestions;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+    private String tab;
 
     public boolean isDropDown() {
         return dropDown;
@@ -280,6 +281,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    public String getTab() {
+        return tab;
+    }
+
+    public void setTab(String tab) {
+        this.tab = tab;
     }
 
     /**
@@ -690,6 +699,24 @@ public class ToolUi extends Modification<Object> {
             field.as(ToolUi.class).setSuggestedMinimum(annotation instanceof FieldSuggestedMinimum ?
                     ((FieldSuggestedMinimum) annotation).value() :
                     ((SuggestedMinimum) annotation).value());
+        }
+    }
+
+    /**
+     * Specifies the tab that the target field belongs to.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(TabProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Tab {
+        String value();
+    }
+
+    private static class TabProcessor implements ObjectField.AnnotationProcessor<Tab> {
+        @Override
+        public void process(ObjectType type, ObjectField field, Tab annotation) {
+            field.as(ToolUi.class).setTab(annotation.value());
         }
     }
 

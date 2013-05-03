@@ -5,13 +5,15 @@ com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 
-java.util.List
+java.util.List,
+java.util.Set
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -75,7 +77,43 @@ try {
             wp.write(" ");
             wp.write(wp.h(size));
         }
+
+        String tab = ui.getTab();
+
+        if (!ObjectUtils.isBlank(tab)) {
+            wp.write("\" data-tab=\"");
+            wp.writeHtml(tab);
+        }
+
         wp.write("\">");
+
+        String heading = ui.getHeading();
+
+        if (ObjectUtils.isBlank(heading)) {
+            Set<String> modificationHeadings = (Set<String>) request.getAttribute("modificationHeadings");
+
+            if (modificationHeadings != null) {
+                String declaring = field.getJavaDeclaringClassName();
+
+                if (!modificationHeadings.contains(declaring)) {
+                    modificationHeadings.add(declaring);
+
+                    ObjectType declaringType = ObjectType.getInstance(declaring);
+
+                    if (declaringType != null &&
+                            declaringType.getGroups().contains(Modification.class.getName())) {
+                        heading = declaringType.getLabel();
+                    }
+                }
+            }
+        }
+
+        if (!ObjectUtils.isBlank(heading)) {
+            wp.write("<h2 style=\"margin-top: 20px;\">");
+            wp.writeHtml(heading);
+            wp.write("</h2>");
+        }
+
         wp.write("<div class=\"inputLabel\">");
         if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
             wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
