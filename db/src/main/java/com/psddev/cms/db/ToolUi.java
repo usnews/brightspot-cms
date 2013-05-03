@@ -735,7 +735,7 @@ public class ToolUi extends Modification<Object> {
     /** Returns the set of types that the given {@code type} may switch to. */
     public static Set<ObjectType> getCompatibleTypes(ObjectType type) {
         Set<ObjectType> types = new HashSet<ObjectType>();
-        Collection<?> ids = (Collection<?>) type.getState().getValue(COMPATIBLE_TYPES_FIELD);
+        Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
         if (!ObjectUtils.isBlank(ids)) {
             DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
             for (Object idObject : ids) {
@@ -761,7 +761,7 @@ public class ToolUi extends Modification<Object> {
                 }
             }
         }
-        type.getState().putValue(COMPATIBLE_TYPES_FIELD, compatibleTypeIds);
+        type.getState().put(COMPATIBLE_TYPES_FIELD, compatibleTypeIds);
     }
 
     // --- Field annotations ---
