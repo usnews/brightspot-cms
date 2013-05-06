@@ -227,6 +227,85 @@ $doc.onCreate('.inputContainer', function() {
     });
 });
 
+// Create tabs that organize form fields.
+$doc.onCreate('.objectInputs', function() {
+    var $container = $(this),
+            $inputs = $container.find('> .inputContainer'),
+            tabItems = { },
+            tabs = [ ],
+            $tabs;
+
+    $inputs.each(function() {
+        var $input = $(this),
+                tabName = $input.attr('data-tab'),
+                items;
+
+        if (tabName) {
+            items = tabItems[tabName];
+
+            if (!items) {
+                items = tabItems[tabName] = [ ];
+
+                tabs.push({
+                    'name': tabName,
+                    'items': items
+                });
+            }
+
+            $input.hide();
+            items.push($input);
+        }
+    });
+
+    if (tabs.length > 0) {
+        $tabs = $('<ul/>', { 'class': 'tabs' });
+
+        $tabs.bind('tabs-select.tabs', function(event) {
+            $(this).find('> li').removeClass('state-selected');
+            $(event.target).closest('li').addClass('state-selected');
+        });
+
+        $tabs.append($('<li/>', {
+            'class': 'state-selected',
+            'html': $('<a/>', {
+                'text': 'Main',
+                'click': function() {
+                    $(this).trigger('tabs-select');
+
+                    $inputs.show();
+                    $.each(tabs, function(i, tab) {
+                        $.each(tab.items, function(j, $item) {
+                            $item.hide();
+                        });
+                    });
+
+                    return false;
+                }
+            })
+        }));
+
+        $.each(tabs, function(i, tab) {
+            $tabs.append($('<li/>', {
+                'html': $('<a/>', {
+                    'text': tab.name,
+                    'click': function() {
+                        $(this).trigger('tabs-select');
+
+                        $inputs.hide();
+                        $.each(tab.items, function(i, $item) {
+                            $item.show();
+                        });
+
+                        return false;
+                    }
+                })
+            }));
+        });
+
+        $container.prepend($tabs);
+    }
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();

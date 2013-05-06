@@ -125,6 +125,20 @@
     }
 }
 
+.clearfix {
+    *zoom: 1;
+
+    &:before,
+    &:after {
+        content: ' ';
+        display: table;
+    }
+
+    &:after {
+        clear: both;
+    }
+}
+
 .code {
     font-family: @fontFamily-code;
     font-size: 11px;
@@ -1007,6 +1021,41 @@ table.links.table-striped {
 
 .strong {
     font-weight: bold;
+}
+
+.tabs {
+    .clearfix;
+
+    background-color: @color-note-lighter;
+    border-bottom: 1px solid @color-note;
+    font-family: @fontFamily-label;
+    list-style-type: none;
+    margin-left: 0;
+
+    a:hover {
+        text-decoration: none;
+    }
+
+    > li {
+        .border-top-left-radius(5px);
+        .border-top-right-radius(5px);
+        border-color: transparent;
+        border-style: solid;
+        border-width: 1px 1px 0 1px;
+        float: left;
+        padding: 2px 8px;
+        position: relative;
+        top: 1px;
+
+        &.state-selected {
+            background-color: @color-background;
+            border-color: @color-note;
+
+            a {
+                color: @color-text;
+            }
+        }
+    }
 }
 
 .text {
