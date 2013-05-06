@@ -16,17 +16,12 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.Tag;
 
-import com.psddev.dari.db.Reference;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.HtmlWriter;
-import com.psddev.dari.util.ObjectUtils;
-
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -68,7 +63,9 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     private String endMarker;
     private int endOffset;
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
+
     private transient HtmlWriter pageWriter;
+    private transient LayoutTag layoutTag;
     private transient Map<String, Object> areas;
 
     public void setArea(String area) {
@@ -107,9 +104,12 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     // --- TagSupport support ---
 
     @Override
+    @SuppressWarnings("deprecation")
     public int doStartTag() throws JspException {
         try {
+            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             pageWriter = new HtmlWriter(pageContext.getOut());
+            layoutTag = null;
             areas = null;
 
             for (Tag parent = getParent(); parent != null; parent = parent.getParent()) {
@@ -117,7 +117,8 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     break;
 
                 } else if (parent instanceof LayoutTag) {
-                    areas = ((LayoutTag) parent).getAreas();
+                    layoutTag = ((LayoutTag) parent);
+                    areas = layoutTag.getAreas();
                     break;
                 }
             }
@@ -128,7 +129,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
                 } else {
                     if (!attributes.isEmpty()) {
-                        pageWriter.start("div", attributes);
+                        pageWriter.writeStart("div", attributes);
                     }
 
                     setBodyContent(null);
@@ -138,27 +139,27 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
             } else {
                 if (value instanceof Map) {
                     for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-                        writeArea(entry.getKey(), entry.getValue());
+                        writeArea(request, entry.getKey(), entry.getValue());
                     }
 
                 } else if (value instanceof Iterable &&
                         !(value instanceof ReferentialText)) {
                     int index = 0;
                     for (Object item : (Iterable<?>) value) {
-                        writeArea(index, item);
+                        writeArea(request, index, item);
                         ++ index;
                     }
 
                 } else if (value instanceof Page.Area) {
                     Page.Area pageArea = (Page.Area) value;
-                    writeArea(pageArea.getInternalName(), pageArea.getContents());
+                    writeArea(request, pageArea.getInternalName(), pageArea.getContents());
 
                 } else if (value instanceof Section) {
                     Section section = (Section) value;
-                    writeArea(section.getInternalName(), section);
+                    writeArea(request, section.getInternalName(), section);
 
                 } else {
-                    writeArea(area, value);
+                    writeArea(request, area, value);
                 }
 
                 setBodyContent(null);
@@ -173,12 +174,20 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         }
     }
 
-    private void writeArea(Object area, Object value) throws IOException, ServletException {
-        if (areas != null) {
+    private void writeArea(HttpServletRequest request, Object area, Object value) throws IOException, ServletException {
+        if (layoutTag != null && areas != null) {
             if (!ObjectUtils.isBlank(area)) {
-                StringWriter stringWriter = new StringWriter();
-                writeValueWithAttributes(new HtmlWriter(stringWriter), value);
-                areas.put(area.toString(), stringWriter.toString());
+                Object oldGridArea = request.getAttribute("gridArea");
+                StringWriter body = new StringWriter();
+
+                try {
+                    request.setAttribute("gridArea", layoutTag.getAreaName(request, area));
+                    writeValueWithAttributes(new HtmlWriter(body), value);
+                    areas.put(area.toString(), body.toString());
+
+                } finally {
+                    request.setAttribute("gridArea", oldGridArea);
+                }
             }
 
         } else {
@@ -191,12 +200,13 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
             writeValue(writer, value);
 
         } else {
-            writer.start("div", attributes);
+            writer.writeStart("div", attributes);
                 writeValue(writer, value);
-            writer.end();
+            writer.writeEnd();
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void writeValue(HtmlWriter writer, Object value) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
@@ -314,12 +324,12 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                             if (!ObjectUtils.isBlank(area)) {
                                 if (!attributes.isEmpty()) {
                                     StringWriter stringWriter = new StringWriter();
-                                    @SuppressWarnings("all")
+                                    @SuppressWarnings("resource")
                                     HtmlWriter htmlWriter = new HtmlWriter(stringWriter);
 
-                                    htmlWriter.start("div", attributes);
+                                    htmlWriter.writeStart("div", attributes);
                                         htmlWriter.write(body);
-                                    htmlWriter.end();
+                                    htmlWriter.writeEnd();
 
                                     body = stringWriter.toString();
                                 }
@@ -331,7 +341,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                             pageWriter.write(body);
 
                             if (!attributes.isEmpty()) {
-                                pageWriter.end();
+                                pageWriter.writeEnd();
                             }
                         }
                     }
