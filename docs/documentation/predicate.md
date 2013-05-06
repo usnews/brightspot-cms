@@ -68,6 +68,9 @@ section: documentation
 
 &nbsp;&nbsp;&nbsp;&nbsp;The left hand expression matches right-hand expression using a full-text search.
 
+*`contains`*
+
+&nbsp;&nbsp;&nbsp;&nbsp; The use of `matches` is suggested for a large body of text, however `contains` should be used on short text fields such as a name or title.
 ### Other Predicates
 
 *`missing`*
