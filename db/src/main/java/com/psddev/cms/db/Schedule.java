@@ -1,21 +1,28 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.util.ObjectUtils;
+
 public class Schedule extends Record {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Schedule.class);
 
+    @Indexed(unique = true)
     private String name;
-    private @Indexed Date triggerDate;
+
+    @Indexed
+    private Date triggerDate;
+
+    @ToolUi.Hidden
     private Site triggerSite;
+
+    @ToolUi.Hidden
     private ToolUser triggerUser;
 
     public String getName() {
@@ -54,31 +61,75 @@ public class Schedule extends Record {
      * @return {@code true} if this schedule was triggered.
      */
     public boolean trigger() {
-        if (!getTriggerDate().before(new Date())) {
+        Date triggerDate = getTriggerDate();
+
+        if (triggerDate == null ||
+                !triggerDate.before(new Date())) {
             return false;
         }
 
         LOGGER.info("Triggering [{}] schedule", getLabel());
+
         try {
             beginWrites();
-            for (Draft draft : Query
-                    .from(Draft.class)
-                    .where("schedule = ?", this)
-                    .selectAll()) {
-                LOGGER.debug(
-                        "Processing [{}] draft in [{}] schedule",
-                        draft.getLabel(), getLabel());
+
+            for (Draft draft : Query.
+                    from(Draft.class).
+                    where("schedule = ?", this).
+                    selectAll()) {
+                LOGGER.debug("Processing [{}] draft in [{}] schedule", draft.getLabel(), getLabel());
+
                 Object object = draft.getObject();
+
                 if (object != null) {
-                    Content.Static.publish(object, getTriggerSite(), getTriggerUser());
+                    ToolUser triggerUser = getTriggerUser();
+
+                    if (triggerUser == null) {
+                        triggerUser = draft.as(Content.ObjectModification.class).getUpdateUser();
+
+                        if (triggerUser == null) {
+                            triggerUser = draft.getOwner();
+                        }
+                    }
+
+                    Content.Static.publish(object, getTriggerSite(), triggerUser);
                 }
+
                 draft.delete();
             }
+
             delete();
             commitWrites();
             return true;
+
         } finally {
             endWrites();
         }
+    }
+
+    @Override
+    public String getLabel() {
+        String name = getName();
+        StringBuilder label = new StringBuilder();
+
+        if (ObjectUtils.isBlank(name)) {
+            label.append(getTriggerDate().toString());
+
+        } else {
+            label.append(name);
+        }
+
+        long draftCount = Query.
+                from(Draft.class).
+                where("schedule = ?", this).
+                count();
+
+        if (draftCount > 1) {
+            label.append(" (");
+            label.append(draftCount);
+            label.append(" items)");
+        }
+
+        return label.toString();
     }
 }

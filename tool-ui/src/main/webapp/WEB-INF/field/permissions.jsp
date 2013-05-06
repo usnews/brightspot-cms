@@ -1,7 +1,6 @@
 <%@ page import="
 
 com.psddev.cms.db.Site,
-com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
@@ -76,11 +75,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     return;
 }
 
-List<Workflow> workflows = Query
-        .from(Workflow.class)
-        .sortAscending("name")
-        .select();
-
 // --- Presentation ---
 
 %><div class="inputSmall permissions"><ul>
@@ -123,10 +117,6 @@ List<Workflow> workflows = Query
 </ul>
 </li>
 
-<li><% writeParent(wp, permissions, "Workflows", "workflow"); %>
-<ul>
-</ul>
-
 <li><% writeParent(wp, permissions, "Types", "type"); %>
 <ul>
     <%
@@ -141,9 +131,6 @@ List<Workflow> workflows = Query
                 <ul>
                     <li><% writeChild(wp, permissions, "Read", typePermissionId + "/read"); %>
                     <li><% writeChild(wp, permissions, "Write", typePermissionId + "/write"); %>
-                    <% for (Workflow workflow : workflows) { %>
-                        <li><% writeChild(wp, permissions, workflow, typePermissionId + "/" + workflow.getPermissionId()); %></li>
-                    <% } %>
                     <li><% writeChild(wp, permissions, "Publish", typePermissionId + "/publish"); %>
                     <li><% writeParent(wp, permissions, "All Fields", fieldPermissionIdPrefix); %>
                         <%--ul>

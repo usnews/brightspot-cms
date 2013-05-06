@@ -1,9 +1,13 @@
 package com.psddev.cms.tool;
 
+import java.io.StringWriter;
+
+import javax.servlet.ServletContext;
+
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
-
-import java.io.StringWriter;
+import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StringUtils;
 
 /** Widget controlled by a JSP file. */
 public class JspWidget extends Widget {
@@ -54,21 +58,57 @@ public class JspWidget extends Widget {
 
     // --- Widget support ---
 
-    /** Calls the JSP to display or update with this widget. */
-    private String callJsp(boolean isUpdating, ToolPageContext page, Object object) throws Exception {
+    @SuppressWarnings("deprecation")
+    private String findApplicationJsp() {
+        Tool tool = getTool();
+        String appName = tool.getApplicationName();
+        String appPath = null;
+
+        if (appName != null) {
+            appPath = RoutingFilter.Static.getApplicationPath(appName);
+
+        } else if (ObjectUtils.isBlank(tool.getUrl())) {
+            appPath = "";
+        }
+
+        return appPath != null ?
+                appPath + StringUtils.ensureStart(getJsp(), "/") :
+                null;
+    }
+
+    private String includeJsp(
+            ServletContext context,
+            ToolPageContext page,
+            Object object,
+            String jsp,
+            boolean updating)
+            throws Exception {
         StringWriter writer = new StringWriter();
+
         JspUtils.includeEmbedded(
-                page.getServletContext(), page.getRequest(), page.getResponse(), writer, getJsp(),
-                IS_UPDATING_ATTRIBUTE, isUpdating,
+                context,
+                page.getRequest(),
+                page.getResponse(),
+                writer,
+                jsp,
+
+                IS_UPDATING_ATTRIBUTE, updating,
                 OBJECT_ATTRIBUTE, object,
                 WIDGET_ATTRIBUTE, this);
+
         return writer.toString();
     }
 
     @Override
     public String display(ToolPageContext page, Object object) throws Exception {
-        if (ObjectUtils.equals(getTool(), page.getTool())) {
-            return callJsp(false, page, object);
+        String jsp = findApplicationJsp();
+
+        if (jsp != null) {
+            return includeJsp(null, page, object, jsp, false);
+
+        } else if (ObjectUtils.equals(getTool(), page.getTool())) {
+            return includeJsp(page.getServletContext(), page, object, getJsp(), false);
+
         } else {
             return RemoteWidget.displayWidget(this, REMOTE_DISPLAY_API, page, object);
         }
@@ -76,8 +116,14 @@ public class JspWidget extends Widget {
 
     @Override
     public void update(ToolPageContext page, Object object) throws Exception {
-        if (ObjectUtils.equals(getTool(), page.getTool())) {
-            callJsp(true, page, object);
+        String jsp = findApplicationJsp();
+
+        if (jsp != null) {
+            includeJsp(null, page, object, jsp, true);
+
+        } else if (ObjectUtils.equals(getTool(), page.getTool())) {
+            includeJsp(page.getServletContext(), page, object, getJsp(), true);
+
         } else {
             RemoteWidget.updateWithWidget(this, REMOTE_UPDATE_API, page, object);
         }

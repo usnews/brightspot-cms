@@ -29,6 +29,7 @@ $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
 $doc.toggleable('live', '.toggleable');
+$doc.workflow('live', '.workflow');
 
 // Remove placeholder text over search input when there's text.
 $doc.onCreate('.searchInput', function() {
@@ -611,11 +612,16 @@ $doc.ready(function() {
                 oldDate = $dateInput.val();
 
         // Change the save button label if scheduling.
-        $dateInput.change($.run(function() {
-            $saveButton.val($dateInput.val() ?
-                    (oldDate ? 'Reschedule' : 'Schedule') :
-                    oldSaveButton);
-        }));
+        if ($dateInput.length === 0) {
+            $saveButton.val('Schedule');
+
+        } else {
+            $dateInput.change($.run(function() {
+                $saveButton.val($dateInput.val() ?
+                        (oldDate ? 'Reschedule' : 'Schedule') :
+                        oldSaveButton);
+            }));
+        }
 
         // Move the widget to the top if within aside section.
         $widget.closest('.contentForm-aside').each(function() {

@@ -142,16 +142,16 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven.
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.0. You can, however, use the 2.1 snapshot in your archetype, as below does. This will build against the latest version of Brightspot, in Snapshot status.*
 
-Run the following Archetype to create the project structure.
+Run the following Archetype to create the project structure. 
 
 <div class="highlight">{% highlight java %}
 mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.0-SNAPSHOT \
+   -DarchetypeVersion=2.1-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
@@ -176,13 +176,6 @@ A war file will now be created in the `target` directory. The CMS application wi
 
 Next step is to copy your new war file to `$TOMCAT_HOME/webapps` - rename this to be `ROOT.war`. *Note, the default Apache ROOT directory must be removed.*
 
-Alternatively, create a symbolic link from your project directory to a ROOT directory within webapp:
-
-<div class="highlight">{% highlight bash %}
-ln -s /path/to/your/PROJETNAME/src/main/webapp /path/to/your/tomcat/webapps/ROOT
-{% endhighlight %}</div>
-
-When using a symbolic link, build your project with `mvn clean install war:inplace` to embed the CMS.\
 
 ## Start Tomcat
 
@@ -220,3 +213,10 @@ To do this simply access `$TOMCAT_HOME/conf/context.xml` and change `value="true
 {% endhighlight %}</div>
 
 The default project contains an `index.jsp` file within your webapp directory, remove this to create your own ROOT file.
+
+#### Java Heap Size
+
+You may need to configure the memory allocation for Tomcat. If you see errors regarding Java Heap Size add the following to your catalina.sh file, found at $TOMCAT_HOME/bin/catalina.sh. This can be added directly above the # OS specific support config.
+
+    # ----- Adding more Memory
+    CATALINA_OPTS="-Xmx1024m -XX:MaxPermSize=256M -Djava.awt.headless=true "

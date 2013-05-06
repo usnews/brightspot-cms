@@ -1,19 +1,28 @@
 package com.psddev.cms.db;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 
-/** Valid paths between {@linkplain DraftStatus draft statuses}. */
 public class Workflow extends Record {
 
     @Indexed(unique = true)
     @Required
     private String name;
 
-    @Indexed
-    private DraftStatus source;
+    @Indexed(unique = true)
+    private Set<ObjectType> contentTypes;
 
-    @Indexed
-    private DraftStatus target;
+    @ToolUi.FieldDisplayType("workflowActions")
+    private Map<String, Object> actions;
 
     /** Returns the name. */
     public String getName() {
@@ -25,31 +34,92 @@ public class Workflow extends Record {
         this.name = name;
     }
 
-    /** Returns the source. */
-    public DraftStatus getSource() {
-        return source;
+    public Set<ObjectType> getContentTypes() {
+        if (contentTypes == null) {
+            contentTypes = new LinkedHashSet<ObjectType>();
+        }
+        return contentTypes;
     }
 
-    /** Sets the source. */
-    public void setSource(DraftStatus source) {
-        this.source = source;
+    public void setContentTypes(Set<ObjectType> contentTypes) {
+        this.contentTypes = contentTypes;
     }
 
-    /** Returns the target. */
-    public DraftStatus getTarget() {
-        return target;
+    public Map<String, Object> getActions() {
+        if (actions == null) {
+            actions = new LinkedHashMap<String, Object>();
+        }
+        return actions;
     }
 
-    /** Sets the target. */
-    public void setTarget(DraftStatus target) {
-        this.target = target;
+    public void setActions(Map<String, Object> actions) {
+        this.actions = actions;
     }
 
-    /**
-     * Returns the unique ID that represents this workflow for use in
-     * permissions.
-     */
-    public String getPermissionId() {
-        return "workflow/" + getId().toString();
+    public Map<String, WorkflowTransition> getTransitions() {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        Map<String, WorkflowState> states = new HashMap<String, WorkflowState>();
+        WorkflowState state;
+
+        for (Map<String, Object> s : actions.get("states")) {
+            state = new WorkflowState();
+            state.setName((String) s.get("name"));
+            states.put((String) s.get("id"), state);
+        }
+
+        state = new WorkflowState();
+        state.setName("New");
+        states.put("initial", state);
+
+        state = new WorkflowState();
+        state.setName("Published");
+        states.put("final", state);
+
+        Map<String, WorkflowTransition> transitions = new HashMap<String, WorkflowTransition>();
+
+        for (Map<String, Object> t : actions.get("transitions")) {
+            WorkflowTransition transition = new WorkflowTransition();
+
+            transition.setSource(states.get(t.get("source")));
+            transition.setTarget(states.get(t.get("target")));
+            transitions.put((String) t.get("name"), transition);
+        }
+
+        return transitions;
+    }
+
+    public Map<String, WorkflowTransition> getTransitionsFrom(String state) {
+        Map<String, WorkflowTransition> transitions = getTransitions();
+
+        if (state == null) {
+            state = "New";
+        }
+
+        for (Iterator<Map.Entry<String, WorkflowTransition>> i = transitions.entrySet().iterator(); i.hasNext(); ) {
+            WorkflowState source = i.next().getValue().getSource();
+
+            if (source == null ||
+                    !state.equals(source.getName())) {
+                i.remove();
+            }
+        }
+
+        return transitions;
+    }
+
+    @FieldInternalNamePrefix("cms.workflow.")
+    public static class Data extends Modification<Object> {
+
+        @Indexed(visibility = true)
+        private String state;
+
+        public String getWorkflowState() {
+            return state;
+        }
+
+        public void setWorkflowState(String state) {
+            this.state = state;
+        }
     }
 }

@@ -295,7 +295,7 @@ $.fn.zIndex = function() {
         } catch (error) {
             break;
         }
-        if (!isNaN(zIndex)) {
+        if (!isNaN(zIndex) && zIndex !== 0) {
             break;
         }
     }
@@ -308,9 +308,9 @@ $.fn.zIndex = function() {
 
     $.fn.delegate = function() {
         if (arguments[0]) {
-            oldDelegate.apply(this, arguments);
+            return oldDelegate.apply(this, arguments);
         } else {
-            $.fn.bind.apply(this, Array.prototype.slice.call(arguments, 1));
+            return $.fn.bind.apply(this, Array.prototype.slice.call(arguments, 1));
         }
     };
 }());

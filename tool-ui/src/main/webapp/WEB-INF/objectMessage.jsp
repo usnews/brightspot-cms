@@ -36,21 +36,23 @@ if (deleted != null) {
 }
 
 Draft draft = wp.getOverlaidDraft(object);
+
 if (draft != null) {
-    wp.write("<div class=\"message\"><p>");
-    wp.write("This is a draft of the <a href=\"");
-    wp.write(wp.originalUrl(null, object));
-    wp.write("\">original document</a> ");
-
     Schedule schedule = draft.getSchedule();
-    if (schedule != null) {
-        wp.write("to be published ", wp.h(schedule.getTriggerDate()));
-    } else {
-        wp.write("saved ");
-        wp.write(draft.as(Content.ObjectModification.class).getUpdateDate());
-    }
 
-    wp.write(".</p></div>");
+    wp.writeStart("div", "class", "message message-warning");
+        wp.writeHtml("This is a draft");
+
+        if (schedule != null) {
+            Date triggerDate = schedule.getTriggerDate();
+
+            wp.writeHtml(" to be published ");
+            wp.writeHtml(triggerDate != null ? triggerDate : "later");
+        }
+
+        wp.writeHtml(".");
+    wp.writeEnd();
+
     return;
 }
 

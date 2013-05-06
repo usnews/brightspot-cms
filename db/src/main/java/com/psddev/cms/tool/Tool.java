@@ -27,6 +27,15 @@ public abstract class Tool extends Application {
     public static final String DASHBOARD_WIDGET_POSITION = "cms.dashboard";
 
     /**
+     * Returns this tool's application name.
+     *
+     * @return May be {@code null}.
+     */
+    public String getApplicationName() {
+        return null;
+    }
+
+    /**
      * Returns plugins provided by this tool.
      *
      * @return May be {@code null} if this tool doesn't provide any plugins.

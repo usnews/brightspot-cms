@@ -18,7 +18,7 @@ if (wp.isFormPost()) {
             wp.include("/WEB-INF/objectPost.jsp", "object", object);
             wp.publish(object);
         } else if ("Delete".equals(action)) {
-            wp.deleteSoftly(object);
+            wp.trash(object);
         }
         if (wp.param(boolean.class, "reload")) {
             wp.writeStart("script", "type", "text/javascript");

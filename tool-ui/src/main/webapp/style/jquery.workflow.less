@@ -1,0 +1,63 @@
+.workflowVisual {
+    background-color: @color-note-lighter;
+    .border-radius(5px);
+    height: 400px;
+    padding: 10px;
+    position: relative;
+    z-index: 0;
+}
+
+.workflowState {
+    background-color: @color-note-darker;
+    .border-radius(5px);
+    color: @color-background;
+    padding: 10px 20px 10px 10px;
+    position: absolute;
+
+    .link,
+    a {
+        color: @color-link-lighter;
+    }
+
+    input[type='text'] {
+        width: 8em;
+    }
+
+    &[data-id='initial'],
+    &[data-id='final'] {
+        padding-right: 10px;
+        top: 200px;
+    }
+
+    &[data-id='initial'] {
+        left: 10px;
+    }
+
+    &[data-id='final'] {
+        right: 10px;
+    }
+}
+
+.workflowStateRemove {
+    .icon;
+    .icon-remove;
+    .icon-only;
+
+    color: @color-alert-lighter !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.workflowStateAdd,
+.workflowTransitionAdd {
+    .icon;
+    .icon-action-add;
+
+    display: block;
+}
+
+input[type='text'].workflowTransitionName {
+    text-align: center;
+    width: 6em;
+}

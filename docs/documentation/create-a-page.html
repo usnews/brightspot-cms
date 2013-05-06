@@ -59,7 +59,7 @@ Using the search tool, in the Create New drop down, find your new object and cre
                 </div>
                 <img width="690" src="http://docs.brightspot.s3.amazonaws.com/extend-page-class.png"/>
     </div>
-                <h2>Creating Templates</h2>
+    <h2>Creating Templates</h2>
                 Start by adding URL and rendering logic to an already created object. Note, users of Brightspot 2.0 should see the <a href="/template-tool.html">template guide</a> for that version, which is also available.
                 </br></br>
                 </p>
@@ -190,7 +190,7 @@ Every page template contains a defined <code>Main Content</code> type. In the ex
 
 {% endhighlight %}</div></br>
 <h4>New Content Section</h4>
-Once the object has been created in the CMS, you can create a new Content Section to contain the object on the page. in Admin > Templates & Sections create a <code>New Content Section</code>. See below for an example. The next step is to create the rendering <code>JSP</code> that is pathed to in the section.</br>
+Once the object has been created in the CMS, you can create a new Content Section to contain the object on the page. In Admin > Templates & Sections create a <code>New Content Section</code>. See below for an example. <i>Note, the internal name for your section must not contain hyphens or spaces</i>. The next step is to create the rendering <code>JSP</code> that is pathed to in the section.</br>
 <div class="highlight center span12" style="padding-top: 10px;">
             <div class="highlight-line left" style="top: 79px; width: 141px;">
                 <div class="highlight-box">
@@ -239,7 +239,7 @@ Finish and test by creating a new instance of your object, in the example below 
                 <img width="690" src="img/developer/top-authors-section.png"/>
     </div>
 <h4>New Script Section</h4>
-Some sections of a page may not require any use of a CMS content object, but rather require a <code>JSP</code> script to return a result set. When this is the case, a <code>New Script Section</code> can be created.</br></br>Navigate to Admin > Templates & Sections and create a new Script Section. The example below creates a new section for displaying all the authors existing in the CMS.
+Some sections of a page may not require any use of a CMS content object, but rather require a <code>JSP</code> script to return a result set. When this is the case, a <code>New Script Section</code> can be created.</br></br>Navigate to Admin > Templates & Sections and create a new Script Section. <i>Note, the internal name for your section must not contain hyphens or spaces</i>. The example below creates a new section for displaying all the authors existing in the CMS.
             <div class="highlight center span12" style="padding-top: 10px;">
                 <div class="highlight-line right" style="top: 153px; width: 121px;">
                     <div class="highlight-box">
@@ -272,9 +272,40 @@ When creating your page, you should now see a query returning all Authors that h
                 </div>
                 <img width="690" src="http://docs.brightspot.s3.amazonaws.com/all-authors-script.png"/>
     </div>
+</br></br>The query for content can also be placed directly within a Java Class.</br></br>
+<div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layout/homepage-template.jsp")
+@Renderer.Path("/homepage-object.jsp")
+public class Homepage extends Page {
+
+    private String welcomeText;
+    private ReferentialText welcomeMessage;
+
+    // Getters and Setters
+
+    public List<Article> getArticles() {
+        return articles;
+    }
+}
+{% endhighlight %}</div>
+
+The jsp file can render the list using the method created within the Java class.</br></br><div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
+
+<div class="homepage-container">
+    <h3><c:out value="${content.welcomeText}"/></h3>
+    <cms:render value="${content.welcomeMessage}" />
+    <div class="articleList">
+        <ul>
+            <c:forEach var="article" items="${content.articles}">
+                <li><c:out value="${article.headline}" /></li>
+            </c:forEach>
+        </ul>
+    </div>
+</div>
+{% endhighlight %}</div></br>
 
 <h2>Template Content</h2>
-Sections used on a page template have access to several aspects of the Template on which they are used. The Wireframe tool, which is available by running <code>?_wireframe=true</code> on any page shows the available JSTL expressions for the page template. These include:</br></br>
+Sections used on a page template have access to several aspects of the Template on which they are used. Using the <code>_debug/query</code> tool, click on an object to see the JSON data contained for an object / template. Examples include:</br></br>
 
 <div class="highlight">{% highlight jsp %}${content} // The content object rendered by the JSP
 ${mainContent} // The content object chosen on the Template as Main Content
