@@ -14,7 +14,7 @@ import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.util.AbstractFilter;
 
-public class PreviewFilter extends AbstractFilter implements AbstractFilter.Auto {
+public class PreviewDatabaseFilter extends AbstractFilter implements AbstractFilter.Auto {
 
     @Override
     public void updateDependencies(
