@@ -249,7 +249,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
             <div class="widget widget-publication">
-                <h1>Publication</h1>
+                <h1 class="icon icon-action-publish">Publication</h1>
 
                 <%
                 String visibilityLabel = state.getVisibilityLabel();
