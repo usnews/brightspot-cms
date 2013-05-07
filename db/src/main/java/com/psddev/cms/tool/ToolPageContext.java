@@ -1407,7 +1407,9 @@ public class ToolPageContext extends WebPageContext {
             include("/WEB-INF/objectPost.jsp", "object", object);
             updateUsingAllWidgets(object);
 
-            if (draft == null && state.isNew()) {
+            if (draft == null &&
+                    (state.isNew() ||
+                    state.as(Content.ObjectModification.class).isDraft())) {
                 state.as(Content.ObjectModification.class).setDraft(true);
                 publish(state);
                 redirect("", "id", state.getId());
