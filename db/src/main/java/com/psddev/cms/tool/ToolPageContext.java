@@ -45,6 +45,9 @@ import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.db.WorkStream;
+import com.psddev.cms.db.Workflow;
+import com.psddev.cms.db.WorkflowState;
+import com.psddev.cms.db.WorkflowTransition;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
@@ -1510,12 +1513,12 @@ public class ToolPageContext extends WebPageContext {
 
             State.getInstance(draft != null ? draft : object).delete();
             redirect("");
+            return true;
 
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
         }
-
-        return true;
     }
 
     /**
@@ -1558,12 +1561,12 @@ public class ToolPageContext extends WebPageContext {
 
             publish(draft);
             redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+            return true;
 
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
         }
-
-        return true;
     }
 
     /**
@@ -1588,6 +1591,7 @@ public class ToolPageContext extends WebPageContext {
         try {
             state.beginWrites();
             state.as(Content.ObjectModification.class).setDraft(false);
+            state.as(Workflow.Data.class).changeState(null, user, null);
 
             if (variationId == null ||
                     (site != null &&
@@ -1699,14 +1703,15 @@ public class ToolPageContext extends WebPageContext {
                         "published", System.currentTimeMillis());
             }
 
+            return true;
+
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
 
         } finally {
             state.endWrites();
         }
-
-        return true;
     }
 
     /**
@@ -1729,12 +1734,12 @@ public class ToolPageContext extends WebPageContext {
             state.as(Content.ObjectModification.class).setTrash(false);
             publish(state);
             redirect("");
+            return true;
 
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
         }
-
-        return true;
     }
 
     /**
@@ -1756,12 +1761,12 @@ public class ToolPageContext extends WebPageContext {
             include("/WEB-INF/objectPost.jsp", "object", object);
             state.save();
             redirect("", "id", state.getId());
+            return true;
 
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
         }
-
-        return true;
     }
 
     /**
@@ -1805,12 +1810,65 @@ public class ToolPageContext extends WebPageContext {
 
             trash(draft != null ? draft : object);
             redirect("");
+            return true;
 
         } catch (Exception error) {
             getErrors().add(error);
+            return false;
+        }
+    }
+
+    /**
+     * Tries to apply a workflow action to the given {@code object} if the
+     * user has asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @param {@code true} if the application of a workflow action is tried.
+     */
+    public boolean tryWorkflow(Object object) {
+        if (!isFormPost()) {
+            return false;
         }
 
-        return true;
+        String action = param(String.class, "action-workflow");
+
+        if (ObjectUtils.isBlank(action)) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+        Workflow.Data workflowData = state.as(Workflow.Data.class);
+        String oldWorkflowState = workflowData.getCurrentState();
+
+        try {
+            Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
+
+            if (workflow != null) {
+                WorkflowTransition transition = workflow.getTransitions().get(action);
+
+                if (transition != null) {
+                    include("/WEB-INF/objectPost.jsp", "object", object);
+
+                    if (workflowData.changeState(
+                            transition,
+                            getUser(),
+                            param(String.class, "workflowComment")) == null) {
+                        publish(object);
+
+                    } else {
+                        state.save();
+                    }
+                }
+            }
+
+            redirect("", "id", state.getId());
+            return true;
+
+        } catch (Exception error) {
+            workflowData.revertState(oldWorkflowState);
+            getErrors().add(error);
+            return false;
+        }
     }
 
     // --- AuthenticationFilter bridge ---

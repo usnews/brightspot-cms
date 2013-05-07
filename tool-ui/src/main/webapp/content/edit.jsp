@@ -130,7 +130,8 @@ if (wp.tryDelete(editing) ||
         wp.tryDraft(editing) ||
         wp.tryPublish(editing) ||
         wp.tryRestore(editing) ||
-        wp.tryTrash(editing)) {
+        wp.tryTrash(editing) ||
+        wp.tryWorkflow(editing)) {
     return;
 }
 
@@ -334,25 +335,79 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 boolean isTrash = contentData.isTrash();
 
                 if (isWritable) {
+
+                    // Workflow actions.
                     if (editingState.isNew() ||
-                            editingState.as(Workflow.Data.class).getWorkflowState() != null) {
+                            editingState.as(Workflow.Data.class).getCurrentState() != null) {
                         Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
 
                         if (workflow != null) {
-                            String currentState = editingState.as(Workflow.Data.class).getWorkflowState();
+                            Workflow.Data workflowData = editingState.as(Workflow.Data.class);
+                            String currentState = workflowData.getCurrentState();
 
-                            wp.writeStart("div", "class", "otherWorkflows");
-                                for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
-                                    if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                        wp.writeStart("button", "name", "action-workflow", "value", transitionName);
-                                            wp.writeHtml(transitionName);
+                            wp.writeStart("div", "class", "message message-info");
+                                wp.writeStart("p");
+                                    if (currentState != null) {
+                                        wp.writeHtml("Workflow State: ");
+                                        wp.writeStart("strong");
+                                            wp.writeHtml(currentState);
+                                        wp.writeEnd();
+                                        wp.writeHtml(".");
+
+                                    } else {
+                                        wp.writeHtml("New Workflow Content:");
+                                    }
+                                wp.writeEnd();
+
+                                wp.writeStart("div", "class", "actions");
+                                    Workflow.Log log = workflowData.getLastLog();
+
+                                    if (log != null) {
+                                        String comment = log.getComment();
+
+                                        wp.writeStart("p");
+                                            wp.writeStart("strong");
+                                                wp.writeHtml(log.getTransition());
+                                            wp.writeEnd();
+
+                                            wp.writeHtml(" by ");
+                                            wp.writeHtml(wp.getObjectLabel(log.getUser()));
+                                            wp.writeHtml(" at ");
+                                            wp.writeHtml(log.getDate());
+
+                                            if (!ObjectUtils.isBlank(comment)) {
+                                                wp.writeHtml(" ");
+                                                wp.writeStart("q");
+                                                    wp.writeHtml(comment);
+                                                wp.writeEnd();
+                                            }
                                         wp.writeEnd();
                                     }
-                                }
+
+                                    Set<String> transitionNames = workflow.getTransitionsFrom(currentState).keySet();
+
+                                    if (!transitionNames.isEmpty()) {
+                                        wp.writeStart("textarea",
+                                                "name", "workflowComment",
+                                                "placeholder", "Optional Comment");
+                                        wp.writeEnd();
+
+                                        for (String transitionName : transitionNames) {
+                                            if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
+                                                wp.writeStart("button",
+                                                        "name", "action-workflow",
+                                                        "value", transitionName);
+                                                    wp.writeHtml(transitionName);
+                                                wp.writeEnd();
+                                            }
+                                        }
+                                    }
+                                wp.writeEnd();
                             wp.writeEnd();
                         }
                     }
 
+                    // Message and actions if the content is a draft.
                     if (isDraft) {
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
@@ -376,10 +431,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             wp.writeEnd();
                         wp.writeEnd();
 
+                    // Message and actions if the content is a trash.
                     } else if (isTrash) {
                         wp.writeTrashMessage(editing);
                     }
 
+                    // Publish and trash buttons.
                     if (!isTrash) {
                         wp.writeStart("div", "class", "widget-publicationPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
