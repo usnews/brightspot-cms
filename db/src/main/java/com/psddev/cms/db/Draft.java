@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -136,12 +137,13 @@ public class Draft extends Record {
         ErrorUtils.errorIfNull(object, "object");
 
         State newState = State.getInstance(object);
+        Database db = newState.getRealDatabase();
 
-        getState().setDatabase(newState.getDatabase());
+        getState().setDatabase(db);
         setObjectType(newState.getType());
         setObjectId(newState.getId());
 
-        Object oldObject = Query.from(Object.class).where("_id = ?", object).using(newState.getDatabase()).noCache().first();
+        Object oldObject = Query.from(Object.class).where("_id = ?", object).using(db).noCache().first();
         Map<String, Object> newValues = newState.getSimpleValues();
 
         if (oldObject != null) {
