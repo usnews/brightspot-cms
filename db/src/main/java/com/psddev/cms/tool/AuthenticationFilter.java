@@ -1,14 +1,5 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.ToolUser;
-
-import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.util.AbstractFilter;
-import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.Settings;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -19,10 +10,21 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.cms.db.ToolUser;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.ForwardingDatabase;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
+
 public class AuthenticationFilter extends AbstractFilter {
 
     private static final String ATTRIBUTE_PREFIX = AuthenticationFilter.class.getName() + ".";
+
     public static final String AUTHENTICATED_ATTRIBUTE = ATTRIBUTE_PREFIX + "authenticated";
+    public static final String DATABASE_OVERRIDDEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "databaseOverridden";
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
@@ -44,7 +46,9 @@ public class AuthenticationFilter extends AbstractFilter {
             chain.doFilter(request, response);
 
         } finally {
-            Database.Static.setIgnoreReadConnection(false);
+            if (Boolean.TRUE.equals(request.getAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE))) {
+                Database.Static.restoreDefault();
+            }
 
             ToolUser user = Static.getUser(request);
 
@@ -87,7 +91,17 @@ public class AuthenticationFilter extends AbstractFilter {
 
             if (user != null) {
                 logIn(request, response, user);
-                Database.Static.setIgnoreReadConnection(true);
+
+                ForwardingDatabase db = new ForwardingDatabase() {
+                    @Override
+                    protected <T> Query<T> filterQuery(Query<T> query) {
+                        return query.clone().master().resolveInvisible();
+                    }
+                };
+
+                db.setDelegate(Database.Static.getDefault());
+                Database.Static.overrideDefault(db);
+                request.setAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE, Boolean.TRUE);
 
             } else if (!JspUtils.getEmbeddedServletPath(context, request.getServletPath()).equals(LOG_IN_PATH)) {
                 @SuppressWarnings("resource")
