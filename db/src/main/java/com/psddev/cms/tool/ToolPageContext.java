@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
@@ -42,6 +43,7 @@ import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
+import com.psddev.cms.db.Variation;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
@@ -619,7 +621,7 @@ public class ToolPageContext extends WebPageContext {
 
             if (variationId != null) {
                 @SuppressWarnings("unchecked")
-                Map<String, Object> variationValues = (Map<String, Object>) state.getValue("variations/" + variationId.toString());
+                Map<String, Object> variationValues = (Map<String, Object>) state.getByPath("variations/" + variationId.toString());
 
                 if (variationValues != null) {
                     state.putAll(variationValues);
@@ -1347,6 +1349,112 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes a contextual message if the given {@code object} is in trash.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the message was written.
+     */
+    public boolean writeTrashMessage(Object object) throws IOException {
+        State state = State.getInstance(object);
+
+        if (!state.as(Content.ObjectModification.class).isTrash()) {
+            return false;
+        }
+
+        writeStart("div", "class", "message message-warning");
+            writeStart("p");
+                writeHtml("This item is in trash.");
+            writeEnd();
+
+            writeStart("div", "class", "actions");
+                writeStart("button",
+                        "class", "link icon icon-action-restore",
+                        "name", "action-restore",
+                        "value", "true");
+                    writeHtml("Restore");
+                writeEnd();
+
+                writeStart("button",
+                        "class", "link icon icon-action-delete",
+                        "name", "action-delete",
+                        "value", "true");
+                    writeHtml("Delete Permanently");
+                writeEnd();
+            writeEnd();
+        writeEnd();
+
+        return true;
+    }
+
+    /**
+     * Writes a standard form for the given {@code object}.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void writeStandardForm(Object object) throws IOException, ServletException {
+        State state = State.getInstance(object);
+
+        writeFormHeading(object);
+
+        writeStart("div", "class", "widgetControls");
+            include("/WEB-INF/objectVariation.jsp", "object", object);
+        writeEnd();
+
+        include("/WEB-INF/objectMessage.jsp", "object", object);
+
+        writeStart("form",
+                "method", "post",
+                "enctype", "multipart/form-data",
+                "action", url("", "id", state.getId()),
+                "autocomplete", "off");
+            if (state.as(Content.ObjectModification.class).isTrash()) {
+                writeStart("div", "class", "message message-warning");
+                    writeStart("p");
+                        writeHtml("This item is in trash.");
+                    writeEnd();
+
+                    writeStart("div", "class", "actions");
+                        writeStart("button",
+                                "class", "link icon icon-action-restore",
+                                "name", "action-restore",
+                                "value", "true");
+                            writeHtml("Restore");
+                        writeEnd();
+
+                        writeStart("button",
+                                "class", "link icon icon-action-delete",
+                                "name", "action-delete",
+                                "value", "true");
+                            writeHtml("Delete Permanently");
+                        writeEnd();
+                    writeEnd();
+                writeEnd();
+            }
+
+            include("/WEB-INF/objectForm.jsp", "object", object);
+
+            writeStart("div", "class", "actions");
+                writeStart("button",
+                        "class", "icon icon-action-save",
+                        "name", "action-save",
+                        "value", "true");
+                    writeHtml("Save");
+                writeEnd();
+
+                if (!state.isNew()) {
+                    writeStart("button",
+                            "class", "icon icon-action-trash action-pullRight link",
+                            "name", "action-trash",
+                            "value", "true",
+                            "onclick", "return confirm('Are you sure you want to trash?');");
+                        writeHtml("Trash");
+                    writeEnd();
+                }
+            writeEnd();
+        writeEnd();
+    }
+
+    /**
      * Updates the given {@code object} using all widgets with the data from
      * the current request.
      *
@@ -1386,6 +1494,32 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Tries to delete the given {@code object} if the user has asked for it
+     * in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the delete is tried.
+     */
+    public boolean tryDelete(Object object) {
+        if (!isFormPost() ||
+                param(String.class, "action-delete") == null) {
+            return false;
+        }
+
+        try {
+            Draft draft = getOverlaidDraft(object);
+
+            State.getInstance(draft != null ? draft : object).delete();
+            redirect("");
+
+        } catch (Exception error) {
+            getErrors().add(error);
+        }
+
+        return true;
+    }
+
+    /**
      * Tries to save the given {@code object} as a draft if the user has
      * asked for it in the current request.
      *
@@ -1393,10 +1527,8 @@ public class ToolPageContext extends WebPageContext {
      * @return {@code true} if the save is tried.
      */
     public boolean tryDraft(Object object) {
-        if (!(isFormPost() &&
-                (param(String.class, "action-draft") != null ||
-                "save".equalsIgnoreCase(param(String.class, "action")) ||
-                "save draft".equalsIgnoreCase(param(String.class, "action"))))) {
+        if (!isFormPost() ||
+                param(String.class, "action-draft") == null) {
             return false;
         }
 
@@ -1436,30 +1568,244 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Tries to delete the given {@code object} if the user has asked for it
+     * Tries to publish or schedule the given {@code object} if the user has
+     * asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the restore is tried.
+     */
+    public boolean tryPublish(Object object) {
+        if (!isFormPost() ||
+                param(String.class, "action-publish") == null) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+        Draft draft = getOverlaidDraft(object);
+        UUID variationId = param(UUID.class, "variationId");
+        Site site = getSite();
+        ToolUser user = getUser();
+
+        try {
+            state.beginWrites();
+            state.as(Content.ObjectModification.class).setDraft(false);
+
+            if (variationId == null ||
+                    (site != null &&
+                    ((state.isNew() && site.getDefaultVariation() != null) ||
+                    ObjectUtils.equals(site.getDefaultVariation(), state.as(Variation.Data.class).getInitialVariation())))) {
+                if (state.isNew() && site != null && site.getDefaultVariation() != null) {
+                    state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+                }
+
+                getRequest().setAttribute("original", object);
+                include("/WEB-INF/objectPost.jsp", "object", object, "original", object);
+                updateUsingAllWidgets(object);
+
+            } else {
+                Object original = Query.
+                        from(Object.class).
+                        where("_id = ?", state.getId()).
+                        noCache().
+                        first();
+                Map<String, Object> oldStateValues = State.getInstance(original).getSimpleValues();
+
+                getRequest().setAttribute("original", original);
+                include("/WEB-INF/objectPost.jsp", "object", object, "original", original);
+                updateUsingAllWidgets(object);
+
+                Map<String, Object> newStateValues = state.getSimpleValues();
+                Set<String> stateKeys = new LinkedHashSet<String>();
+                Map<String, Object> stateValues = new LinkedHashMap<String, Object>();
+
+                stateKeys.addAll(oldStateValues.keySet());
+                stateKeys.addAll(newStateValues.keySet());
+
+                for (String key : stateKeys) {
+                    Object value = newStateValues.get(key);
+                    if (!ObjectUtils.equals(oldStateValues.get(key), value)) {
+                        stateValues.put(key, value);
+                    }
+                }
+
+                State.getInstance(original).putByPath("variations/" + variationId.toString(), stateValues);
+                State.getInstance(original).getExtras().put("cms.variedObject", object);
+                object = original;
+                state = State.getInstance(object);
+            }
+
+            Schedule schedule = user.getCurrentSchedule();
+            Date publishDate = null;
+
+            if (schedule == null) {
+                publishDate = param(Date.class, "publishDate");
+
+                if (publishDate != null && publishDate.before(new Date())) {
+                    state.as(Content.ObjectModification.class).setPublishDate(publishDate);
+                    publishDate = null;
+                }
+
+            } else if (draft == null) {
+                draft = Query.
+                        from(Draft.class).
+                        where("schedule = ?", schedule).
+                        and("objectId = ?", object).
+                        first();
+            }
+
+            if (schedule != null || publishDate != null) {
+                state.validate();
+
+                if (draft == null) {
+                    draft = new Draft();
+                    draft.setOwner(user);
+                }
+
+                draft.setObject(object);
+
+                if (schedule == null) {
+                    schedule = draft.getSchedule();
+                }
+
+                if (schedule == null) {
+                    schedule = new Schedule();
+                    schedule.setTriggerSite(site);
+                    schedule.setTriggerUser(user);
+                }
+
+                if (publishDate != null) {
+                    schedule.setTriggerDate(publishDate);
+                    schedule.save();
+                }
+
+                draft.setSchedule(schedule);
+                draft.save();
+                state.commitWrites();
+                redirect("",
+                        "_isFrame", param(boolean.class, "_isFrame"),
+                        ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+
+            } else {
+                if (draft != null) {
+                    draft.delete();
+                }
+
+                publish(object);
+                state.commitWrites();
+                redirect("",
+                        "_isFrame", param(boolean.class, "_isFrame"),
+                        "id", state.getId(),
+                        "historyId", null,
+                        "copyId", null,
+                        "published", System.currentTimeMillis());
+            }
+
+        } catch (Exception error) {
+            getErrors().add(error);
+
+        } finally {
+            state.endWrites();
+        }
+
+        return true;
+    }
+
+    /**
+     * Tries to restore the given {@code object} if the user has asked for it
      * in the current request.
      *
      * @param object Can't be {@code null}.
-     * @return {@code true} if the delete is tried.
+     * @return {@code true} if the restore is tried.
      */
-    public boolean tryDelete(Object object) {
-        if (!(isFormPost() &&
-                (param(String.class, "action-delete") != null ||
-                "delete".equalsIgnoreCase(param(String.class, "action"))))) {
+    public boolean tryRestore(Object object) {
+        if (!isFormPost() ||
+                param(String.class, "action-restore") == null) {
+            return false;
+        }
+
+        try {
+            Draft draft = getOverlaidDraft(object);
+            State state = State.getInstance(draft != null ? draft : object);
+
+            state.as(Content.ObjectModification.class).setTrash(false);
+            publish(state);
+            redirect("");
+
+        } catch (Exception error) {
+            getErrors().add(error);
+        }
+
+        return true;
+    }
+
+    /**
+     * Tries to save the given {@code object} if the user has asked for it
+     * in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the trash is tried.
+     */
+    public boolean trySave(Object object) {
+        if (!isFormPost() ||
+                param(String.class, "action-save") == null) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+
+        try {
+            include("/WEB-INF/objectPost.jsp", "object", object);
+            state.save();
+            redirect("", "id", state.getId());
+
+        } catch (Exception error) {
+            getErrors().add(error);
+        }
+
+        return true;
+    }
+
+    /**
+     * Tries to apply a standard set of updates to the given {@code object}
+     * if the user has asked for any in the current request.
+     *
+     * <p>This method calls the following methods in order:</p>
+     *
+     * <ul>
+     * <li>{@link #tryDelete}</li>
+     * <li>{@link #tryRestore}</li>
+     * <li>{@link #trySave}</li>
+     * <li>{@link #tryTrash}</li>
+     * </ul>
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the trash is tried.
+     */
+    public boolean tryStandardUpdate(Object object) {
+        return tryDelete(object) ||
+                tryRestore(object) ||
+                trySave(object) ||
+                tryTrash(object);
+    }
+
+    /**
+     * Tries to trash the given {@code object} if the user has asked for it
+     * in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the trash is tried.
+     */
+    public boolean tryTrash(Object object) {
+        if (!isFormPost() ||
+                param(String.class, "action-trash") == null) {
             return false;
         }
 
         try {
             Draft draft = getOverlaidDraft(object);
 
-            if (draft != null) {
-                draft.delete();
-                redirect("", "discarded", System.currentTimeMillis());
-
-            } else {
-                trash(object);
-                redirect("", "id", null, "saved", null);
-            }
+            trash(draft != null ? draft : object);
+            redirect("");
 
         } catch (Exception error) {
             getErrors().add(error);

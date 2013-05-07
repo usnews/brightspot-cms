@@ -25,7 +25,7 @@ if (selected instanceof ToolUser && selectedState.isNew()) {
     ((ToolUser) selected).setRole(wp.getCmsTool().getDefaultRole());
 }
 
-if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (wp.tryStandardUpdate(selected)) {
     return;
 }
 
@@ -80,7 +80,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     <div class="main">
 
         <div class="widget">
-            <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+            <% wp.writeStandardForm(selected); %>
         </div>
 
     </div>

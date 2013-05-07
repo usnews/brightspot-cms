@@ -27,7 +27,7 @@ Object selected = wp.findOrReserve(Guide.class, Page.class, Template.class, Guid
 Class<?> selectedClass = selected.getClass();
 State selectedState = State.getInstance(selected);
 
-if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (wp.tryStandardUpdate(selected)) {
     return;
 }
 
@@ -112,7 +112,7 @@ wp.include("/WEB-INF/header.jsp"); %>
     <div class="main">
 
         <div class="widget">
-            <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+            <% wp.writeStandardForm(selected); %>
         </div>
 
     </div>

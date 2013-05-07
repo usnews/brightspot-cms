@@ -39,7 +39,7 @@ if (selectedClass == Variation.class && selectedState.isNew()) {
     ((Variation) selected).setPosition(minimumPosition - 1.0 - Math.random());
 }
 
-if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (wp.tryStandardUpdate(selected)) {
     return;
 }
 
@@ -84,7 +84,7 @@ List<Profile> profiles = Query.from(Profile.class).sortAscending("name").select(
     <div class="main">
 
         <div class="widget">
-            <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+            <% wp.writeStandardForm("selected"); %>
         </div>
 
     </div>

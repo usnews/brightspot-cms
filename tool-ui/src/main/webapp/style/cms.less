@@ -376,57 +376,54 @@ input[type=text].expandable { min-width: 5em; }
 .widget-publication {
     .box-shadow(~'0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px @{color-background}');
     margin-bottom: 10px;
-    padding-bottom: 6px;
 
-    .extraActions {
-        .piped;
-
-        border-top: 1px solid @color-note;
-        clear: both;
-        margin-bottom: 0;
-        padding-top: 5px;
+    .icon-wrench {
+        top: 6px;
+        position: absolute;
+        right: 10px;
     }
+}
 
-    .action-save,
-    .action-save:hover {
-        .button-extraLarge;
+.widget-publicationPublish {
+    margin-bottom: 0;
+    position: relative;
 
-        background: #ee6;
-        background: -moz-linear-gradient(top, #ff7, #dd5);
-        background: -webkit-gradient(linear, left top, left bottom, from(#ff7), to(#dd5));
-        border-style: none;
-        .box-shadow(~'rgba(0, 0, 0, 0.5) 0 1px 1px');
-        color: @color-text;
-        float: left;
-        margin-bottom: 15px;
-        margin-top: 5px;
-        text-shadow: #fff 0px 0px 2px;
+    [name='action-publish'] {
+        &,
+        &:hover {
+            .button-extraLarge;
 
-        &[value='Publish'],
-        &[value='Restore'] {
             background: #9c2;
             background: -moz-linear-gradient(top, #ad3, #7a0);
             background: -webkit-gradient(linear, left top, left bottom, from(#ad3), to(#7a0));
+            border-style: none;
+            .box-shadow(~'rgba(0, 0, 0, 0.5) 0 1px 1px');
+            color: @color-text;
+            margin-top: 5px;
+            text-shadow: #fff 0px 0px 2px;
+
+            &.schedule {
+                background: #ee6;
+                background: -moz-linear-gradient(top, #ff7, #dd5);
+                background: -webkit-gradient(linear, left top, left bottom, from(#ff7), to(#dd5));
+            }
         }
     }
 
-    .action-delete {
-        .link;
-
-        bottom: 40px;
-        color: @color-alert;
-        padding-left: 18px;
+    [name='action-trash'] {
         position: absolute;
-        right: 10px;
+        right: 0;
+        top: 54px;
     }
+}
 
-    .action-tools {
-        .icon-only;
+.widget-publicationExtra {
+    .piped;
 
-        bottom: 6px;
-        position: absolute;
-        right: 10px;
-    }
+    border-top: 1px solid @color-note;
+    margin-bottom: 0;
+    margin-top: 10px;
+    padding-top: 5px;
 }
 
 .widget-publication .otherWorkflows {

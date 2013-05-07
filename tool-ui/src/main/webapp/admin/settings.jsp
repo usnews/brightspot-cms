@@ -32,7 +32,7 @@ if (selected == null) {
     }
 }
 
-if (selected != null && wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (selected != null && wp.tryStandardUpdate(selected)) {
     return;
 }
 
@@ -94,7 +94,7 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
 
         <% if (selected != null) { %>
             <div class="widget">
-                <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+                <% wp.writeStandardForm(selected); %>
             </div>
         <% } %>
 

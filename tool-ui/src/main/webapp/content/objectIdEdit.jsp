@@ -27,7 +27,7 @@ if (wp.requireUser()) {
 }
 
 Object object = wp.findOrReserve();
-if (wp.include("/WEB-INF/objectPublish.jsp", "object", object)) {
+if (wp.tryPublish(object)) {
     return;
 }
 
@@ -86,17 +86,23 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
         }
         %>
     </div>
+
     <%    
-        if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-            wp.write("<div class=\"buttons\">");
-            wp.write("<input type=\"submit\" name=\"action\" value=\"Publish\" />");
-            wp.write("</div>");
-        }else{
-            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
-            wp.write(wp.typeLabel(state));
-            wp.write("!</p></div>");
-        }
-        
+    if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
+        wp.writeStart("div", "class", "buttons");
+            wp.writeStart("button",
+                    "class", "icon icon-action-publish",
+                    "name", "action-publish",
+                    "value", "true");
+                wp.writeHtml("Publish");
+            wp.writeEnd();
+        wp.writeEnd();
+
+    } else {
+        wp.writeStart("div", "class", "message message-warning");
+            wp.writeHtml("You don't have permission to edit this content!");
+        wp.writeEnd();
+    }
     %>
 </form>
 

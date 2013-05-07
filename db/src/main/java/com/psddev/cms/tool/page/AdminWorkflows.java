@@ -25,7 +25,7 @@ public class AdminWorkflows extends PageServlet {
         Object selected = page.findOrReserve(Workflow.class);
         State selectedState = State.getInstance(selected);
 
-        if (page.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+        if (page.tryStandardUpdate(selected)) {
             return;
         }
 
@@ -60,7 +60,7 @@ public class AdminWorkflows extends PageServlet {
 
                 page.writeStart("div", "class", "main");
                     page.writeStart("div", "class", "widget");
-                        page.include("/WEB-INF/editObject.jsp", "object", selected);
+                        page.writeStandardForm(selected);
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
