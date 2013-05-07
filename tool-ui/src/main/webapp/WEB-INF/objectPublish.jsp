@@ -46,8 +46,10 @@ Draft draft = wp.getOverlaidDraft(object);
 UUID variationId = wp.uuidParam("variationId");
 
 if ("Restore".equals(action)) {
-    state.as(Content.ObjectModification.class).setTrashed(false);
+    state.as(Content.ObjectModification.class).setTrash(false);
 }
+
+state.as(Content.ObjectModification.class).setDraft(false);
 
 try {
     state.beginWrites();
