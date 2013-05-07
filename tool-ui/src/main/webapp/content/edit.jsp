@@ -284,7 +284,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.writeHtml(" working on ");
 
                         wp.writeStart("a",
-                                "href", wp.objectUrl("/content/object.jsp", workStream),
+                                "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
                                 "target", "workStream");
                             wp.writeHtml(wp.getObjectLabel(workStream));
                         wp.writeEnd();
