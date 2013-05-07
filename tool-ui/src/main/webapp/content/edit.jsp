@@ -343,7 +343,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.writeEnd();
                     }
 
-                    if (state.as(Content.ObjectModification.class).isTrashed()) {
+                    if (state.as(Content.ObjectModification.class).isTrash()) {
                         wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Restore\">");
 
                     } else {

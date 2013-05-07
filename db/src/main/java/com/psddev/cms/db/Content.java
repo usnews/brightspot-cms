@@ -70,7 +70,7 @@ public abstract class Content extends Record {
 
         @Indexed(visibility = true)
         @InternalName("cms.content.trashed")
-        private Boolean trashed;
+        private Boolean trash;
 
         private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
@@ -91,14 +91,14 @@ public abstract class Content extends Record {
             this.draft = draft ? Boolean.TRUE : null;
         }
 
-        /** Returns {@code true} if this content is in trash. */
-        public boolean isTrashed() {
-            return Boolean.TRUE.equals(trashed);
+        /** Returns {@code true} if this content is a trash. */
+        public boolean isTrash() {
+            return Boolean.TRUE.equals(trash);
         }
 
-        /** Sets whether this content is in trash. */
-        public void setTrashed(boolean trashed) {
-            this.trashed = trashed ? Boolean.TRUE : null;
+        /** Sets whether this content is a trash. */
+        public void setTrash(boolean trash) {
+            this.trash = trash ? Boolean.TRUE : null;
         }
 
         /** Returns the date when the given {@code object} was published. */
@@ -145,7 +145,11 @@ public abstract class Content extends Record {
 
         @Override
         public String createVisibilityLabel(ObjectField field) {
-            return isTrashed() ? "Trashed" : null;
+            if (field.getInternalName().equals("cms.content.draft")) {
+                return isDraft() ? "Draft" : null;
+            } else {
+                return isTrash() ? "Trash" : null;
+            }
         }
     }
 
@@ -258,7 +262,7 @@ public abstract class Content extends Record {
             if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
                 ObjectModification contentData = state.as(ObjectModification.class);
 
-                contentData.trashed = true;
+                contentData.setTrash(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
                 state.save();
