@@ -595,6 +595,14 @@ $doc.delegate(':input', 'blur', function() {
     });
 })();
 
+$doc.on('click', 'button[name="action-delete"], :submit[name="action-delete"]', function() {
+    return confirm('Are you sure you want to permanently delete this item?');
+});
+
+$doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', function() {
+    return confirm('Are you sure you want to trash this item?');
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });

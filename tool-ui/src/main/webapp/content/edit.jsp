@@ -404,8 +404,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-trash",
                                         "name", "action-trash",
-                                        "value", "true",
-                                        "onclick", "return confirm('Are you sure you want to trash?');");
+                                        "value", "true");
                                     wp.writeHtml("Trash");
                                 wp.writeEnd();
                             }

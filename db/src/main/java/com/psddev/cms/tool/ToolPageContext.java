@@ -1445,8 +1445,7 @@ public class ToolPageContext extends WebPageContext {
                     writeStart("button",
                             "class", "icon icon-action-trash action-pullRight link",
                             "name", "action-trash",
-                            "value", "true",
-                            "onclick", "return confirm('Are you sure you want to trash?');");
+                            "value", "true");
                         writeHtml("Trash");
                     writeEnd();
                 }

@@ -65,8 +65,7 @@ wp.writeStart("form",
         wp.writeStart("button",
                 "class", "action action-delete action-pullRight link",
                 "name", "action-delete",
-                "value", true,
-                "onclick", "return confirm('Are you sure you want to delete?');");
+                "value", true);
             wp.writeHtml("Delete");
         wp.writeEnd();
     wp.writeEnd();
