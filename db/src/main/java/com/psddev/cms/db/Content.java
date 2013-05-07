@@ -65,6 +65,10 @@ public abstract class Content extends Record {
         }
 
         @Indexed(visibility = true)
+        @InternalName("cms.content.draft")
+        private Boolean draft;
+
+        @Indexed(visibility = true)
         @InternalName("cms.content.trashed")
         private Boolean trashed;
 
@@ -72,6 +76,20 @@ public abstract class Content extends Record {
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
         private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
         private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
+
+        /**
+         * Returns {@code true} if this content is a draft.
+         */
+        public boolean isDraft() {
+            return Boolean.TRUE.equals(draft);
+        }
+
+        /**
+         * Sets whether this content is a draft.
+         */
+        public void setDraft(boolean draft) {
+            this.draft = draft ? Boolean.TRUE : null;
+        }
 
         /** Returns {@code true} if this content is in trash. */
         public boolean isTrashed() {

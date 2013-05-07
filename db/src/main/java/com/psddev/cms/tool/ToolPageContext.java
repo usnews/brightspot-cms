@@ -1386,9 +1386,58 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Tries to delete the given {@code object} if the user has ask for it
+     * Tries to save the given {@code object} as a draft if the user has
+     * asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the save is tried.
+     */
+    public boolean tryDraft(Object object) {
+        if (!(isFormPost() &&
+                (param(String.class, "action-draft") != null ||
+                "save".equalsIgnoreCase(param(String.class, "action")) ||
+                "save draft".equalsIgnoreCase(param(String.class, "action"))))) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+        Draft draft = getOverlaidDraft(object);
+
+        try {
+            include("/WEB-INF/objectPost.jsp", "object", object);
+            updateUsingAllWidgets(object);
+
+            if (draft == null && state.isNew()) {
+                state.as(Content.ObjectModification.class).setDraft(true);
+                publish(state);
+                redirect("", "id", state.getId());
+                return true;
+            }
+
+            if (draft == null || draft.getSchedule() != null) {
+                draft = new Draft();
+                draft.setOwner(getUser());
+                draft.setObject(object);
+
+            } else {
+                draft.setObject(object);
+            }
+
+            publish(draft);
+            redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+
+        } catch (Exception error) {
+            getErrors().add(error);
+        }
+
+        return true;
+    }
+
+    /**
+     * Tries to delete the given {@code object} if the user has asked for it
      * in the current request.
      *
+     * @param object Can't be {@code null}.
      * @return {@code true} if the delete is tried.
      */
     public boolean tryDelete(Object object) {
