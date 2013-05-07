@@ -27,8 +27,10 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     private static final String GRIDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "grids";
 
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
+
     private transient HtmlWriter writer;
     private transient List<CssClassHtmlGrid> cssGrids;
+    private transient List<String> cssClasses;
     private transient Map<String, Object> areas;
 
     public Map<String, Object> getAreas() {
@@ -46,6 +48,26 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     // --- TagSupport support ---
 
+    public Object getAreaName(HttpServletRequest request, Object area) {
+        if (area instanceof Integer) {
+            int areaInt = (Integer) area;
+            int gridOffset = 0;
+
+            for (CssClassHtmlGrid entry : cssGrids) {
+                int gridAreaSize = entry.grid.getAreas().size();
+
+                if (areaInt < gridOffset + gridAreaSize) {
+                    return areaInt - gridOffset;
+
+                } else {
+                    gridOffset += gridAreaSize;
+                }
+            }
+        }
+
+        return area;
+    }
+
     @Override
     public int doStartTag() throws JspException {
         ServletContext context = pageContext.getServletContext();
@@ -54,7 +76,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         try {
             writer = new HtmlWriter(pageContext.getOut());
             cssGrids = new ArrayList<CssClassHtmlGrid>();
-            List<String> cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
+            cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
 
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
@@ -166,7 +188,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         public static void writeGridCss(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
             if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) == null) {
                 writer.writeStart("style", "type", "text/css");
-                    writer.writeGridCss(context, request);
+                    writer.writeAllGridCss(context, request);
                 writer.writeEnd();
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }
@@ -184,7 +206,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         public static void writeGridJavaScript(HtmlWriter writer, ServletContext context, HttpServletRequest request) throws IOException {
             if (request.getAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE) == null) {
                 writer.writeStart("script", "type", "text/javascript");
-                    writer.writeGridJavaScript(context, request);
+                    writer.writeAllGridJavaScript(context, request);
                 writer.writeEnd();
                 request.setAttribute(GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE, Boolean.TRUE);
             }

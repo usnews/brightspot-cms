@@ -46,6 +46,7 @@ public class ToolUi extends Modification<Object> {
     private Boolean suggestions;
     private Number suggestedMaximum;
     private Number suggestedMinimum;
+    private String tab;
 
     public boolean isDropDown() {
         return dropDown;
@@ -280,6 +281,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setSuggestedMinimum(Number suggestedMinimum) {
         this.suggestedMinimum = suggestedMinimum;
+    }
+
+    public String getTab() {
+        return tab;
+    }
+
+    public void setTab(String tab) {
+        this.tab = tab;
     }
 
     /**
@@ -693,6 +702,24 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    /**
+     * Specifies the tab that the target field belongs to.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(TabProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Tab {
+        String value();
+    }
+
+    private static class TabProcessor implements ObjectField.AnnotationProcessor<Tab> {
+        @Override
+        public void process(ObjectType type, ObjectField field, Tab annotation) {
+            field.as(ToolUi.class).setTab(annotation.value());
+        }
+    }
+
     // --- Legacy ---
 
     private static final String FIELD_PREFIX = "cms.ui.";
@@ -735,7 +762,7 @@ public class ToolUi extends Modification<Object> {
     /** Returns the set of types that the given {@code type} may switch to. */
     public static Set<ObjectType> getCompatibleTypes(ObjectType type) {
         Set<ObjectType> types = new HashSet<ObjectType>();
-        Collection<?> ids = (Collection<?>) type.getState().getValue(COMPATIBLE_TYPES_FIELD);
+        Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
         if (!ObjectUtils.isBlank(ids)) {
             DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
             for (Object idObject : ids) {
@@ -761,7 +788,7 @@ public class ToolUi extends Modification<Object> {
                 }
             }
         }
-        type.getState().putValue(COMPATIBLE_TYPES_FIELD, compatibleTypeIds);
+        type.getState().put(COMPATIBLE_TYPES_FIELD, compatibleTypeIds);
     }
 
     // --- Field annotations ---

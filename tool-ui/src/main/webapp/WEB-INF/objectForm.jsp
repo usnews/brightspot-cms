@@ -11,6 +11,7 @@ com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
 
 java.util.Collection,
+java.util.HashSet,
 java.util.List
 " %><%
 
@@ -26,51 +27,41 @@ List<ObjectField> fields = type != null ? type.getFields() : null;
 
 // --- Presentation ---
 
-String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
-if (!ObjectUtils.isBlank(noteHtml)) {
-    wp.write("<div class=\"message message-info\">");
-    wp.write(noteHtml);
-    wp.write("</div>");
-}
+wp.writeStart("div", "class", "objectInputs");
+    String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 
-if (fields != null) {
-    String lastDeclaring = null;
+    if (!ObjectUtils.isBlank(noteHtml)) {
+        wp.write("<div class=\"message message-info\">");
+        wp.write(noteHtml);
+        wp.write("</div>");
+    }
 
-    for (ObjectField field : fields) {
-        String name = field.getInternalName();
+    if (fields != null) {
+        Object old = request.getAttribute("modificationHeadings");
 
-        String heading = field.as(ToolUi.class).getHeading();
-        if (!ObjectUtils.isBlank(heading)) {
-            wp.write("<h2 style=\"margin-top: 20px;\">");
-            wp.write(wp.h(heading));
-            wp.write("</h2>");
-        }
+        try {
+            request.setAttribute("modificationHeadings", new HashSet<String>());
 
-        if ((includeFields == null ||
-                includeFields.contains(name)) &&
-                (excludeFields == null ||
-                !excludeFields.contains(name))) {
+            for (ObjectField field : fields) {
+                String name = field.getInternalName();
 
-            String declaring = field.getJavaDeclaringClassName();
-            if (lastDeclaring != null && !lastDeclaring.equals(declaring)) {
-                ObjectType declaringType = ObjectType.getInstance(declaring);
-                if (declaringType != null &&
-                        declaringType.getGroups().contains(Modification.class.getName()) &&
-                        !declaringType.as(ToolUi.class).isHidden()) {
-                    wp.write("<h2 style=\"margin-top: 20px;\">");
-                    wp.write(wp.objectLabel(declaringType));
-                    wp.write("</h2>");
+                if ((includeFields == null ||
+                        includeFields.contains(name)) &&
+                        (excludeFields == null ||
+                        !excludeFields.contains(name))) {
+                    wp.renderField(object, field);
                 }
             }
 
-            lastDeclaring = declaring;
-            wp.renderField(object, field);
+        } finally {
+            request.setAttribute("modificationHeadings", old);
         }
-    }
 
-} else { %>
-    <div class="inputContainer">
-        <div class="inputLabel"><label for="<%= wp.createId() %>">Data</label></div>
-        <div class="inputSmall"><textarea cols="100" id="<%= wp.getId() %>" name="data" rows="20"><%= wp.h(state.getJsonString()) %></textarea></div>
-    </div>
-<% } %>
+    } else { %>
+        <div class="inputContainer">
+            <div class="inputLabel"><label for="<%= wp.createId() %>">Data</label></div>
+            <div class="inputSmall"><textarea cols="100" id="<%= wp.getId() %>" name="data" rows="20"><%= wp.h(state.getJsonString()) %></textarea></div>
+        </div>
+    <% }
+wp.writeEnd();
+%>
