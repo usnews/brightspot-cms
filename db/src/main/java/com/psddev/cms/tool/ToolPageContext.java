@@ -811,6 +811,49 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    /**
+     * Writes a descriptive label HTML that contains the type information for
+     * the given {@code object}.
+     *
+     * @param object If {@code null}, writes {@code N/A}.
+     */
+    public void writeTypeObjectLabel(Object object) throws IOException {
+        if (object == null) {
+            writeHtml("N/A");
+
+        } else {
+            State state = State.getInstance(object);
+            ObjectType type = state.getType();
+            String visibilityLabel = state.getVisibilityLabel();
+            String label = state.getLabel();
+
+            if (!ObjectUtils.isBlank(visibilityLabel)) {
+                writeStart("span", "class", "visibilityLabel");
+                    writeHtml(visibilityLabel);
+                writeEnd();
+
+                writeHtml(" ");
+            }
+
+            if (type == null) {
+                writeHtml("Unknown Type");
+
+            } else {
+                String typeLabel = type.getLabel();
+
+                writeHtml(ObjectUtils.isBlank(typeLabel) ?
+                        type.getId() :
+                        typeLabel);
+            }
+
+            writeHtml(": ");
+
+            writeHtml(ObjectUtils.isBlank(label) ?
+                    state.getId() :
+                    label);
+        }
+    }
+
     /** Writes the tool header. */
     public void writeHeader() throws IOException {
         if (requireUser()) {
