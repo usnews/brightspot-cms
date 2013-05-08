@@ -32,7 +32,7 @@ public class ScheduledEvents extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
-        DateTime date = new DateTime(page.param(Date.class, "date"));
+        DateTime date = new DateTime(page.param(Date.class, "date"), page.getUserDateTimeZone());
         DateTime begin = mode.getBegin(date);
         DateTime end = mode.getEnd(date);
         Map<DateTime, List<Schedule>> schedulesByDate = new TreeMap<DateTime, List<Schedule>>();
@@ -54,7 +54,7 @@ public class ScheduledEvents extends PageServlet {
                 continue;
             }
 
-            DateTime scheduleDate = new DateTime(schedule.getTriggerDate()).toDateMidnight().toDateTime();
+            DateTime scheduleDate = page.toUserDateTime(schedule.getTriggerDate()).toDateMidnight().toDateTime();
             List<Schedule> schedules = schedulesByDate.get(scheduleDate);
 
             if (schedules != null) {
@@ -134,7 +134,7 @@ public class ScheduledEvents extends PageServlet {
             writer.writeStart("ul", "class", "pagination");
 
                 DateTime previous = mode.getPrevious(date);
-                DateTime today = new DateTime().toDateMidnight().toDateTime();
+                DateTime today = new DateTime(null, page.getUserDateTimeZone()).toDateMidnight().toDateTime();
 
                 if (!previous.isBefore(today)) {
                     writer.writeStart("li", "class", "previous");
@@ -200,14 +200,14 @@ public class ScheduledEvents extends PageServlet {
                         List<Schedule> schedules = entry.getValue();
 
                         writer.writeStart("div", "class", "calendarRow");
-                            writer.writeStart("div", "class", "calendarDay" + (date.equals(new DateTime().toDateMidnight()) ? " calendarDay-today" : ""));
+                            writer.writeStart("div", "class", "calendarDay" + (date.equals(new DateTime(null, page.getUserDateTimeZone()).toDateMidnight()) ? " calendarDay-today" : ""));
                                 writer.writeStart("span", "class", "calendarDayOfWeek").writeHtml(date.dayOfWeek().getAsShortText()).writeEnd();
                                 writer.writeStart("span", "class", "calendarDayOfMonth").writeHtml(date.dayOfMonth().get()).writeEnd();
                             writer.writeEnd();
 
                             writer.writeStart("div", "class", "calendarCell").writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
                                 for (Schedule schedule : schedules) {
-                                    DateTime triggerDate = new DateTime(schedule.getTriggerDate());
+                                    DateTime triggerDate = page.toUserDateTime(schedule.getTriggerDate());
                                     List<Draft> drafts = Query.from(Draft.class).where("schedule = ?", schedule).selectAll();
 
                                     if (drafts.isEmpty()) {

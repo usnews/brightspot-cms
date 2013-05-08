@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
@@ -837,6 +838,96 @@ public class ToolPageContext extends WebPageContext {
                     state.getId() :
                     label);
         }
+    }
+
+    /**
+     * Returns the user's time zone.
+     *
+     * @return Never {@code null}.
+     */
+    public DateTimeZone getUserDateTimeZone() {
+        DateTimeZone timeZone = null;
+        ToolUser user = getUser();
+
+        if (user != null) {
+            String timeZoneId = user.getTimeZone();
+
+            if (!ObjectUtils.isBlank(timeZoneId)) {
+                try {
+                    timeZone = DateTimeZone.forID(timeZoneId);
+                } catch (IllegalArgumentException error) {
+                }
+            }
+        }
+
+        return timeZone == null ?
+                DateTimeZone.getDefault() :
+                timeZone;
+    }
+
+    /**
+     * Converts the given {@code dateTime} to the user's time zone.
+     *
+     * @param dateTime If {@code null}, returns {@code null}.
+     * @return May be {@code null}.
+     */
+    public DateTime toUserDateTime(Object dateTime) {
+        return dateTime != null ?
+                new DateTime(dateTime, getUserDateTimeZone()) :
+                null;
+    }
+
+    /**
+     * Formats the given {@code dateTime} according to the given
+     * {@code format}.
+     *
+     * @param dateTime If {@code null}, returns {@code N/A}.
+     * @return Never {@code null}.
+     */
+    public String formatUserDateTimeWith(Object dateTime, String format) throws IOException {
+        return dateTime != null ?
+                toUserDateTime(dateTime).toString(format) :
+                "N/A";
+    }
+
+    /**
+     * Formats the given {@code dateTime} according to the default format.
+     *
+     * @param dateTime If {@code null}, returns {@code N/A}.
+     * @return Never {@code null}.
+     */
+    public String formatUserDateTime(Object dateTime) throws IOException {
+        return formatUserDateTimeWith(
+                dateTime,
+                new DateTime(dateTime).getYear() == new DateTime().getYear() ?
+                    "EEE MMM dd hh:mm aa" :
+                    "EEE MMM dd yyyy hh:mm aa");
+    }
+
+    /**
+     * Formats the date part of the given {@code dateTime} according to the
+     * default format.
+     *
+     * @param dateTime If {@code null}, returns {@code N/A}.
+     * @return Never {@code null}.
+     */
+    public String formatUserDate(Object dateTime) throws IOException {
+        return formatUserDateTimeWith(
+                dateTime,
+                new DateTime(dateTime).getYear() == new DateTime().getYear() ?
+                    "EEE MMM dd" :
+                    "EEE MMM dd yyyy");
+    }
+
+    /**
+     * Formats the time part of the given {@code dateTime} according to the
+     * default format.
+     *
+     * @param dateTime If {@code null}, returns {@code N/A}.
+     * @return Never {@code null}.
+     */
+    public String formatUserTime(Object dateTime) throws IOException {
+        return formatUserDateTimeWith(dateTime, "hh:mm aa");
     }
 
     /** Writes the tool header. */

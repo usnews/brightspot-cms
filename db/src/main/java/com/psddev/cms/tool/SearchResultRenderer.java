@@ -1,23 +1,8 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.db.Content;
-import com.psddev.cms.db.Directory;
-import com.psddev.cms.db.ImageTag;
-
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.ImageEditor;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.PaginatedResult;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -27,6 +12,19 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.joda.time.DateTime;
+
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.ImageTag;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PaginatedResult;
+import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
 
@@ -257,26 +255,25 @@ public class SearchResultRenderer {
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
             if (Search.NEWEST_SORT_VALUE.equals(search.getSort())) {
-                Date updateDate = State.getInstance(item).as(Content.ObjectModification.class).getUpdateDate();
+                DateTime updateDateTime = page.toUserDateTime(itemState.as(Content.ObjectModification.class).getUpdateDate());
 
-                if (updateDate == null) {
+                if (updateDateTime == null) {
                     writer.writeStart("td", "colspan", 2);
                         writer.writeHtml("N/A");
                     writer.writeEnd();
 
                 } else {
-                    DateTime jodaUpdateDate = new DateTime(updateDate);
-                    String date = jodaUpdateDate.toString("MMM dd, yyyy");
+                    String updateDate = page.formatUserDate(updateDateTime);
 
                     writer.writeStart("td", "class", "date");
-                        if (!ObjectUtils.equals(date, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
-                            request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, date);
-                            writer.writeHtml(date);
+                        if (!ObjectUtils.equals(updateDate, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
+                            request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, updateDate);
+                            writer.writeHtml(updateDate);
                         }
                     writer.writeEnd();
 
                     writer.writeStart("td", "class", "time");
-                        writer.writeHtml(jodaUpdateDate.toString("hh:mm a"));
+                        writer.writeHtml(page.formatUserTime(updateDateTime));
                     writer.writeEnd();
                 }
             }

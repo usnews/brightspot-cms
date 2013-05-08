@@ -418,8 +418,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("This is a draft last saved ");
-                                wp.writeHtml(draftContentData.getUpdateDate());
+                                wp.writeHtml("Draft last saved ");
+                                wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
                                 wp.writeHtml(" by ");
                                 wp.writeObjectLabel(draftContentData.getUpdateUser());
                                 wp.writeHtml(".");
@@ -427,23 +427,23 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                             wp.writeStart("div", "class", "actions");
                                 wp.writeStart("a",
-                                        "class", "icon icon-object",
+                                        "class", "icon icon-action-edit",
                                         "href", wp.url("", "draftId", null));
-                                    wp.writeHtml("View Current");
+                                    wp.writeHtml("Current");
                                 wp.writeEnd();
 
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-save",
                                         "name", "action-draft",
                                         "value", "true");
-                                    wp.writeHtml("Resave");
+                                    wp.writeHtml("Save");
                                 wp.writeEnd();
 
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-delete",
                                         "name", "action-delete",
                                         "value", "true");
-                                    wp.writeHtml("Delete Draft");
+                                    wp.writeHtml("Delete");
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
@@ -452,8 +452,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     } else if (isHistory) {
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("This is a past revision saved ");
-                                wp.writeHtml(history.getUpdateDate());
+                                wp.writeHtml("Past revision saved ");
+                                wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
                                 wp.writeHtml(" by ");
                                 wp.writeObjectLabel(history.getUpdateUser());
                                 wp.writeHtml(".");
@@ -461,9 +461,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                             wp.writeStart("div", "class", "actions");
                                 wp.writeStart("a",
-                                        "class", "icon icon-object",
+                                        "class", "icon icon-action-edit",
                                         "href", wp.url("", "historyId", null));
-                                    wp.writeHtml("View Current");
+                                    wp.writeHtml("Current");
                                 wp.writeEnd();
 
                                 wp.writeHtml(" ");

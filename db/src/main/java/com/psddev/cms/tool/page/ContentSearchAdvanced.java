@@ -89,7 +89,7 @@ public class ContentSearchAdvanced extends PageServlet {
             HttpServletResponse response = page.getResponse();
 
             response.setContentType("text/csv");
-            response.setHeader("Content-Disposition", "attachment; filename=search-result-" + new DateTime().toString("yyyy-MM-dd-hh-mm-ss") + ".csv");
+            response.setHeader("Content-Disposition", "attachment; filename=search-result-" + new DateTime(null, page.getUserDateTimeZone()).toString("yyyy-MM-dd-hh-mm-ss") + ".csv");
 
             page.putOverride(Recordable.class, new HtmlFormatter<Recordable>() {
                 @Override
