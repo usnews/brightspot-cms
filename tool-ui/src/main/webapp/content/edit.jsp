@@ -350,16 +350,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                             wp.writeStart("div", "class", "message message-info");
                                 wp.writeStart("p");
-                                    if (currentState != null) {
-                                        wp.writeHtml("Workflow State: ");
-                                        wp.writeStart("strong");
-                                            wp.writeHtml(currentState);
-                                        wp.writeEnd();
-                                        wp.writeHtml(".");
-
-                                    } else {
-                                        wp.writeHtml("New Workflow Content:");
-                                    }
+                                    wp.writeHtml("Workflow: ");
+                                    wp.writeHtml(currentState);
                                 wp.writeEnd();
 
                                 wp.writeStart("div", "class", "actions");
@@ -369,21 +361,20 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         String comment = log.getComment();
 
                                         wp.writeStart("p");
-                                            wp.writeStart("strong");
+                                            if (ObjectUtils.isBlank(comment)) {
                                                 wp.writeHtml(log.getTransition());
-                                            wp.writeEnd();
+                                                wp.writeHtml(" by ");
 
-                                            wp.writeHtml(" by ");
-                                            wp.writeObjectLabel(log.getUser());
-                                            wp.writeHtml(" at ");
-                                            wp.writeHtml(log.getDate());
-
-                                            if (!ObjectUtils.isBlank(comment)) {
-                                                wp.writeHtml(" ");
+                                            } else {
                                                 wp.writeStart("q");
                                                     wp.writeHtml(comment);
                                                 wp.writeEnd();
+                                                wp.writeHtml(" said ");
                                             }
+
+                                            wp.writeObjectLabel(log.getUser());
+                                            wp.writeHtml(" at ");
+                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                         wp.writeEnd();
                                     }
 
