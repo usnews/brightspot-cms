@@ -1448,6 +1448,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-searcher-path", ui.getInputSearcherPath(),
                     "data-suggestions", ui.isEffectivelySuggestions(),
                     "data-typeIds", typeIds,
+                    "data-visibility", value != null ? state.getVisibilityLabel() : null,
                     "value", value != null ? state.getId() : null,
                     attributes);
         }
