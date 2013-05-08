@@ -42,7 +42,7 @@ public class ScheduleList extends PageServlet {
                                         "scheduleId", schedule.getId(),
                                         "returnUrl", page.cmsUrl("/")));
                             page.writeStart("button", "class", "link");
-                                page.writeHtml(page.getObjectLabel(schedule));
+                                page.writeObjectLabel(schedule);
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

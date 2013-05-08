@@ -102,7 +102,7 @@ public class ScheduleEdit extends PageServlet {
                             page.writeStart("a",
                                     "href", page.objectUrl("/content/edit.jsp", draft),
                                     "target", "_top");
-                                page.writeHtml(page.getObjectLabel(draft));
+                                page.writeObjectLabel(draft);
                             page.writeEnd();
                         page.writeEnd();
                     }

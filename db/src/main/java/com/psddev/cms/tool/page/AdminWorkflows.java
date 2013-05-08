@@ -50,7 +50,7 @@ public class AdminWorkflows extends PageServlet {
                                     selectAll()) {
                                 page.writeStart("li", "class", workflow.equals(selected) ? "selected" : null);
                                     page.writeStart("a", "href", page.objectUrl(null, workflow));
-                                        page.writeHtml(page.getObjectLabel(workflow));
+                                        page.writeObjectLabel(workflow);
                                     page.writeEnd();
                                 page.writeEnd();
                             }

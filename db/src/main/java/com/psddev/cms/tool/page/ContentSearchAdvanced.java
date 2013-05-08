@@ -165,7 +165,7 @@ public class ContentSearchAdvanced extends PageServlet {
             @Override
             public void format(HtmlWriter writer, Recordable object) throws IOException {
                 ToolPageContext page = (ToolPageContext) writer;
-                page.writeHtml(page.getObjectLabel(object));
+                page.writeObjectLabel(object);
             }
         });
 
@@ -182,7 +182,7 @@ public class ContentSearchAdvanced extends PageServlet {
                 ToolPageContext page = (ToolPageContext) writer;
                 page.writeStart("a",
                         "href", page.objectUrl("/content/edit.jsp", content));
-                    page.writeHtml(page.getObjectLabel(content));
+                    page.writeObjectLabel(content);
                 page.writeEnd();
             }
         });
@@ -386,7 +386,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                         page.writeStart("td", "data-preview-anchor", "");
                                             page.writeStart("a",
                                                     "href", page.objectUrl("/content/edit.jsp", item));
-                                                page.writeHtml(page.getObjectLabel(item));
+                                                page.writeObjectLabel(item);
                                             page.writeEnd();
                                         page.writeEnd();
 

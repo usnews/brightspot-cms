@@ -287,7 +287,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.writeStart("a",
                                 "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
                                 "target", "workStream");
-                            wp.writeHtml(wp.getObjectLabel(workStream));
+                            wp.writeObjectLabel(workStream);
                         wp.writeEnd();
 
                         wp.writeHtml(" with you");
@@ -371,7 +371,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                             wp.writeEnd();
 
                                             wp.writeHtml(" by ");
-                                            wp.writeHtml(wp.getObjectLabel(log.getUser()));
+                                            wp.writeObjectLabel(log.getUser());
                                             wp.writeHtml(" at ");
                                             wp.writeHtml(log.getDate());
 

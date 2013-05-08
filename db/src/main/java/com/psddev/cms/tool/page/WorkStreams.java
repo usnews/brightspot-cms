@@ -75,7 +75,7 @@ public class WorkStreams extends PageServlet {
                         page.writeStart("a",
                                 "href", page.objectUrl("/content/workStreamEdit.jsp", workStream, "reload", true),
                                 "target", "workStream");
-                            page.writeHtml(page.getObjectLabel(workStream));
+                            page.writeObjectLabel(workStream);
                         page.writeEnd();
 
                         if (working) {
