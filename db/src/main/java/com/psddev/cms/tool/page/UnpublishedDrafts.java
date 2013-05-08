@@ -35,7 +35,6 @@ public class UnpublishedDrafts extends PageServlet {
         Map<String, String> stateLabels = new TreeMap<String, String>();
 
         stateLabels.put("draft", "Draft");
-        stateLabels.put("scheduled", "Scheduled");
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
@@ -49,10 +48,7 @@ public class UnpublishedDrafts extends PageServlet {
         if ("draft".equals(state)) {
             draftsQuery = Query.
                     from(Object.class).
-                    where("cms.content.draft = true");
-
-        } else if ("scheduled".equals(state)) {
-            draftsQuery = Query.from(Draft.class);
+                    where("_type = ? or cms.content.draft = true", Draft.class);
 
         } else if (state != null && state.startsWith("ws.")) {
             draftsQuery = Query.
@@ -62,7 +58,7 @@ public class UnpublishedDrafts extends PageServlet {
         } else {
             draftsQuery = Query.
                     from(Object.class).
-                    where("cms.content.draft = true or cms.workflow.currentState != missing");
+                    where("_type = ? or cms.content.draft = true or cms.workflow.currentState != missing", Draft.class);
         }
 
         int limit = page.pageParam(int.class, "limit", 20);
@@ -156,38 +152,66 @@ public class UnpublishedDrafts extends PageServlet {
                 page.writeStart("table", "class", "links table-striped pageThumbnails");
                     page.writeStart("tbody");
                         for (Object item : drafts.getItems()) {
-                            Object draft;
-
                             if (item instanceof Draft) {
-                                draft = (Draft) item;
-                                item = ((Draft) item).getObject();
+                                Draft draft = (Draft) item;
+                                item = draft.getObject();
 
                                 if (item == null) {
                                     continue;
                                 }
 
-                            } else {
-                                draft = item;
-                            }
+                                State itemState = State.getInstance(item);
 
-                            State itemState = State.getInstance(item);
-                            UUID itemId = itemState.getId();
+                                if (!itemState.isVisible()) {
+                                    continue;
+                                }
 
-                            page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + itemId);
-                                page.writeStart("td");
-                                    page.writeHtml(page.getTypeLabel(item));
-                                page.writeEnd();
+                                UUID draftId = draft.getId();
 
-                                page.writeStart("td", "data-preview-anchor", "");
-                                    page.writeStart("a", "href", page.url("/content/edit.jsp", "id", itemId), "target", "_top");
-                                        page.writeObjectLabel(item);
+                                page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draftId);
+                                    page.writeStart("td");
+                                        page.writeHtml(page.getTypeLabel(item));
+                                    page.writeEnd();
+
+                                    page.writeStart("td", "data-preview-anchor", "");
+                                        page.writeStart("a",
+                                                "target", "_top",
+                                                "href", page.url("/content/edit.jsp",
+                                                        "id", itemState.getId(),
+                                                        "draftId", draftId));
+                                            page.writeStart("span", "class", "visibilityLabel");
+                                                page.writeHtml("Draft");
+                                            page.writeEnd();
+                                            page.writeHtml(" ");
+                                            page.writeObjectLabel(item);
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("td");
+                                        page.writeObjectLabel(draft.as(Content.ObjectModification.class).getUpdateUser());
                                     page.writeEnd();
                                 page.writeEnd();
 
-                                page.writeStart("td");
-                                    page.writeObjectLabel(State.getInstance(draft).as(Content.ObjectModification.class).getUpdateUser());
+                            } else {
+                                State itemState = State.getInstance(item);
+                                UUID itemId = itemState.getId();
+
+                                page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + itemId);
+                                    page.writeStart("td");
+                                        page.writeHtml(page.getTypeLabel(item));
+                                    page.writeEnd();
+
+                                    page.writeStart("td", "data-preview-anchor", "");
+                                        page.writeStart("a", "href", page.url("/content/edit.jsp", "id", itemId), "target", "_top");
+                                            page.writeObjectLabel(item);
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("td");
+                                        page.writeObjectLabel(itemState.as(Content.ObjectModification.class).getUpdateUser());
+                                    page.writeEnd();
                                 page.writeEnd();
-                            page.writeEnd();
+                            }
                         }
                     page.writeEnd();
                 page.writeEnd();
