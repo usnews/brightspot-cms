@@ -21,6 +21,9 @@ public class ToolUser extends Record {
     @Required
     private String email;
 
+    @ToolUi.FieldDisplayType("timeZone")
+    private String timeZone;
+
     @ToolUi.FieldDisplayType("password")
     private String password;
 
@@ -60,6 +63,20 @@ public class ToolUser extends Record {
     /** Sets the email. */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    /**
+     * Returns the time zone.
+     */
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    /**
+     * Sets the time zone.
+     */
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 
     /** Returns the password. */
