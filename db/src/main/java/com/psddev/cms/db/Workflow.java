@@ -173,13 +173,17 @@ public class Workflow extends Record {
             }
 
             currentState = transitionTarget;
-            Log log = new Log();
+            List<Log> logs = getLogs();
 
-            log.setDate(new Date());
-            log.setTransition(transitionName);
-            log.setUserId(user != null ? user.getId() : null);
-            log.setComment(comment);
-            getLogs().add(log);
+            if (transition != null || !logs.isEmpty()) {
+                Log log = new Log();
+
+                log.setDate(new Date());
+                log.setTransition(transitionName);
+                log.setUserId(user != null ? user.getId() : null);
+                log.setComment(comment);
+                logs.add(log);
+            }
 
             return currentState;
         }
