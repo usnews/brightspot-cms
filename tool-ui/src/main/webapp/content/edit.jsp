@@ -412,9 +412,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     // Message and actions if the content is a draft.
                     if (isDraft) {
+                        Content.ObjectModification draftContentData = State.
+                                getInstance(draft != null ? draft : editing).
+                                as(Content.ObjectModification.class);
+
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("This is a draft.");
+                                wp.writeHtml("This is a draft last saved ");
+                                wp.writeHtml(draftContentData.getUpdateDate());
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                wp.writeHtml(".");
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
@@ -448,6 +456,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                 wp.writeHtml(history.getUpdateDate());
                                 wp.writeHtml(" by ");
                                 wp.writeObjectLabel(history.getUpdateUser());
+                                wp.writeHtml(".");
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
