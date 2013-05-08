@@ -47,6 +47,7 @@ public class AuthenticationFilter extends AbstractFilter {
 
         } finally {
             if (Boolean.TRUE.equals(request.getAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE))) {
+                Database.Static.setIgnoreReadConnection(false);
                 Database.Static.restoreDefault();
             }
 
@@ -100,6 +101,7 @@ public class AuthenticationFilter extends AbstractFilter {
                 };
 
                 db.setDelegate(Database.Static.getDefault());
+                Database.Static.setIgnoreReadConnection(true);
                 Database.Static.overrideDefault(db);
                 request.setAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE, Boolean.TRUE);
 
