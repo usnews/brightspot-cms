@@ -423,7 +423,7 @@ public class CmsTool extends Tool {
         plugins.add(createJspWidget("Create New", "dashboard.createNew", "/createNew", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Bulk Upload", "dashboard.bulkUpload", "/bulkUpload", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Drafts", "dashboard.unpublishedDrafts", "/misc/unpublishedDrafts.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
+        plugins.add(createPageWidget("Drafts", "dashboard.unpublishedDrafts", "/unpublishedDrafts", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Resources", "dashboard.resources", "/resources", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
 
         // Content right widgets.

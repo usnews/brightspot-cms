@@ -46,7 +46,6 @@ import com.psddev.cms.db.Trash;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.db.Workflow;
-import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.db.WorkflowTransition;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
@@ -1876,16 +1875,8 @@ public class ToolPageContext extends WebPageContext {
 
                 if (transition != null) {
                     include("/WEB-INF/objectPost.jsp", "object", object);
-
-                    if (workflowData.changeState(
-                            transition,
-                            getUser(),
-                            param(String.class, "workflowComment")) == null) {
-                        publish(object);
-
-                    } else {
-                        state.save();
-                    }
+                    workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
+                    publish(object);
                 }
             }
 
