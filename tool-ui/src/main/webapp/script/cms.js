@@ -532,7 +532,7 @@ $doc.delegate(':input', 'blur', function() {
             $dropLink.text("Drop Files Here");
 
             $fileInputContainer = $('<div/>', {
-                'class': 'uploadbleFile',
+                'class': 'uploadableFile',
                 'css': $.extend(overlayCss, {
                     'z-index': 2000000
                 })
