@@ -36,6 +36,7 @@ com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
+java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
 java.util.Map,
@@ -378,7 +379,13 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         wp.writeEnd();
                                     }
 
-                                    Set<String> transitionNames = workflow.getTransitionsFrom(currentState).keySet();
+                                    Set<String> transitionNames = new LinkedHashSet<String>();
+
+                                    for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                        if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
+                                            transitionNames.add(transitionName);
+                                        }
+                                    }
 
                                     if (!transitionNames.isEmpty()) {
                                         wp.writeStart("textarea",
@@ -387,13 +394,11 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         wp.writeEnd();
 
                                         for (String transitionName : transitionNames) {
-                                            if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                                wp.writeStart("button",
-                                                        "name", "action-workflow",
-                                                        "value", transitionName);
-                                                    wp.writeHtml(transitionName);
-                                                wp.writeEnd();
-                                            }
+                                            wp.writeStart("button",
+                                                    "name", "action-workflow",
+                                                    "value", transitionName);
+                                                wp.writeHtml(transitionName);
+                                            wp.writeEnd();
                                         }
                                     }
                                 wp.writeEnd();
@@ -474,7 +479,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
 
                     // Publish and trash buttons.
-                    if (!isTrash) {
+                    if (!isTrash && wp.hasPermission("type/" + editingState.getId() + "/publish")) {
                         wp.writeStart("div", "class", "widget-publicationPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",

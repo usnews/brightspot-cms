@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Site,
+com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
@@ -14,8 +15,10 @@ com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.SparseSet,
 
 java.io.IOException,
+java.util.HashMap,
 java.util.HashSet,
 java.util.List,
+java.util.Map,
 java.util.Set
 " %><%
 
@@ -75,6 +78,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     return;
 }
 
+Map<ObjectType, Workflow> workflows = new HashMap<ObjectType, Workflow>();
+
+for (Workflow w : Query.from(Workflow.class).selectAll()) {
+    for (ObjectType t : w.getContentTypes()) {
+        workflows.put(t, w);
+    }
+}
+
 // --- Presentation ---
 
 %><div class="inputSmall permissions"><ul>
@@ -131,6 +142,19 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 <ul>
                     <li><% writeChild(wp, permissions, "Read", typePermissionId + "/read"); %>
                     <li><% writeChild(wp, permissions, "Write", typePermissionId + "/write"); %>
+
+                    <%
+                    Workflow workflow = workflows.get(type);
+
+                    if (workflow != null) {
+                        for (String transition : workflow.getTransitions().keySet()) {
+                            wp.writeStart("li");
+                                writeChild(wp, permissions, transition, typePermissionId + "/" + transition);
+                            wp.writeEnd();
+                        }
+                    }
+                    %>
+
                     <li><% writeChild(wp, permissions, "Publish", typePermissionId + "/publish"); %>
                     <li><% writeParent(wp, permissions, "All Fields", fieldPermissionIdPrefix); %>
                         <%--ul>
