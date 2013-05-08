@@ -35,7 +35,7 @@ public class UnpublishedDrafts extends PageServlet {
         Map<String, String> stateLabels = new TreeMap<String, String>();
 
         stateLabels.put("draft", "Draft");
-        stateLabels.put("draftLegacy", "Draft (Legacy)");
+        stateLabels.put("scheduled", "Scheduled");
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
@@ -51,7 +51,7 @@ public class UnpublishedDrafts extends PageServlet {
                     from(Object.class).
                     where("cms.content.draft = true");
 
-        } else if ("draftLegacy".equals(state)) {
+        } else if ("scheduled".equals(state)) {
             draftsQuery = Query.from(Draft.class);
 
         } else if (state != null && state.startsWith("ws.")) {
