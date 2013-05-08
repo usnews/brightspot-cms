@@ -1709,7 +1709,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 draft.setSchedule(schedule);
-                draft.save();
+                publish(draft);
                 state.commitWrites();
                 redirect("",
                         "_isFrame", param(boolean.class, "_isFrame"),
