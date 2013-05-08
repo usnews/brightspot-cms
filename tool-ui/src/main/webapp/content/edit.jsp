@@ -7,6 +7,7 @@ com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
 com.psddev.cms.db.Guide,
 com.psddev.cms.db.GuidePage,
+com.psddev.cms.db.History,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Schedule,
@@ -332,6 +333,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
                 Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
                 boolean isDraft = contentData.isDraft() || draft != null;
+                History history = wp.getOverlaidHistory(editing);
+                boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
 
                 if (isWritable) {
@@ -415,6 +418,12 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
+                                wp.writeStart("a",
+                                        "class", "icon icon-object",
+                                        "href", wp.url("", "draftId", null));
+                                    wp.writeHtml("View Current");
+                                wp.writeEnd();
+
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-save",
                                         "name", "action-draft",
@@ -427,6 +436,34 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         "name", "action-delete",
                                         "value", "true");
                                     wp.writeHtml("Delete Draft");
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        wp.writeEnd();
+
+                    // Message and actions if the content is a past revision.
+                    } else if (isHistory) {
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml("This is a past revision saved ");
+                                wp.writeHtml(history.getUpdateDate());
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(history.getUpdateUser());
+                            wp.writeEnd();
+
+                            wp.writeStart("div", "class", "actions");
+                                wp.writeStart("a",
+                                        "class", "icon icon-object",
+                                        "href", wp.url("", "historyId", null));
+                                    wp.writeHtml("View Current");
+                                wp.writeEnd();
+
+                                wp.writeHtml(" ");
+
+                                wp.writeStart("a",
+                                        "class", "icon icon-object-history",
+                                        "href", wp.url("/historyEdit", "id", history.getId()),
+                                        "target", "historyEdit");
+                                    wp.writeHtml("Name Revision");
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
@@ -457,7 +494,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                 wp.writeHtml("Publish");
                             wp.writeEnd();
 
-                            if (!isDraft && !editingState.isNew()) {
+                            if (!isDraft && !isHistory && !editingState.isNew()) {
                                 wp.writeStart("button",
                                         "class", "link icon icon-action-trash",
                                         "name", "action-trash",

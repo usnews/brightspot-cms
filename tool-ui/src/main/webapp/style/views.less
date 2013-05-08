@@ -69,6 +69,7 @@
     button {
         height: 26px;
         margin-right: 10px;
+        white-space: nowrap;
     }
 
     .action-pullRight {
@@ -201,6 +202,8 @@ figure,
         font-size: @fontSize-icon;
         font-weight: normal;
         padding-right: 0.25em;
+        text-align: center;
+        width: 1em;
 
         &:hover {
             text-decoration: none !important;
@@ -756,6 +759,15 @@ table.links.table-striped {
         background: transparent;
         margin: 0 0 0 -23px;
         padding: 0;
+
+        .action,
+        .button,
+        .link,
+        a,
+        button {
+            display: block;
+            height: auto;
+        }
     }
 }
 
@@ -1105,7 +1117,7 @@ table.links.table-striped {
 .icon-object-directory { .icon-sitemap; }
 .icon-object-draft { .icon-edit; }
 .icon-object-guide { .icon-question-sign; }
-.icon-object-history { .icon-hdd; }
+.icon-object-history { .icon-copy; }
 .icon-object-schedule { .icon-calendar; }
 .icon-object-site { .icon-globe; }
 .icon-object-template { .icon-th; }
