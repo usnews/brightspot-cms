@@ -1640,6 +1640,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         State state = State.getInstance(object);
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
         Draft draft = getOverlaidDraft(object);
         UUID variationId = param(UUID.class, "variationId");
         Site site = getSite();
@@ -1647,7 +1648,6 @@ public class ToolPageContext extends WebPageContext {
 
         try {
             state.beginWrites();
-            state.as(Content.ObjectModification.class).setDraft(false);
             state.as(Workflow.Data.class).changeState(null, user, null);
 
             if (variationId == null ||
@@ -1723,6 +1723,12 @@ public class ToolPageContext extends WebPageContext {
 
                 draft.setObject(object);
 
+                if (state.isNew() || contentData.isDraft()) {
+                    contentData.setDraft(true);
+                    publish(state);
+                    draft.setObjectChanges(null);
+                }
+
                 if (schedule == null) {
                     schedule = draft.getSchedule();
                 }
@@ -1750,6 +1756,7 @@ public class ToolPageContext extends WebPageContext {
                     draft.delete();
                 }
 
+                contentData.setDraft(false);
                 publish(object);
                 state.commitWrites();
                 redirect("",
