@@ -1615,7 +1615,9 @@ public class ToolPageContext extends WebPageContext {
             }
 
             publish(draft);
-            redirect("", ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
+            redirect("",
+                    ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
+                    ToolPageContext.HISTORY_ID_PARAMETER, null);
             return true;
 
         } catch (Exception error) {
