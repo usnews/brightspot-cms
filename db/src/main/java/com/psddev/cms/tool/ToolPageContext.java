@@ -784,6 +784,34 @@ public class ToolPageContext extends WebPageContext {
                 "_", lastModified);
     }
 
+    /**
+     * Writes a descriptive label HTML for the given {@code object}.
+     *
+     * @param object If {@code null}, writes {@code N/A}.
+     */
+    public void writeObjectLabel(Object object) throws IOException {
+        if (object == null) {
+            writeHtml("N/A");
+
+        } else {
+            State state = State.getInstance(object);
+            String visibilityLabel = state.getVisibilityLabel();
+            String label = state.getLabel();
+
+            if (!ObjectUtils.isBlank(visibilityLabel)) {
+                writeStart("span", "class", "visibilityLabel");
+                    writeHtml(visibilityLabel);
+                writeEnd();
+
+                writeHtml(" ");
+            }
+
+            writeHtml(ObjectUtils.isBlank(label) ?
+                    state.getId() :
+                    state.getLabel());
+        }
+    }
+
     /** Writes the tool header. */
     public void writeHeader() throws IOException {
         if (requireUser()) {
