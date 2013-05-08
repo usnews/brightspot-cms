@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -58,6 +59,26 @@ public class Workflow extends Record {
 
     public void setActions(Map<String, Object> actions) {
         this.actions = actions;
+    }
+
+    /**
+     * Returns a set of all states in this workflow.
+     *
+     * @return Never {@code null}. Modifiable.
+     */
+    public Set<WorkflowState> getStates() {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        Set<WorkflowState> states = new HashSet<WorkflowState>();
+
+        for (Map<String, Object> s : actions.get("states")) {
+            WorkflowState state = new WorkflowState();
+
+            state.setName((String) s.get("name"));
+            states.add(state);
+        }
+
+        return states;
     }
 
     public Map<String, WorkflowTransition> getTransitions() {
