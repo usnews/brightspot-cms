@@ -598,21 +598,6 @@ public class ToolPageContext extends WebPageContext {
                         and("objectId = ?", objectId).
                         first();
 
-                if (draft == null &&
-                        !ORIGINAL_DRAFT_VALUE.equals(param(String.class, DRAFT_ID_PARAMETER))) {
-                    for (Draft d : getDatabase().readAll(Query.
-                            from(Draft.class).
-                            where("objectId = ?", objectId))) {
-                        String name = d.getName();
-
-                        if (d.getSchedule() == null &&
-                                (name == null || name.length() == 0)) {
-                            draft = d;
-                            break;
-                        }
-                    }
-                }
-
                 if (draft != null) {
                     state.getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
                     state.getValues().putAll(draft.getObjectChanges());
