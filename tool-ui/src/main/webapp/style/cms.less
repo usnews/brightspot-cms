@@ -389,10 +389,13 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .widget-publicationPublish {
+    .clearfix;
+
     margin-bottom: 0;
-    position: relative;
 
     [name='action-publish'] {
+        float: left;
+
         &,
         &:hover {
             .button-extraLarge;
@@ -415,9 +418,8 @@ input[type=text].expandable { min-width: 5em; }
     }
 
     [name='action-trash'] {
-        position: absolute;
-        right: 0;
-        top: 54px;
+        float: right;
+        margin-top: 28px;
     }
 }
 
@@ -426,7 +428,7 @@ input[type=text].expandable { min-width: 5em; }
 
     border-top: 1px solid @color-note;
     margin-bottom: 0;
-    margin-top: 10px;
+    margin-top: 5px;
     padding-top: 5px;
 }
 
