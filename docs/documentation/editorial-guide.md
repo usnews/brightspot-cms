@@ -11,14 +11,14 @@ section: documentation
 
 Logging into Brightspot brings you to the Dashboard. Here you will find common widgets, your navigation to other areas of the CMS, a global search, and access to admin and settings.
 
-![](/img/editor/dashboard.png)
+![](http://docs.brightspot.s3.amazonaws.com/2.1-dashbaord-view.png)
 
 
 **Tool Hat**
 
 The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, log-out and change which site you are viewing if using Multisite.
 
-![](http://docs.brightspot.s3.amazonaws.com/dashboard_profile_2.1.png)
+![](http://docs.brightspot.s3.amazonaws.com/2.1-edit-profile.png)
 
 
 **Search**
@@ -87,6 +87,7 @@ Upload files in bulk right from the dashboard. Clicking on Upload Files provides
 
 Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget.
 
+From the Schedules widget you can create new Schdules, which 
 ![](http://docs.brightspot.s3.amazonaws.com/sch_widget_dash.png)
 
 
@@ -159,7 +160,7 @@ In Brightspot you can add items to content as 'Enhancements'. These can be vario
 
 Clicking into the `Body` content, seen below, opens the Rich Text Editor tools, click 'Add Enhancement' to open the menu.
 
-![](http://cdn.psddev.com/20/86/47714e1746bda48a740276b79ed5/add-an-enhancement.29.27%20AM.png)
+![](http://docs.brightspot.s3.amazonaws.com/adding-enhancement-2.1.png)
 
 Once clicked you will see an 'Empty Enhancement' in your content. Click the Edit link to open the find tool. Here you can either select an existing image or any other content that has been designated as being applicable for inclusion. If you want to add a new object you can do that from here also.
 
@@ -191,6 +192,14 @@ Predefined crop sizes are found to the right of an image. These are grouped by a
 
 ![](http://cdn.psddev.com/d6/5f/28f9f6404f39bd195b8d6d2a5964/cropping-an-image-20.57.48%20AM.png)
 
+## Adding External Content
+
+External content can be embedded into a rich text area by simply pasting a URL. Add an Enhancement, and select the External Content type. Paste in the URL of your desired content and save. Use preview to see the content inline. Example include Twitter - adding a tweet, YouTube - adding a video and Flickr - adding an image. 
+
+![](http://docs.brightspot.s3.amazonaws.com/external-youtube.png)
+![](http://docs.brightspot.s3.amazonaws.com/external-twitter.png)
+![](http://docs.brightspot.s3.amazonaws.com/external-flickr.png)
+
 ## Finding Content
 
 Once content has been published, you can use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search widget.
@@ -221,19 +230,43 @@ In the top right, you will see an `Edit Inline` link. Click it to start the Inli
 
 Content does not have to be published the moment it is created. With scheduling, you can specify a time and day for when the content should go live.
 
-Click into content and notice the right rail calendar link above the 'Publish` button.
+#### Single Scheduling
+
+Click into content and notice the right rail calendar link above the 'Publish` button. Make changes to the content, then open the calendar view and pick a date you would like the content to go live.
 
 ![](http://cdn.psddev.com/dims4/PSD/e4ba2f3/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2F5c%2F71%2F22f448714eb096a31217d3b61fc4%2Fschedule-content-20.22.24%20PM.png)
 
-Once a date has been picked click `Schedule` and not Publish.
+Once a date has been picked click `Schedule`.
 
 ![](http://cdn.psddev.com/dims4/PSD/3930651/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2F75%2F3f%2F8965a03b4fd6b74455bf5c11cea6%2Fscheduled-content-20.22.29%20PM.png)
 
 If you want to reset the date for scheduling, simply click into the calendar view, and select a date. The `Publish` button will show `Reschedule`. 
 
-Once a piece of content has been scheduled it appears in the Schedules widget on the dashboard beside the date for when it is due to go live.
+Once a piece of content has been scheduled it appears in the Schedules widget on the dashboard beside the date for when it is due to go live. You can always go back into a piece of content and edit the version that is set to go live. It is shown in the right rail, in a schedule widget.
 
-![](http://cdn.psddev.com/dims4/PSD/4eaa575/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2Ffa%2Fdc%2F6ee9a45144e483cb8f5890655102%2Fschedule-2.0_brightspot.png)
+#### Bulk Scheduling
+
+If you want changes for multiple pieces of content to go live all at the same time you can group these changes together, to trigger a single scheduled event.
+
+From the Schedules widget on the dashboard, click to create a New Schedule. Add a name for the grouping, and set a trigger date. This can also be left blank (N/A), which allows for open ended scheduling, to be set at a later date when you know when you want to push the changes live.
+
+![](http://docs.brightspot.s3.amazonaws.com/create-schedule-2.1.png)
+
+Once you've created a schedule, you are placed into Schedule Mode. A red bar appears at the top of the CMS. 
+
+![](http://docs.brightspot.s3.amazonaws.com/schedule-mode-2.1.png)
+
+All edits made while in schedule mode are tracked as part of the schedule. When you edit content you are scheduling the edits, not publishing. The publish button always reads schedule.
+
+![](http://docs.brightspot.s3.amazonaws.com/make-change-schedule-2.1.png)
+
+You can keep track of all the content you have made changes to by clicking on the current schedule. You can also edit the name, or change the trigger date.
+
+![](http://docs.brightspot.s3.amazonaws.com/see-current-schedule-2.1.png)
+
+You can exit schedule mode (Click Stop Scheduling) and re-enter at any time by viewing all open schedules from the dashboard widget. Clicking Stop Scheduling takes you out of the scheduling mode, and keeps your schedule saved.
+
+![](http://docs.brightspot.s3.amazonaws.com/see-all-schedules-2.1.png)
 
 ## Production Guides
 
