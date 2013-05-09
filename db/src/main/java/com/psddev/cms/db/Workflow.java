@@ -1,15 +1,20 @@
 package com.psddev.cms.db;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 
 public class Workflow extends Record {
@@ -56,6 +61,26 @@ public class Workflow extends Record {
         this.actions = actions;
     }
 
+    /**
+     * Returns a set of all states in this workflow.
+     *
+     * @return Never {@code null}. Modifiable.
+     */
+    public Set<WorkflowState> getStates() {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        Set<WorkflowState> states = new HashSet<WorkflowState>();
+
+        for (Map<String, Object> s : actions.get("states")) {
+            WorkflowState state = new WorkflowState();
+
+            state.setName((String) s.get("name"));
+            states.add(state);
+        }
+
+        return states;
+    }
+
     public Map<String, WorkflowTransition> getTransitions() {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         Map<String, List<Map<String, Object>>> actions = (Map) getActions();
@@ -80,10 +105,12 @@ public class Workflow extends Record {
 
         for (Map<String, Object> t : actions.get("transitions")) {
             WorkflowTransition transition = new WorkflowTransition();
+            String name = (String) t.get("name");
 
+            transition.setName(name);
             transition.setSource(states.get(t.get("source")));
             transition.setTarget(states.get(t.get("target")));
-            transitions.put((String) t.get("name"), transition);
+            transitions.put(name, transition);
         }
 
         return transitions;
@@ -97,10 +124,12 @@ public class Workflow extends Record {
         }
 
         for (Iterator<Map.Entry<String, WorkflowTransition>> i = transitions.entrySet().iterator(); i.hasNext(); ) {
-            WorkflowState source = i.next().getValue().getSource();
+            WorkflowTransition transition = i.next().getValue();
+            WorkflowState source = transition.getSource();
 
             if (source == null ||
-                    !state.equals(source.getName())) {
+                    !state.equals(source.getName()) ||
+                    "Published".equals(transition.getTarget().getName())) {
                 i.remove();
             }
         }
@@ -112,14 +141,127 @@ public class Workflow extends Record {
     public static class Data extends Modification<Object> {
 
         @Indexed(visibility = true)
-        private String state;
+        private String currentState;
 
-        public String getWorkflowState() {
-            return state;
+        private List<Log> logs;
+
+        public String getCurrentState() {
+            return currentState;
         }
 
-        public void setWorkflowState(String state) {
-            this.state = state;
+        /**
+         * @param transition If {@code null}, makes the object visible.
+         * @param user May be {@code null}.
+         * @param comment May be {@code null}.
+         * @return New workflow state. May be {@code null}.
+         */
+        public String changeState(WorkflowTransition transition, ToolUser user, String comment) {
+            String transitionName;
+            String transitionTarget;
+
+            if (transition == null) {
+                transitionName = "Publish";
+                transitionTarget = null;
+
+            } else {
+                transitionName = transition.getName();
+                transitionTarget = transition.getTarget().getName();
+
+                if ("Published".equals(transitionTarget)) {
+                    transitionTarget = null;
+                }
+            }
+
+            currentState = transitionTarget;
+            List<Log> logs = getLogs();
+
+            if (transition != null || !logs.isEmpty()) {
+                Log log = new Log();
+
+                log.setDate(new Date());
+                log.setTransition(transitionName);
+                log.setUserId(user != null ? user.getId() : null);
+                log.setComment(comment);
+                logs.add(log);
+            }
+
+            return currentState;
+        }
+
+        /**
+         * @param state If {@code null}, makes the object visible.
+         */
+        public void revertState(String state) {
+            this.currentState = state;
+
+            List<Log> logs = getLogs();
+            int logsSize = logs.size();
+
+            if (logsSize > 0) {
+                logs.remove(logsSize - 1);
+            }
+        }
+
+        public List<Log> getLogs() {
+            if (logs == null) {
+                logs = new ArrayList<Log>();
+            }
+            return logs;
+        }
+
+        public void setLogs(List<Log> logs) {
+            this.logs = logs;
+        }
+
+        public Log getLastLog() {
+            List<Log> logs = getLogs();
+
+            return logs.isEmpty() ? null : logs.get(logs.size() - 1);
+        }
+    }
+
+    @Embedded
+    public static class Log extends Record {
+
+        private Date date;
+        private String transition;
+        private UUID userId;
+        private String comment;
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public String getTransition() {
+            return transition;
+        }
+
+        public void setTransition(String transition) {
+            this.transition = transition;
+        }
+
+        public UUID getUserId() {
+            return userId;
+        }
+
+        public void setUserId(UUID userId) {
+            this.userId = userId;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+
+        public ToolUser getUser() {
+            return Query.from(ToolUser.class).where("_id = ?", getUserId()).first();
         }
     }
 }

@@ -65,22 +65,40 @@ public abstract class Content extends Record {
         }
 
         @Indexed(visibility = true)
+        @InternalName("cms.content.draft")
+        private Boolean draft;
+
+        @Indexed(visibility = true)
         @InternalName("cms.content.trashed")
-        private Boolean trashed;
+        private Boolean trash;
 
         private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
         private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
         private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
         private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
 
-        /** Returns {@code true} if this content is in trash. */
-        public boolean isTrashed() {
-            return Boolean.TRUE.equals(trashed);
+        /**
+         * Returns {@code true} if this content is a draft.
+         */
+        public boolean isDraft() {
+            return Boolean.TRUE.equals(draft);
         }
 
-        /** Sets whether this content is in trash. */
-        public void setTrashed(boolean trashed) {
-            this.trashed = trashed ? Boolean.TRUE : null;
+        /**
+         * Sets whether this content is a draft.
+         */
+        public void setDraft(boolean draft) {
+            this.draft = draft ? Boolean.TRUE : null;
+        }
+
+        /** Returns {@code true} if this content is a trash. */
+        public boolean isTrash() {
+            return Boolean.TRUE.equals(trash);
+        }
+
+        /** Sets whether this content is a trash. */
+        public void setTrash(boolean trash) {
+            this.trash = trash ? Boolean.TRUE : null;
         }
 
         /** Returns the date when the given {@code object} was published. */
@@ -127,7 +145,11 @@ public abstract class Content extends Record {
 
         @Override
         public String createVisibilityLabel(ObjectField field) {
-            return isTrashed() ? "Trashed" : null;
+            if (field.getInternalName().equals("cms.content.draft")) {
+                return isDraft() ? "Draft" : null;
+            } else {
+                return isTrash() ? "Trash" : null;
+            }
         }
     }
 
@@ -187,45 +209,60 @@ public abstract class Content extends Record {
 
         /**
          * Publishes the given {@code object} in the given {@code site}
-         * as the given {@code user}, and returns a history object that
-         * can be used later to revert all changes.
+         * as the given {@code user}.
+         *
+         * @param object Can't be {@code null}.
+         * @param site May be {@code null}.
+         * @param user May be {@code null}.
+         * @return Can be used to revert all changes. May be {@code null}.
          */
         public static History publish(Object object, Site site, ToolUser user) {
-            State objectState = State.getInstance(object);
-            ObjectModification objectContentMod = objectState.as(ObjectModification.class);
-            Site.ObjectModification objectSiteMod = objectState.as(Site.ObjectModification.class);
+            State state = State.getInstance(object);
+            ObjectModification contentData = state.as(ObjectModification.class);
+            Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
 
             if (object instanceof Site) {
                 site = (Site) object;
-                objectSiteMod.setOwner(site);
+                siteData.setOwner(site);
 
-            } else if (objectState.isNew() &&
-                    objectSiteMod.getOwner() == null) {
-                objectSiteMod.setOwner(site);
+            } else if (state.isNew() &&
+                    siteData.getOwner() == null) {
+                siteData.setOwner(site);
             }
 
             Date now = new Date();
-            objectContentMod.setUpdateDate(now);
-            Date publishDate = objectContentMod.getPublishDate();
+            Date publishDate = contentData.getPublishDate();
+            ToolUser publishUser = contentData.getPublishUser();
+
             if (publishDate == null) {
-                objectContentMod.setPublishDate(now);
+                contentData.setPublishDate(now);
             }
 
-            objectContentMod.setUpdateUser(user);
-            ToolUser publishUser = objectContentMod.getPublishUser();
             if (publishUser == null) {
-                objectContentMod.setPublishUser(user);
+                contentData.setPublishUser(user);
             }
 
-            History history = new History(user, object);
-            try {
-                history.beginWrites();
-                objectState.save();
-                history.save();
-                history.commitWrites();
-                return history;
-            } finally {
-                history.endWrites();
+            contentData.setUpdateDate(now);
+            contentData.setUpdateUser(user);
+
+            if (!state.isVisible() ||
+                    object instanceof Draft) {
+                state.save();
+                return null;
+
+            } else {
+                try {
+                    History history = new History(user, object);
+
+                    state.beginWrites();
+                    state.save();
+                    history.save();
+                    state.commitWrites();
+                    return history;
+
+                } finally {
+                    state.endWrites();
+                }
             }
         }
 
@@ -240,7 +277,7 @@ public abstract class Content extends Record {
             if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
                 ObjectModification contentData = state.as(ObjectModification.class);
 
-                contentData.trashed = true;
+                contentData.setTrash(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
                 state.save();

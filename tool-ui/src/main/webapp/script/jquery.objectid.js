@@ -51,6 +51,7 @@ $.plugin2('objectId', {
 
             $selectButton.bind('updatePreview', function() {
                 var preview = $input.attr('data-preview'),
+                        visibility = $input.attr('data-visibility'),
                         label,
                         placeholder;
 
@@ -64,6 +65,14 @@ $.plugin2('objectId', {
 
                     if (label) {
                         $selectButton.text(label);
+
+                        if (visibility) {
+                            $selectButton.prepend(' ');
+                            $selectButton.prepend($('<span/>', {
+                                'class': 'visibilityLabel',
+                                'text': visibility
+                            }));
+                        }
 
                     } else {
                         placeholder = $input.attr('placeholder');

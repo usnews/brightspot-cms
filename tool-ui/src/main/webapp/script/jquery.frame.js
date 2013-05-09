@@ -113,7 +113,7 @@ $.plugin2('frame', {
         };
 
         // Loads the page at url into the $frame.
-        loadPage = function($frame, $source, url, method, event) {
+        loadPage = function($frame, $source, method, url, data, event) {
             var plugin = this,
                     version = beginLoad($frame, $source, event),
                     extraFormData = $frame.attr('data-extra-form-data');
@@ -124,8 +124,9 @@ $.plugin2('frame', {
 
             $.ajax({
                 'cache': false,
-                'url': url,
                 'type': method,
+                'url': url,
+                'data': data,
                 'complete': function(response) {
                     endLoad($frame, version, response.responseText);
                 }
@@ -135,7 +136,7 @@ $.plugin2('frame', {
         // Intercept anchor clicks to see if it's targeted.
         $caller.delegate('a', 'click.frame', function(event) {
             return findTargetFrame(this, function($anchor, $frame) {
-                loadPage($frame, $anchor, $anchor.attr('href'), 'get', event);
+                loadPage($frame, $anchor, 'get', $anchor.attr('href'), null, event);
                 return false;
             });
         });
@@ -163,7 +164,7 @@ $.plugin2('frame', {
                 }
 
                 if ($form.attr('enctype') !== 'multipart/form-data') {
-                    loadPage($frame, $form, action + (action.indexOf('?') > -1 ? '&' : '?') + $form.serialize(), $form.attr('method'));
+                    loadPage($frame, $form, $form.attr('method'), action + (action.indexOf('?') > -1 ? '&' : '?'), $form.serialize());
                     return false;
                 }
 

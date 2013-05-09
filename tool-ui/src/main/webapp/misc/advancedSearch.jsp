@@ -144,7 +144,7 @@ html.start("form", "action", wp.url(null, "id", search.getId()), "method", "post
                     }
 
                     html.start("div", "class", "buttons");
-                        html.tag("input", "type", "submit", "name", "action", "value", "Search");
+                        html.tag("input", "type", "submit", "value", "Search");
                     html.end();
                 }
             html.end();

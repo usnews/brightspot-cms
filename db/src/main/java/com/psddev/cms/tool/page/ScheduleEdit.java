@@ -30,7 +30,7 @@ public class ScheduleEdit extends PageServlet {
             try {
                 if (page.param(String.class, "action-save") != null) {
                     page.include("/WEB-INF/objectPost.jsp", "object", schedule);
-                    page.publish(schedule);
+                    schedule.save();
 
                     if (newSchedule) {
                         page.getUser().setCurrentSchedule(schedule);
@@ -69,19 +69,19 @@ public class ScheduleEdit extends PageServlet {
                     "action", page.url("", "id", schedule.getId()));
                 page.include("/WEB-INF/objectForm.jsp", "object", schedule);
 
-                page.writeStart("div", "class", "buttons");
+                page.writeStart("div", "class", "actions");
                     page.writeStart("button",
-                            "class", "action action-save",
+                            "class", "icon icon-action-save",
                             "name", "action-save",
-                            "value", "action-save");
+                            "value", "true");
                         page.writeHtml("Save");
                     page.writeEnd();
 
                     if (!newSchedule) {
                         page.writeStart("button",
-                                "class", "action action-delete action-pullRight link",
+                                "class", "icon icon-action-delete action-pullRight link",
                                 "name", "action-delete",
-                                "value", "action-delete");
+                                "value", "true");
                             page.writeHtml("Delete");
                         page.writeEnd();
                     }
@@ -102,7 +102,7 @@ public class ScheduleEdit extends PageServlet {
                             page.writeStart("a",
                                     "href", page.objectUrl("/content/edit.jsp", draft),
                                     "target", "_top");
-                                page.writeHtml(page.getObjectLabel(draft));
+                                page.writeObjectLabel(draft);
                             page.writeEnd();
                         page.writeEnd();
                     }

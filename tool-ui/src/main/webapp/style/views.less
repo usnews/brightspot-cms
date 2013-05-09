@@ -62,11 +62,14 @@
     overflow: hidden;
     padding: 10px;
 
+    .action,
     .button,
     .link,
     a,
     button {
+        height: 26px;
         margin-right: 10px;
+        white-space: nowrap;
     }
 
     .action-pullRight {
@@ -199,6 +202,8 @@ figure,
         font-size: @fontSize-icon;
         font-weight: normal;
         padding-right: 0.25em;
+        text-align: center;
+        width: 1em;
 
         &:hover {
             text-decoration: none !important;
@@ -442,43 +447,8 @@ figure,
 .icon-umbrella { &:before { content: '\f0e9'; } }
 .icon-paste { &:before { content: '\f0ea'; } }
 .icon-exchange { &:before { content: '\f0ec'; } }
+.icon-reply { &:before { content: '\f112'; } }
 .icon-user-md { &:before { content: '\f200'; } }
-
-// Standard CMS objects.
-.icon-object { .icon-file; }
-.icon-object-directory { .icon-sitemap; }
-.icon-object-draft { .icon-edit; }
-.icon-object-guide { .icon-question-sign; }
-.icon-object-history { .icon-hdd; }
-.icon-object-schedule { .icon-calendar; }
-.icon-object-site { .icon-globe; }
-.icon-object-template { .icon-th; }
-.icon-object-toolRole { .icon-group; }
-.icon-object-toolUser { .icon-user; }
-.icon-object-variation { .icon-columns; }
-.icon-object-workflow { .icon-exchange; }
-.icon-object-workStream { .icon-tasks; }
-
-// Standard CMS actions.
-.icon-action-add { .icon-plus-sign; }
-.icon-action-cancel { .icon-ban-circle; }
-.icon-action-change { .icon-random; }
-.icon-action-copy { .icon-copy; }
-.icon-action-create { .icon-plus-sign; }
-.icon-action-customize { .icon-cog; }
-.icon-action-delete { .icon-trash; }
-.icon-action-download { .icon-download-alt; }
-.icon-action-edit { .icon-pencil; }
-.icon-action-logIn { .icon-signin; }
-.icon-action-logOut { .icon-signout; }
-.icon-action-preview { .icon-eye-open; }
-.icon-action-print { .icon-print; }
-.icon-action-remove { .icon-minus-sign; }
-.icon-action-save { .icon-ok; }
-.icon-action-schedule { .icon-calendar; }
-.icon-action-search { .icon-search; }
-.icon-action-share { .icon-share; }
-.icon-action-upload { .icon-upload-alt; }
 
 @input-borderWidth: 1px;
 @input-padding: 4px;
@@ -782,6 +752,21 @@ table.links.table-striped {
 
     > *:last-child {
         margin-bottom: 0;
+    }
+
+    .actions,
+    .buttons {
+        background: transparent;
+        margin: 0 0 0 -23px;
+        padding: 0;
+
+        .action,
+        .button,
+        .link,
+        a,
+        button {
+            height: auto;
+        }
     }
 }
 
@@ -1126,6 +1111,45 @@ table.links.table-striped {
     top: 6px;
 }
 
+// Standard CMS objects.
+.icon-object { .icon-file; }
+.icon-object-directory { .icon-sitemap; }
+.icon-object-draft { .icon-edit; }
+.icon-object-guide { .icon-question-sign; }
+.icon-object-history { .icon-copy; }
+.icon-object-schedule { .icon-calendar; }
+.icon-object-site { .icon-globe; }
+.icon-object-template { .icon-th; }
+.icon-object-toolRole { .icon-group; }
+.icon-object-toolUser { .icon-user; }
+.icon-object-variation { .icon-columns; }
+.icon-object-workflow { .icon-exchange; }
+.icon-object-workStream { .icon-tasks; }
+
+// Standard CMS actions.
+.icon-action-add { .icon-plus-sign; }
+.icon-action-cancel { .icon-ban-circle; color: @color-alert; }
+.icon-action-change { .icon-random; }
+.icon-action-copy { .icon-copy; }
+.icon-action-create { .icon-plus-sign; }
+.icon-action-customize { .icon-cog; }
+.icon-action-delete { .icon-remove; color: @color-alert; }
+.icon-action-download { .icon-download-alt; }
+.icon-action-edit { .icon-pencil; }
+.icon-action-logIn { .icon-signin; }
+.icon-action-logOut { .icon-signout; }
+.icon-action-preview { .icon-eye-open; }
+.icon-action-print { .icon-print; }
+.icon-action-publish { .icon-bullhorn; }
+.icon-action-remove { .icon-minus-sign; color: @color-alert; }
+.icon-action-restore { .icon-reply; }
+.icon-action-save { .icon-ok; }
+.icon-action-schedule { .icon-calendar; }
+.icon-action-search { .icon-search; }
+.icon-action-share { .icon-share; }
+.icon-action-trash { .icon-trash; color: @color-alert; }
+.icon-action-upload { .icon-upload-alt; }
+
 .action-add { .icon; .icon-action-add; }
 .action-cancel { .icon; .icon-action-cancel; color: @color-alert; }
 .action-change { .icon; .icon-action-change; }
@@ -1144,6 +1168,7 @@ table.links.table-striped {
 .action-schedule { .icon; .icon-action-schedule; }
 .action-search { .icon; .icon-action-search; }
 .action-share { .icon; .icon-action-share; }
+.action-trash { .icon; .icon-action-trash; color: @color-alert; }
 .action-upload { .icon; .icon-action-upload; }
 
 .action-image-edit { .icon; .icon-magic; }

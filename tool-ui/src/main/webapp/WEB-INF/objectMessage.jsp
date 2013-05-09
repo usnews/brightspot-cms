@@ -35,42 +35,6 @@ if (deleted != null) {
     return;
 }
 
-Draft draft = wp.getOverlaidDraft(object);
-
-if (draft != null) {
-    Schedule schedule = draft.getSchedule();
-
-    wp.writeStart("div", "class", "message message-warning");
-        wp.writeHtml("This is a draft");
-
-        if (schedule != null) {
-            Date triggerDate = schedule.getTriggerDate();
-
-            wp.writeHtml(" to be published ");
-            wp.writeHtml(triggerDate != null ? triggerDate : "later");
-        }
-
-        wp.writeHtml(".");
-    wp.writeEnd();
-
-    return;
-}
-
-History history = wp.getOverlaidHistory(object);
-if (history != null) {
-    wp.write("<div class=\"message message-warning\"><p>");
-    wp.write("This is a past revision of the <a href=\"");
-    wp.write(wp.originalUrl(null, object));
-    wp.write("\">original document</a> saved ");
-    wp.write(history.getUpdateDate());
-    wp.write(" by ");
-    wp.write(wp.objectLabel(history.getUpdateUser()));
-    wp.write(".</p><p><a class=\"icon icon-object-history\" href=\"");
-    wp.write(wp.url("/content/historyName.jsp", "id", history.getId()));
-    wp.write("\" target=\"editHistory\">Edit Revision Name</a></p></div>");
-    return;
-}
-
 Date published = wp.dateParam("published");
 if (published != null) {
     wp.write("<div class=\"message message-success\"><p>");

@@ -35,7 +35,7 @@ public class WorkStreamUsers extends PageServlet {
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-object-workStream");
                 page.writeHtml("Users Working On: ");
-                page.writeHtml(page.getObjectLabel(workStream));
+                page.writeObjectLabel(workStream);
             page.writeEnd();
 
             if (users.isEmpty()) {
@@ -61,14 +61,14 @@ public class WorkStreamUsers extends PageServlet {
 
                             page.writeStart("tr");
                                 page.writeStart("td");
-                                    page.writeHtml(page.getObjectLabel(user));
+                                    page.writeObjectLabel(user);
                                 page.writeEnd();
 
                                 page.writeStart("td");
                                     page.writeStart("a",
                                             "href", page.objectUrl("/content/edit.jsp", currentItem),
                                             "target", "_top");
-                                        page.writeHtml(page.getObjectLabel(currentItem));
+                                        page.writeObjectLabel(currentItem);
                                     page.writeEnd();
                                 page.writeEnd();
 

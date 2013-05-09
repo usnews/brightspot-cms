@@ -532,7 +532,7 @@ $doc.delegate(':input', 'blur', function() {
             $dropLink.text("Drop Files Here");
 
             $fileInputContainer = $('<div/>', {
-                'class': 'uploadbleFile',
+                'class': 'uploadableFile',
                 'css': $.extend(overlayCss, {
                     'z-index': 2000000
                 })
@@ -594,6 +594,14 @@ $doc.delegate(':input', 'blur', function() {
         });
     });
 })();
+
+$doc.on('click', 'button[name="action-delete"], :submit[name="action-delete"]', function() {
+    return confirm('Are you sure you want to permanently delete this item?');
+});
+
+$doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', function() {
+    return confirm('Are you sure you want to trash this item?');
+});
 
 $doc.ready(function() {
     $(doc.activeElement).focus();
@@ -686,19 +694,25 @@ $doc.ready(function() {
     $('.widget-publication').each(function() {
         var $widget = $(this),
                 $dateInput = $widget.find('.dateInput'),
-                $saveButton = $widget.find('.action-save'),
-                oldSaveButton = $saveButton.val(),
+                $publishButton = $widget.find('[name="action-publish"]'),
+                oldPublishText = $publishButton.text(),
                 oldDate = $dateInput.val();
 
-        // Change the save button label if scheduling.
+        // Change the publish button label if scheduling.
         if ($dateInput.length === 0) {
-            $saveButton.val('Schedule');
+            $publishButton.addClass('schedule');
+            $publishButton.text('Schedule');
 
         } else {
             $dateInput.change($.run(function() {
-                $saveButton.val($dateInput.val() ?
-                        (oldDate ? 'Reschedule' : 'Schedule') :
-                        oldSaveButton);
+                if ($dateInput.val()) {
+                    $publishButton.addClass('schedule');
+                    $publishButton.text(oldDate ? 'Reschedule' : 'Schedule');
+
+                } else {
+                    $publishButton.removeClass('schedule');
+                    $publishButton.text(oldPublishText);
+                }
             }));
         }
 

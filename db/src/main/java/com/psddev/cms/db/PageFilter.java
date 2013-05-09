@@ -385,6 +385,18 @@ public class PageFilter extends AbstractFilter {
             }
 
             State mainState = State.getInstance(mainObject);
+
+            if (!mainState.isVisible()) {
+                if (Settings.isProduction()) {
+                    chain.doFilter(request, response);
+                    return;
+
+                } else {
+                    throw new IllegalStateException(String.format(
+                            "[%s] isn't visible!", mainState.getId()));
+                }
+            }
+
             ObjectType mainType = mainState.getType();
             Page page = Static.getPage(request);
 

@@ -7,6 +7,7 @@ com.psddev.cms.db.Draft,
 com.psddev.cms.db.DraftStatus,
 com.psddev.cms.db.Guide,
 com.psddev.cms.db.GuidePage,
+com.psddev.cms.db.History,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Schedule,
@@ -35,6 +36,7 @@ com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
+java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
 java.util.Map,
@@ -126,9 +128,12 @@ if (workStream != null) {
     State.getInstance(editing).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
 
-if (wp.tryDelete(editing)
-        || wp.include("/WEB-INF/objectDraft.jsp", "object", editing)
-        || wp.include("/WEB-INF/objectPublish.jsp", "object", editing)) {
+if (wp.tryDelete(editing) ||
+        wp.tryDraft(editing) ||
+        wp.tryPublish(editing) ||
+        wp.tryRestore(editing) ||
+        wp.tryTrash(editing) ||
+        wp.tryWorkflow(editing)) {
     return;
 }
 
@@ -249,17 +254,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
             <div class="widget widget-publication">
-                <h1>Publication</h1>
+                <h1 class="icon icon-action-publish">Publication</h1>
 
                 <%
-                String visibilityLabel = state.getVisibilityLabel();
+                State editingState = State.getInstance(editing);
 
-                if (!ObjectUtils.isBlank(visibilityLabel)) {
-                    wp.writeStart("div", "class", "message message-warning");
-                        wp.writeStart("p");
-                            wp.writeHtml("Status: ");
-                            wp.writeHtml(visibilityLabel);
-                        wp.writeEnd();
+                if (!editingState.isNew()) {
+                    wp.writeStart("a",
+                            "class", "icon icon-wrench icon-only",
+                            "href", wp.objectUrl("/content/advanced.jsp", editing),
+                            "target", "contentAdvanced");
+                        wp.writeHtml("Advanced");
                     wp.writeEnd();
                 }
 
@@ -282,9 +287,9 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         wp.writeHtml(" working on ");
 
                         wp.writeStart("a",
-                                "href", wp.objectUrl("/content/object.jsp", workStream),
+                                "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
                                 "target", "workStream");
-                            wp.writeHtml(wp.getObjectLabel(workStream));
+                            wp.writeObjectLabel(workStream);
                         wp.writeEnd();
 
                         wp.writeHtml(" with you");
@@ -326,28 +331,156 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.writeEnd();
                 }
 
-                if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
-                    Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
+                Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
+                boolean isDraft = contentData.isDraft() || draft != null;
+                History history = wp.getOverlaidHistory(editing);
+                boolean isHistory = history != null;
+                boolean isTrash = contentData.isTrash();
 
-                    if (workflow != null) {
-                        String currentState = state.as(Workflow.Data.class).getWorkflowState();
+                if (isWritable) {
 
-                        wp.writeStart("div", "class", "otherWorkflows");
-                            for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
-                                if (wp.hasPermission("type/" + state.getTypeId() + "/" + transitionName)) {
-                                    wp.writeStart("button", "name", "action-workflow", "value", transitionName);
-                                        wp.writeHtml(transitionName);
-                                    wp.writeEnd();
-                                }
-                            }
-                        wp.writeEnd();
+                    // Workflow actions.
+                    if (editingState.isNew() ||
+                            editingState.as(Workflow.Data.class).getCurrentState() != null) {
+                        Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
+
+                        if (workflow != null) {
+                            Workflow.Data workflowData = editingState.as(Workflow.Data.class);
+                            String currentState = workflowData.getCurrentState();
+
+                            wp.writeStart("div", "class", "message message-info");
+                                wp.writeStart("p");
+                                    wp.writeHtml("Workflow: ");
+                                    wp.writeHtml(currentState);
+                                wp.writeEnd();
+
+                                wp.writeStart("div", "class", "actions");
+                                    Workflow.Log log = workflowData.getLastLog();
+
+                                    if (log != null) {
+                                        String comment = log.getComment();
+
+                                        wp.writeStart("p");
+                                            if (ObjectUtils.isBlank(comment)) {
+                                                wp.writeHtml(log.getTransition());
+                                                wp.writeHtml(" by ");
+
+                                            } else {
+                                                wp.writeStart("q");
+                                                    wp.writeHtml(comment);
+                                                wp.writeEnd();
+                                                wp.writeHtml(" said ");
+                                            }
+
+                                            wp.writeObjectLabel(log.getUser());
+                                            wp.writeHtml(" at ");
+                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
+                                        wp.writeEnd();
+                                    }
+
+                                    Set<String> transitionNames = new LinkedHashSet<String>();
+
+                                    for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                        if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
+                                            transitionNames.add(transitionName);
+                                        }
+                                    }
+
+                                    if (!transitionNames.isEmpty()) {
+                                        wp.writeStart("textarea",
+                                                "name", "workflowComment",
+                                                "placeholder", "Optional Comment");
+                                        wp.writeEnd();
+
+                                        for (String transitionName : transitionNames) {
+                                            wp.writeStart("button",
+                                                    "name", "action-workflow",
+                                                    "value", transitionName);
+                                                wp.writeHtml(transitionName);
+                                            wp.writeEnd();
+                                        }
+                                    }
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        }
                     }
 
-                    if (state.as(Content.ObjectModification.class).isTrashed()) {
-                        wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Restore\">");
+                    // Message and actions if the content is a draft.
+                    if (isDraft) {
+                        Content.ObjectModification draftContentData = State.
+                                getInstance(draft != null ? draft : editing).
+                                as(Content.ObjectModification.class);
 
-                    } else {
-                        if (wp.hasPermission("type/" + state.getTypeId() + "/publish")) {
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml("Draft last saved ");
+                                wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                wp.writeHtml(".");
+                            wp.writeEnd();
+
+                            wp.writeStart("div", "class", "actions");
+                                wp.writeStart("a",
+                                        "class", "icon icon-action-edit",
+                                        "href", wp.url("", "draftId", null));
+                                    wp.writeHtml("Current");
+                                wp.writeEnd();
+
+                                wp.writeStart("button",
+                                        "class", "link icon icon-action-save",
+                                        "name", "action-draft",
+                                        "value", "true");
+                                    wp.writeHtml("Save");
+                                wp.writeEnd();
+
+                                wp.writeStart("button",
+                                        "class", "link icon icon-action-delete",
+                                        "name", "action-delete",
+                                        "value", "true");
+                                    wp.writeHtml("Delete");
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        wp.writeEnd();
+
+                    // Message and actions if the content is a past revision.
+                    } else if (isHistory) {
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml("Past revision saved ");
+                                wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(history.getUpdateUser());
+                                wp.writeHtml(".");
+                            wp.writeEnd();
+
+                            wp.writeStart("div", "class", "actions");
+                                wp.writeStart("a",
+                                        "class", "icon icon-action-edit",
+                                        "href", wp.url("", "historyId", null));
+                                    wp.writeHtml("Current");
+                                wp.writeEnd();
+
+                                wp.writeHtml(" ");
+
+                                wp.writeStart("a",
+                                        "class", "icon icon-object-history",
+                                        "href", wp.url("/historyEdit", "id", history.getId()),
+                                        "target", "historyEdit");
+                                    wp.writeHtml("Name Revision");
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        wp.writeEnd();
+
+                    // Message and actions if the content is a trash.
+                    } else if (isTrash) {
+                        wp.writeTrashMessage(editing);
+                    }
+
+                    // Publish and trash buttons.
+                    if (!isTrash && wp.hasPermission("type/" + editingState.getId() + "/publish")) {
+                        wp.writeStart("div", "class", "widget-publicationPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",
                                         "type", "text",
@@ -360,12 +493,21 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                                 wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
                             }
 
-                            wp.write("<input class=\"action-save\" name=\"action\" type=\"submit\" value=\"Publish\">");
-                        }
+                            wp.writeStart("button",
+                                    "name", "action-publish",
+                                    "value", "true");
+                                wp.writeHtml("Publish");
+                            wp.writeEnd();
 
-                        if (!state.isNew() || draft != null) {
-                            wp.write("<button class=\"action-delete\" name=\"action\" value=\"Delete\" onclick=\"return confirm('Are you sure you want to delete?');\">Delete</button>");
-                        }
+                            if (!isDraft && !isHistory && !editingState.isNew()) {
+                                wp.writeStart("button",
+                                        "class", "link icon icon-action-trash",
+                                        "name", "action-trash",
+                                        "value", "true");
+                                    wp.writeHtml("Trash");
+                                wp.writeEnd();
+                            }
+                        wp.writeEnd();
                     }
 
                 } else {
@@ -373,17 +515,20 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write(wp.typeLabel(state));
                     wp.write("!</p></div>");
                 }
+
+                wp.writeStart("ul", "class", "widget-publicationExtra");
+                    if (isWritable && !isDraft && !isTrash) {
+                        wp.writeStart("li");
+                            wp.writeStart("button",
+                                    "class", "link icon icon-object-draft",
+                                    "name", "action-draft",
+                                    "value", "true");
+                                wp.writeHtml("Save Draft");
+                            wp.writeEnd();
+                        wp.writeEnd();
+                    }
+                wp.writeEnd();
                 %>
-
-                <% if (!state.isNew()) { %>
-                    <a class="action-tools" href="<%= wp.objectUrl("/content/advanced.jsp", editing) %>" target="contentAdvanced">Advanced</a>
-                <% } %>
-
-                <ul class="extraActions">
-                    <% if (wp.hasPermission("type/" + state.getTypeId() + "/write")) { %>
-                        <li><button class="icon icon-object-draft link" name="action" value="Save Draft">Save Draft</button></li>
-                    <% } %>
-                </ul>
             </div>
         </div>
     </form>
@@ -451,7 +596,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     $edit = $('.content-edit'),
                     oldEditStyle = $edit.attr('style') || '',
-                    $extraActions = $('.widget-publication .extraActions'),
+                    $publicationExtra = $('.widget-publicationExtra'),
                     $previewAction,
                     appendPreviewAction,
                     removePreviewAction,
@@ -483,7 +628,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     })
                 });
 
-                $extraActions.append($previewAction);
+                $publicationExtra.append($previewAction);
             };
 
             removePreviewAction = function() {

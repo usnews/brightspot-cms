@@ -238,26 +238,26 @@ public class RecentActivity extends PageServlet {
 
                 writer.writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
 
-                    String lastDateString = null;
+                    String lastUpdateDate = null;
 
                     for (Object content : result.getItems()) {
                         State contentState = State.getInstance(content);
                         String permalink = contentState.as(Directory.ObjectModification.class).getPermalink();
                         Content.ObjectModification contentData = contentState.as(Content.ObjectModification.class);
-                        DateTime updateDate = new DateTime(contentData.getUpdateDate());
+                        DateTime updateDateTime = page.toUserDateTime(contentData.getUpdateDate());
+                        String updateDate = page.formatUserDate(updateDateTime);
                         ToolUser updateUser = contentData.getUpdateUser();
-                        String dateString = updateDate.toString("E, MMM d, yyyy");
 
                         writer.writeStart("tr", "data-preview-url", permalink);
                             writer.writeStart("td", "class", "date");
-                                if (!dateString.equals(lastDateString)) {
-                                    writer.writeHtml(dateString);
-                                    lastDateString = dateString;
+                                if (!updateDate.equals(lastUpdateDate)) {
+                                    writer.writeHtml(updateDate);
+                                    lastUpdateDate = updateDate;
                                 }
                             writer.writeEnd();
 
                             writer.writeStart("td", "class", "time");
-                                writer.writeHtml(updateDate.toString("hh:mm a"));
+                                writer.writeHtml(page.formatUserTime(updateDateTime));
                             writer.writeEnd();
 
                             writer.writeStart("td");

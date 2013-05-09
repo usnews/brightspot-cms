@@ -63,9 +63,7 @@ public class ContentReferences extends PageServlet {
                         page.writeStart("a",
                                 "href", page.objectUrl("/content/edit.jsp", item),
                                 "target", "_top");
-                            page.writeHtml(page.getTypeLabel(item));
-                            page.writeHtml(": ");
-                            page.writeHtml(page.getObjectLabel(item));
+                            page.writeTypeObjectLabel(item);
                         page.writeEnd();
                     page.writeEnd();
                 }

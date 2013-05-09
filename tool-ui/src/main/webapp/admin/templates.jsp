@@ -25,7 +25,7 @@ if (wp.requirePermission("area/admin/adminTemplates")) {
 
 Object selected = wp.findOrReserve(Template.class, ContentSection.class, HorizontalContainerSection.class, MainSection.class, ScriptSection.class, VerticalContainerSection.class);
 State selectedState = State.getInstance(selected);
-if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (wp.tryStandardUpdate(selected)) {
     return;
 }
 
@@ -78,7 +78,7 @@ if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
     <div class="main">
 
         <div class="widget">
-            <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+            <% wp.writeStandardForm(selected); %>
         </div>
 
     </div>

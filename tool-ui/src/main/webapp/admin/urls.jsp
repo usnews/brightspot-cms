@@ -21,7 +21,7 @@ if (wp.requirePermission("area/admin/adminUrls")) {
 Directory selected = (Directory) wp.findOrReserve(Directory.class);
 State state = State.getInstance(selected);
 
-if (wp.include("/WEB-INF/updateObject.jsp", "object", selected)) {
+if (wp.tryStandardUpdate(selected)) {
     return;
 
 } else if (wp.isFormPost()) {
@@ -74,7 +74,7 @@ PaginatedResult<Object> items = Query
         <% wp.include("/WEB-INF/errors.jsp"); %>
 
         <div class="widget">
-            <% wp.include("/WEB-INF/editObject.jsp", "object", selected); %>
+            <% wp.writeStandardForm(selected); %>
         </div>
 
         <% if (!state.isNew()) { %>
