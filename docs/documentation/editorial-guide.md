@@ -16,9 +16,9 @@ Logging into Brightspot brings you to the Dashboard. Here you will find common w
 
 **Tool Hat**
 
-The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, log-out and change which site you are viewing if using Multisite.
+The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, including changing your time-zone, logging-out and changing which site you are viewing if using Multisite.
 
-![](http://docs.brightspot.s3.amazonaws.com/2.1-edit-profile.png)
+![](http://docs.brightspot.s3.amazonaws.com/user-profile.png)
 
 
 **Search**
@@ -87,13 +87,16 @@ Upload files in bulk right from the dashboard. Clicking on Upload Files provides
 
 Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget.
 
-From the Schedules widget you can create new Schdules, which 
+From the Schedules widget you can create new Schedules, where multiple pieces of content can be grouped to all go live together. See the [Scheduling Section](editorial-guide.html#bulk-scheduling) for documentation.
+
 ![](http://docs.brightspot.s3.amazonaws.com/sch_widget_dash.png)
 
 
-**Drafts**
+**Unpublished Drafts**
 
-All content that is not yet completed, but saved in a draft status, appears in the drafts module. Bulk uploaded files are also saved here awaiting editorial additions, such as alt text or titles.
+All content that is not yet completed, but saved in a status, appears in the Unpublished Drafts module. Bulk uploaded files are also saved here awaiting editorial additions, such as alt text or titles.
+
+Content that is within a Workflow, example Submitted / Rejected, also appears here, and can be accessed using the filter.
 
 ![](http://docs.brightspot.s3.amazonaws.com/draft_widget_2.1.png)
 
@@ -139,20 +142,32 @@ Once you have your content complete make sure it is looking correct by reviewing
 
 When you are happy with your content close your preview window, or slide in the preview tool. URLs are generally automatically generated, visible in the right rail widget.  The logic at play typically grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can click 'Add URL' and add a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’. You can also add redirects and aliases.
 
-## History
+## Revisions
 
-
-After editing or publishing content a new ‘History’ section appears in the right rail of the content edit screen. In Brightspot all versions of content are archived automatically.
+After editing or publishing content a new ‘Revisions’ section appears in the right rail of the content edit screen. In Brightspot all versions of content are archived automatically.
 
 Click on any past version to view. Clicking publish will replace the current content with the past version you are viewing, allowing rolling back in a single click.
 
 If you wish to save the past historic version specifically, edit the revision name, which in turn, once saved, places it in the right rail. From there it can be easily found and reused later.
 
-## Saving a Draft
+## Drafts
 
-If you are not ready to publish your content, you have the option to 'Save as Draft', which saves a version for you to access later. The Drafts widget on the dashboard contains a reference to content saved in that status.
+If you are not ready to publish your content, you have the option to 'Save as Draft', which saves a version for you to access later. All drafts can be found in the Revisions widget, in the right rail, as well as in the Unpublished Drafts widget on the the dashboard. You can see all drafts in various statuses in the dashboard widget. You can also search for drafts just like normal content using the global Search.
 
-When your content is published you can return to the Dashboard by clicking the ‘Pages & Content’ tab.
+You can delete a draft at any time by selecting it and clicking Delete. This does not delete the published version, only the draft currently being viewed.
+
+![](http://docs.brightspot.s3.amazonaws.com/drafts-2.1.png)
+
+## Delete / Trash
+
+Content can be moved to the trash at any time by clicking Trash. This removes the content from your site, but keeps it in a Trash status in the CMS. It can be restored, or Deleted Permanently using the Publication widget options. See below:
+
+![](http://docs.brightspot.s3.amazonaws.com/trashed-content-2.1.png)
+
+*Note: Trashed content that is being used within other content, example a Trashed Author in a Article is removed from the front-end website once trashed, however the reference is still kept within the Article object, so the Author can be restored with one click.*
+
+![](http://docs.brightspot.s3.amazonaws.com/trashed-reference-2.1.png)
+
 
 ## Adding Images
 
@@ -194,7 +209,7 @@ Predefined crop sizes are found to the right of an image. These are grouped by a
 
 ## Adding External Content
 
-External content can be embedded into a rich text area by simply pasting a URL. Add an Enhancement, and select the External Content type. Paste in the URL of your desired content and save. Use preview to see the content inline. Example include Twitter - adding a tweet, YouTube - adding a video and Flickr - adding an image. 
+External content can be embedded into a rich text area by simply pasting a URL. Add an Enhancement, and select the External Content type. Paste in the URL of your desired content and save. Use preview to see the content inline. Examples include Twitter - adding a tweet, YouTube - adding a video and Flickr - adding an image. 
 
 ![](http://docs.brightspot.s3.amazonaws.com/external-youtube.png)
 ![](http://docs.brightspot.s3.amazonaws.com/external-twitter.png)
@@ -265,6 +280,8 @@ You can keep track of all the content you have made changes to by clicking on th
 ![](http://docs.brightspot.s3.amazonaws.com/see-current-schedule-2.1.png)
 
 You can exit schedule mode (Click Stop Scheduling) and re-enter at any time by viewing all open schedules from the dashboard widget. Clicking Stop Scheduling takes you out of the scheduling mode, and keeps your schedule saved.
+
+*Note: When in schedule mode within the CMS, all the front-end content displays as it has been scheduled, allowing you to preview all changes to your content. When you stop schedule mode the site returns to the current state*
 
 ![](http://docs.brightspot.s3.amazonaws.com/see-all-schedules-2.1.png)
 
