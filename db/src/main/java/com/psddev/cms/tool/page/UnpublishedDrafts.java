@@ -76,23 +76,25 @@ public class UnpublishedDrafts extends PageServlet {
             page.writeStart("form",
                     "method", "get",
                     "action", page.url(null));
-                page.writeStart("select",
-                        "class", "autoSubmit",
-                        "name", "state");
-                    page.writeStart("option", "value", "");
-                        page.writeHtml("All");
-                    page.writeEnd();
-
-                    for (Map.Entry<String, String> entry : stateLabels.entrySet()) {
-                        String key = entry.getKey();
-
-                        page.writeStart("option",
-                                "selected", key.equals(state) ? "selected" : null,
-                                "value", key);
-                            page.writeHtml(entry.getValue());
+                if (stateLabels.size() > 1) {
+                    page.writeStart("select",
+                            "class", "autoSubmit",
+                            "name", "state");
+                        page.writeStart("option", "value", "");
+                            page.writeHtml("All");
                         page.writeEnd();
-                    }
-                page.writeEnd();
+
+                        for (Map.Entry<String, String> entry : stateLabels.entrySet()) {
+                            String key = entry.getKey();
+
+                            page.writeStart("option",
+                                    "selected", key.equals(state) ? "selected" : null,
+                                    "value", key);
+                                page.writeHtml(entry.getValue());
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
             page.writeEnd();
 
             if (drafts.getItems().isEmpty()) {
