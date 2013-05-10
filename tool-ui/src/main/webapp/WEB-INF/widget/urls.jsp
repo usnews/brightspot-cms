@@ -87,6 +87,7 @@ if (!paths.isEmpty() &&
         State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site).isEmpty())) {
     wp.writeStart("ul");
         for (Directory.Path path : paths) {
+            String href = site != null ? site.getPrimaryUrl() + path.getPath() : path.getPath();
             wp.writeStart("li", "class", "widget-urlsItem");
                 wp.writeStart("div", "class", "widget-urlsItemRemove");
                     wp.writeTag("input",
@@ -104,7 +105,7 @@ if (!paths.isEmpty() &&
                 wp.writeEnd();
 
                 wp.writeStart("div", "class", "widget-urlsItemLabel");
-                    wp.writeStart("a", "href", path.getPath(), "target", "_blank");
+                    wp.writeStart("a", "href", href, "target", "_blank");
                         wp.writeHtml(path.getPath());
                     wp.writeEnd();
                 wp.writeEnd();
