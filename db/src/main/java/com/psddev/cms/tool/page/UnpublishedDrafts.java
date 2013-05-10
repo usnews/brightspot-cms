@@ -162,7 +162,8 @@ public class UnpublishedDrafts extends PageServlet {
 
                                 State itemState = State.getInstance(item);
 
-                                if (!itemState.isVisible()) {
+                                if (!itemState.isVisible() &&
+                                        draft.getObjectChanges().isEmpty()) {
                                     continue;
                                 }
 

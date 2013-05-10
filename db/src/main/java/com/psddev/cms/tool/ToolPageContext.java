@@ -645,6 +645,17 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        State objectState = State.getInstance(object);
+
+        if (!objectState.isVisible()) {
+            Draft draft = getOverlaidDraft(object);
+
+            if (draft != null &&
+                    draft.getObjectChanges().isEmpty()) {
+                objectState.getExtras().remove(OVERLAID_DRAFT_EXTRA);
+            }
+        }
+
         return object;
     }
 

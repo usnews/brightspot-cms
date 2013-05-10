@@ -69,7 +69,12 @@ public class ContentRevisions extends Widget {
                 where("objectId = ?", state.getId()).
                 selectAll()) {
             if (d.getSchedule() != null) {
-                scheduled.add(d);
+                State objectState = State.getInstance(d.getObject());
+
+                if (objectState.isVisible() ||
+                        !d.getObjectChanges().isEmpty()) {
+                    scheduled.add(d);
+                }
 
             } else {
                 drafts.add(d);
@@ -129,12 +134,18 @@ public class ContentRevisions extends Widget {
                 page.writeStart("ul", "class", "links");
                     for (Draft d : scheduled) {
                         Schedule s = d.getSchedule();
+                        String sn = s.getName();
 
                         page.writeStart("li", "class", d.equals(selected) ? "selected" : null);
                             page.writeStart("a", "href", page.objectUrl(null, d));
-                                page.writeHtml(page.formatUserDateTime(s.getTriggerDate()));
-                                page.writeHtml(" by ");
-                                page.writeObjectLabel(s.getTriggerUser());
+                                if (ObjectUtils.isBlank(sn)) {
+                                    page.writeHtml(page.formatUserDateTime(s.getTriggerDate()));
+                                    page.writeHtml(" by ");
+                                    page.writeObjectLabel(s.getTriggerUser());
+
+                                } else {
+                                    page.writeHtml(sn);
+                                }
                             page.writeEnd();
                         page.writeEnd();
                     }
