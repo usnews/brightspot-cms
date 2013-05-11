@@ -84,7 +84,7 @@ List<Profile> profiles = Query.from(Profile.class).sortAscending("name").select(
     <div class="main">
 
         <div class="widget">
-            <% wp.writeStandardForm("selected"); %>
+            <% wp.writeStandardForm(selected); %>
         </div>
 
     </div>

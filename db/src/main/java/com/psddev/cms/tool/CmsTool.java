@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.page.ContentRevisions;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
@@ -431,12 +432,10 @@ public class CmsTool extends Tool {
         double rightRow = 0.0;
         JspWidget template, urls;
 
-        plugins.add(createJspWidget("Drafts", "drafts", "/WEB-INF/widget/drafts.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
-        plugins.add(createJspWidget("Schedules", "schedules", "/WEB-INF/widget/schedules.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(urls = createJspWidget("URLs", "urls", "/WEB-INF/widget/urls.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(template = createJspWidget("Template", "template", "/WEB-INF/widget/template.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(createJspWidget("Sites", "sites", "/WEB-INF/widget/sites.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
-        plugins.add(createJspWidget("History", "history", "/WEB-INF/widget/history.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
+        plugins.add(new ContentRevisions());
         plugins.add(createPageWidget("References", "references", "/content/references", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
 
         urls.getUpdateDependencies().add(template);

@@ -16,9 +16,9 @@ Logging into Brightspot brings you to the Dashboard. Here you will find common w
 
 **Tool Hat**
 
-The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, log-out and change which site you are viewing if using Multisite.
+The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, including changing your time-zone, logging-out and changing which site you are viewing if using Multisite.
 
-![](http://docs.brightspot.s3.amazonaws.com/2.1-edit-profile.png)
+![](http://docs.brightspot.s3.amazonaws.com/user-profile.png)
 
 
 **Search**
@@ -87,13 +87,16 @@ Upload files in bulk right from the dashboard. Clicking on Upload Files provides
 
 Content that is set to go live at a future date appears in the Schedules section. Each day has a section, with any content due to go live on that day visible. Click into the content to edit. Scheduling is set from within the content edit screen, using a date widget.
 
-From the Schedules widget you can create new Schdules, which 
+From the Schedules widget you can create new Schedules, where multiple pieces of content can be grouped to all go live together. See the [Scheduling Section](editorial-guide.html#bulk-scheduling) for documentation.
+
 ![](http://docs.brightspot.s3.amazonaws.com/sch_widget_dash.png)
 
 
-**Drafts**
+**Unpublished Drafts**
 
-All content that is not yet completed, but saved in a draft status, appears in the drafts module. Bulk uploaded files are also saved here awaiting editorial additions, such as alt text or titles.
+All content that is not yet completed, but saved in a status, appears in the Unpublished Drafts module. Bulk uploaded files are also saved here awaiting editorial additions, such as alt text or titles.
+
+Content that is within a Workflow, example Submitted / Rejected, also appears here, and can be accessed using the filter.
 
 ![](http://docs.brightspot.s3.amazonaws.com/draft_widget_2.1.png)
 
@@ -117,42 +120,57 @@ Hovering over any content on the dashboard that is an individual page shows a qu
 
 **Intro**
 
-The examples used in this guide will are from a demo Brightspot instance. Your Brightspot interface will not share all of the same names or UI elements, as it is derived from your own objects, but these examples should give you a clear understanding of how to carry out basic editorial tasks, and use the widgets.
+The example screens used in this guide are from a demo version of Brightspot. Your Brightspot interface will not share all of the same names or UI elements, as it is derived from your own objects, however these examples should give you a clear understanding of how to carry out basic editorial tasks, and use the widgets.
 
-To create a new content type select one found in the Create New section on the right. *(Note, Content that has an assigned Template will appear in this section. Creating content from here results in a new page, with a dedicated URL)*
+To create a new content type select one from the Create New widget on the dashboard. *(Note, Content that has an assigned Template will appear in this widget. Creating content from here results in a new page, with a dedicated URL)*. You can also create new content using the Create drop-down in the Search Tool.
 
 ![](http://cdn.psddev.com/cb/28/012be3a74ca5befec610361b44a1/editorial-work-view-20.40.01%20AM.png)
 
 There are lots of options in the content edit screen, but for now, focus on creating your first piece of content.
 
-- Enter a Title, a blurb and some body text.
-- When clicking into an area of text notice how a toolbar appears. This is your Rich Text Editor, allowing you to style your content, add images and links.
+- Enter text where required, such as title or name.
+- When clicking into an area for large text blocks notice how a toolbar appears. This is your Rich Text Editor, allowing you to style your content, add images and links.
 
 ## Previewing
 
-Once you have your content complete make sure it is looking correct by reviewing the preview window. If you do not see the preview window on the right side of the content look for the `Preview` link text under Publish. If you are using the inline preview on a small screen click on the preview bar at the top to slide out the live preview view. The preview feature provides a live preview of your content positioned on your site, and allows you to check and then make edits before the content goes live.
+Once you have your content complete make sure it is looking correct using the preview window. If you do not see the preview window on the right side of the content look for the `Preview` link. If you are using the inline preview on a small screen click on the preview bar at the top to slide out the live preview view. The preview feature provides a live preview of your content positioned on your site, and allows you to check and then make edits before the content goes live.
 
 
 ![](http://cdn.psddev.com/87/ea/abe373bb4a5aac5f20f1f2178c6d/preview-tool-20.43.00%20AM.png)
 
 ## Creating URLs
 
-When you are happy with your content close your preview window, or slide in the preview tool. URLs are generally automatically generated, visible in the right rail widget.  The logic at play typically grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can click 'Add URL' and add a simple URL 'test-article'. A slash is automatically added before the words entered. If you have added content, checked it and given it a URL – you are now ready to publish, by clicking ‘Publish’. You can also add redirects and aliases.
+When you are happy with your content close your preview window, or slide in the preview tool. URLs are generally automatically generated, visible in the right rail widget.  The logic at play typically grabs the first text field in your object (headline / title) and creates a URL. If your current headline is too long for your desired URL, you can click 'Add URL' and add a simple URL 'test-article'. If you want to change URL, uncheck the 'Keep' flag beside a URL
 
-## History
+If you are happy with your content, and have given it a URL – you are now ready to publish, by clicking ‘Publish’.
 
+## Revisions
 
-After editing or publishing content a new ‘History’ section appears in the right rail of the content edit screen. In Brightspot all versions of content are archived automatically.
+After editing or publishing content a new ‘Revisions’ section appears in the right rail of the content edit screen. In Brightspot all versions of content are archived automatically. In the widget you can see Drafts, Schedules and past Versions.
 
-Click on any past version to view. Clicking publish will replace the current content with the past version you are viewing, allowing rolling back in a single click.
+Click on any past version to view. Clicking publish when viewing the version will replace the current content with the past version you are viewing, allowing rolling back in a single click.
 
 If you wish to save the past historic version specifically, edit the revision name, which in turn, once saved, places it in the right rail. From there it can be easily found and reused later.
 
-## Saving a Draft
+## Drafts
 
-If you are not ready to publish your content, you have the option to 'Save as Draft', which saves a version for you to access later. The Drafts widget on the dashboard contains a reference to content saved in that status.
+If you are not ready to publish your content, you have the option to 'Save as Draft', which saves a version for you to access later. All drafts can be found in the Revisions widget, in the right rail, as well as in the Unpublished Drafts widget on the the dashboard. You can see all drafts in various statuses in the dashboard widget. You can also search for drafts just like normal content using the global Search.
 
-When your content is published you can return to the Dashboard by clicking the ‘Pages & Content’ tab.
+You can delete a draft at any time by selecting it and clicking Delete. This does not delete the published version of the content, only the draft currently being viewed.
+
+![](http://docs.brightspot.s3.amazonaws.com/drafts-2.1.png)
+
+## Delete / Trash
+
+Content can be moved to the trash at any time by clicking Trash. This removes the content from your site, but keeps it in a Trashed status in the CMS. It can be restored, or Deleted Permanently, using the Publication widget. See below:
+
+![](http://docs.brightspot.s3.amazonaws.com/trashed-content-2.1.png)
+
+*Note: Trashed content that is being used within other content, example a Trashed Author within an Article, is removed from the front-end website once trashed. The reference, however, is still kept within the Article object, so the Author can be restored with one click, and an editor can see that the Article now has an Author missing.*
+
+![](http://docs.brightspot.s3.amazonaws.com/trashed-reference-2.1.png)
+
+
 
 ## Adding Images
 
@@ -166,9 +184,11 @@ Once clicked you will see an 'Empty Enhancement' in your content. Click the Edit
 
 ![](http://cdn.psddev.com/e1/da/ecc133814354b5ce060030a05a3e/adding-an-enhancement-20.49.37%20AM.png)
 
-You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name. Clicking publish on the content will show the actual image inline.
+You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name in a grey box. Clicking publish on the content will show the actual image inline.
 
-Once an enhancement has been added, you can use the same menu to position it within your content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow. Often images are added to a piece of content outside of a rich text area, an example would be a promo image, or gallery of images. 
+Once an enhancement has been added, you can use the same menu to position it within your content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
+
+Often images are added to a piece of content outside of a rich text area, an example would be a promo image, or gallery of images. The process is the same.
 
 ## Bulk Image Upload
 
@@ -194,7 +214,7 @@ Predefined crop sizes are found to the right of an image. These are grouped by a
 
 ## Adding External Content
 
-External content can be embedded into a rich text area by simply pasting a URL. Add an Enhancement, and select the External Content type. Paste in the URL of your desired content and save. Use preview to see the content inline. Example include Twitter - adding a tweet, YouTube - adding a video and Flickr - adding an image. 
+External content can be embedded into a rich text area by simply pasting a URL. Add an Enhancement, and select the External Content type. Paste in the URL of your desired content and save. Use preview to see the content inline. Examples include adding a tweet, a YouTube video or a Flickr image. 
 
 ![](http://docs.brightspot.s3.amazonaws.com/external-youtube.png)
 ![](http://docs.brightspot.s3.amazonaws.com/external-twitter.png)
@@ -204,7 +224,7 @@ External content can be embedded into a rich text area by simply pasting a URL. 
 
 Once content has been published, you can use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search widget.
 
-There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing.
+There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing within the filters.
 
 ![](http://docs.brightspot.s3.amazonaws.com/advanced-search-2.1.png)
 
@@ -265,6 +285,8 @@ You can keep track of all the content you have made changes to by clicking on th
 ![](http://docs.brightspot.s3.amazonaws.com/see-current-schedule-2.1.png)
 
 You can exit schedule mode (Click Stop Scheduling) and re-enter at any time by viewing all open schedules from the dashboard widget. Clicking Stop Scheduling takes you out of the scheduling mode, and keeps your schedule saved.
+
+*Note: When in schedule mode within the CMS, all the front-end content displays as it has been scheduled, allowing you to preview all changes to your content. When you stop schedule mode the site returns to the current state*
 
 ![](http://docs.brightspot.s3.amazonaws.com/see-all-schedules-2.1.png)
 

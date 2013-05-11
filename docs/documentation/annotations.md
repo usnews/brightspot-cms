@@ -204,6 +204,9 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 > Limits results on the returned objects. Example `@ToolUi.Where("title = ^ a" )` would limit the returned objects to ones whose title starts with a.
 
+`@ToolUi.Tab("tabName")` 
+
+> Creates a new Tab interface in the content edit view, with the annotated fields appearing within it.
 
 
 </div>
