@@ -639,20 +639,20 @@ $doc.ready(function() {
                     $headerForm = $headerInput.closest('form'),
                     $searchFrame,
                     $searchInput,
-                    headerInputValue;
+                    headerInputValue = $headerInput.val();
 
             $headerInput.attr('autocomplete', 'off');
             $searchFrame = $('.frame[name="' + $headerForm.attr('target') + '"]');
 
             if ($searchFrame.length === 0 ||
                     (event.type === 'focus' &&
+                    headerInputValue &&
                     $searchFrame.find('.searchResultList .message-warning').length > 0)) {
                 $headerForm.submit();
 
             } else {
                 $searchFrame.popup('open');
                 $searchInput = $searchFrame.find('.searchFilters :input[name="q"]');
-                headerInputValue = $headerInput.val();
 
                 if (headerInputValue !== $searchInput.val()) {
                     $searchInput.val(headerInputValue).trigger('input');
