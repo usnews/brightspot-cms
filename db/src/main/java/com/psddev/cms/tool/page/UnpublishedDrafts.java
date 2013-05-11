@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -98,12 +99,12 @@ public class UnpublishedDrafts extends PageServlet {
             page.writeEnd();
 
             if (drafts.getItems().isEmpty()) {
-                String label = stateLabels.get(state);
+                String label = state != null ? stateLabels.get(state) : null;
 
                 page.writeStart("div", "class", "message message-info");
                     page.writeHtml("No ");
-                    page.writeHtml(label != null ? label : "Matching");
-                    page.writeHtml(" Items.");
+                    page.writeHtml(label != null ? label.toLowerCase(Locale.ENGLISH) : "matching");
+                    page.writeHtml(" items.");
                 page.writeEnd();
 
             } else {
