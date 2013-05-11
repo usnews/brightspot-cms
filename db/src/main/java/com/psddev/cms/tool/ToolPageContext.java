@@ -647,7 +647,7 @@ public class ToolPageContext extends WebPageContext {
 
         State objectState = State.getInstance(object);
 
-        if (!objectState.isVisible()) {
+        if (object != null && !objectState.isVisible()) {
             Draft draft = getOverlaidDraft(object);
 
             if (draft != null &&
