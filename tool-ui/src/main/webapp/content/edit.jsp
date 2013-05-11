@@ -348,61 +348,62 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         if (workflow != null) {
                             Workflow.Data workflowData = editingState.as(Workflow.Data.class);
                             String currentState = workflowData.getCurrentState();
+                            Set<String> transitionNames = new LinkedHashSet<String>();
 
-                            wp.writeStart("div", "class", "message message-info");
-                                wp.writeStart("p");
-                                    wp.writeHtml("Workflow: ");
-                                    wp.writeHtml(currentState);
-                                wp.writeEnd();
+                            for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
+                                    transitionNames.add(transitionName);
+                                }
+                            }
 
-                                wp.writeStart("div", "class", "actions");
-                                    Workflow.Log log = workflowData.getLastLog();
+                            if (currentState != null || !transitionNames.isEmpty()) {
+                                wp.writeStart("div", "class", "message message-info");
+                                    wp.writeStart("p");
+                                        wp.writeHtml("Workflow: ");
+                                        wp.writeHtml(currentState);
+                                    wp.writeEnd();
 
-                                    if (log != null) {
-                                        String comment = log.getComment();
+                                    wp.writeStart("div", "class", "actions");
+                                        Workflow.Log log = workflowData.getLastLog();
 
-                                        wp.writeStart("p");
-                                            if (ObjectUtils.isBlank(comment)) {
-                                                wp.writeHtml(log.getTransition());
-                                                wp.writeHtml(" by ");
+                                        if (log != null) {
+                                            String comment = log.getComment();
 
-                                            } else {
-                                                wp.writeStart("q");
-                                                    wp.writeHtml(comment);
-                                                wp.writeEnd();
-                                                wp.writeHtml(" said ");
-                                            }
+                                            wp.writeStart("p");
+                                                if (ObjectUtils.isBlank(comment)) {
+                                                    wp.writeHtml(log.getTransition());
+                                                    wp.writeHtml(" by ");
 
-                                            wp.writeObjectLabel(log.getUser());
-                                            wp.writeHtml(" at ");
-                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
-                                        wp.writeEnd();
-                                    }
+                                                } else {
+                                                    wp.writeStart("q");
+                                                        wp.writeHtml(comment);
+                                                    wp.writeEnd();
+                                                    wp.writeHtml(" said ");
+                                                }
 
-                                    Set<String> transitionNames = new LinkedHashSet<String>();
-
-                                    for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
-                                        if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                            transitionNames.add(transitionName);
-                                        }
-                                    }
-
-                                    if (!transitionNames.isEmpty()) {
-                                        wp.writeStart("textarea",
-                                                "name", "workflowComment",
-                                                "placeholder", "Optional Comment");
-                                        wp.writeEnd();
-
-                                        for (String transitionName : transitionNames) {
-                                            wp.writeStart("button",
-                                                    "name", "action-workflow",
-                                                    "value", transitionName);
-                                                wp.writeHtml(transitionName);
+                                                wp.writeObjectLabel(log.getUser());
+                                                wp.writeHtml(" at ");
+                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                             wp.writeEnd();
                                         }
-                                    }
+
+                                        if (!transitionNames.isEmpty()) {
+                                            wp.writeStart("textarea",
+                                                    "name", "workflowComment",
+                                                    "placeholder", "Optional Comment");
+                                            wp.writeEnd();
+
+                                            for (String transitionName : transitionNames) {
+                                                wp.writeStart("button",
+                                                        "name", "action-workflow",
+                                                        "value", transitionName);
+                                                    wp.writeHtml(transitionName);
+                                                wp.writeEnd();
+                                            }
+                                        }
+                                    wp.writeEnd();
                                 wp.writeEnd();
-                            wp.writeEnd();
+                            }
                         }
                     }
 
