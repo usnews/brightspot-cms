@@ -286,7 +286,7 @@ public class SearchResultRenderer {
 
             writer.writeStart("td", "data-preview-anchor", "");
                 renderBeforeItem(item);
-                writer.objectLabel(item);
+                page.writeObjectLabel(item);
                 renderAfterItem(item);
             writer.writeEnd();
 
