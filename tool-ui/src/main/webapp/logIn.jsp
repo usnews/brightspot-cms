@@ -83,6 +83,12 @@ body.hasToolBroadcast {
     <h1>Log In</h1>
 
     <%
+    if (wp.param(boolean.class, "forced")) {
+        wp.writeStart("div", "class", "message message-warning");
+            wp.writeHtml("You've been inactive for too long or logged out from a different page. Please log in again.");
+        wp.writeEnd();
+    }
+
     if (authError != null) {
         new HtmlWriter(wp.getWriter()).object(authError);
     }
@@ -95,7 +101,7 @@ body.hasToolBroadcast {
         </div>
     <% } %>
 
-    <form action="<%= wp.url("") %>" method="post">
+    <form action="<%= wp.url("", "forced", null) %>" method="post">
         <div class="inputContainer">
             <div class="inputLabel">
                 <label for="<%= wp.createId() %>">Email</label>
