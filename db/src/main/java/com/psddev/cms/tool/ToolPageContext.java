@@ -645,6 +645,17 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        State objectState = State.getInstance(object);
+
+        if (!objectState.isVisible()) {
+            Draft draft = getOverlaidDraft(object);
+
+            if (draft != null &&
+                    draft.getObjectChanges().isEmpty()) {
+                objectState.getExtras().remove(OVERLAID_DRAFT_EXTRA);
+            }
+        }
+
         return object;
     }
 
@@ -1506,14 +1517,19 @@ public class ToolPageContext extends WebPageContext {
      */
     public boolean writeTrashMessage(Object object) throws IOException {
         State state = State.getInstance(object);
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
 
-        if (!state.as(Content.ObjectModification.class).isTrash()) {
+        if (!contentData.isTrash()) {
             return false;
         }
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("This item is in trash.");
+                writeHtml("Trashed ");
+                writeHtml(formatUserDateTime(contentData.getUpdateDate()));
+                writeHtml(" by ");
+                writeObjectLabel(contentData.getUpdateUser());
+                writeHtml(".");
             writeEnd();
 
             writeStart("div", "class", "actions");
@@ -1557,49 +1573,29 @@ public class ToolPageContext extends WebPageContext {
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
                 "autocomplete", "off");
-            if (state.as(Content.ObjectModification.class).isTrash()) {
-                writeStart("div", "class", "message message-warning");
-                    writeStart("p");
-                        writeHtml("This item is in trash.");
-                    writeEnd();
-
-                    writeStart("div", "class", "actions");
-                        writeStart("button",
-                                "class", "link icon icon-action-restore",
-                                "name", "action-restore",
-                                "value", "true");
-                            writeHtml("Restore");
-                        writeEnd();
-
-                        writeStart("button",
-                                "class", "link icon icon-action-delete",
-                                "name", "action-delete",
-                                "value", "true");
-                            writeHtml("Delete Permanently");
-                        writeEnd();
-                    writeEnd();
-                writeEnd();
-            }
+            boolean trash = writeTrashMessage(object);
 
             include("/WEB-INF/objectForm.jsp", "object", object);
 
-            writeStart("div", "class", "actions");
-                writeStart("button",
-                        "class", "icon icon-action-save",
-                        "name", "action-save",
-                        "value", "true");
-                    writeHtml("Save");
-                writeEnd();
-
-                if (!state.isNew()) {
+            if (!trash) {
+                writeStart("div", "class", "actions");
                     writeStart("button",
-                            "class", "icon icon-action-trash action-pullRight link",
-                            "name", "action-trash",
+                            "class", "icon icon-action-save",
+                            "name", "action-save",
                             "value", "true");
-                        writeHtml("Trash");
+                        writeHtml("Save");
                     writeEnd();
-                }
-            writeEnd();
+
+                    if (!state.isNew()) {
+                        writeStart("button",
+                                "class", "icon icon-action-trash action-pullRight link",
+                                "name", "action-trash",
+                                "value", "true");
+                            writeHtml("Trash");
+                        writeEnd();
+                    }
+                writeEnd();
+            }
         writeEnd();
     }
 

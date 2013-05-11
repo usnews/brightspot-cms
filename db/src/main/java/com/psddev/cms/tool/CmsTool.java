@@ -405,6 +405,7 @@ public class CmsTool extends Tool {
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
         plugins.add(createArea2("Templates & Sections", "adminTemplates", "admin/adminTemplates", "/admin/templates.jsp"));
+        plugins.add(createArea2("Trash", "cms.adminTrash", "admin/trash", "/adminTrash"));
         plugins.add(createArea2("URLs", "adminUrls", "admin/adminUrls", "/admin/urls.jsp"));
         plugins.add(createArea2("Users & Roles", "adminUsers", "admin/adminUsers", "/admin/users.jsp"));
         plugins.add(createArea2("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));

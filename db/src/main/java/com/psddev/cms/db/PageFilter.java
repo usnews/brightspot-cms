@@ -387,13 +387,26 @@ public class PageFilter extends AbstractFilter {
             State mainState = State.getInstance(mainObject);
 
             if (!mainState.isVisible()) {
-                if (Settings.isProduction()) {
-                    chain.doFilter(request, response);
-                    return;
+                SCHEDULED: {
+                    ToolUser user = AuthenticationFilter.Static.getUser(request);
 
-                } else {
-                    throw new IllegalStateException(String.format(
-                            "[%s] isn't visible!", mainState.getId()));
+                    if (user != null) {
+                        Schedule currentSchedule = user.getCurrentSchedule();
+
+                        if (currentSchedule != null &&
+                                Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
+                            break SCHEDULED;
+                        }
+                    }
+
+                    if (Settings.isProduction()) {
+                        chain.doFilter(request, response);
+                        return;
+
+                    } else {
+                        throw new IllegalStateException(String.format(
+                                "[%s] isn't visible!", mainState.getId()));
+                    }
                 }
             }
 
