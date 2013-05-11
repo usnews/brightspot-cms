@@ -90,12 +90,22 @@ if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
     <%    
     if (wp.hasPermission("type/" + state.getTypeId() + "/write")) {
         wp.writeStart("div", "class", "buttons");
-            wp.writeStart("button",
-                    "class", "icon icon-action-publish",
-                    "name", "action-publish",
-                    "value", "true");
-                wp.writeHtml("Publish");
-            wp.writeEnd();
+            if (wp.getUser().getCurrentSchedule() != null) {
+                wp.writeStart("button",
+                        "class", "icon icon-action-schedule",
+                        "name", "action-publish",
+                        "value", "true");
+                    wp.writeHtml("Schedule");
+                wp.writeEnd();
+
+            } else {
+                wp.writeStart("button",
+                        "class", "icon icon-action-publish",
+                        "name", "action-publish",
+                        "value", "true");
+                    wp.writeHtml("Publish");
+                wp.writeEnd();
+            }
         wp.writeEnd();
 
     } else {
