@@ -69,13 +69,16 @@ public class Workflow extends Record {
     public Set<WorkflowState> getStates() {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        List<Map<String, Object>> rawStates = actions.get("states");
         Set<WorkflowState> states = new HashSet<WorkflowState>();
 
-        for (Map<String, Object> s : actions.get("states")) {
-            WorkflowState state = new WorkflowState();
+        if (rawStates != null) {
+            for (Map<String, Object> s : rawStates) {
+                WorkflowState state = new WorkflowState();
 
-            state.setName((String) s.get("name"));
-            states.add(state);
+                state.setName((String) s.get("name"));
+                states.add(state);
+            }
         }
 
         return states;
