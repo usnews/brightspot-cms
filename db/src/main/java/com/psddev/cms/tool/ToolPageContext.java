@@ -1552,6 +1552,10 @@ public class ToolPageContext extends WebPageContext {
         return true;
     }
 
+    private void includeFromCms(String url, Object... attributes) throws IOException, ServletException {
+        JspUtils.include(getRequest(), getResponse(), getWriter(), cmsUrl(url), attributes);
+    }
+
     /**
      * Writes a standard form for the given {@code object}.
      *
@@ -1563,10 +1567,10 @@ public class ToolPageContext extends WebPageContext {
         writeFormHeading(object);
 
         writeStart("div", "class", "widgetControls");
-            include("/WEB-INF/objectVariation.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectVariation.jsp", "object", object);
         writeEnd();
 
-        include("/WEB-INF/objectMessage.jsp", "object", object);
+        includeFromCms("/WEB-INF/objectMessage.jsp", "object", object);
 
         writeStart("form",
                 "method", "post",
@@ -1575,7 +1579,7 @@ public class ToolPageContext extends WebPageContext {
                 "autocomplete", "off");
             boolean trash = writeTrashMessage(object);
 
-            include("/WEB-INF/objectForm.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
 
             if (!trash) {
                 writeStart("div", "class", "actions");
@@ -1681,7 +1685,7 @@ public class ToolPageContext extends WebPageContext {
         Draft draft = getOverlaidDraft(object);
 
         try {
-            include("/WEB-INF/objectPost.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
             updateUsingAllWidgets(object);
 
             if (draft == null &&
@@ -1747,7 +1751,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 getRequest().setAttribute("original", object);
-                include("/WEB-INF/objectPost.jsp", "object", object, "original", object);
+                includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", object);
                 updateUsingAllWidgets(object);
 
             } else {
@@ -1759,7 +1763,7 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, Object> oldStateValues = State.getInstance(original).getSimpleValues();
 
                 getRequest().setAttribute("original", original);
-                include("/WEB-INF/objectPost.jsp", "object", object, "original", original);
+                includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", original);
                 updateUsingAllWidgets(object);
 
                 Map<String, Object> newStateValues = state.getSimpleValues();
@@ -1910,7 +1914,7 @@ public class ToolPageContext extends WebPageContext {
         State state = State.getInstance(object);
 
         try {
-            include("/WEB-INF/objectPost.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
             state.save();
             redirect("", "id", state.getId());
             return true;
@@ -1999,7 +2003,7 @@ public class ToolPageContext extends WebPageContext {
                 WorkflowTransition transition = workflow.getTransitions().get(action);
 
                 if (transition != null) {
-                    include("/WEB-INF/objectPost.jsp", "object", object);
+                    includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
                     workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
                     publish(object);
                 }
