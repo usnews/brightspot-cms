@@ -1,11 +1,12 @@
 package com.psddev.cms.db;
 
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.PullThroughCache;
 import com.psddev.dari.util.StringUtils;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Profile of the entity visiting a CMS-rendered page.
@@ -20,6 +21,7 @@ public class Profile extends Record {
     @Required
     private String name;
 
+    private Date visitDate;
     private String userAgent;
     private Integer deviceWidth;
 
@@ -31,6 +33,20 @@ public class Profile extends Record {
     /** Sets the name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return Never {@code null}.
+     */
+    public Date getVisitDate() {
+        if (visitDate == null) {
+            visitDate = new Date();
+        }
+        return visitDate;
+    }
+
+    public void setVisitDate(Date visitDate) {
+        this.visitDate = visitDate;
     }
 
     /** Returns the user agent used by the visitor. */
