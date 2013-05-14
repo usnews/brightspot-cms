@@ -4,24 +4,27 @@ var $win = $(win),
         doc = win.document,
         $doc = $(doc);
 
-setInterval(function() {
-    $.getJSON(CONTEXT_PATH + '/toolUserPing', function(response) {
-        var status = response.status,
-                href = win.location.href,
-                redirect;
+win.cms = win.cms || { };
+win.cms.startToolUserPing = function() {
+    setInterval(function() {
+        $.getJSON(CONTEXT_PATH + '/toolUserPing', function(response) {
+            var status = response.status,
+                    href = win.location.href,
+                    redirect;
 
-        if (status === 'ERROR' &&
-                !(/logIn.jsp/.exec(href))) {
-            win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location);
+            if (status === 'ERROR' &&
+                    !(/logIn.jsp/.exec(href))) {
+                win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location);
 
-        } else if (status === 'OK' &&
-                (/logIn.jsp/.exec(href))) {
-            redirect = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
-            redirect = redirect ? decodeURIComponent(redirect) : CONTEXT_PATH + '/';
-            win.location = redirect;
-        }
-    });
-}, 2000);
+            } else if (status === 'OK' &&
+                    (/logIn.jsp/.exec(href))) {
+                redirect = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
+                redirect = redirect ? decodeURIComponent(redirect) : CONTEXT_PATH + '/';
+                win.location = redirect;
+            }
+        });
+    }, 2000);
+};
 
 // Standard behaviors.
 $doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');

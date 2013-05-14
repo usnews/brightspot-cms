@@ -1081,6 +1081,12 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
                 }
 
+                if (Settings.isProduction()) {
+                    writeStart("script", "type", "text/javascript");
+                        writeRaw("window.cms.startToolUserPing();");
+                    writeEnd();
+                }
+
                 String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
 
                 if (!ObjectUtils.isBlank(dropboxAppKey)) {
