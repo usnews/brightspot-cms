@@ -33,6 +33,7 @@ public class ToolUi extends Modification<Object> {
     private boolean globalFilter;
     private String heading;
     private Boolean hidden;
+    private String iconName;
     private String inputProcessorPath;
     private String inputSearcherPath;
     private String noteHtml;
@@ -121,6 +122,19 @@ public class ToolUi extends Modification<Object> {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public String getIconNameOrDefault(String defaultIconName) {
+        String iconName = getIconName();
+        return ObjectUtils.isBlank(iconName) ? defaultIconName : iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
     }
 
     public String getInputProcessorPath() {
@@ -391,6 +405,23 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, Hidden annotation) {
             type.as(ToolUi.class).setHidden(annotation.value());
+        }
+    }
+
+    /** Specifies the name of the icon that represents the target type. */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(IconNameProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface IconName {
+        String value();
+    }
+
+    private static class IconNameProcessor implements ObjectType.AnnotationProcessor<IconName> {
+        @Override
+        public void process(ObjectType type, IconName annotation) {
+            type.as(ToolUi.class).setIconName(annotation.value());
         }
     }
 
