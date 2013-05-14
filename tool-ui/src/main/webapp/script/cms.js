@@ -709,8 +709,8 @@ $doc.ready(function() {
         }
     }));
 
-    // Publication widget behaviors.
-    $('.widget-publication').each(function() {
+    // Publishing widget behaviors.
+    $('.widget-publishing').each(function() {
         var $widget = $(this),
                 $dateInput = $widget.find('.dateInput'),
                 $publishButton = $widget.find('[name="action-publish"]'),

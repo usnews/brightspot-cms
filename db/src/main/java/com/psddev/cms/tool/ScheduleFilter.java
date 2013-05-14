@@ -10,7 +10,7 @@ import com.psddev.dari.util.Task;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/** Triggers scheduled events for publication. */
+/** Triggers scheduled events for publishing. */
 public class ScheduleFilter extends AbstractFilter {
 
     public final Task scheduler = new Task() {

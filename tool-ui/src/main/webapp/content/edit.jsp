@@ -253,8 +253,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         <div class="contentForm-aside">
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
-            <div class="widget widget-publication">
-                <h1 class="icon icon-action-publish">Publication</h1>
+            <div class="widget widget-publishing">
+                <h1 class="icon icon-action-publish">Publishing</h1>
 
                 <%
                 State editingState = State.getInstance(editing);
@@ -481,7 +481,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     // Publish and trash buttons.
                     if (!isTrash && wp.hasPermission("type/" + editingState.getId() + "/publish")) {
-                        wp.writeStart("div", "class", "widget-publicationPublish");
+                        wp.writeStart("div", "class", "widget-publishingPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",
                                         "type", "text",
@@ -517,7 +517,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write("!</p></div>");
                 }
 
-                wp.writeStart("ul", "class", "widget-publicationExtra");
+                wp.writeStart("ul", "class", "widget-publishingExtra");
                     if (isWritable && !isDraft && !isTrash) {
                         wp.writeStart("li");
                             wp.writeStart("button",
@@ -597,7 +597,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     $edit = $('.content-edit'),
                     oldEditStyle = $edit.attr('style') || '',
-                    $publicationExtra = $('.widget-publicationExtra'),
+                    $publishingExtra = $('.widget-publishingExtra'),
                     $previewAction,
                     appendPreviewAction,
                     removePreviewAction,
@@ -629,7 +629,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     })
                 });
 
-                $publicationExtra.append($previewAction);
+                $publishingExtra.append($previewAction);
             };
 
             removePreviewAction = function() {
