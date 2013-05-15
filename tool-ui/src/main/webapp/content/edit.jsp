@@ -548,7 +548,36 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             %>
 
             <ul class="widget-preview_controls">
-                <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
+                <li>
+                    <%
+                    wp.writeStart("form",
+                            "method", "post",
+                            "id", previewFormId,
+                            "target", previewTarget,
+                            "action", JspUtils.getAbsolutePath(request, "/_preview"));
+                        wp.writeTag("input", "type", "hidden", "name", "_fields", "value", true);
+                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_ID_PARAMETER, "value", state.getId());
+                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_OBJECT_PARAMETER);
+
+                        if (site != null) {
+                            wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_SITE_ID_PARAMETER, "value", site.getId());
+                        }
+
+                        wp.writeStart("select", "onchange",
+                                "var $input = $(this)," +
+                                        "$form = $input.closest('form');" +
+                                "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.val() || '100%');" +
+                                "$form.submit();");
+                            for (Device d : Device.values()) {
+                                wp.writeStart("option", "value", d.width);
+                                    wp.writeHtml(d);
+                                wp.writeEnd();
+                            }
+                        wp.writeEnd();
+                    wp.writeEnd();
+                    %>
+                </li>
+
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
@@ -557,30 +586,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                         <button class="action-share">Share</button>
-                    </form>
-                </li>
-                <li>
-                    <form
-                            id="<%= previewFormId %>"
-                            method="post"
-                            action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>"
-                            target="<%= previewTarget %>">
-                        <input type="hidden" name="_fields" value="true">
-                        <input type="hidden" id="<%= modeId %>" name="_" value="true">
-                        <label for="<%= wp.createId() %>">Mode:</label>
-                        <select id="<%= wp.getId() %>" onchange="
-                                var $select = $(this);
-                                $('#<%= modeId %>').attr('name', $select.val());
-                                $select.closest('form').submit();">
-                            <option value="_">Default</option>
-                            <option value="_prod">Production</option>
-                            <option value="_debug">Debug</option>
-                        </select>
-                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                        <% if (site != null) { %>
-                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
-                        <% } %>
-                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
                     </form>
                 </li>
             </ul>
@@ -747,7 +752,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         'margin': 0,
                                         'overflow': 'hidden',
                                         'padding': 0,
-                                        'width': '100%'
+                                        'width': $previewForm.find('[name="_deviceWidth"]').val() || '100%'
                                     }
                                 });
                                 $previewWidget.append($previewTarget);
@@ -1099,6 +1104,29 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
             }
         }
         wp.write("</div>");
+    }
+}
+%><%!
+
+private enum Device {
+
+    DESKTOP("Desktop", 1280),
+    TABLET_LANDSCAPE("Tablet - Landscape", 1024),
+    TABLET_PORTRAIT("Tablet - Portrait", 768),
+    MOBILE_LANDSCAPE("Mobile - Landscape", 480),
+    MOBILE_PORTRAIT("Mobile - Portrait", 320);
+
+    public final String label;
+    public final int width;
+
+    private Device(String label, int width) {
+        this.label = label;
+        this.width = width;
+    }
+
+    @Override
+    public String toString() {
+        return label + " (" + width + ")";
     }
 }
 %>
