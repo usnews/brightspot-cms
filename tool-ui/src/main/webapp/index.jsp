@@ -82,23 +82,25 @@ writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size()
     for (List<Widget> widgets : widgetsByColumn) {
         writer.start("div", "class", "dashboardColumn");
             for (Widget widget : widgets) {
-                if(wp.hasPermission(widget.getPermissionId())){
-                    String jsp = null;
+                if (!wp.hasPermission(widget.getPermissionId())) {
+                    continue;
+                }
 
-                    if (widget instanceof JspWidget) {
-                        jsp = ((JspWidget) widget).getJsp();
+                String jsp = null;
 
-                    } else if (widget instanceof PageWidget) {
-                        jsp = ((PageWidget) widget).getPath();
-                    }
+                if (widget instanceof JspWidget) {
+                    jsp = ((JspWidget) widget).getJsp();
 
-                    if (jsp != null) {
-                        writer.start("div", "class", "dashboardCell", "data-widget", widget.getInternalName());
-                            writer.start("div", "class", "frame");
-                                writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
-                            writer.end();
+                } else if (widget instanceof PageWidget) {
+                    jsp = ((PageWidget) widget).getPath();
+                }
+
+                if (jsp != null) {
+                    writer.start("div", "class", "dashboardCell", "data-widget", widget.getInternalName());
+                        writer.start("div", "class", "frame");
+                            writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
                         writer.end();
-                    }
+                    writer.end();
                 }
             }
         writer.end();
