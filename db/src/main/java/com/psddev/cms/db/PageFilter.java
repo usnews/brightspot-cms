@@ -75,6 +75,7 @@ public class PageFilter extends AbstractFilter {
     private static final String NEW_REQUEST_ATTRIBUTE = ATTRIBUTE_PREFIX + ".newRequest";
     private static final String PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + ".path";
     private static final String PATH_MATCHES_ATTRIBUTE = ATTRIBUTE_PREFIX + ".matches";
+    private static final String PREVIEW_ATTRIBUTE = ".preview";
 
     public static final String ABORTED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".aborted";
     public static final String CURRENT_SECTION_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentSection";
@@ -962,6 +963,15 @@ public class PageFilter extends AbstractFilter {
             request.setAttribute("site", site);
         }
 
+        /**
+         * Returns {@code true} if the given {@code request} is for a preview.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static boolean isPreview(HttpServletRequest request) {
+            return Boolean.TRUE.equals(request.getAttribute(PREVIEW_ATTRIBUTE));
+        }
+
         /** Returns the main object associated with the given {@code request}. */
         public static Object getMainObject(HttpServletRequest request) {
             if (Boolean.TRUE.equals(request.getAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE))) {
@@ -985,6 +995,8 @@ public class PageFilter extends AbstractFilter {
                 // On preview request, manually create the main object based on
                 // the post data.
                 if (path.startsWith("/_preview")) {
+                    request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
+
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
                     if (previewId != null) {
 
