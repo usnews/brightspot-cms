@@ -385,7 +385,29 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
-            State mainState = State.getInstance(mainObject);
+            final State mainState = State.getInstance(mainObject);
+
+            // Fake the request path in preview mode in case the servlets
+            // depend on it.
+            if (Static.isPreview(request)) {
+                request = new HttpServletRequestWrapper(request) {
+
+                    @Override
+                    public String getRequestURI() {
+                        return getContextPath() + getServletPath();
+                    }
+
+                    @Override
+                    public StringBuffer getRequestURL() {
+                        return new StringBuffer(getRequestURI());
+                    }
+
+                    @Override
+                    public String getServletPath() {
+                        return mainState.as(Directory.ObjectModification.class).getPermalink();
+                    }
+                };
+            }
 
             if (!mainState.isVisible()) {
                 SCHEDULED: {
