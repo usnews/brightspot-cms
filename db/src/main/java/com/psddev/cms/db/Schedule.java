@@ -113,7 +113,11 @@ public class Schedule extends Record {
         StringBuilder label = new StringBuilder();
 
         if (ObjectUtils.isBlank(name)) {
-            label.append(getTriggerDate().toString());
+            Date triggerDate = getTriggerDate();
+
+            label.append(triggerDate != null ?
+                    triggerDate.toString() :
+                    getId().toString());
 
         } else {
             label.append(name);
