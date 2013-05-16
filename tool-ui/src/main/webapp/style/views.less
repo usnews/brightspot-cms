@@ -804,6 +804,22 @@ table.links.table-striped {
     background-color: #ed9;
 }
 
+.oneLine {
+    display: table;
+    list-style-type: none;
+    margin-left: 0;
+    max-width: 100%;
+
+    li {
+        display: table-cell;
+        padding-right: 5px;
+
+        &:last-child {
+            padding-right: 0;
+        }
+    }
+}
+
 .pagination {
     list-style-type: none;
     margin-bottom: 5px;

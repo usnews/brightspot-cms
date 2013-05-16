@@ -144,124 +144,119 @@ public class SiteMap extends PageServlet {
             count = (long) result.getItems().size();
         }
 
-        page.writeStart("div", "class", "widget widget-sitemap");
-            page.writeStart("h1").writeHtml("Sitemap").writeEnd();
+        page.writeStart("div", "class", "widget");
+            page.writeStart("h1", "class", "icon icon-sitemap");
+                page.writeHtml("Sitemap");
+            page.writeEnd();
 
             page.writeStart("form",
-                    "class", "sitemap-filters",
                     "method", "get",
                     "action", page.url(null));
-
-                page.writeStart("span", "class", "sitemap-filters-itemType");
-                    page.writeTypeSelect(
-                            Template.Static.findUsedTypes(page.getSite()),
-                            itemType,
-                            "Everything",
-                            "class", "autoSubmit",
-                            "name", "itemType",
-                            "data-searchable", "true");
-                page.writeEnd();
-
-                if (types.isEmpty()) {
-                    page.writeStart("span", "class", "sitemap-filters-prep");
-                        page.writeHtml("in");
-                    page.writeEnd();
-
-                    page.writeTag("input",
-                            "type", "hidden",
-                            "name", "type",
-                            "value", URL_TYPE);
-
-                } else {
-                    page.writeStart("span", "class", "sitemap-filters-prep");
-                        page.writeHtml("with");
-                    page.writeEnd();
-
-                    page.writeStart("span", "class", "sitemap-filters-type");
-                        page.writeStart("select",
+                page.writeStart("ul", "class", "oneLine");
+                    page.writeStart("li");
+                        page.writeTypeSelect(
+                                Template.Static.findUsedTypes(page.getSite()),
+                                itemType,
+                                "Everything",
                                 "class", "autoSubmit",
-                                "name", "type");
-
-                            page.writeStart("option",
-                                    "selected", type.equals(URL_TYPE) ? "selected" : null,
-                                    "value", URL_TYPE);
-                                page.writeHtml("URL");
-                            page.writeEnd();
-
-                            for (ObjectType t : types) {
-                                String id = t.getId().toString();
-                                page.writeStart("option",
-                                        "selected", type.equals(id) ? "selected" : null,
-                                        "value", id);
-                                    page.writeHtml(t.getDisplayName());
-                                page.writeEnd();
-                            }
-
-                        page.writeEnd();
+                                "name", "itemType",
+                                "data-searchable", "true");
                     page.writeEnd();
-                }
 
-                page.writeStart("span", "class", "sitemap-filters-value");
-
-                    Query<?> valueQuery;
-                    ObjectType valueType;
-
-                    if (type.equals(URL_TYPE)) {
-                        valueType = ObjectType.getInstance(Directory.class);
-                        valueQuery = Query.from(Directory.class).sortAscending("path");
+                    if (types.isEmpty()) {
+                        page.writeTag("input",
+                                "type", "hidden",
+                                "name", "type",
+                                "value", URL_TYPE);
 
                     } else {
-                        valueType = ObjectType.getInstance(ObjectUtils.to(UUID.class, type));
-                        valueQuery = Query.fromType(valueType);
+                        page.writeStart("li");
+                            page.writeHtml("with ");
 
-                        for (String fieldName : valueType.getLabelFields()) {
-                            ObjectField field = valueType.getField(fieldName);
+                            page.writeStart("select",
+                                    "class", "autoSubmit",
+                                    "name", "type");
 
-                            if (field != null && valueType.getIndex(fieldName) != null) {
-                                valueQuery.sortAscending(valueType.getInternalName() + "/" + fieldName);
+                                page.writeStart("option",
+                                        "selected", type.equals(URL_TYPE) ? "selected" : null,
+                                        "value", URL_TYPE);
+                                    page.writeHtml("URL");
+                                page.writeEnd();
+
+                                for (ObjectType t : types) {
+                                    String id = t.getId().toString();
+                                    page.writeStart("option",
+                                            "selected", type.equals(id) ? "selected" : null,
+                                            "value", id);
+                                        page.writeHtml(t.getDisplayName());
+                                    page.writeEnd();
+                                }
+
+                            page.writeEnd();
+                        page.writeEnd();
+                    }
+
+                    page.writeStart("li");
+                        page.writeHtml("in ");
+
+                        Query<?> valueQuery;
+                        ObjectType valueType;
+
+                        if (type.equals(URL_TYPE)) {
+                            valueType = ObjectType.getInstance(Directory.class);
+                            valueQuery = Query.from(Directory.class).sortAscending("path");
+
+                        } else {
+                            valueType = ObjectType.getInstance(ObjectUtils.to(UUID.class, type));
+                            valueQuery = Query.fromType(valueType);
+
+                            for (String fieldName : valueType.getLabelFields()) {
+                                ObjectField field = valueType.getField(fieldName);
+
+                                if (field != null && valueType.getIndex(fieldName) != null) {
+                                    valueQuery.sortAscending(valueType.getInternalName() + "/" + fieldName);
+                                }
                             }
                         }
-                    }
 
-                    if (valueQuery.hasMoreThan(250)) {
-                        page.writeTag("input",
-                                "type", "text",
-                                "class", "autoSubmit objectId",
-                                "data-editable", false,
-                                "data-label", valueObject != null ? State.getInstance(valueObject).getLabel() : null,
-                                "data-typeIds", valueType.getId(),
-                                "name", valueParameter,
-                                "value", value);
+                        if (valueQuery.hasMoreThan(250)) {
+                            page.writeTag("input",
+                                    "type", "text",
+                                    "class", "autoSubmit objectId",
+                                    "data-editable", false,
+                                    "data-label", valueObject != null ? State.getInstance(valueObject).getLabel() : null,
+                                    "data-typeIds", valueType.getId(),
+                                    "name", valueParameter,
+                                    "value", value);
 
-                    } else {
-                        page.writeStart("select",
-                                "class", "autoSubmit",
-                                "name", valueParameter,
-                                "data-searchable", "true");
+                        } else {
+                            page.writeStart("select",
+                                    "class", "autoSubmit",
+                                    "name", valueParameter,
+                                    "data-searchable", "true");
 
-                            if (!type.equals(URL_TYPE)) {
-                                page.writeStart("option", "value", "").writeEnd();
-                            }
+                                if (!type.equals(URL_TYPE)) {
+                                    page.writeStart("option", "value", "").writeEnd();
+                                }
 
-                            for (Object v : valueQuery.selectAll()) {
-                                State state = State.getInstance(v);
+                                for (Object v : valueQuery.selectAll()) {
+                                    State state = State.getInstance(v);
 
-                                page.writeStart("option",
-                                        "value", state.getId(),
-                                        "selected", v.equals(valueObject) ? "selected" : null);
-                                    page.writeHtml(state.getLabel());
-                                page.writeEnd();
-                            }
+                                    page.writeStart("option",
+                                            "value", state.getId(),
+                                            "selected", v.equals(valueObject) ? "selected" : null);
+                                        page.writeHtml(state.getLabel());
+                                    page.writeEnd();
+                                }
 
-                        page.writeEnd();
-                    }
-
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
                 page.writeEnd();
-
             page.writeEnd();
 
             if (valueObject == null) {
-                page.writeStart("div", "class", "sitemap-warning sitemap-warning-value");
+                page.writeStart("div", "class", "message message-warning");
                     page.writeStart("p");
                         page.writeHtml("Please select a ");
                         page.writeStart("strong").writeHtml(valueType.getLabel()).writeEnd();
@@ -270,7 +265,7 @@ public class SiteMap extends PageServlet {
                 page.writeEnd();
 
             } else if (!result.hasPages()) {
-                page.writeStart("div", "class", "sitemap-warning");
+                page.writeStart("div", "class", "message message-info");
                     page.writeStart("p");
                         page.writeHtml("No ");
 
