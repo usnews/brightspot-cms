@@ -15,7 +15,6 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.AggregateQueryResult;
 import com.psddev.dari.db.Database;
@@ -145,17 +144,15 @@ public class SiteMap extends PageServlet {
             count = (long) result.getItems().size();
         }
 
-        PageWriter writer = page.getWriter();
+        page.writeStart("div", "class", "widget widget-sitemap");
+            page.writeStart("h1").writeHtml("Sitemap").writeEnd();
 
-        writer.writeStart("div", "class", "widget widget-sitemap");
-            writer.writeStart("h1").writeHtml("Sitemap").writeEnd();
-
-            writer.writeStart("form",
+            page.writeStart("form",
                     "class", "sitemap-filters",
                     "method", "get",
                     "action", page.url(null));
 
-                writer.writeStart("span", "class", "sitemap-filters-itemType");
+                page.writeStart("span", "class", "sitemap-filters-itemType");
                     page.writeTypeSelect(
                             Template.Static.findUsedTypes(page.getSite()),
                             itemType,
@@ -163,48 +160,48 @@ public class SiteMap extends PageServlet {
                             "class", "autoSubmit",
                             "name", "itemType",
                             "data-searchable", "true");
-                writer.writeEnd();
+                page.writeEnd();
 
                 if (types.isEmpty()) {
-                    writer.writeStart("span", "class", "sitemap-filters-prep");
-                        writer.writeHtml("in");
-                    writer.writeEnd();
+                    page.writeStart("span", "class", "sitemap-filters-prep");
+                        page.writeHtml("in");
+                    page.writeEnd();
 
-                    writer.writeTag("input",
+                    page.writeTag("input",
                             "type", "hidden",
                             "name", "type",
                             "value", URL_TYPE);
 
                 } else {
-                    writer.writeStart("span", "class", "sitemap-filters-prep");
-                        writer.writeHtml("with");
-                    writer.writeEnd();
+                    page.writeStart("span", "class", "sitemap-filters-prep");
+                        page.writeHtml("with");
+                    page.writeEnd();
 
-                    writer.writeStart("span", "class", "sitemap-filters-type");
-                        writer.writeStart("select",
+                    page.writeStart("span", "class", "sitemap-filters-type");
+                        page.writeStart("select",
                                 "class", "autoSubmit",
                                 "name", "type");
 
-                            writer.writeStart("option",
+                            page.writeStart("option",
                                     "selected", type.equals(URL_TYPE) ? "selected" : null,
                                     "value", URL_TYPE);
-                                writer.writeHtml("URL");
-                            writer.writeEnd();
+                                page.writeHtml("URL");
+                            page.writeEnd();
 
                             for (ObjectType t : types) {
                                 String id = t.getId().toString();
-                                writer.writeStart("option",
+                                page.writeStart("option",
                                         "selected", type.equals(id) ? "selected" : null,
                                         "value", id);
-                                    writer.writeHtml(t.getDisplayName());
-                                writer.writeEnd();
+                                    page.writeHtml(t.getDisplayName());
+                                page.writeEnd();
                             }
 
-                        writer.writeEnd();
-                    writer.writeEnd();
+                        page.writeEnd();
+                    page.writeEnd();
                 }
 
-                writer.writeStart("span", "class", "sitemap-filters-value");
+                page.writeStart("span", "class", "sitemap-filters-value");
 
                     Query<?> valueQuery;
                     ObjectType valueType;
@@ -227,7 +224,7 @@ public class SiteMap extends PageServlet {
                     }
 
                     if (valueQuery.hasMoreThan(250)) {
-                        writer.writeTag("input",
+                        page.writeTag("input",
                                 "type", "text",
                                 "class", "autoSubmit objectId",
                                 "data-editable", false,
@@ -237,118 +234,118 @@ public class SiteMap extends PageServlet {
                                 "value", value);
 
                     } else {
-                        writer.writeStart("select",
+                        page.writeStart("select",
                                 "class", "autoSubmit",
                                 "name", valueParameter,
                                 "data-searchable", "true");
 
                             if (!type.equals(URL_TYPE)) {
-                                writer.writeStart("option", "value", "").writeEnd();
+                                page.writeStart("option", "value", "").writeEnd();
                             }
 
                             for (Object v : valueQuery.selectAll()) {
                                 State state = State.getInstance(v);
 
-                                writer.writeStart("option",
+                                page.writeStart("option",
                                         "value", state.getId(),
                                         "selected", v.equals(valueObject) ? "selected" : null);
-                                    writer.writeHtml(state.getLabel());
-                                writer.writeEnd();
+                                    page.writeHtml(state.getLabel());
+                                page.writeEnd();
                             }
 
-                        writer.writeEnd();
+                        page.writeEnd();
                     }
 
-                writer.writeEnd();
+                page.writeEnd();
 
-            writer.writeEnd();
+            page.writeEnd();
 
             if (valueObject == null) {
-                writer.writeStart("div", "class", "sitemap-warning sitemap-warning-value");
-                    writer.writeStart("p");
-                        writer.writeHtml("Please select a ");
-                        writer.writeStart("strong").writeHtml(valueType.getLabel()).writeEnd();
-                        writer.writeHtml(".");
-                    writer.writeEnd();
-                writer.writeEnd();
+                page.writeStart("div", "class", "sitemap-warning sitemap-warning-value");
+                    page.writeStart("p");
+                        page.writeHtml("Please select a ");
+                        page.writeStart("strong").writeHtml(valueType.getLabel()).writeEnd();
+                        page.writeHtml(".");
+                    page.writeEnd();
+                page.writeEnd();
 
-            } else if (!result.hasItems()) {
-                writer.writeStart("div", "class", "sitemap-warning");
-                    writer.writeStart("p");
-                        writer.writeHtml("No ");
+            } else if (!result.hasPages()) {
+                page.writeStart("div", "class", "sitemap-warning");
+                    page.writeStart("p");
+                        page.writeHtml("No ");
 
                         if (itemType == null) {
-                            writer.writeHtml("items");
+                            page.writeHtml("items");
 
                         } else {
-                            writer.writeStart("strong");
-                                writer.objectLabel(itemType);
-                            writer.writeEnd();
+                            page.writeStart("strong");
+                                page.writeObjectLabel(itemType);
+                            page.writeEnd();
                         }
 
-                        writer.writeHtml(" matching ");
-                        writer.writeStart("strong");
-                            writer.objectLabel(valueObject);
-                        writer.writeEnd();
-                        writer.writeHtml(".");
-                    writer.writeEnd();
-                writer.writeEnd();
+                        page.writeHtml(" matching ");
+                        page.writeStart("strong");
+                            page.writeObjectLabel(valueObject);
+                        page.writeEnd();
+                        page.writeHtml(".");
+                    page.writeEnd();
+                page.writeEnd();
 
             } else {
-                writer.writeStart("ul", "class", "pagination");
+                page.writeStart("ul", "class", "pagination");
 
                     if (result.hasPrevious()) {
-                        writer.writeStart("li", "class", "first");
-                            writer.writeStart("a", "href", page.url("", "offset", result.getFirstOffset())).writeHtml("First").writeEnd();
-                        writer.writeEnd();
+                        page.writeStart("li", "class", "first");
+                            page.writeStart("a", "href", page.url("", "offset", result.getFirstOffset())).writeHtml("First").writeEnd();
+                        page.writeEnd();
 
-                        writer.writeStart("li", "class", "previous");
-                            writer.writeStart("a", "href", page.url("", "offset", result.getPreviousOffset())).writeHtml("Previous ").writeHtml(result.getLimit()).writeEnd();
-                        writer.writeEnd();
+                        page.writeStart("li", "class", "previous");
+                            page.writeStart("a", "href", page.url("", "offset", result.getPreviousOffset())).writeHtml("Previous ").writeHtml(result.getLimit()).writeEnd();
+                        page.writeEnd();
                     }
 
                     if (result.getOffset() > 0 ||
                             result.hasNext() ||
                             result.getItems().size() > LIMITS[0]) {
-                        writer.writeStart("li");
-                            writer.writeStart("form",
+                        page.writeStart("li");
+                            page.writeStart("form",
                                     "class", "autoSubmit",
                                     "method", "get",
                                     "action", page.url(null));
-                                writer.writeStart("select", "name", "limit");
+                                page.writeStart("select", "name", "limit");
                                     for (int l : LIMITS) {
-                                        writer.writeStart("option",
+                                        page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            writer.writeHtml("Show ");
-                                            writer.writeHtml(l);
-                                        writer.writeEnd();
+                                            page.writeHtml("Show ");
+                                            page.writeHtml(l);
+                                        page.writeEnd();
                                     }
-                                writer.writeEnd();
-                            writer.writeEnd();
-                        writer.writeEnd();
+                                page.writeEnd();
+                            page.writeEnd();
+                        page.writeEnd();
                     }
 
                     if (count != null) {
-                        writer.writeStart("li");
-                            writer.writeHtml(result.getFirstItemIndex());
-                            writer.writeHtml(" to ");
-                            writer.writeHtml(result.getLastItemIndex());
-                            writer.writeHtml(" of ");
-                            writer.writeStart("strong").writeHtml(count).writeEnd();
-                        writer.writeEnd();
+                        page.writeStart("li");
+                            page.writeHtml(result.getFirstItemIndex());
+                            page.writeHtml(" to ");
+                            page.writeHtml(result.getLastItemIndex());
+                            page.writeHtml(" of ");
+                            page.writeStart("strong").writeHtml(count).writeEnd();
+                        page.writeEnd();
                     }
 
                     if (result.hasNext()) {
-                        writer.writeStart("li", "class", "next");
-                            writer.writeStart("a", "href", page.url("", "offset", result.getNextOffset())).writeHtml("Next ").writeHtml(result.getLimit()).writeEnd();
-                        writer.writeEnd();
+                        page.writeStart("li", "class", "next");
+                            page.writeStart("a", "href", page.url("", "offset", result.getNextOffset())).writeHtml("Next ").writeHtml(result.getLimit()).writeEnd();
+                        page.writeEnd();
                     }
 
-                writer.writeEnd();
+                page.writeEnd();
 
-                writer.writeStart("table", "class", "links pageThumbnails table-striped");
-                    writer.writeStart("tbody");
+                page.writeStart("table", "class", "links pageThumbnails table-striped");
+                    page.writeStart("tbody");
 
                         for (Object item : result.getItems()) {
                             State itemState = State.getInstance(item);
@@ -368,37 +365,37 @@ public class SiteMap extends PageServlet {
                                 permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
                             }
 
-                            writer.writeStart("tr", "data-preview-url", permalink);
+                            page.writeStart("tr", "data-preview-url", permalink);
 
-                                writer.writeStart("td");
-                                    writer.typeLabel(item);
-                                writer.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTypeLabel(item);
+                                page.writeEnd();
 
-                                writer.writeStart("td");
-                                    writer.writeStart("a",
+                                page.writeStart("td");
+                                    page.writeStart("a",
                                             "target", "_top",
                                             "href", page.objectUrl("/content/edit.jsp", item));
-                                        writer.objectLabel(item);
-                                    writer.writeEnd();
-                                writer.writeEnd();
+                                        page.writeObjectLabel(item);
+                                    page.writeEnd();
+                                page.writeEnd();
 
                                 if (permalink == null) {
-                                    writer.writeStart("td").writeEnd();
+                                    page.writeStart("td").writeEnd();
 
                                 } else {
-                                    writer.writeStart("td", "data-preview-anchor", "");
-                                        writer.writeHtml(permalink);
-                                    writer.writeEnd();
+                                    page.writeStart("td", "data-preview-anchor", "");
+                                        page.writeHtml(permalink);
+                                    page.writeEnd();
                                 }
 
-                            writer.writeEnd();
+                            page.writeEnd();
                         }
 
-                    writer.writeEnd();
-                writer.writeEnd();
+                    page.writeEnd();
+                page.writeEnd();
             }
 
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     private static abstract class DirectoryQueryIterator implements Iterator<Query<?>> {

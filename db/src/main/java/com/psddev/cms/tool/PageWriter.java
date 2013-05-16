@@ -5,6 +5,8 @@ import com.psddev.dari.util.HtmlWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+/** @deprecated Use {@link ToolPageContext} directly instead. */
+@Deprecated
 public class PageWriter extends HtmlWriter {
 
     public PageWriter(Writer writer) {

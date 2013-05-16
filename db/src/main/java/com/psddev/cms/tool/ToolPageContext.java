@@ -809,6 +809,22 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes a descriptive label HTML for the type of the given
+     * {@code object}.
+     *
+     * @param object If it or its type is {@code null}, writes {@code N/A}.
+     */
+    public void writeTypeLabel(Object object) throws IOException {
+        ObjectType type = null;
+
+        if (object != null) {
+            type = State.getInstance(object).getType();
+        }
+
+        writeObjectLabel(type);
+    }
+
+    /**
      * Writes a descriptive label HTML that contains the type information for
      * the given {@code object}.
      *
@@ -1353,44 +1369,42 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        PageWriter writer = getWriter();
-
-        writer.writeStart("select", attributes);
+        writeStart("select", attributes);
 
             if (allLabel != null) {
-                writer.writeStart("option", "value", "").writeHtml(allLabel).writeEnd();
+                writeStart("option", "value", "").writeHtml(allLabel).writeEnd();
             }
 
             if (typeGroups.size() == 1) {
-                typeSelectGroup(writer, selectedType, typeGroups.values().iterator().next());
+                typeSelectGroup(selectedType, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
-                    writer.writeStart("optgroup", "label", entry.getKey());
-                        typeSelectGroup(writer, selectedType, entry.getValue());
-                    writer.writeEnd();
+                    writeStart("optgroup", "label", entry.getKey());
+                        typeSelectGroup(selectedType, entry.getValue());
+                    writeEnd();
                 }
             }
 
-        writer.writeEnd();
+        writeEnd();
     }
 
-    private static void typeSelectGroup(PageWriter writer, ObjectType selectedType, List<ObjectType> types) throws IOException {
+    private void typeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
             String label = Static.getObjectLabel(type);
 
-            writer.writeStart("option",
+            writeStart("option",
                     "selected", type.equals(selectedType) ? "selected" : null,
                     "value", type.getId());
-                writer.writeHtml(label);
+                writeHtml(label);
                 if (label.equals(previousLabel)) {
-                    writer.writeHtml(" (");
-                    writer.writeHtml(type.getInternalName());
-                    writer.writeHtml(")");
+                    writeHtml(" (");
+                    writeHtml(type.getInternalName());
+                    writeHtml(")");
                 }
-            writer.writeEnd();
+            writeEnd();
 
             previousLabel = label;
         }
@@ -1408,25 +1422,24 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
-        PageWriter writer = getWriter();
 
         if (isObjectSelectDropDown(field)) {
             List<?> items = new Search(field).toQuery().selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
-            writer.writeStart("select",
+            writeStart("select",
                     "data-searchable", "true",
                     attributes);
-                writer.writeStart("option", "value", "").writeEnd();
+                writeStart("option", "value", "").writeEnd();
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
-                    writer.writeStart("option",
+                    writeStart("option",
                             "selected", item.equals(value) ? "selected" : null,
                             "value", itemState.getId());
-                        writer.objectLabel(item);
-                    writer.writeEnd();
+                        objectLabel(item);
+                    writeEnd();
                 }
-            writer.writeEnd();
+            writeEnd();
 
         } else {
             State state = State.getInstance(value);
@@ -1455,7 +1468,7 @@ public class ToolPageContext extends WebPageContext {
                 typeIds.setLength(typeIds.length() - 1);
             }
 
-            writer.writeTag("input",
+            writeTag("input",
                     "type", "text",
                     "class", "objectId",
                     "data-additional-query", field.getPredicate(),
@@ -2150,8 +2163,10 @@ public class ToolPageContext extends WebPageContext {
 
     // --- WebPageContext support ---
 
+    @Deprecated
     private PageWriter pageWriter;
 
+    @Deprecated
     @Override
     public PageWriter getWriter() throws IOException {
         if (pageWriter == null) {

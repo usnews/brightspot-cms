@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -55,7 +54,6 @@ public class UploadFiles extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
-        PageWriter writer = page.getWriter();
         Exception postError = null;
         ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
 
@@ -253,22 +251,22 @@ public class UploadFiles extends PageServlet {
                 }
 
                 if (page.getErrors().isEmpty()) {
-                    writer.start("div", "id", page.createId()).end();
+                    page.writeStart("div", "id", page.createId()).writeEnd();
 
-                    writer.start("script", "type", "text/javascript");
-                        writer.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
-                            writer.write("var $page = $('#" + page.getId() + "'),");
-                            writer.write("$init = $page.popup('source').repeatable('closestInit'),");
-                            writer.write("$addButton = $init.find('.addButton').eq(0),");
-                            writer.write("$input;");
-                            writer.write("if ($addButton.length > 0) {");
-                                writer.write(js.toString());
-                                writer.write("$page.popup('close');");
-                            writer.write("} else {");
-                                writer.write("win.location.reload();");
-                            writer.write("}");
-                        writer.write("})(jQuery, window);");
-                    writer.end();
+                    page.writeStart("script", "type", "text/javascript");
+                        page.write("if (typeof jQuery !== 'undefined') (function($, win, undef) {");
+                            page.write("var $page = $('#" + page.getId() + "'),");
+                            page.write("$init = $page.popup('source').repeatable('closestInit'),");
+                            page.write("$addButton = $init.find('.addButton').eq(0),");
+                            page.write("$input;");
+                            page.write("if ($addButton.length > 0) {");
+                                page.write(js.toString());
+                                page.write("$page.popup('close');");
+                            page.write("} else {");
+                                page.write("win.location.reload();");
+                            page.write("}");
+                        page.write("})(jQuery, window);");
+                    page.writeEnd();
 
                     return;
                 }
@@ -298,64 +296,64 @@ public class UploadFiles extends PageServlet {
         List<ObjectType> types = new ArrayList<ObjectType>(typesSet);
         Collections.sort(types, new ObjectFieldComparator("name", false));
 
-        writer.start("h1").html("Upload Files").end();
+        page.writeStart("h1").writeHtml("Upload Files").writeEnd();
 
-        writer.start("form",
+        page.writeStart("form",
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", page.url(null));
 
             for (ObjectType type : types) {
-                writer.tag("input", "type", "hidden", "name", "typeId", "value", type.getId());
+                page.writeTag("input", "type", "hidden", "name", "typeId", "value", type.getId());
             }
 
             if (postError != null) {
-                writer.start("div", "class", "message message-error");
-                    writer.object(postError);
-                writer.end();
+                page.writeStart("div", "class", "message message-error");
+                    page.writeObject(postError);
+                page.writeEnd();
 
             } else if (!page.getErrors().isEmpty()) {
-                writer.start("div", "class", "message message-error");
+                page.writeStart("div", "class", "message message-error");
                     for (Throwable error : page.getErrors()) {
-                        writer.html(error.getMessage());
+                        page.writeHtml(error.getMessage());
                     }
-                writer.end();
+                page.writeEnd();
             }
 
-            writer.start("div", "class", "inputContainer");
-                writer.start("div", "class", "inputLabel");
-                    writer.start("label", "for", page.createId()).html("Type").end();
-                writer.end();
-                writer.start("div", "class", "inputSmall");
-                    writer.start("select", "id", page.getId(), "name", "type");
+            page.writeStart("div", "class", "inputContainer");
+                page.writeStart("div", "class", "inputLabel");
+                    page.writeStart("label", "for", page.createId()).writeHtml("Type").writeEnd();
+                page.writeEnd();
+                page.writeStart("div", "class", "inputSmall");
+                    page.writeStart("select", "id", page.getId(), "name", "type");
                         for (ObjectType type : types) {
-                            writer.start("option",
+                            page.writeStart("option",
                                     "selected", type.equals(selectedType) ? "selected" : null,
                                     "value", type.getId());
-                                writer.html(type.getDisplayName());
-                            writer.end();
+                                page.writeHtml(type.getDisplayName());
+                            page.writeEnd();
                         }
-                    writer.end();
-                writer.end();
-            writer.end();
+                    page.writeEnd();
+                page.writeEnd();
+            page.writeEnd();
 
-            writer.start("div", "class", "inputContainer");
-                writer.start("div", "class", "inputLabel");
-                    writer.start("label", "for", page.createId()).html("Files").end();
-                writer.end();
-                writer.start("div", "class", "inputSmall");
-                    writer.tag("input",
+            page.writeStart("div", "class", "inputContainer");
+                page.writeStart("div", "class", "inputLabel");
+                    page.writeStart("label", "for", page.createId()).writeHtml("Files").writeEnd();
+                page.writeEnd();
+                page.writeStart("div", "class", "inputSmall");
+                    page.writeTag("input",
                             "id", page.getId(),
                             "type", "file",
                             "name", "file",
                             "multiple", "multiple");
-                writer.end();
-            writer.end();
+                page.writeEnd();
+            page.writeEnd();
 
-            writer.start("div", "class", "buttons");
-                writer.start("button", "name", "action-upload").html("Upload").end();
-            writer.end();
+            page.writeStart("div", "class", "buttons");
+                page.writeStart("button", "name", "action-upload").writeHtml("Upload").writeEnd();
+            page.writeEnd();
 
-        writer.end();
+        page.writeEnd();
     }
 }
