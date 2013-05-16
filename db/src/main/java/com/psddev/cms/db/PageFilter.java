@@ -390,23 +390,27 @@ public class PageFilter extends AbstractFilter {
             // Fake the request path in preview mode in case the servlets
             // depend on it.
             if (Static.isPreview(request)) {
-                request = new HttpServletRequestWrapper(request) {
+                final String previewPath = request.getParameter("_previewPath");
 
-                    @Override
-                    public String getRequestURI() {
-                        return getContextPath() + getServletPath();
-                    }
+                if (!ObjectUtils.isBlank(previewPath)) {
+                    request = new HttpServletRequestWrapper(request) {
 
-                    @Override
-                    public StringBuffer getRequestURL() {
-                        return new StringBuffer(getRequestURI());
-                    }
+                        @Override
+                        public String getRequestURI() {
+                            return getContextPath() + getServletPath();
+                        }
 
-                    @Override
-                    public String getServletPath() {
-                        return mainState.as(Directory.ObjectModification.class).getPermalink();
-                    }
-                };
+                        @Override
+                        public StringBuffer getRequestURL() {
+                            return new StringBuffer(getRequestURI());
+                        }
+
+                        @Override
+                        public String getServletPath() {
+                            return previewPath;
+                        }
+                    };
+                }
             }
 
             if (!mainState.isVisible()) {

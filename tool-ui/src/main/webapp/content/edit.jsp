@@ -549,6 +549,17 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
             <ul class="widget-preview_controls">
                 <li>
+                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
+                        <% if (site != null) { %>
+                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
+                        <% } %>
+                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                        <button class="action-share">Share</button>
+                    </form>
+                </li>
+
+                <li>
                     <%
                     wp.writeStart("form",
                             "method", "post",
@@ -574,19 +585,25 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                 wp.writeEnd();
                             }
                         wp.writeEnd();
+
+                        List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
+
+                        if (paths != null && !paths.isEmpty()) {
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "class", "autoSubmit",
+                                    "name", "_previewPath");
+                                for (int i = paths.size() - 1; i >= 0; -- i) {
+                                    String path = paths.get(i).getPath();
+
+                                    wp.writeStart("option", "value", path);
+                                        wp.writeHtml(path);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
+                        }
                     wp.writeEnd();
                     %>
-                </li>
-
-                <li>
-                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
-                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                        <% if (site != null) { %>
-                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
-                        <% } %>
-                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-                        <button class="action-share">Share</button>
-                    </form>
                 </li>
             </ul>
         </div>
