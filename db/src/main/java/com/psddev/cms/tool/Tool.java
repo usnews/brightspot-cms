@@ -16,7 +16,10 @@ import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
 /** Brightspot application, typically used by the internal staff. */
@@ -56,6 +59,33 @@ public abstract class Tool extends Application {
      * Does nothing by default.
      */
     public void writeHeaderAfterScripts(ToolPageContext page) throws IOException {
+    }
+
+    /**
+     * Returns the full URL to the given {@code path} with the given
+     * {@code parameters}.
+     *
+     * @param path Can't be {@code null}.
+     * @param parameters May be {@code null}.
+     * @return Never {@code null}.
+     * @throws IllegalArgumentException If the given {@code path} is
+     * {@code null}, {@link #getApplicationName} returns {@code null}, or
+     * {@link CmsTool#getDefaultToolUrl} returns blank.
+     */
+    public String fullUrl(String path, Object... parameters) {
+        ErrorUtils.errorIfNull(path, "path");
+
+        String appName = getApplicationName();
+        String toolUrl = Application.Static.getInstance(CmsTool.class).getDefaultToolUrl();
+
+        ErrorUtils.errorIfNull(appName, "getApplicationName()");
+        ErrorUtils.errorIfBlank(toolUrl, "CmsTool#getDefaultToolUrl()");
+
+        return StringUtils.addQueryParameters(
+                StringUtils.removeEnd(toolUrl, "/") +
+                RoutingFilter.Static.getApplicationPath(appName) +
+                StringUtils.ensureStart(path, "/"),
+                parameters);
     }
 
     /**

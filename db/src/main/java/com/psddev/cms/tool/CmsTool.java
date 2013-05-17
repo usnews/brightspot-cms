@@ -40,6 +40,7 @@ public class CmsTool extends Tool {
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
+    private String defaultToolUrl;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
     private List<ResourceItem> resources;
@@ -292,6 +293,14 @@ public class CmsTool extends Tool {
         this.defaultSiteUrl = url;
     }
 
+    public String getDefaultToolUrl() {
+        return ObjectUtils.isBlank(defaultToolUrl) ? getDefaultSiteUrl() : defaultToolUrl;
+    }
+
+    public void setDefaultToolUrl(String defaultToolUrl) {
+        this.defaultToolUrl = defaultToolUrl;
+    }
+
     public String getDefaultTextOverlayCss() {
         return defaultTextOverlayCss;
     }
@@ -401,6 +410,7 @@ public class CmsTool extends Tool {
         // Areas.
         plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
+        plugins.add(createArea2("Notifications", "cms.adminNotifications", "admin/notifications", "/adminNotifications"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));

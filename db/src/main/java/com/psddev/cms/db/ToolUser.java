@@ -1,10 +1,12 @@
 package com.psddev.cms.db;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.Password;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /** User that uses the CMS and other related tools. */
 public class ToolUser extends Record {
@@ -26,6 +28,13 @@ public class ToolUser extends Record {
 
     @ToolUi.FieldDisplayType("password")
     private String password;
+
+    private String phoneNumber;
+    private NotificationMethod notifyVia;
+
+    @Indexed
+    @ToolUi.DropDown
+    private Set<Notification> notifications;
 
     @ToolUi.Hidden
     private Map<String, Object> settings;
@@ -87,6 +96,33 @@ public class ToolUser extends Record {
     /** Sets the password. */
     public void setPassword(Password password) {
         this.password = password.toString();
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public NotificationMethod getNotifyVia() {
+        return notifyVia;
+    }
+
+    public void setNotifyVia(NotificationMethod notifyVia) {
+        this.notifyVia = notifyVia;
+    }
+
+    public Set<Notification> getNotifications() {
+        if (notifications == null) {
+            notifications = new LinkedHashSet<Notification>();
+        }
+        return notifications;
+    }
+
+    public void setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
     }
 
     /** Returns the settings. */

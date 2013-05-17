@@ -7,7 +7,7 @@ java.util.Arrays,
 java.util.Collection
 " %><%!
 
-private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "email", "password", "timeZone");
+private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "email", "password", "timeZone", "phoneNumber", "notifyVia", "notifications");
 %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);

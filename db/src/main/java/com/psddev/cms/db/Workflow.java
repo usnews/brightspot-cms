@@ -192,6 +192,11 @@ public class Workflow extends Record {
                 logs.add(log);
             }
 
+            as(Content.ObjectModification.class).addNotification(Query.
+                    from(WorkflowTransitionNotification.class).
+                    where("transition = ?", transitionName).
+                    first());
+
             return currentState;
         }
 
