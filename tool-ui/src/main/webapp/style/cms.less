@@ -41,6 +41,77 @@ input[type=text].expandable { min-width: 5em; }
 @import 'jquery.rte.less';
 @import 'jquery.workflow.less';
 
+// Content diff with a side by side view.
+.contentDiffCopy {
+    .input;
+
+    height: auto;
+    min-height: 26px;
+    width: 100%;
+}
+
+.contentDiffAdded {
+    background-color: #9c2;
+    outline: 1px solid #9c2;
+}
+
+.contentDiffRemoved {
+    background-color: @color-alert-lighter;
+    outline: 1px solid @color-alert-lighter;
+}
+
+.contentDiff-edit {
+    .contentDiffOld > h2,
+    .contentDiffCurrent,
+    .contentDiffNew > h2,
+    .contentDiffCopy {
+        display: none;
+    }
+}
+
+.contentDiff-sideBySide {
+    overflow: hidden;
+
+    .contentDiffLeft {
+        .box-sizing(border-box);
+        float: left;
+        width: 57%;
+        padding-right: 5px;
+    }
+
+    .contentDiffRight {
+        margin-left: 57%;
+        overflow: hidden;
+        padding-left: 5px;
+
+        .inputContainer {
+            margin-left: -140px;
+        }
+    }
+
+    .inputContainer {
+        &.state-changed,
+        &.state-focused {
+            > .inputLabel {
+                background-color: @color-note-lighter;
+            }
+        }
+    }
+
+    .contentDiffSame,
+    .contentDiffText,
+    .objectId-select:before,
+    .objectId-select:after,
+    .objectId-edit,
+    .objectId-clear,
+    .rte-toolbar,
+    .rte-toolbar-container,
+    .plugin-repeatable .addButtonContainer,
+    .plugin-repeatable .removeButton {
+        display: none !important;
+    }
+}
+
 // --- Legacy support ---
 
 .buttons {
