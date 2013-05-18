@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -549,6 +551,22 @@ public class Directory extends Record {
                 permalink = getSitePermalink(null);
             }
             return permalink;
+        }
+
+        /**
+         * Returns the full permalink associated with this object.
+         *
+         * @throws IllegalStateException If {@link CmsTool#getDefaultSiteUrl}
+         * returns blank.
+         */
+        public String getFullPermalink() {
+            String siteUrl = Application.Static.getInstance(CmsTool.class).getDefaultSiteUrl();
+
+            if (ObjectUtils.isBlank(siteUrl)) {
+                throw new IllegalStateException("Default site URL not configured!");
+            }
+
+            return StringUtils.removeEnd(siteUrl, "/") + getPermalink();
         }
 
         /** Creates paths appropriate for the given {@code site}. */
