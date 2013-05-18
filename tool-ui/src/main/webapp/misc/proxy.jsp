@@ -45,12 +45,9 @@ try {
     }
 
     IoUtils.copy(urlInput, response.getOutputStream());
+    response.getOutputStream().flush();
 
 } finally {
     urlInput.close();
-}
-
-if (true) {
-    return;
 }
 %>
