@@ -1439,7 +1439,7 @@ public class ToolPageContext extends WebPageContext {
                     writeStart("option",
                             "selected", item.equals(value) ? "selected" : null,
                             "value", itemState.getId());
-                        objectLabel(item);
+                        writeObjectLabel(item);
                     writeEnd();
                 }
             writeEnd();
