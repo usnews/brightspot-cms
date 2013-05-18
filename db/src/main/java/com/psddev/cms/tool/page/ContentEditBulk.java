@@ -104,7 +104,7 @@ public class ContentEditBulk extends PageServlet {
                 page.writeEnd();
 
                 page.writeStart("div", "class", "message", "message-info");
-                    page.writeHtml("Any of the fields that you fill out here will either replace or add the corresponding fields in all items.");
+                    page.writeHtml("Any of the fields that you fill out here will replace the corresponding fields in all items.");
                 page.writeEnd();
 
                 page.writeStart("form",
