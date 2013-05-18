@@ -445,6 +445,23 @@ $doc.onCreate('.contentDiff', function() {
             'contentDiff-edit');
 });
 
+$doc.onCreate('.searchAdvancedResult', function() {
+    var $result = $(this);
+
+    $result.on('change', ':checkbox', function() {
+        $result.find('.actions button').each(function() {
+            var $button = $(this),
+                    text = $button.text();
+
+            if ($result.find(':checkbox:checked').length > 0) {
+                $button.text(text.replace(' All', ' Selected'));
+            } else {
+                $button.text(text.replace(' Selected', ' All'));
+            }
+        });
+    });
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
