@@ -42,6 +42,7 @@ public class ContentSearchAdvanced extends PageServlet {
     public static final String TYPE_PARAMETER = "t";
     public static final String PREDICATE_PARAMETER = "p";
     public static final String FIELDS_PARAMETER = "f";
+    public static final String ITEMS_PARAMETER = "i";
 
     private static final int[] LIMITS = { 10, 20, 50, Integer.MAX_VALUE };
 
@@ -81,7 +82,7 @@ public class ContentSearchAdvanced extends PageServlet {
         Collections.sort(allFields);
         Collections.sort(fields);
 
-        List<UUID> ids = page.params(UUID.class, "id");
+        List<UUID> ids = page.params(UUID.class, ITEMS_PARAMETER);
         Query<Object> query = (type != null ?
                 Query.fromType(type) :
                 Query.fromGroup(Content.SEARCHABLE_GROUP)).
@@ -392,7 +393,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                         page.writeStart("td", "style", "width: 20px;");
                                             page.writeTag("input",
                                                     "type", "checkbox",
-                                                    "name", "id",
+                                                    "name", ITEMS_PARAMETER,
                                                     "value", itemState.getId());
                                         page.writeEnd();
 
@@ -430,6 +431,14 @@ public class ContentSearchAdvanced extends PageServlet {
                                     "value", true);
                                 page.writeHtml("Export All");
                             page.writeEnd();
+
+                            if (type != null) {
+                                page.writeStart("button",
+                                        "class", "action icon icon-action-edit",
+                                        "formaction", page.cmsUrl("/contentEditBulk"));
+                                    page.writeHtml("Bulk Edit All");
+                                page.writeEnd();
+                            }
 
                             page.writeStart("a",
                                     "class", "action button icon icon-object-workStream",
