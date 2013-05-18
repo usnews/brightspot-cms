@@ -5,6 +5,7 @@ import com.psddev.dari.util.HtmlWriter;
 import java.io.IOException;
 import java.util.Map;
 
+@Deprecated
 public abstract class Section extends Content {
 
     @InternalName("name")

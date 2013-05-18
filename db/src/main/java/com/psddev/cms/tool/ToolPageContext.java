@@ -1346,7 +1346,9 @@ public class ToolPageContext extends WebPageContext {
         for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
             ObjectType type = i.next();
 
-            if (!type.isConcrete()) {
+            if (!type.isConcrete() ||
+                    (type.isDeprecated() &&
+                    !Query.fromType(type).hasMoreThan(0))) {
                 i.remove();
             }
         }
