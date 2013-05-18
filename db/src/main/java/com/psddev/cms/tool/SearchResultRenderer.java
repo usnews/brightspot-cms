@@ -60,24 +60,6 @@ public class SearchResultRenderer {
     }
 
     public void render() throws IOException {
-        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
-            String frameName = page.createId();
-
-            page.writeStart("div", "class", "frame", "name", frameName);
-            page.writeEnd();
-
-            page.writeStart("form",
-                    "class", "searchSuggestionsForm",
-                    "method", "post",
-                    "action", page.url("/content/suggestions.jsp"),
-                    "target", frameName);
-                page.writeTag("input",
-                        "type", "hidden",
-                        "name", "search",
-                        "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
-            page.writeEnd();
-        }
-
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
         if (search.findSorts().size() > 1) {
@@ -97,6 +79,24 @@ public class SearchResultRenderer {
                 renderEmpty();
             }
         page.writeEnd();
+
+        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
+            String frameName = page.createId();
+
+            page.writeStart("div", "class", "frame", "name", frameName);
+            page.writeEnd();
+
+            page.writeStart("form",
+                    "class", "searchSuggestionsForm",
+                    "method", "post",
+                    "action", page.url("/content/suggestions.jsp"),
+                    "target", frameName);
+                page.writeTag("input",
+                        "type", "hidden",
+                        "name", "search",
+                        "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
+            page.writeEnd();
+        }
     }
 
     public void renderSorter() throws IOException {
