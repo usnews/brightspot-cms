@@ -24,9 +24,10 @@ public class AdminNotifications extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        UUID notificationId = page.param(UUID.class, "id");
         Notification notification = Query.
                 from(Notification.class).
-                where("_id = ?", page.param(UUID.class, "id")).
+                where("_id = ?", notificationId).
                 first();
 
         ObjectType type;
@@ -35,7 +36,7 @@ public class AdminNotifications extends PageServlet {
             type = ObjectType.getInstance(page.param(UUID.class, "typeId"));
 
             if (type != null) {
-                notification = (Notification) type.createObject(null);
+                notification = (Notification) type.createObject(notificationId);
             }
 
         } else {
