@@ -31,13 +31,19 @@ public class SearchResultRenderer {
     private static final String PREVIOUS_DATE_ATTRIBUTE = SearchResultRenderer.class.getName() + ".previousDate";
 
     protected final ToolPageContext page;
+
+    @Deprecated
+    protected final PageWriter writer;
+
     protected final Search search;
     protected final ObjectField sortField;
     protected final boolean showTypeLabel;
     protected final PaginatedResult<?> result;
 
+    @SuppressWarnings("deprecation")
     public SearchResultRenderer(ToolPageContext page, Search search) throws IOException {
         this.page = page;
+        this.writer = page.getWriter();
         this.search = search;
         this.result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
 
