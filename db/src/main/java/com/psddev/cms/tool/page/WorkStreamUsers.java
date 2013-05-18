@@ -25,8 +25,6 @@ public class WorkStreamUsers extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        page.getWriter();
-
         WorkStream workStream = Query.from(WorkStream.class).where("_id = ?", page.param(UUID.class, "id")).first();
         List<ToolUser> users = workStream.getUsers();
 
@@ -57,19 +55,24 @@ public class WorkStreamUsers extends PageServlet {
 
                     page.writeStart("tbody");
                         for (ToolUser user : users) {
-                            Object currentItem = workStream.getCurrentItem(user);
-
                             page.writeStart("tr");
                                 page.writeStart("td");
                                     page.writeObjectLabel(user);
                                 page.writeEnd();
 
                                 page.writeStart("td");
-                                    page.writeStart("a",
-                                            "href", page.objectUrl("/content/edit.jsp", currentItem),
-                                            "target", "_top");
-                                        page.writeObjectLabel(currentItem);
-                                    page.writeEnd();
+                                    Object currentItem = workStream.getCurrentItem(user);
+
+                                    if (currentItem == null) {
+                                        page.writeHtml("N/A");
+
+                                    } else {
+                                        page.writeStart("a",
+                                                "href", page.objectUrl("/content/edit.jsp", currentItem),
+                                                "target", "_top");
+                                            page.writeObjectLabel(currentItem);
+                                        page.writeEnd();
+                                    }
                                 page.writeEnd();
 
                                 page.writeStart("td");
