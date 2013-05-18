@@ -32,7 +32,7 @@ public class WorkflowTransitionNotification extends Notification {
         message.append(", Content: ");
         message.append(state.getLabel());
         message.append(" - ");
-        message.append(Application.Static.getInstance(CmsTool.class).fullUrl("/cms/content/edit.jsp", "id", state.getId()));
+        message.append(Application.Static.getInstance(CmsTool.class).fullUrl("/content/edit.jsp", "id", state.getId()));
 
         return message.toString();
     }
