@@ -413,7 +413,8 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (!mainState.isVisible()) {
+            if (!Static.isPreview(request) &&
+                    !mainState.isVisible()) {
                 SCHEDULED: {
                     ToolUser user = AuthenticationFilter.Static.getUser(request);
 
