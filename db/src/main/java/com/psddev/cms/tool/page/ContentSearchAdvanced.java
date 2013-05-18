@@ -30,6 +30,7 @@ import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.HtmlFormatter;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
@@ -424,10 +425,18 @@ public class ContentSearchAdvanced extends PageServlet {
 
                         page.writeStart("div", "class", "actions");
                             page.writeStart("button",
-                                    "class", "action action-download",
+                                    "class", "action icon icon-action-download",
                                     "name", "action-download",
                                     "value", true);
                                 page.writeHtml("Export All");
+                            page.writeEnd();
+
+                            page.writeStart("a",
+                                    "class", "action button icon icon-object-workStream",
+                                    "target", "workStreamCreate",
+                                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                            "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
+                                page.writeHtml("New Work Stream");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

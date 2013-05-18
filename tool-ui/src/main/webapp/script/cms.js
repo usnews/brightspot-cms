@@ -449,14 +449,14 @@ $doc.onCreate('.searchAdvancedResult', function() {
     var $result = $(this);
 
     $result.on('change', ':checkbox', function() {
-        $result.find('.actions button').each(function() {
-            var $button = $(this),
-                    text = $button.text();
+        $result.find('.actions .action').each(function() {
+            var $action= $(this),
+                    text = $action.text();
 
             if ($result.find(':checkbox:checked').length > 0) {
-                $button.text(text.replace(' All', ' Selected'));
+                $action.text(text.replace('All', 'Selected'));
             } else {
-                $button.text(text.replace(' Selected', ' All'));
+                $action.text(text.replace('Selected', 'All'));
             }
         });
     });
