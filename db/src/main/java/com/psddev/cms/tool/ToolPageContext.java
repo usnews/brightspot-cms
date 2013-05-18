@@ -1705,10 +1705,17 @@ public class ToolPageContext extends WebPageContext {
 
         State state = State.getInstance(object);
         Draft draft = getOverlaidDraft(object);
+        Site site = getSite();
 
         try {
             includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
             updateUsingAllWidgets(object);
+
+            if (state.isNew() &&
+                    site != null &&
+                    site.getDefaultVariation() != null) {
+                state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+            }
 
             if (draft == null &&
                     (state.isNew() ||
