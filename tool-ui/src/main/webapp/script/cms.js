@@ -366,6 +366,9 @@ $doc.onCreate('.contentDiff', function() {
         $container.add($('.widget-publishing')).removeClass('contentDiff-sideBySide').addClass('contentDiff-edit');
         $tabs.find('li').removeClass('state-selected');
         $tabEdit.addClass('state-selected');
+
+        $left.find('> .objectInputs > .inputContainer').css('height', '');
+        $right.find('> .objectInputs > .inputContainer').css('height', '');
     });
 
     $container.bind('contentDiff-sideBySide', function() {
