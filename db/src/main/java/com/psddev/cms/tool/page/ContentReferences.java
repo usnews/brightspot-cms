@@ -6,9 +6,11 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Directory;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 
@@ -59,7 +61,8 @@ public class ContentReferences extends PageServlet {
 
             page.writeStart("ul", "class", "links pageThumbnails");
                 for (Object item : result.getItems()) {
-                    page.writeStart("li");
+                    page.writeStart("li",
+                            "data-preview-url", State.getInstance(item).as(Directory.ObjectModification.class).getPermalink());
                         page.writeStart("a",
                                 "href", page.objectUrl("/content/edit.jsp", item),
                                 "target", "_top");

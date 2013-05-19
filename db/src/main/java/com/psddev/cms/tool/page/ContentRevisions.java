@@ -131,12 +131,14 @@ public class ContentRevisions extends Widget {
             if (!scheduled.isEmpty()) {
                 page.writeStart("h2").writeHtml("Scheduled").writeEnd();
 
-                page.writeStart("ul", "class", "links");
+                page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : scheduled) {
                         Schedule s = d.getSchedule();
                         String sn = s.getName();
 
-                        page.writeStart("li", "class", d.equals(selected) ? "selected" : null);
+                        page.writeStart("li",
+                                "class", d.equals(selected) ? "selected" : null,
+                                "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
                             page.writeStart("a", "href", page.objectUrl(null, d));
                                 if (ObjectUtils.isBlank(sn)) {
                                     page.writeHtml(page.formatUserDateTime(s.getTriggerDate()));
@@ -155,11 +157,13 @@ public class ContentRevisions extends Widget {
             if (!drafts.isEmpty()) {
                 page.writeStart("h2").writeHtml("Drafts").writeEnd();
 
-                page.writeStart("ul", "class", "links");
+                page.writeStart("ul", "class", "links pageThumbnails");
                     for (Draft d : drafts) {
                         Content.ObjectModification dcd = d.as(Content.ObjectModification.class);
 
-                        page.writeStart("li", "class", d.equals(selected) ? "selected" : null);
+                        page.writeStart("li",
+                                "class", d.equals(selected) ? "selected" : null,
+                                "data-preview-url", "/_preview?_cms.db.previewId=" + d.getId());
                             page.writeStart("a", "href", page.objectUrl(null, d));
                                 page.writeHtml(page.formatUserDateTime(dcd.getUpdateDate()));
                                 page.writeHtml(" by ");
@@ -173,9 +177,11 @@ public class ContentRevisions extends Widget {
             if (!namedHistories.isEmpty()) {
                 page.writeStart("h2").writeHtml("Named Past").writeEnd();
 
-                page.writeStart("ul", "class", "links");
+                page.writeStart("ul", "class", "links pageThumbnails");
                     for (History h : namedHistories) {
-                        page.writeStart("li", "class", h.equals(selected) ? "selected" : null);
+                        page.writeStart("li",
+                                "class", h.equals(selected) ? "selected" : null,
+                                "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
                             page.writeStart("a", "href", page.objectUrl(null, h));
                                 page.writeObjectLabel(h);
                             page.writeEnd();
@@ -187,9 +193,11 @@ public class ContentRevisions extends Widget {
             if (!histories.isEmpty()) {
                 page.writeStart("h2").writeHtml("Past").writeEnd();
 
-                page.writeStart("ul", "class", "links");
+                page.writeStart("ul", "class", "links pageThumbnails");
                     for (History h : histories) {
-                        page.writeStart("li", "class", h.equals(selected) ? "selected" : null);
+                        page.writeStart("li",
+                                "class", h.equals(selected) ? "selected" : null,
+                                "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
                             page.writeStart("a", "href", page.objectUrl(null, h));
                                 page.writeHtml(page.formatUserDateTime(h.getUpdateDate()));
                                 page.writeHtml(" by ");
