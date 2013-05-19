@@ -432,12 +432,15 @@ public class ToolPageContext extends WebPageContext {
                     HISTORY_ID_PARAMETER, history.getId());
 
         } else {
-            UUID objectId = State.getInstance(object).getId();
+            State state = State.getInstance(object);
+            ObjectType type = state.getType();
+            UUID objectId = state.getId();
             Draft draft = getOverlaidDraft(object);
             History history = getOverlaidHistory(object);
 
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, objectId,
+                    TYPE_ID_PARAMETER, type != null && type.getSourceDatabase() != null ? type.getId() : null,
                     DRAFT_ID_PARAMETER, draft != null ? draft.getId() : null,
                     HISTORY_ID_PARAMETER,
                     history != null ? history.getId() : null);
@@ -562,8 +565,14 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (selectedType != null) {
-                object = selectedType.createObject(objectId);
-                State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                if (selectedType.getSourceDatabase() != null) {
+                    object = Query.fromType(selectedType).where("_id = ?", objectId).first();
+                }
+
+                if (object == null) {
+                    object = selectedType.createObject(objectId);
+                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                }
             }
         }
 
