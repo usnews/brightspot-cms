@@ -50,6 +50,7 @@ $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
+$doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.workflow('live', '.workflow');
 
