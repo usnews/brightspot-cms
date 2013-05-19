@@ -513,6 +513,61 @@ input[type=text].expandable { min-width: 5em; }
     line-height: 1.5;
 }
 
+.permissions {
+    @column-width: 240px;
+
+    select {
+        max-width: 100%;
+    }
+
+    ul {
+        margin-bottom: 0;
+        margin-top: 5px;
+    }
+
+    .permissionsSection {
+        background-color: @color-note-lighter;
+        .border-radius(5px);
+        .box-sizing(border-box);
+        float: left;
+        margin: 0 5px 5px 0;
+        padding: 5px;
+        width: @column-width;
+    }
+
+    .permissionsType {
+        background-color: @color-note-lighter;
+        .border-radius(5px);
+        clear: left;
+        padding: 5px;
+
+        > h2 {
+            margin: 15px 0 5px 0;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+        }
+
+        > ul {
+            -moz-column-width: @column-width;
+            -webkit-column-width: @column-width;
+            column-width: @column-width;
+
+            > li {
+                display: inline-block;
+                width: @column-width;
+
+                > select,
+                > ul {
+                    margin-top: 5px;
+                }
+            }
+        }
+    }
+}
+
 // Soft validation based on suggested sizes.
 .state-focus [data-count-message]:after {
     background-color: @color-note-darker;

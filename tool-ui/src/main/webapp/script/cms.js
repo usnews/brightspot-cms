@@ -78,7 +78,7 @@ $doc.onCreate('.inputContainer .permissions select', function() {
     var $select = $(this);
 
     $select.bind('change', $.run(function() {
-        $select.parent().find('> ul').toggle($select.find(':selected').text() === 'Some');
+        $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
     }));
 });
 

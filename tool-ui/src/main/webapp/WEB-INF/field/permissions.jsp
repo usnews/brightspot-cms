@@ -1,12 +1,17 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Site,
+com.psddev.cms.db.Template,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.Area,
+com.psddev.cms.tool.Plugin,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 
+com.psddev.dari.db.Application,
 com.psddev.dari.db.Database,
+com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -15,8 +20,11 @@ com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.SparseSet,
 
 java.io.IOException,
+java.util.ArrayList,
 java.util.HashMap,
 java.util.HashSet,
+java.util.Iterator,
+java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
 java.util.Set
@@ -86,104 +94,151 @@ for (Workflow w : Query.from(Workflow.class).selectAll()) {
     }
 }
 
-// --- Presentation ---
+wp.writeStart("div", "class", "inputSmall permissions");
+    wp.writeStart("div", "class", "permissionsSection");
+        writeParent(wp, permissions, "Sites", "site");
 
-%><div class="inputSmall permissions"><ul>
+        wp.writeStart("ul");
+            wp.writeStart("li");
+                writeChild(wp, permissions, "Global", "site/global");
+            wp.writeEnd();
 
-<li><% writeParent(wp, permissions, "Systems", ""); %>
-<ul>
+            for (Site site : Site.findAll()) {
+                wp.writeStart("li");
+                    writeChild(wp, permissions, site, site.getPermissionId());
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
 
-<li><% writeParent(wp, permissions, "Sites", "site"); %>
-<ul>
-<li><% writeChild(wp, permissions, "Global", "site/global"); %></li>
-<% for (Site site : Site.findAll()) { %>
-    <li><% writeChild(wp, permissions, site, site.getPermissionId()); %></li>
-<% } %>
-</ul>
-</li>
+    wp.writeStart("div", "class", "permissionsSection");
+        writeParent(wp, permissions, "Areas", "area");
 
-<li><% writeParent(wp, permissions, "Areas", "area"); %>
-<ul>
-<% for (Area top : wp.getCmsTool().findTopAreas()) { %>
-    <% if (top.hasChildren()) { %>
-        <li><% writeParent(wp, permissions, top, top.getPermissionId()); %>
-            <ul>
-                <% for (Area child : top.findChildren()) { %>
-                    <li><% writeChild(wp, permissions, child, child.getPermissionId()); %></li>
-                <% } %>
-            </ul>
-        </li>
-    <% } else { %>
-        <li><% writeChild(wp, permissions, top, top.getPermissionId()); %>
-    <% } %>
-<% } %>
-</ul>
-</li>
+        wp.writeStart("ul");
+            for (Area top : wp.getCmsTool().findTopAreas()) {
+                if (top.hasChildren()) {
+                    wp.writeStart("li");
+                        writeParent(wp, permissions, top, top.getPermissionId());
 
-<li><% writeParent(wp, permissions, "Widgets", "widget"); %>
-<ul>
-<% for (Widget widget : wp.getCmsTool().findPlugins(Widget.class)) { %>
-    <li><% writeChild(wp, permissions, widget, widget.getPermissionId()); %></li>
-<% } %>
-</ul>
-</li>
+                        wp.writeStart("ul");
+                            for (Area child : top.findChildren()) {
+                                wp.writeStart("li");
+                                    writeChild(wp, permissions, child, child.getPermissionId());
+                                wp.writeEnd();
+                            }
+                        wp.writeEnd();
+                    wp.writeEnd();
 
-<li><% writeParent(wp, permissions, "Types", "type"); %>
-<ul>
-    <%
-    for (ObjectType type : wp.getDatabase().readList(Query
-            .from(ObjectType.class)
-            .sortAscending("name"))) {
-        if (!type.isAbstract()) {
-            String typePermissionId = "type/" + type.getId().toString();
-            String fieldPermissionIdPrefix = "type/" + type.getId().toString() + "/field";
-            %>
-            <li><% writeParent(wp, permissions, type, typePermissionId); %>
-                <ul>
-                    <li><% writeChild(wp, permissions, "Read", typePermissionId + "/read"); %>
-                    <li><% writeChild(wp, permissions, "Write", typePermissionId + "/write"); %>
+                } else {
+                    wp.writeStart("li");
+                        writeChild(wp, permissions, top, top.getPermissionId());
+                    wp.writeEnd();
+                }
+            }
+        wp.writeEnd();
+    wp.writeEnd();
 
-                    <%
-                    Workflow workflow = workflows.get(type);
+    wp.writeStart("div", "class", "permissionsSection");
+        writeParent(wp, permissions, "Widgets", "widget");
 
-                    if (workflow != null) {
-                        for (String transition : workflow.getTransitions().keySet()) {
-                            wp.writeStart("li");
-                                writeChild(wp, permissions, transition, typePermissionId + "/" + transition);
-                            wp.writeEnd();
-                        }
-                    }
-                    %>
+        wp.writeStart("ul");
+            for (Widget widget : wp.getCmsTool().findPlugins(Widget.class)) {
+                wp.writeStart("li");
+                    writeChild(wp, permissions, widget, widget.getPermissionId());
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
 
-                    <li><% writeChild(wp, permissions, "Publish", typePermissionId + "/publish"); %>
-                    <li><% writeParent(wp, permissions, "All Fields", fieldPermissionIdPrefix); %>
-                        <%--ul>
-                            <%
-                            for (ObjectField typeField : type.getFields()) {
-                                String fieldPermissionId = fieldPermissionIdPrefix + "/" + typeField.getInternalName();
-                                %>
-                                <li><% writeParent(wp, permissions, typeField, fieldPermissionId); %>
-                                    <ul>
-                                        <li><% writeChild(wp, permissions, "Read", fieldPermissionId + "/read"); %>
-                                        <li><% writeChild(wp, permissions, "Write", fieldPermissionId + "/write"); %>
-                                    </ul>
-                                </li>
-                            <% } %>
-                        </ul--%>
-                    </li>
-                </ul>
-            </li>
-        <%
+    wp.writeStart("div", "class", "permissionsType");
+        writeParent(wp, permissions, "Types", "type");
+
+        List<ObjectType> mainTypes = Template.Static.findUsedTypes(wp.getSite());
+        List<ObjectType> typesList = Query.
+                from(ObjectType.class).
+                sortAscending("name").
+                selectAll();
+
+        mainTypes.retainAll(typesList);
+        typesList.removeAll(mainTypes);
+
+        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
+            ObjectType t = i.next();
+            String name = t.getInternalName();
+            Set<String> groups = t.getGroups();
+
+            if (!t.isConcrete() ||
+                    name.startsWith("com.psddev.cms.db.") ||
+                    name.startsWith("com.psddev.cms.tool.") ||
+                    groups.contains(Modification.class.getName()) ||
+                    groups.contains(Application.class.getName()) ||
+                    groups.contains(Plugin.class.getName()) ||
+                    !groups.contains(Content.SEARCHABLE_GROUP)) {
+                i.remove();
+            }
         }
-    }
-    %>
-</ul>
-</li>
 
-</ul>
-</li>
+        Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
 
-</ul></div><%!
+        typeGroups.put("Main Content Types", mainTypes);
+        typeGroups.put("Misc Content Types", typesList);
+
+        for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
+            wp.writeStart("h2").writeHtml(entry.getKey()).writeEnd();
+
+            wp.writeStart("ul");
+                for (ObjectType type : entry.getValue()) {
+                    String typePermissionId = "type/" + type.getId().toString();
+                    String fieldPermissionIdPrefix = "type/" + type.getId().toString() + "/field";
+
+                    wp.writeStart("li");
+                        writeParent(wp, permissions, type, typePermissionId);
+
+                        wp.writeStart("ul");
+                            wp.writeStart("li");
+                                writeChild(wp, permissions, "Read", typePermissionId + "/read");
+                            wp.writeEnd();
+
+                            wp.writeStart("li");
+                                writeChild(wp, permissions, "Write", typePermissionId + "/write");
+                            wp.writeEnd();
+
+                            wp.writeStart("li");
+                                writeChild(wp, permissions, "Publish", typePermissionId + "/publish");
+                            wp.writeEnd();
+
+                            Workflow workflow = workflows.get(type);
+
+                            if (workflow != null) {
+                                for (String transition : workflow.getTransitions().keySet()) {
+                                    wp.writeStart("li");
+                                        writeChild(wp, permissions, "Workflow: " + transition, typePermissionId + "/" + transition);
+                                    wp.writeEnd();
+                                }
+                            }
+
+                            /*<li>writeParent(wp, permissions, "All Fields", fieldPermissionIdPrefix);
+                                <ul>
+                                    for (ObjectField typeField : type.getFields()) {
+                                        String fieldPermissionId = fieldPermissionIdPrefix + "/" + typeField.getInternalName();
+                                        <li>
+                                        writeParent(wp, permissions, typeField, fieldPermissionId);
+                                            <ul>
+                                                <li> writeChild(wp, permissions, "Read", fieldPermissionId + "/read");
+                                                <li> writeChild(wp, permissions, "Write", fieldPermissionId + "/write");
+                                            </ul>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>*/
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+        }
+    wp.writeEnd();
+wp.writeEnd();
+%><%!
 
 private static void writeLabel(ToolPageContext wp, Object object) throws IOException {
 
@@ -199,45 +254,39 @@ private static void writeLabel(ToolPageContext wp, Object object) throws IOExcep
 }
 
 private static void writeParent(ToolPageContext wp, Set<String> permissions, Object object, String permissionId) throws IOException {
-
     String inputName = (String) wp.getRequest().getAttribute("inputName");
     boolean hasSelf = permissions.contains(permissionId);
     boolean hasChildren = permissions.contains(permissionId + "/");
 
-    wp.write("<input name=\"");
-    wp.write(wp.h(inputName));
-    wp.write("\" type=\"hidden\" value=\"");
-    wp.write(wp.h(permissionId));
+    wp.writeTag("input",
+            "type", "hidden",
+            "name", inputName,
+            "value", permissionId);
 
-    wp.write("\"><select id=\"");
-    wp.write(wp.createId());
-    wp.write("\" name=\"");
-    wp.write(wp.h(inputName + "." + permissionId));
-    wp.write("\">");
+    wp.writeStart("select",
+            "id", wp.createId(),
+            "name", inputName + "." + permissionId);
+        wp.writeStart("option",
+                "selected", hasSelf && hasChildren ? "selected" : null,
+                "value", "all");
+            wp.writeHtml("All ");
+            writeLabel(wp, object);
+        wp.writeEnd();
 
-    wp.write("<option");
-    if (hasSelf && hasChildren) {
-        wp.write(" selected");
-    }
-    wp.write(" value=\"all\">All</option>");
+        wp.writeStart("option",
+                "selected", hasSelf && !hasChildren ? "selected" : null,
+                "value", "some");
+            wp.writeHtml("Some ");
+            writeLabel(wp, object);
+        wp.writeEnd();
 
-    wp.write("<option");
-    if (hasSelf && !hasChildren) {
-        wp.write(" selected");
-    }
-    wp.write(" value=\"some\">Some</option>");
-
-    wp.write("<option");
-    if (!hasSelf && !hasChildren) {
-        wp.write(" selected");
-    }
-    wp.write(" value=\"no\">No</option>");
-
-    wp.write("</select> <label for=\"");
-    wp.write(wp.getId());
-    wp.write("\">");
-    writeLabel(wp, object);
-    wp.write("</label>");
+        wp.writeStart("option",
+                "selected", !hasSelf && !hasChildren ? "selected" : null,
+                "value", "no");
+            wp.writeHtml("No ");
+            writeLabel(wp, object);
+        wp.writeEnd();
+    wp.writeEnd();
 }
 
 private static void writeChild(ToolPageContext wp, Set<String> permissions, Object object, String permissionId) throws IOException {
