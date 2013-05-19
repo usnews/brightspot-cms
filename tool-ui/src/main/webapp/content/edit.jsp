@@ -453,11 +453,22 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("Draft last saved ");
-                                wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                wp.writeHtml(" by ");
-                                wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                wp.writeHtml(".");
+                                Schedule schedule = draft.getSchedule();
+
+                                if (schedule != null) {
+                                    wp.writeHtml("Draft scheduled to be published ");
+                                    wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(schedule.getTriggerUser());
+                                    wp.writeHtml(".");
+
+                                } else {
+                                    wp.writeHtml("Draft last saved ");
+                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                    wp.writeHtml(".");
+                                }
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
