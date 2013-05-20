@@ -36,6 +36,7 @@ $.plugin2('taxonomy', {
                             $subLists.nextAll('ul').hide();
                             $subLists.hide();
                             $subList.show();
+                            $container.scrollLeft(1000);
 
                             return false;
                         }
