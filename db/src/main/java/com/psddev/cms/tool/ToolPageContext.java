@@ -440,10 +440,9 @@ public class ToolPageContext extends WebPageContext {
 
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, objectId,
-                    TYPE_ID_PARAMETER, type != null && type.getSourceDatabase() != null ? type.getId() : null,
+                    TYPE_ID_PARAMETER, type != null ? type.getId() : null,
                     DRAFT_ID_PARAMETER, draft != null ? draft.getId() : null,
-                    HISTORY_ID_PARAMETER,
-                    history != null ? history.getId() : null);
+                    HISTORY_ID_PARAMETER, history != null ? history.getId() : null);
         }
 
         return url(path, parameters);
