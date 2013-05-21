@@ -229,26 +229,27 @@ $doc.onCreate('.searchSuggestionsForm', function() {
 });
 
 // Mark changed inputs.
-$doc.onCreate('.inputContainer', function() {
+$doc.on('change', '.inputContainer', function() {
     var $container = $(this),
-            getValues,
-            initialValues;
+            changed;
 
-    initialValues = (getValues = function() {
-        return $container.find(':input, select, textarea').serialize();
-    })();
-
-    $container.on('input change', function() {
-        var $target = $(this);
-
-        $target.toggleClass('state-changed', initialValues !== getValues());
-
-        $target.parents().each(function() {
-            var $parent = $(this);
-
-            $parent.toggleClass('state-changed', $parent.find('.state-changed').length > 0);
-        });
+    $container.find('input, textarea').each(function() {
+        if (this.defaultValue !== this.value) {
+            changed = true;
+            return;
+        }
     });
+
+    if (!changed) {
+        $container.find('option').each(function() {
+            if (this.defaultSelected !== this.selected) {
+                changed = true;
+                return;
+            }
+        });
+    }
+
+    $container.toggleClass('state-changed', changed);
 });
 
 // Create tabs that organize form fields.
