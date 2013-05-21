@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
@@ -42,23 +43,27 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ImageTag.class);
 
-    protected Builder tagBuilder = new Builder();
+    protected ImageTagBuilder tagBuilder = new ImageTagBuilder();
 
     /**
      * Sets the source object, which may be either a URL or a Dari
      * object.
      */
     public void setSrc(Object src) {
-        WebPageContext wp = new WebPageContext(pageContext);
 
         if (src instanceof String
                 || src instanceof URI
                 || src instanceof URL) {
 
-            String path = JspUtils.resolvePath(wp.getServletContext(), wp.getRequest(), src.toString());
+            String path = JspUtils.resolvePath(
+                    pageContext.getServletContext(),
+                    (HttpServletRequest) pageContext.getRequest(),
+                    src.toString());
+
             StorageItem pathItem;
             if (path.startsWith("/")) {
-                pathItem = StorageItem.Static.createUrl(JspUtils.getAbsoluteUrl(wp.getRequest(), path));
+                pathItem = StorageItem.Static.createUrl(JspUtils.getAbsoluteUrl(
+                        (HttpServletRequest) pageContext.getRequest(), path));
             } else {
                 pathItem = StorageItem.Static.createUrl(path);
             }
@@ -82,8 +87,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     }
 
     /**
-     * Sets the field that contains the image. If not set, the first
-     * field with {@value ObjectField.FILE_TYPE} type is used.
      * @deprecated No replacement
      */
     @Deprecated
@@ -114,8 +117,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     public void setSize(Object size) {
         if (size instanceof StandardImageSize) {
             tagBuilder.setStandardImageSize((StandardImageSize) size);
+
         } else if (size instanceof String) {
-            tagBuilder.setStandardImageSize(getStandardImageSizeByName((String) size));
+            for (StandardImageSize standardSize : StandardImageSize.findAll()) {
+                if (standardSize.getInternalName().equals(size)) {
+                    tagBuilder.setStandardImageSize(standardSize);
+                    break;
+                }
+            }
         }
     }
 
@@ -180,7 +189,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      * after the page has loaded.
      */
     public void setSrcAttr(String srcAttr) {
-        tagBuilder.setSrcAttribute(srcAttr);
+        if (srcAttr != null && !"".equals(srcAttr = srcAttr.trim())) {
+            tagBuilder.setSrcAttributes(srcAttr.split("\\s+"));
+        }
     }
 
     /**
@@ -188,9 +199,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      * from the final HTML output.
      */
     public void setHideDimensions(Object hideDimensions) {
-        if (ObjectUtils.to(boolean.class, hideDimensions)) {
-            tagBuilder.hideDimensions();
-        }
+        tagBuilder.setHideDimensions(ObjectUtils.to(boolean.class, hideDimensions));
     }
 
     public void setOverlay(Object overlay) {
@@ -214,12 +223,13 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         } catch (IOException e) {
             throw new JspException(e);
         } finally {
-            tagBuilder.reset();
+            tagBuilder = new ImageTagBuilder();
         }
 
         return SKIP_BODY;
     }
 
+    @Deprecated
     private static String convertAttributesToHtml(String tagName, Map<String, String> attributes) {
         StringBuilder builder = new StringBuilder();
         if (!attributes.isEmpty()) {
@@ -249,10 +259,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return builder.toString();
     }
 
-    /**
-     * Finds the dimension {@code name} ("width", or "height") for the given
-     * StorageItem {@code item}.
-     */
+    @Deprecated
     private static Integer findDimension(StorageItem item, String name) {
         if (item == null) {
             return null;
@@ -268,9 +275,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return dimension;
     }
 
-    /**
-     * Finds the crop information for the StorageItem {@code item}.
-     */
+    @Deprecated
     private static Map<String, ImageCrop> findImageCrops(StorageItem item) {
         if (item == null) {
             return null;
@@ -416,6 +421,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return dimension;
     }
 
+    @Deprecated
     private static StandardImageSize getStandardImageSizeByName(String size) {
         StandardImageSize standardImageSize = null;
         for (StandardImageSize standardSize : StandardImageSize.findAll()) {
@@ -428,28 +434,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     }
 
     /**
-     * <p>Static utility class for building HTML 'img' tags and URLs edited by
-     * an {@link ImageEditor}. This class is functionally equivalent to calling
-     * the JSTL &lt;cms:img&gt; tag in your JSP code.  Example usage:</p>
-     * <pre>
-     * StorageItem myStorageItem;
-     *
-     * String imageTagHtml = new ImageTag.Builder(myStorageItem)
-     *      .setWidth(300)
-     *      .setHeight(200)
-     *      .addAttribute("class", "thumbnail")
-     *      .addAttribute("alt", "My image")
-     *      .toHtml();
-     * </pre>
-     * You can also grab just the image URL instead of the entire HTML output
-     * by calling:
-     * <pre>
-     * String imageUrl = new ImageTag.Builder(myStorageItem)
-     *      .setWidth(300)
-     *      .setHeight(200)
-     *      .toUrl()
-     * </pre>
+     * @deprecated Use {@link ImageTagBuilder} instead.
      */
+    @Deprecated
     public static final class Builder {
 
         private StorageItem item;
@@ -475,158 +462,134 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         // for backwards compatibility
         private State state;
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder(StorageItem item) {
             this.item = item;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         private Builder() {
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public StorageItem getItem() {
             return this.item;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         protected Builder setItem(StorageItem item) {
             this.item = item;
             return this;
         }
 
-        /** Resets all fields back to null */
-        private void reset() {
-            item = null;
-            field = null;
-            editor = null;
-            standardImageSize = null;
-            width = null;
-            height = null;
-            cropOption = null;
-            resizeOption = null;
-            tagName = null;
-            srcAttribute = null;
-            hideDimensions = false;
-            attributes.clear();
-
-            state = null;
-        }
-
-        /**
-         * Sets the field that contains the image. If not set, the first
-         * field with {@value ObjectField.FILE_TYPE} type is used.
-         * @deprecated No replacement
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
         @Deprecated
         private Builder setField(String field) {
             this.field = field;
             return this;
         }
 
-        /**
-         * Sets the name of the {@linkplain ImageEditor image editor}
-         * to use.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setEditor(ImageEditor editor) {
             this.editor = editor;
             return this;
         }
 
-        /**
-         * Sets the internal name of the {@linkplain StandardImageSize
-         * image size} to use.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setStandardImageSize(StandardImageSize standardImageSize) {
             this.standardImageSize = standardImageSize;
             return this;
         }
 
-        /**
-         * Sets the width. Note that this will override the width provided
-         * by the image size set with {@link #setSize(String)}.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setWidth(Integer width) {
             this.width = width;
             return this;
         }
 
-        /**
-         * Sets the height. Note that this will override the height provided
-         * by the image size set with {@link #setSize(String)}.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setHeight(Integer height) {
             this.height = height;
             return this;
         }
 
-        /**
-         * Sets the crop option. Note that this will override the crop option
-         * provided by the image size set with {@link #setSize(String)}.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setCropOption(CropOption cropOption) {
             this.cropOption = cropOption;
             return this;
         }
 
-        /**
-         * Sets the resize option. Note that this will override the resize option
-         * provided by the image size set with {@link #setSize(String)}.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setResizeOption(ResizeOption resizeOption) {
             this.resizeOption = resizeOption;
             return this;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setTagName(String tagName) {
             this.tagName = tagName;
             return this;
         }
 
-        /**
-         * Overrides the default attribute (src) used to place the image URL. This
-         * is usually used in the conjunction with lazy loading scripts that copy
-         * the image URL from this attribute to the "src" attribute at some point
-         * after the page has loaded.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setSrcAttribute(String srcAttribute) {
             this.srcAttribute = srcAttribute;
             return this;
         }
 
-        /**
-         * Set to true if the resulting image dimensions should be removed
-         * from the final tag output.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder hideDimensions() {
             this.hideDimensions = true;
             return this;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public boolean isOverlay() {
             return overlay;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public void setOverlay(boolean overlay) {
             this.overlay = overlay;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public boolean isEdits() {
             return edits;
         }
 
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder setEdits(boolean edits) {
             this.edits = edits;
             return this;
         }
 
-        /**
-         * Adds an attribute to be placed on the tag.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder addAttribute(String name, Object value) {
             this.attributes.put(name, value != null ? value.toString() : null);
             return this;
         }
 
-        /**
-         * Adds all the attributes to be placed on the tag.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Builder addAllAttributes(Map<String, ?> attributes) {
             if (attributes != null) {
                 for (Map.Entry<String, ?> entry : attributes.entrySet()) {
@@ -636,32 +599,22 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             return this;
         }
 
-        /**
-         * For backwards compatibility
-         *
-         * @deprecated
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
         @Deprecated
         private Builder setState(State state) {
             this.state = state;
             return this;
         }
 
-        /**
-         * For backwards compatibility
-         *
-         * @deprecated
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
         @Deprecated
         private Builder setRecordable(Recordable recordable) {
             setState(State.getInstance(recordable));
             return this;
         }
 
-        /**
-         *
-         * @return the HTML for an img tag constructed by this Builder.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public String toHtml() {
             String html = convertAttributesToHtml(tagName, toAttributes());
 
@@ -769,15 +722,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             return html;
         }
 
-        /**
-         *
-         * @return the URL to the image as a String.
-         */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public String toUrl() {
             return toAttributes().get(srcAttribute != null ? srcAttribute : "src");
         }
 
-        /** Returns all the attributes that will get placed on the img tag. */
+        /** @deprecated Use {@link ImageTagBuilder} instead */
+        @Deprecated
         public Map<String, String> toAttributes() {
             // set all the attributes
             Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -942,13 +894,17 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
     }
 
+    /**
+     * @deprecated Use {@link ImageTagBuilder} instead.
+     */
+    @Deprecated
     public final static class Static {
 
         private Static() {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getHtmlFromStandardImageSize(WebPageContext wp,
@@ -970,7 +926,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getHtmlFromOptions(WebPageContext wp,
@@ -995,7 +951,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getUrlFromStandardImageSize(WebPageContext wp,
@@ -1013,7 +969,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getUrlFromOptions(WebPageContext wp,
@@ -1034,7 +990,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getHtml(WebPageContext wp,
@@ -1056,7 +1012,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String getHtml(PageContext pageContext,
@@ -1075,7 +1031,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String makeUrlFromStandardImageSize(WebPageContext wp,
@@ -1092,7 +1048,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String makeUrlFromStandardImageSize(PageContext pageContext,
@@ -1105,7 +1061,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String makeUrlFromOptions(WebPageContext wp,
@@ -1123,7 +1079,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
 
         /**
-         * @deprecated Use {@link ImageTag.Builder} instead.
+         * @deprecated Use {@link ImageTagBuilder} instead.
          */
         @Deprecated
         public static String makeUrlFromOptions(PageContext pageContext,
@@ -1140,7 +1096,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     }
 
     /**
-     * @deprecated Use {@link ImageTag.Builder} instead.
+     * @deprecated Use {@link ImageTagBuilder} instead.
      */
     @Deprecated
     public static String makeUrl(
