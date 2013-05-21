@@ -68,7 +68,7 @@ public class Schedule extends Record {
             return false;
         }
 
-        LOGGER.info("Triggering [{}] schedule", getLabel());
+        LOGGER.debug("Triggering [{}] schedule", getLabel());
 
         try {
             beginWrites();
