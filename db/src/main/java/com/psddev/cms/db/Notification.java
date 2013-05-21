@@ -37,6 +37,10 @@ public abstract class Notification extends Record {
                 from(ToolUser.class).
                 where("notifications = ?", this).
                 iterable(0)) {
+            if (receiver.getNotifyVia() == null) {
+                continue;
+            }
+
             switch (receiver.getNotifyVia()) {
                 case EMAIL :
                     MailMessage email = createEmail(object, sender, date, receiver);
