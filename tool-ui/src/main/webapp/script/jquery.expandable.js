@@ -52,8 +52,10 @@ $.plugin2('expandable', {
                 $input.width($clone.width());
             }
         });
+    },
 
-        this.$caller.delegate(selector).trigger('expand');
+    '_create': function(input) {
+        $(input).trigger('expand');
     }
 });
 

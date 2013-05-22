@@ -43,6 +43,10 @@ $.plugin2 = function(name, methods) {
 
         options = plugin._mergeOptions(options);
 
+        if (plugin._init) {
+            plugin._init(selector, options);
+        }
+
         $caller.onCreate(selector, function() {
             var $element,
                     elementPlugin;
@@ -59,10 +63,6 @@ $.plugin2 = function(name, methods) {
                 }
             }
         });
-
-        if (plugin._init) {
-            plugin._init(selector, options);
-        }
 
         return $caller;
     };
