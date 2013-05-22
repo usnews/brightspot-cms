@@ -4,8 +4,7 @@
 
 # Maven
 /target/
-/*/target/
-/*/*/target/
-/*/src/main/webapp/WEB-INF/classes/
-/*/src/main/webapp/WEB-INF/lib/
+/app-archetype/target/
+/db/target/
 /docs/documentation/_site/*
+/tool-ui/target/

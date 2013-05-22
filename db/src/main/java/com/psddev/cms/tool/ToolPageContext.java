@@ -1016,9 +1016,11 @@ public class ToolPageContext extends WebPageContext {
 
                 writeTag("meta", "name", "robots", "content", "noindex");
 
-                for (String href : new String[] {
-                        "/style/cms.less" }) {
-                    writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
+                if (getCmsTool().isUseNonMinified()) {
+                    writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+
+                } else {
+                    writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
                 }
 
                 writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
@@ -1028,12 +1030,14 @@ public class ToolPageContext extends WebPageContext {
                     tool.writeHeaderAfterStyles(this);
                 }
 
-                writeStart("script", "type", "text/javascript");
-                    write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
-                writeEnd();
+                if (getCmsTool().isUseNonMinified()) {
+                    writeStart("script", "type", "text/javascript");
+                        write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
+                    writeEnd();
 
-                writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.min.js"));
-                writeEnd();
+                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.js"));
+                    writeEnd();
+                }
 
                 if (!ObjectUtils.isBlank(extraCss)) {
                     writeStart("style", "type", "text/css");
@@ -1069,44 +1073,50 @@ public class ToolPageContext extends WebPageContext {
                     write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
                 writeEnd();
 
-                for (String src : new String[] {
-                        "/script/jquery-1.8.3.min.js",
-                        "/script/jquery.extra.js",
-                        "/script/jquery.autosubmit.js",
-                        "/script/jquery.calendar.js",
-                        "/script/jquery.dropdown.js",
-                        "/script/jquery.expandable.js",
-                        "/script/jquery.popup.js",
-                        "/script/jquery.frame.js",
-                        "/script/jquery.imageeditor.js",
-                        "/script/jquery.objectid.js",
-                        "/script/jquery.pagelayout.js",
-                        "/script/jquery.pagethumbnails.js",
-                        "/script/jquery.repeatable.js",
-                        "/script/jquery.sortable.js",
-                        "/script/jquery.taxonomy.js",
-                        "/script/jquery.toggleable.js",
-                        "/script/jquery.workflow.js",
-                        "/script/diff.js",
-                        "/script/json2.min.js",
-                        "/script/pixastic/pixastic.core.js",
-                        "/script/pixastic/actions/brightness.js",
-                        "/script/pixastic/actions/crop.js",
-                        "/script/pixastic/actions/desaturate.js",
-                        "/script/pixastic/actions/fliph.js",
-                        "/script/pixastic/actions/flipv.js",
-                        "/script/pixastic/actions/invert.js",
-                        "/script/pixastic/actions/rotate.js",
-                        "/script/pixastic/actions/sepia.js",
-                        "/script/html5slider.js",
-                        "/script/wysihtml5.min.js",
-                        "/script/jquery.rte.js",
-                        "/script/d3.v2.js",
-                        "/script/nv.d3.min.js",
-                        "/script/jquery.handsontable.full.js",
-                        "/script/jquery.spreadsheet.js",
-                        "/script/cms.js" }) {
-                    writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                if (getCmsTool().isUseNonMinified()) {
+                    for (String src : new String[] {
+                            "/script/jquery-1.8.3.js",
+                            "/script/jquery.extra.js",
+                            "/script/jquery.autosubmit.js",
+                            "/script/jquery.calendar.js",
+                            "/script/jquery.dropdown.js",
+                            "/script/jquery.expandable.js",
+                            "/script/jquery.popup.js",
+                            "/script/jquery.frame.js",
+                            "/script/jquery.imageeditor.js",
+                            "/script/jquery.objectid.js",
+                            "/script/jquery.pagelayout.js",
+                            "/script/jquery.pagethumbnails.js",
+                            "/script/jquery.repeatable.js",
+                            "/script/jquery.sortable.js",
+                            "/script/jquery.taxonomy.js",
+                            "/script/jquery.toggleable.js",
+                            "/script/jquery.workflow.js",
+                            "/script/diff.js",
+                            "/script/json2.js",
+                            "/script/pixastic/pixastic.core.js",
+                            "/script/pixastic/actions/brightness.js",
+                            "/script/pixastic/actions/crop.js",
+                            "/script/pixastic/actions/desaturate.js",
+                            "/script/pixastic/actions/fliph.js",
+                            "/script/pixastic/actions/flipv.js",
+                            "/script/pixastic/actions/invert.js",
+                            "/script/pixastic/actions/rotate.js",
+                            "/script/pixastic/actions/sepia.js",
+                            "/script/html5slider.js",
+                            "/script/wysihtml5-0.3.0.js",
+                            "/script/jquery.rte.js",
+                            "/script/d3.v2.js",
+                            "/script/nv.d3.js",
+                            "/script/jquery.handsontable.full.js",
+                            "/script/jquery.spreadsheet.js",
+                            "/script/cms.js" }) {
+                        writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                        writeEnd();
+                    }
+
+                } else {
+                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
                     writeEnd();
                 }
 

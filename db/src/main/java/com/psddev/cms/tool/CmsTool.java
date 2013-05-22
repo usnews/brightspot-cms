@@ -51,6 +51,9 @@ public class CmsTool extends Tool {
     @ToolUi.Heading("3rd Party")
     private String dropboxApplicationKey;
 
+    @ToolUi.Tab("Debug")
+    private boolean useNonMinified;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -345,6 +348,14 @@ public class CmsTool extends Tool {
 
     public void setDropboxApplicationKey(String dropboxApplicationKey) {
         this.dropboxApplicationKey = dropboxApplicationKey;
+    }
+
+    public boolean isUseNonMinified() {
+        return useNonMinified;
+    }
+
+    public void setUseNonMinified(boolean useNonMinified) {
+        this.useNonMinified = useNonMinified;
     }
 
     /** Returns the preview URL. */
