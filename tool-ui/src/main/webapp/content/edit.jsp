@@ -453,7 +453,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                Schedule schedule = draft.getSchedule();
+                                Schedule schedule = draft != null ? draft.getSchedule() : null;
 
                                 if (schedule != null) {
                                     wp.writeHtml("Draft scheduled to be published ");
