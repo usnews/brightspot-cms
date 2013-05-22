@@ -154,6 +154,7 @@ wp.writeStart("div", "class", "inputSmall permissions");
         writeParent(wp, permissions, "Types", "type");
 
         List<ObjectType> mainTypes = Template.Static.findUsedTypes(wp.getSite());
+        List<ObjectType> internalTypes = new ArrayList<ObjectType>();
         List<ObjectType> typesList = Query.
                 from(ObjectType.class).
                 sortAscending("name").
@@ -175,6 +176,16 @@ wp.writeStart("div", "class", "inputSmall permissions");
                     groups.contains(Plugin.class.getName()) ||
                     !groups.contains(Content.SEARCHABLE_GROUP)) {
                 i.remove();
+
+                wp.writeTag("input",
+                        "type", "hidden",
+                        "name", inputName,
+                        "value", "type/" + t.getId().toString());
+
+                wp.writeTag("input",
+                        "type", "hidden",
+                        "name", inputName,
+                        "value", "type/" + t.getId().toString() + "/");
             }
         }
 
@@ -189,10 +200,19 @@ wp.writeStart("div", "class", "inputSmall permissions");
             wp.writeStart("ul");
                 for (ObjectType type : entry.getValue()) {
                     String typePermissionId = "type/" + type.getId().toString();
-                    String fieldPermissionIdPrefix = "type/" + type.getId().toString() + "/field";
 
                     wp.writeStart("li");
                         writeParent(wp, permissions, type, typePermissionId);
+
+                        wp.writeTag("input",
+                                "type", "hidden",
+                                "name", inputName,
+                                "value", typePermissionId + "/field");
+
+                        wp.writeTag("input",
+                                "type", "hidden",
+                                "name", inputName,
+                                "value", typePermissionId + "/field/");
 
                         wp.writeStart("ul");
                             wp.writeStart("li");
