@@ -3,49 +3,22 @@
 
 var $win = $(win),
         doc = win.document,
-        $allInputs = $(),
-        $checkers;
+        $doc = $(doc),
+        $clones;
 
 $.plugin2('expandable', {
-    '_defaultOptions': {
-        'cssProperties': [
-            'border-bottom-width', 'border-left-width', 'border-right-width',
-            'border-top-width', '-moz-box-sizing', '-webkit-box-sizing',
-            'box-sizing', 'font-family', 'font-size', 'font-stretch',
-            'font-style', 'font-variant', 'font-weight', 'letter-spacing',
-            'line-height', 'padding-bottom', 'padding-left', 'padding-right',
-            'padding-top', 'white-space', 'word-spacing'
-        ]
-    },
-
-    '_create': function(input) {
-        var $input = $(input);
-
-        $allInputs = $allInputs.add($input);
-        $input.trigger('expand');
-    },
-
     '_init': function(selector, options) {
         this.$caller.delegate(selector, 'expand.expandable input.expandable', function() {
             var $input = $(this),
-                    $checker = $.data(this, 'expandable-checker'),
-                    properties = options.cssProperties,
-                    index,
-                    size,
-                    property,
+                    $clone = $.data(this, 'expandable-clone'),
                     inputDisplay;
 
             // Create a hidden DIV that copies the input styles so that we can
             // measure the height.
-            if (!$checker) {
-                $checker = $('<div/>');
-                $.data(this, 'expandable-checker', $checker);
-
-                $input.css('overflow', 'hidden');
-
-                if (!$checkers) {
-                    $checkers = $('<div/>', {
-                        'class': 'expandable-checkers',
+            if (!$clone) {
+                if (!$clones) {
+                    $clones = $('<div/>', {
+                        'class': 'expandable-clones',
                         'css': {
                             'left': -10000,
                             'position': 'absolute',
@@ -54,36 +27,38 @@ $.plugin2('expandable', {
                         }
                     });
 
-                    $(doc.body).append($checkers);
+                    $(doc.body).append($clones);
                 }
 
-                $checkers.append($checker);
+                $clone = $('<div/>', {
+                    'class': options.cloneClass
+                });
+
+                $input.css('overflow', 'hidden');
+                $clones.append($clone);
+                $.data(this, 'expandable-clone', $clone);
             }
 
             inputDisplay = $input.css('display');
 
-            for (index = 0, size = properties.length; index < size; ++ index) {
-                property = properties[index];
-                $checker.css(property, $input.css(property));
-            }
-
-            $checker.
-                    css('display', inputDisplay).
-                    text($input.val() + ' foo');
+            $clone.css('display', inputDisplay);
+            $clone.text($input.val() + ' foo');
 
             if (inputDisplay === 'block') {
-                $checker.width($input.width());
-                $input.height($checker.height());
+                $clone.width($input.width());
+                $input.height($clone.height());
 
             } else {
-                $input.width($checker.width());
+                $input.width($clone.width());
             }
         });
+
+        this.$caller.delegate(selector).trigger('expand');
     }
 });
 
 $win.resize($.throttle(200, function() {
-    $allInputs.filter(':visible').trigger('expand');
+    $doc.find('.plugin-expandable:visible').trigger('expand');
 }));
 
 }(jQuery, window));
