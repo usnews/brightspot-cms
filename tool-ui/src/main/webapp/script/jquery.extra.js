@@ -58,11 +58,12 @@ $.plugin2 = function(name, methods) {
                     elementPlugin._create(this);
                 }
             }
-        });
 
-        if (plugin._init) {
-            plugin._init(selector, options);
-        }
+        }, function() {
+            if (plugin._init) {
+                plugin._init(selector, options);
+            }
+        });
 
         return $caller;
     };
@@ -374,14 +375,22 @@ $.elementFromPoint = function(x, y) {
     return $();
 };
 
-$.fn.onCreate = function(selector, handler) {
+$.fn.onCreate = function(selector, create, init) {
     if (selector) {
         this.bind('create', function(event) {
-            $(event.target).find(selector).each(handler);
+            $(event.target).find(selector).each(create);
+
+            if (init) {
+                init();
+            }
         });
 
     } else {
-        this.each(handler);
+        this.each(create);
+
+        if (init) {
+            init();
+        }
     }
 };
 
