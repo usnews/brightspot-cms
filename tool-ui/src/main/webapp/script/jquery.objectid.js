@@ -5,15 +5,15 @@ var globalTargetIndex = 0;
 
 $.plugin2('objectId', {
     '_create': function(input) {
-        var $input = $(input);
+        var $input = $(input),
+                $form = $input.closest('form'),
+                target = $.data($form[0], 'objectId-target');
 
         // Make sure that there's only one frame target per form.
-        var $form = $input.closest('form');
-        var target = $form.data('objectId-target');
         if (!target) {
             ++ globalTargetIndex;
             target = 'objectId-' + globalTargetIndex;
-            $form.data('objectId-target', target);
+            $.data($form[0], 'objectId-target', target);
         }
 
         var $selectButton;
@@ -40,7 +40,7 @@ $.plugin2('objectId', {
             var searcherPath = $input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp');
             var typeIds = $input.attr('data-typeIds');
 
-            var formAction = $input.closest('form').attr('action');
+            var formAction = $form.attr('action');
             var id = formAction.substring(formAction.indexOf('id=') + 3);
 
             $selectButton = $('<a/>', {
