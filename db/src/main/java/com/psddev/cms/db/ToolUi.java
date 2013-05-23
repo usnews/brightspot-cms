@@ -34,6 +34,7 @@ public class ToolUi extends Modification<Object> {
     private String heading;
     private Boolean hidden;
     private String iconName;
+    private String inputProcessorApplication;
     private String inputProcessorPath;
     private String inputSearcherPath;
     private String noteHtml;
@@ -135,6 +136,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setIconName(String iconName) {
         this.iconName = iconName;
+    }
+
+    public String getInputProcessorApplication() {
+        return inputProcessorApplication;
+    }
+
+    public void setInputProcessorApplication(String inputProcessorApplication) {
+        this.inputProcessorApplication = inputProcessorApplication;
     }
 
     public String getInputProcessorPath() {
@@ -435,12 +444,14 @@ public class ToolUi extends Modification<Object> {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface InputProcessorPath {
+        String application() default "";
         String value();
     }
 
     private static class InputProcessorPathProcessor implements ObjectField.AnnotationProcessor<InputProcessorPath> {
         @Override
         public void process(ObjectType type, ObjectField field, InputProcessorPath annotation) {
+            field.as(ToolUi.class).setInputProcessorApplication(annotation.application());
             field.as(ToolUi.class).setInputProcessorPath(annotation.value());
         }
     }

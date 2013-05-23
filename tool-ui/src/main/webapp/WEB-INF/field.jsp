@@ -11,6 +11,8 @@ com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.RoutingFilter,
+com.psddev.dari.util.StringUtils,
 
 java.net.MalformedURLException,
 java.net.URL,
@@ -148,7 +150,9 @@ try {
 
     String processorPath = ui.getInputProcessorPath();
     if (processorPath != null) {
-        JspUtils.include(request, response, out, processorPath);
+        JspUtils.include(request, response, out,
+                RoutingFilter.Static.getApplicationPath(ui.getInputProcessorApplication()) +
+                StringUtils.ensureStart(processorPath, "/"));
         return;
     }
 
