@@ -64,6 +64,12 @@ $.plugin2 = function(name, methods) {
             }
         });
 
+        if (plugin._createAll) {
+            $caller.bind('create', function(event) {
+                plugin._createAll(event.target, selector, options);
+            });
+        }
+
         return $caller;
     };
 

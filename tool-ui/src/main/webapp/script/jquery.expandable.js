@@ -54,8 +54,8 @@ $.plugin2('expandable', {
         });
     },
 
-    '_create': function(input) {
-        $(input).trigger('expand');
+    '_createAll': function(target, selector) {
+        $(target).find(selector).trigger('expand');
     }
 });
 
