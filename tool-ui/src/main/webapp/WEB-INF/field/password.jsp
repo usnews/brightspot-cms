@@ -63,7 +63,18 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             } else {
                 try {
                     PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
-                    state.putValue(fieldName, Password.validateAndCreateCustom(policy, null, null, password).toString());
+
+                    String algorithm = null;
+                    String salt = null;
+
+                    if (state.get(fieldName) != null) {
+                        Password current = Password.valueOf(String.valueOf(state.get(fieldName)));
+
+                        algorithm = current.getAlgorithm();
+                        salt = current.getSalt();
+                    }
+
+                    state.put(fieldName, Password.validateAndCreateCustom(policy, algorithm, salt, password).toString());
                 } catch (PasswordException error) {
                     state.addError(field, error.getMessage());
                 }
