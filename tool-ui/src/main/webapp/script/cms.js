@@ -10,7 +10,7 @@ win.cms.startToolUserPing = function() {
         $.getJSON(CONTEXT_PATH + '/toolUserPing', function(response) {
             var status = response.status,
                     href = win.location.href,
-                    redirect;
+                    returnPath;
 
             if (status === 'ERROR' &&
                     !(/logIn.jsp/.exec(href))) {
@@ -18,9 +18,10 @@ win.cms.startToolUserPing = function() {
 
             } else if (status === 'OK' &&
                     (/logIn.jsp/.exec(href))) {
-                redirect = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
-                redirect = redirect ? decodeURIComponent(redirect) : CONTEXT_PATH + '/';
-                win.location = redirect;
+                returnPath = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
+                returnPath = returnPath ? decodeURIComponent(returnPath) : CONTEXT_PATH + '/';
+                returnPath = returnPath.replace(/^\/?/, '/');
+                win.location = win.location.protocol + '//' + win.location.host + returnPath;
             }
         });
     }, 2000);
