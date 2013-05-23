@@ -112,7 +112,7 @@ $.plugin2('objectId', {
             'href': ($input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp')) +
                     '?pt=' + encodeURIComponent(formAction.substring(formAction.indexOf('id=') + 3)) +
                     '&p=' + encodeURIComponent($input.attr('data-pathed')) +
-                    '&' + encodeURIComponent(typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') +
+                    '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') +
                     '&aq=' + encodeURIComponent($input.attr('data-additional-query') || '') +
                     '&sg=' + encodeURIComponent($input.attr('data-suggestions') || '')
         });
