@@ -59,7 +59,7 @@ $.plugin2 = function(name, methods) {
                 $element.addClass(CLASS_NAME);
 
                 if (elementPlugin._create) {
-                    elementPlugin._create(this);
+                    elementPlugin._create(this, options);
                 }
             }
         });
