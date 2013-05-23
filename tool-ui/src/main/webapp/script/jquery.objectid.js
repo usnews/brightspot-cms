@@ -1,170 +1,191 @@
-/** Object selector and editor. */
+// Object selector and editor.
 (function($, win, undef) {
 
-var globalTargetIndex = 0;
+var refresh,
+        SHADOW_DATA = 'objectId-shadow',
+        TARGET_DATA = 'objectId-target',
+        targetIndex = 0;
 
-$.plugin2('objectId', {
-    '_create': function(input) {
-        var $input = $(input),
-                $form = $input.closest('form'),
-                target = $.data($form[0], 'objectId-target');
+refresh = function($inputs) {
+    $inputs.each(function() {
+        var $input = $(this),
+                shadow = $.data(this, SHADOW_DATA),
+                $select = shadow.$select,
+                $edit = shadow.$edit,
+                $clear = shadow.$clear,
+                preview = $input.attr('data-preview'),
+                visibility = $input.attr('data-visibility'),
+                label,
+                placeholder,
+                value = $input.val();
 
-        // Make sure that there's only one frame target per form.
-        if (!target) {
-            ++ globalTargetIndex;
-            target = 'objectId-' + globalTargetIndex;
-            $.data($form[0], 'objectId-target', target);
-        }
+        if (preview) {
+            $select.html($('<img/>', {
+                'src': preview
+            }));
 
-        var $selectButton;
-        var $clearButton;
-        var $editButton = $input.attr('data-editable') === 'false' ? $() : $('<a/>', {
-            'class': 'objectId-edit',
-            'target': target,
-            'text': 'Edit',
-            'click': function() {
-                if (!$editButton.attr('href')) {
-                    return false;
-                } else if ($editButton.closest('.toBeRemoved').length > 0) {
-                    return false;
-                } else if ($editButton.is('.toBeRemoved')) {
-                    return false;
-                } else {
-                    return true;
+        } else {
+            label = $input.attr('data-label');
+
+            if (label) {
+                $select.text(label);
+
+                if (visibility) {
+                    $select.prepend(' ');
+                    $select.prepend($('<span/>', {
+                        'class': 'visibilityLabel',
+                        'text': visibility
+                    }));
                 }
-            }
-        });
 
-        // Replace the text box with a custom drop down.
-        if ($input.is(':text')) {
-            var searcherPath = $input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp');
-            var typeIds = $input.attr('data-typeIds');
+            } else {
+                placeholder = $input.attr('placeholder');
 
-            var formAction = $form.attr('action');
-            var id = formAction.substring(formAction.indexOf('id=') + 3);
-
-            $selectButton = $('<a/>', {
-                'class': 'objectId-select',
-                'href': searcherPath + '?pt=' + encodeURIComponent(id) + '&p=' + $input.attr('data-pathed') + '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') + "&aq=" + encodeURIComponent($input.attr('data-additional-query') || '') + "&sg=" + encodeURIComponent($input.attr('data-suggestions') || ''),
-                'target': target
-            });
-
-            $selectButton.bind('updatePreview', function() {
-                var preview = $input.attr('data-preview'),
-                        visibility = $input.attr('data-visibility'),
-                        label,
-                        placeholder;
-
-                if (preview) {
-                    $selectButton.html($('<img/>', {
-                        'src': preview
+                if (placeholder) {
+                    $select.html($('<span/>', {
+                        'class': 'objectId-placeholder',
+                        'text': placeholder
                     }));
 
                 } else {
-                    label = $input.attr('data-label');
-
-                    if (label) {
-                        $selectButton.text(label);
-
-                        if (visibility) {
-                            $selectButton.prepend(' ');
-                            $selectButton.prepend($('<span/>', {
-                                'class': 'visibilityLabel',
-                                'text': visibility
-                            }));
-                        }
-
-                    } else {
-                        placeholder = $input.attr('placeholder');
-
-                        if (placeholder) {
-                            $selectButton.html($('<span/>', {
-                                'class': 'objectId-placeholder',
-                                'text': placeholder
-                            }));
-
-                        } else {
-                            $selectButton.text('\u00a0');
-                        }
-                    }
+                    $select.text('\u00a0');
                 }
-            });
-
-            $input.before($selectButton);
-            $input.after($editButton);
-            $editButton.hide();
-            $input.hide();
-            $selectButton.trigger('updatePreview');
-
-            // Add clear button when not part of repeatable (which provides
-            // the functionally equivalent remove button).
-            if ($input.closest('.repeatableObjectId').length === 0) {
-                var previousValue;
-                $clearButton = $('<a/>', {
-                    'class': 'objectId-clear',
-                    'text': 'Clear',
-                    'click': function() {
-
-                        var currentValue = $input.val();
-                        if (currentValue) {
-                            if ($input.attr('data-restorable') === 'false') {
-                                $input.removeAttr('data-label');
-                                $input.removeAttr('data-preview');
-
-                            } else {
-                                previousValue = currentValue;
-                                $selectButton.addClass('toBeRemoved');
-                                $editButton.addClass('toBeRemoved');
-                                $clearButton.addClass('restore');
-                                $clearButton.text('Restore');
-                            }
-
-                            $input.val('');
-                            $input.change();
-
-                        } else {
-                            $selectButton.removeClass('toBeRemoved');
-                            $editButton.removeClass('toBeRemoved');
-                            $clearButton.removeClass('restore');
-                            $clearButton.text('Clear');
-                            $input.val(previousValue);
-                            $input.change();
-                        }
-
-                        return false;
-                    }
-                });
-                ($editButton.length > 0 ? $editButton : $selectButton).after($clearButton);
             }
-
-        // Just add the edit button if drop down already.
-        } else {
-            $input.after($editButton);
-            $input.after(' ');
         }
 
-        // Update visual whenever input changes.
-        $input.change($.run(function() {
-            if ($selectButton) {
-                $selectButton.trigger('updatePreview');
-            }
+        $edit.toggle(
+                $input.attr('data-editable') !== 'false' &&
+                !!value);
 
-            var objectId = $input.val();
-            if (objectId) {
-                $editButton.attr('href', CONTEXT_PATH + 'content/objectIdEdit.jsp?id=' + objectId + '&' + (((/[&?](variationId=[^&]+)/).exec(win.location.search) || [ ])[1] || ''));
-                $editButton.show();
-                if ($clearButton) {
-                    $clearButton.show();
+        $clear.toggle(
+                $clear.is('.restore') ||
+                ($input.attr('data-clearable') !== 'false' &&
+                $input.closest('.repeatableObjectId').length === 0 &&
+                !!value));
+
+        $edit.attr('href', CONTEXT_PATH + 'content/objectIdEdit.jsp' +
+                '?id=' + (value || '') +
+                '&' + (((/[&?](variationId=[^&]+)/).exec(win.location.search) || [ ])[1] || ''));
+    });
+};
+
+$.plugin2('objectId', {
+    '_init': function(selector) {
+        this.$caller.on('change.objectId', selector, function() {
+            refresh($(this));
+        });
+    },
+
+    '_create': function(input) {
+        var $input,
+                $form,
+                target,
+                typeIds,
+                formAction,
+                $select,
+                $edit,
+                $clear,
+                shadow;
+
+        if ($.data(input, SHADOW_DATA)) {
+            return;
+        }
+
+        $input = $(input);
+        $form = input.form ? $(input.form) : $input.closest('form');
+
+        // Make sure that there's only one frame target per form.
+        target = $.data($form[0], TARGET_DATA);
+
+        if (!target) {
+            ++ targetIndex;
+            target = 'objectId-' + targetIndex;
+            $.data($form[0], TARGET_DATA, target);
+        }
+
+        typeIds = $input.attr('data-typeIds');
+        formAction = $form.attr('action');
+
+        $select = $('<a/>', {
+            'class': 'objectId-select',
+            'target': target,
+            'href': ($input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp')) +
+                    '?pt=' + encodeURIComponent(formAction.substring(formAction.indexOf('id=') + 3)) +
+                    '&p=' + encodeURIComponent($input.attr('data-pathed')) +
+                    '&' + encodeURIComponent(typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') +
+                    '&aq=' + encodeURIComponent($input.attr('data-additional-query') || '') +
+                    '&sg=' + encodeURIComponent($input.attr('data-suggestions') || '')
+        });
+
+        $edit = $('<a/>', {
+            'class': 'objectId-edit',
+            'target': target,
+            'text': 'Edit'
+        });
+
+        $clear = $('<a/>', {
+            'class': 'objectId-clear',
+            'text': 'Clear',
+            'click': function() {
+                var $clear = $(this),
+                        shadow = $.data($clear[0], SHADOW_DATA),
+                        $select = shadow.$select,
+                        $edit = shadow.$edit;
+
+                if ($input.val()) {
+                    if ($input.attr('data-restorable') === 'false') {
+                        $input.removeAttr('data-label');
+                        $input.removeAttr('data-preview');
+
+                    } else {
+                        $select.addClass('toBeRemoved');
+                        $edit.addClass('toBeRemoved');
+                        $clear.addClass('restore');
+                        $clear.text('Restore');
+                    }
+
+                    $input.val('');
+
+                } else {
+                    $select.removeClass('toBeRemoved');
+                    $edit.removeClass('toBeRemoved');
+                    $clear.removeClass('restore');
+                    $clear.text('Clear');
+                    $input.val($input[0].defaultValue);
                 }
 
-            } else if ($clearButton && !$clearButton.is('.restore')) {
-                $editButton.hide();
-                $clearButton.hide();
-
-            } else if (!$clearButton) {
-                $editButton.hide();
+                $input.change();
+                return false;
             }
-        }));
+        });
+
+        shadow = {
+            '$input': $input,
+            '$select': $select,
+            '$edit': $edit,
+            '$clear': $clear
+        };
+
+        $.data(input, SHADOW_DATA, shadow);
+        $.data($select[0], SHADOW_DATA, shadow);
+        $.data($edit[0], SHADOW_DATA, shadow);
+        $.data($clear[0], SHADOW_DATA, shadow);
+    },
+
+    '_createAll': function(target, selector) {
+        var $inputs = $(target).find(selector);
+
+        $inputs.each(function() {
+            var $input = $(this),
+                    shadow = $.data(this, SHADOW_DATA);
+
+            $input.hide();
+            $input.after(shadow.$clear);
+            $input.after(shadow.$edit);
+            $input.after(shadow.$select);
+        });
+
+        refresh($inputs);
     }
 });
 
