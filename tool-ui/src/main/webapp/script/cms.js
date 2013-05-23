@@ -14,7 +14,7 @@ win.cms.startToolUserPing = function() {
 
             if (status === 'ERROR' &&
                     !(/logIn.jsp/.exec(href))) {
-                win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location);
+                win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
 
             } else if (status === 'OK' &&
                     (/logIn.jsp/.exec(href))) {
