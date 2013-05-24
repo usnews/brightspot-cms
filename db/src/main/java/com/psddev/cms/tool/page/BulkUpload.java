@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.util.RoutingFilter;
 
@@ -21,7 +22,20 @@ public class BulkUpload extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        page.getWriter();
+        boolean hasUploadable = false;
+
+        for (ObjectType t : ObjectType.getInstance(Content.class).findConcreteTypes()) {
+            for (ObjectField field : t.getFields()) {
+                if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
+                    hasUploadable = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasUploadable) {
+            return;
+        }
 
         page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();

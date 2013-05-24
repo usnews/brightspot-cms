@@ -82,6 +82,10 @@ writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size()
     for (List<Widget> widgets : widgetsByColumn) {
         writer.start("div", "class", "dashboardColumn");
             for (Widget widget : widgets) {
+                if (!wp.hasPermission(widget.getPermissionId())) {
+                    continue;
+                }
+
                 String jsp = null;
 
                 if (widget instanceof JspWidget) {

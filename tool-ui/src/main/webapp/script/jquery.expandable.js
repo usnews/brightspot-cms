@@ -1,89 +1,140 @@
-/** Expandable INPUT[type=text] and TEXTAREA. */
+// Expandable INPUT[type=text] and TEXTAREA.
 (function($, win, undef) {
 
 var $win = $(win),
         doc = win.document,
-        $allInputs = $(),
-        $checkers;
+        $doc = $(doc),
+        $shadowContainer,
+        expand,
+        SHADOW_DATA = 'expandable-shadow';
+
+// Group reads and writes together across multiple inputs to minimize forced
+// synchronous layouts.
+expand = function($inputs) {
+
+    // Read the input width if it's a block element.
+    $inputs.each(function() {
+        var shadow = $.data(this, SHADOW_DATA);
+
+        if (shadow.display === 'block') {
+            shadow.width = this.getBoundingClientRect().width;
+        }
+    });
+
+    // Write the input text into the shadow.
+    $inputs.each(function() {
+        var shadow = $.data(this, SHADOW_DATA);
+        shadow.$element.text($(this).val() + ' foo');
+    });
+
+    // Write the shadow width if the input's a block element.
+    $inputs.each(function() {
+        var shadow = $.data(this, SHADOW_DATA);
+
+        if (shadow.display === 'block') {
+            shadow.$element.css('width', shadow.width);
+        }
+    });
+
+    // Read the shadow size.
+    $inputs.each(function() {
+        var shadow = $.data(this, SHADOW_DATA),
+                shadowBounds = shadow.$element[0].getBoundingClientRect();
+
+        if (shadow.display === 'block') {
+            shadow.height = shadowBounds.height;
+
+        } else {
+            shadow.width = shadowBounds.width;
+        }
+    });
+
+    // Write the input size using the shadow size.
+    $inputs.each(function() {
+        var shadow = $.data(this, SHADOW_DATA),
+                $input = $(this);
+
+        if (shadow.display === 'block') {
+            $input.css('height', shadow.height);
+
+        } else {
+            $input.css('width', shadow.width);
+        }
+    });
+};
 
 $.plugin2('expandable', {
-    '_defaultOptions': {
-        'cssProperties': [
-            'border-bottom-width', 'border-left-width', 'border-right-width',
-            'border-top-width', '-moz-box-sizing', '-webkit-box-sizing',
-            'box-sizing', 'font-family', 'font-size', 'font-stretch',
-            'font-style', 'font-variant', 'font-weight', 'letter-spacing',
-            'line-height', 'padding-bottom', 'padding-left', 'padding-right',
-            'padding-top', 'white-space', 'word-spacing'
-        ]
-    },
-
-    '_create': function(input) {
-        var $input = $(input);
-
-        $allInputs = $allInputs.add($input);
-        $input.trigger('expand');
-    },
-
     '_init': function(selector, options) {
-        this.$caller.delegate(selector, 'expand.expandable input.expandable', function() {
-            var $input = $(this),
-                    $checker = $.data(this, 'expandable-checker'),
-                    properties = options.cssProperties,
-                    index,
-                    size,
-                    property,
-                    inputDisplay;
+        var plugin = this;
 
-            // Create a hidden DIV that copies the input styles so that we can
-            // measure the height.
-            if (!$checker) {
-                $checker = $('<div/>');
-                $.data(this, 'expandable-checker', $checker);
-
-                $input.css('overflow', 'hidden');
-
-                if (!$checkers) {
-                    $checkers = $('<div/>', {
-                        'class': 'expandable-checkers',
-                        'css': {
-                            'left': -10000,
-                            'position': 'absolute',
-                            'top': 0,
-                            'visibility': 'hidden'
-                        }
-                    });
-
-                    $(doc.body).append($checkers);
-                }
-
-                $checkers.append($checker);
-            }
-
-            inputDisplay = $input.css('display');
-
-            for (index = 0, size = properties.length; index < size; ++ index) {
-                property = properties[index];
-                $checker.css(property, $input.css(property));
-            }
-
-            $checker.
-                    css('display', inputDisplay).
-                    text($input.val() + ' foo');
-
-            if (inputDisplay === 'block') {
-                $checker.width($input.width());
-                $input.height($checker.height());
-
-            } else {
-                $input.width($checker.width());
-            }
+        plugin.$caller.delegate(selector, 'expand.expandable input.expandable', function() {
+            expand($(this));
         });
+    },
+
+    '_create': function(input, options) {
+        var $input,
+                display,
+                bounds,
+                boxSizing;
+
+        // Read the input data into the shadow.
+        if ($.data(input, SHADOW_DATA)) {
+            return;
+        }
+
+        $input = $(input);
+        display = $input.css('display');
+        bounds = input.getBoundingClientRect();
+        boxSizing = $input.css('box-sizing');
+
+        $.data(input, SHADOW_DATA, {
+            'display': display,
+            'width': bounds.width,
+            'height': bounds.height,
+            '$element': $('<div/>', {
+                'class': options.shadowClass,
+                'text': $input.val() + ' foo',
+                'css': {
+                    'display': display,
+                    'border-width': boxSizing === 'border-box' ? '' : 0,
+                    'padding': boxSizing === 'border-box' ? '' : 0
+                }
+            })
+        });
+    },
+
+    '_createAll': function(target, selector, options) {
+        var $inputs = $(target).find(selector);
+
+        // Make sure that the shadow container is available.
+        if (!$shadowContainer) {
+            $(doc.body).append($shadowContainer = $('<div/>', {
+                'class': 'expandable-shadows',
+                'css': {
+                    'left': -10000,
+                    'position': 'absolute',
+                    'top': 0,
+                    'visibility': 'hidden'
+                }
+            }));
+        }
+
+        // Write the input styles and the shadow into the container.
+        $inputs.each(function() {
+            var $input = $(this),
+                    shadow = $.data($input[0], SHADOW_DATA);
+
+            $input.css('overflow', 'hidden');
+            $shadowContainer.append(shadow.$element);
+        });
+
+        expand($inputs);
     }
 });
 
 $win.resize($.throttle(200, function() {
-    $allInputs.filter(':visible').trigger('expand');
+    expand($doc.find('.plugin-expandable:visible'));
 }));
 
 }(jQuery, window));

@@ -4,6 +4,29 @@ var $win = $(win),
         doc = win.document,
         $doc = $(doc);
 
+win.cms = win.cms || { };
+win.cms.startToolUserPing = function() {
+    setInterval(function() {
+        $.getJSON(CONTEXT_PATH + '/toolUserPing', function(response) {
+            var status = response.status,
+                    href = win.location.href,
+                    returnPath;
+
+            if (status === 'ERROR' &&
+                    !(/logIn.jsp/.exec(href))) {
+                win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
+
+            } else if (status === 'OK' &&
+                    (/logIn.jsp/.exec(href))) {
+                returnPath = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
+                returnPath = returnPath ? decodeURIComponent(returnPath) : CONTEXT_PATH + '/';
+                returnPath = returnPath.replace(/^\/?/, '/');
+                win.location = win.location.protocol + '//' + win.location.host + returnPath;
+            }
+        });
+    }, 2000);
+};
+
 // Standard behaviors.
 $doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');
 $doc.repeatable('live', '.repeatableText', {
@@ -15,7 +38,9 @@ $doc.repeatable('live', '.repeatableText', {
 $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
 $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
-$doc.expandable('live', ':text.expandable, textarea');
+$doc.expandable('live', ':text.expandable, textarea', {
+    'shadowClass': 'input'
+});
 
 $doc.frame({
     'frameClassName': 'frame',
@@ -28,6 +53,8 @@ $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
+$doc.spreadsheet('live', '.spreadsheet');
+$doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.workflow('live', '.workflow');
 
@@ -56,7 +83,7 @@ $doc.onCreate('.inputContainer .permissions select', function() {
     var $select = $(this);
 
     $select.bind('change', $.run(function() {
-        $select.parent().find('> ul').toggle($select.find(':selected').text() === 'Some');
+        $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
     }));
 });
 
@@ -205,26 +232,27 @@ $doc.onCreate('.searchSuggestionsForm', function() {
 });
 
 // Mark changed inputs.
-$doc.onCreate('.inputContainer', function() {
+$doc.on('change', '.inputContainer', function() {
     var $container = $(this),
-            getValues,
-            initialValues;
+            changed;
 
-    initialValues = (getValues = function() {
-        return $container.find(':input, select, textarea').serialize();
-    })();
-
-    $container.on('input change', function() {
-        var $target = $(this);
-
-        $target.toggleClass('state-changed', initialValues !== getValues());
-
-        $target.parents().each(function() {
-            var $parent = $(this);
-
-            $parent.toggleClass('state-changed', $parent.find('.state-changed').length > 0);
-        });
+    $container.find('input, textarea').each(function() {
+        if (this.defaultValue !== this.value) {
+            changed = true;
+            return;
+        }
     });
+
+    if (!changed) {
+        $container.find('option').each(function() {
+            if (this.defaultSelected !== this.selected) {
+                changed = true;
+                return;
+            }
+        });
+    }
+
+    $container.toggleClass('state-changed', changed);
 });
 
 // Create tabs that organize form fields.
@@ -304,6 +332,140 @@ $doc.onCreate('.objectInputs', function() {
 
         $container.prepend($tabs);
     }
+});
+
+// Content diff with a side by side view.
+$doc.onCreate('.contentDiff', function() {
+    var $container = $(this),
+            $tabs,
+            $tabEdit,
+            $tabSideBySide,
+            $left = $container.find('> .contentDiffLeft'),
+            $right = $container.find('> .contentDiffRight'),
+            getValues;
+
+    $tabs = $('<ul/>', {
+        'class': 'tabs'
+    });
+
+    $tabEdit = $('<li/>', {
+        'html': $('<a/>', {
+            'text': 'Edit',
+            'click': function() {
+                $container.trigger('contentDiff-edit');
+                return false;
+            }
+        })
+    });
+
+    $tabSideBySide = $('<li/>', {
+        'html': $('<a/>', {
+            'text': 'Side By Side',
+            'click': function() {
+                $container.trigger('contentDiff-sideBySide');
+                return false;
+            }
+        })
+    });
+
+    $container.bind('contentDiff-edit', function() {
+        $container.add($('.widget-publishing')).removeClass('contentDiff-sideBySide').addClass('contentDiff-edit');
+        $tabs.find('li').removeClass('state-selected');
+        $tabEdit.addClass('state-selected');
+
+        $left.find('> .objectInputs > .inputContainer').css('height', '');
+        $right.find('> .objectInputs > .inputContainer').css('height', '');
+    });
+
+    $container.bind('contentDiff-sideBySide', function() {
+        $container.add($('.widget-publishing')).removeClass('contentDiff-edit').addClass('contentDiff-sideBySide');
+        $tabs.find('li').removeClass('state-selected');
+        $tabSideBySide.addClass('state-selected');
+
+        $left.find('> .objectInputs > .inputContainer').each(function() {
+            var $leftInput = $(this),
+                    $rightInput = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]');
+
+            setTimeout(function() {
+                $leftInput.add($rightInput).height(Math.max($leftInput.height(), $rightInput.height()));
+            }, 500);
+        });
+    });
+
+    getValues = function($input) {
+        var fakeId = $input.closest('[data-fake-id]').attr('data-fake-id'),
+                realId = $input.closest('[data-real-id]').attr('data-real-id'),
+                values = $input.find(':input, select, textarea').serialize();
+
+        return fakeId && realId ? values.replace(new RegExp('(^|&)' + fakeId + '%2F', 'g'), '$1' + realId + '%2F') : values;
+    };
+
+    $left.find('> .objectInputs > .inputContainer').each(function() {
+        var $leftInput = $(this),
+                $rightInput = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]'),
+                height = Math.max($leftInput.outerHeight(true), $rightInput.outerHeight(true));
+
+        if (getValues($leftInput) === getValues($rightInput)) {
+            $leftInput.addClass('contentDiffSame');
+            $rightInput.addClass('contentDiffSame');
+        }
+    });
+
+    $left.find('> .objectInputs > .inputContainer > .inputSmall > textarea:not(.richtext)').each(function() {
+        var $leftText = $(this),
+                $rightText = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftText.closest('.inputContainer').attr('data-field') + '"] textarea:not(.richtext)'),
+                left = $leftText.val(),
+                right = $rightText.val(),
+                diffs = JsDiff.diffWords(left, right),
+                $leftCopy = $('<div/>', { 'class': 'contentDiffCopy' }),
+                $rightCopy = $('<div/>', { 'class': 'contentDiffCopy' });
+
+        $.each(diffs, function(i, diff) {
+            if (!diff.added) {
+                $leftCopy.append(diff.removed ?
+                        $('<span/>', { 'class': 'contentDiffRemoved', 'text': diff.value }) :
+                        diff.value);
+            }
+        });
+
+        $.each(diffs, function(i, diff) {
+            if (!diff.removed) {
+                $rightCopy.append(diff.added ?
+                        $('<span/>', { 'class': 'contentDiffAdded', 'text': diff.value }) :
+                        diff.value);
+            }
+        });
+
+        $leftText.addClass('contentDiffText');
+        $leftText.before($leftCopy);
+
+        $rightText.addClass('contentDiffText');
+        $rightText.before($rightCopy);
+    });
+
+    $tabs.append($tabEdit);
+    $tabs.append($tabSideBySide);
+    $container.prepend($tabs);
+    $container.trigger($right.is('.contentDiffCurrent') ?
+            'contentDiff-sideBySide' :
+            'contentDiff-edit');
+});
+
+$doc.onCreate('.searchAdvancedResult', function() {
+    var $result = $(this);
+
+    $result.on('change', ':checkbox', function() {
+        $result.find('.actions .action').each(function() {
+            var $action= $(this),
+                    text = $action.text();
+
+            if ($result.find(':checkbox:checked').length > 0) {
+                $action.text(text.replace('All', 'Selected'));
+            } else {
+                $action.text(text.replace('Selected', 'All'));
+            }
+        });
+    });
 });
 
 // Show stack trace when clicking on the exception message.
@@ -639,20 +801,20 @@ $doc.ready(function() {
                     $headerForm = $headerInput.closest('form'),
                     $searchFrame,
                     $searchInput,
-                    headerInputValue;
+                    headerInputValue = $headerInput.val();
 
             $headerInput.attr('autocomplete', 'off');
             $searchFrame = $('.frame[name="' + $headerForm.attr('target') + '"]');
 
             if ($searchFrame.length === 0 ||
                     (event.type === 'focus' &&
+                    headerInputValue &&
                     $searchFrame.find('.searchResultList .message-warning').length > 0)) {
                 $headerForm.submit();
 
             } else {
                 $searchFrame.popup('open');
                 $searchInput = $searchFrame.find('.searchFilters :input[name="q"]');
-                headerInputValue = $headerInput.val();
 
                 if (headerInputValue !== $searchInput.val()) {
                     $searchInput.val(headerInputValue).trigger('input');
@@ -690,8 +852,8 @@ $doc.ready(function() {
         }
     }));
 
-    // Publication widget behaviors.
-    $('.widget-publication').each(function() {
+    // Publishing widget behaviors.
+    $('.widget-publishing').each(function() {
         var $widget = $(this),
                 $dateInput = $widget.find('.dateInput'),
                 $publishButton = $widget.find('[name="action-publish"]'),

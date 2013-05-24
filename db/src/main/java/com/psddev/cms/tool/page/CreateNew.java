@@ -32,8 +32,6 @@ public class CreateNew extends PageServlet {
     @Override
     @SuppressWarnings("unchecked")
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        page.getWriter();
-
         String redirect = page.param(String.class, "redirect");
         List<TypeTemplate> typeTemplates = new ArrayList<TypeTemplate>();
         Map<ObjectType, Integer> typeCounts = new HashMap<ObjectType, Integer>();
@@ -55,6 +53,10 @@ public class CreateNew extends PageServlet {
                 typeTemplates.add(typeTemplate);
                 typeCounts.put(type, typeCounts.containsKey(type) ? typeCounts.get(type) + 1 : 1);
             }
+        }
+
+        if (typeTemplates.isEmpty()) {
+            return;
         }
 
         Collections.sort(typeTemplates);

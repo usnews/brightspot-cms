@@ -66,7 +66,6 @@ public class ExternalContent extends Content implements Renderer {
                 !ObjectUtils.equals(width, response.get("_maximumWidth")) ||
                 !ObjectUtils.equals(height, response.get("_maximumHeight")))) {
             try {
-                    System.out.println(url);
                 for (Element link : Jsoup.connect(url).get().select("link[rel=alternate][type=application/json+oembed]")) {
                     String oEmbedUrl = link.attr("href");
 

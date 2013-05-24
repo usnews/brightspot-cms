@@ -10,10 +10,12 @@ com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
+com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Settings,
 
 java.net.MalformedURLException,
-java.net.URL
+java.net.URL,
+java.util.UUID
 " %><%
 
 // --- Logic ---
@@ -21,22 +23,44 @@ java.net.URL
 ToolPageContext wp = new ToolPageContext(pageContext);
 AuthenticationException authError = null;
 String email = wp.param("email");
+ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
 
 if (wp.isFormPost()) {
-    String password = wp.param("password");
-    AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
-
-    if (authPolicy == null) {
-        authPolicy = new ToolAuthenticationPolicy();
-    }
-
     try {
-        AuthenticationFilter.Static.logIn(request, response, (ToolUser) authPolicy.authenticate(email, password));
+
+        if (user != null) {
+            if (!user.verifyTotp(wp.param(int.class, "totpCode"))) {
+                throw new AuthenticationException("The code you've entered is either invalid or has already been used.");
+            }
+
+        } else {
+            AuthenticationPolicy authPolicy = AuthenticationPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/authenticationPolicy"));
+
+            if (authPolicy == null) {
+                authPolicy = new ToolAuthenticationPolicy();
+            }
+
+            user = (ToolUser) authPolicy.authenticate(email, wp.param(String.class, "password"));
+
+            if (user.isTfaEnabled()) {
+                String totpToken = UUID.randomUUID().toString();
+
+                user.setTotpToken(totpToken);
+                user.save();
+                wp.redirect("", "totpToken", totpToken);
+                return;
+            }
+        }
+
+        AuthenticationFilter.Static.logIn(request, response, user);
+
         try {
             wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER, "/"))).toString());
+
         } catch (MalformedURLException e) {
             wp.redirect("/");
         }
+
         return;
 
     } catch (AuthenticationException error) {
@@ -83,6 +107,12 @@ body.hasToolBroadcast {
     <h1>Log In</h1>
 
     <%
+    if (wp.param(boolean.class, "forced")) {
+        wp.writeStart("div", "class", "message message-warning");
+            wp.writeHtml("You've been inactive for too long or logged out from a different page. Please log in again.");
+        wp.writeEnd();
+    }
+
     if (authError != null) {
         new HtmlWriter(wp.getWriter()).object(authError);
     }
@@ -95,24 +125,36 @@ body.hasToolBroadcast {
         </div>
     <% } %>
 
-    <form action="<%= wp.url("") %>" method="post">
-        <div class="inputContainer">
-            <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Email</label>
+    <form action="<%= wp.url("", "forced", null) %>" method="post">
+        <% if (user == null) { %>
+            <div class="inputContainer">
+                <div class="inputLabel">
+                    <label for="<%= wp.createId() %>">Email</label>
+                </div>
+                <div class="inputSmall">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="email" type="text" value="<%= wp.h(email) %>">
+                </div>
             </div>
-            <div class="inputSmall">
-                <input class="autoFocus" id="<%= wp.getId() %>" name="email" type="text" value="<%= wp.h(email) %>">
-            </div>
-        </div>
 
-        <div class="inputContainer">
-            <div class="inputLabel">
-                <label for="<%= wp.createId() %>">Password</label>
+            <div class="inputContainer">
+                <div class="inputLabel">
+                    <label for="<%= wp.createId() %>">Password</label>
+                </div>
+                <div class="inputSmall">
+                    <input id="<%= wp.getId() %>" name="password" type="password">
+                </div>
             </div>
-            <div class="inputSmall">
-                <input id="<%= wp.getId() %>" name="password" type="password">
+
+        <% } else { %>
+            <div class="inputContainer">
+                <div class="inputLabel">
+                    <label for="<%= wp.createId() %>">Code</label>
+                </div>
+                <div class="inputSmall">
+                    <input id="<%= wp.getId() %>" name="totpCode" type="text">
+                </div>
             </div>
-        </div>
+        <% } %>
 
         <div class="buttons">
             <button class="action action-logIn">Log In</button>

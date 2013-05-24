@@ -43,6 +43,10 @@ $.plugin2 = function(name, methods) {
 
         options = plugin._mergeOptions(options);
 
+        if (plugin._init) {
+            plugin._init(selector, options);
+        }
+
         $caller.onCreate(selector, function() {
             var $element,
                     elementPlugin;
@@ -55,13 +59,15 @@ $.plugin2 = function(name, methods) {
                 $element.addClass(CLASS_NAME);
 
                 if (elementPlugin._create) {
-                    elementPlugin._create(this);
+                    elementPlugin._create(this, options);
                 }
             }
         });
 
-        if (plugin._init) {
-            plugin._init(selector, options);
+        if (plugin._createAll) {
+            $caller.bind('create', function(event) {
+                plugin._createAll(event.target, selector, options);
+            });
         }
 
         return $caller;

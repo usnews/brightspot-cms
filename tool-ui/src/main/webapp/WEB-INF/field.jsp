@@ -11,7 +11,11 @@ com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.RoutingFilter,
+com.psddev.dari.util.StringUtils,
 
+java.net.MalformedURLException,
+java.net.URL,
 java.util.List,
 java.util.Set
 " %><%
@@ -146,7 +150,9 @@ try {
 
     String processorPath = ui.getInputProcessorPath();
     if (processorPath != null) {
-        JspUtils.include(request, response, out, processorPath);
+        JspUtils.include(request, response, out,
+                RoutingFilter.Static.getApplicationPath(ui.getInputProcessorApplication()) +
+                StringUtils.ensureStart(processorPath, "/"));
         return;
     }
 
@@ -154,7 +160,7 @@ try {
     // TODO - There should be some type of a hook for external plugins.
     String prefix = wp.cmsUrl("/WEB-INF/field/");
     String path = prefix + field.getJavaDeclaringClassName() + "." + fieldName + ".jsp";
-    if (application.getResource(path) != null) {
+    if (getResource(application, request, path) != null) {
         JspUtils.include(request, response, out, path);
         return;
     }
@@ -172,7 +178,7 @@ try {
     while (true) {
 
         path = prefix + displayType + ".jsp";
-        if (application.getResource(path) != null) {
+        if (getResource(application, request, path) != null) {
             JspUtils.include(request, response, out, path);
             return;
         }
@@ -194,5 +200,18 @@ try {
     if (!isFormPost) {
         wp.write("</div>");
     }
+}
+%><%!
+
+public static URL getResource(ServletContext context, HttpServletRequest request, String path) throws MalformedURLException {
+    if (Boolean.TRUE.equals(request.getAttribute("resourceChecked." + path))) {
+        return (URL) request.getAttribute("resource." + path);
+    }
+
+    URL resource = context.getResource(path);
+
+    request.setAttribute("resourceChecked." + path, Boolean.TRUE);
+    request.setAttribute("resource." + path, resource);
+    return resource;
 }
 %>

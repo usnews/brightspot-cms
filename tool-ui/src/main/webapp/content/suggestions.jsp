@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.Site,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
@@ -9,6 +10,7 @@ com.psddev.dari.db.Database,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.ObjectType,
+com.psddev.dari.db.PredicateParser,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.SolrDatabase,
 com.psddev.dari.db.State,
@@ -68,10 +70,17 @@ try {
         }
     }
 
+    Site site = wp.getUser().getCurrentSite();
+
     for (Object item : findSimilar(object, filter, 10)) {
         Float score = SolrDatabase.Static.getNormalizedScore(item);
 
         if (score != null && score > 0.7) {
+            if (site != null &&
+                    !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                continue;
+            }
+
             suggestions.put(item, score);
         }
     }
@@ -95,6 +104,11 @@ try {
         Float score = SolrDatabase.Static.getNormalizedScore(item);
 
         if (score > 0.7) {
+            if (site != null &&
+                    !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                continue;
+            }
+
             Object value = State.getInstance(item).get(fieldName);
 
             if (value == null) {

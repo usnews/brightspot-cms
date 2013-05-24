@@ -13,7 +13,6 @@ import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWriter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -76,167 +75,163 @@ public class RecentActivity extends PageServlet {
             result = contentQuery.select(offset, limit);
         }
 
-        PageWriter writer = page.getWriter();
+        page.writeStart("div", "class", "widget");
+            page.writeStart("h1", "class", "icon icon-list");
+                page.writeHtml("Recent Activity");
+            page.writeEnd();
 
-        writer.writeStart("div", "class", "widget widget-recentActivity");
-            writer.writeStart("h1").writeHtml("Recent Activity").writeEnd();
-
-            writer.writeStart("form",
-                    "class", "recentActivity-filters",
+            page.writeStart("form",
                     "method", "get",
                     "action", page.url(null));
+                page.writeStart("ul", "class", "oneLine");
+                    page.writeStart("li");
+                        page.writeTypeSelect(
+                                Template.Static.findUsedTypes(page.getSite()),
+                                itemType,
+                                "Everything",
+                                "class", "autoSubmit",
+                                "name", "itemType",
+                                "data-searchable", "true");
+                    page.writeEnd();
 
-                writer.writeStart("span", "class", "recentActivity-filters-itemType");
-                    page.writeTypeSelect(
-                            Template.Static.findUsedTypes(page.getSite()),
-                            itemType,
-                            "Everything",
-                            "class", "autoSubmit",
-                            "name", "itemType",
-                            "data-searchable", "true");
-                writer.writeEnd();
-
-                writer.writeStart("span", "class", "recentActivity-filters-prep");
-                    writer.writeHtml("by");
-                writer.writeEnd();
-
-                writer.writeStart("span", "class", "recentActivity-filters-type");
-                    writer.writeStart("select", "class", "autoSubmit", "name", "type");
-                        for (Type t : Type.values()) {
-                            if (t != Type.ROLE || Query.from(ToolRole.class).first() != null) {
-                                writer.writeStart("option",
-                                        "selected", t.equals(type) ? "selected" : null,
-                                        "value", t.name());
-                                    writer.writeHtml(t.getDisplayName());
-                                writer.writeEnd();
+                    page.writeStart("li");
+                        page.writeHtml("by ");
+                        page.writeStart("select", "class", "autoSubmit", "name", "type");
+                            for (Type t : Type.values()) {
+                                if (t != Type.ROLE || Query.from(ToolRole.class).first() != null) {
+                                    page.writeStart("option",
+                                            "selected", t.equals(type) ? "selected" : null,
+                                            "value", t.name());
+                                        page.writeHtml(t.getDisplayName());
+                                    page.writeEnd();
+                                }
                             }
-                        }
-                    writer.writeEnd();
-                writer.writeEnd();
+                        page.writeEnd();
+                    page.writeEnd();
 
-                writer.writeStart("span", "class", "recentActivity-filters-value");
-                    Query<?> valueQuery;
+                    page.writeStart("li");
+                        Query<?> valueQuery;
 
-                    if (type == Type.ROLE) {
-                        valueQuery = Query.from(ToolRole.class).sortAscending("name");
+                        if (type == Type.ROLE) {
+                            valueQuery = Query.from(ToolRole.class).sortAscending("name");
 
-                    } else if (type == Type.USER) {
-                        valueQuery = Query.from(ToolUser.class).sortAscending("name");
-
-                    } else {
-                        valueQuery = null;
-                    }
-
-                    if (valueQuery == null) {
-                        writer.writeHtml("\u0020");
-
-                    } else {
-                        if (valueQuery.hasMoreThan(250)) {
-                            State valueState = State.getInstance(valueObject);
-
-                            writer.writeTag("input",
-                                    "type", "text",
-                                    "class", "autoSubmit objectId",
-                                    "data-editable", false,
-                                    "data-label", valueState != null ? valueState.getLabel() : null,
-                                    "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
-                                    "name", valueParameter,
-                                    "value", valueState != null ? valueState.getId() : null);
+                        } else if (type == Type.USER) {
+                            valueQuery = Query.from(ToolUser.class).sortAscending("name");
 
                         } else {
-                            writer.writeStart("select",
-                                    "class", "autoSubmit",
-                                    "name", valueParameter,
-                                    "data-searchable", "true");
-
-                                writer.writeStart("option", "value", "").writeEnd();
-
-                                for (Object v : valueQuery.selectAll()) {
-                                    State state = State.getInstance(v);
-
-                                    writer.writeStart("option",
-                                            "value", state.getId(),
-                                            "selected", v.equals(valueObject) ? "selected" : null);
-                                        writer.writeHtml(state.getLabel());
-                                    writer.writeEnd();
-                                }
-
-                            writer.writeEnd();
+                            valueQuery = null;
                         }
-                    }
-                writer.writeEnd();
 
-            writer.writeEnd();
+                        if (valueQuery == null) {
+                            page.writeHtml("\u0020");
+
+                        } else {
+                            if (valueQuery.hasMoreThan(250)) {
+                                State valueState = State.getInstance(valueObject);
+
+                                page.writeTag("input",
+                                        "type", "text",
+                                        "class", "autoSubmit objectId",
+                                        "data-editable", false,
+                                        "data-label", valueState != null ? valueState.getLabel() : null,
+                                        "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
+                                        "name", valueParameter,
+                                        "value", valueState != null ? valueState.getId() : null);
+
+                            } else {
+                                page.writeStart("select",
+                                        "class", "autoSubmit",
+                                        "name", valueParameter,
+                                        "data-searchable", "true");
+
+                                    page.writeStart("option", "value", "").writeEnd();
+
+                                    for (Object v : valueQuery.selectAll()) {
+                                        State state = State.getInstance(v);
+
+                                        page.writeStart("option",
+                                                "value", state.getId(),
+                                                "selected", v.equals(valueObject) ? "selected" : null);
+                                            page.writeHtml(state.getLabel());
+                                        page.writeEnd();
+                                    }
+
+                                page.writeEnd();
+                            }
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+            page.writeEnd();
 
             if (result == null) {
-                writer.writeStart("div", "class", "recentActivity-warning recentActivity-warning-value");
-                    writer.writeStart("p");
-                        writer.writeHtml("Please select a ");
-                        writer.writeHtml(type.getDisplayName());
-                        writer.writeHtml(".");
-                    writer.writeEnd();
-                writer.writeEnd();
+                page.writeStart("div", "class", "message message-warning");
+                    page.writeStart("p");
+                        page.writeHtml("Please select a ");
+                        page.writeHtml(type.getDisplayName());
+                        page.writeHtml(".");
+                    page.writeEnd();
+                page.writeEnd();
 
-            } else if (!result.hasItems()) {
-                writer.writeStart("div", "class", "recentActivity-warning");
-                    writer.writeStart("p");
-                        writer.writeHtml("No recent activity!");
-                    writer.writeEnd();
-                writer.writeEnd();
+            } else if (!result.hasPages()) {
+                page.writeStart("div", "class", "message message-info");
+                    page.writeStart("p");
+                        page.writeHtml("No recent activity!");
+                    page.writeEnd();
+                page.writeEnd();
 
             } else {
-                writer.writeStart("ul", "class", "pagination");
+                page.writeStart("ul", "class", "pagination");
 
                     if (result.hasPrevious()) {
-                        writer.writeStart("li", "class", "first");
-                            writer.writeStart("a",
+                        page.writeStart("li", "class", "first");
+                            page.writeStart("a",
                                     "href", page.url("", "offset", result.getFirstOffset()));
-                                writer.writeHtml("Newest");
-                            writer.writeEnd();
-                        writer.writeEnd();
+                                page.writeHtml("Newest");
+                            page.writeEnd();
+                        page.writeEnd();
 
-                        writer.writeStart("li", "class", "previous");
-                            writer.writeStart("a",
+                        page.writeStart("li", "class", "previous");
+                            page.writeStart("a",
                                     "href", page.url("", "offset", result.getPreviousOffset()));
-                                writer.writeHtml("Newer ").writeHtml(limit);
-                            writer.writeEnd();
-                        writer.writeEnd();
+                                page.writeHtml("Newer ").writeHtml(limit);
+                            page.writeEnd();
+                        page.writeEnd();
                     }
 
                     if (result.getOffset() > 0 ||
                             result.hasNext() ||
                             result.getItems().size() > LIMITS[0]) {
-                        writer.writeStart("li");
-                            writer.writeStart("form",
+                        page.writeStart("li");
+                            page.writeStart("form",
                                     "class", "autoSubmit",
                                     "method", "get",
                                     "action", page.url(null));
-                                writer.writeStart("select", "name", "limit");
+                                page.writeStart("select", "name", "limit");
                                     for (int l : LIMITS) {
-                                        writer.writeStart("option",
+                                        page.writeStart("option",
                                                 "value", l,
                                                 "selected", limit == l ? "selected" : null);
-                                            writer.writeHtml("Show ");
-                                            writer.writeHtml(l);
-                                        writer.writeEnd();
+                                            page.writeHtml("Show ");
+                                            page.writeHtml(l);
+                                        page.writeEnd();
                                     }
-                                writer.writeEnd();
-                            writer.writeEnd();
-                        writer.writeEnd();
+                                page.writeEnd();
+                            page.writeEnd();
+                        page.writeEnd();
                     }
 
                     if (result.hasNext()) {
-                        writer.writeStart("li", "class", "next");
-                            writer.writeStart("a",
+                        page.writeStart("li", "class", "next");
+                            page.writeStart("a",
                                     "href", page.url("", "offset", result.getNextOffset()));
-                                writer.writeHtml("Older ").writeHtml(limit);
-                            writer.writeEnd();
-                        writer.writeEnd();
+                                page.writeHtml("Older ").writeHtml(limit);
+                            page.writeEnd();
+                        page.writeEnd();
                     }
 
-                writer.writeEnd();
+                page.writeEnd();
 
-                writer.writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
+                page.writeStart("table", "class", "links table-striped pageThumbnails").writeStart("tbody");
 
                     String lastUpdateDate = null;
 
@@ -248,40 +243,40 @@ public class RecentActivity extends PageServlet {
                         String updateDate = page.formatUserDate(updateDateTime);
                         ToolUser updateUser = contentData.getUpdateUser();
 
-                        writer.writeStart("tr", "data-preview-url", permalink);
-                            writer.writeStart("td", "class", "date");
+                        page.writeStart("tr", "data-preview-url", permalink);
+                            page.writeStart("td", "class", "date");
                                 if (!updateDate.equals(lastUpdateDate)) {
-                                    writer.writeHtml(updateDate);
+                                    page.writeHtml(updateDate);
                                     lastUpdateDate = updateDate;
                                 }
-                            writer.writeEnd();
+                            page.writeEnd();
 
-                            writer.writeStart("td", "class", "time");
-                                writer.writeHtml(page.formatUserTime(updateDateTime));
-                            writer.writeEnd();
+                            page.writeStart("td", "class", "time");
+                                page.writeHtml(page.formatUserTime(updateDateTime));
+                            page.writeEnd();
 
-                            writer.writeStart("td");
-                                writer.typeLabel(content);
-                            writer.writeEnd();
+                            page.writeStart("td");
+                                page.writeTypeLabel(content);
+                            page.writeEnd();
 
-                            writer.writeStart("td", "data-preview-anchor", "");
-                                writer.writeStart("a",
+                            page.writeStart("td", "data-preview-anchor", "");
+                                page.writeStart("a",
                                         "href", page.objectUrl("/content/edit.jsp", content),
                                         "target", "_top");
-                                    writer.objectLabel(content);
-                                writer.writeEnd();
-                            writer.writeEnd();
+                                    page.writeObjectLabel(content);
+                                page.writeEnd();
+                            page.writeEnd();
 
-                            writer.writeStart("td");
-                                writer.objectLabel(updateUser);
-                            writer.writeEnd();
-                        writer.writeEnd();
+                            page.writeStart("td");
+                                page.writeObjectLabel(updateUser);
+                            page.writeEnd();
+                        page.writeEnd();
                     }
 
-                writer.writeEnd().writeEnd();
+                page.writeEnd().writeEnd();
             }
 
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     private enum Type {

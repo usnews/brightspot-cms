@@ -4,6 +4,7 @@ com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Query,
 com.psddev.dari.util.ObjectUtils,
 
 java.util.Map
@@ -17,13 +18,25 @@ if (wp.requireUser()) {
 
 WorkStream object = (WorkStream) wp.findOrReserve(WorkStream.class);
 
-if (wp.isFormPost()) {
+if (wp.isFormPost() &&
+        wp.param(String.class, "action-save") != null) {
     try {
         wp.include("/WEB-INF/objectPost.jsp", "object", object);
 
-        Search search = new Search();
-        search.getState().setValues((Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, "search")));
-        object.setSearch(search);
+        String searchString = wp.param(String.class, "search");
+
+        if (!ObjectUtils.isBlank(searchString)) {
+            Search search = new Search();
+            search.getState().setValues((Map<String, Object>) ObjectUtils.fromJson(searchString));
+            object.setSearch(search);
+
+        } else {
+            String queryString = wp.param(String.class, "query");
+            Query<?> query = Query.fromAll();
+            query.getState().setValues((Map<String, Object>) ObjectUtils.fromJson(queryString));
+            object.setQuery(query);
+        }
+
         object.setIncompleteIfMatching(wp.param(boolean.class, "incompleteIfMatching"));
 
         wp.publish(object);
@@ -54,7 +67,10 @@ wp.writeStart("div", "class", "widget");
         wp.include("/WEB-INF/objectForm.jsp", "object", object);
 
         wp.writeStart("div", "class", "buttons");
-            wp.writeStart("button", "class", "action action-save");
+            wp.writeStart("button",
+                    "class", "action icon icon-action-save",
+                    "name", "action-save",
+                    "value", "true");
                 wp.writeHtml("Save");
             wp.writeEnd();
         wp.writeEnd();

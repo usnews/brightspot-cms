@@ -75,6 +75,7 @@ public class PageFilter extends AbstractFilter {
     private static final String NEW_REQUEST_ATTRIBUTE = ATTRIBUTE_PREFIX + ".newRequest";
     private static final String PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + ".path";
     private static final String PATH_MATCHES_ATTRIBUTE = ATTRIBUTE_PREFIX + ".matches";
+    private static final String PREVIEW_ATTRIBUTE = ".preview";
 
     public static final String ABORTED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".aborted";
     public static final String CURRENT_SECTION_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentSection";
@@ -203,6 +204,7 @@ public class PageFilter extends AbstractFilter {
         dependencies.add(RemoteWidgetFilter.class);
         dependencies.add(AuthenticationFilter.class);
         dependencies.add(com.psddev.cms.tool.ScheduleFilter.class);
+        dependencies.add(com.psddev.dari.util.FormFilter.class);
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
         dependencies.add(FieldAccessFilter.class);
@@ -383,16 +385,56 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
-            State mainState = State.getInstance(mainObject);
+            final State mainState = State.getInstance(mainObject);
 
-            if (!mainState.isVisible()) {
-                if (Settings.isProduction()) {
-                    chain.doFilter(request, response);
-                    return;
+            // Fake the request path in preview mode in case the servlets
+            // depend on it.
+            if (Static.isPreview(request)) {
+                final String previewPath = request.getParameter("_previewPath");
 
-                } else {
-                    throw new IllegalStateException(String.format(
-                            "[%s] isn't visible!", mainState.getId()));
+                if (!ObjectUtils.isBlank(previewPath)) {
+                    request = new HttpServletRequestWrapper(request) {
+
+                        @Override
+                        public String getRequestURI() {
+                            return getContextPath() + getServletPath();
+                        }
+
+                        @Override
+                        public StringBuffer getRequestURL() {
+                            return new StringBuffer(getRequestURI());
+                        }
+
+                        @Override
+                        public String getServletPath() {
+                            return previewPath;
+                        }
+                    };
+                }
+            }
+
+            if (!Static.isPreview(request) &&
+                    !mainState.isVisible()) {
+                SCHEDULED: {
+                    ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+                    if (user != null) {
+                        Schedule currentSchedule = user.getCurrentSchedule();
+
+                        if (currentSchedule != null &&
+                                Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
+                            break SCHEDULED;
+                        }
+                    }
+
+                    if (Settings.isProduction()) {
+                        chain.doFilter(request, response);
+                        return;
+
+                    } else {
+                        throw new IllegalStateException(String.format(
+                                "[%s] isn't visible!", mainState.getId()));
+                    }
                 }
             }
 
@@ -948,6 +990,15 @@ public class PageFilter extends AbstractFilter {
             request.setAttribute("site", site);
         }
 
+        /**
+         * Returns {@code true} if the given {@code request} is for a preview.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static boolean isPreview(HttpServletRequest request) {
+            return Boolean.TRUE.equals(request.getAttribute(PREVIEW_ATTRIBUTE));
+        }
+
         /** Returns the main object associated with the given {@code request}. */
         public static Object getMainObject(HttpServletRequest request) {
             if (Boolean.TRUE.equals(request.getAttribute(MAIN_OBJECT_CHECKED_ATTRIBUTE))) {
@@ -971,6 +1022,8 @@ public class PageFilter extends AbstractFilter {
                 // On preview request, manually create the main object based on
                 // the post data.
                 if (path.startsWith("/_preview")) {
+                    request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
+
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
                     if (previewId != null) {
 

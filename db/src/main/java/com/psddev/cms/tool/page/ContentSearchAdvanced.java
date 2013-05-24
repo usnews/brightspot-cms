@@ -30,6 +30,7 @@ import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.HtmlFormatter;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
@@ -41,8 +42,9 @@ public class ContentSearchAdvanced extends PageServlet {
     public static final String TYPE_PARAMETER = "t";
     public static final String PREDICATE_PARAMETER = "p";
     public static final String FIELDS_PARAMETER = "f";
+    public static final String ITEMS_PARAMETER = "i";
 
-    private static final int[] LIMITS = { 10, 20, 50 };
+    private static final int[] LIMITS = { 10, 20, 50, Integer.MAX_VALUE };
 
     @Override
     protected String getPermissionId() {
@@ -80,6 +82,7 @@ public class ContentSearchAdvanced extends PageServlet {
         Collections.sort(allFields);
         Collections.sort(fields);
 
+        List<UUID> ids = page.params(UUID.class, ITEMS_PARAMETER);
         Query<Object> query = (type != null ?
                 Query.fromType(type) :
                 Query.fromGroup(Content.SEARCHABLE_GROUP)).
@@ -131,6 +134,10 @@ public class ContentSearchAdvanced extends PageServlet {
 
             for (Object item : query.iterable(0)) {
                 State itemState = State.getInstance(item);
+
+                if (!ids.isEmpty() && !ids.contains(itemState.getId())) {
+                    continue;
+                }
 
                 page.write("\"");
                 writeCsvItem(page, page.getTypeLabel(item));
@@ -290,7 +297,8 @@ public class ContentSearchAdvanced extends PageServlet {
 
                 } else {
                     page.writeStart("form",
-                            "method", "get",
+                            "class", "searchAdvancedResult",
+                            "method", "post",
                             "action", page.url(null));
                         page.writeTag("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
                         page.writeTag("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
@@ -326,7 +334,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                                     "value", l,
                                                     "selected", limit == l ? "selected" : null);
                                                 page.writeHtml("Show ");
-                                                page.writeHtml(l);
+                                                page.writeHtml(l == Integer.MAX_VALUE ? "All" : l);
                                             page.writeEnd();
                                         }
                                     page.writeEnd();
@@ -358,6 +366,9 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeStart("thead");
                                 page.writeStart("tr");
                                     page.writeStart("th");
+                                    page.writeEnd();
+
+                                    page.writeStart("th");
                                         page.writeHtml("Type");
                                     page.writeEnd();
 
@@ -379,6 +390,13 @@ public class ContentSearchAdvanced extends PageServlet {
                                     String permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
 
                                     page.writeStart("tr", "data-preview-url", permalink);
+                                        page.writeStart("td", "style", "width: 20px;");
+                                            page.writeTag("input",
+                                                    "type", "checkbox",
+                                                    "name", ITEMS_PARAMETER,
+                                                    "value", itemState.getId());
+                                        page.writeEnd();
+
                                         page.writeStart("td");
                                             page.writeHtml(page.getTypeLabel(item));
                                         page.writeEnd();
@@ -406,12 +424,28 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeEnd();
                         page.writeEnd();
 
-                        page.writeStart("div", "class", "buttons");
+                        page.writeStart("div", "class", "actions");
                             page.writeStart("button",
-                                    "class", "action action-download",
+                                    "class", "action icon icon-action-download",
                                     "name", "action-download",
                                     "value", true);
-                                page.writeHtml("Export");
+                                page.writeHtml("Export All");
+                            page.writeEnd();
+
+                            if (type != null) {
+                                page.writeStart("button",
+                                        "class", "action icon icon-action-edit",
+                                        "formaction", page.cmsUrl("/contentEditBulk"));
+                                    page.writeHtml("Bulk Edit All");
+                                page.writeEnd();
+                            }
+
+                            page.writeStart("a",
+                                    "class", "action button icon icon-object-workStream",
+                                    "target", "workStreamCreate",
+                                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                            "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
+                                page.writeHtml("New Work Stream");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

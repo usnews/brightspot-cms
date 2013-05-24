@@ -145,6 +145,7 @@ if (copy != null) {
 }
 
 // Directory directory = Query.findById(Directory.class, wp.uuidParam("directoryId"));
+History history = wp.getOverlaidHistory(editing);
 Draft draft = wp.getOverlaidDraft(editing);
 Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(editing).getType());
 
@@ -243,8 +244,46 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     <p><a class="icon icon-arrow-left" href="<%= wp.url("", "contentId", null) %>">Back to Layout</a></p>
                 <% } %>
 
-                <% wp.include("/WEB-INF/objectMessage.jsp", "object", editing); %>
-                <% wp.include("/WEB-INF/objectForm.jsp", "object", editing); %>
+                <%
+                wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
+
+                if (history != null || draft != null) {
+                    wp.writeStart("div", "class", "contentDiff");
+                        if (history != null) {
+                            wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
+                                wp.writeStart("h2").writeHtml("History").writeEnd();
+                                wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                            wp.writeEnd();
+                        }
+
+                        State original = State.getInstance(Query.
+                                from(Object.class).
+                                where("_id = ?", editing).
+                                noCache().
+                                first());
+
+                        original.setId(null);
+
+                        wp.writeStart("div",
+                                "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"),
+                                "data-fake-id", original.getId(),
+                                "data-real-id", State.getInstance(editing).getId());
+                            wp.writeStart("h2").writeHtml("Current").writeEnd();
+                            wp.include("/WEB-INF/objectForm.jsp", "object", original.getOriginalObject());
+                        wp.writeEnd();
+
+                        if (draft != null) {
+                            wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
+                                wp.writeStart("h2").writeHtml("Draft").writeEnd();
+                                wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                            wp.writeEnd();
+                        }
+                    wp.writeEnd();
+
+                } else {
+                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                }
+                %>
             </div>
 
             <% renderWidgets(wp, editing, CmsTool.CONTENT_BOTTOM_WIDGET_POSITION); %>
@@ -253,8 +292,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
         <div class="contentForm-aside">
             <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
 
-            <div class="widget widget-publication">
-                <h1 class="icon icon-action-publish">Publication</h1>
+            <div class="widget widget-publishing">
+                <h1 class="icon icon-action-publish">Publishing</h1>
 
                 <%
                 State editingState = State.getInstance(editing);
@@ -334,7 +373,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
                 Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
                 boolean isDraft = contentData.isDraft() || draft != null;
-                History history = wp.getOverlaidHistory(editing);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
 
@@ -348,61 +386,62 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         if (workflow != null) {
                             Workflow.Data workflowData = editingState.as(Workflow.Data.class);
                             String currentState = workflowData.getCurrentState();
+                            Set<String> transitionNames = new LinkedHashSet<String>();
 
-                            wp.writeStart("div", "class", "message message-info");
-                                wp.writeStart("p");
-                                    wp.writeHtml("Workflow: ");
-                                    wp.writeHtml(currentState);
-                                wp.writeEnd();
+                            for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
+                                    transitionNames.add(transitionName);
+                                }
+                            }
 
-                                wp.writeStart("div", "class", "actions");
-                                    Workflow.Log log = workflowData.getLastLog();
+                            if (currentState != null || !transitionNames.isEmpty()) {
+                                wp.writeStart("div", "class", "message message-info");
+                                    wp.writeStart("p");
+                                        wp.writeHtml("Workflow: ");
+                                        wp.writeHtml(currentState);
+                                    wp.writeEnd();
 
-                                    if (log != null) {
-                                        String comment = log.getComment();
+                                    wp.writeStart("div", "class", "actions");
+                                        Workflow.Log log = workflowData.getLastLog();
 
-                                        wp.writeStart("p");
-                                            if (ObjectUtils.isBlank(comment)) {
-                                                wp.writeHtml(log.getTransition());
-                                                wp.writeHtml(" by ");
+                                        if (log != null) {
+                                            String comment = log.getComment();
 
-                                            } else {
-                                                wp.writeStart("q");
-                                                    wp.writeHtml(comment);
-                                                wp.writeEnd();
-                                                wp.writeHtml(" said ");
-                                            }
+                                            wp.writeStart("p");
+                                                if (ObjectUtils.isBlank(comment)) {
+                                                    wp.writeHtml(log.getTransition());
+                                                    wp.writeHtml(" by ");
 
-                                            wp.writeObjectLabel(log.getUser());
-                                            wp.writeHtml(" at ");
-                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
-                                        wp.writeEnd();
-                                    }
+                                                } else {
+                                                    wp.writeStart("q");
+                                                        wp.writeHtml(comment);
+                                                    wp.writeEnd();
+                                                    wp.writeHtml(" said ");
+                                                }
 
-                                    Set<String> transitionNames = new LinkedHashSet<String>();
-
-                                    for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
-                                        if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                            transitionNames.add(transitionName);
-                                        }
-                                    }
-
-                                    if (!transitionNames.isEmpty()) {
-                                        wp.writeStart("textarea",
-                                                "name", "workflowComment",
-                                                "placeholder", "Optional Comment");
-                                        wp.writeEnd();
-
-                                        for (String transitionName : transitionNames) {
-                                            wp.writeStart("button",
-                                                    "name", "action-workflow",
-                                                    "value", transitionName);
-                                                wp.writeHtml(transitionName);
+                                                wp.writeObjectLabel(log.getUser());
+                                                wp.writeHtml(" at ");
+                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                             wp.writeEnd();
                                         }
-                                    }
+
+                                        if (!transitionNames.isEmpty()) {
+                                            wp.writeStart("textarea",
+                                                    "name", "workflowComment",
+                                                    "placeholder", "Optional Comment");
+                                            wp.writeEnd();
+
+                                            for (String transitionName : transitionNames) {
+                                                wp.writeStart("button",
+                                                        "name", "action-workflow",
+                                                        "value", transitionName);
+                                                    wp.writeHtml(transitionName);
+                                                wp.writeEnd();
+                                            }
+                                        }
+                                    wp.writeEnd();
                                 wp.writeEnd();
-                            wp.writeEnd();
+                            }
                         }
                     }
 
@@ -414,11 +453,22 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                wp.writeHtml("Draft last saved ");
-                                wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                wp.writeHtml(" by ");
-                                wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                wp.writeHtml(".");
+                                Schedule schedule = draft != null ? draft.getSchedule() : null;
+
+                                if (schedule != null) {
+                                    wp.writeHtml("Draft scheduled to be published ");
+                                    wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(schedule.getTriggerUser());
+                                    wp.writeHtml(".");
+
+                                } else {
+                                    wp.writeHtml("Draft last saved ");
+                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                    wp.writeHtml(".");
+                                }
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
@@ -480,7 +530,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     // Publish and trash buttons.
                     if (!isTrash && wp.hasPermission("type/" + editingState.getId() + "/publish")) {
-                        wp.writeStart("div", "class", "widget-publicationPublish");
+                        wp.writeStart("div", "class", "widget-publishingPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",
                                         "type", "text",
@@ -516,7 +566,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     wp.write("!</p></div>");
                 }
 
-                wp.writeStart("ul", "class", "widget-publicationExtra");
+                wp.writeStart("ul", "class", "widget-publishingExtra");
                     if (isWritable && !isDraft && !isTrash) {
                         wp.writeStart("li");
                             wp.writeStart("button",
@@ -547,7 +597,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             %>
 
             <ul class="widget-preview_controls">
-                <li><a class="action-live" href="<%= wp.h(state.as(Directory.ObjectModification.class).getPermalink()) %>" target="_blank">Live Page</a></li>
                 <li>
                     <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
@@ -558,29 +607,52 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                         <button class="action-share">Share</button>
                     </form>
                 </li>
+
                 <li>
-                    <form
-                            id="<%= previewFormId %>"
-                            method="post"
-                            action="<%= JspUtils.getAbsolutePath(null, request, "/_preview") %>"
-                            target="<%= previewTarget %>">
-                        <input type="hidden" name="_fields" value="true">
-                        <input type="hidden" id="<%= modeId %>" name="_" value="true">
-                        <label for="<%= wp.createId() %>">Mode:</label>
-                        <select id="<%= wp.getId() %>" onchange="
-                                var $select = $(this);
-                                $('#<%= modeId %>').attr('name', $select.val());
-                                $select.closest('form').submit();">
-                            <option value="_">Default</option>
-                            <option value="_prod">Production</option>
-                            <option value="_debug">Debug</option>
-                        </select>
-                        <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
-                        <% if (site != null) { %>
-                            <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
-                        <% } %>
-                        <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
-                    </form>
+                    <%
+                    wp.writeStart("form",
+                            "method", "post",
+                            "id", previewFormId,
+                            "target", previewTarget,
+                            "action", JspUtils.getAbsolutePath(request, "/_preview"));
+                        wp.writeTag("input", "type", "hidden", "name", "_fields", "value", true);
+                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_ID_PARAMETER, "value", state.getId());
+                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_OBJECT_PARAMETER);
+
+                        if (site != null) {
+                            wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_SITE_ID_PARAMETER, "value", site.getId());
+                        }
+
+                        wp.writeStart("select", "onchange",
+                                "var $input = $(this)," +
+                                        "$form = $input.closest('form');" +
+                                "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.val() || '100%');" +
+                                "$form.submit();");
+                            for (Device d : Device.values()) {
+                                wp.writeStart("option", "value", d.width);
+                                    wp.writeHtml(d);
+                                wp.writeEnd();
+                            }
+                        wp.writeEnd();
+
+                        List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
+
+                        if (paths != null && !paths.isEmpty()) {
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "class", "autoSubmit",
+                                    "name", "_previewPath");
+                                for (int i = paths.size() - 1; i >= 0; -- i) {
+                                    String path = paths.get(i).getPath();
+
+                                    wp.writeStart("option", "value", path);
+                                        wp.writeHtml(path);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
+                        }
+                    wp.writeEnd();
+                    %>
                 </li>
             </ul>
         </div>
@@ -596,7 +668,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                     $edit = $('.content-edit'),
                     oldEditStyle = $edit.attr('style') || '',
-                    $publicationExtra = $('.widget-publicationExtra'),
+                    $publishingExtra = $('.widget-publishingExtra'),
                     $previewAction,
                     appendPreviewAction,
                     removePreviewAction,
@@ -628,7 +700,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     })
                 });
 
-                $publicationExtra.append($previewAction);
+                $publishingExtra.append($previewAction);
             };
 
             removePreviewAction = function() {
@@ -746,7 +818,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         'margin': 0,
                                         'overflow': 'hidden',
                                         'padding': 0,
-                                        'width': '100%'
+                                        'width': $previewForm.find('[name="_deviceWidth"]').val() || '100%'
                                     }
                                 });
                                 $previewWidget.append($previewTarget);
@@ -1098,6 +1170,29 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
             }
         }
         wp.write("</div>");
+    }
+}
+%><%!
+
+private enum Device {
+
+    DESKTOP("Desktop", 1280),
+    TABLET_LANDSCAPE("Tablet - Landscape", 1024),
+    TABLET_PORTRAIT("Tablet - Portrait", 768),
+    MOBILE_LANDSCAPE("Mobile - Landscape", 480),
+    MOBILE_PORTRAIT("Mobile - Portrait", 320);
+
+    public final String label;
+    public final int width;
+
+    private Device(String label, int width) {
+        this.label = label;
+        this.width = width;
+    }
+
+    @Override
+    public String toString() {
+        return label + " (" + width + ")";
     }
 }
 %>

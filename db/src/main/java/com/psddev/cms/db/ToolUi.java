@@ -33,6 +33,8 @@ public class ToolUi extends Modification<Object> {
     private boolean globalFilter;
     private String heading;
     private Boolean hidden;
+    private String iconName;
+    private String inputProcessorApplication;
     private String inputProcessorPath;
     private String inputSearcherPath;
     private String noteHtml;
@@ -121,6 +123,27 @@ public class ToolUi extends Modification<Object> {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public String getIconNameOrDefault(String defaultIconName) {
+        String iconName = getIconName();
+        return ObjectUtils.isBlank(iconName) ? defaultIconName : iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
+    public String getInputProcessorApplication() {
+        return inputProcessorApplication;
+    }
+
+    public void setInputProcessorApplication(String inputProcessorApplication) {
+        this.inputProcessorApplication = inputProcessorApplication;
     }
 
     public String getInputProcessorPath() {
@@ -394,6 +417,23 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    /** Specifies the name of the icon that represents the target type. */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(IconNameProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface IconName {
+        String value();
+    }
+
+    private static class IconNameProcessor implements ObjectType.AnnotationProcessor<IconName> {
+        @Override
+        public void process(ObjectType type, IconName annotation) {
+            type.as(ToolUi.class).setIconName(annotation.value());
+        }
+    }
+
     /**
      * Specifies the path to the processor used to render and update
      * the target field.
@@ -404,12 +444,14 @@ public class ToolUi extends Modification<Object> {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface InputProcessorPath {
+        String application() default "";
         String value();
     }
 
     private static class InputProcessorPathProcessor implements ObjectField.AnnotationProcessor<InputProcessorPath> {
         @Override
         public void process(ObjectType type, ObjectField field, InputProcessorPath annotation) {
+            field.as(ToolUi.class).setInputProcessorApplication(annotation.application());
             field.as(ToolUi.class).setInputProcessorPath(annotation.value());
         }
     }

@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -31,6 +32,15 @@ public class UnpublishedDrafts extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        if (!Query.
+                from(Object.class).
+                or("_type = ?", Draft.class).
+                or("cms.content.draft = true").
+                or("cms.workflow.currentState != missing").
+                hasMoreThan(0)) {
+            return;
+        }
+
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
         Map<String, String> stateLabels = new TreeMap<String, String>();
 
@@ -76,32 +86,34 @@ public class UnpublishedDrafts extends PageServlet {
             page.writeStart("form",
                     "method", "get",
                     "action", page.url(null));
-                page.writeStart("select",
-                        "class", "autoSubmit",
-                        "name", "state");
-                    page.writeStart("option", "value", "");
-                        page.writeHtml("All");
-                    page.writeEnd();
-
-                    for (Map.Entry<String, String> entry : stateLabels.entrySet()) {
-                        String key = entry.getKey();
-
-                        page.writeStart("option",
-                                "selected", key.equals(state) ? "selected" : null,
-                                "value", key);
-                            page.writeHtml(entry.getValue());
+                if (stateLabels.size() > 1) {
+                    page.writeStart("select",
+                            "class", "autoSubmit",
+                            "name", "state");
+                        page.writeStart("option", "value", "");
+                            page.writeHtml("All");
                         page.writeEnd();
-                    }
-                page.writeEnd();
+
+                        for (Map.Entry<String, String> entry : stateLabels.entrySet()) {
+                            String key = entry.getKey();
+
+                            page.writeStart("option",
+                                    "selected", key.equals(state) ? "selected" : null,
+                                    "value", key);
+                                page.writeHtml(entry.getValue());
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
             page.writeEnd();
 
             if (drafts.getItems().isEmpty()) {
-                String label = stateLabels.get(state);
+                String label = state != null ? stateLabels.get(state) : null;
 
                 page.writeStart("div", "class", "message message-info");
                     page.writeHtml("No ");
-                    page.writeHtml(label != null ? label : "Matching");
-                    page.writeHtml(" Items.");
+                    page.writeHtml(label != null ? label.toLowerCase(Locale.ENGLISH) : "matching");
+                    page.writeHtml(" items.");
                 page.writeEnd();
 
             } else {
@@ -162,7 +174,8 @@ public class UnpublishedDrafts extends PageServlet {
 
                                 State itemState = State.getInstance(item);
 
-                                if (!itemState.isVisible()) {
+                                if (!itemState.isVisible() &&
+                                        draft.getObjectChanges().isEmpty()) {
                                     continue;
                                 }
 

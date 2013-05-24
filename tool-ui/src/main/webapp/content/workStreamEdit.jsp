@@ -37,14 +37,16 @@ if (wp.isFormPost()) {
 
 wp.writeFormHeading(object, "class", "icon icon-object-workStream");
 
-wp.writeStart("p");
-    wp.writeStart("a",
-            "class", "icon icon-action-search",
-            "href", wp.cmsUrl("/misc/savedSearch.jsp", "search", ObjectUtils.toJson(object.getSearch().getState().getSimpleValues())),
-            "target", "miscSavedSearch");
-        wp.writeHtml("View Items");
+if (object.getSearch() != null) {
+    wp.writeStart("p");
+        wp.writeStart("a",
+                "class", "icon icon-action-search",
+                "href", wp.cmsUrl("/misc/savedSearch.jsp", "search", ObjectUtils.toJson(object.getSearch().getState().getSimpleValues())),
+                "target", "miscSavedSearch");
+            wp.writeHtml("View Items");
+        wp.writeEnd();
     wp.writeEnd();
-wp.writeEnd();
+}
 
 wp.include("/WEB-INF/errors.jsp");
 

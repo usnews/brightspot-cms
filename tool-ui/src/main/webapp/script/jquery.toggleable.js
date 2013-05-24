@@ -2,10 +2,6 @@
 (function($, win, undef) {
 
 $.plugin2('toggleable', {
-    '_create': function(element) {
-        $(element).trigger('toggle');
-    },
-
     '_init': function(selector) {
         this.$caller.delegate(selector, 'toggle.toggleable change', function() {
             var $option = $(this).find(':selected'),
@@ -27,6 +23,10 @@ $.plugin2('toggleable', {
                 $toBeShown.rte('enable');
             }
         });
+    },
+
+    '_create': function(element) {
+        $(element).trigger('toggle');
     }
 });
 

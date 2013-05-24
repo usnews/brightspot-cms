@@ -39,7 +39,79 @@ input[type=text].expandable { min-width: 5em; }
 @import 'jquery.popup.less';
 @import 'jquery.repeatable.less';
 @import 'jquery.rte.less';
+@import 'jquery.taxonomy.less';
 @import 'jquery.workflow.less';
+
+// Content diff with a side by side view.
+.contentDiffCopy {
+    .input;
+
+    height: auto;
+    min-height: 26px;
+    width: 100%;
+}
+
+.contentDiffAdded {
+    background-color: #9c2;
+    outline: 1px solid #9c2;
+}
+
+.contentDiffRemoved {
+    background-color: @color-alert-lighter;
+    outline: 1px solid @color-alert-lighter;
+}
+
+.contentDiff-edit {
+    .contentDiffOld > h2,
+    .contentDiffCurrent,
+    .contentDiffNew > h2,
+    .contentDiffCopy {
+        display: none;
+    }
+}
+
+.contentDiff-sideBySide {
+    overflow: hidden;
+
+    .contentDiffLeft {
+        .box-sizing(border-box);
+        float: left;
+        width: 57%;
+        padding-right: 5px;
+    }
+
+    .contentDiffRight {
+        margin-left: 57%;
+        overflow: hidden;
+        padding-left: 5px;
+
+        .inputContainer {
+            margin-left: -140px;
+        }
+    }
+
+    .inputContainer {
+        &.state-changed,
+        &.state-focused {
+            > .inputLabel {
+                background-color: @color-note-lighter;
+            }
+        }
+    }
+
+    .contentDiffSame,
+    .contentDiffText,
+    .objectId-select:before,
+    .objectId-select:after,
+    .objectId-edit,
+    .objectId-clear,
+    .rte-toolbar,
+    .rte-toolbar-container,
+    .plugin-repeatable .addButtonContainer,
+    .plugin-repeatable .removeButton {
+        display: none !important;
+    }
+}
 
 // --- Legacy support ---
 
@@ -324,6 +396,11 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 .widget-preview {
+    @from: white;
+    @to: lighten(@color-note-lighter, 5%);
+
+    .background-image-linear-gradient(~'-45deg, @{from}, @{from} 25%, @{to} 25%, @{to} 50%, @{from} 50%, @{from} 75%, @{to} 75%');
+    background-size: 50px 50px;
     margin-top: 10px;
 
     > h1 {
@@ -373,7 +450,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.widget-publication {
+.widget-publishing {
     .box-shadow(~'0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px @{color-background}');
     margin-bottom: 10px;
 
@@ -388,7 +465,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.widget-publicationPublish {
+.widget-publishingPublish {
     .clearfix;
 
     margin-bottom: 0;
@@ -423,7 +500,7 @@ input[type=text].expandable { min-width: 5em; }
     }
 }
 
-.widget-publicationExtra {
+.widget-publishingExtra {
     .piped;
 
     border-top: 1px solid @color-note;
@@ -437,142 +514,57 @@ input[type=text].expandable { min-width: 5em; }
     line-height: 1.5;
 }
 
-// Recent activity widget.
-.widget-recentActivity {
-    h1 {
-        .icon;
-        .icon-list;
+.permissions {
+    @column-width: 240px;
+
+    select {
+        max-width: 100%;
     }
-}
 
-.recentActivity-filters {
-    display: table;
-    width: 100%;
-
-    select,
-    .dropDown-input,
-    .objectId-select {
-        width: 100% !important;
+    ul {
+        margin-bottom: 0;
+        margin-top: 5px;
     }
-}
 
-.recentActivity-filters-itemType,
-.recentActivity-filters-prep,
-.recentActivity-filters-type,
-.recentActivity-filters-value {
-    display: table-cell;
-}
-
-.recentActivity-filters-itemType {
-    width: 20%;
-}
-
-.recentActivity-filters-prep {
-    padding: 0 6px;
-    text-align: center;
-    width: 0;
-}
-
-.recentActivity-filters-type {
-    padding-right: 6px;
-    width: 20%;
-}
-
-.recentActivity-filters-value {
-    width: 100%;
-
-    .objectId-clear {
-        display: none !important;
+    .permissionsSection {
+        background-color: @color-note-lighter;
+        .border-radius(5px);
+        .box-sizing(border-box);
+        float: left;
+        margin: 0 5px 5px 0;
+        padding: 5px;
+        width: @column-width;
     }
-}
 
-.recentActivity-warning {
-    .message;
-    .message-warning;
+    .permissionsType {
+        background-color: @color-note-lighter;
+        .border-radius(5px);
+        clear: left;
+        padding: 5px;
 
-    margin-bottom: 0;
-
-    &.recentActivity-warning-value {
-        position: relative;
-
-        &:after {
-            content: '';
-            border-color: transparent transparent #ed9 transparent;
-            border-style: solid;
-            border-width: 10px;
-            position: absolute;
-            right: 25%;
-            top: -20px;
+        > h2 {
+            margin: 15px 0 5px 0;
         }
-    }
-}
 
-// Sitemap widget.
-.widget-sitemap {
-    h1 {
-        .icon;
-        .icon-sitemap;
-    }
-}
+        ul {
+            list-style-type: none;
+            margin: 0;
+        }
 
-.sitemap-filters {
-    display: table;
-    width: 100%;
+        > ul {
+            -moz-column-width: @column-width;
+            -webkit-column-width: @column-width;
+            column-width: @column-width;
 
-    select,
-    .dropDown-input,
-    .objectId-select {
-        width: 100% !important;
-    }
-}
+            > li {
+                display: inline-block;
+                width: @column-width;
 
-.sitemap-filters-itemType,
-.sitemap-filters-prep,
-.sitemap-filters-type,
-.sitemap-filters-value {
-    display: table-cell;
-}
-
-.sitemap-filters-itemType {
-    width: 20%;
-}
-
-.sitemap-filters-prep {
-    padding: 0 6px;
-    text-align: center;
-    width: 0;
-}
-
-.sitemap-filters-type {
-    padding-right: 6px;
-    width: 20%;
-}
-
-.sitemap-filters-value {
-    width: 100%;
-
-    .objectId-clear {
-        display: none !important;
-    }
-}
-
-.sitemap-warning {
-    .message;
-    .message-warning;
-
-    margin-bottom: 0;
-
-    &.sitemap-warning-value {
-        position: relative;
-
-        &:after {
-            content: '';
-            border-color: transparent transparent #ed9 transparent;
-            border-style: solid;
-            border-width: 10px;
-            position: absolute;
-            right: 25%;
-            top: -20px;
+                > select,
+                > ul {
+                    margin-top: 5px;
+                }
+            }
         }
     }
 }

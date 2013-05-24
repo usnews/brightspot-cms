@@ -432,15 +432,17 @@ public class ToolPageContext extends WebPageContext {
                     HISTORY_ID_PARAMETER, history.getId());
 
         } else {
-            UUID objectId = State.getInstance(object).getId();
+            State state = State.getInstance(object);
+            ObjectType type = state.getType();
+            UUID objectId = state.getId();
             Draft draft = getOverlaidDraft(object);
             History history = getOverlaidHistory(object);
 
             parameters = pushToArray(parameters,
                     OBJECT_ID_PARAMETER, objectId,
+                    TYPE_ID_PARAMETER, type != null ? type.getId() : null,
                     DRAFT_ID_PARAMETER, draft != null ? draft.getId() : null,
-                    HISTORY_ID_PARAMETER,
-                    history != null ? history.getId() : null);
+                    HISTORY_ID_PARAMETER, history != null ? history.getId() : null);
         }
 
         return url(path, parameters);
@@ -562,8 +564,14 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (selectedType != null) {
-                object = selectedType.createObject(objectId);
-                State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                if (selectedType.getSourceDatabase() != null) {
+                    object = Query.fromType(selectedType).where("_id = ?", objectId).first();
+                }
+
+                if (object == null) {
+                    object = selectedType.createObject(objectId);
+                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                }
             }
         }
 
@@ -642,6 +650,17 @@ public class ToolPageContext extends WebPageContext {
                 if (!templates.isEmpty()) {
                     state.as(Template.ObjectModification.class).setDefault(templates.iterator().next());
                 }
+            }
+        }
+
+        State objectState = State.getInstance(object);
+
+        if (object != null && !objectState.isVisible()) {
+            Draft draft = getOverlaidDraft(object);
+
+            if (draft != null &&
+                    draft.getObjectChanges().isEmpty()) {
+                objectState.getExtras().remove(OVERLAID_DRAFT_EXTRA);
             }
         }
 
@@ -795,6 +814,22 @@ public class ToolPageContext extends WebPageContext {
                     state.getId() :
                     state.getLabel());
         }
+    }
+
+    /**
+     * Writes a descriptive label HTML for the type of the given
+     * {@code object}.
+     *
+     * @param object If it or its type is {@code null}, writes {@code N/A}.
+     */
+    public void writeTypeLabel(Object object) throws IOException {
+        ObjectType type = null;
+
+        if (object != null) {
+            type = State.getInstance(object).getType();
+        }
+
+        writeObjectLabel(type);
     }
 
     /**
@@ -981,23 +1016,28 @@ public class ToolPageContext extends WebPageContext {
 
                 writeTag("meta", "name", "robots", "content", "noindex");
 
-                for (String href : new String[] {
-                        "/style/cms.less" }) {
-                    writeTag("link", "rel", "stylesheet", "type", "text/less", "href", cmsResource(href));
+                if (getCmsTool().isUseNonMinified()) {
+                    writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+
+                } else {
+                    writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
                 }
 
                 writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
+                writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
 
                 for (Tool tool : tools) {
                     tool.writeHeaderAfterStyles(this);
                 }
 
-                writeStart("script", "type", "text/javascript");
-                    write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
-                writeEnd();
+                if (getCmsTool().isUseNonMinified()) {
+                    writeStart("script", "type", "text/javascript");
+                        write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
+                    writeEnd();
 
-                writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.min.js"));
-                writeEnd();
+                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.3.3.js"));
+                    writeEnd();
+                }
 
                 if (!ObjectUtils.isBlank(extraCss)) {
                     writeStart("style", "type", "text/css");
@@ -1033,40 +1073,56 @@ public class ToolPageContext extends WebPageContext {
                     write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
                 writeEnd();
 
-                for (String src : new String[] {
-                        "/script/jquery-1.8.3.min.js",
-                        "/script/jquery.extra.js",
-                        "/script/jquery.autosubmit.js",
-                        "/script/jquery.calendar.js",
-                        "/script/jquery.dropdown.js",
-                        "/script/jquery.expandable.js",
-                        "/script/jquery.popup.js",
-                        "/script/jquery.frame.js",
-                        "/script/jquery.imageeditor.js",
-                        "/script/jquery.objectid.js",
-                        "/script/jquery.pagelayout.js",
-                        "/script/jquery.pagethumbnails.js",
-                        "/script/jquery.repeatable.js",
-                        "/script/jquery.sortable.js",
-                        "/script/jquery.toggleable.js",
-                        "/script/jquery.workflow.js",
-                        "/script/json2.min.js",
-                        "/script/pixastic/pixastic.core.js",
-                        "/script/pixastic/actions/brightness.js",
-                        "/script/pixastic/actions/crop.js",
-                        "/script/pixastic/actions/desaturate.js",
-                        "/script/pixastic/actions/fliph.js",
-                        "/script/pixastic/actions/flipv.js",
-                        "/script/pixastic/actions/invert.js",
-                        "/script/pixastic/actions/rotate.js",
-                        "/script/pixastic/actions/sepia.js",
-                        "/script/html5slider.js",
-                        "/script/wysihtml5.min.js",
-                        "/script/jquery.rte.js",
-                        "/script/d3.v2.js",
-                        "/script/nv.d3.min.js",
-                        "/script/cms.js" }) {
-                    writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                if (getCmsTool().isUseNonMinified()) {
+                    for (String src : new String[] {
+                            "/script/jquery-1.8.3.js",
+                            "/script/jquery.extra.js",
+                            "/script/jquery.autosubmit.js",
+                            "/script/jquery.calendar.js",
+                            "/script/jquery.dropdown.js",
+                            "/script/jquery.expandable.js",
+                            "/script/jquery.popup.js",
+                            "/script/jquery.frame.js",
+                            "/script/jquery.imageeditor.js",
+                            "/script/jquery.objectid.js",
+                            "/script/jquery.pagelayout.js",
+                            "/script/jquery.pagethumbnails.js",
+                            "/script/jquery.repeatable.js",
+                            "/script/jquery.sortable.js",
+                            "/script/jquery.taxonomy.js",
+                            "/script/jquery.toggleable.js",
+                            "/script/jquery.workflow.js",
+                            "/script/diff.js",
+                            "/script/json2.js",
+                            "/script/pixastic/pixastic.core.js",
+                            "/script/pixastic/actions/brightness.js",
+                            "/script/pixastic/actions/crop.js",
+                            "/script/pixastic/actions/desaturate.js",
+                            "/script/pixastic/actions/fliph.js",
+                            "/script/pixastic/actions/flipv.js",
+                            "/script/pixastic/actions/invert.js",
+                            "/script/pixastic/actions/rotate.js",
+                            "/script/pixastic/actions/sepia.js",
+                            "/script/html5slider.js",
+                            "/script/wysihtml5-0.3.0.js",
+                            "/script/jquery.rte.js",
+                            "/script/d3.v2.js",
+                            "/script/nv.d3.js",
+                            "/script/jquery.handsontable.full.js",
+                            "/script/jquery.spreadsheet.js",
+                            "/script/cms.js" }) {
+                        writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                        writeEnd();
+                    }
+
+                } else {
+                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
+                    writeEnd();
+                }
+
+                if (Settings.isProduction()) {
+                    writeStart("script", "type", "text/javascript");
+                        writeRaw("window.cms.startToolUserPing();");
                     writeEnd();
                 }
 
@@ -1312,7 +1368,9 @@ public class ToolPageContext extends WebPageContext {
         for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
             ObjectType type = i.next();
 
-            if (!type.isConcrete()) {
+            if (!type.isConcrete() ||
+                    (type.isDeprecated() &&
+                    !Query.fromType(type).hasMoreThan(0))) {
                 i.remove();
             }
         }
@@ -1336,44 +1394,42 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        PageWriter writer = getWriter();
-
-        writer.writeStart("select", attributes);
+        writeStart("select", attributes);
 
             if (allLabel != null) {
-                writer.writeStart("option", "value", "").writeHtml(allLabel).writeEnd();
+                writeStart("option", "value", "").writeHtml(allLabel).writeEnd();
             }
 
             if (typeGroups.size() == 1) {
-                typeSelectGroup(writer, selectedType, typeGroups.values().iterator().next());
+                typeSelectGroup(selectedType, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
-                    writer.writeStart("optgroup", "label", entry.getKey());
-                        typeSelectGroup(writer, selectedType, entry.getValue());
-                    writer.writeEnd();
+                    writeStart("optgroup", "label", entry.getKey());
+                        typeSelectGroup(selectedType, entry.getValue());
+                    writeEnd();
                 }
             }
 
-        writer.writeEnd();
+        writeEnd();
     }
 
-    private static void typeSelectGroup(PageWriter writer, ObjectType selectedType, List<ObjectType> types) throws IOException {
+    private void typeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
             String label = Static.getObjectLabel(type);
 
-            writer.writeStart("option",
+            writeStart("option",
                     "selected", type.equals(selectedType) ? "selected" : null,
                     "value", type.getId());
-                writer.writeHtml(label);
+                writeHtml(label);
                 if (label.equals(previousLabel)) {
-                    writer.writeHtml(" (");
-                    writer.writeHtml(type.getInternalName());
-                    writer.writeHtml(")");
+                    writeHtml(" (");
+                    writeHtml(type.getInternalName());
+                    writeHtml(")");
                 }
-            writer.writeEnd();
+            writeEnd();
 
             previousLabel = label;
         }
@@ -1391,25 +1447,24 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
-        PageWriter writer = getWriter();
 
         if (isObjectSelectDropDown(field)) {
             List<?> items = new Search(field).toQuery().selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
-            writer.writeStart("select",
+            writeStart("select",
                     "data-searchable", "true",
                     attributes);
-                writer.writeStart("option", "value", "").writeEnd();
+                writeStart("option", "value", "").writeEnd();
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
-                    writer.writeStart("option",
+                    writeStart("option",
                             "selected", item.equals(value) ? "selected" : null,
                             "value", itemState.getId());
-                        writer.objectLabel(item);
-                    writer.writeEnd();
+                        writeObjectLabel(item);
+                    writeEnd();
                 }
-            writer.writeEnd();
+            writeEnd();
 
         } else {
             State state = State.getInstance(value);
@@ -1438,7 +1493,7 @@ public class ToolPageContext extends WebPageContext {
                 typeIds.setLength(typeIds.length() - 1);
             }
 
-            writer.writeTag("input",
+            writeTag("input",
                     "type", "text",
                     "class", "objectId",
                     "data-additional-query", field.getPredicate(),
@@ -1506,14 +1561,19 @@ public class ToolPageContext extends WebPageContext {
      */
     public boolean writeTrashMessage(Object object) throws IOException {
         State state = State.getInstance(object);
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
 
-        if (!state.as(Content.ObjectModification.class).isTrash()) {
+        if (!contentData.isTrash()) {
             return false;
         }
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("This item is in trash.");
+                writeHtml("Trashed ");
+                writeHtml(formatUserDateTime(contentData.getUpdateDate()));
+                writeHtml(" by ");
+                writeObjectLabel(contentData.getUpdateUser());
+                writeHtml(".");
             writeEnd();
 
             writeStart("div", "class", "actions");
@@ -1536,6 +1596,10 @@ public class ToolPageContext extends WebPageContext {
         return true;
     }
 
+    private void includeFromCms(String url, Object... attributes) throws IOException, ServletException {
+        JspUtils.include(getRequest(), getResponse(), getWriter(), cmsUrl(url), attributes);
+    }
+
     /**
      * Writes a standard form for the given {@code object}.
      *
@@ -1547,59 +1611,39 @@ public class ToolPageContext extends WebPageContext {
         writeFormHeading(object);
 
         writeStart("div", "class", "widgetControls");
-            include("/WEB-INF/objectVariation.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectVariation.jsp", "object", object);
         writeEnd();
 
-        include("/WEB-INF/objectMessage.jsp", "object", object);
+        includeFromCms("/WEB-INF/objectMessage.jsp", "object", object);
 
         writeStart("form",
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
                 "autocomplete", "off");
-            if (state.as(Content.ObjectModification.class).isTrash()) {
-                writeStart("div", "class", "message message-warning");
-                    writeStart("p");
-                        writeHtml("This item is in trash.");
+            boolean trash = writeTrashMessage(object);
+
+            includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+
+            if (!trash) {
+                writeStart("div", "class", "actions");
+                    writeStart("button",
+                            "class", "icon icon-action-save",
+                            "name", "action-save",
+                            "value", "true");
+                        writeHtml("Save");
                     writeEnd();
 
-                    writeStart("div", "class", "actions");
+                    if (!state.isNew()) {
                         writeStart("button",
-                                "class", "link icon icon-action-restore",
-                                "name", "action-restore",
+                                "class", "icon icon-action-trash action-pullRight link",
+                                "name", "action-trash",
                                 "value", "true");
-                            writeHtml("Restore");
+                            writeHtml("Trash");
                         writeEnd();
-
-                        writeStart("button",
-                                "class", "link icon icon-action-delete",
-                                "name", "action-delete",
-                                "value", "true");
-                            writeHtml("Delete Permanently");
-                        writeEnd();
-                    writeEnd();
+                    }
                 writeEnd();
             }
-
-            include("/WEB-INF/objectForm.jsp", "object", object);
-
-            writeStart("div", "class", "actions");
-                writeStart("button",
-                        "class", "icon icon-action-save",
-                        "name", "action-save",
-                        "value", "true");
-                    writeHtml("Save");
-                writeEnd();
-
-                if (!state.isNew()) {
-                    writeStart("button",
-                            "class", "icon icon-action-trash action-pullRight link",
-                            "name", "action-trash",
-                            "value", "true");
-                        writeHtml("Trash");
-                    writeEnd();
-                }
-            writeEnd();
         writeEnd();
     }
 
@@ -1683,10 +1727,17 @@ public class ToolPageContext extends WebPageContext {
 
         State state = State.getInstance(object);
         Draft draft = getOverlaidDraft(object);
+        Site site = getSite();
 
         try {
-            include("/WEB-INF/objectPost.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
             updateUsingAllWidgets(object);
+
+            if (state.isNew() &&
+                    site != null &&
+                    site.getDefaultVariation() != null) {
+                state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+            }
 
             if (draft == null &&
                     (state.isNew() ||
@@ -1751,7 +1802,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 getRequest().setAttribute("original", object);
-                include("/WEB-INF/objectPost.jsp", "object", object, "original", object);
+                includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", object);
                 updateUsingAllWidgets(object);
 
             } else {
@@ -1763,7 +1814,7 @@ public class ToolPageContext extends WebPageContext {
                 Map<String, Object> oldStateValues = State.getInstance(original).getSimpleValues();
 
                 getRequest().setAttribute("original", original);
-                include("/WEB-INF/objectPost.jsp", "object", object, "original", original);
+                includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", original);
                 updateUsingAllWidgets(object);
 
                 Map<String, Object> newStateValues = state.getSimpleValues();
@@ -1914,7 +1965,7 @@ public class ToolPageContext extends WebPageContext {
         State state = State.getInstance(object);
 
         try {
-            include("/WEB-INF/objectPost.jsp", "object", object);
+            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
             state.save();
             redirect("", "id", state.getId());
             return true;
@@ -2003,7 +2054,7 @@ public class ToolPageContext extends WebPageContext {
                 WorkflowTransition transition = workflow.getTransitions().get(action);
 
                 if (transition != null) {
-                    include("/WEB-INF/objectPost.jsp", "object", object);
+                    includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
                     workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
                     publish(object);
                 }
@@ -2144,8 +2195,10 @@ public class ToolPageContext extends WebPageContext {
 
     // --- WebPageContext support ---
 
+    @Deprecated
     private PageWriter pageWriter;
 
+    @Deprecated
     @Override
     public PageWriter getWriter() throws IOException {
         if (pageWriter == null) {

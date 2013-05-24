@@ -69,13 +69,16 @@ public class Workflow extends Record {
     public Set<WorkflowState> getStates() {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        List<Map<String, Object>> rawStates = actions.get("states");
         Set<WorkflowState> states = new HashSet<WorkflowState>();
 
-        for (Map<String, Object> s : actions.get("states")) {
-            WorkflowState state = new WorkflowState();
+        if (rawStates != null) {
+            for (Map<String, Object> s : rawStates) {
+                WorkflowState state = new WorkflowState();
 
-            state.setName((String) s.get("name"));
-            states.add(state);
+                state.setName((String) s.get("name"));
+                states.add(state);
+            }
         }
 
         return states;
@@ -84,33 +87,37 @@ public class Workflow extends Record {
     public Map<String, WorkflowTransition> getTransitions() {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         Map<String, List<Map<String, Object>>> actions = (Map) getActions();
-        Map<String, WorkflowState> states = new HashMap<String, WorkflowState>();
-        WorkflowState state;
-
-        for (Map<String, Object> s : actions.get("states")) {
-            state = new WorkflowState();
-            state.setName((String) s.get("name"));
-            states.put((String) s.get("id"), state);
-        }
-
-        state = new WorkflowState();
-        state.setName("New");
-        states.put("initial", state);
-
-        state = new WorkflowState();
-        state.setName("Published");
-        states.put("final", state);
-
+        List<Map<String, Object>> rawStates = actions.get("states");
+        List<Map<String, Object>> rawTransitions = actions.get("transitions");
         Map<String, WorkflowTransition> transitions = new HashMap<String, WorkflowTransition>();
 
-        for (Map<String, Object> t : actions.get("transitions")) {
-            WorkflowTransition transition = new WorkflowTransition();
-            String name = (String) t.get("name");
+        if (rawStates != null && rawTransitions != null) {
+            Map<String, WorkflowState> states = new HashMap<String, WorkflowState>();
+            WorkflowState state;
 
-            transition.setName(name);
-            transition.setSource(states.get(t.get("source")));
-            transition.setTarget(states.get(t.get("target")));
-            transitions.put(name, transition);
+            for (Map<String, Object> s : rawStates) {
+                state = new WorkflowState();
+                state.setName((String) s.get("name"));
+                states.put((String) s.get("id"), state);
+            }
+
+            state = new WorkflowState();
+            state.setName("New");
+            states.put("initial", state);
+
+            state = new WorkflowState();
+            state.setName("Published");
+            states.put("final", state);
+
+            for (Map<String, Object> t : rawTransitions) {
+                WorkflowTransition transition = new WorkflowTransition();
+                String name = (String) t.get("name");
+
+                transition.setName(name);
+                transition.setSource(states.get(t.get("source")));
+                transition.setTarget(states.get(t.get("target")));
+                transitions.put(name, transition);
+            }
         }
 
         return transitions;
@@ -184,6 +191,11 @@ public class Workflow extends Record {
                 log.setComment(comment);
                 logs.add(log);
             }
+
+            as(Content.ObjectModification.class).addNotification(Query.
+                    from(WorkflowTransitionNotification.class).
+                    where("transition = ?", transitionName).
+                    first());
 
             return currentState;
         }

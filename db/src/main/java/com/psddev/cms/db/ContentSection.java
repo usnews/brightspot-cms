@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+@Deprecated
 public class ContentSection extends ScriptSection {
 
     private Content content;

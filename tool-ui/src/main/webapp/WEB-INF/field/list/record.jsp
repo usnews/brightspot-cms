@@ -120,31 +120,50 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-%><% if (!isValueExternal) { %>
-    <div class="inputLarge repeatableForm">
-        <ol>
-            <%
+if (!isValueExternal) {
+    wp.writeStart("div", "class", "inputLarge repeatableForm");
+        wp.writeStart("ol");
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
-                %>
-                <li data-type="<%= wp.objectLabel(itemType) %>" data-label="<%= wp.objectLabel(item) %>">
-                    <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
-                    <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
-                    <input name="<%= wp.h(publishDateName) %>" type="hidden" value="<%= wp.h(itemPublishDate != null ? itemPublishDate.getTime() : null) %>">
-                    <% wp.include("/WEB-INF/objectForm.jsp", "object", item); %>
-                </li>
-            <% } %>
-            <% for (ObjectType type : validTypes) { %>
-                <li class="template" data-type="<%= wp.objectLabel(type) %>">
-                    <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
-                </li>
-            <% } %>
-        </ol>
-    </div>
 
-<%
+                wp.writeStart("li",
+                        "data-type", wp.getObjectLabel(itemType),
+                        "data-label", wp.getObjectLabel(item));
+                    wp.writeTag("input",
+                            "type", "hidden",
+                            "name", idName,
+                            "value", itemState.getId());
+
+                    wp.writeTag("input",
+                            "type", "hidden",
+                            "name", typeIdName,
+                            "value", itemType.getId());
+
+                    wp.writeTag("input",
+                            "type", "hidden",
+                            "name", publishDateName,
+                            "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
+
+                    wp.include("/WEB-INF/objectForm.jsp", "object", item);
+                wp.writeEnd();
+            }
+
+            for (ObjectType type : validTypes) {
+                wp.writeStart("li",
+                        "class", "template",
+                        "data-type", wp.getObjectLabel(type));
+                    wp.writeStart("a",
+                            "href", wp.cmsUrl("/content/repeatableObject.jsp",
+                                    "inputName", inputName,
+                                    "typeId", type.getId()));
+                    wp.writeEnd();
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
+
 } else {
     Set<ObjectType> types = field.getTypes();
     final StringBuilder typeIdsCsv = new StringBuilder();

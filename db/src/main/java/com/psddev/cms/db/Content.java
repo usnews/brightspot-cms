@@ -6,7 +6,10 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ import com.psddev.dari.util.ObjectUtils;
 public abstract class Content extends Record {
 
     private static final String PREFIX = "cms.content.";
+    private static final String NOTIFICATIONS_EXTRA = PREFIX + "notifications";
 
     public static final String PUBLISH_DATE_FIELD = PREFIX + "publishDate";
     public static final String PUBLISH_USER_FIELD = PREFIX + "publishUser";
@@ -139,6 +143,39 @@ public abstract class Content extends Record {
         /** Sets the tool user that last updated the given {@code object}. */
         public void setUpdateUser(ToolUser updateUser) {
             this.updateUser = updateUser;
+        }
+
+        /**
+         * Adds the given {@code notification} to be processed on save.
+         *
+         * @param notification If {@code null}, does nothing.
+         */
+        public void addNotification(Notification notification) {
+            if (notification != null) {
+                Map<String, Object> extras = getState().getExtras();
+                @SuppressWarnings("unchecked")
+                List<Notification> notifications = (List<Notification>) extras.get(NOTIFICATIONS_EXTRA);
+
+                if (notifications == null) {
+                    notifications = new ArrayList<Notification>();
+                    extras.put(NOTIFICATIONS_EXTRA, notifications);
+                }
+
+                notifications.add(notification);
+            }
+        }
+
+        @Override
+        protected void beforeSave() {
+            Map<String, Object> extras = getState().getExtras();
+            @SuppressWarnings("unchecked")
+            List<Notification> notifications = (List<Notification>) extras.get(NOTIFICATIONS_EXTRA);
+
+            if (notifications != null && !notifications.isEmpty()) {
+                for (Notification notification : notifications) {
+                    notification.processNotification(getOriginalObject(), getUpdateUser(), getUpdateDate());
+                }
+            }
         }
 
         // --- VisibilityLabel support ---

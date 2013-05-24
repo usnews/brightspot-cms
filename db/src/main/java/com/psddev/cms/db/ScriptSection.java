@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+@Deprecated
 public class ScriptSection extends Section {
 
     @InternalName("script")

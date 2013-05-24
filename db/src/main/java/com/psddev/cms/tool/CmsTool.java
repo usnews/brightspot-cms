@@ -40,6 +40,7 @@ public class CmsTool extends Tool {
     private String extraCss;
     private String extraJavaScript;
     private String defaultSiteUrl;
+    private String defaultToolUrl;
     private String defaultTextOverlayCss;
     private List<CssClassGroup> textCssClassGroups;
     private List<ResourceItem> resources;
@@ -49,6 +50,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Heading("3rd Party")
     private String dropboxApplicationKey;
+
+    @ToolUi.Tab("Debug")
+    private boolean useNonMinified;
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -292,6 +296,14 @@ public class CmsTool extends Tool {
         this.defaultSiteUrl = url;
     }
 
+    public String getDefaultToolUrl() {
+        return ObjectUtils.isBlank(defaultToolUrl) ? getDefaultSiteUrl() : defaultToolUrl;
+    }
+
+    public void setDefaultToolUrl(String defaultToolUrl) {
+        this.defaultToolUrl = defaultToolUrl;
+    }
+
     public String getDefaultTextOverlayCss() {
         return defaultTextOverlayCss;
     }
@@ -336,6 +348,14 @@ public class CmsTool extends Tool {
 
     public void setDropboxApplicationKey(String dropboxApplicationKey) {
         this.dropboxApplicationKey = dropboxApplicationKey;
+    }
+
+    public boolean isUseNonMinified() {
+        return useNonMinified;
+    }
+
+    public void setUseNonMinified(boolean useNonMinified) {
+        this.useNonMinified = useNonMinified;
     }
 
     /** Returns the preview URL. */
@@ -401,11 +421,11 @@ public class CmsTool extends Tool {
         // Areas.
         plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
+        plugins.add(createArea2("Notifications", "cms.adminNotifications", "admin/notifications", "/adminNotifications"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
         plugins.add(createArea2("Settings", "adminSettings", "admin/adminSettings", "/admin/settings.jsp"));
         plugins.add(createArea2("Sites", "adminSites", "admin/adminSites", "/admin/sites.jsp"));
-        plugins.add(createArea2("Templates & Sections", "adminTemplates", "admin/adminTemplates", "/admin/templates.jsp"));
-        plugins.add(createArea2("URLs", "adminUrls", "admin/adminUrls", "/admin/urls.jsp"));
+        plugins.add(createArea2("Trash", "cms.adminTrash", "admin/trash", "/adminTrash"));
         plugins.add(createArea2("Users & Roles", "adminUsers", "admin/adminUsers", "/admin/users.jsp"));
         plugins.add(createArea2("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));
         plugins.add(createArea2("Workflows", "adminWorkflows", "admin/adminWorkflows", "/admin/workflows.jsp"));

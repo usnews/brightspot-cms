@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
+import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
@@ -31,12 +32,16 @@ public class SearchResultRenderer {
     private static final String PREVIOUS_DATE_ATTRIBUTE = SearchResultRenderer.class.getName() + ".previousDate";
 
     protected final ToolPageContext page;
+
+    @Deprecated
     protected final PageWriter writer;
+
     protected final Search search;
     protected final ObjectField sortField;
     protected final boolean showTypeLabel;
     protected final PaginatedResult<?> result;
 
+    @SuppressWarnings("deprecation")
     public SearchResultRenderer(ToolPageContext page, Search search) throws IOException {
         this.page = page;
         this.writer = page.getWriter();
@@ -55,48 +60,80 @@ public class SearchResultRenderer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        page.writeStart("h2").writeHtml("Result").writeEnd();
+
+        if (ObjectUtils.isBlank(search.getQueryString()) &&
+                search.getSelectedType() != null &&
+                search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
+            page.writeStart("div", "class", "searchTaxonomy");
+                page.writeStart("ul", "class", "taxonomy");
+                    for (Taxon t : Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass())) {
+                        writeTaxon(t);
+                    }
+                page.writeEnd();
+            page.writeEnd();
+
+        } else {
+            if (search.findSorts().size() > 1) {
+                page.writeStart("div", "class", "searchSorter");
+                    renderSorter();
+                page.writeEnd();
+            }
+
+            page.writeStart("div", "class", "searchPagination");
+                renderPagination();
+            page.writeEnd();
+
+            page.writeStart("div", "class", "searchResultList");
+                if (result.hasPages()) {
+                    renderList(result.getItems());
+                } else {
+                    renderEmpty();
+                }
+            page.writeEnd();
+        }
+
         if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
 
-            writer.writeStart("div", "class", "frame", "name", frameName);
-            writer.writeEnd();
+            page.writeStart("div", "class", "frame", "name", frameName);
+            page.writeEnd();
 
-            writer.writeStart("form",
+            page.writeStart("form",
                     "class", "searchSuggestionsForm",
                     "method", "post",
                     "action", page.url("/content/suggestions.jsp"),
                     "target", frameName);
-                writer.writeTag("input",
+                page.writeTag("input",
                         "type", "hidden",
                         "name", "search",
                         "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
-            writer.writeEnd();
+            page.writeEnd();
         }
+    }
 
-        writer.writeStart("h2").writeHtml("Result").writeEnd();
+    private void writeTaxon(Taxon taxon) throws IOException {
+        page.writeStart("li");
+            renderBeforeItem(taxon);
+            page.writeObjectLabel(taxon);
+            renderAfterItem(taxon);
 
-        if (search.findSorts().size() > 1) {
-            writer.writeStart("div", "class", "searchSorter");
-                renderSorter();
-            writer.writeEnd();
-        }
+            Collection<? extends Taxon> children = taxon.getChildren();
 
-        writer.writeStart("div", "class", "searchPagination");
-            renderPagination();
-        writer.writeEnd();
-
-        writer.writeStart("div", "class", "searchResultList");
-            if (result.hasItems()) {
-                renderList(result.getItems());
-            } else {
-                renderEmpty();
+            if (children != null && !children.isEmpty()) {
+                page.writeStart("ul");
+                    for (Taxon c : children) {
+                        writeTaxon(c);
+                    }
+                page.writeEnd();
             }
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     public void renderSorter() throws IOException {
-        writer.writeStart("form",
+        page.writeStart("form",
                 "class", "autoSubmit",
                 "method", "get",
                 "action", page.url(null));
@@ -108,73 +145,73 @@ public class SearchResultRenderer {
                 String name = entry.getKey();
 
                 for (String value : entry.getValue()) {
-                    writer.writeTag("input", "type", "hidden", "name", name, "value", value);
+                    page.writeTag("input", "type", "hidden", "name", name, "value", value);
                 }
             }
 
-            writer.writeStart("select", "name", Search.SORT_PARAMETER);
+            page.writeStart("select", "name", Search.SORT_PARAMETER);
                 for (Map.Entry<String, String> entry : search.findSorts().entrySet()) {
                     String label = entry.getValue();
                     String value = entry.getKey();
 
-                    writer.writeStart("option",
+                    page.writeStart("option",
                             "value", value,
                             "selected", value.equals(search.getSort()) ? "selected" : null);
-                        writer.writeHtml("Sort: ").writeHtml(label);
-                    writer.writeEnd();
+                        page.writeHtml("Sort: ").writeHtml(label);
+                    page.writeEnd();
                 }
-            writer.writeEnd();
+            page.writeEnd();
 
             if (sortField != null) {
-                writer.writeHtml(" ");
+                page.writeHtml(" ");
 
-                writer.writeTag("input",
+                page.writeTag("input",
                         "id", page.createId(),
                         "type", "checkbox",
                         "name", Search.SHOW_MISSING_PARAMETER,
                         "value", "true",
                         "checked", search.isShowMissing() ? "checked" : null);
 
-                writer.writeHtml(" ");
+                page.writeHtml(" ");
 
-                writer.writeStart("label", "for", page.getId());
-                    writer.writeHtml("Show Missing");
-                writer.writeEnd();
+                page.writeStart("label", "for", page.getId());
+                    page.writeHtml("Show Missing");
+                page.writeEnd();
             }
 
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     public void renderPagination() throws IOException {
-        writer.writeStart("ul", "class", "pagination");
+        page.writeStart("ul", "class", "pagination");
 
             if (result.hasPrevious()) {
-                writer.writeStart("li", "class", "previous");
-                    writer.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
-                        writer.writeHtml("Previous ");
-                        writer.writeHtml(result.getLimit());
-                    writer.writeEnd();
-                writer.writeEnd();
+                page.writeStart("li", "class", "previous");
+                    page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
+                        page.writeHtml("Previous ");
+                        page.writeHtml(result.getLimit());
+                    page.writeEnd();
+                page.writeEnd();
             }
 
-            writer.writeStart("li");
-                writer.writeHtml(result.getFirstItemIndex());
-                writer.writeHtml(" to ");
-                writer.writeHtml(result.getLastItemIndex());
-                writer.writeHtml(" of ");
-                writer.writeStart("strong").writeHtml(result.getCount()).writeEnd();
-            writer.writeEnd();
+            page.writeStart("li");
+                page.writeHtml(result.getFirstItemIndex());
+                page.writeHtml(" to ");
+                page.writeHtml(result.getLastItemIndex());
+                page.writeHtml(" of ");
+                page.writeStart("strong").writeHtml(result.getCount()).writeEnd();
+            page.writeEnd();
 
             if (result.hasNext()) {
-                writer.writeStart("li", "class", "next");
-                    writer.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
-                        writer.writeHtml("Next ");
-                        writer.writeHtml(result.getLimit());
-                    writer.writeEnd();
-                writer.writeEnd();
+                page.writeStart("li", "class", "next");
+                    page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
+                        page.writeHtml("Next ");
+                        page.writeHtml(result.getLimit());
+                    page.writeEnd();
+                page.writeEnd();
             }
 
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     public void renderList(Collection<?> listItems) throws IOException {
@@ -197,21 +234,21 @@ public class SearchResultRenderer {
         }
 
         if (!previews.isEmpty()) {
-            writer.writeStart("div", "class", "searchResultImages");
+            page.writeStart("div", "class", "searchResultImages");
                 for (Map.Entry<Object, StorageItem> entry : previews.entrySet()) {
                     renderImage(entry.getKey(), entry.getValue());
                 }
-            writer.writeEnd();
+            page.writeEnd();
         }
 
         if (!items.isEmpty()) {
-            writer.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
-                writer.writeStart("tbody");
+            page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
+                page.writeStart("tbody");
                     for (Object item : items) {
                         renderRow(item);
                     }
-                writer.writeEnd();
-            writer.writeEnd();
+                page.writeEnd();
+            page.writeEnd();
         }
     }
 
@@ -228,19 +265,19 @@ public class SearchResultRenderer {
 
         renderBeforeItem(item);
 
-        writer.writeStart("figure");
-            writer.writeTag("img",
+        page.writeStart("figure");
+            page.writeTag("img",
                     "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
                     "src", page.url(url));
 
-            writer.writeStart("figcaption");
+            page.writeStart("figcaption");
                 if (showTypeLabel) {
-                    writer.typeLabel(item);
-                    writer.writeHtml(": ");
+                    page.writeTypeLabel(item);
+                    page.writeHtml(": ");
                 }
-                writer.objectLabel(item);
-            writer.writeEnd();
-        writer.writeEnd();
+                page.writeObjectLabel(item);
+            page.writeEnd();
+        page.writeEnd();
 
         renderAfterItem(item);
     }
@@ -250,7 +287,7 @@ public class SearchResultRenderer {
         State itemState = State.getInstance(item);
         String permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
 
-        writer.writeStart("tr",
+        page.writeStart("tr",
                 "data-preview-url", permalink,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
@@ -258,67 +295,67 @@ public class SearchResultRenderer {
                 DateTime updateDateTime = page.toUserDateTime(itemState.as(Content.ObjectModification.class).getUpdateDate());
 
                 if (updateDateTime == null) {
-                    writer.writeStart("td", "colspan", 2);
-                        writer.writeHtml("N/A");
-                    writer.writeEnd();
+                    page.writeStart("td", "colspan", 2);
+                        page.writeHtml("N/A");
+                    page.writeEnd();
 
                 } else {
                     String updateDate = page.formatUserDate(updateDateTime);
 
-                    writer.writeStart("td", "class", "date");
+                    page.writeStart("td", "class", "date");
                         if (!ObjectUtils.equals(updateDate, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
                             request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, updateDate);
-                            writer.writeHtml(updateDate);
+                            page.writeHtml(updateDate);
                         }
-                    writer.writeEnd();
+                    page.writeEnd();
 
-                    writer.writeStart("td", "class", "time");
-                        writer.writeHtml(page.formatUserTime(updateDateTime));
-                    writer.writeEnd();
+                    page.writeStart("td", "class", "time");
+                        page.writeHtml(page.formatUserTime(updateDateTime));
+                    page.writeEnd();
                 }
             }
 
             if (showTypeLabel) {
-                writer.writeStart("td");
-                    writer.typeLabel(item);
-                writer.writeEnd();
+                page.writeStart("td");
+                    page.writeTypeLabel(item);
+                page.writeEnd();
             }
 
-            writer.writeStart("td", "data-preview-anchor", "");
+            page.writeStart("td", "data-preview-anchor", "");
                 renderBeforeItem(item);
-                writer.objectLabel(item);
+                page.writeObjectLabel(item);
                 renderAfterItem(item);
-            writer.writeEnd();
+            page.writeEnd();
 
             if (sortField != null) {
                 Object value = itemState.get(sortField.getInternalName());
 
-                writer.writeStart("td");
-                    writer.writeHtml(value instanceof Recordable ?
+                page.writeStart("td");
+                    page.writeHtml(value instanceof Recordable ?
                             ((Recordable) value).getState().getLabel() :
                             value);
-                writer.writeEnd();
+                page.writeEnd();
             }
 
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     public void renderBeforeItem(Object item) throws IOException {
-        writer.writeStart("a",
+        page.writeStart("a",
                 "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("", Search.NAME_PARAMETER, null)),
                 "data-objectId", State.getInstance(item).getId(),
                 "target", "_top");
     }
 
     public void renderAfterItem(Object item) throws IOException {
-        writer.writeEnd();
+        page.writeEnd();
     }
 
     public void renderEmpty() throws IOException {
-        writer.writeStart("div", "class", "message message-warning");
-            writer.writeStart("p");
-                writer.writeHtml("No matching items!");
-            writer.writeEnd();
-        writer.writeEnd();
+        page.writeStart("div", "class", "message message-warning");
+            page.writeStart("p");
+                page.writeHtml("No matching items!");
+            page.writeEnd();
+        page.writeEnd();
     }
 }
