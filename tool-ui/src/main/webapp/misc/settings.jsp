@@ -33,6 +33,18 @@ if (wp.isFormPost()) {
 wp.writeStart("div", "class", "widget");
     wp.writeStart("h1", "class", "icon icon-object-toolUser").writeHtml("Profile").writeEnd();
 
+    wp.writeStart("ul", "class", "piped");
+        wp.writeStart("li");
+            wp.writeStart("a",
+                    "class", "icon icon-key",
+                    "href", wp.cmsUrl("/toolUserTfa"),
+                    "target", "toolUserTfa");
+                wp.writeHtml(user.isTfaEnabled() ? "Disable" : "Enable");
+                wp.writeHtml(" Two Factor Authentication");
+            wp.writeEnd();
+        wp.writeEnd();
+    wp.writeEnd();
+
     wp.include("/WEB-INF/errors.jsp");
 
     wp.writeStart("form",

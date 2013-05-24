@@ -28,6 +28,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>core</artifactId>
+                <version>2.2</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>cms-db</artifactId>
                 <version>2.1-SNAPSHOT</version>
