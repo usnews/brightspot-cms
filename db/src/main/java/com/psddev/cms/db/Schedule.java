@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 
 public class Schedule extends Record {
@@ -92,6 +93,7 @@ public class Schedule extends Record {
                         }
                     }
 
+                    State.getInstance(object).as(Content.ObjectModification.class).setDraft(false);
                     Content.Static.publish(object, getTriggerSite(), triggerUser);
                 }
 
