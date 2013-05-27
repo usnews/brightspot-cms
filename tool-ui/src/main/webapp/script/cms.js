@@ -493,6 +493,8 @@ $doc.delegate('.exception > *', 'click', function() {
             $container = $toolbar;
         }
 
+        $doc.find('.wordCount').removeClass('wordCount');
+        $container.addClass('wordCount');
         $container.attr('data-count-message',
                 cc < minimum ? 'Too Short' :
                 cc > maximum ? 'Too Long' :

@@ -24,7 +24,7 @@ expand = function($inputs) {
     // Write the input text into the shadow.
     $inputs.each(function() {
         var shadow = $.data(this, SHADOW_DATA);
-        shadow.$element.text($(this).val() + ' foo');
+        shadow.$element.text($(this).val() + ' foo foo foo');
     });
 
     // Write the shadow width if the input's a block element.

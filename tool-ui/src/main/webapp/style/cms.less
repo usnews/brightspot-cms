@@ -569,7 +569,7 @@
 }
 
 // Soft validation based on suggested sizes.
-.state-focus [data-count-message]:after {
+.wordCount:after {
     background-color: @color-note-darker;
     color: @color-background;
     content: attr(data-count-message);
@@ -577,10 +577,9 @@
     height: 18px;
     line-height: 18px;
     padding: 0 3px;
-    position: absolute;
 }
 
-.state-focus [data-count-message^='Too']:after {
+.wordCount[data-count-message^='Too']:after {
     background-color: #e90;
 }
 
