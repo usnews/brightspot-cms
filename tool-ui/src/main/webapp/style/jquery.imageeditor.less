@@ -140,16 +140,41 @@
     }
 }
 
-.imageEditor-textOverlayLabel {
-    background-color: fade(@color-text, 80%);
-    .border-radius(5px);
+.imageEditor-textOverlayLabel,
+.imageEditor-textOverlayRemove {
+    .icon;
+
+    .border-radius(50%);
     color: @color-background;
-    cursor: move;
-    padding: 1px 5px;
+    height: 20px;
+    line-height: 20px;
     position: absolute;
-    right: -10px;
-    top: -10px;
+    top: -15px;
     .user-select(none);
+
+    &:before {
+        padding-left: 3px;
+    }
+}
+
+.imageEditor-textOverlayLabel {
+    .icon-move;
+    .icon-only;
+
+    background-color: fade(@color-text, 80%);
+    cursor: move;
+    left: -15px;
+    width: 20px;
+}
+
+.imageEditor-textOverlayRemove {
+    .icon-remove;
+    .icon-only;
+
+    background-color: fade(@color-alert, 80%);
+    cursor: pointer;
+    right: -15px;
+    width: 20px;
 }
 
 .imageEditor-resizer-left {
