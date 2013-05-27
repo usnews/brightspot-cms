@@ -43,6 +43,7 @@ public class ToolUi extends Modification<Object> {
     private Boolean referenceable;
     private Boolean readOnly;
     private boolean richText;
+    private boolean secret;
     private Boolean sortable;
     private Set<String> standardImageSizes;
     private Boolean suggestions;
@@ -231,6 +232,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setReferenceable(boolean referenceable) {
         this.referenceable = referenceable;
+    }
+
+    public boolean isSecret() {
+        return secret;
+    }
+
+    public void setSecret(boolean secret) {
+        this.secret = secret;
     }
 
     public Boolean getSortable() {
@@ -648,6 +657,25 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, RichText annotation) {
             field.as(ToolUi.class).setRichText(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field display should be scrambled.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(SecretProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Secret {
+        boolean value() default true;
+    }
+
+    private static class SecretProcessor implements ObjectField.AnnotationProcessor<Secret> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Secret annotation) {
+            field.as(ToolUi.class).setSecret(annotation.value());
         }
     }
 
