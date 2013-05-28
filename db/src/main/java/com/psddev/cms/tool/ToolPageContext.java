@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,6 +60,7 @@ import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
+import com.psddev.dari.db.ValidationException;
 import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
@@ -1857,7 +1859,9 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (schedule != null || publishDate != null) {
-                state.validate();
+                if (!state.validate()) {
+                    throw new ValidationException(Arrays.asList(state));
+                }
 
                 if (draft == null) {
                     draft = new Draft();
