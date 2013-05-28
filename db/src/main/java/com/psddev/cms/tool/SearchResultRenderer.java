@@ -17,8 +17,10 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Taxon;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
@@ -46,18 +48,33 @@ public class SearchResultRenderer {
         this.page = page;
         this.writer = page.getWriter();
         this.search = search;
-        this.result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
 
         ObjectType selectedType = search.getSelectedType();
+        PaginatedResult<?> result = null;
 
         if (selectedType != null) {
             this.sortField = selectedType.getField(search.getSort());
             this.showTypeLabel = false;
 
+            if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
+                List<ObjectType> types = new ArrayList<ObjectType>();
+                Predicate predicate = search.toQuery(page.getSite()).getPredicate();
+
+                for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+                    if (t.is(predicate)) {
+                        types.add(t);
+                    }
+                }
+
+                result = new PaginatedResult<ObjectType>(search.getOffset(), search.getLimit(), types);
+            }
+
         } else {
             this.sortField = null;
             this.showTypeLabel = search.findValidTypes().size() != 1;
         }
+
+        this.result = result != null ? result : search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
     }
 
     @SuppressWarnings("unchecked")
