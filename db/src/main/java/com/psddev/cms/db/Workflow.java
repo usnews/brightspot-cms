@@ -1,6 +1,5 @@
 package com.psddev.cms.db;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,12 +9,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 
 public class Workflow extends Record {
 
@@ -150,8 +149,6 @@ public class Workflow extends Record {
         @Indexed(visibility = true)
         private String currentState;
 
-        private List<Log> logs;
-
         public String getCurrentState() {
             return currentState;
         }
@@ -162,7 +159,8 @@ public class Workflow extends Record {
          * @param comment May be {@code null}.
          * @return New workflow state. May be {@code null}.
          */
-        public String changeState(WorkflowTransition transition, ToolUser user, String comment) {
+        public String changeState(WorkflowTransition transition, Object user, String comment) {
+            String previousState = currentState;
             String transitionName;
             String transitionTarget;
 
@@ -180,16 +178,26 @@ public class Workflow extends Record {
             }
 
             currentState = transitionTarget;
-            List<Log> logs = getLogs();
 
-            if (transition != null || !logs.isEmpty()) {
-                Log log = new Log();
+            if (transition != null || previousState != null) {
+                WorkflowLog log = new WorkflowLog();
 
+                log.setObjectId(getId());
                 log.setDate(new Date());
                 log.setTransition(transitionName);
-                log.setUserId(user != null ? user.getId() : null);
+                log.setOldWorkflowState(previousState);
+                log.setNewWorkflowState(currentState);
+
+                if (user != null) {
+                    if (user instanceof Recordable) {
+                        log.setUserId(((Recordable) user).getState().getId().toString());
+                    } else {
+                        log.setUserId(user.toString());
+                    }
+                }
+
                 log.setComment(comment);
-                logs.add(log);
+                log.save();
             }
 
             as(Content.ObjectModification.class).addNotification(Query.
@@ -205,75 +213,6 @@ public class Workflow extends Record {
          */
         public void revertState(String state) {
             this.currentState = state;
-
-            List<Log> logs = getLogs();
-            int logsSize = logs.size();
-
-            if (logsSize > 0) {
-                logs.remove(logsSize - 1);
-            }
-        }
-
-        public List<Log> getLogs() {
-            if (logs == null) {
-                logs = new ArrayList<Log>();
-            }
-            return logs;
-        }
-
-        public void setLogs(List<Log> logs) {
-            this.logs = logs;
-        }
-
-        public Log getLastLog() {
-            List<Log> logs = getLogs();
-
-            return logs.isEmpty() ? null : logs.get(logs.size() - 1);
-        }
-    }
-
-    @Embedded
-    public static class Log extends Record {
-
-        private Date date;
-        private String transition;
-        private UUID userId;
-        private String comment;
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-
-        public String getTransition() {
-            return transition;
-        }
-
-        public void setTransition(String transition) {
-            this.transition = transition;
-        }
-
-        public UUID getUserId() {
-            return userId;
-        }
-
-        public void setUserId(UUID userId) {
-            this.userId = userId;
-        }
-
-        public String getComment() {
-            return comment;
-        }
-
-        public void setComment(String comment) {
-            this.comment = comment;
-        }
-
-        public ToolUser getUser() {
-            return Query.from(ToolUser.class).where("_id = ?", getUserId()).first();
         }
     }
 }

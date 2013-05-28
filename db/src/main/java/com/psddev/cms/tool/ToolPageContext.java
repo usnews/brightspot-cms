@@ -2048,6 +2048,8 @@ public class ToolPageContext extends WebPageContext {
         String oldWorkflowState = workflowData.getCurrentState();
 
         try {
+            state.beginWrites();
+
             Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
 
             if (workflow != null) {
@@ -2057,6 +2059,7 @@ public class ToolPageContext extends WebPageContext {
                     includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
                     workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
                     publish(object);
+                    state.commitWrites();
                 }
             }
 
@@ -2067,6 +2070,9 @@ public class ToolPageContext extends WebPageContext {
             workflowData.revertState(oldWorkflowState);
             getErrors().add(error);
             return false;
+
+        } finally {
+            state.endWrites();
         }
     }
 
