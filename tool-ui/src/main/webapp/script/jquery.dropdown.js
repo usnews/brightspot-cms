@@ -152,6 +152,21 @@ $.plugin2('dropDown', {
             }
         });
 
+        $list.bind('mousewheel', function(event, delta, deltaX, deltaY) {
+            var $list = $(this),
+                    maxScrollTop = $.data(this, 'dropDown-maxScrollTop');
+
+            if (typeof maxScrollTop === 'undefined') {
+                maxScrollTop = $list.prop('scrollHeight') - $list.innerHeight();
+                $.data(this, 'dropDown-maxScrollTop', maxScrollTop);
+            }
+
+            if ((deltaY > 0 && $list.scrollTop() === 0) ||
+                    (deltaY < 0 && $list.scrollTop() >= maxScrollTop)) {
+                event.preventDefault();
+            }
+        });
+
         // Detect clicks within the window to toggle the list properly.
         $doc.click(function(event) {
             if ($listContainer.is(':visible') &&

@@ -1078,6 +1078,7 @@ public class ToolPageContext extends WebPageContext {
                 if (getCmsTool().isUseNonMinified()) {
                     for (String src : new String[] {
                             "/script/jquery-1.8.3.js",
+                            "/script/jquery.mousewheel.js",
                             "/script/jquery.extra.js",
                             "/script/jquery.autosubmit.js",
                             "/script/jquery.calendar.js",
