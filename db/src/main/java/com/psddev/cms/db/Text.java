@@ -1,6 +1,13 @@
 package com.psddev.cms.db;
 
-public class Text extends Content {
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.psddev.dari.util.HtmlWriter;
+
+public class Text extends Content implements Renderer {
 
     @Indexed(unique = true)
     @Required
@@ -26,5 +33,14 @@ public class Text extends Content {
     /** Sets the text. */
     public void setText(String text) {
         this.text = text;
+    }
+
+    @Override
+    public void renderObject(
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse,
+            HtmlWriter writer)
+            throws IOException {
+        writer.writeRaw(getText());
     }
 }
