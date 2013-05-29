@@ -143,6 +143,10 @@ $.plugin2('frame', {
 
         // Intercept form submits to see if it's targeted.
         $caller.delegate('form', 'click.frame', function(event) {
+            if (!$(event.target).is('button, input[type="submit"]')) {
+                return;
+            }
+
             $.data(this, 'frame-clicked', event.target);
         });
 
