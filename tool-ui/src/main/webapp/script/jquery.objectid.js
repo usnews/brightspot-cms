@@ -10,14 +10,25 @@ refresh = function($inputs) {
     $inputs.each(function() {
         var $input = $(this),
                 shadow = $.data(this, SHADOW_DATA),
-                $select = shadow.$select,
-                $edit = shadow.$edit,
-                $clear = shadow.$clear,
-                preview = $input.attr('data-preview'),
-                visibility = $input.attr('data-visibility'),
+                $select,
+                $edit,
+                $clear,
+                preview,
+                visibility,
                 label,
                 placeholder,
-                value = $input.val();
+                value;
+
+        if (!shadow) {
+            return;
+        }
+
+        $select = shadow.$select;
+        $edit = shadow.$edit;
+        $clear = shadow.$clear;
+        preview = $input.attr('data-preview');
+        visibility = $input.attr('data-visibility');
+        value = $input.val();
 
         if (preview) {
             $select.html($('<img/>', {
