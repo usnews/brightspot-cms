@@ -354,9 +354,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
         // Automatic image metadata extraction.
-        if (newItem != null && (
-                fieldValueMetadata.get("width") == null ||
-                fieldValueMetadata.get("height") == null)) {
+        if (newItem != null && !"keep".equals(action)) {
             if (newItemData == null) {
                 newItemData = newItem.getData();
             }
