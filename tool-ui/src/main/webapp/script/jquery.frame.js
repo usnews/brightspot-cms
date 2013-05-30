@@ -143,6 +143,10 @@ $.plugin2('frame', {
 
         // Intercept form submits to see if it's targeted.
         $caller.delegate('form', 'click.frame', function(event) {
+            if (!$(event.target).is('button, input[type="submit"]')) {
+                return;
+            }
+
             $.data(this, 'frame-clicked', event.target);
         });
 
@@ -164,7 +168,7 @@ $.plugin2('frame', {
                 }
 
                 if ($form.attr('enctype') !== 'multipart/form-data') {
-                    loadPage($frame, $form, $form.attr('method'), action + (action.indexOf('?') > -1 ? '&' : '?'), $form.serialize());
+                    loadPage($frame, $form, $form.attr('method'), action, $form.serialize());
                     return false;
                 }
 

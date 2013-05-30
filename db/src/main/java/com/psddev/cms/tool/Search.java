@@ -18,7 +18,11 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.Database;
+import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectIndex;
+import com.psddev.dari.db.ObjectStruct;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -478,12 +482,42 @@ public class Search extends Record {
                     PredicateParser.Static.parse("_type = ?", globalTypes)));
         }
 
+        if (selectedType == null &&
+                isAllSearchable) {
+            Set<String> comparisonKeys = new HashSet<String>();
+            DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+
+            addVisibilityFields(comparisonKeys, environment);
+
+            for (ObjectType type : environment.getTypes()) {
+                addVisibilityFields(comparisonKeys, type);
+            }
+
+            for (String key : comparisonKeys) {
+                query.and(key + " = missing");
+            }
+        }
+
         return query;
     }
 
     private void addGlobalTypes(Set<ObjectType> globalTypes, ObjectType type) {
         if (type != null && type.getGroups().contains(ObjectType.class.getName())) {
             globalTypes.add(type);
+        }
+    }
+
+    private void addVisibilityFields(Set<String> comparisonKeys, ObjectStruct struct) {
+        for (ObjectIndex index : struct.getIndexes()) {
+            if (index.isVisibility()) {
+                for (String fieldName : index.getFields()) {
+                    ObjectField field = struct.getField(fieldName);
+
+                    if (field != null) {
+                        comparisonKeys.add(field.getUniqueName());
+                    }
+                }
+            }
         }
     }
 

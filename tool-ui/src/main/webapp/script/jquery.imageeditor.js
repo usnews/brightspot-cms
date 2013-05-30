@@ -694,6 +694,17 @@ $.plugin2('imageEditor', {
 
                     $textOverlay.append($textOverlayLabel);
 
+                    var $textOverlayRemove = $('<div/>', {
+                        'class': 'imageEditor-textOverlayRemove',
+                        'text': 'Remove',
+                        'click': function() {
+                            $textOverlay.remove();
+                            return false;
+                        }
+                    });
+
+                    $textOverlay.append($textOverlayRemove);
+
                     $textOverlay.append($('<div/>', {
                         'class': 'imageEditor-resizer imageEditor-resizer-left',
                         'mousedown': updateTextOverlay(function(event, original, delta) {

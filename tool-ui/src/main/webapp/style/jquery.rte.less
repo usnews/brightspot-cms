@@ -36,9 +36,10 @@
     vertical-align: top;
     z-index: 1;
 
-    .inputContainer.state-focus &[data-count-message]:after {
+    &.wordCount:after {
         .border-top-left-radius(3px);
         bottom: -1px;
+        position: absolute;
         right: -1px;
     }
 }

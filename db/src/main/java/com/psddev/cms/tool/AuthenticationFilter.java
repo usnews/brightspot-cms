@@ -87,10 +87,22 @@ public class AuthenticationFilter extends AbstractFilter {
             response.addCookie(cookie);
         }
 
+        /**
+         * Returns {@code true} if a tool user is authenticated in the given
+         * {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static boolean isAuthenticated(HttpServletRequest request) {
+            return Boolean.TRUE.equals(request.getAttribute(AUTHENTICATED_ATTRIBUTE));
+        }
+
         public static boolean requireUser(ServletContext context, HttpServletRequest request, HttpServletResponse response) throws IOException {
             ToolUser user = getUser(request);
 
             if (user != null) {
+                request.setAttribute(AUTHENTICATED_ATTRIBUTE, Boolean.TRUE);
+
                 logIn(request, response, user);
 
                 ForwardingDatabase db = new ForwardingDatabase() {

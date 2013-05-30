@@ -509,12 +509,14 @@ figure,
         > .inputLabel {
             background-color: @color-link-lighter;
         }
+    }
 
-        &[data-count-message]:after {
-            .border-radius(3px);
-            right: 6px;
-            top: 6px;
-        }
+    // Soft validation based on suggested sizes.
+    &.wordCount:after {
+        .border-radius(3px);
+        bottom: 6px;
+        position: absolute;
+        right: 6px;
     }
 }
 

@@ -25,12 +25,11 @@
     padding: 0 2px 0 6px;
 }
 
-input[type=text].expandable { min-width: 5em; }
-
 @import 'tool.less';
 @import 'guide.less';
 @import 'jquery.calendar.less';
 @import 'jquery.dropdown.less';
+@import 'jquery.expandable.less';
 @import 'jquery.frame.less';
 @import 'jquery.imageeditor.less';
 @import 'jquery.objectid.less';
@@ -570,7 +569,7 @@ input[type=text].expandable { min-width: 5em; }
 }
 
 // Soft validation based on suggested sizes.
-.state-focus [data-count-message]:after {
+.wordCount:after {
     background-color: @color-note-darker;
     color: @color-background;
     content: attr(data-count-message);
@@ -578,10 +577,9 @@ input[type=text].expandable { min-width: 5em; }
     height: 18px;
     line-height: 18px;
     padding: 0 3px;
-    position: absolute;
 }
 
-.state-focus [data-count-message^='Too']:after {
+.wordCount[data-count-message^='Too']:after {
     background-color: #e90;
 }
 

@@ -39,7 +39,6 @@ public interface Taxon extends Recordable {
 
                             return taxa != null ? taxa : Collections.<Taxon>emptyList();
                         }
-                        System.out.println("foo");
 
                         return query.selectAll();
                     }

@@ -61,6 +61,14 @@ if (validValues != null) {
     }
     wp.write("</select>");
 
+} else if (ui.isSecret()) {
+    wp.writeTag("input",
+            "type", "password",
+            "id", wp.getId(),
+            "name", inputName,
+            "placeholder", placeholder,
+            "value", fieldValue);
+
 } else {
     wp.write("<textarea id=\"", wp.getId());
     wp.write("\" placeholder=\"", wp.h(placeholder));

@@ -5,32 +5,23 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.github.rjeschke.txtmark.Processor;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectUtils;
 
-public class Text extends Content implements Renderer {
-
-    @Indexed(unique = true)
-    @Required
-    private String name;
+/**
+ * @see <a href="http://daringfireball.net/projects/markdown/">Markdown</a>
+ */
+@Record.Embedded
+public class Markdown extends Record implements Renderer {
 
     private String text;
 
-    /** Returns the name. */
-    public String getName() {
-        return name;
-    }
-
-    /** Sets the name. */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /** Returns the text. */
     public String getText() {
         return text;
     }
 
-    /** Sets the text. */
     public void setText(String text) {
         this.text = text;
     }
@@ -41,6 +32,10 @@ public class Text extends Content implements Renderer {
             HttpServletResponse httpResponse,
             HtmlWriter writer)
             throws IOException {
-        writer.writeRaw(getText());
+        String text = getText();
+
+        if (!ObjectUtils.isBlank(text)) {
+            writer.writeRaw(Processor.process(text));
+        }
     }
 }

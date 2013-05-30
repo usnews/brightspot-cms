@@ -19,6 +19,7 @@ com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowLog,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -402,14 +403,18 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                     wp.writeEnd();
 
                                     wp.writeStart("div", "class", "actions");
-                                        Workflow.Log log = workflowData.getLastLog();
+                                        WorkflowLog log = Query.
+                                                from(WorkflowLog.class).
+                                                where("objectId = ?", editingState.getId()).
+                                                sortDescending("date").
+                                                first();
 
                                         if (log != null) {
                                             String comment = log.getComment();
 
                                             wp.writeStart("p");
                                                 if (ObjectUtils.isBlank(comment)) {
-                                                    wp.writeHtml(log.getTransition());
+                                                    wp.writeHtml(log.getNewWorkflowState());
                                                     wp.writeHtml(" by ");
 
                                                 } else {
@@ -419,7 +424,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                                     wp.writeHtml(" said ");
                                                 }
 
-                                                wp.writeObjectLabel(log.getUser());
+                                                wp.writeHtml(log.getUserName());
                                                 wp.writeHtml(" at ");
                                                 wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                             wp.writeEnd();
