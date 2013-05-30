@@ -10,11 +10,14 @@ import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.Template;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.QueryFilter;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.RoutingFilter;
@@ -42,17 +45,19 @@ public class UnpublishedDrafts extends PageServlet {
         }
 
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
-        Map<String, String> stateLabels = new TreeMap<String, String>();
+        Map<String, String> workflowStateLabels = new TreeMap<String, String>();
 
-        stateLabels.put("draft", "Draft");
+        workflowStateLabels.put("draft", "Draft");
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
-                stateLabels.put("ws." + s.getName(), s.getName());
+                String n = s.getName();
+                workflowStateLabels.put("ws." + n, n);
             }
         }
 
         String state = page.pageParam(String.class, "state", null);
+        final ObjectType type = ObjectType.getInstance(page.pageParam(UUID.class, "typeId", null));
         Query<?> draftsQuery;
 
         if ("draft".equals(state)) {
@@ -76,7 +81,13 @@ public class UnpublishedDrafts extends PageServlet {
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(page.siteItemsPredicate()).
                 sortDescending(Content.UPDATE_DATE_FIELD).
-                select(page.param(long.class, "offset"), limit);
+                selectFiltered(page.param(long.class, "offset"), limit, type == null ? null : new QueryFilter<Object>() {
+                    @Override
+                    public boolean include(Object item) {
+                        ObjectType itemType = item instanceof Draft ? ((Draft) item).getObjectType() : State.getInstance(item).getType();
+                        return itemType != null && itemType.getGroups().contains(type.getInternalName());
+                    }
+                });
 
         page.writeStart("div", "class", "widget widget-unpublishedDrafts");
             page.writeStart("h1", "class", "icon icon-object-draft");
@@ -86,29 +97,43 @@ public class UnpublishedDrafts extends PageServlet {
             page.writeStart("form",
                     "method", "get",
                     "action", page.url(null));
-                if (stateLabels.size() > 1) {
-                    page.writeStart("select",
-                            "class", "autoSubmit",
-                            "name", "state");
-                        page.writeStart("option", "value", "");
-                            page.writeHtml("All");
-                        page.writeEnd();
+                page.writeStart("ul", "class", "oneLine");
+                    if (workflowStateLabels.size() > 1) {
+                        page.writeStart("li");
+                            page.writeStart("select",
+                                    "class", "autoSubmit",
+                                    "name", "state");
+                                page.writeStart("option", "value", "");
+                                    page.writeHtml("All Statuses");
+                                page.writeEnd();
 
-                        for (Map.Entry<String, String> entry : stateLabels.entrySet()) {
-                            String key = entry.getKey();
+                                for (Map.Entry<String, String> entry : workflowStateLabels.entrySet()) {
+                                    String key = entry.getKey();
 
-                            page.writeStart("option",
-                                    "selected", key.equals(state) ? "selected" : null,
-                                    "value", key);
-                                page.writeHtml(entry.getValue());
+                                    page.writeStart("option",
+                                            "selected", key.equals(state) ? "selected" : null,
+                                            "value", key);
+                                        page.writeHtml(entry.getValue());
+                                    page.writeEnd();
+                                }
                             page.writeEnd();
-                        }
+                        page.writeEnd();
+                    }
+
+                    page.writeStart("li");
+                        page.writeTypeSelect(
+                                Template.Static.findUsedTypes(page.getSite()),
+                                type,
+                                "All Types",
+                                "class", "autoSubmit",
+                                "name", "typeId",
+                                "data-searchable", true);
                     page.writeEnd();
-                }
+                page.writeEnd();
             page.writeEnd();
 
             if (drafts.getItems().isEmpty()) {
-                String label = state != null ? stateLabels.get(state) : null;
+                String label = state != null ? workflowStateLabels.get(state) : null;
 
                 page.writeStart("div", "class", "message message-info");
                     page.writeHtml("No ");
