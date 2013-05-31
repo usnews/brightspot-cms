@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +14,7 @@ import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
@@ -40,10 +40,18 @@ public class AuthenticationFilter extends AbstractFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain)
-            throws IOException, ServletException {
+            throws Exception {
 
         try {
             chain.doFilter(request, response);
+
+        } catch (Exception error) {
+            if (Static.isAuthenticated(request)) {
+                DebugFilter.Static.writeError(request, response, error);
+
+            } else {
+                throw error;
+            }
 
         } finally {
             if (Boolean.TRUE.equals(request.getAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE))) {
