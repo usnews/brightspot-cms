@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolRole;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.tool.PageServlet;
@@ -34,7 +36,7 @@ public class UnpublishedDrafts extends PageServlet {
     }
 
     @Override
-    protected void doService(ToolPageContext page) throws IOException, ServletException {
+    protected void doService(final ToolPageContext page) throws IOException, ServletException {
         if (!Query.
                 from(Object.class).
                 or("_type = ?", Draft.class).
@@ -76,18 +78,50 @@ public class UnpublishedDrafts extends PageServlet {
                     where("_type = ? or cms.content.draft = true or cms.workflow.currentState != missing", Draft.class);
         }
 
+        final UserType userType = page.pageParam(UserType.class, "userType", UserType.ANYONE);
+        String userParameter = userType + ".value";
+        final Object user = Query.from(Object.class).where("_id = ?", page.pageParam(UUID.class, userParameter, null)).first();
+        QueryFilter<Object> queryFilter = null;
+        
+        if (type != null || userType != UserType.ANYONE) {
+            queryFilter = new QueryFilter<Object>() {
+
+                @Override
+                public boolean include(Object item) {
+                    State itemState = State.getInstance(item);
+                    boolean typeOk = true;
+                    boolean userOk = true;
+
+                    if (type != null) {
+                        ObjectType itemType = item instanceof Draft ? ((Draft) item).getObjectType() : itemState.getType();
+                        typeOk = itemType != null && itemType.getGroups().contains(type.getInternalName());
+                    }
+
+                    if (userType != UserType.ANYONE) {
+                        ToolUser updateUser = itemState.as(Content.ObjectModification.class).getUpdateUser();
+
+                        if (userType == UserType.ME) {
+                            userOk = page.getUser().equals(updateUser);
+
+                        } else if (user instanceof ToolUser) {
+                            userOk = ((ToolUser) user).equals(updateUser);
+
+                        } else if (user instanceof ToolRole && updateUser != null) {
+                            userOk = updateUser.getRole().equals(user);
+                        }
+                    }
+
+                    return typeOk && userOk;
+                }
+            };
+        }
+
         int limit = page.pageParam(int.class, "limit", 20);
         PaginatedResult<?> drafts = draftsQuery.
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(page.siteItemsPredicate()).
                 sortDescending(Content.UPDATE_DATE_FIELD).
-                selectFiltered(page.param(long.class, "offset"), limit, type == null ? null : new QueryFilter<Object>() {
-                    @Override
-                    public boolean include(Object item) {
-                        ObjectType itemType = item instanceof Draft ? ((Draft) item).getObjectType() : State.getInstance(item).getType();
-                        return itemType != null && itemType.getGroups().contains(type.getInternalName());
-                    }
-                });
+                selectFiltered(page.param(long.class, "offset"), limit, queryFilter);
 
         page.writeStart("div", "class", "widget widget-unpublishedDrafts");
             page.writeStart("h1", "class", "icon icon-object-draft");
@@ -104,7 +138,7 @@ public class UnpublishedDrafts extends PageServlet {
                                     "class", "autoSubmit",
                                     "name", "state");
                                 page.writeStart("option", "value", "");
-                                    page.writeHtml("All Statuses");
+                                    page.writeHtml("Any Statuses");
                                 page.writeEnd();
 
                                 for (Map.Entry<String, String> entry : workflowStateLabels.entrySet()) {
@@ -124,10 +158,77 @@ public class UnpublishedDrafts extends PageServlet {
                         page.writeTypeSelect(
                                 Template.Static.findUsedTypes(page.getSite()),
                                 type,
-                                "All Types",
+                                "Any Types",
                                 "class", "autoSubmit",
                                 "name", "typeId",
                                 "data-searchable", true);
+                    page.writeEnd();
+
+                    page.writeStart("li");
+                        page.writeHtml("by ");
+                        page.writeStart("select",
+                                "class", "autoSubmit",
+                                "name", "userType");
+                            for (UserType t : UserType.values()) {
+                                if (t != UserType.ROLE || Query.from(ToolRole.class).first() != null) {
+                                    page.writeStart("option",
+                                            "selected", t.equals(userType) ? "selected" : null,
+                                            "value", t.name());
+                                        page.writeHtml(t.getDisplayName());
+                                    page.writeEnd();
+                                }
+                            }
+                        page.writeEnd();
+                    page.writeEnd();
+
+                    page.writeStart("li");
+                        Query<?> userQuery;
+
+                        if (userType == UserType.ROLE) {
+                            userQuery = Query.from(ToolRole.class).sortAscending("name");
+
+                        } else if (userType == UserType.USER) {
+                            userQuery = Query.from(ToolUser.class).sortAscending("name");
+
+                        } else {
+                            userQuery = null;
+                        }
+
+                        if (userQuery == null) {
+                            page.writeHtml("\u0020");
+
+                        } else {
+                            if (userQuery.hasMoreThan(250)) {
+                                State userState = State.getInstance(user);
+
+                                page.writeTag("input",
+                                        "type", "text",
+                                        "class", "autoSubmit objectId",
+                                        "data-editable", false,
+                                        "data-label", userState != null ? userState.getLabel() : null,
+                                        "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
+                                        "name", userParameter,
+                                        "value", userState != null ? userState.getId() : null);
+
+                            } else {
+                                page.writeStart("select",
+                                        "class", "autoSubmit",
+                                        "name", userParameter,
+                                        "data-searchable", "true");
+                                    page.writeStart("option", "value", "").writeEnd();
+
+                                    for (Object v : userQuery.selectAll()) {
+                                        State userState = State.getInstance(v);
+
+                                        page.writeStart("option",
+                                                "value", userState.getId(),
+                                                "selected", v.equals(user) ? "selected" : null);
+                                            page.writeHtml(userState.getLabel());
+                                        page.writeEnd();
+                                    }
+                                page.writeEnd();
+                            }
+                        }
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
@@ -208,6 +309,12 @@ public class UnpublishedDrafts extends PageServlet {
 
                                 page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draftId);
                                     page.writeStart("td");
+                                        page.writeStart("span", "class", "visibilityLabel");
+                                            page.writeHtml("Draft");
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("td");
                                         page.writeHtml(page.getTypeLabel(item));
                                     page.writeEnd();
 
@@ -217,11 +324,7 @@ public class UnpublishedDrafts extends PageServlet {
                                                 "href", page.url("/content/edit.jsp",
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
-                                            page.writeStart("span", "class", "visibilityLabel");
-                                                page.writeHtml("Draft");
-                                            page.writeEnd();
-                                            page.writeHtml(" ");
-                                            page.writeObjectLabel(item);
+                                            page.writeHtml(itemState.getLabel());
                                         page.writeEnd();
                                     page.writeEnd();
 
@@ -236,12 +339,18 @@ public class UnpublishedDrafts extends PageServlet {
 
                                 page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + itemId);
                                     page.writeStart("td");
+                                        page.writeStart("span", "class", "visibilityLabel");
+                                            page.writeHtml(itemState.getVisibilityLabel());
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("td");
                                         page.writeHtml(page.getTypeLabel(item));
                                     page.writeEnd();
 
                                     page.writeStart("td", "data-preview-anchor", "");
                                         page.writeStart("a", "href", page.url("/content/edit.jsp", "id", itemId), "target", "_top");
-                                            page.writeObjectLabel(item);
+                                            page.writeHtml(itemState.getLabel());
                                         page.writeEnd();
                                     page.writeEnd();
 
@@ -255,5 +364,23 @@ public class UnpublishedDrafts extends PageServlet {
                 page.writeEnd();
             }
         page.writeEnd();
+    }
+
+    private enum UserType {
+
+        ANYONE("Anyone"),
+        ME("Me"),
+        ROLE("Role"),
+        USER("User");
+
+        private String displayName;
+
+        private UserType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }
