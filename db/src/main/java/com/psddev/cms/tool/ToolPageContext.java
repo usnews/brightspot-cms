@@ -1404,12 +1404,12 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (typeGroups.size() == 1) {
-                typeSelectGroup(selectedType, typeGroups.values().iterator().next());
+                writeTypeSelectGroup(selectedType, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
                     writeStart("optgroup", "label", entry.getKey());
-                        typeSelectGroup(selectedType, entry.getValue());
+                        writeTypeSelectGroup(selectedType, entry.getValue());
                     writeEnd();
                 }
             }
@@ -1417,7 +1417,7 @@ public class ToolPageContext extends WebPageContext {
         writeEnd();
     }
 
-    private void typeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
+    private void writeTypeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
@@ -1452,7 +1452,7 @@ public class ToolPageContext extends WebPageContext {
         ToolUi ui = field.as(ToolUi.class);
 
         if (isObjectSelectDropDown(field)) {
-            List<?> items = new Search(field).toQuery().selectAll();
+            List<?> items = new Search(field).toQuery(getSite()).selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
             writeStart("select",
@@ -1522,7 +1522,7 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         return field.as(ToolUi.class).isDropDown() &&
-                !new Search(field).toQuery().hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
+                !new Search(field).toQuery(getSite()).hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
     }
 
     /** Writes all grid CSS, or does nothing if it's already written. */
