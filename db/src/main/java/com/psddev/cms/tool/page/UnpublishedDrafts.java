@@ -179,9 +179,9 @@ public class UnpublishedDrafts extends PageServlet {
                                 }
                             }
                         page.writeEnd();
-                    page.writeEnd();
 
-                    page.writeStart("li");
+                        page.writeHtml(" ");
+
                         Query<?> userQuery;
 
                         if (userType == UserType.ROLE) {
@@ -194,10 +194,7 @@ public class UnpublishedDrafts extends PageServlet {
                             userQuery = null;
                         }
 
-                        if (userQuery == null) {
-                            page.writeHtml("\u0020");
-
-                        } else {
+                        if (userQuery != null) {
                             if (userQuery.hasMoreThan(250)) {
                                 State userState = State.getInstance(user);
 

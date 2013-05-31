@@ -807,19 +807,23 @@ table.links.table-striped {
 }
 
 .oneLine {
-    display: table;
     list-style-type: none;
     margin-left: 0;
-    max-width: 100%;
+    margin-top: -5px;
+    overflow: hidden;
 
     li {
-        display: table-cell;
-        padding-right: 5px;
+        float: left;
+        padding: 5px 5px 0 0;
         white-space: nowrap;
 
         &:last-child {
             padding-right: 0;
         }
+    }
+
+    select {
+        max-width: 300px;
     }
 }
 
