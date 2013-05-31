@@ -39,8 +39,10 @@ public class RemoteWidgetFilter extends AbstractFilter {
 
         } else {
             Object object = type.createObject(id);
+            State state = State.getInstance(object);
 
-            State.getInstance(object).setValues(jsonValues);
+            state.setResolveInvisible(true);
+            state.setValues(jsonValues);
 
             return object;
         }
