@@ -226,7 +226,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeTypeSelect(
                                     environment.getTypes(),
                                     type,
-                                    "All Types",
+                                    "Any Types",
                                     "class", "autoSubmit",
                                     "name", TYPE_PARAMETER,
                                     "data-searchable", true);

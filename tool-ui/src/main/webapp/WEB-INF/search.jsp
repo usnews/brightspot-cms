@@ -149,7 +149,7 @@ writer.start("div", "class", "searchForm");
                     wp.writeTypeSelect(
                             validTypes,
                             selectedType,
-                            "All Types",
+                            "Any Types",
                             "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
                             "data-searchable", true);
