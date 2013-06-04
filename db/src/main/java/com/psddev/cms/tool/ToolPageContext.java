@@ -1538,12 +1538,23 @@ public class ToolPageContext extends WebPageContext {
      * @param attributes Extra attributes for the heading element.
      */
     public void writeFormHeading(Object object, Object... attributes) throws IOException {
+        State state = State.getInstance(object);
+        ObjectType type = state.getType();
         String typeLabel = getTypeLabel(object);
+        String iconName = null;
+
+        if (type != null) {
+            iconName = type.as(ToolUi.class).getIconName();
+        }
+
+        if (ObjectUtils.isBlank(iconName)) {
+            iconName = "object";
+        }
 
         writeStart("h1",
-                "class", "icon icon-object",
+                "class", "icon icon-" + iconName,
                 attributes);
-            if (State.getInstance(object).isNew()) {
+            if (state.isNew()) {
                 writeHtml("New ");
                 writeHtml(typeLabel);
 
