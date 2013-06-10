@@ -57,6 +57,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
 
     private String area;
+    private String context;
     private Object value;
     private String beginMarker;
     private int beginOffset;
@@ -70,6 +71,10 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     public void setArea(String area) {
         this.area = area;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
     }
 
     public void setValue(Object value) {
@@ -106,8 +111,13 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     @Override
     @SuppressWarnings("deprecation")
     public int doStartTag() throws JspException {
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+
+        if (!ObjectUtils.isBlank(context)) {
+            ContextTag.Static.getNames(request).addLast(context);
+        }
+
         try {
-            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             pageWriter = new HtmlWriter(pageContext.getOut());
             layoutTag = null;
             areas = null;
@@ -314,6 +324,12 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     @Override
     public int doEndTag() throws JspException {
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+
+        if (!ObjectUtils.isBlank(context)) {
+            ContextTag.Static.getNames(request).removeLast();
+        }
+
         try {
             if (ObjectUtils.isBlank(value)) {
                 if (bodyContent != null) {
