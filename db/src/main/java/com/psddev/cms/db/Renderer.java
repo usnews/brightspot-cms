@@ -9,10 +9,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,6 +22,7 @@ import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -31,7 +34,9 @@ public interface Renderer extends Recordable {
             HtmlWriter writer)
             throws IOException, ServletException;
 
-    /** Global modification that stores rendering hints. */
+    /**
+     * Global modification that stores rendering hints.
+     */
     @FieldInternalNamePrefix("cms.renderable.")
     public static class Data extends Modification<Object> {
 
@@ -49,13 +54,16 @@ public interface Renderer extends Recordable {
         }
     }
 
-    /** Type modification that stores how objects should be rendered. */
+    /**
+     * Type modification that stores how objects should be rendered.
+     */
     @FieldInternalNamePrefix("cms.render.")
     public static class TypeModification extends Modification<ObjectType> {
 
         @InternalName("renderScript")
         private String path;
 
+        private Map<String, String> paths;
         private String layoutPath;
 
         // Returns the legacy rendering JSP.
@@ -63,7 +71,12 @@ public interface Renderer extends Recordable {
             return (String) getState().get("cms.defaultRecordJsp");
         }
 
-        /** Returns the servlet path used to render instances of this type. */
+        /**
+         * Returns the default servlet path used to render instances of this
+         * type.
+         *
+         * @return May be {@code null}.
+         */
         public String getPath() {
             if (ObjectUtils.isBlank(path)) {
                 String jsp = getDefaultRecordJsp();
@@ -76,14 +89,46 @@ public interface Renderer extends Recordable {
             return path;
         }
 
-        /** Returns the servlet path used to render instances of this type. */
+        /**
+         * Returns the default servlet path used to render instances of this
+         * type.
+         *
+         * @param path May be {@code nul}.
+         */
         public void setPath(String path) {
             this.path = path;
         }
 
         /**
+         * Returns all servlet paths associated with rendering instances of
+         * this type in a specific context.
+         *
+         * @return Never {@code null}.
+         * @see ContextTag
+         */
+        public Map<String, String> getPaths() {
+            if (paths == null) {
+                paths = new CompactMap<String, String>();
+            }
+            return paths;
+        }
+
+        /**
+         * Sets all servlet paths associated with rendering instances of
+         * this type in a specific context.
+         *
+         * @param paths May be {@code null} to remove all associations.
+         * @see ContextTag
+         */
+        public void setPaths(Map<String, String> paths) {
+            this.paths = paths;
+        }
+
+        /**
          * Returns the servlet path used to render the layout around the
          * instances of this type.
+         *
+         * @return May be {@code null}.
          */
         public String getLayoutPath() {
             return layoutPath;
@@ -92,9 +137,33 @@ public interface Renderer extends Recordable {
         /**
          * Sets the servlet path used to render the layout around the
          * instances of this type.
+         *
+         * @param layoutPath May be {@code null}.
          */
         public void setLayoutPath(String layoutPath) {
             this.layoutPath = layoutPath;
+        }
+
+        /**
+         * Finds the servlet path that should be used to render the instances
+         * of this type in the current context of the given {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         * @return May be {@code null}.
+         */
+        public String findContextualPath(ServletRequest request) {
+            Map<String, String> paths = getPaths();
+
+            for (Iterator<String> i = ContextTag.Static.getNames(request).descendingIterator(); i.hasNext(); ) {
+                String context = i.next();
+                String path = paths.get(context);
+
+                if (!ObjectUtils.isBlank(path)) {
+                    return path;
+                }
+            }
+
+            return getPath();
         }
 
         // --- Deprecated ---
@@ -175,6 +244,16 @@ public interface Renderer extends Recordable {
     @Target(ElementType.TYPE)
     public @interface Path {
         String value();
+        String context() default "";
+    }
+
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(PathsProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface Paths {
+        Path[] value();
     }
 
     /**
@@ -235,7 +314,28 @@ public interface Renderer extends Recordable {
 class PathProcessor implements ObjectType.AnnotationProcessor<Renderer.Path> {
     @Override
     public void process(ObjectType type, Renderer.Path annotation) {
-        type.as(Renderer.TypeModification.class).setPath(annotation.value());
+        Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
+        Map<String, String> paths = rendererData.getPaths();
+        String value = annotation.value();
+        String context = annotation.context();
+
+        if (ObjectUtils.isBlank(context)) {
+            rendererData.setPath(value);
+
+        } else {
+            paths.put(context, value);
+        }
+    }
+}
+
+class PathsProcessor implements ObjectType.AnnotationProcessor<Renderer.Paths> {
+    @Override
+    public void process(ObjectType type, Renderer.Paths annotation) {
+        PathProcessor pathProcessor = new PathProcessor();
+
+        for (Renderer.Path pathAnnotation : annotation.value()) {
+            pathProcessor.process(type, pathAnnotation);
+        }
     }
 }
 

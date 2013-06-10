@@ -829,7 +829,7 @@ public class PageFilter extends AbstractFilter {
                 if (type != null) {
                     Renderer.TypeModification typeRenderer = type.as(Renderer.TypeModification.class);
                     engine = typeRenderer.getEngine();
-                    script = typeRenderer.getPath();
+                    script = typeRenderer.findContextualPath(request);
                 }
             }
         }
