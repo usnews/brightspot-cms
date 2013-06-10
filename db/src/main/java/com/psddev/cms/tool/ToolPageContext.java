@@ -1819,6 +1819,11 @@ public class ToolPageContext extends WebPageContext {
                 includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", object);
                 updateUsingAllWidgets(object);
 
+                if (variationId != null &&
+                        variationId.equals(state.as(Variation.Data.class).getInitialVariation())) {
+                    state.putByPath("variations/" + variationId.toString(), null);
+                }
+
             } else {
                 Object original = Query.
                         from(Object.class).
