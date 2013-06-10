@@ -1054,7 +1054,10 @@ public class PageFilter extends AbstractFilter {
                             mainObject = ((History) preview).getObject();
 
                         } else if (preview instanceof Preview) {
-                            mainObject = ((Preview) preview).getObject();
+                            Preview previewPreview = (Preview) preview;
+                            mainObject = previewPreview.getObject();
+                            site = previewPreview.getSite();
+                            setSite(request, site);
 
                         } else {
                             mainObject = substitutions.get(previewId);
@@ -1066,7 +1069,14 @@ public class PageFilter extends AbstractFilter {
                     }
 
                     if (mainObject != null) {
-                        setSite(request, Query.from(Site.class).where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).first());
+                        Site previewSite = Query.
+                                from(Site.class).
+                                where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).
+                                first();
+
+                        if (previewSite != null) {
+                            setSite(request, previewSite);
+                        }
                     }
 
                 } else {
