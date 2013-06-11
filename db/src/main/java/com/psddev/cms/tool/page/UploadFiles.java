@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.Site;
+import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
@@ -222,6 +224,12 @@ public class UploadFiles extends PageServlet {
 
                         Object object = selectedType.createObject(null);
                         State state = State.getInstance(object);
+                        Site site = page.getSite();
+
+                        if (site != null &&
+                                site.getDefaultVariation() != null) {
+                            state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+                        }
 
                         state.put(previewField.getInternalName(), item);
 

@@ -30,6 +30,7 @@ preview.setCreateDate(new Date());
 preview.setObjectType(ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId"))));
 preview.setObjectId(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
 preview.setObjectValues(objectMap);
+preview.setSite(wp.getSite());
 wp.publish(preview);
 
 String host = request.getHeader("X-Forwarded-Host");
