@@ -23,6 +23,7 @@ import com.psddev.dari.util.StorageItem;
  * make up the site. Those templates and their associated content fields also have editorial guidance associated with them via the GuidePage and
  * GuideType classes
  */
+@ToolUi.IconName("object-guide")
 public class Guide extends Record {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);

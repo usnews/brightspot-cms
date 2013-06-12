@@ -22,6 +22,7 @@ public class Preview extends Record {
     private UUID objectId;
 
     private Map<String, Object> objectValues;
+    private Site site;
 
     public Date getCreateDate() {
         return createDate;
@@ -56,6 +57,14 @@ public class Preview extends Record {
 
     public void setObjectValues(Map<String, Object> values) {
         this.objectValues = values;
+    }
+
+    public Site getSite() {
+        return site;
+    }
+
+    public void setSite(Site site) {
+        this.site = site;
     }
 
     /** Returns an object to be previewed. */

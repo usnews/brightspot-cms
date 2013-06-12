@@ -4,6 +4,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.SparseSet;
 
+@ToolUi.IconName("object-toolRole")
 public class ToolRole extends Record {
 
     @Indexed(unique = true)

@@ -41,6 +41,17 @@
     </tag>
 
     <tag>
+        <name>context</name>
+        <tag-class>com.psddev.cms.db.ContextTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>name</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>form</name>
         <tag-class>com.psddev.dari.util.FormTag</tag-class>
         <body-content>JSP</body-content>
@@ -184,6 +195,10 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>context</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>value</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -212,6 +227,14 @@
         <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
         <function-signature>
             java.lang.String html(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>inContext</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            java.lang.boolean inContext(java.lang.String)
         </function-signature>
     </function>
 

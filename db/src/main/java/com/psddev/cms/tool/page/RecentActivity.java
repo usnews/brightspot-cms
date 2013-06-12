@@ -34,14 +34,14 @@ public class RecentActivity extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
-        Type type = page.pageParam(Type.class, "type", Type.EVERYONE);
+        Type type = page.pageParam(Type.class, "type", Type.ANYONE);
         String valueParameter = type + ".value";
         Object valueObject = Query.from(Object.class).where("_id = ?", page.pageParam(UUID.class, valueParameter, null)).first();
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(Integer.class, "limit", 20);
 
         if (type == null) {
-            type = Type.EVERYONE;
+            type = Type.ANYONE;
         }
 
         PaginatedResult<?> result;
@@ -88,7 +88,7 @@ public class RecentActivity extends PageServlet {
                         page.writeTypeSelect(
                                 Template.Static.findUsedTypes(page.getSite()),
                                 itemType,
-                                "Everything",
+                                "Any Types",
                                 "class", "autoSubmit",
                                 "name", "itemType",
                                 "data-searchable", "true");
@@ -281,7 +281,7 @@ public class RecentActivity extends PageServlet {
 
     private enum Type {
 
-        EVERYONE("Everyone"),
+        ANYONE("Anyone"),
         ME("Me"),
         ROLE("Role"),
         USER("User");

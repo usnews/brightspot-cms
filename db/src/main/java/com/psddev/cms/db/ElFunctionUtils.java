@@ -30,6 +30,17 @@ public final class ElFunctionUtils {
     }
 
     /**
+     * Returns {@code true} if the current request is in the given
+     * {@code context}.
+     *
+     * @param context If {@code null}, returns {@code false}.
+     * @see ContextTag.Static#isInContext
+     */
+    public static boolean inContext(String context) {
+        return ContextTag.Static.isInContext(PageContextFilter.Static.getRequest(), context);
+    }
+
+    /**
      * Returns {@code true} if the given {@code object} is an instance of the
      * class represented by the given {@code className}.
      *

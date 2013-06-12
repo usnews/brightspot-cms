@@ -452,6 +452,7 @@ figure,
 .icon-paste { &:before { content: '\f0ea'; } }
 .icon-exchange { &:before { content: '\f0ec'; } }
 .icon-reply { &:before { content: '\f112'; } }
+.icon-crop { &:before { content: '\f125'; } }
 .icon-user-md { &:before { content: '\f200'; } }
 
 @input-borderWidth: 1px;
@@ -807,19 +808,23 @@ table.links.table-striped {
 }
 
 .oneLine {
-    display: table;
     list-style-type: none;
     margin-left: 0;
-    max-width: 100%;
+    margin-top: -5px;
+    overflow: hidden;
 
     li {
-        display: table-cell;
-        padding-right: 5px;
+        float: left;
+        padding: 5px 5px 0 0;
         white-space: nowrap;
 
         &:last-child {
             padding-right: 0;
         }
+    }
+
+    select {
+        max-width: 300px;
     }
 }
 
@@ -1150,7 +1155,9 @@ table.links.table-striped {
 .icon-object-notification { .icon-envelope; }
 .icon-object-schedule { .icon-calendar; }
 .icon-object-site { .icon-globe; }
+.icon-object-standardImageSize { .icon-crop; }
 .icon-object-template { .icon-th; }
+.icon-object-tool { .icon-wrench; }
 .icon-object-toolRole { .icon-group; }
 .icon-object-toolUser { .icon-user; }
 .icon-object-variation { .icon-columns; }

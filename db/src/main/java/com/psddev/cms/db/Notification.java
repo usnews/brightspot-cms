@@ -9,6 +9,7 @@ import com.psddev.dari.util.MailMessage;
 import com.psddev.dari.util.MailProvider;
 import com.psddev.dari.util.SmsProvider;
 
+@ToolUi.IconName("object-notification")
 public abstract class Notification extends Record {
 
     protected String createMessage(Object object, ToolUser sender, Date date, ToolUser receiver) {

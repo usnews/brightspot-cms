@@ -1404,12 +1404,12 @@ public class ToolPageContext extends WebPageContext {
             }
 
             if (typeGroups.size() == 1) {
-                typeSelectGroup(selectedType, typeGroups.values().iterator().next());
+                writeTypeSelectGroup(selectedType, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
                     writeStart("optgroup", "label", entry.getKey());
-                        typeSelectGroup(selectedType, entry.getValue());
+                        writeTypeSelectGroup(selectedType, entry.getValue());
                     writeEnd();
                 }
             }
@@ -1417,7 +1417,7 @@ public class ToolPageContext extends WebPageContext {
         writeEnd();
     }
 
-    private void typeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
+    private void writeTypeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
@@ -1452,7 +1452,7 @@ public class ToolPageContext extends WebPageContext {
         ToolUi ui = field.as(ToolUi.class);
 
         if (isObjectSelectDropDown(field)) {
-            List<?> items = new Search(field).toQuery().selectAll();
+            List<?> items = new Search(field).toQuery(getSite()).selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
             writeStart("select",
@@ -1522,7 +1522,7 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         return field.as(ToolUi.class).isDropDown() &&
-                !new Search(field).toQuery().hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
+                !new Search(field).toQuery(getSite()).hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
     }
 
     /** Writes all grid CSS, or does nothing if it's already written. */
@@ -1538,12 +1538,23 @@ public class ToolPageContext extends WebPageContext {
      * @param attributes Extra attributes for the heading element.
      */
     public void writeFormHeading(Object object, Object... attributes) throws IOException {
+        State state = State.getInstance(object);
+        ObjectType type = state.getType();
         String typeLabel = getTypeLabel(object);
+        String iconName = null;
+
+        if (type != null) {
+            iconName = type.as(ToolUi.class).getIconName();
+        }
+
+        if (ObjectUtils.isBlank(iconName)) {
+            iconName = "object";
+        }
 
         writeStart("h1",
-                "class", "icon icon-object",
+                "class", "icon icon-" + iconName,
                 attributes);
-            if (State.getInstance(object).isNew()) {
+            if (state.isNew()) {
                 writeHtml("New ");
                 writeHtml(typeLabel);
 
@@ -1808,6 +1819,11 @@ public class ToolPageContext extends WebPageContext {
                 includeFromCms("/WEB-INF/objectPost.jsp", "object", object, "original", object);
                 updateUsingAllWidgets(object);
 
+                if (variationId != null &&
+                        variationId.equals(state.as(Variation.Data.class).getInitialVariation())) {
+                    state.putByPath("variations/" + variationId.toString(), null);
+                }
+
             } else {
                 Object original = Query.
                         from(Object.class).
@@ -2062,6 +2078,7 @@ public class ToolPageContext extends WebPageContext {
 
                 if (transition != null) {
                     includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+                    updateUsingAllWidgets(object);
                     workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
                     publish(object);
                     state.commitWrites();

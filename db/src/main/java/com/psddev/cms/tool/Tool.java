@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectFieldComparator;
@@ -23,6 +24,7 @@ import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
 /** Brightspot application, typically used by the internal staff. */
+@ToolUi.IconName("object-tool")
 public abstract class Tool extends Application {
 
     public static final String CONTENT_BOTTOM_WIDGET_POSITION = "cms.contentBottom";

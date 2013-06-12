@@ -16,6 +16,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 
+@ToolUi.IconName("object-workflow")
 public class Workflow extends Record {
 
     @Indexed(unique = true)

@@ -59,9 +59,9 @@ if (selected == null) {
 }
 
 State state = State.getInstance(selected);
+Site site = wp.getSite();
 
 if (selected != null) {
-    Site site = wp.getSite();
     if (!(site == null || Site.Static.isObjectAccessible(site, selected))) {
         wp.redirect("/");
         return;
@@ -70,16 +70,12 @@ if (selected != null) {
 
 UUID variationId = wp.param(UUID.class, ToolPageContext.VARIATION_ID_PARAMETER);
 
-if (variationId == null) {
-    Site site = wp.getSite();
+if (site != null) {
+    Variation defaultVariation = site.getDefaultVariation();
 
-    if (site != null) {
-        Variation defaultVariation = site.getDefaultVariation();
-
-        if (defaultVariation != null) {
-            wp.redirect("", "variationId", defaultVariation.getId());
-            return;
-        }
+    if (defaultVariation != null && !defaultVariation.getId().equals(variationId)) {
+        wp.redirect("", "variationId", defaultVariation.getId());
+        return;
     }
 }
 
@@ -595,7 +591,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
             <h1>Preview</h1>
 
             <%
-            Site site = wp.getSite();
             String previewFormId = wp.createId();
             String previewTarget = wp.createId();
             String modeId = wp.createId();

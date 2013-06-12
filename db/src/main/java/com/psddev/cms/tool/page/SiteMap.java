@@ -157,7 +157,7 @@ public class SiteMap extends PageServlet {
                         page.writeTypeSelect(
                                 Template.Static.findUsedTypes(page.getSite()),
                                 itemType,
-                                "Everything",
+                                "Any Types",
                                 "class", "autoSubmit",
                                 "name", "itemType",
                                 "data-searchable", "true");

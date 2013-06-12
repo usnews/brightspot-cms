@@ -28,6 +28,7 @@ import com.psddev.dari.util.PeriodicValue;
 import com.psddev.dari.util.PullThroughValue;
 
 /** Group of pages that's regarded as one entity. */
+@ToolUi.IconName("object-site")
 public class Site extends Record {
 
     private static final String FIELD_PREFIX = "cms.site.";
