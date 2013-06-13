@@ -35,6 +35,11 @@ public class LookingGlass extends PageServlet {
         if (id == null) {
             ToolUser user = page.getUser();
             ToolUserDevice device = user.findRecentDevice();
+
+            if (device == null) {
+                device = user.findCurrentDevice(page.getRequest());
+            }
+
             id = device.getLookingGlassId();
 
             if (id == null) {
@@ -127,33 +132,32 @@ public class LookingGlass extends PageServlet {
                     page.writeHtml(device.getUserAgentDisplay());
 
                     if (lastAction != null) {
-                        page.writeHtml(" ");
-                        lastAction.writeDisplayHtml(page);
+                        Object lastActionContent = lastAction.getContent();
+
+                        page.writeHtml(" - ");
+                        page.writeStart("a",
+                                "target", "_blank",
+                                "href", page.objectUrl("/content/edit.jsp", lastActionContent));
+                            page.writeTypeObjectLabel(lastActionContent);
+                        page.writeEnd();
                     }
                 }
             page.writeEnd();
 
-            if (lastAction instanceof ToolUserAction.ContentEdit) {
-                State preview = State.getInstance(Query.
-                        from(Object.class).
-                        where("_id = ?", user.getCurrentPreviewId()).
-                        first());
+            State preview = State.getInstance(Query.
+                    from(Object.class).
+                    where("_id = ?", user.getCurrentPreviewId()).
+                    first());
 
-                if (preview != null) {
-                    page.writeStart("div", "style", page.cssString("margin", "0 -20px"));
-                        page.writeStart("iframe",
-                                "src", JspUtils.getAbsolutePath(page.getRequest(), "/_preview", "_cms.db.previewId", preview.getId()),
-                                "style", page.cssString(
-                                        "border-style", "none",
-                                        "height", "10000px",
-                                        "width", "100%"));
-                        page.writeEnd();
+            if (preview != null) {
+                page.writeStart("div", "style", page.cssString("margin", "0 -20px"));
+                    page.writeStart("iframe",
+                            "src", JspUtils.getAbsolutePath(page.getRequest(), "/_preview", "_cms.db.previewId", preview.getId()),
+                            "style", page.cssString(
+                                    "border-style", "none",
+                                    "height", "10000px",
+                                    "width", "100%"));
                     page.writeEnd();
-                }
-
-            } else {
-                page.writeStart("div", "class", "message message-warning");
-                    page.writeHtml("Nothing to mirror!");
                 page.writeEnd();
             }
 

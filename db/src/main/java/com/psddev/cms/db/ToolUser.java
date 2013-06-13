@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.io.BaseEncoding;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
@@ -180,13 +181,28 @@ public class ToolUser extends Record {
      * associated with the given {@code request}.
      *
      * @param request Can't be {@code null}.
-     * @param action If {@code null}, does nothing.
+     * @param content If {@code null}, does nothing.
      */
-    public void saveAction(HttpServletRequest request, ToolUserAction action) {
-        if (action != null) {
-            findCurrentDevice(request).addAction(action);
-            save();
+    public void saveAction(HttpServletRequest request, Object content) {
+        if (content == null) {
+            return;
         }
+
+        ToolUserAction action = new ToolUserAction();
+        StringBuilder url = new StringBuilder();
+        String query = request.getQueryString();
+
+        url.append(request.getServletPath());
+
+        if (query != null) {
+            url.append('?');
+            url.append(query);
+        }
+
+        action.setContentId(State.getInstance(content).getId());
+        action.setUrl(url.toString());
+        findCurrentDevice(request).addAction(action);
+        save();
     }
 
     /**

@@ -40,10 +40,8 @@ try {
 }
 
 ToolUser user = wp.getUser();
-ToolUserAction.ContentEdit editAction = new ToolUserAction.ContentEdit();
 
-editAction.setContentId(selectedState.getId());
-user.saveAction(request, editAction);
+user.saveAction(request, selected);
 
 Preview preview = new Preview();
 UUID currentPreviewId = user.getCurrentPreviewId();

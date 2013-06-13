@@ -36,8 +36,18 @@ public class ToolUserDevices extends PageServlet {
                             page.writeHtml(device.getUserAgentDisplay());
                             page.writeStart("ul");
                                 for (ToolUserAction action : device.getActions()) {
+                                    Object actionContent = action.getContent();
+
+                                    if (actionContent == null) {
+                                        continue;
+                                    }
+
                                     page.writeStart("li");
-                                        action.writeDisplayHtml(page);
+                                        page.writeStart("a",
+                                                "target", "_blank",
+                                                "href", page.objectUrl("/content/edit.jsp", actionContent));
+                                            page.writeTypeObjectLabel(actionContent);
+                                        page.writeEnd();
                                     page.writeEnd();
                                 }
                             page.writeEnd();
