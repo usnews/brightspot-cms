@@ -1,11 +1,18 @@
 <%@ page import="
 
 com.psddev.cms.db.Directory,
+com.psddev.cms.db.Preview,
+com.psddev.cms.db.ToolUser,
+com.psddev.cms.db.ToolUserAction,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.State,
+com.psddev.dari.util.ObjectUtils,
 
-java.util.List
+java.util.Date,
+java.util.List,
+java.util.Map,
+java.util.UUID
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -31,6 +38,24 @@ try {
 } finally {
     selectedState.endWrites();
 }
+
+ToolUser user = wp.getUser();
+ToolUserAction.ContentEdit editAction = new ToolUserAction.ContentEdit();
+
+editAction.setContentId(selectedState.getId());
+user.saveAction(request, editAction);
+
+Preview preview = new Preview();
+UUID currentPreviewId = user.getCurrentPreviewId();
+Map<String, Object> selectedMap = selectedState.getSimpleValues();
+
+preview.getState().setId(currentPreviewId);
+preview.setCreateDate(new Date());
+preview.setObjectType(selectedState.getType());
+preview.setObjectId(selectedState.getId());
+preview.setObjectValues(selectedMap);
+preview.setSite(wp.getSite());
+preview.save();
 
 List<Directory.Path> automaticPaths = (List<Directory.Path>) selectedState.getExtras().get("cms.automaticPaths");
 boolean manual = Directory.PathsMode.MANUAL.equals(dirData.getPathsMode());
