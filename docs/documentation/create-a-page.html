@@ -181,7 +181,8 @@ public class Article extends Content {
     </div>
 <h2>Adding Objects</h2>
 Templates are typically made up of multiple sections, with content apart from the main page content being included. Examples include modules in side rails. With Brightspot, these objects can be created and included either per object level, or globally at the template level. In the next example a Top Authors object will be created, and added to the Article Template. Start by creating the object, which contains a list of Authors.</br></br><h4>Top Authors Object</h4>
-<div class="highlight">{% highlight java %}public class TopAuthors extends Content {
+<div class="highlight">{% highlight java %}@Renderer.Path("/top-authors.jsp")
+public class TopAuthors extends Content {
 
     private String name;
     private List<Author> topAuthors;
