@@ -72,6 +72,7 @@ var updateInput = function() {
             padZero(selectedDate.getMinutes()) + ':00');
     $input.change();
 
+    $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
     $calendar.data('$calendarButton').text(
             options.dayLabels[selectedDate.getDay()] + ', ' +
             options.monthLabels[selectedDate.getMonth()].substring(0, 3) + ' ' +
@@ -209,6 +210,7 @@ getCalendar = function() {
             var $input = $calendar.data('$input');
             $input.val('');
             $input.change();
+            $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
             $calendar.data('$calendarButton').text($input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');
         });
 
@@ -238,6 +240,7 @@ $.plugin2('calendar', {
             'text': $input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A'
         });
 
+        $calendarButton.toggleClass('calendarButton-empty', !$input.val());
         $calendarButton.click(function() {
             var $calendar = getCalendar();
 
