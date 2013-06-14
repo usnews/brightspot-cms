@@ -7,27 +7,25 @@ section: documentation
 
 <div markdown="1" class="span8">
 
-Brightspot implements a subset of the [W3 Grid Layout specification](http://www.w3.org/TR/css3-grid-layout/) 
-for defining grid layouts. This provides a flexible way to define grid layouts using
+Brightspot implements a subset of the [W3 Grid Layout specification](http://www.w3.org/TR/css3-grid-layout/) for defining grid layouts. This provides a flexible way to define grid layouts using
 a compact CSS format.
 
-Using the `<cms:render>` JSP Tag content can be rendered into the CSS grid items defined by
-CSS layouts.
+Using the `<cms:render>` JSP Tag content can be rendered into the CSS grid items defined by CSS layouts.
 
 ### Overview
 
-Grid layouts are defined in regular css files. Brightspot will automatically read all
-css files in the project and find any defined grid layouts.
+Grid layouts are defined in regular CSS files. Brightspot will automatically read all
+CSS files in the project and find any defined grid layouts.
 
 For each content type being rendered there should be a grid layout defined in
-css, a JSP to use the css grid layout and a JSP to render the content.
+CSS, a JSP to use the CSS grid layout and a JSP to render the content.
 
-Note: Brightspot does not require the use of css grid layouts but it makes defining
+Note: Brightspot does not require the use of CSS grid layouts but it makes defining
 layouts much easier and is recommended.
 
 ### Creating a Grid Layout
 
-Grid layouts are defined in css files contained within your project
+Grid layouts are defined in CSS files contained within your project
 directories. 
 
 Brightspot implements the following css properties defined in 
@@ -52,6 +50,8 @@ An example grid:
     margin-bottom: 10px;
 }
 {% endhighlight %}
+
+It is useful to look at a `grid-template` like a table. For this version there are three columns, and three rows. The header sits in the middle column, and the main area sits across all three. The footer, like the header, sits in the middle. The `grid-definition-columns` define the widths of each column, and the `grid-definition-rows` define the height.
 
 ### Placing Content in the Grid
 
@@ -88,6 +88,48 @@ To view your grid on a page you have created add `?_prod=false&_grid=true` to th
 <cms:render value="${mainContent}" area="main">
 {% endhighlight %}
 
+Content can be rendered from the object, or the template. An example, where the header and footer objects are defined on the template:
+
+{% highlight jsp %}
+<cms:layout class="layout-global">
+    <cms:render value="${template.header}" area="header"/>
+    <cms:render value="${mainContent}" area="main"/>
+    <cms:render value="${template.footer}" area="footer"/>
+</cms:layout>
+{% endhighlight %}
+
+### Mobile Devices
+
+To modify the layout dynamically, based on the size of the screen being used to view, a `@media` query can be used, to override the layout class. In the example below, once the screen size drops below 700px the right rail content appears below the main content, and the content width is reduced.
+
+{% highlight css %}
+.layout {
+    display: grid;
+    grid-template: ". main . right .";
+ 
+    grid-definition-columns: 1fr 680px 80px 360px 1fr;
+    grid-definition-rows: auto;
+
+    padding: 10px;
+    }
+
+@media only screen and (min-width: 300px) and (max-width:700px) {
+        .layout {
+        display: grid;
+        grid-template: ". main    ."
+                       ". right   .";
+     
+        grid-definition-columns: 1fr 320px 1fr;
+        grid-definition-rows: auto auto;
+
+        padding: 10px;
+    }
+}
+
+{% endhighlight %}
+
+
+
 ### JSP Tags
 
 API Definitions for JSP tags used in the grid layout system.
@@ -103,7 +145,7 @@ provided area.
 
 > `area` - Name of area to render content into.
 
-> `value` - Value to render. This can be Content, ReferentialText, an Iterable or a String. Render a Content or Script section using `sections.internalName`
+> `value` - Value to render. This can be Content, ReferentialText, an Iterable or a String. 
 
 
 </div>
