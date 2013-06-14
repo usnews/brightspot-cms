@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -63,7 +64,7 @@ public class Search extends Record {
     private String additionalPredicate;
     private UUID parentId;
     private Map<String, String> globalFilters;
-    private Map<String, String> fieldFilters;
+    private Map<String, Map<String, String>> fieldFilters;
     private String sort;
     private boolean showMissing;
     private boolean suggestions;
@@ -98,13 +99,27 @@ public class Search extends Record {
             if (name.startsWith(GLOBAL_FILTER_PARAMETER_PREFIX)) {
                 getGlobalFilters().put(name.substring(GLOBAL_FILTER_PARAMETER_PREFIX.length()), page.param(String.class, name));
 
-            } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX) &&
-                    !name.endsWith(MISSING_FILTER_PARAMETER_SUFFIX)) {
-                getFieldFilters().put(
-                        name.substring(FIELD_FILTER_PARAMETER_PREFIX.length()),
-                        page.param(boolean.class, name + MISSING_FILTER_PARAMETER_SUFFIX) ?
-                                "missing" :
-                                page.param(String.class, name));
+            } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
+                String filterName = name.substring(FIELD_FILTER_PARAMETER_PREFIX.length());
+                int dotAt = filterName.indexOf('.');
+                String filterValueKey;
+
+                if (dotAt < 0) {
+                    filterValueKey = "";
+
+                } else {
+                    filterValueKey = filterName.substring(dotAt + 1);
+                    filterName = filterName.substring(0, dotAt);
+                }
+
+                Map<String, String> filterValue = getFieldFilters().get(filterName);
+
+                if (filterValue == null) {
+                    filterValue = new HashMap<String, String>();
+                    getFieldFilters().put(filterName, filterValue);
+                }
+
+                filterValue.put(filterValueKey, page.param(String.class, name));
             }
         }
 
@@ -194,14 +209,14 @@ public class Search extends Record {
         this.globalFilters = globalFilters;
     }
 
-    public Map<String, String> getFieldFilters() {
+    public Map<String, Map<String, String>> getFieldFilters() {
         if (fieldFilters == null) {
-            fieldFilters = new HashMap<String, String>();
+            fieldFilters = new HashMap<String, Map<String, String>>();
         }
         return fieldFilters;
     }
 
-    public void setFieldFilters(Map<String, String> fieldFilters) {
+    public void setFieldFilters(Map<String, Map<String, String>> fieldFilters) {
         this.fieldFilters = fieldFilters;
     }
 
@@ -422,13 +437,57 @@ public class Search extends Record {
         }
 
         if (selectedType != null) {
-            for (Map.Entry<String, String> entry : getFieldFilters().entrySet()) {
-                String value = entry.getValue();
+            for (Map.Entry<String, Map<String, String>> entry : getFieldFilters().entrySet()) {
+                Map<String, String> value = entry.getValue();
 
-                if (value != null) {
-                    query.and(
-                            selectedType.getInternalName() + "/" + entry.getKey() + " = ?",
-                            "missing".equals(value) ? Query.MISSING_VALUE : value);
+                if (value == null) {
+                    continue;
+                }
+
+                String fieldName = selectedType.getInternalName() + "/" + entry.getKey();
+
+                if (ObjectUtils.to(boolean.class, value.get("m"))) {
+                    query.and(fieldName + " = missing");
+
+                } else {
+                    String fieldValue = value.get("");
+
+                    if (fieldValue == null) {
+                        continue;
+                    }
+
+                    String queryType = value.get("t");
+
+                    if ("d".equals(queryType)) {
+                        Date start = ObjectUtils.to(Date.class, fieldValue);
+                        Date end = ObjectUtils.to(Date.class, value.get("x"));
+
+                        if (start != null) {
+                            query.and(fieldName + " >= ?", start);
+                        }
+
+                        if (end != null) {
+                            query.and(fieldName + " <= ?", end);
+                        }
+
+                    } else if ("n".equals(queryType)) {
+                        Double minimum = ObjectUtils.to(Double.class, fieldValue);
+                        Double maximum = ObjectUtils.to(Double.class, value.get("x"));
+
+                        if (minimum != null) {
+                            query.and(fieldName + " >= ?", fieldValue);
+                        }
+
+                        if (maximum != null) {
+                            query.and(fieldName + " <= ?", maximum);
+                        }
+
+                    } else if ("t".equals(queryType)) {
+                        query.and(fieldName + " matches ?", fieldValue);
+
+                    } else {
+                        query.and(fieldName + " = ?", fieldValue);
+                    }
                 }
             }
         }

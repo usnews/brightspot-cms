@@ -72,6 +72,7 @@ var updateInput = function() {
             padZero(selectedDate.getMinutes()) + ':00');
     $input.change();
 
+    $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
     $calendar.data('$calendarButton').text(
             options.dayLabels[selectedDate.getDay()] + ', ' +
             options.monthLabels[selectedDate.getMonth()].substring(0, 3) + ' ' +
@@ -209,7 +210,8 @@ getCalendar = function() {
             var $input = $calendar.data('$input');
             $input.val('');
             $input.change();
-            $calendar.data('$calendarButton').text($input.val() || $input.attr('data-emptylabel') || 'N/A');
+            $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
+            $calendar.data('$calendarButton').text($input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');
         });
 
         $calendar.append($empty);
@@ -235,9 +237,10 @@ $.plugin2('calendar', {
         var $input = $(input);
         var $calendarButton = $('<span/>', {
             'class': 'calendarButton',
-            'text': $input.val() || $input.attr('data-emptylabel') || 'N/A'
+            'text': $input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A'
         });
 
+        $calendarButton.toggleClass('calendarButton-empty', !$input.val());
         $calendarButton.click(function() {
             var $calendar = getCalendar();
 
@@ -273,7 +276,7 @@ $.plugin2('calendar', {
             $calendar.find('select.meridiem').val(meridiem);
 
             // Update empty label.
-            $calendar.find('.empty').text($input.attr('data-emptylabel') || 'N/A');
+            $calendar.find('.empty').text($input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');
 
             // Open the calendar in a popup.
             $calendar.popup('source', $calendarButton);
