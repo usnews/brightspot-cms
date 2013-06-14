@@ -239,7 +239,7 @@ writer.start("div", "class", "searchForm");
                             String fieldValue = filterValue != null ? filterValue.get("") : null;
                             String fieldInternalItemType = field.getInternalItemType();
 
-                            writer.start("div", "class", "searchFilter");
+                            writer.start("div", "class", "searchFilter searchFilter-" + fieldInternalItemType);
                                 if (ObjectField.BOOLEAN_TYPE.equals(fieldInternalItemType)) {
                                     writer.writeStart("select", "name", inputName);
                                         writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
@@ -258,6 +258,24 @@ writer.start("div", "class", "searchForm");
                                         writer.writeEnd();
                                     writer.writeEnd();
 
+                                } else if (ObjectField.NUMBER_TYPE.equals(fieldInternalItemType)) {
+                                    writer.writeTag("input",
+                                            "type", "text",
+                                            "name", inputName,
+                                            "placeholder", displayName,
+                                            "value", fieldValue);
+
+                                    writer.writeTag("input",
+                                            "type", "text",
+                                            "name", inputName + ".x",
+                                            "placeholder", "(Maximum)",
+                                            "value", filterValue != null ? filterValue.get("x") : null);
+
+                                    writer.writeTag("input",
+                                            "type", "hidden",
+                                            "name", inputName + ".t",
+                                            "value", "n");
+
                                 } else if (ObjectField.TEXT_TYPE.equals(fieldInternalItemType)) {
                                     if (field.getValues() == null || field.getValues().isEmpty()) {
                                         writer.writeTag("input",
@@ -268,8 +286,8 @@ writer.start("div", "class", "searchForm");
 
                                         writer.writeTag("input",
                                                 "type", "hidden",
-                                                "name", inputName + ".s",
-                                                "value", true);
+                                                "name", inputName + ".t",
+                                                "value", "t");
 
                                     } else {
                                         writer.writeStart("select", "name", inputName);

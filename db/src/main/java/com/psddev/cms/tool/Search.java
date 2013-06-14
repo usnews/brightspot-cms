@@ -455,7 +455,21 @@ public class Search extends Record {
                         continue;
                     }
 
-                    if (ObjectUtils.to(boolean.class, value.get("s"))) {
+                    String queryType = value.get("t");
+
+                    if ("n".equals(queryType)) {
+                        Double minimum = ObjectUtils.to(Double.class, fieldValue);
+                        Double maximum = ObjectUtils.to(Double.class, value.get("x"));
+
+                        if (minimum != null) {
+                            query.and(fieldName + " >= ?", fieldValue);
+                        }
+
+                        if (maximum != null) {
+                            query.and(fieldName + " <= ?", maximum);
+                        }
+
+                    } else if ("t".equals(queryType)) {
                         query.and(fieldName + " matches ?", fieldValue);
 
                     } else {
