@@ -12,11 +12,11 @@ section: documentation
                 <h4>Pages</h4>
                 Pages are created when a one-off use is needed. Examples would be a homepage or contact page. New Pages are created by extending the <code>Page</code> class
                 <h4>Templates</h4>
-                Templates are used when an object is used to create multiple instances, using the same layout. Examples would be a blog template, or gallery template. New Templates are added by extending the <code>Template</code> class.
-                </br></br>If you are using Brightspot 2.0, see the dedicated 2.0 <a href="template-tool.html">Template Tool</a> section to build pages and templates for that version of the CMS.
+                Templates are used when an object is used to create multiple instances, using the same layout. Examples would be an article or blog template. New Templates are added by extending the <code>Template</code> class.
+                </br></br>Note: If you are using Brightspot 2.0, see the dedicated 2.0 <a href="template-tool.html">Template Tool</a> section to build pages and templates for that version of the CMS.
                 <hr>
                 <h2>Creating a Page</h2>
-                Brightspot contains a <code>Page</code> object out of the box. In the CMS, using the search tool, click into Create New, and select Page. You will notice that the object contains a <code>Name</code> and can also have a <code>URL</code>.
+                Brightspot contains a <code>Page</code> object out of the box. In the CMS, using the search tool, click into Create New, and select Page. You will notice that the object contains a <code>Name</code> and can also have a <code>URL</code>. It is this class that is extended to define pages.
                 <h4>Extend the Page class</h2>
                     To build your first page, create a new Java class, extending this Page class. Using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> add two paths to two new JSP files, one to render the entire page (LayoutPath) and one to render the new object that extends Page. These jsp files will allow you to render the content within your new Page object.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layout/homepage-template.jsp")
@@ -63,7 +63,6 @@ Using the search tool, in the Create New drop down, find your new object and cre
                 Start by extending the <code>Template</code> class. Once you have added the Article Template object, use the Create drop down within search to create a new instance of the object.</br></br>
 
 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layout/article-template.jsp")
-@Renderer.Path("/article-object.jsp")
 public class ArticleTemplate extends Template {
 
 }
@@ -108,9 +107,8 @@ The content type that has been added to your template needs to have URL logic ad
 
                 </br>
                 <h2>Add Renderer Paths</h2>
-                Using the <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations, the JSP files used to render the template layout, and the object content are associated.</br></br>
-                <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layouts/article-template.jsp")
-@Renderer.Path("/article-object.jsp")
+                Using the <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations, the JSP files used to render the template layout, and the object content are associated. The Layout renderer is annotated on the template object, and the actual object renderer, on the object itself.</br></br>
+                <div class="highlight">{% highlight java %}@Renderer.Path("/article-object.jsp")
 public class Article extends Content {
 
     private String headline;
@@ -133,7 +131,7 @@ public class Article extends Content {
                 </br>
                 
                 <h2>Create JSP Files</h2>
-                <p>Create the two files used to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing any taglibs and then create a simple structure for your page. You can add a header, to render the headline, and a content section, which will render the rest of the object.
+                <p>Create the two files used to render the page, the first is the entire page layout. As per the path specified within the annotation on the example above, create an <code>article-template.jsp</code> file in a new directory within webapp, called "layouts". Start by importing any taglibs and then create a simple structure for your page.
                 </br></br><h4>Layout JSP</h4>
                 </p>
 <div class="highlight">{% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -183,7 +181,8 @@ public class Article extends Content {
     </div>
 <h2>Adding Objects</h2>
 Templates are typically made up of multiple sections, with content apart from the main page content being included. Examples include modules in side rails. With Brightspot, these objects can be created and included either per object level, or globally at the template level. In the next example a Top Authors object will be created, and added to the Article Template. Start by creating the object, which contains a list of Authors.</br></br><h4>Top Authors Object</h4>
-<div class="highlight">{% highlight java %}public class TopAuthors extends Content {
+<div class="highlight">{% highlight java %}@Renderer.Path("/top-authors.jsp")
+public class TopAuthors extends Content {
 
     private String name;
     private List<Author> topAuthors;
@@ -214,7 +213,6 @@ The JSP file used to render the Top Authors object can be defined on the object 
 Now that a new object has been created, and has rendering logic, it can be added to the Article template. </br></br>
 
 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/layout/article-template.jsp")
-@Renderer.Path("/article-object.jsp")
 public class ArticleTemplate extends Template {
 
     private TopAuthors topAuthors;
@@ -231,8 +229,8 @@ public class ArticleTemplate extends Template {
                 </div>
                 <img width="690" src="http://docs.brightspot.s3.amazonaws.com/top-authors-template.png"/>
     </div></br>
-The page layout <code>JSP</code> will need to be updated, to reference the newly added content that is to be included on the page. Using <code>cms:render</code> the field name for the included content is used to include the Author List content on the page.</br></br>
-<div class="highlight">{% highlight java %}<cms:render value="${mainContent.topAuthors}" />
+The page layout <code>JSP</code> will need to be updated, to reference the newly added content that is to be included on the page. Using <code>cms:render</code> the field name for the included content is used to include the Author List content on the page. Note, because the content is on the Template, not the object, <code>template</code> is used to reference it.</br></br>
+<div class="highlight">{% highlight java %}<cms:render value="${template.topAuthors}" />
 {% endhighlight %}</div></br><h4>Publish Content</h4>
 Finish and test by creating a new instance of your object, in the example below the Article object template now shows the Top Authors object on the same page. See the <a href="new-page.html">Grid Layout</a> section to learn how to control the layout of the sections on your page template.</br>
     <div class="highlight center span12" style="padding-top: 10px;">

@@ -208,6 +208,10 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 > Creates a new Tab interface in the content edit view, with the annotated fields appearing within it.
 
+`@ToolUi.Secret` 
+
+> Specifies whether the target field display should be scrambled.
+
 
 </div>
 
