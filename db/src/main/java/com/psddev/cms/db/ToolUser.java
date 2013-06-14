@@ -7,13 +7,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
@@ -38,6 +41,10 @@ public class ToolUser extends Record {
     @ToolUi.FieldDisplayType("password")
     private String password;
 
+    @Indexed
+    private Set<ToolUserDevice> devices;
+
+    private UUID currentPreviewId;
     private String phoneNumber;
     private NotificationMethod notifyVia;
 
@@ -118,6 +125,121 @@ public class ToolUser extends Record {
     /** Sets the password. */
     public void setPassword(Password password) {
         this.password = password.toString();
+    }
+
+    /**
+     * @return Never {@code null}. Mutable.
+     */
+    public Set<ToolUserDevice> getDevices() {
+        if (devices == null) {
+            devices = new LinkedHashSet<ToolUserDevice>();
+        }
+        return devices;
+    }
+
+    /**
+     * @param devices May be {@code null} to clear the set.
+     */
+    public void setDevices(Set<ToolUserDevice> devices) {
+        this.devices = devices;
+    }
+
+    /**
+     * Finds the device that the user is using in the given {@code request}.
+     *
+     * @param request Can't be {@code null}.
+     * @return Never {@code null}.
+     */
+    public ToolUserDevice findCurrentDevice(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+
+        if (userAgent == null) {
+            userAgent = "Unknown Device";
+        }
+
+        Set<ToolUserDevice> devices = getDevices();
+        ToolUserDevice device = null;
+
+        for (ToolUserDevice d : devices) {
+            if (userAgent.equals(d.getUserAgent())) {
+                device = d;
+                break;
+            }
+        }
+
+        if (device == null) {
+            device = new ToolUserDevice();
+            device.setUserAgent(userAgent);
+            devices.add(device);
+        }
+
+        return device;
+    }
+
+    /**
+     * Saves the given {@code action} performed by this user in the device
+     * associated with the given {@code request}.
+     *
+     * @param request Can't be {@code null}.
+     * @param content If {@code null}, does nothing.
+     */
+    public void saveAction(HttpServletRequest request, Object content) {
+        if (content == null) {
+            return;
+        }
+
+        ToolUserAction action = new ToolUserAction();
+        StringBuilder url = new StringBuilder();
+        String query = request.getQueryString();
+
+        url.append(request.getServletPath());
+
+        if (query != null) {
+            url.append('?');
+            url.append(query);
+        }
+
+        action.setContentId(State.getInstance(content).getId());
+        action.setUrl(url.toString());
+        findCurrentDevice(request).addAction(action);
+        save();
+    }
+
+    /**
+     * Finds the most recent device that the user was using.
+     *
+     * @return May be {@code null}.
+     */
+    public ToolUserDevice findRecentDevice() {
+        ToolUserDevice device = null;
+
+        for (ToolUserDevice d : getDevices()) {
+            if (device == null ||
+                    device.findLastAction() == null ||
+                    (d.findLastAction() != null &&
+                    d.findLastAction().getTime() > device.findLastAction().getTime())) {
+                device = d;
+            }
+        }
+
+        return device;
+    }
+
+    /**
+     * @return Never {@code null}.
+     */
+    public UUID getCurrentPreviewId() {
+        if (currentPreviewId == null) {
+            currentPreviewId = new Preview().getId();
+        }
+        return currentPreviewId;
+    }
+
+    /**
+     * @param currentPreviewId May be {@code null}.
+     */
+    public void setCurrentPreviewId(UUID currentPreviewId) {
+        this.currentPreviewId = currentPreviewId;
     }
 
     public String getPhoneNumber() {

@@ -1234,6 +1234,15 @@ public class ToolPageContext extends WebPageContext {
 
                                 writeStart("li");
                                     writeStart("a",
+                                            "class", "icon icon-object-toolUserDevice",
+                                            "href", cmsUrl("/toolUserDevices"),
+                                            "target", "toolUserDevices");
+                                        writeHtml("Devices");
+                                    writeEnd();
+                                writeEnd();
+
+                                writeStart("li");
+                                    writeStart("a",
                                             "class", "icon icon-object-toolUser",
                                             "href", cmsUrl("/misc/settings.jsp"),
                                             "target", "misc");
