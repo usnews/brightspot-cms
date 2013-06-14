@@ -14,6 +14,7 @@ com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
 
 java.util.Iterator,
+java.util.Map,
 java.util.UUID
 " %><%
 
@@ -30,8 +31,8 @@ if (!wp.param(boolean.class, "widget")) {
 
     boolean hasMissing = false;
 
-    for (String value : search.getFieldFilters().values()) {
-        if ("missing".equals(value)) {
+    for (Map<String, String> value : search.getFieldFilters().values()) {
+        if (ObjectUtils.to(boolean.class, value.get("m"))) {
             hasMissing = true;
             break;
         }
