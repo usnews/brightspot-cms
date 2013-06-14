@@ -526,6 +526,10 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
+            if (ObjectUtils.isBlank(layoutPath)) {
+                layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
+            }
+
             if (!ObjectUtils.isBlank(layoutPath)) {
                 JspUtils.include(request, response, writer, StringUtils.ensureStart(layoutPath, "/"));
 
