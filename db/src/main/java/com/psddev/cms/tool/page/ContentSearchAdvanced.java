@@ -165,8 +165,14 @@ public class ContentSearchAdvanced extends PageServlet {
 
         long offset = page.param(long.class, "offset");
         int limit = page.pageParam(int.class, "limit", 20);
-        PaginatedResult<Object> result = query.select(offset, limit);
-        List<Object> items = result.getItems();
+        PaginatedResult<Object> result;
+
+        try {
+            result = query.select(offset, limit);
+
+        } catch (RuntimeException error) {
+            result = null;
+        }
 
         page.putOverride(Recordable.class, new HtmlFormatter<Recordable>() {
             @Override
@@ -288,7 +294,15 @@ public class ContentSearchAdvanced extends PageServlet {
                     page.writeHtml("Result");
                 page.writeEnd();
 
-                if (items.isEmpty()) {
+                if (result == null) {
+                    page.writeStart("div", "class", "message message-error");
+                        page.writeStart("p");
+                            page.writeHtml("Not a valid query! ");
+                            page.writeHtml(predicate);
+                        page.writeEnd();
+                    page.writeEnd();
+
+                } else if (!result.hasPages()) {
                     page.writeStart("div", "class", "message message-warning");
                         page.writeStart("p");
                             page.writeHtml("No matching items!");
@@ -385,7 +399,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeEnd();
 
                             page.writeStart("tbody");
-                                for (Object item : items) {
+                                for (Object item : result.getItems()) {
                                     State itemState = State.getInstance(item);
                                     String permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
 
