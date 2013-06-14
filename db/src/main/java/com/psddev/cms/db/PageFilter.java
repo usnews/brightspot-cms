@@ -385,6 +385,8 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
+            Static.pushObject(request, mainObject);
+
             final State mainState = State.getInstance(mainObject);
 
             // Fake the request path in preview mode in case the servlets
