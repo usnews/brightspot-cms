@@ -19,6 +19,7 @@ java.util.ArrayList,
 java.util.Collections,
 java.util.HashSet,
 java.util.Iterator,
+java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
 java.util.Set,
@@ -85,16 +86,10 @@ for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
 globalFilters.remove(selectedType);
 Collections.sort(globalFilters);
 
-List<ObjectField> fieldFilters = new ArrayList<ObjectField>();
+Map<String, ObjectField> fieldFilters = new LinkedHashMap<String, ObjectField>();
 
 if (selectedType != null) {
-    for (ObjectField field : selectedType.getIndexedFields()) {
-        ToolUi fieldUi = field.as(ToolUi.class);
-
-        if (fieldUi.isEffectivelyFilterable()) {
-            fieldFilters.add(field);
-        }
-    }
+    addFieldFilters(fieldFilters, "", selectedType);
 }
 
 if (wp.isFormPost()) {
@@ -218,10 +213,11 @@ writer.start("div", "class", "searchForm");
                             writer.end();
                         }
 
-                        for (ObjectField field : fieldFilters) {
+                        for (Map.Entry<String, ObjectField> entry : fieldFilters.entrySet()) {
+                            String fieldName = entry.getKey();
+                            ObjectField field = entry.getValue();
                             ToolUi fieldUi = field.as(ToolUi.class);
                             Set<ObjectType> fieldTypes = field.getTypes();
-                            String fieldName = field.getInternalName();
                             StringBuilder fieldTypeIds = new StringBuilder();
 
                             if (!ObjectUtils.isBlank(fieldTypes)) {
@@ -411,4 +407,44 @@ writer.start("div", "class", "searchForm");
     writer.end();
 
 writer.end();
+%><%!
+
+private static void addFieldFilters(
+        Map<String, ObjectField> fieldFilters,
+        String prefix,
+        ObjectType type) {
+    for (ObjectField field : type.getIndexedFields()) {
+        ToolUi fieldUi = field.as(ToolUi.class);
+
+        if (!fieldUi.isEffectivelyFilterable()) {
+            continue;
+        }
+
+        String fieldName = field.getInternalName();
+
+        if (ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
+            boolean embedded = field.isEmbedded();
+
+            if (!embedded) {
+                embedded = true;
+
+                for (ObjectType t : field.getTypes()) {
+                    if (!t.isEmbedded()) {
+                        embedded = false;
+                        break;
+                    }
+                }
+            }
+
+            if (embedded) {
+                for (ObjectType t : field.getTypes()) {
+                    addFieldFilters(fieldFilters, fieldName + "/", t);
+                }
+                continue;
+            }
+        }
+
+        fieldFilters.put(prefix + fieldName, field);
+    }
+}
 %>
