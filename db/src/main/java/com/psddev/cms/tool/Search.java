@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -457,7 +458,19 @@ public class Search extends Record {
 
                     String queryType = value.get("t");
 
-                    if ("n".equals(queryType)) {
+                    if ("d".equals(queryType)) {
+                        Date start = ObjectUtils.to(Date.class, fieldValue);
+                        Date end = ObjectUtils.to(Date.class, value.get("x"));
+
+                        if (start != null) {
+                            query.and(fieldName + " >= ?", start);
+                        }
+
+                        if (end != null) {
+                            query.and(fieldName + " <= ?", end);
+                        }
+
+                    } else if ("n".equals(queryType)) {
                         Double minimum = ObjectUtils.to(Double.class, fieldValue);
                         Double maximum = ObjectUtils.to(Double.class, value.get("x"));
 

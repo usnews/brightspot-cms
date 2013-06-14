@@ -258,6 +258,32 @@ writer.start("div", "class", "searchForm");
                                         writer.writeEnd();
                                     writer.writeEnd();
 
+                                } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
+                                    writer.writeTag("input",
+                                            "type", "text",
+                                            "class", "date",
+                                            "name", inputName,
+                                            "placeholder", displayName,
+                                            "value", fieldValue);
+
+                                    writer.writeTag("input",
+                                            "type", "text",
+                                            "class", "date",
+                                            "name", inputName + ".x",
+                                            "placeholder", "(End)",
+                                            "value", filterValue != null ? filterValue.get("x") : null);
+
+                                    writer.writeTag("input",
+                                            "type", "hidden",
+                                            "name", inputName + ".t",
+                                            "value", "d");
+
+                                    writer.writeTag("input",
+                                            "type", "checkbox",
+                                            "name", inputName + ".m",
+                                            "value", true,
+                                            "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+
                                 } else if (ObjectField.NUMBER_TYPE.equals(fieldInternalItemType)) {
                                     writer.writeTag("input",
                                             "type", "text",
