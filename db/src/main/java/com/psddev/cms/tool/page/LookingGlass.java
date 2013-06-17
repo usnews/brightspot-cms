@@ -134,12 +134,14 @@ public class LookingGlass extends PageServlet {
                     if (lastAction != null) {
                         Object lastActionContent = lastAction.getContent();
 
-                        page.writeHtml(" - ");
-                        page.writeStart("a",
-                                "target", "_blank",
-                                "href", page.objectUrl("/content/edit.jsp", lastActionContent));
-                            page.writeTypeObjectLabel(lastActionContent);
-                        page.writeEnd();
+                        if (lastActionContent != null) {
+                            page.writeHtml(" - ");
+                            page.writeStart("a",
+                                    "target", "_blank",
+                                    "href", page.objectUrl("/content/edit.jsp", lastActionContent));
+                                page.writeTypeObjectLabel(lastActionContent);
+                            page.writeEnd();
+                        }
                     }
                 }
             page.writeEnd();
