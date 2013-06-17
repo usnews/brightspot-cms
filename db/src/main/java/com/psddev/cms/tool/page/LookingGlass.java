@@ -8,13 +8,13 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.ToolUserAction;
 import com.psddev.cms.db.ToolUserDevice;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -146,22 +146,24 @@ public class LookingGlass extends PageServlet {
                 }
             page.writeEnd();
 
-            State preview = State.getInstance(Query.
-                    from(Object.class).
+            Preview preview = Query.
+                    from(Preview.class).
                     where("_id = ?", user.getCurrentPreviewId()).
-                    first());
+                    first();
 
-            if (preview != null) {
-                page.writeStart("div", "style", page.cssString("margin", "0 -20px"));
-                    page.writeStart("iframe",
-                            "src", JspUtils.getAbsolutePath(page.getRequest(), "/_preview", "_cms.db.previewId", preview.getId()),
-                            "style", page.cssString(
-                                    "border-style", "none",
-                                    "height", "10000px",
-                                    "width", "100%"));
-                    page.writeEnd();
+            String mirrorUrl = preview != null && ObjectUtils.equals(lastAction.getContentId(), preview.getObjectId()) ?
+                    JspUtils.getAbsolutePath(page.getRequest(), "/_preview", "_cms.db.previewId", preview.getId()) :
+                    lastAction.getUrl();
+
+            page.writeStart("div", "style", page.cssString("margin", "0 -20px"));
+                page.writeStart("iframe",
+                        "src", mirrorUrl,
+                        "style", page.cssString(
+                                "border-style", "none",
+                                "height", "10000px",
+                                "width", "100%"));
                 page.writeEnd();
-            }
+            page.writeEnd();
 
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("(function($, win) {");

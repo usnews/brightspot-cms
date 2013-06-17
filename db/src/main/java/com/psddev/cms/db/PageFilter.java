@@ -562,8 +562,15 @@ public class PageFilter extends AbstractFilter {
 
         Object mainObject = PageFilter.Static.getMainObject(request);
 
-        if (mainObject != null &&
-                AuthenticationFilter.Static.getUser(request) != null) {
+        if (mainObject != null) {
+            ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+            if (user == null) {
+                return;
+            }
+
+            user.saveAction(request, mainObject);
+
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
             @SuppressWarnings("resource")
