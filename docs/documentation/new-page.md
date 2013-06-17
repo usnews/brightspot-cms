@@ -7,8 +7,7 @@ section: documentation
 
 <div markdown="1" class="span8">
 
-Brightspot implements a subset of the [W3 Grid Layout specification](http://www.w3.org/TR/css3-grid-layout/) for defining grid layouts. This provides a flexible way to define grid layouts using
-a compact CSS format.
+Brightspot implements a subset of the W3 Grid Layout specification for defining grid layouts. This provides a flexible way to define grid layouts using a compact CSS format. 
 
 Using the `<cms:render>` JSP Tag content can be rendered into the CSS grid items defined by CSS layouts.
 

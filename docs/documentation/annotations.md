@@ -132,7 +132,7 @@ The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options f
 
 `@ToolUi.OnlyPathed`
 
-> If you want the target field to only contain objects with a path.
+> If you want the target field to only contain objects with a URL path.
 
 `@ToolUi.ReadOnly`
 
@@ -202,7 +202,7 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 `@ToolUi.Where` 
 
-> Limits results on the returned objects. Example `@ToolUi.Where("title = ^ a" )` would limit the returned objects to ones whose title starts with a.
+> Limits results on the returned objects. Example `@ToolUi.Where("title ^= a" )` would limit the returned objects to ones whose title starts with the letter a. A field within an object can also be used. When returning a list of Articles, each with an Author, the annotation can be used like so: `@ToolUi.Where("author/name ^= a" )` 
 
 `@ToolUi.Tab("tabName")` 
 
