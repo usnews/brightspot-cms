@@ -16,7 +16,7 @@ A dashboard widget can be added for all users, providing the ability to customiz
 
 **Create the Class**
 
-Start by creating a new class and extend Tool. W will add our widget within this class. We introduce the plugin and define the path to the JSP that is to be used to render it. Once created, rebuild your project and run `_debug/init` to initialize the plugin.
+Start by creating a new class and extend Tool. We will add our widget within this class. We introduce the plugin and define the path to the JSP that is to be used to render it. Once created, rebuild your project and run `_debug/init` to initialize the plugin.
 
 <div class="highlight">{% highlight java %}
 package com.psddev.brightspot;
