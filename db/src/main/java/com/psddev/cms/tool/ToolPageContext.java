@@ -90,6 +90,7 @@ public class ToolPageContext extends WebPageContext {
 
     private static final String ATTRIBUTE_PREFIX = ToolPageContext.class.getName() + ".";
     private static final String ERRORS_ATTRIBUTE = ATTRIBUTE_PREFIX + "errors";
+    private static final String FORM_FIELDS_DISABLED_ATTRIBUTE = ATTRIBUTE_PREFIX + "formFieldsDisabled";
     private static final String TOOL_ATTRIBUTE = ATTRIBUTE_PREFIX + "tool";
     private static final String TOOL_BY_CLASS_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByClass";
     private static final String TOOL_BY_PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByPath";
@@ -1565,6 +1566,39 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(getObjectLabel(object));
             }
         writeEnd();
+    }
+
+    /**
+     * Disables all form fields after this call so that they're displayed but
+     * not processed on update.
+     */
+    public void disableFormFields() {
+        HttpServletRequest request = getRequest();
+        Integer disabled = (Integer) request.getAttribute(FORM_FIELDS_DISABLED_ATTRIBUTE);
+
+        request.setAttribute(FORM_FIELDS_DISABLED_ATTRIBUTE, disabled != null ? disabled + 1 : 1);
+    }
+
+    /**
+     * Enables all form fields after this call so that they're both displayed
+     * and processed on update.
+     */
+    public void enableFormFields() {
+        HttpServletRequest request = getRequest();
+        Integer disabled = (Integer) request.getAttribute(FORM_FIELDS_DISABLED_ATTRIBUTE);
+
+        if (disabled != null) {
+            request.setAttribute(FORM_FIELDS_DISABLED_ATTRIBUTE, disabled - 1);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the form fields are enabled to be both
+     * displayed and processed on update.
+     */
+    public boolean isFormFieldsDisabled() {
+        Integer disabled = (Integer) getRequest().getAttribute(FORM_FIELDS_DISABLED_ATTRIBUTE);
+        return disabled != null && disabled > 0;
     }
 
     /**
