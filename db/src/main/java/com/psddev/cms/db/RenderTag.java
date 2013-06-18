@@ -114,7 +114,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
         if (!ObjectUtils.isBlank(context)) {
-            ContextTag.Static.getNames(request).addLast(context);
+            ContextTag.Static.pushContext(request, context);
         }
 
         try {
@@ -327,7 +327,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
         if (!ObjectUtils.isBlank(context)) {
-            ContextTag.Static.getNames(request).removeLast();
+            ContextTag.Static.popContext(request);
         }
 
         try {
