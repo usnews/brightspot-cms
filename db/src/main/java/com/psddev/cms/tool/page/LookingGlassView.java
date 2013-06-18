@@ -75,4 +75,12 @@ public abstract class LookingGlassView {
             return StringUtils.addQueryParameters(mirrorUrl, "_grid", true);
         }
     }
+
+    public static class HtmlApiView extends QueryParametersView {
+
+        @Override
+        protected String changeMirrorUrl(String mirrorUrl) {
+            return StringUtils.addQueryParameters(mirrorUrl, "_format", "json");
+        }
+    }
 }
