@@ -214,6 +214,10 @@ $doc.onCreate('.searchSuggestionsForm', function() {
         'type': 'post',
         'url': CONTEXT_PATH + '/content/state.jsp' + search,
         'complete': function(request) {
+            if ($suggestionsForm.closest('body').length === 0) {
+                return;
+            }
+
             $suggestionsForm.append($('<input/>', {
                 'type': 'hidden',
                 'name': 'object',
