@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ public class ToolFormWriter extends FormWriter {
         } else {
             StringWriter string = new StringWriter();
             HtmlWriter html = new HtmlWriter(string);
+            UUID id = page.isFormFieldsDisabled() ? UUID.randomUUID() : state.getId();
 
             try {
                 JspUtils.include(
@@ -53,7 +55,7 @@ public class ToolFormWriter extends FormWriter {
                         page.cmsUrl("/WEB-INF/field.jsp"),
                         "object", state.getOriginalObject(),
                         "field", field,
-                        "inputName", state.getId() + "/" + field.getInternalName(),
+                        "inputName", id + "/" + field.getInternalName(),
                         "isFormPost", false);
 
             } catch (ServletException ex) {

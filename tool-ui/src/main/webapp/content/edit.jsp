@@ -245,37 +245,44 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
                 if (history != null || draft != null) {
-                    wp.writeStart("div", "class", "contentDiff");
-                        if (history != null) {
-                            wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
-                                wp.writeStart("h2").writeHtml("History").writeEnd();
-                                wp.include("/WEB-INF/objectForm.jsp", "object", editing);
-                            wp.writeEnd();
-                        }
+                    State original = State.getInstance(Query.
+                            from(Object.class).
+                            where("_id = ?", editing).
+                            noCache().
+                            first());
 
-                        State original = State.getInstance(Query.
-                                from(Object.class).
-                                where("_id = ?", editing).
-                                noCache().
-                                first());
+                    if (original != null) {
+                        wp.writeStart("div", "class", "contentDiff");
+                            if (history != null) {
+                                wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
+                                    wp.writeStart("h2").writeHtml("History").writeEnd();
+                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                wp.writeEnd();
+                            }
 
-                        original.setId(null);
+                            try {
+                                wp.disableFormFields();
 
-                        wp.writeStart("div",
-                                "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"),
-                                "data-fake-id", original.getId(),
-                                "data-real-id", State.getInstance(editing).getId());
-                            wp.writeStart("h2").writeHtml("Current").writeEnd();
-                            wp.include("/WEB-INF/objectForm.jsp", "object", original.getOriginalObject());
+                                wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
+                                    wp.writeStart("h2").writeHtml("Current").writeEnd();
+                                    wp.include("/WEB-INF/objectForm.jsp", "object", original.getOriginalObject());
+                                wp.writeEnd();
+
+                            } finally {
+                                wp.enableFormFields();
+                            }
+
+                            if (draft != null) {
+                                wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
+                                    wp.writeStart("h2").writeHtml("Draft").writeEnd();
+                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                wp.writeEnd();
+                            }
                         wp.writeEnd();
 
-                        if (draft != null) {
-                            wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
-                                wp.writeStart("h2").writeHtml("Draft").writeEnd();
-                                wp.include("/WEB-INF/objectForm.jsp", "object", editing);
-                            wp.writeEnd();
-                        }
-                    wp.writeEnd();
+                    } else {
+                        wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                    }
 
                 } else {
                     wp.include("/WEB-INF/objectForm.jsp", "object", editing);

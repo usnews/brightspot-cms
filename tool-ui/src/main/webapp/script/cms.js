@@ -393,11 +393,10 @@ $doc.onCreate('.contentDiff', function() {
     });
 
     getValues = function($input) {
-        var fakeId = $input.closest('[data-fake-id]').attr('data-fake-id'),
-                realId = $input.closest('[data-real-id]').attr('data-real-id'),
-                values = $input.find(':input, select, textarea').serialize();
-
-        return fakeId && realId ? values.replace(new RegExp('(^|&)' + fakeId + '%2F', 'g'), '$1' + realId + '%2F') : values;
+        return $input.
+                find(':input, select, textarea').
+                serialize().
+                replace(new RegExp('(^|&)[^%]+%2F', 'g'), '$1%2F');
     };
 
     $left.find('> .objectInputs > .inputContainer').each(function() {
