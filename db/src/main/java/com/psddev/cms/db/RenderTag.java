@@ -293,6 +293,9 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         } else if (value instanceof String) {
             writer.html(value);
 
+        } else if (value instanceof Head) {
+            ((Head) value).writeHtml(writer);
+
         } else {
             PageFilter.renderObject(request, response, writer, value);
         }

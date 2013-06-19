@@ -471,6 +471,13 @@ public class PageFilter extends AbstractFilter {
             seo.put("robots", robots.toString());
             request.setAttribute("seo", seo);
 
+            Head head = new Head();
+            request.setAttribute("head", head);
+
+            if (mainObject instanceof Headable) {
+                ((Headable) mainObject).updateHead(head);
+            }
+
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
             response.setContentType((ObjectUtils.isBlank(contentType) ? "text/html" : contentType) + ";charset=UTF-8");
