@@ -474,6 +474,7 @@ public class PageFilter extends AbstractFilter {
             head.setDescription(seoDescription);
             head.setMetaName("robots", seoRobots);
             head.setMetaName("keywords", seoKeywordsString);
+            head.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
 
             if (mainObject instanceof HeadUpdatable) {
                 ((HeadUpdatable) mainObject).updateHead(head);
