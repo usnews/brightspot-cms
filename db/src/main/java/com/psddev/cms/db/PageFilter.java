@@ -581,7 +581,9 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
-            user.saveAction(request, mainObject);
+            if (!JspUtils.isError(request)) {
+                user.saveAction(request, mainObject);
+            }
 
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
