@@ -116,7 +116,8 @@ public class Head {
     }
 
     /**
-     * Sets {@code <title>...</title>}.
+     * Sets {@code <title>title</title>} and
+     * {@code <meta property="og:title" content="title">}.
      *
      * @param title If blank, removes the element.
      */
@@ -130,10 +131,24 @@ public class Head {
             children.clear();
             children.add(HeadNode.text(title));
         }
+
+        setMetaProperty("og:title", title);
     }
 
     /**
-     * Sets {@code <link rel="canonical" href="...">}.
+     * Sets {@code <meta name="description" content="description">} and
+     * {@code <meta property="og:description" content="description">}.
+     *
+     * @param description If blank, removes the tag.
+     */
+    public void setDescription(String description) {
+        setMetaName("description", description);
+        setMetaProperty("og:description", description);
+    }
+
+    /**
+     * Sets {@code <link rel="canonical" href="url">} and
+     * {@code <meta property="og:url" content="url">}.
      *
      * @param url If blank, removes the tag.
      */
@@ -147,7 +162,7 @@ public class Head {
     }
 
     /**
-     * Sets {@code <meta name="..." content="...">}.
+     * Sets {@code <meta name="name" content="content">}.
      *
      * @param name If blank, does nothing.
      * @param content If blank, removes the tag.
@@ -164,7 +179,7 @@ public class Head {
     }
 
     /**
-     * Sets {@code <meta property="..." content="...">}.
+     * Sets {@code <meta property="property" content="content">}.
      *
      * @param property If blank, does nothing.
      * @param content If blank, removes the tag.
@@ -181,7 +196,7 @@ public class Head {
     }
 
     /**
-     * Sets {@code <meta http-equiv="..." content="...">}.
+     * Sets {@code <meta http-equiv="httpEquiv" content="content">}.
      *
      * @param httpEquiv If blank, does nothing.
      * @param content If blank, removes the tag.
@@ -198,7 +213,7 @@ public class Head {
     }
 
     /**
-     * Adds {@code <link rel="stylsheet" type="text/css" href="...">}.
+     * Adds {@code <link rel="stylsheet" type="text/css" href="href">}.
      *
      * @param href If blank, does nothing.
      */
@@ -212,7 +227,7 @@ public class Head {
     }
 
     /**
-     * Adds {@code <script type="text/javascript" src="..."></script>}.
+     * Adds {@code <script type="text/javascript" src="src"></script>}.
      *
      * @param src If blank, does nothing.
      */
