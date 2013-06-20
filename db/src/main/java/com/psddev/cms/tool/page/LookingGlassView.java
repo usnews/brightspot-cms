@@ -7,6 +7,7 @@ import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.ToolUserAction;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -81,6 +82,27 @@ public abstract class LookingGlassView {
         @Override
         protected String changeMirrorUrl(String mirrorUrl) {
             return StringUtils.addQueryParameters(mirrorUrl, "_format", "json");
+        }
+    }
+
+    public static class EditView extends LookingGlassView {
+
+        @Override
+        protected void doRenderAction(ToolPageContext page, Object content, String mirrorUrl) throws IOException {
+            page.writeStart("div", "style", page.cssString(
+                    "margin", "0 -20px",
+                    "overflow", "hidden"));
+                page.writeStart("iframe",
+                        "src", page.cmsUrl("/content/edit.jsp",
+                                "_mirror", true,
+                                "id", State.getInstance(content).getId()),
+                        "style", page.cssString(
+                                "border-style", "none",
+                                "height", "10000px",
+                                "margin-top", "-70px",
+                                "width", "100%"));
+                page.writeEnd();
+            page.writeEnd();
         }
     }
 }
