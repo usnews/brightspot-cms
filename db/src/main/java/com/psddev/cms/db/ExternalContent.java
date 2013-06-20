@@ -70,15 +70,7 @@ public class ExternalContent extends Content implements Renderer {
                     String oEmbedUrl = link.attr("href");
 
                     if (!ObjectUtils.isBlank(oEmbedUrl)) {
-                        Map<String, Object> newResponse = ObjectUtils.to(
-                                new TypeReference<Map<String, Object>>() { },
-                                ObjectUtils.fromJson(IoUtils.toString(new URL(oEmbedUrl))));
-
-                        newResponse.put("_url", url);
-                        newResponse.put("_maximumWidth", width);
-                        newResponse.put("_maximumHeight", height);
-                        response = newResponse;
-
+                        getResponseByOEmbedUrl(oEmbedUrl);
                         break;
                     }
                 }
@@ -86,6 +78,24 @@ public class ExternalContent extends Content implements Renderer {
             } catch (IOException error) {
                 error.printStackTrace();
             }
+        }
+
+        return response;
+    }
+
+    public Map<String, Object> getResponseByOEmbedUrl(String oEmbedUrl) {
+        try {
+            Map<String, Object> newResponse = ObjectUtils.to(
+                    new TypeReference<Map<String, Object>>() { },
+                    ObjectUtils.fromJson(IoUtils.toString(new URL(oEmbedUrl))));
+
+            newResponse.put("_url", url);
+            newResponse.put("_maximumWidth", getMaximumWidth());
+            newResponse.put("_maximumHeight", getMaximumHeight());
+            response = newResponse;
+
+        } catch (IOException error) {
+            error.printStackTrace();
         }
 
         return response;

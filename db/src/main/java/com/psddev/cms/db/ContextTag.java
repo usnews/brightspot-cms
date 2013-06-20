@@ -45,7 +45,7 @@ class Image { ... }
 public class ContextTag extends BodyTagSupport {
 
     private static final String ATTRIBUTE_PREFIX = ContextTag.class.getName();
-    private static final String NAMES_ATTRIBUTE = ATTRIBUTE_PREFIX + "names";
+    private static final String CONTEXTS_ATTRIBUTE = ATTRIBUTE_PREFIX + "contexts";
 
     private String name;
 
@@ -57,13 +57,13 @@ public class ContextTag extends BodyTagSupport {
 
     @Override
     public int doStartTag() throws JspException {
-        Static.getNames(pageContext.getRequest()).addLast(name);
+        Static.pushContext(pageContext.getRequest(), name);
         return EVAL_BODY_INCLUDE;
     }
 
     @Override
     public int doEndTag() throws JspException {
-        Static.getNames(pageContext.getRequest()).removeLast();
+        Static.popContext(pageContext.getRequest());
         return EVAL_PAGE;
     }
 
@@ -80,15 +80,40 @@ public class ContextTag extends BodyTagSupport {
          * @return Never {@code null}. Mutable.
          */
         @SuppressWarnings("unchecked")
-        public static Deque<String> getNames(ServletRequest request) {
-            Deque<String> names = (Deque<String>) request.getAttribute(NAMES_ATTRIBUTE);
+        public static Deque<String> getContexts(ServletRequest request) {
+            Deque<String> contexts = (Deque<String>) request.getAttribute(CONTEXTS_ATTRIBUTE);
 
-            if (names == null) {
-                names = new ArrayDeque<String>();
-                request.setAttribute(NAMES_ATTRIBUTE, names);
+            if (contexts == null) {
+                contexts = new ArrayDeque<String>();
+                request.setAttribute(CONTEXTS_ATTRIBUTE, contexts);
             }
 
-            return names;
+            return contexts;
+        }
+
+        /**
+         * Pushes the given {@code context} to be current in the given
+         * {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         * @param context May be {@code null}.
+         */
+        public static void pushContext(ServletRequest request, String context) {
+            getContexts(request).addLast(context);
+            request.setAttribute("context", context);
+        }
+
+        /**
+         * Pops the current context out of the given {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static String popContext(ServletRequest request) {
+            Deque<String> contexts = getContexts(request);
+            String popped = contexts.removeLast();
+
+            request.setAttribute("context", contexts.peekLast());
+            return popped;
         }
 
         /**
@@ -99,7 +124,7 @@ public class ContextTag extends BodyTagSupport {
          */
         public static boolean isInContext(ServletRequest request, String context) {
             if (context != null) {
-                for (Iterator<String> i = getNames(request).descendingIterator(); i.hasNext(); ) {
+                for (Iterator<String> i = getContexts(request).descendingIterator(); i.hasNext(); ) {
                     if (context.equals(i.next())) {
                         return true;
                     }

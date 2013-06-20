@@ -121,7 +121,7 @@ $.plugin2('objectId', {
             'class': 'objectId-select',
             'target': target,
             'href': ($input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp')) +
-                    '?pt=' + encodeURIComponent(formAction.substring(formAction.indexOf('id=') + 3)) +
+                    '?pt=' + encodeURIComponent((/id=([^&]+)/.exec(formAction) || [ ])[1] || '') +
                     '&p=' + encodeURIComponent($input.attr('data-pathed')) +
                     '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') +
                     '&aq=' + encodeURIComponent($input.attr('data-additional-query') || '') +

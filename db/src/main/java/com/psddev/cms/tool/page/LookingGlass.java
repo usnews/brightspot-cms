@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,10 @@ import com.psddev.cms.db.ToolUserDevice;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 
 @RoutingFilter.Path(application = "cms", value = "lookingGlass")
 @SuppressWarnings("serial")
@@ -134,32 +135,48 @@ public class LookingGlass extends PageServlet {
                     if (lastAction != null) {
                         Object lastActionContent = lastAction.getContent();
 
-                        page.writeHtml(" - ");
-                        page.writeStart("a",
-                                "target", "_blank",
-                                "href", page.objectUrl("/content/edit.jsp", lastActionContent));
-                            page.writeTypeObjectLabel(lastActionContent);
-                        page.writeEnd();
+                        if (lastActionContent != null) {
+                            page.writeHtml(" - ");
+                            page.writeStart("a",
+                                    "target", "_blank",
+                                    "href", page.objectUrl("/content/edit.jsp", lastActionContent));
+                                page.writeTypeObjectLabel(lastActionContent);
+                            page.writeEnd();
+                        }
                     }
                 }
             page.writeEnd();
 
-            State preview = State.getInstance(Query.
-                    from(Object.class).
-                    where("_id = ?", user.getCurrentPreviewId()).
-                    first());
+            Class<?> viewClass = ObjectUtils.getClassByName(page.param(String.class, "view"));
 
-            if (preview != null) {
-                page.writeStart("div", "style", page.cssString("margin", "0 -20px"));
-                    page.writeStart("iframe",
-                            "src", JspUtils.getAbsolutePath(page.getRequest(), "/_preview", "_cms.db.previewId", preview.getId()),
-                            "style", page.cssString(
-                                    "border-style", "none",
-                                    "height", "10000px",
-                                    "width", "100%"));
-                    page.writeEnd();
-                page.writeEnd();
+            if (viewClass == null ||
+                    !LookingGlassView.class.isAssignableFrom(viewClass)) {
+                viewClass = LookingGlassView.PreviewView.class;
             }
+
+            page.writeStart("form",
+                    "method", "get",
+                    "action", page.cmsUrl("/lookingGlass"));
+                page.writeTag("input", "type", "hidden", "name", "id", "value", id);
+
+                page.writeStart("select",
+                        "class", "autoSubmit",
+                        "name", "view");
+                    for (Class<? extends LookingGlassView> c : ObjectUtils.findClasses(LookingGlassView.class)) {
+                        if (Modifier.isAbstract(c.getModifiers())) {
+                            continue;
+                        }
+
+                        page.writeStart("option",
+                                "selected", c.equals(viewClass) ? "selected" : null,
+                                "value", c.getName());
+                            page.writeHtml(StringUtils.toLabel(c.getSimpleName()));
+                        page.writeEnd();
+                    }
+                page.writeEnd();
+            page.writeEnd();
+
+            ((LookingGlassView) TypeDefinition.getInstance(viewClass).newInstance()).renderAction(page, user, lastAction);
 
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("(function($, win) {");

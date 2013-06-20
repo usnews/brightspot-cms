@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -449,27 +448,39 @@ public class PageFilter extends AbstractFilter {
                 page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
-            // Set up a profile.
+            // SEO and <head>.
             Map<String, Object> seo = new HashMap<String, Object>();
-            seo.put("title", Seo.Static.findTitle(mainObject));
-            seo.put("description", Seo.Static.findDescription(mainObject));
-            Set<String> keywords = Seo.Static.findKeywords(mainObject);
-            if (keywords != null) {
-                seo.put("keywords", keywords);
-                seo.put("keywordsString", keywords.toString());
+            Seo.ObjectModification seoData = mainState.as(Seo.ObjectModification.class);
+            String seoTitle = seoData.findTitle();
+            String seoDescription = seoData.findDescription();
+            String seoRobots = seoData.findRobotsString();
+            Set<String> seoKeywords = seoData.findKeywords();
+            String seoKeywordsString = null;
+
+            seo.put("title", seoTitle);
+            seo.put("description", seoDescription);
+            seo.put("robots", seoRobots);
+
+            if (seoKeywords != null) {
+                seoKeywordsString = seoKeywords.toString();
+
+                seo.put("keywords", seoKeywords);
+                seo.put("keywordsString", seoKeywordsString);
             }
 
-            StringBuilder robots = new StringBuilder();
-            for (Iterator<Seo.RobotsValue> i = State.getInstance(mainObject).as(Seo.ObjectModification.class).getRobots().iterator(); i.hasNext(); ) {
-                Seo.RobotsValue value = i.next();
-                robots.append(value.name().toLowerCase(Locale.ENGLISH));
-                if (i.hasNext()) {
-                    robots.append(",");
-                }
+            Head head = new Head();
+
+            head.setTitle(seoTitle);
+            head.setDescription(seoDescription);
+            head.setMetaName("robots", seoRobots);
+            head.setMetaName("keywords", seoKeywordsString);
+
+            if (mainObject instanceof HeadUpdatable) {
+                ((HeadUpdatable) mainObject).updateHead(head);
             }
 
-            seo.put("robots", robots.toString());
             request.setAttribute("seo", seo);
+            request.setAttribute("head", head);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
@@ -562,8 +573,15 @@ public class PageFilter extends AbstractFilter {
 
         Object mainObject = PageFilter.Static.getMainObject(request);
 
-        if (mainObject != null &&
-                AuthenticationFilter.Static.getUser(request) != null) {
+        if (mainObject != null) {
+            ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+            if (user == null) {
+                return;
+            }
+
+            user.saveAction(request, mainObject);
+
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
             @SuppressWarnings("resource")

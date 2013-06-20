@@ -17,6 +17,7 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
@@ -184,7 +185,8 @@ public class ToolUser extends Record {
      * @param content If {@code null}, does nothing.
      */
     public void saveAction(HttpServletRequest request, Object content) {
-        if (content == null) {
+        if (content == null ||
+                ObjectUtils.to(boolean.class, request.getParameter("_mirror"))) {
             return;
         }
 
