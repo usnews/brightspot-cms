@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -452,10 +451,10 @@ public class PageFilter extends AbstractFilter {
             // SEO and <head>.
             Map<String, Object> seo = new HashMap<String, Object>();
             Seo.ObjectModification seoData = mainState.as(Seo.ObjectModification.class);
-            String seoTitle = Seo.Static.findTitle(mainObject);
-            String seoDescription = Seo.Static.findDescription(mainObject);
+            String seoTitle = seoData.findTitle();
+            String seoDescription = seoData.findDescription();
             String seoRobots = seoData.findRobotsString();
-            Set<String> seoKeywords = Seo.Static.findKeywords(mainObject);
+            Set<String> seoKeywords = seoData.findKeywords();
             String seoKeywordsString = null;
 
             seo.put("title", seoTitle);
