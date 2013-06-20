@@ -26,7 +26,7 @@ public class ToolUserHistory extends PageServlet {
         ToolUser user = page.getUser();
 
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("div", "class", "widget", "style", "overflow: hidden;");
                 page.writeStart("h1", "class", "icon icon-object-history");
                     page.writeHtml("History");
                 page.writeEnd();
@@ -35,9 +35,8 @@ public class ToolUserHistory extends PageServlet {
                     for (ToolUserDevice device : user.getDevices()) {
                         String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getLookingGlassId());
 
-                        page.writeStart("li");
+                        page.writeStart("li", "style", "clear: right;");
                             page.writeHtml(device.getUserAgentDisplay());
-                            page.writeHtml(" - ");
 
                             page.writeStart("div", "style", page.cssString(
                                     "float", "right",
