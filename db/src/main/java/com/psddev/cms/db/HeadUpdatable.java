@@ -1,6 +1,6 @@
 package com.psddev.cms.db;
 
-public interface Headable {
+public interface HeadUpdatable {
 
     public void updateHead(Head head);
 }
