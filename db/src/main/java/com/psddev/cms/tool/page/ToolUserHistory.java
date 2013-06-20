@@ -9,6 +9,7 @@ import com.psddev.cms.db.ToolUserAction;
 import com.psddev.cms.db.ToolUserDevice;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "toolUserHistory")
@@ -32,15 +33,30 @@ public class ToolUserHistory extends PageServlet {
 
                 page.writeStart("ul");
                     for (ToolUserDevice device : user.getDevices()) {
+                        String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getLookingGlassId());
+
                         page.writeStart("li");
                             page.writeHtml(device.getUserAgentDisplay());
                             page.writeHtml(" - ");
 
-                            page.writeStart("a",
-                                    "class", "icon icon-facetime-video",
-                                    "target", "_blank",
-                                    "href", page.cmsUrl("/lookingGlass", "id", device.getLookingGlassId()));
-                                page.writeHtml("Looking Glass");
+                            page.writeStart("div", "style", page.cssString(
+                                    "float", "right",
+                                    "text-align", "center"));
+                                page.writeStart("a",
+                                        "class", "icon icon-facetime-video",
+                                        "target", "_blank",
+                                        "href", lookingGlassUrl);
+                                    page.writeHtml("Looking Glass");
+                                page.writeEnd();
+
+                                page.writeTag("br");
+
+                                page.writeTag("img",
+                                        "width", 150,
+                                        "height", 150,
+                                        "src", page.cmsUrl("qrCode",
+                                                "data", JspUtils.getAbsoluteUrl(page.getRequest(), lookingGlassUrl),
+                                                "size", 150));
                             page.writeEnd();
 
                             page.writeStart("ul", "class", "links");
