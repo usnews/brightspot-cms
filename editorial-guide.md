@@ -23,7 +23,7 @@ The Tools at the top of the screen remain visible on all pages in Brightspot. Fr
 
 **Search**
 
-The search tool can be accessed from any screen in Brightspot. Place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content.
+The search tool can be accessed from any screen in Brightspot. Place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content. From within search you can also create new content, start a work stream, or launch advanced searches.
 
 ![](http://docs.brightspot.s3.amazonaws.com/dashboard_search_2.1.png)
 
@@ -160,6 +160,7 @@ You can delete a draft at any time by selecting it and clicking Delete. This doe
 
 ![](http://docs.brightspot.s3.amazonaws.com/drafts-2.1.png)
 
+
 ## Delete / Trash
 
 Content can be moved to the trash at any time by clicking Trash. This removes the content from your site, but keeps it in a Trashed status in the CMS. It can be restored, or Deleted Permanently, using the Publication widget. See below:
@@ -169,7 +170,6 @@ Content can be moved to the trash at any time by clicking Trash. This removes th
 *Note: Trashed content that is being used within other content, example a Trashed Author within an Article, is removed from the front-end website once trashed. The reference, however, is still kept within the Article object, so the Author can be restored with one click, and an editor can see that the Article now has an Author missing.*
 
 ![](http://docs.brightspot.s3.amazonaws.com/trashed-reference-2.1.png)
-
 
 
 ## Adding Images
@@ -339,11 +339,11 @@ Brightspot adheres to, and encourages SEO best practices. Where an editor has no
 
 ## Administration 
 
-#### User Admin
+#### Roles and Permissions
 
 Found in Admin -> Users and Roles, Brightspot provides a simple user interface that allows Administrators to add new users, and define their roles.
 
-Create a new user, by default, all new users inherit the same role. This is configured in Admin > Settings. The `Current Site` allows users with MultiSite access to define the default site for the user. 
+Create a new user, by default, all new users inherit the same role. This is configured in Admin > Settings, where the default role can be set. The `Current Site` allows users with MultiSite access to define the default site for the user. 
 
 ![](http://docs.brightspot.s3.amazonaws.com/users-roles.png)
 
@@ -352,6 +352,52 @@ Once a user has been created, a `New Role` can be added, with customizable acces
 ![](http://docs.brightspot.s3.amazonaws.com/users_roles.png)
 
 ![](http://docs.brightspot.s3.amazonaws.com/add-user.png)
+
+#### Workflows
+
+Custom workflows can be created for any user role and content type. Build your own workflow, with transitions and statuses that match your editorial flow, and terms, using the intuitive drag-and-drop interface.
+
+**Creating a new Workflow**
+
+Start by navigating to Admin -> Workflows. Create a new workflow, name it and select the content type you would like to apply the workflow for. Save.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_new.png)
+
+**Building the Workflow: Adding a Status**
+
+Click `Add Status` to start creating the workflow. This will be the status the item is placed in as it moves through the workflow. An example would be `Submitted`. You can drag these status boxes anywhere within the workflow space.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_status.png)
+
+**Building the Workflow: Adding Transitions**
+
+Having created the statuses that you need, start with `New` and click `Add Transition`. Drag the transition to the appropriate status and click. A transition label box will appear. This is the label for the transition, example `Submit`. This will appear on the action button for the editor.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_transition.png)
+
+Using the Status boxes, and the transitions, build out the workflow, with the final transition moving to the `Published` box.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_complete.png)
+
+**Using the Workflow: Controlling Users**
+
+Once a workflow is in place, all users will have the status options available as they create new instances of that content, alongside the normal publish actions. To limit the options available to a user (Only able to submit, not publish content) their role can be updated. Using the Users & Roles tool, select the content type that the workflow is applied to, and remove the ability for a particular role to publish etc. The exact statuses that are created in the workflow appear here.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_role.png)
+
+**Using the Workflow**
+
+The Published Drafts dashboard widget shows all content in a particular status. Clicking into content shows the available actions, and any notes that have been given.
+
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_notes.png)
+
+#### Two Factor Authentication
+
+Editorial access to your CMS is the most direct and most damaging way in which you may be attacked. Even strong passwords can be compromised through spear phishing. This is why Brightspot has two factor authentication, built-in. To enable the two factor auth, open the profile pop-up found at the top of the CMS. Using your smart phone, with a service such as [Google Authenticator](https://support.google.com/accounts/answer/1066447) scan the QR Code. You will be sent a code. Enter the code into the profile pop-up. 
+
+![](http://docs.brightspot.s3.amazonaws.com/two-factor-auth.png)
+
+Now, on log-in, email and password, as well as the code on their phone will need to be entered. The Google Authenticator app has settings for time-out of the code to control how often it needs to be entered or changed.
 
 
 </div>
