@@ -1235,10 +1235,10 @@ public class ToolPageContext extends WebPageContext {
 
                                 writeStart("li");
                                     writeStart("a",
-                                            "class", "icon icon-object-toolUserDevice",
-                                            "href", cmsUrl("/toolUserDevices"),
-                                            "target", "toolUserDevices");
-                                        writeHtml("Devices");
+                                            "class", "icon icon-object-history",
+                                            "href", cmsUrl("/toolUserHistory"),
+                                            "target", "toolUserHistory");
+                                        writeHtml("History");
                                     writeEnd();
                                 writeEnd();
 

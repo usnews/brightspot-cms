@@ -11,9 +11,9 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.RoutingFilter;
 
-@RoutingFilter.Path(application = "cms", value = "toolUserDevices")
+@RoutingFilter.Path(application = "cms", value = "toolUserHistory")
 @SuppressWarnings("serial")
-public class ToolUserDevices extends PageServlet {
+public class ToolUserHistory extends PageServlet {
 
     @Override
     protected String getPermissionId() {
@@ -26,15 +26,24 @@ public class ToolUserDevices extends PageServlet {
 
         page.writeHeader();
             page.writeStart("div", "class", "widget");
-                page.writeStart("h1", "class", "icon icon-object-toolUserDevice");
-                    page.writeHtml("Devices");
+                page.writeStart("h1", "class", "icon icon-object-history");
+                    page.writeHtml("History");
                 page.writeEnd();
 
                 page.writeStart("ul");
                     for (ToolUserDevice device : user.getDevices()) {
                         page.writeStart("li");
                             page.writeHtml(device.getUserAgentDisplay());
-                            page.writeStart("ul");
+                            page.writeHtml(" - ");
+
+                            page.writeStart("a",
+                                    "class", "icon icon-facetime-video",
+                                    "target", "_blank",
+                                    "href", page.cmsUrl("/lookingGlass", "id", device.getLookingGlassId()));
+                                page.writeHtml("Looking Glass");
+                            page.writeEnd();
+
+                            page.writeStart("ul", "class", "links");
                                 for (ToolUserAction action : device.getActions()) {
                                     Object actionContent = action.getContent();
 
@@ -44,7 +53,7 @@ public class ToolUserDevices extends PageServlet {
 
                                     page.writeStart("li");
                                         page.writeStart("a",
-                                                "target", "_blank",
+                                                "target", "_top",
                                                 "href", page.objectUrl("/content/edit.jsp", actionContent));
                                             page.writeTypeObjectLabel(actionContent);
                                         page.writeEnd();
