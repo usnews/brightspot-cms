@@ -449,34 +449,39 @@ public class PageFilter extends AbstractFilter {
                 page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
-            // Set up a profile.
+            // SEO and <head>.
             Map<String, Object> seo = new HashMap<String, Object>();
-            seo.put("title", Seo.Static.findTitle(mainObject));
-            seo.put("description", Seo.Static.findDescription(mainObject));
-            Set<String> keywords = Seo.Static.findKeywords(mainObject);
-            if (keywords != null) {
-                seo.put("keywords", keywords);
-                seo.put("keywordsString", keywords.toString());
-            }
+            Seo.ObjectModification seoData = mainState.as(Seo.ObjectModification.class);
+            String seoTitle = Seo.Static.findTitle(mainObject);
+            String seoDescription = Seo.Static.findDescription(mainObject);
+            String seoRobots = seoData.findRobotsString();
+            Set<String> seoKeywords = Seo.Static.findKeywords(mainObject);
+            String seoKeywordsString = null;
 
-            StringBuilder robots = new StringBuilder();
-            for (Iterator<Seo.RobotsValue> i = State.getInstance(mainObject).as(Seo.ObjectModification.class).getRobots().iterator(); i.hasNext(); ) {
-                Seo.RobotsValue value = i.next();
-                robots.append(value.name().toLowerCase(Locale.ENGLISH));
-                if (i.hasNext()) {
-                    robots.append(",");
-                }
-            }
+            seo.put("title", seoTitle);
+            seo.put("description", seoDescription);
+            seo.put("robots", seoRobots);
 
-            seo.put("robots", robots.toString());
-            request.setAttribute("seo", seo);
+            if (seoKeywords != null) {
+                seoKeywordsString = seoKeywords.toString();
+
+                seo.put("keywords", seoKeywords);
+                seo.put("keywordsString", seoKeywordsString);
+            }
 
             Head head = new Head();
-            request.setAttribute("head", head);
 
-            if (mainObject instanceof Headable) {
-                ((Headable) mainObject).updateHead(head);
+            head.setTitle(seoTitle);
+            head.setDescription(seoDescription);
+            head.setMetaName("robots", seoRobots);
+            head.setMetaName("keywords", seoKeywordsString);
+
+            if (mainObject instanceof HeadUpdatable) {
+                ((HeadUpdatable) mainObject).updateHead(head);
             }
+
+            request.setAttribute("seo", seo);
+            request.setAttribute("head", head);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);

@@ -1,26 +1,26 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.db.State;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.ReferentialText;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /** SEO-related classes. */
 public final class Seo {
@@ -219,6 +219,34 @@ public final class Seo {
 
         public void setRobots(Set<RobotsValue> robots) {
             this.robots = robots;
+        }
+
+        /**
+         * Finds the most appropriate content for
+         * {@code <meta name="robots">}.
+         *
+         * @return May be {@code null}.
+         */
+        public String findRobotsString() {
+            Set<RobotsValue> robots = getRobots();
+
+            if (robots == null || robots.isEmpty()) {
+                return null;
+            }
+
+            StringBuilder string = new StringBuilder();
+
+            for (Iterator<Seo.RobotsValue> i = getRobots().iterator(); i.hasNext(); ) {
+                Seo.RobotsValue value = i.next();
+
+                string.append(value.name().toLowerCase(Locale.ENGLISH));
+
+                if (i.hasNext()) {
+                    string.append(",");
+                }
+            }
+
+            return string.toString();
         }
     }
 
