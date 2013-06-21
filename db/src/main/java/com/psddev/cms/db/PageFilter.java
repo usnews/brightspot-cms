@@ -572,6 +572,10 @@ public class PageFilter extends AbstractFilter {
             Database.Static.restoreDefault();
         }
 
+        if (Static.isPreview(request)) {
+            return;
+        }
+
         Object mainObject = PageFilter.Static.getMainObject(request);
 
         if (mainObject != null) {
