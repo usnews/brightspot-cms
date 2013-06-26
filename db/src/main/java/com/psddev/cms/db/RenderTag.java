@@ -20,6 +20,7 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -293,8 +294,8 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         } else if (value instanceof String) {
             writer.html(value);
 
-        } else if (value instanceof Head) {
-            ((Head) value).writeHtml(writer);
+        } else if (value instanceof HtmlNode) {
+            ((HtmlNode) value).writeHtml(writer);
 
         } else {
             PageFilter.renderObject(request, response, writer, value);

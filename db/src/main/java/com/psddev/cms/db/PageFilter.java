@@ -207,6 +207,7 @@ public class PageFilter extends AbstractFilter {
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
         dependencies.add(FieldAccessFilter.class);
+        dependencies.add(PageResponseFilter.class);
         return dependencies;
     }
 
@@ -457,6 +458,7 @@ public class PageFilter extends AbstractFilter {
             Set<String> seoKeywords = seoData.findKeywords();
             String seoKeywordsString = null;
 
+            request.setAttribute("seo", seo);
             seo.put("title", seoTitle);
             seo.put("description", seoDescription);
             seo.put("robots", seoRobots);
@@ -468,20 +470,16 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywordsString", seoKeywordsString);
             }
 
-            Head head = new Head();
+            if (response instanceof PageResponse) {
+                PageResponse pageResponse = (PageResponse) response;
 
-            head.setTitle(seoTitle);
-            head.setDescription(seoDescription);
-            head.setMetaName("robots", seoRobots);
-            head.setMetaName("keywords", seoKeywordsString);
-            head.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
-
-            if (mainObject instanceof HeadUpdatable) {
-                ((HeadUpdatable) mainObject).updateHead(head);
+                pageResponse.setTitle(seoTitle);
+                pageResponse.setDescription(seoDescription);
+                pageResponse.setMetaName("robots", seoRobots);
+                pageResponse.setMetaName("keywords", seoKeywordsString);
+                pageResponse.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
+                pageResponse.update(mainObject);
             }
-
-            request.setAttribute("seo", seo);
-            request.setAttribute("head", head);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
