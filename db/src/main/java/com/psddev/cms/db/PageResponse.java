@@ -25,12 +25,12 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeDefinition;
 
 /**
- * CMS-specific HTTP servlet page response.
+ * CMS-specific HTTP servlet page response. This class is commonly used to
+ * easily update and render the contents of the {@code <head>} element.
  *
- * <p>This class is commonly used to easily update and render the contents
- * of the {@code <head>} element. For example, given the following class:</p>
+ * <p>For example, given the following class:</p>
  *
- * <blockquote><pre><code data-type="java">
+ * <blockquote><pre data-type="java">
  *public class Article extends Content implements PageResponse.Updatable {
  *
  *    private String title;
@@ -39,49 +39,49 @@ import com.psddev.dari.util.TypeDefinition;
  *        return title;
  *    }
  *
- *    @Override
+ *    {@literal @}Override
  *    public void updateResponse(PageResponse response) {
  *        response.setTitle(getTitle());
  *    }
  *}
- * </code></pre></blockquote>
+ * </pre></blockquote>
  *
  * <p>The following JSP fragment:</p>
  *
- * <blockquote><pre><code data-type="jsp">
+ * <blockquote><pre data-type="jsp">
  *&lt;head&gt;
  *&lt;cms:render value="${response.headNodes}" /&gt;
  *&lt;/head&gt;
- * </code></pre></blockquote>
+ * </pre></blockquote>
  *
  * <p>Will output:</p>
  *
- * <blockquote><pre><code data-type="html">{@literal
+ * <blockquote><pre data-type="html">{@literal
  *<head>
  *<title>The Article Title</title>
  *</head>
- * }</code></pre></blockquote>
+ * }</pre></blockquote>
  *
  * <p>Additionally, classes can share the update logic using the
  * {@link UpdateClass} annotation:</p>
  *
- * <blockquote><pre><code data-type="java">
+ * <blockquote><pre data-type="java">
  *public class DefaultPageResponseUpdater implements PageResponse.Updatable {
  *
- *    @Override
+ *    {@literal @}Override
  *    public void updateResponse(PageResponse response) {
  *        response.setTitle(getTitle());
  *    }
  *}
  *
- *@PageResponse.UpdateClass(DefaultPageResponseUpdater.class)
+ *{@literal @}PageResponse.UpdateClass(DefaultPageResponseUpdater.class)
  *public class Article extends Content {
  *}
- * </code></pre></blockquote>
+ * </pre></blockquote>
  */
 public class PageResponse extends HttpServletResponseWrapper {
 
-    public final List<HtmlNode> headNodes;
+    private final List<HtmlNode> headNodes;
 
     /**
      * Creates an instance that wraps the given {@code response} and shares
