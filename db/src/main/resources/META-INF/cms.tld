@@ -271,6 +271,14 @@
     </function>
 
     <function>
+        <name>query</name>
+        <function-class>com.psddev.dari.db.Query</function-class>
+        <function-signature>
+            com.psddev.dari.db.Query fromGroup(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>resource</name>
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>
