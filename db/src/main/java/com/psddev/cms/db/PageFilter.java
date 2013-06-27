@@ -207,7 +207,6 @@ public class PageFilter extends AbstractFilter {
         dependencies.add(com.psddev.dari.util.FrameFilter.class);
         dependencies.add(com.psddev.dari.util.RoutingFilter.class);
         dependencies.add(FieldAccessFilter.class);
-        dependencies.add(PageResponseFilter.class);
         return dependencies;
     }
 
@@ -470,16 +469,15 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywordsString", seoKeywordsString);
             }
 
-            if (response instanceof PageResponse) {
-                PageResponse pageResponse = (PageResponse) response;
+            PageStage stage = new PageStage();
 
-                pageResponse.setTitle(seoTitle);
-                pageResponse.setDescription(seoDescription);
-                pageResponse.setMetaName("robots", seoRobots);
-                pageResponse.setMetaName("keywords", seoKeywordsString);
-                pageResponse.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
-                pageResponse.update(mainObject);
-            }
+            request.setAttribute("stage", stage);
+            stage.setTitle(seoTitle);
+            stage.setDescription(seoDescription);
+            stage.setMetaName("robots", seoRobots);
+            stage.setMetaName("keywords", seoKeywordsString);
+            stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
+            stage.update(mainObject);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);

@@ -10,12 +10,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Recordable.FieldInternalNamePrefix;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlElement;
@@ -25,13 +22,13 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeDefinition;
 
 /**
- * CMS-specific HTTP servlet page response. This class is commonly used to
+ * Holds various data on how to render a page. This class is commonly used to
  * easily update and render the contents of the {@code <head>} element.
  *
  * <p>For example, given the following class:</p>
  *
  * <blockquote><pre data-type="java">
- *public class Article extends Content implements PageResponse.Updatable {
+ *public class Article extends Content implements PageStage.Updatable {
  *
  *    private String title;
  *
@@ -40,8 +37,8 @@ import com.psddev.dari.util.TypeDefinition;
  *    }
  *
  *    {@literal @}Override
- *    public void updateResponse(PageResponse response) {
- *        response.setTitle(getTitle());
+ *    public void updateStage(PageStage stage) {
+ *        stage.setTitle(getTitle());
  *    }
  *}
  * </pre></blockquote>
@@ -50,7 +47,7 @@ import com.psddev.dari.util.TypeDefinition;
  *
  * <blockquote><pre data-type="jsp">
  *&lt;head&gt;
- *&lt;cms:render value="${response.headNodes}" /&gt;
+ *&lt;cms:render value="${stage.headNodes}" /&gt;
  *&lt;/head&gt;
  * </pre></blockquote>
  *
@@ -66,37 +63,22 @@ import com.psddev.dari.util.TypeDefinition;
  * {@link UpdateClass} annotation:</p>
  *
  * <blockquote><pre data-type="java">
- *public class DefaultPageResponseUpdater implements PageResponse.Updatable {
+ *public class DefaultPageStageUpdater implements PageStage.Updatable {
  *
  *    {@literal @}Override
- *    public void updateResponse(PageResponse response) {
- *        response.setTitle(getTitle());
+ *    public void updateStage(PageStage stage) {
+ *        stage.setTitle(getTitle());
  *    }
  *}
  *
- *{@literal @}PageResponse.UpdateClass(DefaultPageResponseUpdater.class)
+ *{@literal @}PageStage.UpdateClass(DefaultPageStageUpdater.class)
  *public class Article extends Content {
  *}
  * </pre></blockquote>
  */
-public class PageResponse extends HttpServletResponseWrapper {
+public class PageStage extends Record {
 
-    private final List<HtmlNode> headNodes;
-
-    /**
-     * Creates an instance that wraps the given {@code response} and shares
-     * the internal state of the given {@code parent}. Typically, it's not
-     * necessary to create this manually, because {@link PageResponseFilter}
-     * will ensure that the response object is always wrapped.
-     *
-     * @param response Can't be {@code null}.
-     * @param parent May be {@code null}.
-     */
-    public PageResponse(HttpServletResponse response, PageResponse parent) {
-        super(response);
-
-        this.headNodes = parent != null ? parent.headNodes : new ArrayList<HtmlNode>();
-    }
+    private final transient List<HtmlNode> headNodes = new ArrayList<HtmlNode>();
 
     /**
      * Returns the list of all nodes in the {@code <head>} element.
@@ -371,7 +353,7 @@ public class PageResponse extends HttpServletResponseWrapper {
     }
 
     /**
-     * Updates this response using the given {@code object}.
+     * Updates this stage using the given {@code object}.
      *
      * @param object Can't be {@code null}.
      */
@@ -383,18 +365,18 @@ public class PageResponse extends HttpServletResponseWrapper {
             Updatable updatable = type.as(TypeData.class).createUpdatable();
 
             if (updatable != null) {
-                updatable.updateResponse(this);
+                updatable.updateStage(this);
             }
         }
 
         if (object instanceof Updatable) {
-            ((Updatable) object).updateResponse(this);
+            ((Updatable) object).updateStage(this);
         }
     }
 
     /**
      * Specifies the {@link Updatable} class that will update the
-     * {@link PageResponse} for all instances of the target type. If the class
+     * {@link PageStage} for all instances of the target type. If the class
      * directly implements {@link Updatable}, this will run after.
      */
     @Documented
@@ -416,9 +398,9 @@ public class PageResponse extends HttpServletResponseWrapper {
     }
 
     /**
-     * Type modification that adds {@link PageResponse}-specific data.
+     * Type modification that adds {@link PageStage}-specific data.
      */
-    @FieldInternalNamePrefix("cms.pageResponse.")
+    @FieldInternalNamePrefix("cms.pageStage.")
     public static class TypeData extends Modification<ObjectType> {
 
         private String updateClassName;
@@ -447,16 +429,16 @@ public class PageResponse extends HttpServletResponseWrapper {
     }
 
     /**
-     * {@link PageFilter} will call {@link #updateResponse} before rendering
+     * {@link PageFilter} will call {@link #updateStage} before rendering
      * if the main content implements this interface.
      */
     public static interface Updatable {
 
         /**
-         * Updates the given {@code response}. This is typically used to set
+         * Updates the given {@code stage}. This is typically used to set
          * the nodes within the {@code <head>} element, such as the
          * {@code <title>}.
          */
-        public void updateResponse(PageResponse response);
+        public void updateStage(PageStage stage);
     }
 }
