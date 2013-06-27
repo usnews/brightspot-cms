@@ -63,11 +63,15 @@ import com.psddev.dari.util.TypeDefinition;
  * {@link UpdateClass} annotation:</p>
  *
  * <blockquote><pre data-type="java">
- *public class DefaultPageStageUpdater implements PageStage.Updatable {
+ *public class DefaultPageStageUpdater implements PageStage.SharedUpdatable {
  *
  *    {@literal @}Override
- *    public void updateStage(PageStage stage) {
- *        stage.setTitle(getTitle());
+ *    public void updateStageBefore(Object object, PageStage stage) {
+ *    }
+ *
+ *    {@literal @}Override
+ *    public void updateStageAfter(Object object, PageStage stage) {
+ *        stage.setTitle(stage.getTitle() + " | Site Name");
  *    }
  *}
  *
@@ -360,17 +364,20 @@ public class PageStage extends Record {
     public void update(Object object) {
         State state = State.getInstance(object);
         ObjectType type = state.getType();
+        SharedUpdatable sharedUpdatable = type != null ?
+                type.as(TypeData.class).createSharedUpdatable() :
+                null;
 
-        if (type != null) {
-            Updatable updatable = type.as(TypeData.class).createUpdatable();
-
-            if (updatable != null) {
-                updatable.updateStage(this);
-            }
+        if (sharedUpdatable != null) {
+            sharedUpdatable.updateStageBefore(object, this);
         }
 
         if (object instanceof Updatable) {
             ((Updatable) object).updateStage(this);
+        }
+
+        if (sharedUpdatable != null) {
+            sharedUpdatable.updateStageAfter(object, this);
         }
     }
 
@@ -386,7 +393,7 @@ public class PageStage extends Record {
     @Target(ElementType.TYPE)
     public @interface UpdateClass {
 
-        Class<? extends Updatable> value();
+        Class<? extends SharedUpdatable> value();
     }
 
     private static class UpdateClassProcessor implements ObjectType.AnnotationProcessor<UpdateClass> {
@@ -414,16 +421,16 @@ public class PageStage extends Record {
         }
 
         /**
-         * Creates an updatable object appropriate for this type.
+         * Creates a shared updatable object appropriate for this type.
          *
          * @return May be {@code null}.
          */
         @SuppressWarnings("unchecked")
-        public Updatable createUpdatable() {
+        public SharedUpdatable createSharedUpdatable() {
             Class<?> c = ObjectUtils.getClassByName(getUpdateClassName());
 
-            return c != null && Updatable.class.isAssignableFrom(c) ?
-                    TypeDefinition.getInstance((Class<? extends Updatable>) c).newInstance() :
+            return c != null && SharedUpdatable.class.isAssignableFrom(c) ?
+                    TypeDefinition.getInstance((Class<? extends SharedUpdatable>) c).newInstance() :
                     null;
         }
     }
@@ -438,7 +445,36 @@ public class PageStage extends Record {
          * Updates the given {@code stage}. This is typically used to set
          * the nodes within the {@code <head>} element, such as the
          * {@code <title>}.
+         *
+         * @param stage Can't be {@code null}.
          */
         public void updateStage(PageStage stage);
+    }
+
+    /**
+     * {@link PageFilter} will call the appropriate methods if the main
+     * content is annotated with {@link UpdateClass} that points to a class
+     * that implements this interface.
+     */
+    public static interface SharedUpdatable {
+
+        /**
+         * Updates the given {@code stage} before the {@code object}-specific
+         * logic executes. This is typically used to set the defaults.
+         *
+         * @param object Can't be {@code nul}.
+         * @param stage Can't be {@code null}.
+         */
+        public void updateStageBefore(Object object, PageStage stage);
+
+        /**
+         * Updates the given {@code stage} after the {@code object}-specific
+         * logic executes. This is typically used to add common extra data,
+         * such as adding the site name to the page title.
+         *
+         * @param object Can't be {@code nul}.
+         * @param stage Can't be {@code null}.
+         */
+        public void updateStageAfter(Object object, PageStage stage);
     }
 }
