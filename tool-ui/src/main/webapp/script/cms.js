@@ -471,6 +471,41 @@ $doc.onCreate('.searchAdvancedResult', function() {
     });
 });
 
+$doc.onCreate('.contentLock', function() {
+    var $container = $(this),
+            id = $container.attr('data-content-lock-id'),
+            owner = $container.attr('data-content-lock-owner'),
+            lockedOut = $container.attr('data-content-locked-out') === 'true',
+            lock;
+
+    if (!id) {
+        return;
+    }
+
+    if (lockedOut) {
+        $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
+        $win.resize();
+    }
+
+    (lock = function() {
+        $.ajax({
+            'type': 'post',
+            'url': CONTEXT_PATH + '/toolUserContentLock',
+            'data': { 'id': id },
+            'dataType': 'text',
+            'cache': false,
+            'complete': function(xhr) {
+                if (owner !== xhr.responseText) {
+                    win.location = win.location;
+
+                } else {
+                    setTimeout(lock, 5000);
+                }
+            }
+        });
+    })();
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
