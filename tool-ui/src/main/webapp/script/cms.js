@@ -770,6 +770,10 @@ $doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', fu
     return confirm('Are you sure you want to trash this item?');
 });
 
+$doc.on('input-disable', ':input', function(event, disable) {
+    $(this).prop('disabled', disable);
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });

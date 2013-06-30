@@ -120,6 +120,7 @@ $.plugin2('objectId', {
         $select = $('<a/>', {
             'class': 'objectId-select',
             'target': target,
+            'click': function() { return !$(this).is('.state-disabled'); },
             'href': ($input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp')) +
                     '?pt=' + encodeURIComponent((/id=([^&]+)/.exec(formAction) || [ ])[1] || '') +
                     '&p=' + encodeURIComponent($input.attr('data-pathed')) +
@@ -194,6 +195,16 @@ $.plugin2('objectId', {
             $input.after(shadow.$clear);
             $input.after(shadow.$edit);
             $input.after(shadow.$select);
+        });
+
+        $inputs.bind('input-disable', function(event, disable) {
+            var $input = $(this),
+                    shadow = $.data(this, SHADOW_DATA);
+
+            if (shadow) {
+                shadow.$clear.toggleClass('state-disabled', disable);
+                shadow.$select.toggleClass('state-disabled', disable);
+            }
         });
 
         refresh($inputs);

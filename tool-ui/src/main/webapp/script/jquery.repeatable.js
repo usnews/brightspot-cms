@@ -17,6 +17,12 @@ $.plugin2('repeatable', {
         var $container = $(container),
                 options = this.option();
 
+        $container.addClass('event-input-disable');
+
+        $container.bind('input-disable', function(event, disable) {
+            $container.toggleClass('state-disabled', disable);
+        });
+
         // Helper for creating extra stuff on an item.
         var createExtra = function() {
 

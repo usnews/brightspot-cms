@@ -37,6 +37,10 @@ $.plugin2('dropDown', {
             $original.find('option:first').prop('selected', true);
         }
 
+        $original.bind('input-disable', function(event, disable) {
+            $input.toggleClass('state-disabled', disable);
+        });
+
         $input = $('<div/>', {
             'class': plugin.className('input'),
             'css': {
@@ -64,11 +68,13 @@ $.plugin2('dropDown', {
             'class': plugin.className('label'),
             'href': '#',
             'click': function() {
-                if ($openList && $openList[0] === $list[0]) {
-                    $list.trigger('dropDown-close');
+                if (!$input.is('.state-disabled')) {
+                    if ($openList && $openList[0] === $list[0]) {
+                        $list.trigger('dropDown-close');
 
-                } else {
-                    $list.trigger('dropDown-open');
+                    } else {
+                        $list.trigger('dropDown-open');
+                    }
                 }
 
                 return false;

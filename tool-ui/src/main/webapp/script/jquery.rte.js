@@ -585,13 +585,20 @@ $.plugin2('rte', {
     },
 
     '_create': function(element) {
-        var options = $.extend(true, { }, this.option());
+        var $element = $(element),
+                options = $.extend(true, { }, this.option()),
+                rte;
 
-        if ($(element).attr('data-use-line-breaks')) {
+        if ($element.attr('data-use-line-breaks')) {
             options.useLineBreaks = true;
         }
 
-        new Rte(element, options);
+        rte = new Rte(element, options);
+
+        $element.bind('input-disable', function(event, disable) {
+            $element.closest('.rte-container').toggleClass('state-disabled', disable);
+            rte[disable ? 'disable' : 'enable']();
+        });
     },
 
     'enable': function() {
