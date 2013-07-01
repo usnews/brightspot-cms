@@ -161,8 +161,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
             action="<%= wp.objectUrl("", selected) %>"
             autocomplete="off"
             data-object-id="<%= State.getInstance(selected).getId() %>"
-            data-content-lock-id="<%= State.getInstance(editing).getId() %>"
-            data-content-lock-owner="<%= contentLockOwner.getId() %>"
+            data-content-id="<%= State.getInstance(editing).getId() %>"
+            data-content-lock-owner-id="<%= contentLockOwner.getId() %>"
             data-content-locked-out="<%= lockedOut %>">
         <div class="contentForm-main">
             <div class="widget widget-content">

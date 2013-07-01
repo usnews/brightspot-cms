@@ -2,30 +2,28 @@
 
 var $win = $(win),
         doc = win.document,
-        $doc = $(doc);
+        $doc = $(doc),
+        toolChecks = [ ],
+        toolCheckActionCallbacks = [ ];
 
-win.cms = win.cms || { };
-win.cms.startToolUserPing = function() {
-    setInterval(function() {
-        $.getJSON(CONTEXT_PATH + '/toolUserPing', function(response) {
-            var status = response.status,
-                    href = win.location.href,
-                    returnPath;
-
-            if (status === 'ERROR' &&
-                    !(/logIn.jsp/.exec(href))) {
-                win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
-
-            } else if (status === 'OK' &&
-                    (/logIn.jsp/.exec(href))) {
-                returnPath = (/[?&]returnPath=([^&]+)/.exec(href) || [ ])[1];
-                returnPath = returnPath ? decodeURIComponent(returnPath) : CONTEXT_PATH + '/';
-                returnPath = returnPath.replace(/^\/?/, '/');
-                win.location = win.location.protocol + '//' + win.location.host + returnPath;
-            }
-        });
-    }, 2000);
+$.addToolCheck = function(check) {
+    toolCheckActionCallbacks.push(check.actions);
+    delete check.actions;
+    toolChecks.push(check);
 };
+
+$.addToolCheck({
+    'check': 'kick',
+    'actions': {
+        'kickIn': function(parameters) {
+            win.location = win.location.protocol + '//' + win.location.host + parameters.returnPath;
+        },
+
+        'kickOut': function() {
+            win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
+        }
+    }
+});
 
 // Standard behaviors.
 $doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');
@@ -472,38 +470,23 @@ $doc.onCreate('.searchAdvancedResult', function() {
 });
 
 $doc.onCreate('.contentLock', function() {
-    var $container = $(this),
-            id = $container.attr('data-content-lock-id'),
-            owner = $container.attr('data-content-lock-owner'),
-            lockedOut = $container.attr('data-content-locked-out') === 'true',
-            lock;
+    var $container = $(this);
 
-    if (!id) {
-        return;
-    }
-
-    if (lockedOut) {
+    if ($container.attr('data-content-locked-out') === 'true') {
         $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
         $win.resize();
     }
 
-    (lock = function() {
-        $.ajax({
-            'type': 'post',
-            'url': CONTEXT_PATH + '/toolUserContentLock',
-            'data': { 'id': id },
-            'dataType': 'text',
-            'cache': false,
-            'complete': function(xhr) {
-                if (owner !== xhr.responseText) {
-                    win.location = win.location;
-
-                } else {
-                    setTimeout(lock, 5000);
-                }
+    $.addToolCheck({
+        'check': 'contentLock',
+        'contentId': $container.attr('data-content-id'),
+        'ownerId': $container.attr('data-content-lock-owner-id'),
+        'actions': {
+            'newOwner': function() {
+                win.location.reload(true);
             }
-        });
-    })();
+        }
+    });
 });
 
 // Show stack trace when clicking on the exception message.
@@ -940,6 +923,37 @@ $doc.ready(function() {
             })));
         });
     });
+
+    // Starts all server-side tool checks.
+    (function() {
+        var toolCheckPoll = function() {
+            $.ajax({
+                'method': 'post',
+                'url': CONTEXT_PATH + '/toolCheckStream',
+                'cache': false,
+                'dataType': 'json',
+                'data': {
+                    'url': win.location.href,
+                    'r': JSON.stringify(toolChecks)
+                }
+
+            }).done(function(responses) {
+                $.each(responses, function(i, response) {
+                    if (response) {
+                        toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
+                    }
+                });
+
+            }).done(function() {
+                setTimeout(toolCheckPoll, 100);
+
+            }).fail(function() {
+                setTimeout(toolCheckPoll, 10000);
+            });
+        };
+
+        toolCheckPoll();
+    })();
 });
 
 }(jQuery, window));
