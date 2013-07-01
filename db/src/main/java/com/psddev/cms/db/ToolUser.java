@@ -440,6 +440,32 @@ public class ToolUser extends Record {
     }
 
     /**
+     * Releases the exclusive write lock on the content with the given
+     * {@code id}.
+     *
+     * @param id Can't be {@code null}.
+     */
+    public void unlockContent(UUID id) {
+        String idPrefix = id.toString() + '/';
+        Set<String> locks = createLocks(idPrefix);
+        ToolUser user = Query.
+                from(ToolUser.class).
+                where("_id != ?", this).
+                and("contentLocks = ?", locks).
+                first();
+
+        if (user != null) {
+            for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext(); ) {
+                if (i.next().startsWith(idPrefix)) {
+                    i.remove();
+                }
+            }
+
+            user.save();
+        }
+    }
+
+    /**
      * Returns {@code true} if this user is allowed access to the
      * resources identified by the given {@code permissionId}.
      */

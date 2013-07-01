@@ -314,6 +314,16 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             wp.writeObjectLabel(contentLockOwner);
                             wp.writeHtml(".");
                         wp.writeEnd();
+
+                        wp.writeStart("div", "class", "actions");
+                            wp.writeStart("a",
+                                    "class", "icon icon-unlock",
+                                    "href", wp.cmsUrl("/contentUnlock",
+                                            "id", editingState.getId(),
+                                            "returnUrl", wp.url("")));
+                                wp.writeHtml("Unlock Forcefully");
+                            wp.writeEnd();
+                        wp.writeEnd();
                     wp.writeEnd();
 
                 } else {
