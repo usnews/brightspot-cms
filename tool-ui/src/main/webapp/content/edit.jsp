@@ -377,6 +377,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                 boolean isDraft = contentData.isDraft() || draft != null;
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
+                Schedule schedule = draft != null ? draft.getSchedule() : null;
 
                 if (isWritable) {
 
@@ -459,8 +460,6 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
 
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
-                                Schedule schedule = draft != null ? draft.getSchedule() : null;
-
                                 if (schedule != null) {
                                     wp.writeHtml("Draft scheduled to be published ");
                                     wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
@@ -544,8 +543,8 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                                         "data-emptylabel", "Now",
                                         "name", "publishDate",
                                         "size", 9,
-                                        "value", draft != null && draft.getSchedule() != null ?
-                                                DateUtils.toString(draft.getSchedule().getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
+                                        "value", schedule != null ?
+                                                wp.formatUserDateTimeWith(schedule.getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
                                                 wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
                             }
 
