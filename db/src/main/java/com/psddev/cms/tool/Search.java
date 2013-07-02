@@ -523,7 +523,8 @@ public class Search extends Record {
             }
         }
 
-        if (site != null) {
+        if (site != null &&
+                !site.isAllSitesAccessible()) {
             Set<ObjectType> globalTypes = new HashSet<ObjectType>();
 
             if (selectedType != null) {
