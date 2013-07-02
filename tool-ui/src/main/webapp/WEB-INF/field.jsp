@@ -31,6 +31,7 @@ ObjectType type = field.getParentType();
 boolean isHidden = ui.isHidden();
 
 if (!isHidden &&
+        !wp.param(boolean.class, "deprecated") &&
         field.isDeprecated() &&
         ObjectUtils.isBlank(state.get(field.getInternalName()))) {
     isHidden = true;

@@ -327,14 +327,12 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     wp.writeEnd();
 
                 } else {
-                    if (!editingState.isNew()) {
-                        wp.writeStart("a",
-                                "class", "icon icon-wrench icon-only",
-                                "href", wp.objectUrl("/content/advanced.jsp", editing),
-                                "target", "contentAdvanced");
-                            wp.writeHtml("Advanced");
-                        wp.writeEnd();
-                    }
+                    wp.writeStart("a",
+                            "class", "icon icon-wrench icon-only",
+                            "href", wp.objectUrl("/content/advanced.jsp", editing),
+                            "target", "contentAdvanced");
+                        wp.writeHtml("Advanced");
+                    wp.writeEnd();
 
                     if (workStream != null) {
                         long incomplete = workStream.countIncomplete();
