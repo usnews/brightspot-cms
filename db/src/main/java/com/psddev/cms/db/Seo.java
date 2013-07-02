@@ -349,6 +349,7 @@ public final class Seo {
 
         private List<String> descriptionFields;
         private List<String> keywordsFields;
+        private String openGraphType;
 
         /**
          * @return Never {@code null}. Mutable.
@@ -382,6 +383,14 @@ public final class Seo {
          */
         public void setKeywordsFields(List<String> keywordsFields) {
             this.keywordsFields = keywordsFields;
+        }
+
+        public String getOpenGraphType() {
+            return openGraphType;
+        }
+
+        public void setOpenGraphType(String openGraphType) {
+            this.openGraphType = openGraphType;
         }
     }
 
@@ -426,6 +435,27 @@ public final class Seo {
             Collections.addAll(
                     type.as(TypeModification.class).getKeywordsFields(),
                     annotation.value());
+        }
+    }
+
+    /**
+     * Specifies the Open Graph type of the target type.
+     *
+     * @see <a href="http://ogp.me/">Open Graph protocol</a>
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(OpenGraphTypeProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface OpenGraphType {
+        String value();
+    }
+
+    private static class OpenGraphTypeProcessor implements ObjectType.AnnotationProcessor<OpenGraphType> {
+        @Override
+        public void process(ObjectType type, OpenGraphType annotation) {
+            type.as(TypeModification.class).setOpenGraphType(annotation.value());
         }
     }
 }

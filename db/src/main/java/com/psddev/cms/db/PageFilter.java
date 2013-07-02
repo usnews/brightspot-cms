@@ -457,6 +457,7 @@ public class PageFilter extends AbstractFilter {
             Set<String> seoKeywords = seoData.findKeywords();
             String seoKeywordsString = null;
 
+            request.setAttribute("seo", seo);
             seo.put("title", seoTitle);
             seo.put("description", seoDescription);
             seo.put("robots", seoRobots);
@@ -468,19 +469,15 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywordsString", seoKeywordsString);
             }
 
-            Head head = new Head();
+            PageStage stage = new PageStage();
 
-            head.setTitle(seoTitle);
-            head.setDescription(seoDescription);
-            head.setMetaName("robots", seoRobots);
-            head.setMetaName("keywords", seoKeywordsString);
-
-            if (mainObject instanceof HeadUpdatable) {
-                ((HeadUpdatable) mainObject).updateHead(head);
-            }
-
-            request.setAttribute("seo", seo);
-            request.setAttribute("head", head);
+            request.setAttribute("stage", stage);
+            stage.setTitle(seoTitle);
+            stage.setDescription(seoDescription);
+            stage.setMetaName("robots", seoRobots);
+            stage.setMetaName("keywords", seoKeywordsString);
+            stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
+            stage.update(mainObject);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
@@ -571,6 +568,10 @@ public class PageFilter extends AbstractFilter {
             Database.Static.restoreDefault();
         }
 
+        if (Static.isPreview(request)) {
+            return;
+        }
+
         Object mainObject = PageFilter.Static.getMainObject(request);
 
         if (mainObject != null) {
@@ -580,7 +581,9 @@ public class PageFilter extends AbstractFilter {
                 return;
             }
 
-            user.saveAction(request, mainObject);
+            if (!JspUtils.isError(request)) {
+                user.saveAction(request, mainObject);
+            }
 
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);

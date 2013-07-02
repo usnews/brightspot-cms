@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 
 /**
@@ -85,13 +86,18 @@ public class ExternalContent extends Content implements Renderer {
 
     public Map<String, Object> getResponseByOEmbedUrl(String oEmbedUrl) {
         try {
+            Integer width = getMaximumWidth();
+            Integer height = getMaximumHeight();
             Map<String, Object> newResponse = ObjectUtils.to(
                     new TypeReference<Map<String, Object>>() { },
-                    ObjectUtils.fromJson(IoUtils.toString(new URL(oEmbedUrl))));
+                    ObjectUtils.fromJson(IoUtils.toString(new URL(
+                            StringUtils.addQueryParameters(oEmbedUrl,
+                            "maxwidth", width,
+                            "maxheight", height)))));
 
             newResponse.put("_url", url);
-            newResponse.put("_maximumWidth", getMaximumWidth());
-            newResponse.put("_maximumHeight", getMaximumHeight());
+            newResponse.put("_maximumWidth", width);
+            newResponse.put("_maximumHeight", height);
             response = newResponse;
 
         } catch (IOException error) {

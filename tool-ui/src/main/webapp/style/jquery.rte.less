@@ -7,6 +7,10 @@
     iframe {
         width: 100%;
     }
+
+    &.state-disabled {
+        border-color: @color-note-lighter;
+    }
 }
 
 .rte-source {
@@ -41,6 +45,10 @@
         bottom: -1px;
         position: absolute;
         right: -1px;
+    }
+
+    .state-disabled & {
+        display: none;
     }
 }
 

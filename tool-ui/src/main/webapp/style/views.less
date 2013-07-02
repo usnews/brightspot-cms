@@ -481,8 +481,9 @@ figure,
     }
 
     &[disabled],
-    &.disabled {
-        background-color: #f9dcdc;
+    &.state-disabled {
+        border-color: @color-note-lighter;
+        color: @color-text;
     }
 }
 
@@ -1020,6 +1021,10 @@ table.links.table-striped {
         width: @select-markerSize;
     }
 
+    &.state-disabled:before {
+        display: none;
+    }
+
     &.toBeRemoved {
         background-color: #fdd;
         color: @color-alert;
@@ -1155,7 +1160,7 @@ table.links.table-striped {
 .icon-object-directory { .icon-sitemap; }
 .icon-object-draft { .icon-edit; }
 .icon-object-guide { .icon-question-sign; }
-.icon-object-history { .icon-copy; }
+.icon-object-history { .icon-time; }
 .icon-object-notification { .icon-envelope; }
 .icon-object-schedule { .icon-calendar; }
 .icon-object-site { .icon-globe; }

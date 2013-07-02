@@ -3,6 +3,8 @@ package com.psddev.cms.db;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -73,6 +75,10 @@ public class ToolUser extends Record {
 
     @ToolUi.Hidden
     private long totpTokenTime;
+
+    @Indexed(unique = true)
+    @ToolUi.Hidden
+    private Set<String> contentLocks;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -383,6 +389,80 @@ public class ToolUser extends Record {
         }
 
         return false;
+    }
+
+    private Set<String> createLocks(String idPrefix) {
+        long counter = System.currentTimeMillis() / 10000;
+        Set<String> locks = new HashSet<String>();
+
+        locks.add(idPrefix + counter);
+        locks.add(idPrefix + (counter + 1));
+
+        return locks;
+    }
+
+    /**
+     * Tries to lock the content with the given {@code id} for exclusive
+     * writes.
+     *
+     * @param id Can't be {@code null}.
+     * @return The tool user that holds the lock. Never {@code null}.
+     */
+    public ToolUser lockContent(UUID id) {
+        String idPrefix = id.toString() + '/';
+        Set<String> locks = createLocks(idPrefix);
+        ToolUser user = Query.
+                from(ToolUser.class).
+                where("_id != ?", this).
+                and("contentLocks = ?", locks).
+                first();
+
+        if (user != null) {
+            return user;
+        }
+
+        Set<String> newLocks = contentLocks != null ? contentLocks : new HashSet<String>();
+        Set<String> oldLocks = new HashSet<String>(newLocks);
+
+        for (Iterator<String> i = newLocks.iterator(); i.hasNext(); ) {
+            if (i.next().startsWith(idPrefix)) {
+                i.remove();
+            }
+        }
+
+        newLocks.addAll(locks);
+
+        if (!newLocks.equals(oldLocks)) {
+            save();
+        }
+
+        return this;
+    }
+
+    /**
+     * Releases the exclusive write lock on the content with the given
+     * {@code id}.
+     *
+     * @param id Can't be {@code null}.
+     */
+    public void unlockContent(UUID id) {
+        String idPrefix = id.toString() + '/';
+        Set<String> locks = createLocks(idPrefix);
+        ToolUser user = Query.
+                from(ToolUser.class).
+                where("_id != ?", this).
+                and("contentLocks = ?", locks).
+                first();
+
+        if (user != null) {
+            for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext(); ) {
+                if (i.next().startsWith(idPrefix)) {
+                    i.remove();
+                }
+            }
+
+            user.save();
+        }
     }
 
     /**

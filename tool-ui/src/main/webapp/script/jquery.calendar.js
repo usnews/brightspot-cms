@@ -240,8 +240,16 @@ $.plugin2('calendar', {
             'text': $input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A'
         });
 
+        $input.bind('input-disable', function(event, disable) {
+            $calendarButton.toggleClass('state-disabled', disable);
+        });
+
         $calendarButton.toggleClass('calendarButton-empty', !$input.val());
         $calendarButton.click(function() {
+            if ($calendarButton.is('.state-disabled')) {
+                return;
+            }
+
             var $calendar = getCalendar();
 
             $calendar.data('$input', $input);

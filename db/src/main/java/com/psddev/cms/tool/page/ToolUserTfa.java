@@ -1,22 +1,10 @@
 package com.psddev.cms.tool.page;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Hashtable;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -54,58 +42,6 @@ public class ToolUserTfa extends PageServlet {
                 page.writeEnd();
                 return;
             }
-
-        } else if (page.param(String.class, "action-image") != null) {
-            try {
-                StringBuilder keyUri = new StringBuilder("otpauth://totp/");
-                String companyName = page.getCmsTool().getCompanyName();
-
-                if (!ObjectUtils.isBlank(companyName)) {
-                    keyUri.append(StringUtils.encodeUri(companyName));
-                    keyUri.append(StringUtils.encodeUri(" - "));
-                }
-
-                keyUri.append(StringUtils.encodeUri(user.getEmail()));
-                keyUri.append("?secret=");
-                keyUri.append(user.getTotpSecret());
-
-                int size = 200;
-                Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
-
-                hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-
-                QRCodeWriter writer = new QRCodeWriter();
-                BitMatrix matrix = writer.encode(keyUri.toString(), BarcodeFormat.QR_CODE, size, size, hintMap);
-                BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-
-                image.createGraphics();
-
-                Graphics2D graphics = (Graphics2D) image.getGraphics();
-
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(0, 0, size, size);
-                graphics.setColor(Color.BLACK);
-
-                for (int i = 0; i < size; ++ i) {
-                    for (int j = 0; j < size; ++ j) {
-                        if (matrix.get(i, j)) {
-                            graphics.fillRect(i, j, 1, 1);
-                        }
-                    }
-                }
-
-                HttpServletResponse response = page.getResponse();
-                ServletOutputStream output = response.getOutputStream();
-
-                response.setContentType("image/png");
-                ImageIO.write(image, "png", output);
-                output.flush();
-
-            } catch (Exception error) {
-                throw new IllegalStateException(error);
-            }
-
-            return;
         }
 
         if (user.getTotpSecret() == null) {
@@ -125,9 +61,23 @@ public class ToolUserTfa extends PageServlet {
                     page.writeHtml(" Two Factor Authentication");
                 page.writeEnd();
 
+                StringBuilder keyUri = new StringBuilder("otpauth://totp/");
+                String companyName = page.getCmsTool().getCompanyName();
+
+                if (!ObjectUtils.isBlank(companyName)) {
+                    keyUri.append(StringUtils.encodeUri(companyName));
+                    keyUri.append(StringUtils.encodeUri(" - "));
+                }
+
+                keyUri.append(StringUtils.encodeUri(user.getEmail()));
+                keyUri.append("?secret=");
+                keyUri.append(user.getTotpSecret());
+
                 page.writeTag("img",
-                        "src", page.url("", "action-image", true),
-                        "style", "float: right; height: 200px; margin-left: 10px; width: 200px;");
+                        "width", 200,
+                        "height", 200,
+                        "src", page.cmsUrl("/qrCode", "data", keyUri),
+                        "style", "float: right; margin-left: 10px;");
 
                 page.writeStart("div", "style", "margin-right: 210px;");
                     if (verifyError) {

@@ -4,7 +4,8 @@ com.psddev.cms.db.Template,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Query,
-com.psddev.dari.db.State
+com.psddev.dari.db.State,
+com.psddev.dari.util.StringUtils
 " %><%
 
 // --- Logic ---
@@ -15,8 +16,6 @@ if (wp.requireUser()) {
 }
 
 Object selected = Query.findById(Object.class, wp.uuidParam("id"));
-State selectedState = State.getInstance(selected);
-Template selectedTemplate = selectedState.as(Template.ObjectModification.class).getDefault();
 
 // --- Presentation ---
 
@@ -24,7 +23,15 @@ Template selectedTemplate = selectedState.as(Template.ObjectModification.class).
 
 <h1>Advanced Options</h1>
 <ul class="links">
-    <li><a href="<%= wp.objectUrl("/content/raw.jsp", selected) %>" target="contentRaw">View raw data</a></li>
+    <% if (selected != null) { %>
+        <li><a href="<%= wp.objectUrl("/content/raw.jsp", selected) %>" target="_blank">View raw data</a></li>
+    <% } %>
+
+    <li>
+        <a href="<%= wp.h(StringUtils.addQueryParameters(
+                wp.param(String.class, "returnUrl"),
+                "deprecated", true)) %>" target="_top">Show deprecated fields</a>
+    </li>
 </ul>
 
 <% wp.include("/WEB-INF/footer.jsp"); %>

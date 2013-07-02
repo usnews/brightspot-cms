@@ -1124,12 +1124,6 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
                 }
 
-                if (Settings.isProduction()) {
-                    writeStart("script", "type", "text/javascript");
-                        writeRaw("window.cms.startToolUserPing();");
-                    writeEnd();
-                }
-
                 String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
 
                 if (!ObjectUtils.isBlank(dropboxAppKey)) {
@@ -1235,10 +1229,10 @@ public class ToolPageContext extends WebPageContext {
 
                                 writeStart("li");
                                     writeStart("a",
-                                            "class", "icon icon-object-toolUserDevice",
-                                            "href", cmsUrl("/toolUserDevices"),
-                                            "target", "toolUserDevices");
-                                        writeHtml("Devices");
+                                            "class", "icon icon-object-history",
+                                            "href", cmsUrl("/toolUserHistory"),
+                                            "target", "toolUserHistory");
+                                        writeHtml("History");
                                     writeEnd();
                                 writeEnd();
 
@@ -2329,8 +2323,17 @@ public class ToolPageContext extends WebPageContext {
         /** Returns a label for the given {@code object}. */
         public static String getObjectLabel(Object object) {
             State state = State.getInstance(object);
+            String label = null;
 
-            return notTooShort(state != null ? state.getLabel() : "Not Available");
+            if (state != null) {
+                label = state.getLabel();
+            }
+
+            if (ObjectUtils.isBlank(label)) {
+                label = "Not Available";
+            }
+
+            return notTooShort(label);
         }
 
         /**

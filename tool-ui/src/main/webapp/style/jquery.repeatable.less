@@ -1,11 +1,9 @@
 .repeatableForm {
-    > ul {
-        margin-left: 0;
-    }
-
     > ol,
     > ul {
+        list-style-position: inside;
         margin-bottom: 6px;
+        margin-left: 0;
 
         > li {
             background-color: rgba(255, 255, 255, 0.5);
@@ -101,6 +99,13 @@
         .link;
         margin-right: 15px;
     }
+
+    &.state-disabled {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
+    }
 }
 
 .repeatableForm > ol > li.collapsed > .frame,
@@ -162,16 +167,21 @@
             margin-right: 15px;
         }
     }
+
+    &.state-disabled {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
+    }
 }
 
 .repeatableLayout {
-    > ul {
-        margin-left: 0;
-    }
-
     > ol,
     > ul {
+        list-style-position: inside;
         margin-bottom: 6px;
+        margin-left: 0;
 
         > li {
             background-color: rgba(255, 255, 255, 0.5);
@@ -249,6 +259,13 @@
         .icon-plus-sign;
         .link;
         margin-right: 15px;
+    }
+
+    &.state-disabled {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
     }
 }
 
@@ -389,6 +406,13 @@
             }
         }
     }
+
+    &.state-disabled {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
+    }
 }
 
 .repeatableText {
@@ -457,6 +481,13 @@
             position: absolute;
             right: 1px;
             top: 4px;
+        }
+    }
+
+    &.state-disabled {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
         }
     }
 }
