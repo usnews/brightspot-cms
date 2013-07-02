@@ -24,7 +24,7 @@ Object selected = Query.findById(Object.class, wp.uuidParam("id"));
 <h1>Advanced Options</h1>
 <ul class="links">
     <% if (selected != null) { %>
-        <li><a href="<%= wp.objectUrl("/content/raw.jsp", selected) %>" target="contentRaw">View raw data</a></li>
+        <li><a href="<%= wp.objectUrl("/content/raw.jsp", selected) %>" target="_blank">View raw data</a></li>
     <% } %>
 
     <li>
