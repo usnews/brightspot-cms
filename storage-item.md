@@ -20,10 +20,12 @@ Here's an example of an Image object:
 <div class="highlight">
 {% highlight java %}
 @ToolUi.Referenceable
-@Renderer.Engine("JSP")
-@Renderer.Script("/WEB-INF/modules/image.jsp")
+@PreviewField("file")
+@Renderer.Path"/WEB-INF/modules/image.jsp")
 public class Image extends Content {
 
+    @Required
+    private String name;
     private StorageItem file;
     private String altText;
 
@@ -32,6 +34,34 @@ public class Image extends Content {
 </div>
 
 By defining a renderer script for the file it can be rendered within the Rich Text Editor. The `@ToolUi.Referenceable` annotation allows the Image class to be added to a `ReferentialText` area within the CMS.
+
+To use the storage item to preview the object in the CMS the annotation `@PreviewField("file")` is used, where "file" is the name of the property.
+
+**Bulk Uploads**
+
+Brightspot provides a bulk upload widget on the dashboard, that allows editors to upload multiple files at once. When the object being uploaded contains `@Required` fields, the objects are created in a draft status, and placed in the unpublished drafts widget. where they can have fields updated.
+
+In order to populate required fields on upload, the following can be added to the Image class, making the file name the text for the required field:
+
+<div class="highlight">
+{% highlight java %}
+
+    @Override
+    public void beforeSave() {
+        if (StringUtils.isBlank(name)) {
+            if (file != null) {
+                Map<String, Object> metadata = file.getMetadata();
+                if (!ObjectUtils.isBlank(metadata)) {
+                    String fileName = (String) metadata.get("originalFilename");
+                    if (!StringUtils.isEmpty(fileName)) {
+                        name = fileName;
+                    }
+                }
+            }
+        }
+    }
+{% endhighlight %}
+</div>
 
 **Creating the Image JSP**
 

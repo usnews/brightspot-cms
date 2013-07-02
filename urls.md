@@ -36,7 +36,7 @@ As well as extending content, the class being used to create the URL permalink m
 
 #### Step 2. Using createPermalink
 
-For this example, the Article class `headline` field will be used to create the URL. A directory structure is also added by prefixing the headline field with `/article/`. The `Site` object is used to set the context of which site is being used, which comes into play when using [Multi-Site](multi-site.html). The example also shows a null check.
+For this example, the Article class `headline` field will be used to create the URL. A directory structure is also added by prefixing the headline field with `/article/`. The `Site` object is used to set the context of which site is being used, which comes into play when using [Multi-Site](multi-site.html). The example also shows a null check. Note, you must import `com.psddev.dari.util.StringUtils`.
 
 {% highlight java %}public class Article extends Content implements Directory.Item {
 
