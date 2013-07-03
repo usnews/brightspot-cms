@@ -107,12 +107,6 @@ The resources widget allows you to create custom links to content, internal or e
 
 ![](http://docs.brightspot.s3.amazonaws.com/resource_widget_2.1.png)
 
-## Analytics
-
-Brightspot integrated analytics provide real-time metrics that are targeted, detailed and useful to drive intelligent editorial and business decisions. The dashboard widget shows all content types, their views, and click through rates. You can narrow to show a specific content type, most viewed Projects, most viewed ListModule etc. Each piece of content also has a dedicated widget within the content edit screen, where detailed reports on clicks, views and the click through rate can be viewed.
-
-![](http://docs.brightspot.s3.amazonaws.com/analytics_widget_2.1.png)
-
 
 ## Quick Preview
 
