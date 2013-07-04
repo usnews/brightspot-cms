@@ -66,8 +66,28 @@ writer.start("html");
             writer.css("body.placeholder",
                     "color", "#888");
 
+            writer.css("del",
+                    "display", "inline-block",
+                    "height", 0,
+                    "left", "-30000px",
+                    "overflow", "hidden",
+                    "position", "relative",
+                    "width", 0);
+
+            writer.css("body.trackChanges del",
+                    "color", "#900",
+                    "display", "inline",
+                    "height", "auto",
+                    "overflow", "visible",
+                    "position", "static",
+                    "text-decoration", "line-through",
+                    "width", "auto");
+
             writer.css("em, i",
                     "font-style", "italic");
+
+            writer.css("body.trackChanges ins",
+                    "background-color", "#afa");
 
             writer.css("ol, ul",
                     "margin", "0 0 15px 25px",

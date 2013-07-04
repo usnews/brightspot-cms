@@ -22,8 +22,8 @@ java.util.regex.Matcher
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
-
-State state = State.getInstance(request.getAttribute("object"));
+Object object = request.getAttribute("object");
+State state = State.getInstance(object);
 
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
@@ -41,6 +41,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
     String newText = wp.param(inputName);
     if (newText != null) {
+        if (state.isNew() || state.isVisible()) {
+            newText = newText.replaceAll("(?is)<del[^>]*>.*?</del>", "");
+            newText = newText.replaceAll("(?is)<ins[^>]*>(.*?)</ins>", "$1");
+        }
 
         Matcher enhancementMatcher = StringUtils.getMatcher(newText, "(?is)<([^>\\s]+)([^>]+class=(['\"])[^'\"]*enhancement[^'\"]*\\3[^>]*)>.*?</\\1>");
         int lastMatchAt = 0;

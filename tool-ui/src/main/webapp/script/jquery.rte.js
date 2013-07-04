@@ -95,8 +95,6 @@ var createToolbar = function(inline) {
 
         $list.append($createToolbarCommand('Unordered List', 'insertUnorderedList'));
         $list.append($createToolbarCommand('Ordered List', 'insertOrderedList'));
-        $list.append($createToolbarCommand('Decrease Indent', 'outdent'));
-        $list.append($createToolbarCommand('Increase Insent', 'indent'));
     }
 
     var $enhancement = $createToolbarGroup('Enhancement');
@@ -118,6 +116,12 @@ var createToolbar = function(inline) {
         'class': 'rte-button rte-button-html',
         'data-wysihtml5-action': 'change_view',
         'text': 'HTML'
+    }));
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-trackChanges',
+        'data-wysihtml5-command': 'trackChanges',
+        'text': 'Track Changes'
     }));
 
     $toolbar.append($(
@@ -398,6 +402,124 @@ var Rte = wysihtml5.Editor.extend({
                 $(textarea.element).trigger('input');
             });
 
+            // Track changes.
+            var DELETE_KEYS = [ 8 ],
+                    IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
+                    insStart,
+                    wrapDel,
+                    handleInsert;
+
+            // Wrap the current selection in <del>.
+            wrapDel = function() {
+                var selection = composer.selection,
+                        range;
+
+                if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
+                    wysihtml5.commands.formatInline.exec(composer, null, 'del');
+                }
+
+                // <del> shouldn't contain any <ins>s.
+                $.each(selection.getNodes(1, function(node) {
+                    return node.tagName.toLowerCase() === 'ins';
+
+                }), function(i, ins) {
+                    $(ins).remove();
+                });
+
+                // Move the cursor to the beginning of the selection.
+                range = selection.getRange();
+
+                range.setEnd(range.startContainer, range.startOffset);
+                selection.setSelection(range);
+            };
+
+            $(composer.element).bind('keydown', function(event) {
+                var which = event.which,
+                        selection = composer.selection,
+                        range = selection.getRange();
+
+                // DELETE key.
+                if ($.inArray(which, DELETE_KEYS) >= 0) {
+                    if (range.collapsed) {
+
+                        // Let the delete go through within <ins>.
+                        if ($(selection.getSelectedNode()).closest('ins').length > 0) {
+                            return true;
+
+                        // Wrap the character before the cursor in <del>.
+                        } else {
+                            range.setStart(range.startContainer, range.startOffset - 1);
+                            selection.setSelection(range);
+                            wysihtml5.commands.formatInline.exec(composer, null, 'del');
+                            range.setEnd(range.endContainer, range.endOffset - 1);
+                            selection.setSelection(range);
+                        }
+
+                    } else {
+                        wrapDel();
+                    }
+
+                    return false;
+
+                // For any other key, remember the position for later so that
+                // we know where to start wrapping for <ins>.
+                } else if ($.inArray(which, IGNORE_KEYS) < 0) {
+                    if (!range.collapsed) {
+                        wrapDel();
+                    }
+
+                    if (!insStart) {
+                        insStart = range.cloneRange();
+                    }
+
+                    return true;
+                }
+            });
+
+            $(composer.element).bind('keyup', function(event) {
+                var selection,
+                        range;
+
+                if (!insStart || $.inArray(event.which, IGNORE_KEYS) >= 0) {
+                    return;
+                }
+
+                selection = composer.selection;
+                range = selection.getRange();
+
+                // Delete the current selection before the insert.
+                if (!range.collapsed) {
+                    wrapDel();
+
+                    range = selection.getRange();
+                }
+
+                selection.executeAndRestore(function() {
+                    range.setStart(insStart.startContainer, insStart.startOffset);
+                    selection.setSelection(range);
+
+                    if (!wysihtml5.commands.formatInline.state(composer, null, 'ins')) {
+                        wysihtml5.commands.formatInline.exec(composer, null, 'ins');
+                    }
+                });
+
+                // Move all <ins>s out of and after the <del>.
+                $(selection.getSelectedNode()).closest('del').each(function() {
+                    var $del = $(this),
+                            $ins = $del.find('ins'),
+                            insLength = $ins.length;
+
+                    if (insLength > 0) {
+                        $del.after($ins);
+                        selection.setAfter($ins[insLength - 1]);
+                    }
+                });
+
+                insStart = null;
+            });
+
+            $(composer.element).addClass('trackChanges');
+
             setInterval(function() {
                 rte.updateOverlay();
             }, 100);
@@ -570,6 +692,18 @@ wysihtml5.commands.insertMarker = {
 
     'state': function(composer) {
         return false;
+    }
+};
+
+// Add support for toggling 'Track Changes' mode.
+wysihtml5.commands.trackChanges = {
+
+    'exec': function(composer) {
+        $(composer.element).toggleClass('trackChanges');
+    },
+
+    'state': function(composer) {
+        return $(composer.element).hasClass('trackChanges');
     }
 };
 
