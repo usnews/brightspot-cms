@@ -93,11 +93,18 @@
         }
     }
 
-    > .addButtonContainer > .addButton {
-        .icon;
-        .icon-plus-sign;
-        .link;
-        margin-right: 15px;
+    > .addButtonContainer {
+        overflow: hidden;
+
+        > .addButton {
+            .icon;
+            .icon-plus-sign;
+            .link;
+
+            float: left;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
     }
 
     &.state-disabled {
@@ -254,11 +261,18 @@
         }
     }
 
-    > .addButtonContainer > .addButton {
-        .icon;
-        .icon-plus-sign;
-        .link;
-        margin-right: 15px;
+    > .addButtonContainer {
+        overflow: hidden;
+
+        > .addButton {
+            .icon;
+            .icon-plus-sign;
+            .link;
+
+            float: left;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
     }
 
     &.state-disabled {
