@@ -426,15 +426,16 @@ public class PageFilter extends AbstractFilter {
                                 Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
                             break SCHEDULED;
                         }
-                    }
-
-                    if (Settings.isProduction()) {
-                        chain.doFilter(request, response);
-                        return;
 
                     } else {
-                        throw new IllegalStateException(String.format(
-                                "[%s] isn't visible!", mainState.getId()));
+                        if (Settings.isProduction()) {
+                            chain.doFilter(request, response);
+                            return;
+
+                        } else {
+                            throw new IllegalStateException(String.format(
+                                    "[%s] isn't visible!", mainState.getId()));
+                        }
                     }
                 }
             }
@@ -589,6 +590,7 @@ public class PageFilter extends AbstractFilter {
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
             @SuppressWarnings("resource")
             HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
+            State mainState = State.getInstance(mainObject);
             Schedule currentSchedule = AuthenticationFilter.Static.getUser(request).getCurrentSchedule();
 
             htmlWriter.writeStart("div", "style", htmlWriter.cssString(
@@ -603,7 +605,14 @@ public class PageFilter extends AbstractFilter {
                     "top", 0,
                     "right", 0,
                     "z-index", 2000000));
+                if (!mainState.isVisible()) {
+                    htmlWriter.writeHtml("Status: ");
+                    htmlWriter.writeHtml(mainState.getVisibilityLabel());
+                    htmlWriter.writeHtml(" - ");
+                }
+
                 if (currentSchedule != null) {
+                    htmlWriter.writeHtml("Schedule: ");
                     htmlWriter.writeHtml(page.getObjectLabel(currentSchedule));
                     htmlWriter.writeHtml(" - ");
                 }
