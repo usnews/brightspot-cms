@@ -1,35 +1,34 @@
 <%@ page import="
 
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 
-com.psddev.dari.util.DateUtils,
-com.psddev.dari.util.ObjectUtils,
+java.util.Date,
 
-java.util.Date
+org.joda.time.DateTime
 " %><%
 
-// --- Logic ---
-
 ToolPageContext wp = new ToolPageContext(pageContext);
-
 State state = State.getInstance(request.getAttribute("object"));
-
 ObjectField field = (ObjectField) request.getAttribute("field");
-String fieldName = field.getInternalName();
-Date fieldValue = (Date) state.getValue(fieldName);
-
 String inputName = (String) request.getAttribute("inputName");
+String fieldName = field.getInternalName();
+Date fieldValue = (Date) state.get(fieldName);
 
-if ((Boolean) request.getAttribute("isFormPost")) {
-    state.putValue(fieldName, wp.dateParam(inputName));
+if (Boolean.TRUE.equals(request.getAttribute("isFormPost"))) {
+    state.put(fieldName, wp.param(Date.class, inputName));
     return;
 }
 
-// --- Presentation ---
-
-%><div class="inputSmall">
-    <input class="date" name="<%= wp.h(inputName) %>" type="text" value="<%= wp.h(DateUtils.toString(fieldValue, "yyyy-MM-dd HH:mm:ss")) %>">
-</div>
+wp.writeStart("div", "class", "inputSmall");
+    wp.writeTag("input",
+            "type", "text",
+            "class", "date",
+            "name", inputName,
+            "value", fieldValue != null ? new DateTime(fieldValue).toString("yyyy-MM-dd HH:mm:ss") : null,
+            "placeholder", field.as(ToolUi.class).getPlaceholder());
+wp.writeEnd();
+%>
