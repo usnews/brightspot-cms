@@ -277,19 +277,19 @@ public class PageFilter extends AbstractFilter {
         if (isOverlay(request)) {
             try {
                 JspBufferFilter.Static.overrideBuffer(0);
-                foo(request, response, chain);
+                doRequestForReal(request, response, chain);
 
             } finally {
                 JspBufferFilter.Static.restoreBuffer();
             }
 
         } else {
-            foo(request, response, chain);
+            doRequestForReal(request, response, chain);
         }
     }
 
     @SuppressWarnings("deprecation")
-    private void foo(
+    private void doRequestForReal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain)
