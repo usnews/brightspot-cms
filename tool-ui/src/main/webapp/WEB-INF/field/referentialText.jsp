@@ -32,48 +32,7 @@ ReferentialText fieldValue = (ReferentialText) state.getValue(fieldName);
 String inputName = (String) request.getAttribute("inputName");
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-
-    if (fieldValue == null) {
-        fieldValue = new ReferentialText();
-    } else {
-        fieldValue.clear();
-    }
-
-    String newText = wp.param(inputName);
-    if (newText != null) {
-        if (state.isNew() || state.isVisible()) {
-            newText = newText.replaceAll("(?is)<del[^>]*>.*?</del>", "");
-            newText = newText.replaceAll("(?is)<ins[^>]*>(.*?)</ins>", "$1");
-        }
-
-        Matcher enhancementMatcher = StringUtils.getMatcher(newText, "(?is)<([^>\\s]+)([^>]+class=(['\"])[^'\"]*enhancement[^'\"]*\\3[^>]*)>.*?</\\1>");
-        int lastMatchAt = 0;
-        while (enhancementMatcher.find()) {
-
-            addStringToReferentialText(fieldValue, newText.substring(lastMatchAt, enhancementMatcher.start()));
-
-            Reference reference = new Reference();
-            String attrs = enhancementMatcher.group(2);
-            Matcher attrMatcher = StringUtils.getMatcher(attrs, "data-([^=]+)=(['\"])((?:(?!\\2).)*)\\2");
-            while (attrMatcher.find()) {
-                String key = attrMatcher.group(1);
-                if (!key.startsWith("_")) {
-                    reference.put(key, attrMatcher.group(3));
-                }
-            }
-
-            UUID referenceId = ObjectUtils.asUuid(reference.remove("id"));
-            if (referenceId != null) {
-                reference.put("record", Query.findById(Object.class, referenceId));
-                fieldValue.add(reference);
-            }
-
-            lastMatchAt = enhancementMatcher.end();
-        }
-
-        addStringToReferentialText(fieldValue, newText.substring(lastMatchAt, newText.length()));
-    }
-
+    fieldValue = new ReferentialText(wp.param(String.class, inputName), state.isNew() || state.isVisible());
     state.putValue(fieldName, fieldValue);
     return;
 }

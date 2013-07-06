@@ -34,38 +34,11 @@ List<ReferentialText> fieldValue = (List<ReferentialText>) state.getValue(fieldN
 String inputName = (String) request.getAttribute("inputName");
 
 if ((Boolean) request.getAttribute("isFormPost")) {
+    boolean finalDraft = state.isNew() || state.isVisible()
     fieldValue = new ArrayList<ReferentialText>();
 
-    for (String newText : wp.params(inputName)) {
-        if (newText != null) {
-
-            ReferentialText referentialText = new ReferentialText();
-            fieldValue.add(referentialText);
-
-            Matcher enhancementMatcher = StringUtils.getMatcher(newText, "(?is)<([^>\\s]+)([^>]+class=(['\"])[^'\"]*enhancement[^'\"]*\\3[^>]*)>.*?</\\1>");
-            int lastMatchAt = 0;
-            while (enhancementMatcher.find()) {
-
-                addStringToReferentialText(referentialText, newText.substring(lastMatchAt, enhancementMatcher.start()));
-
-                Reference reference = new Reference();
-                String attrs = enhancementMatcher.group(2);
-                Matcher attrMatcher = StringUtils.getMatcher(attrs, "data-([^=]+)=(['\"])((?:(?!\\2).)*)\\2");
-                while (attrMatcher.find()) {
-                    reference.put(attrMatcher.group(1), attrMatcher.group(3));
-                }
-
-                UUID referenceId = ObjectUtils.asUuid(reference.remove("id"));
-                if (referenceId != null) {
-                    reference.put("record", Query.findById(Object.class, referenceId));
-                    referentialText.add(reference);
-                }
-
-                lastMatchAt = enhancementMatcher.end();
-            }
-
-            addStringToReferentialText(referentialText, newText.substring(lastMatchAt, newText.length()));
-        }
+    for (String newHtml : wp.params(String.class, inputName)) {
+        fieldValue.add(new ReferentialText(newHtml, finalDraft));
     }
 
     state.putValue(fieldName, fieldValue);

@@ -233,7 +233,7 @@ var Rte = wysihtml5.Editor.extend({
 
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar(config.useLineBreaks);
+            config.toolbar = config.toolbar(config.inline);
             container.appendChild(config.toolbar);
         }
 
@@ -267,11 +267,34 @@ var Rte = wysihtml5.Editor.extend({
                 var oldTop = $placeholder.offset().top;
 
                 if (action === 'moveDown') {
-                    $placeholder.parents().andSelf().filter('body > *').next().after($placeholder);
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                        if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                            $(this).after($placeholder);
+                            return false;
+                        }
+                    });
+
                     $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
 
                 } else if (action === 'moveUp') {
-                    $placeholder.parents().andSelf().filter('body > *').prev().before($placeholder);
+                    var precedings = [ ],
+                            precedingsLength;
+
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                        if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
+                            precedings.push(this);
+                        }
+                    });
+
+                    precedingsLength = precedings.length;
+
+                    if (precedingsLength >= 2) {
+                        $(precedings[precedingsLength - 2]).after($placeholder);
+
+                    } else {
+                        $placeholder.closest('body').prepend($placeholder);
+                    }
+
                     $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
                 }
             }
@@ -330,7 +353,7 @@ var Rte = wysihtml5.Editor.extend({
             var textarea = this.textarea;
             var lastTextareaValue;
 
-            if (config.useLineBreaks && !$(textarea.element).val()) {
+            if (config.inline && !$(textarea.element).val()) {
                 $(textarea.element).val('<br>');
             }
 
@@ -519,10 +542,11 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             $(composer.element).addClass('trackChanges');
+            rte.updateOverlay();
 
-            setInterval(function() {
+            $(composer.element).keyup($.throttle(200, function() {
                 rte.updateOverlay();
-            }, 100);
+            }));
         });
     },
 
@@ -542,7 +566,7 @@ var Rte = wysihtml5.Editor.extend({
         var composerIframe = composer.iframe;
         var composerIframeWindow = composerIframe.contentWindow;
 
-        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 10 : 40));
+        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.inline ? 10 : 40));
         $(composerIframeWindow).scrollTop(0);
 
         // Create enhancements based on the underlying placeholders.
@@ -715,7 +739,21 @@ $.plugin2('rte', {
         'marker': createMarker,
         'style': false,
         'toolbar': createToolbar,
-        'useLineBreaks': false
+        'useLineBreaks': true,
+
+        'parserRules': {
+            'tags': {
+                'p': {
+                    'rename_tag': 'span',
+                    'callback': function(node) {
+                        var $node = $(node);
+
+                        $node.append($('<br>'));
+                        $node.append($('<br>'));
+                    }
+                }
+            }
+        }
     },
 
     '_create': function(element) {
@@ -723,8 +761,8 @@ $.plugin2('rte', {
                 options = $.extend(true, { }, this.option()),
                 rte;
 
-        if ($element.attr('data-use-line-breaks')) {
-            options.useLineBreaks = true;
+        if ($element.attr('data-inline') === 'true') {
+            options.inline = true;
         }
 
         rte = new Rte(element, options);

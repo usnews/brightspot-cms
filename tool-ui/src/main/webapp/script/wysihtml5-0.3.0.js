@@ -4818,6 +4818,7 @@ wysihtml5.dom.parse = (function() {
         method          = NODE_TYPE_MAPPING[oldNodeType],
         i               = 0,
         newNode,
+        rule,
         newChild;
     
     newNode = method && method(oldNode);
@@ -4831,6 +4832,12 @@ wysihtml5.dom.parse = (function() {
       if (newChild) {
         newNode.appendChild(newChild);
       }
+    }
+
+    rule = currentRules.tags[oldNode.nodeName.toLowerCase()];
+
+    if (rule && rule.callback) {
+      rule.callback(newNode);
     }
     
     // Cleanup senseless <span> elements

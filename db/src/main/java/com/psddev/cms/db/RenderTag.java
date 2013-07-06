@@ -223,7 +223,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
 
         if (value instanceof ReferentialText) {
-            List<Object> items = new ArrayList<Object>((ReferentialText) value);
+            List<Object> items = ((ReferentialText) value).toPublishables();
 
             // Slice items based on markers.
             if (!(items.isEmpty() || (ObjectUtils.isBlank(beginMarker) && ObjectUtils.isBlank(endMarker)))) {

@@ -82,7 +82,7 @@ if (validValues != null) {
     wp.write("\"");
 
     if (ui.isRichText()) {
-        wp.write(" class=\"richtext\" data-use-line-breaks=\"true\"");
+        wp.write(" class=\"richtext\" data-inline=\"true\"");
     }
 
     wp.write(">");
