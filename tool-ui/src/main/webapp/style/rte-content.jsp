@@ -45,7 +45,7 @@ writer.start("html");
                     "font-size", "13px",
                     "font-style", "normal",
                     "font-weight", "normal",
-                    "line-height", "16px",
+                    "line-height", "1.23076923077",
                     "margin", "4px",
                     "padding", "0",
                     "vertical-align", "baseline",
@@ -85,6 +85,19 @@ writer.start("html");
 
             writer.css("em, i",
                     "font-style", "italic");
+
+            writer.css("h1, h2, h3, h4, h5, h6",
+                    "font-weight", "bold",
+                    "margin", "0 0 15px 0");
+
+            writer.css("h1",
+                    "font-size", "200%");
+
+            writer.css("h2",
+                    "font-size", "150%");
+
+            writer.css("h3",
+                    "font-size", "120%");
 
             writer.css("body.trackChanges ins",
                     "background-color", "#afa");
