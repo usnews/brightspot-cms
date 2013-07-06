@@ -74,7 +74,7 @@ writer.start("html");
                     "position", "relative",
                     "width", 0);
 
-            writer.css("body.trackChanges del",
+            writer.css("body.rte-trackChanges del",
                     "color", "#900",
                     "display", "inline",
                     "height", "auto",
@@ -99,7 +99,7 @@ writer.start("html");
             writer.css("h3",
                     "font-size", "120%");
 
-            writer.css("body.trackChanges ins",
+            writer.css("body.rte-trackChanges ins",
                     "background-color", "#afa");
 
             writer.css("ol, ul",

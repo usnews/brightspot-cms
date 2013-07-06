@@ -541,7 +541,7 @@ var Rte = wysihtml5.Editor.extend({
                 insStart = null;
             });
 
-            $(composer.element).addClass('trackChanges');
+            $(composer.element).addClass('rte-trackChanges');
             rte.updateOverlay();
 
             $(composer.element).keyup($.throttle(200, function() {
@@ -723,11 +723,11 @@ wysihtml5.commands.insertMarker = {
 wysihtml5.commands.trackChanges = {
 
     'exec': function(composer) {
-        $(composer.element).toggleClass('trackChanges');
+        $(composer.element).toggleClass('rte-trackChanges');
     },
 
     'state': function(composer) {
-        return $(composer.element).hasClass('trackChanges');
+        return $(composer.element).hasClass('rte-trackChanges');
     }
 };
 
