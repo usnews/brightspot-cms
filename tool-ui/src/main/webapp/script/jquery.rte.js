@@ -760,6 +760,8 @@ $.plugin2('rte', {
 
         'parserRules': {
             'tags': {
+                'script': { 'remove': true },
+                'style': { 'remove': true },
                 'p': {
                     'rename_tag': 'span',
                     'callback': function(node) {
