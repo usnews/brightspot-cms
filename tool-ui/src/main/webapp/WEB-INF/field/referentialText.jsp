@@ -39,8 +39,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-wp.write("<div class=\"inputSmall inputSmall-text\">");
-wp.write("<textarea class=\"richtext\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\">");
+wp.writeStart("div", "class", "inputSmall inputSmall-text");
+wp.writeStart("textarea",
+        "class", "richtext",
+        "id", wp.getId(),
+        "name", inputName,
+        "data-track-changes", !state.isNew() && !state.isVisible());
 
 if (fieldValue != null) {
     for (Object item : fieldValue) {
@@ -96,8 +100,8 @@ if (fieldValue != null) {
     }
 }
 
-wp.write("</textarea>");
-wp.write("</div>");
+wp.writeEnd();
+wp.writeEnd();
 %><%!
 
 private static void addStringToReferentialText(ReferentialText referentialText, String string) {

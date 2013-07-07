@@ -555,7 +555,10 @@ var Rte = wysihtml5.Editor.extend({
                 downRange = null;
             });
 
-            $(composer.element).addClass('rte-trackChanges');
+            if (rte.config.trackChanges) {
+                $(composer.element).addClass('rte-trackChanges');
+            }
+
             rte.updateOverlay();
 
             $(composer.element).keyup($.throttle(200, function() {
@@ -777,6 +780,10 @@ $.plugin2('rte', {
 
         if ($element.attr('data-inline') === 'true') {
             options.inline = true;
+        }
+
+        if ($element.attr('data-track-changes') === 'true') {
+            options.trackChanges = true;
         }
 
         rte = new Rte(element, options);

@@ -70,24 +70,17 @@ if (validValues != null) {
             "value", fieldValue);
 
 } else {
-    wp.write("<textarea id=\"", wp.getId());
-    wp.write("\" placeholder=\"", wp.h(placeholder));
-    if (suggestedMinimum != null) {
-        wp.write("\" data-suggested-minimum=\"", suggestedMinimum.intValue());
-    }
-    if (suggestedMaximum != null) {
-        wp.write("\" data-suggested-maximum=\"", suggestedMaximum.intValue());
-    }
-    wp.write("\" name=\"", wp.h(inputName));
-    wp.write("\"");
-
-    if (ui.isRichText()) {
-        wp.write(" class=\"richtext\" data-inline=\"true\"");
-    }
-
-    wp.write(">");
-    wp.write(wp.h(fieldValue));
-    wp.write("</textarea>");
+    wp.writeStart("textarea",
+            "class", ui.isRichText() ? "richtext" : null,
+            "id", wp.getId(),
+            "name", inputName,
+            "placeholder", placeholder,
+            "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
+            "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
+            "data-inline", true,
+            "data-track-changes", !state.isNew() && !state.isVisible());
+        wp.writeHtml(fieldValue);
+    wp.writeEnd();
 }
 
 wp.write("</div>");
