@@ -741,6 +741,27 @@ wysihtml5.commands.textAlign = {
 // since insertEnhancement supercedes its functionality.
 delete wysihtml5.commands.insertImage;
 
+var insertButton = function(composer, button) {
+    var $selected = $(composer.selection.getSelectedNode()),
+            precedings = [ ],
+            precedingsLength;
+
+    $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+        if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
+            precedings.push(this);
+        }
+    });
+
+    precedingsLength = precedings.length;
+
+    if (precedingsLength >= 1) {
+        $(precedings[precedingsLength - 1]).after(button);
+
+    } else {
+        $selected.closest('body').prepend(button);
+    }
+};
+
 // Add support for adding an enhancement.
 wysihtml5.commands.insertEnhancement = {
 
@@ -755,7 +776,7 @@ wysihtml5.commands.insertEnhancement = {
         }
 
         button.setAttribute('class', 'enhancement');
-        $(composer.selection.getSelectedNode()).closest('body > *').before(button);
+        insertButton(composer, button);
     },
 
     'state': function(composer) {
@@ -777,7 +798,7 @@ wysihtml5.commands.insertMarker = {
         }
 
         button.setAttribute('class', 'enhancement marker');
-        $(composer.selection.getSelectedNode()).closest('body > *').before(button);
+        insertButton(composer, button);
     },
 
     'state': function(composer) {
