@@ -104,8 +104,8 @@ var createToolbar = function(rte, inline) {
     $enhancement.append($createToolbarCommand('Link', 'createLink'));
 
     if (!inline) {
-        $enhancement.append($createToolbarCommand('Add Enhancement', 'insertEnhancement'));
-        $enhancement.append($createToolbarCommand('Add Marker', 'insertMarker'));
+        $enhancement.append($createToolbarCommand('Enhancement', 'insertEnhancement'));
+        $enhancement.append($createToolbarCommand('Marker', 'insertMarker'));
     }
 
     if (win.cmsRteImportOptions && win.cmsRteImportOptions.length > 0) {
@@ -606,15 +606,19 @@ var Rte = wysihtml5.Editor.extend({
 
             rte.updateOverlay();
 
-            $(composer.element).keyup($.throttle(200, function() {
+            $(composer.element).keyup(function() {
                 rte.updateOverlay();
-            }));
+            });
+
+            rte.on('aftercommand:composer', function() {
+                rte.updateOverlay();
+            });
         });
     },
 
     // Updates the overlay to show enhancements above the underlying
     // placeholders.
-    'updateOverlay': function() {
+    'updateOverlay': $.throttle(100, function() {
         var rte = this;
 
         // Hide if viewing source.
@@ -706,7 +710,7 @@ var Rte = wysihtml5.Editor.extend({
                 $enhancement.remove();
             }
         });
-    }
+    })
 });
 
 // Add support for strike command.
