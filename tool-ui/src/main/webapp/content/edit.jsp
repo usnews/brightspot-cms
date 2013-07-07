@@ -534,7 +534,7 @@ Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(ed
                     }
 
                     // Publish and trash buttons.
-                    if (!isTrash && wp.hasPermission("type/" + editingState.getId() + "/publish")) {
+                    if (!isTrash && wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
                         wp.writeStart("div", "class", "widget-publishingPublish");
                             if (wp.getUser().getCurrentSchedule() == null) {
                                 wp.writeTag("input",
