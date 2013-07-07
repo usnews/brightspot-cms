@@ -464,23 +464,22 @@ var Rte = wysihtml5.Editor.extend({
 
             // Handle different types of delete key presses.
             handleDelete = function(selection, range, direction) {
-                if (range.collapsed) {
 
-                    // Let the delete go through within <ins>.
-                    if ($(selection.getSelectedNode()).closest('ins').length > 0) {
-                        return true;
+                // Let the delete go through within <ins>.
+                if ($(selection.getSelectedNode()).closest('ins').length > 0) {
+                    return true;
 
-                    // Wrap the character before the cursor in <del>.
-                    } else {
-                        selection.getSelection().nativeSelection.modify('extend', direction, 'character');
+                // Wrap the character before or after the cursor in <del>.
+                } else if (range.collapsed) {
+                    selection.getSelection().nativeSelection.modify('extend', direction, 'character');
 
-                        if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
-                            wysihtml5.commands.formatInline.exec(composer, null, 'del');
-                        }
-
-                        collapseSelection(selection, direction);
+                    if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
+                        wysihtml5.commands.formatInline.exec(composer, null, 'del');
                     }
 
+                    collapseSelection(selection, direction);
+
+                // Wrap the selection in <del>.
                 } else {
                     wrapInDel(direction);
                 }
