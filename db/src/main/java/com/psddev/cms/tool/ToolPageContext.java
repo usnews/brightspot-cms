@@ -1076,6 +1076,9 @@ public class ToolPageContext extends WebPageContext {
                     write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
                 writeEnd();
 
+                writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
+                writeEnd();
+
                 if (getCmsTool().isUseNonMinified()) {
                     for (String src : new String[] {
                             "/script/jquery-1.8.3.js",

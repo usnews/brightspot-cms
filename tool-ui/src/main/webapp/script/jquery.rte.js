@@ -43,7 +43,7 @@ var $createToolbarCommand = function(label, command) {
     });
 };
 
-var createToolbar = function(inline) {
+var createToolbar = function(rte, inline) {
     var $container = $('<div/>', { 'class': 'rte-toolbar-container' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -106,6 +106,51 @@ var createToolbar = function(inline) {
     if (!inline) {
         $enhancement.append($createToolbarCommand('Add Enhancement', 'insertEnhancement'));
         $enhancement.append($createToolbarCommand('Add Marker', 'insertMarker'));
+    }
+
+    if (win.cmsRteImportOptions && win.cmsRteImportOptions.length > 0) {
+        var $importGroup = $createToolbarGroup('Import');
+
+        $importGroup.addClass('rte-group-dropDown');
+        $toolbar.append($importGroup);
+
+        $importGroup = $importGroup.find('.rte-group-buttons');
+
+        $.each(win.cmsRteImportOptions, function(i, importOptions) {
+            $importGroup.append($('<span/>', {
+                'class': 'rte-button rte-button-import',
+                'text': importOptions.name,
+                'click': function() {
+                    var $button = $(this);
+
+                    google.load('picker', '1', {
+                        'callback': function() {
+                            new google.picker.PickerBuilder().
+                                    enableFeature(google.picker.Feature.NAV_HIDDEN).
+                                    setAppId(importOptions.clientId).
+                                    setOAuthToken(importOptions.accessToken).
+                                    addView(google.picker.ViewId.DOCUMENTS).
+                                    setCallback(function(data) {
+                                        if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+                                            $.ajax({
+                                                'method': 'get',
+                                                'url': '/social/googleDriveFile',
+                                                'data': { 'id': data[google.picker.Response.DOCUMENTS][0][google.picker.Document.ID] },
+                                                'cache': false,
+                                                'success': function(data) {
+                                                    rte.composer.setValue(data, true);
+                                                    rte.composer.parent.updateOverlay();
+                                                }
+                                            });
+                                        }
+                                    }).
+                                    build().
+                                    setVisible(true);
+                        }
+                    });
+                }
+            }));
+        });
     }
 
     var $misc = $createToolbarGroup('Misc');
@@ -233,7 +278,7 @@ var Rte = wysihtml5.Editor.extend({
 
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar(config.inline);
+            config.toolbar = config.toolbar(rte, config.inline);
             container.appendChild(config.toolbar);
         }
 
