@@ -471,10 +471,15 @@ var Rte = wysihtml5.Editor.extend({
 
                         // Wrap the character before the cursor in <del>.
                         } else {
-                            range.setStart(range.startContainer, range.startOffset - 1);
-                            selection.setSelection(range);
-                            wysihtml5.commands.formatInline.exec(composer, null, 'del');
-                            range.setEnd(range.endContainer, range.endOffset - 1);
+                            selection.getSelection().nativeSelection.modify('extend', 'backward', 'character');
+
+                            if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
+                                wysihtml5.commands.formatInline.exec(composer, null, 'del');
+                            }
+
+                            range = selection.getRange();
+
+                            range.setEnd(range.startContainer, range.startOffset);
                             selection.setSelection(range);
                         }
 
