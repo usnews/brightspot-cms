@@ -426,14 +426,24 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             // Track changes.
-            var DELETE_KEYS = [ 8 ],
-                    IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
-                    insStart,
-                    wrapDel,
-                    handleInsert;
+            var IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
+                    downRange,
+                    collapseSelection,
+                    wrapInDel,
+                    handleDelete;
+
+            // Move the cursor to the beginning or the end of the selection.
+            collapseSelection = function(selection, direction) {
+                if (direction === 'forward') {
+                    selection.getSelection().collapseToEnd();
+
+                } else {
+                    selection.getSelection().collapseToStart();
+                }
+            };
 
             // Wrap the current selection in <del>.
-            wrapDel = function() {
+            wrapInDel = function(direction) {
                 var selection = composer.selection,
                         range;
 
@@ -449,11 +459,33 @@ var Rte = wysihtml5.Editor.extend({
                     $(ins).remove();
                 });
 
-                // Move the cursor to the beginning of the selection.
-                range = selection.getRange();
+                collapseSelection(selection, direction);
+            };
 
-                range.setEnd(range.startContainer, range.startOffset);
-                selection.setSelection(range);
+            // Handle different types of delete key presses.
+            handleDelete = function(selection, range, direction) {
+                if (range.collapsed) {
+
+                    // Let the delete go through within <ins>.
+                    if ($(selection.getSelectedNode()).closest('ins').length > 0) {
+                        return true;
+
+                    // Wrap the character before the cursor in <del>.
+                    } else {
+                        selection.getSelection().nativeSelection.modify('extend', direction, 'character');
+
+                        if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
+                            wysihtml5.commands.formatInline.exec(composer, null, 'del');
+                        }
+
+                        collapseSelection(selection, direction);
+                    }
+
+                } else {
+                    wrapInDel(direction);
+                }
+
+                return false;
             };
 
             $(composer.element).bind('keydown', function(event) {
@@ -461,43 +493,27 @@ var Rte = wysihtml5.Editor.extend({
                         selection = composer.selection,
                         range = selection.getRange();
 
-                // DELETE key.
-                if ($.inArray(which, DELETE_KEYS) >= 0) {
-                    if (range.collapsed) {
+                // BACKSPACE.
+                if (which === 8) {
+                    return handleDelete(selection, range, 'backward');
 
-                        // Let the delete go through within <ins>.
-                        if ($(selection.getSelectedNode()).closest('ins').length > 0) {
-                            return true;
-
-                        // Wrap the character before the cursor in <del>.
-                        } else {
-                            selection.getSelection().nativeSelection.modify('extend', 'backward', 'character');
-
-                            if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
-                                wysihtml5.commands.formatInline.exec(composer, null, 'del');
-                            }
-
-                            range = selection.getRange();
-
-                            range.setEnd(range.startContainer, range.startOffset);
-                            selection.setSelection(range);
-                        }
-
-                    } else {
-                        wrapDel();
-                    }
-
-                    return false;
+                // DELETE.
+                } else if (which === 46) {
+                    return handleDelete(selection, range, 'forward');
 
                 // For any other key, remember the position for later so that
                 // we know where to start wrapping for <ins>.
                 } else if ($.inArray(which, IGNORE_KEYS) < 0) {
-                    if (!range.collapsed) {
-                        wrapDel();
+                    if (!range.collapsed &&
+                            !(event.altKey ||
+                            event.ctrlKey ||
+                            event.metaKey ||
+                            event.shiftKey)) {
+                        wrapInDel();
                     }
 
-                    if (!insStart) {
-                        insStart = range.cloneRange();
+                    if (!downRange) {
+                        downRange = selection.getRange().cloneRange();
                     }
 
                     return true;
@@ -508,22 +524,16 @@ var Rte = wysihtml5.Editor.extend({
                 var selection,
                         range;
 
-                if (!insStart || $.inArray(event.which, IGNORE_KEYS) >= 0) {
+                if (!downRange ||
+                        $.inArray(event.which, IGNORE_KEYS) >= 0) {
                     return;
                 }
 
                 selection = composer.selection;
                 range = selection.getRange();
 
-                // Delete the current selection before the insert.
-                if (!range.collapsed) {
-                    wrapDel();
-
-                    range = selection.getRange();
-                }
-
                 selection.executeAndRestore(function() {
-                    range.setStart(insStart.startContainer, insStart.startOffset);
+                    range.setStart(downRange.startContainer, downRange.startOffset);
                     selection.setSelection(range);
 
                     if (!wysihtml5.commands.formatInline.state(composer, null, 'ins')) {
@@ -543,7 +553,7 @@ var Rte = wysihtml5.Editor.extend({
                     }
                 });
 
-                insStart = null;
+                downRange = null;
             });
 
             $(composer.element).addClass('rte-trackChanges');
