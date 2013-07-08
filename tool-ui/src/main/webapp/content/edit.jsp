@@ -198,7 +198,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
                         }
                     wp.writeEnd();
 
-                    if (selected instanceof Page) {
+                    if (selected instanceof Page &&
+                            ((Page) selected).getLayout() != null) {
                         wp.writeStart("span", "class", "breadcrumbItem");
                             wp.write("<a class=\"icon icon-object-template\" href=\"");
                             wp.write(wp.returnableUrl("/content/editableSections.jsp", "id", State.getInstance(selected).getId()));
