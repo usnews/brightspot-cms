@@ -433,6 +433,7 @@ public class ToolUser extends Record {
         newLocks.addAll(locks);
 
         if (!newLocks.equals(oldLocks)) {
+            contentLocks = newLocks;
             save();
         }
 
