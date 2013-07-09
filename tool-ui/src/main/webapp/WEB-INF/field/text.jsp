@@ -4,6 +4,8 @@ com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
+com.psddev.dari.db.Reference,
+com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 
@@ -36,7 +38,21 @@ Number suggestedMinimum = ui.getSuggestedMinimum();
 Number suggestedMaximum = ui.getSuggestedMaximum();
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-    state.putValue(fieldName, wp.param(inputName));
+    String newValue = wp.param(String.class, inputName);
+
+    if (ui.isRichText()) {
+        StringBuilder newValueBuilder = new StringBuilder();
+
+        for (Object item : new ReferentialText(newValue, state.isNew() || state.isVisible())) {
+            if (!(item == null || item instanceof Reference)) {
+                newValueBuilder.append(item.toString());
+            }
+        }
+
+        newValue = newValueBuilder.toString();
+    }
+
+    state.put(fieldName, newValue);
     return;
 }
 
