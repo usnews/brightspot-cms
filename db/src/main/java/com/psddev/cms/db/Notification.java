@@ -2,6 +2,9 @@ package com.psddev.cms.db;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -11,6 +14,8 @@ import com.psddev.dari.util.SmsProvider;
 
 @ToolUi.IconName("object-notification")
 public abstract class Notification extends Record {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Notification.class);
 
     protected String createMessage(Object object, ToolUser sender, Date date, ToolUser receiver) {
         return null;
@@ -42,21 +47,26 @@ public abstract class Notification extends Record {
                 continue;
             }
 
-            switch (receiver.getNotifyVia()) {
-                case EMAIL :
-                    MailMessage email = createEmail(object, sender, date, receiver);
+            try {
+                switch (receiver.getNotifyVia()) {
+                    case EMAIL :
+                        MailMessage email = createEmail(object, sender, date, receiver);
 
-                    email.from("support@perfectsensedigital.com");
-                    email.to(receiver.getEmail());
-                    MailProvider.Static.getDefault().send(email);
-                    break;
+                        email.from("support@perfectsensedigital.com");
+                        email.to(receiver.getEmail());
+                        MailProvider.Static.getDefault().send(email);
+                        break;
 
-                case SMS :
-                    SmsProvider.Static.getDefault().send(
-                            null,
-                            receiver.getPhoneNumber(),
-                            createSms(object, sender, date, receiver));
-                    break;
+                    case SMS :
+                        SmsProvider.Static.getDefault().send(
+                                null,
+                                receiver.getPhoneNumber(),
+                                createSms(object, sender, date, receiver));
+                        break;
+                }
+
+            } catch (RuntimeException error) {
+                LOGGER.warn("Can't send notification!", error);
             }
         }
     }
