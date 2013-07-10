@@ -29,6 +29,7 @@ import javax.servlet.jsp.PageContext;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
@@ -653,17 +654,6 @@ public class ToolPageContext extends WebPageContext {
                 if (!templates.isEmpty()) {
                     state.as(Template.ObjectModification.class).setDefault(templates.iterator().next());
                 }
-            }
-        }
-
-        State objectState = State.getInstance(object);
-
-        if (object != null && !objectState.isVisible()) {
-            Draft draft = getOverlaidDraft(object);
-
-            if (draft != null &&
-                    draft.getObjectChanges().isEmpty()) {
-                objectState.getExtras().remove(OVERLAID_DRAFT_EXTRA);
             }
         }
 
@@ -1902,9 +1892,17 @@ public class ToolPageContext extends WebPageContext {
             if (schedule == null) {
                 publishDate = param(Date.class, "publishDate");
 
-                if (publishDate != null && publishDate.before(new Date())) {
-                    state.as(Content.ObjectModification.class).setPublishDate(publishDate);
-                    publishDate = null;
+                if (publishDate != null) {
+                    DateTimeZone timeZone = getUserDateTimeZone();
+                    publishDate = new Date(DateTimeFormat.
+                            forPattern("yyyy-MM-dd HH:mm:ss").
+                            withZone(timeZone).
+                            parseMillis(new DateTime(publishDate).toString("yyyy-MM-dd HH:mm:ss")));
+
+                    if (publishDate.before(new Date(new DateTime(timeZone).getMillis()))) {
+                        state.as(Content.ObjectModification.class).setPublishDate(publishDate);
+                        publishDate = null;
+                    }
                 }
 
             } else if (draft == null) {
