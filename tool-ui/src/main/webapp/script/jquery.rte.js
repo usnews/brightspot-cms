@@ -558,6 +558,12 @@ var Rte = wysihtml5.Editor.extend({
                 this.toolbar.show();
             });
 
+            // Hack to make sure that the proper focus fires when clicking
+            // on an 'empty' region.
+            $(composer.iframe.contentWindow).on('focus', function() {
+                rte.focus();
+            });
+
             this.on('blur', function() {
                 $(textarea.element).parentsUntil('form').removeClass('state-focus');
             });
