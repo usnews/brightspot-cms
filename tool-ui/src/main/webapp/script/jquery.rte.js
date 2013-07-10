@@ -494,7 +494,7 @@ var Rte = wysihtml5.Editor.extend({
             var textarea = this.textarea;
             var lastTextareaValue;
 
-            if (config.inline && !$(textarea.element).val()) {
+            if (!$(textarea.element).val()) {
                 $(textarea.element).val('<br>');
             }
 
