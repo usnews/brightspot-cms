@@ -9206,7 +9206,7 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
 
     _getDialog: function(link, command) {
       var that          = this,
-          dialogElement = this.container.querySelector("[data-wysihtml5-dialog='" + command + "']"),
+          dialogElement = this.editor.container.querySelector("[data-wysihtml5-dialog='" + command + "']"),
           dialog,
           caretBookmark;
       

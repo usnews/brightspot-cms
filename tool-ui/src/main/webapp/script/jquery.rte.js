@@ -169,18 +169,14 @@ var createToolbar = function(rte, inline) {
         'text': 'Track Changes'
     }));
 
-    $toolbar.append($(
-        '<div class="rte-dialog" data-wysihtml5-dialog="createLink" style="display: none;">' +
-            ' <label>URL:' +
-            ' <input type="text" data-wysihtml5-dialog-field="href" value="http://"></label>' +
-            ' <label>Window:' +
-            ' <select data-wysihtml5-dialog-field="target">' +
-                '<option value="_self">Same</option>' +
-                '<option value="_blank">New</option>' +
-            '</select></label>' +
-            ' <a data-wysihtml5-dialog-action="save">OK</a>' +
-            ' <a data-wysihtml5-dialog-action="cancel">Cancel</a>' +
-        '</div>'));
+    $misc.append($('<span/>', {
+        'class': 'rte-button',
+        'data-wysihtml5-command': 'inDelOrInsElement',
+        'text': '?',
+        'css': {
+            'display': 'none'
+        }
+    }));
 
     return $container[0];
 };
@@ -349,12 +345,112 @@ var Rte = wysihtml5.Editor.extend({
             return false;
         });
 
+        // Create dialogs.
+        var $dialogs = $('<div/>', {
+            'class': 'rte-dialogs',
+            'css': {
+                'left': 0,
+                'position': 'relative',
+                'top': 0
+            }
+        });
+
+        $dialogs.append($(
+            '<div class="rte-dialog" data-wysihtml5-dialog="createLink" style="display: none;">' +
+                '<h2>Link</h2>' +
+                '<div class="rte-dialogLine"><input type="text" data-wysihtml5-dialog-field="href" value="http://"></div>' +
+                '<div class="rte-dialogLine"><select data-wysihtml5-dialog-field="target">' +
+                    '<option value="">Same Window</option>' +
+                    '<option value="_blank">New Window</option>' +
+                '</select></div>' +
+                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="save">Save</a>' +
+                ' <a data-wysihtml5-dialog-action="cancel">Reset</a></div>' +
+            '</div>'));
+
+        $dialogs.append($(
+            '<div class="rte-dialog" data-wysihtml5-dialog="inDelOrInsElement" style="display: none;">' +
+                '<h2>The Change</h2>' +
+                '<div class="rte-dialogChangeMessage"></div>' +
+                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="accept">Accept</a>' +
+                ' <a data-wysihtml5-dialog-action="revert">Revert</a></div>' +
+                '<h2>Comment</h2>' +
+                '<div class="rte-dialogLine"><input type="text" data-wysihtml5-dialog-field="data-comment"></div>' +
+                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="save">Save</a>' +
+                ' <a data-wysihtml5-dialog-action="cancel">Reset</a></div>' +
+            '</div>'));
+
+        container.appendChild($dialogs[0]);
+
         // Initialize wysihtml5.
         container.appendChild(originalTextarea);
         originalTextarea.className += ' rte-textarea';
 
         rtes[rtes.length] = this;
         this.base(originalTextarea, config);
+
+        var getSelectedElement = function() {
+            var selected = rte.composer.selection.getSelectedNode();
+
+            while (!selected.tagName) {
+                selected = selected.parentNode;
+            }
+
+            return $(selected);
+        };
+
+        this.observe('show:dialog', function(options) {
+            var $selected = getSelectedElement(),
+                    selectedOffset = $selected.offset(),
+                    $dialog = $(options.dialogContainer),
+                    $changeMessage = $dialog.find('.rte-dialogChangeMessage'),
+                    message;
+
+            if ($changeMessage.length > 0) {
+                message = $selected.is('del') ? 'deleted' : $selected.is('ins') ? 'inserted' : null;
+
+                if (message) {
+                    $changeMessage.html(
+                            $selected.attr('data-user') +
+                            ' ' + message +
+                            ' <q>' + $selected.html() +
+                            '</q> at ' + new Date(parseInt($selected.attr('data-time'), 10)));
+                }
+            }
+
+            $dialog.css({
+                'left': selectedOffset.left,
+                'position': 'absolute',
+                'top': selectedOffset.top + $selected.outerHeight() + 10
+            });
+        });
+
+        $(container).on('click', '[data-wysihtml5-dialog-action="accept"]', function() {
+            var $selected = getSelectedElement();
+
+            if ($selected.is('del')) {
+                $selected.remove();
+
+            } else if ($selected.is('ins')) {
+                $selected.before($selected.html());
+                $selected.unwrap();
+            }
+
+            $(this).closest('.rte-dialog').hide();
+        });
+
+        $(container).on('click', '[data-wysihtml5-dialog-action="revert"]', function() {
+            var $selected = getSelectedElement();
+
+            if ($selected.is('del')) {
+                $selected.before($selected.html());
+                $selected.remove();
+
+            } else if ($selected.is('ins')) {
+                $selected.remove();
+            }
+
+            $(this).closest('.rte-dialog').hide();
+        });
 
         this.observe('load', function() {
 
@@ -474,7 +570,9 @@ var Rte = wysihtml5.Editor.extend({
             var IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
                     downRange,
                     collapseSelection,
+                    wrap,
                     wrapInDel,
+                    tempIndex = 0,
                     handleDelete;
 
             // Move the cursor to the beginning or the end of the selection.
@@ -487,14 +585,57 @@ var Rte = wysihtml5.Editor.extend({
                 }
             };
 
+            wrap = function(tag) {
+                var tempClass,
+                        $element,
+                        comment,
+                        oldComment,
+                        prev,
+                        $prev,
+                        next,
+                        $next;
+
+                if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
+                    return;
+                }
+
+                ++ tempIndex;
+                tempClass = 'rte-wrap-temp-' + tempIndex;
+
+                wysihtml5.commands.formatInline.exec(composer, null, tag, tempClass, /foobar/g);
+
+                $element = $(tag + '.' + tempClass, composer.element);
+
+                $element.attr('data-user', $(textarea.element).attr('data-user'));
+                $element.attr('data-time', +new Date());
+                $element.removeClass(tempClass);
+
+                for (; (next = $element[0].nextSibling); $element = $next) {
+                    $next = $(next);
+
+                    if (!$next.is(tag)) {
+                        break;
+                    }
+
+                    $next.prepend($element.html());
+                    $element.remove();
+
+                    comment = $element.attr('data-comment');
+
+                    if (comment) {
+                        oldComment = $next.attr('data-comment');
+
+                        $next.attr('data-comment', oldComment ? comment + ', ' + oldComment : comment);
+                    }
+                }
+            };
+
             // Wrap the current selection in <del>.
             wrapInDel = function(direction) {
                 var selection = composer.selection,
                         range;
 
-                if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
-                    wysihtml5.commands.formatInline.exec(composer, null, 'del');
-                }
+                wrap('del');
 
                 // <del> shouldn't contain any <ins>s.
                 $.each(selection.getNodes(1, function(node) {
@@ -517,11 +658,7 @@ var Rte = wysihtml5.Editor.extend({
                 // Wrap the character before or after the cursor in <del>.
                 } else if (range.collapsed) {
                     selection.getSelection().nativeSelection.modify('extend', direction, 'character');
-
-                    if (!wysihtml5.commands.formatInline.state(composer, null, 'del')) {
-                        wysihtml5.commands.formatInline.exec(composer, null, 'del');
-                    }
-
+                    wrap('del');
                     collapseSelection(selection, direction);
 
                 // Wrap the selection in <del>.
@@ -566,7 +703,9 @@ var Rte = wysihtml5.Editor.extend({
 
             $(composer.element).bind('keyup', function(event) {
                 var selection,
-                        range;
+                        range,
+                        tempClass,
+                        $ins;
 
                 if (!downRange ||
                         $.inArray(event.which, IGNORE_KEYS) >= 0) {
@@ -579,10 +718,7 @@ var Rte = wysihtml5.Editor.extend({
                 selection.executeAndRestore(function() {
                     range.setStart(downRange.startContainer, downRange.startOffset);
                     selection.setSelection(range);
-
-                    if (!wysihtml5.commands.formatInline.state(composer, null, 'ins')) {
-                        wysihtml5.commands.formatInline.exec(composer, null, 'ins');
-                    }
+                    wrap('ins');
                 });
 
                 // Move all <ins>s out of and after the <del>.
@@ -815,6 +951,18 @@ wysihtml5.commands.trackChanges = {
 
     'state': function(composer) {
         return $(composer.element).hasClass('rte-trackChanges');
+    }
+};
+
+wysihtml5.commands.inDelOrInsElement = {
+
+    'exec': function() {
+    },
+
+    'state': function(composer, command) {
+        return $(composer.element).hasClass('rte-trackChanges') &&
+                (wysihtml5.commands.formatInline.state(composer, command, 'del') ||
+                wysihtml5.commands.formatInline.state(composer, command, 'ins'));
     }
 };
 

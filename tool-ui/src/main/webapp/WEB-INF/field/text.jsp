@@ -94,6 +94,8 @@ if (validValues != null) {
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
             "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
             "data-inline", true,
+            "data-user", wp.getObjectLabel(wp.getUser()),
+            "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
             "data-track-changes", !state.isNew() && !state.isVisible());
         wp.writeHtml(fieldValue);
     wp.writeEnd();

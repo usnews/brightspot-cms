@@ -75,13 +75,16 @@ writer.start("html");
                     "width", 0);
 
             writer.css("body.rte-trackChanges del",
-                    "color", "#900",
+                    "background-color", "#faa",
                     "display", "inline",
                     "height", "auto",
                     "overflow", "visible",
                     "position", "static",
-                    "text-decoration", "line-through",
                     "width", "auto");
+
+            writer.css("body.rte-trackChanges del[data-comment]:after, body.rte-trackChanges ins[data-comment]:after",
+                    "content", "' (' attr(data-comment) ' -' attr(data-user) ')'",
+                    "font-style", "italic");
 
             writer.css("em, i",
                     "font-style", "italic");

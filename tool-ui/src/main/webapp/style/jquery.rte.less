@@ -178,25 +178,46 @@
 }
 
 .rte-dialog {
+    background-color: @color-background;
+    .border-radius(5px);
+    .box-shadow(@color-text 0 0 5px);
     clear: left;
     margin-bottom: 3px;
+    padding: 5px;
 
-    [data-wysihtml5-dialog-field=href] {
-        width: 50%;
+    input[type='text'] {
+        width: 25em;
     }
 
-    [data-wysihtml5-dialog-action=save] {
+
+    [data-wysihtml5-dialog-action='accept'],
+    [data-wysihtml5-dialog-action='save'] {
         .icon;
         .icon-ok;
-        .icon-only;
     }
 
-    [data-wysihtml5-dialog-action=cancel] {
+    [data-wysihtml5-dialog-action='revert'],
+    [data-wysihtml5-dialog-action='cancel'] {
         .icon;
         .icon-remove;
-        .icon-only;
 
         color: @color-alert;
+    }
+}
+
+.rte-dialogLine {
+    margin-bottom: 5px;
+}
+
+.rte-dialogButtons {
+    overflow: hidden;
+
+    &:not(:last-child) {
+        margin-bottom: 15px;
+    }
+
+    [data-wysihtml5-dialog-action='cancel'] {
+        float: right;
     }
 }
 
