@@ -552,7 +552,13 @@ var Rte = wysihtml5.Editor.extend({
                 $(textarea.element).trigger('input');
 
                 for (var i = 0, length = rtes.length; i < length; ++ i) {
-                    rtes[i].toolbar.hide();
+                    var rte = rtes[i];
+
+                    $(rte.container).css('padding-top', 0);
+                    $(rte.config.toolbar).removeClass('rte-toolbar-fixed');
+                    $(rte.config.toolbar).attr('style', rte._toolbarOldStyle);
+                    rte._toolbarOldStyle = null;
+                    rte.toolbar.hide();
                 }
 
                 this.toolbar.show();
