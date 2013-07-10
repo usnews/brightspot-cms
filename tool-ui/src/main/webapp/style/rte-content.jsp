@@ -83,7 +83,9 @@ writer.start("html");
                     "width", "auto");
 
             writer.css("body.rte-trackChanges del[data-comment]:after, body.rte-trackChanges ins[data-comment]:after",
-                    "content", "' (' attr(data-comment) ' -' attr(data-user) ')'",
+                    "background-color", "white",
+                    "border", "1px solid #333",
+                    "content", "' ' attr(data-comment) ' -' attr(data-user) ' '",
                     "font-style", "italic");
 
             writer.css("em, i",
