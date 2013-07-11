@@ -12,6 +12,10 @@ import com.psddev.dari.util.MailMessage;
 import com.psddev.dari.util.MailProvider;
 import com.psddev.dari.util.SmsProvider;
 
+/**
+ * @deprecated Use {@link Record#beforeSave} or {@link Record#afterSave} instead.
+ */
+@Deprecated
 @ToolUi.IconName("object-notification")
 public abstract class Notification extends Record {
 

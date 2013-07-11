@@ -6,6 +6,10 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.State;
 
+/**
+ * @deprecated Use {@link Record#beforeSave} or {@link Record#afterSave} instead.
+ */
+@Deprecated
 public class WorkflowTransitionNotification extends Notification {
 
     @Indexed(unique = true)

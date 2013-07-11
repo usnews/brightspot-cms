@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.util.ObjectUtils;
 
 public class WorkflowLog extends Record {
 
@@ -87,12 +88,33 @@ public class WorkflowLog extends Record {
         this.comment = comment;
     }
 
+    /**
+     * Returns the object.
+     *
+     * @return May be {@code null}.
+     */
+    public Object getObject() {
+        return Query.from(Object.class).where("_id = ?", getObjectId()).first();
+    }
+
+    /**
+     * Returns the tool user that initiated the workflow transition.
+     *
+     * @return May be {@code null}.
+     */
     public ToolUser getUser() {
         return Query.from(ToolUser.class).where("_id = ?", getUserId()).first();
     }
 
+    /**
+     * Returns the name of the user that initiated the workflow transition.
+     *
+     * @return Never blank.
+     */
     public String getUserName() {
         ToolUser user = getUser();
-        return user != null ? user.getLabel() : getUserId();
+        String name = user != null ? user.getLabel() : getUserId();
+
+        return ObjectUtils.isBlank(name) ? "Unknown User" : name;
     }
 }

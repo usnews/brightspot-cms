@@ -164,7 +164,9 @@ public abstract class Content extends Record {
          * Adds the given {@code notification} to be processed on save.
          *
          * @param notification If {@code null}, does nothing.
+         * @deprecated Use {@link Record#beforeSave} or {@link Record#afterSave} instead.
          */
+        @Deprecated
         public void addNotification(Notification notification) {
             if (notification != null) {
                 Map<String, Object> extras = getState().getExtras();
@@ -177,19 +179,6 @@ public abstract class Content extends Record {
                 }
 
                 notifications.add(notification);
-            }
-        }
-
-        @Override
-        protected void afterSave() {
-            Map<String, Object> extras = getState().getExtras();
-            @SuppressWarnings("unchecked")
-            List<Notification> notifications = (List<Notification>) extras.get(NOTIFICATIONS_EXTRA);
-
-            if (notifications != null && !notifications.isEmpty()) {
-                for (Notification notification : notifications) {
-                    notification.processNotification(getOriginalObject(), getUpdateUser(), getUpdateDate());
-                }
             }
         }
 

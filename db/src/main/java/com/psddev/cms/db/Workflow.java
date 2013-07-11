@@ -12,7 +12,6 @@ import java.util.Set;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 
@@ -201,11 +200,6 @@ public class Workflow extends Record {
 
                 log.save();
             }
-
-            as(Content.ObjectModification.class).addNotification(Query.
-                    from(WorkflowTransitionNotification.class).
-                    where("transition = ?", transitionName).
-                    first());
 
             return currentState;
         }
