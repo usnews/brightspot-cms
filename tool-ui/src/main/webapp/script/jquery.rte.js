@@ -432,7 +432,7 @@ var Rte = wysihtml5.Editor.extend({
 
             } else if ($selected.is('ins')) {
                 $selected.before($selected.html());
-                $selected.unwrap();
+                $selected.remove();
             }
 
             $(this).closest('.rte-dialog').hide();
