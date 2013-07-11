@@ -1785,8 +1785,11 @@ public class ToolPageContext extends WebPageContext {
 
             if (draft == null &&
                     (state.isNew() ||
-                    state.as(Content.ObjectModification.class).isDraft())) {
-                state.as(Content.ObjectModification.class).setDraft(true);
+                    !state.isVisible())) {
+                if (state.isNew()) {
+                    state.as(Content.ObjectModification.class).setDraft(true);
+                }
+
                 publish(state);
                 redirect("", "id", state.getId());
                 return true;

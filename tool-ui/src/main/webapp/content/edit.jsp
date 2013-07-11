@@ -604,7 +604,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         "class", "link icon icon-object-draft",
                                         "name", "action-draft",
                                         "value", "true");
-                                    wp.writeHtml("Save Draft");
+                                    wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
                                 wp.writeEnd();
                             wp.writeEnd();
                         }
