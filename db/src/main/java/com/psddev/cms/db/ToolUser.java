@@ -38,32 +38,35 @@ public class ToolUser extends Record implements ToolEntity {
     @Required
     private String email;
 
-    @ToolUi.FieldDisplayType("timeZone")
-    private String timeZone;
-
     @ToolUi.FieldDisplayType("password")
     private String password;
 
+    @ToolUi.FieldDisplayType("timeZone")
+    private String timeZone;
+
     @Indexed
+    @ToolUi.Hidden
     private Set<ToolUserDevice> devices;
 
+    @ToolUi.Hidden
     private UUID currentPreviewId;
+
     private String phoneNumber;
     private Set<NotificationMethod> notifyVia;
-
-    @Indexed
-    @ToolUi.DropDown
-    private Set<Notification> notifications;
 
     @ToolUi.Hidden
     private Map<String, Object> settings;
 
+    @ToolUi.Hidden
     private Site currentSite;
 
     @ToolUi.Hidden
     private Schedule currentSchedule;
 
+    @ToolUi.Hidden
     private boolean tfaEnabled;
+
+    @ToolUi.Hidden
     private String totpSecret;
 
     @ToolUi.Hidden
@@ -110,6 +113,16 @@ public class ToolUser extends Record implements ToolEntity {
         this.email = email;
     }
 
+    /** Returns the password. */
+    public Password getPassword() {
+        return Password.valueOf(password);
+    }
+
+    /** Sets the password. */
+    public void setPassword(Password password) {
+        this.password = password.toString();
+    }
+
     /**
      * Returns the time zone.
      */
@@ -122,16 +135,6 @@ public class ToolUser extends Record implements ToolEntity {
      */
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
-    }
-
-    /** Returns the password. */
-    public Password getPassword() {
-        return Password.valueOf(password);
-    }
-
-    /** Sets the password. */
-    public void setPassword(Password password) {
-        this.password = password.toString();
     }
 
     /**
@@ -275,15 +278,19 @@ public class ToolUser extends Record implements ToolEntity {
         this.notifyVia = notifyVia;
     }
 
+    /**
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public Set<Notification> getNotifications() {
-        if (notifications == null) {
-            notifications = new LinkedHashSet<Notification>();
-        }
-        return notifications;
+        return new LinkedHashSet<Notification>();
     }
 
+    /**
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public void setNotifications(Set<Notification> notifications) {
-        this.notifications = notifications;
     }
 
     /** Returns the settings. */
