@@ -93,10 +93,15 @@ $.plugin2('pageThumbnails', {
             leftLarger = anchorOffset.left > $doc.width() - anchorOffset.left - anchorWidth;
 
             if (leftLarger) {
-                toggleLeft = anchorOffset.left -
-                        $.css($anchor[0], 'padding-left', true) -
-                        $.css($anchor[0], 'border-left-width', true) -
-                        $.css($anchor[0], 'margin-left', true);
+                if ($anchor[0] === $container[0] || $anchor.prev().length === 0) {
+                    toggleLeft = anchorOffset.left -
+                            $.css($anchor[0], 'padding-left', true) -
+                            $.css($anchor[0], 'border-left-width', true) -
+                            $.css($anchor[0], 'margin-left', true);
+
+                } else {
+                    toggleLeft = anchorOffset.left - $toggle.outerWidth(true);
+                }
 
             } else {
                 toggleLeft = anchorOffset.left + anchorWidth - $toggle.outerWidth(true);
