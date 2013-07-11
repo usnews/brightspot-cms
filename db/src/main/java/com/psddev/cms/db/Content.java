@@ -166,7 +166,7 @@ public abstract class Content extends Record {
         }
 
         @Override
-        protected void beforeSave() {
+        protected void afterSave() {
             Map<String, Object> extras = getState().getExtras();
             @SuppressWarnings("unchecked")
             List<Notification> notifications = (List<Notification>) extras.get(NOTIFICATIONS_EXTRA);
