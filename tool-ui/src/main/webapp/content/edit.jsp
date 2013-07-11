@@ -504,11 +504,13 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 wp.writeEnd();
 
                                 wp.writeStart("div", "class", "actions");
-                                    wp.writeStart("a",
-                                            "class", "icon icon-action-edit",
-                                            "href", wp.url("", "draftId", null));
-                                        wp.writeHtml("Current");
-                                    wp.writeEnd();
+                                    if (!draftContentData.isDraft()) {
+                                        wp.writeStart("a",
+                                                "class", "icon icon-action-edit",
+                                                "href", wp.url("", "draftId", null));
+                                            wp.writeHtml("Current");
+                                        wp.writeEnd();
+                                    }
 
                                     wp.writeStart("button",
                                             "class", "link icon icon-action-save",
