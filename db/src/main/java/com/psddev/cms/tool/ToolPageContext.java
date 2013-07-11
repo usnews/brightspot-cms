@@ -2120,6 +2120,7 @@ public class ToolPageContext extends WebPageContext {
                 if (transition != null) {
                     includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
                     updateUsingAllWidgets(object);
+                    state.as(Content.ObjectModification.class).setDraft(false);
                     workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
                     publish(object);
                     state.commitWrites();
