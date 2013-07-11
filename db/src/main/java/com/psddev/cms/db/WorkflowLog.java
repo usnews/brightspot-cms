@@ -9,15 +9,26 @@ import com.psddev.dari.db.Record;
 public class WorkflowLog extends Record {
 
     @Indexed
+    @ToolUi.Hidden
     private UUID objectId;
 
     @Indexed
+    @ToolUi.Hidden
     private Date date;
 
+    @ToolUi.Hidden
     private String transition;
+
+    @ToolUi.Hidden
     private String oldWorkflowState;
+
+    @ToolUi.Hidden
     private String newWorkflowState;
+
+    @ToolUi.Hidden
     private String userId;
+
+    @ToolUi.Placeholder("Optional Comment")
     private String comment;
 
     public UUID getObjectId() {

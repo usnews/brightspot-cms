@@ -157,10 +157,10 @@ public class Workflow extends Record {
         /**
          * @param transition If {@code null}, makes the object visible.
          * @param user May be {@code null}.
-         * @param comment May be {@code null}.
+         * @param log May be {@code null}.
          * @return New workflow state. May be {@code null}.
          */
-        public String changeState(WorkflowTransition transition, Object user, String comment) {
+        public String changeState(WorkflowTransition transition, Object user, WorkflowLog log) {
             String previousState = currentState;
             String transitionName;
             String transitionTarget;
@@ -181,7 +181,9 @@ public class Workflow extends Record {
             currentState = transitionTarget;
 
             if (transition != null || previousState != null) {
-                WorkflowLog log = new WorkflowLog();
+                if (log == null) {
+                    log = new WorkflowLog();
+                }
 
                 log.setObjectId(getId());
                 log.setDate(new Date());
@@ -197,7 +199,6 @@ public class Workflow extends Record {
                     }
                 }
 
-                log.setComment(comment);
                 log.save();
             }
 
@@ -207,6 +208,22 @@ public class Workflow extends Record {
                     first());
 
             return currentState;
+        }
+
+        /**
+         * @param transition If {@code null}, makes the object visible.
+         * @param user May be {@code null}.
+         * @param comment May be {@code null}.
+         * @return New workflow state. May be {@code null}.
+         * @deprecated Use {@link #changeState(WorkflowTransition, Object, WorkflowLog)} instead.
+         */
+        @Deprecated
+        public String changeState(WorkflowTransition transition, Object user, String comment) {
+            WorkflowLog log = new WorkflowLog();
+
+            log.setComment(comment);
+
+            return changeState(transition, user, log);
         }
 
         /**

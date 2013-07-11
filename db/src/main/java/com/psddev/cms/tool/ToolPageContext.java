@@ -49,6 +49,7 @@ import com.psddev.cms.db.Trash;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.db.Workflow;
+import com.psddev.cms.db.WorkflowLog;
 import com.psddev.cms.db.WorkflowTransition;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
@@ -1838,7 +1839,7 @@ public class ToolPageContext extends WebPageContext {
 
         try {
             state.beginWrites();
-            state.as(Workflow.Data.class).changeState(null, user, null);
+            state.as(Workflow.Data.class).changeState(null, user, (WorkflowLog) null);
 
             if (variationId == null ||
                     (site != null &&
@@ -2118,10 +2119,14 @@ public class ToolPageContext extends WebPageContext {
                 WorkflowTransition transition = workflow.getTransitions().get(action);
 
                 if (transition != null) {
+                    WorkflowLog log = new WorkflowLog();
+
                     includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
                     updateUsingAllWidgets(object);
                     state.as(Content.ObjectModification.class).setDraft(false);
-                    workflowData.changeState(transition, getUser(), param(String.class, "workflowComment"));
+                    log.getState().setId(param(UUID.class, "workflowLogId"));
+                    includeFromCms("/WEB-INF/objectPost.jsp", "object", log);
+                    workflowData.changeState(transition, getUser(), log);
                     publish(object);
                     state.commitWrites();
                 }

@@ -461,9 +461,15 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         }
 
                                         if (!transitionNames.isEmpty()) {
-                                            wp.writeStart("textarea",
-                                                    "name", "workflowComment",
-                                                    "placeholder", "Optional Comment");
+                                            log = new WorkflowLog();
+
+                                            wp.writeTag("input",
+                                                    "type", "hidden",
+                                                    "name", "workflowLogId",
+                                                    "value", log.getId());
+
+                                            wp.writeStart("div", "class", "widget-publishingWorkflowLog");
+                                                JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", log);
                                             wp.writeEnd();
 
                                             for (String transitionName : transitionNames) {
