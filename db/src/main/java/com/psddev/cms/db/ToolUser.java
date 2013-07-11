@@ -24,7 +24,7 @@ import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
-public class ToolUser extends Record {
+public class ToolUser extends Record implements ToolEntity {
 
     @Indexed
     @ToolUi.Note("If left blank, the user will have full access to everything.")

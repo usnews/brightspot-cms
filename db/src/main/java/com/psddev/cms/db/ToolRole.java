@@ -5,7 +5,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.SparseSet;
 
 @ToolUi.IconName("object-toolRole")
-public class ToolRole extends Record {
+public class ToolRole extends Record implements ToolEntity {
 
     @Indexed(unique = true)
     @Required
