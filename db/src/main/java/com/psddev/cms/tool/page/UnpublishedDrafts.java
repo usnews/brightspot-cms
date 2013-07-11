@@ -104,10 +104,10 @@ public class UnpublishedDrafts extends PageServlet {
                             userOk = page.getUser().equals(updateUser);
 
                         } else if (user instanceof ToolUser) {
-                            userOk = ((ToolUser) user).equals(updateUser);
+                            userOk = user.equals(updateUser);
 
                         } else if (user instanceof ToolRole && updateUser != null) {
-                            userOk = updateUser.getRole().equals(user);
+                            userOk = user.equals(updateUser.getRole());
                         }
                     }
 
