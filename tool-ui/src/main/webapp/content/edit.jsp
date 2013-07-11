@@ -424,55 +424,55 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 }
 
                                 if (currentState != null || !transitionNames.isEmpty()) {
-                                    wp.writeStart("div", "class", "message message-info");
-                                        wp.writeStart("p");
-                                            wp.writeHtml("Workflow: ");
-                                            wp.writeHtml(currentState);
-                                        wp.writeEnd();
+                                    wp.writeStart("div", "class", "widget-publishingWorkflow");
+                                        if (!ObjectUtils.isBlank(currentState)) {
+                                            wp.writeStart("p", "class", "widget-publishingWorkflowState");
+                                                wp.writeHtml("Workflow: ");
+                                                wp.writeHtml(currentState);
+                                            wp.writeEnd();
+                                        }
 
-                                        wp.writeStart("div", "class", "actions");
-                                            WorkflowLog log = Query.
-                                                    from(WorkflowLog.class).
-                                                    where("objectId = ?", editingState.getId()).
-                                                    sortDescending("date").
-                                                    first();
+                                        WorkflowLog log = Query.
+                                                from(WorkflowLog.class).
+                                                where("objectId = ?", editingState.getId()).
+                                                sortDescending("date").
+                                                first();
 
-                                            if (log != null) {
-                                                String comment = log.getComment();
+                                        if (log != null) {
+                                            String comment = log.getComment();
 
-                                                wp.writeStart("p");
-                                                    if (ObjectUtils.isBlank(comment)) {
-                                                        wp.writeHtml(log.getNewWorkflowState());
-                                                        wp.writeHtml(" by ");
+                                            wp.writeStart("p");
+                                                if (ObjectUtils.isBlank(comment)) {
+                                                    wp.writeHtml(log.getNewWorkflowState());
+                                                    wp.writeHtml(" by ");
 
-                                                    } else {
-                                                        wp.writeStart("q");
-                                                            wp.writeHtml(comment);
-                                                        wp.writeEnd();
-                                                        wp.writeHtml(" said ");
-                                                    }
-
-                                                    wp.writeHtml(log.getUserName());
-                                                    wp.writeHtml(" at ");
-                                                    wp.writeHtml(wp.formatUserDateTime(log.getDate()));
-                                                wp.writeEnd();
-                                            }
-
-                                            if (!transitionNames.isEmpty()) {
-                                                wp.writeStart("textarea",
-                                                        "name", "workflowComment",
-                                                        "placeholder", "Optional Comment");
-                                                wp.writeEnd();
-
-                                                for (String transitionName : transitionNames) {
-                                                    wp.writeStart("button",
-                                                            "name", "action-workflow",
-                                                            "value", transitionName);
-                                                        wp.writeHtml(transitionName);
+                                                } else {
+                                                    wp.writeStart("q");
+                                                        wp.writeHtml(comment);
                                                     wp.writeEnd();
+                                                    wp.writeHtml(" said ");
                                                 }
+
+                                                wp.writeHtml(log.getUserName());
+                                                wp.writeHtml(" at ");
+                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
+                                            wp.writeEnd();
+                                        }
+
+                                        if (!transitionNames.isEmpty()) {
+                                            wp.writeStart("textarea",
+                                                    "name", "workflowComment",
+                                                    "placeholder", "Optional Comment");
+                                            wp.writeEnd();
+
+                                            for (String transitionName : transitionNames) {
+                                                wp.writeStart("button",
+                                                        "name", "action-workflow",
+                                                        "value", transitionName);
+                                                    wp.writeHtml(transitionName);
+                                                wp.writeEnd();
                                             }
-                                        wp.writeEnd();
+                                        }
                                     wp.writeEnd();
                                 }
                             }

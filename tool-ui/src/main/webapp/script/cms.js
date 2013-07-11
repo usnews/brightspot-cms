@@ -924,6 +924,63 @@ $doc.ready(function() {
         });
     });
 
+    // Create tabs if the publishing widget contains both the workflow
+    // and the publish areas.
+    (function() {
+        var $workflow = $('.widget-publishingWorkflow'),
+                $publish = $('.widget-publishingPublish'),
+                $tabs,
+                $tabWorkflow,
+                $tabPublish;
+
+        if ($workflow.length === 0 || $publish.length === 0) {
+            return;
+        }
+
+        $tabs = $('<ul/>', {
+            'class': 'tabs'
+        });
+
+        $tabWorkflow = $('<li/>', {
+            'html': $('<a/>', {
+                'text': 'Workflow',
+                'click': function() {
+                    $workflow.show();
+                    $tabWorkflow.addClass('state-selected');
+                    $publish.hide();
+                    $tabPublish.removeClass('state-selected');
+                    $win.resize();
+                    return false;
+                }
+            })
+        });
+
+        $tabPublish = $('<li/>', {
+            'html': $('<a/>', {
+                'text': 'Publish',
+                'click': function() {
+                    $workflow.hide();
+                    $tabWorkflow.removeClass('state-selected');
+                    $publish.show();
+                    $tabPublish.addClass('state-selected');
+                    $win.resize();
+                    return false;
+                }
+            })
+        });
+
+        $tabs.append($tabWorkflow);
+        $tabs.append($tabPublish);
+        $workflow.before($tabs);
+
+        if ($('.widget-publishingWorkflowState').length > 0) {
+            $tabWorkflow.find('a').click();
+
+        } else {
+            $tabPublish.find('a').click();
+        }
+    })();
+
     // Starts all server-side tool checks.
     (function() {
         var toolCheckPoll = function() {
