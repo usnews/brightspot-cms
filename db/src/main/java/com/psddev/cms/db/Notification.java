@@ -43,26 +43,24 @@ public abstract class Notification extends Record {
                 from(ToolUser.class).
                 where("notifications = ?", this).
                 iterable(0)) {
-            if (receiver.getNotifyVia() == null) {
-                continue;
-            }
-
             try {
-                switch (receiver.getNotifyVia()) {
-                    case EMAIL :
-                        MailMessage email = createEmail(object, sender, date, receiver);
+                for (NotificationMethod method : receiver.getNotifyVia()) {
+                    switch (method) {
+                        case EMAIL :
+                            MailMessage email = createEmail(object, sender, date, receiver);
 
-                        email.from("support@perfectsensedigital.com");
-                        email.to(receiver.getEmail());
-                        MailProvider.Static.getDefault().send(email);
-                        break;
+                            email.from("support@perfectsensedigital.com");
+                            email.to(receiver.getEmail());
+                            MailProvider.Static.getDefault().send(email);
+                            break;
 
-                    case SMS :
-                        SmsProvider.Static.getDefault().send(
-                                null,
-                                receiver.getPhoneNumber(),
-                                createSms(object, sender, date, receiver));
-                        break;
+                        case SMS :
+                            SmsProvider.Static.getDefault().send(
+                                    null,
+                                    receiver.getPhoneNumber(),
+                                    createSms(object, sender, date, receiver));
+                            break;
+                    }
                 }
 
             } catch (RuntimeException error) {

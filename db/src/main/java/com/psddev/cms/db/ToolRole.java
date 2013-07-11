@@ -1,5 +1,10 @@
 package com.psddev.cms.db;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Iterator;
+
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.SparseSet;
@@ -46,5 +51,26 @@ public class ToolRole extends Record implements ToolEntity {
             permissionsCache = new SparseSet(ObjectUtils.isBlank(permissions) ? "+/" : permissions);
         }
         return permissionsCache.contains(permissionId);
+    }
+
+    @Override
+    public void sendNotification(NotificationSender sender) {
+        Iterator<ToolUser> i = Query.from(ToolUser.class).where("role = ?", this).iterable(0).iterator();
+
+        try {
+            try {
+                while (i.hasNext()) {
+                    i.next().sendNotification(sender);
+                }
+
+            } finally {
+                if (i instanceof Closeable) {
+                    ((Closeable) i).close();
+                }
+            }
+
+        } catch (IOException error) {
+            throw new IllegalStateException(error);
+        }
     }
 }

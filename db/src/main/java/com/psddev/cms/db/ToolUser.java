@@ -49,7 +49,7 @@ public class ToolUser extends Record implements ToolEntity {
 
     private UUID currentPreviewId;
     private String phoneNumber;
-    private NotificationMethod notifyVia;
+    private Set<NotificationMethod> notifyVia;
 
     @Indexed
     @ToolUi.DropDown
@@ -258,11 +258,20 @@ public class ToolUser extends Record implements ToolEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public NotificationMethod getNotifyVia() {
+    /**
+     * @return Never {@code null}.
+     */
+    public Set<NotificationMethod> getNotifyVia() {
+        if (notifyVia == null) {
+            notifyVia = new LinkedHashSet<NotificationMethod>();
+        }
         return notifyVia;
     }
 
-    public void setNotifyVia(NotificationMethod notifyVia) {
+    /**
+     * @param notifyVia May be {@code null} to clear the set.
+     */
+    public void setNotifyVia(Set<NotificationMethod> notifyVia) {
         this.notifyVia = notifyVia;
     }
 
@@ -473,6 +482,13 @@ public class ToolUser extends Record implements ToolEntity {
     public boolean hasPermission(String permissionId) {
         ToolRole role = getRole();
         return role != null ? role.hasPermission(permissionId) : true;
+    }
+
+    @Override
+    public void sendNotification(NotificationSender sender) {
+        for (NotificationMethod method : getNotifyVia()) {
+            sender.send(this, method);
+        }
     }
 
     public static final class Static {
