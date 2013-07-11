@@ -427,8 +427,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 if (currentState != null || !transitionNames.isEmpty()) {
                                     wp.writeStart("div", "class", "widget-publishingWorkflow");
                                         if (!ObjectUtils.isBlank(currentState)) {
-                                            wp.writeStart("p", "class", "widget-publishingWorkflowState");
-                                                wp.writeHtml("Workflow: ");
+                                            wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
                                                 wp.writeHtml(currentState);
                                             wp.writeEnd();
                                         }
@@ -442,33 +441,30 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         if (log != null) {
                                             String comment = log.getComment();
 
-                                            wp.writeStart("p");
-                                                if (ObjectUtils.isBlank(comment)) {
-                                                    wp.writeHtml(log.getNewWorkflowState());
-                                                    wp.writeHtml(" by ");
+                                            if (ObjectUtils.isBlank(comment)) {
+                                                wp.writeHtml(" by ");
 
-                                                } else {
-                                                    wp.writeStart("q");
-                                                        wp.writeHtml(comment);
-                                                    wp.writeEnd();
-                                                    wp.writeHtml(" said ");
-                                                }
+                                            } else {
+                                                wp.writeStart("q");
+                                                    wp.writeHtml(comment);
+                                                wp.writeEnd();
+                                                wp.writeHtml(" said ");
+                                            }
 
-                                                wp.writeHtml(log.getUserName());
-                                                wp.writeHtml(" at ");
-                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
-                                            wp.writeEnd();
+                                            wp.writeHtml(log.getUserName());
+                                            wp.writeHtml(" at ");
+                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                         }
 
                                         if (!transitionNames.isEmpty()) {
                                             log = new WorkflowLog();
 
-                                            wp.writeTag("input",
-                                                    "type", "hidden",
-                                                    "name", "workflowLogId",
-                                                    "value", log.getId());
+                                            wp.writeStart("div", "class", "widget-publishingWorkflowLog", "style", "margin-top: 15px;");
+                                                wp.writeTag("input",
+                                                        "type", "hidden",
+                                                        "name", "workflowLogId",
+                                                        "value", log.getId());
 
-                                            wp.writeStart("div", "class", "widget-publishingWorkflowLog");
                                                 JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", log);
                                             wp.writeEnd();
 
