@@ -210,12 +210,24 @@ var createMarker = function() {
 };
 
 // Wrap wysihtml5 to add functionality.
-var rtes = [ ];
-var enhancementId = 0;
-var createEnhancementId = function() {
-    ++ enhancementId;
-    return enhancementId;
-};
+var rtes = [ ],
+        getEnhancementId;
+
+(function() {
+    var enhancementIndex = 0;
+
+    getEnhancementId = function(placeholder) {
+        var enhancementId = $.data(placeholder, 'rte-enhancement-id');
+
+        if (!enhancementId) {
+            ++ enhancementIndex;
+            enhancementId = 'rte-enhancement-' + enhancementIndex;
+            $.data(placeholder, 'rte-enhancement-id', enhancementId);
+        }
+
+        return enhancementId;
+    };
+})();
 
 var Rte = wysihtml5.Editor.extend({
 
@@ -407,47 +419,45 @@ var Rte = wysihtml5.Editor.extend({
     // Updates the overlay to show enhancements above the underlying
     // placeholders.
     'updateOverlay': function() {
-        var rte = this;
+        var rte = this,
+                textarea = rte.textarea,
+                $overlay = $(rte.overlay),
+                composer = rte.composer,
+                composerIframe = composer.iframe,
+                composerWindow = composerIframe.contentWindow,
+                $composerBody = $(composerWindow.document.body);
 
-        // Hide if viewing source.
-        var textarea = this.textarea;
-        var overlay = this.overlay;
-
-        overlay.style.display = this.currentView === textarea ? 'none' : 'block';
+        // Hide if viewing source HTML.
+        $overlay.toggle(rte.currentView !== textarea);
 
         // Automatically size the iframe height to match the content.
-        var composer = this.composer;
-        var composerIframe = composer.iframe;
-        var composerIframeWindow = composerIframe.contentWindow;
+        $(composerIframe).css('min-height', $composerBody.height() + (rte.config.useLineBreaks ? 10 : 40));
+        $(composerWindow).scrollTop(0);
 
-        $(composerIframe).css('min-height', $(composerIframeWindow.document.body).height() + (rte.config.useLineBreaks ? 10 : 40));
-        $(composerIframeWindow).scrollTop(0);
-
-        // Create enhancements based on the underlying placeholders.
-        var $overlay = $(overlay);
-
+        // Overlay enhancements on top of the placeholders in the composer.
         $overlay.children().each(function() {
-            $(this).data('rte-visited', false);
+            $.data(this, 'rte-visited', false);
         });
 
-        $(composerIframe.contentDocument.body).find('button.enhancement').each(function() {
-            var $placeholder = $(this);
-            var id = $placeholder.data('rte-enhancementId');
+        $composerBody.find('button.enhancement').each(function() {
+            var $placeholder = $(this),
+                    isMarker = $placeholder.hasClass('marker'),
+                    enhancementId = getEnhancementId(this),
+                    $enhancement = $('#' + enhancementId),
+                    placeholderOffset = $placeholder.offset(),
+                    $enhancementLabel,
+                    newLabel,
+                    $oldImage,
+                    oldPreview,
+                    newPreview;
 
-            if (!id) {
-                id = createEnhancementId();
-                $placeholder.data('rte-enhancementId', id);
-            }
-
-            var $enhancement = $('#rte-enhancement-' + id);
-            var isMarker = wysihtml5.dom.hasClass($placeholder[0], 'marker');
-
+            // Create the enhancement if it doesn't exist already.
             if ($enhancement.length === 0) {
-                var newEnhancement = rte.config[isMarker ? 'marker' : 'enhancement']();
-                newEnhancement.style.position = 'absolute';
-                newEnhancement.setAttribute('id', 'rte-enhancement-' + id);
-                $enhancement = $(newEnhancement);
-                $enhancement.data('$rte-placeholder', $placeholder);
+                $enhancement = $(rte.config[isMarker ? 'marker' : 'enhancement']());
+
+                $enhancement.attr('id', enhancementId);
+                $enhancement.css('position', 'absolute');
+                $.data($enhancement[0], '$rte-placeholder', $placeholder);
                 $overlay.append($enhancement);
 
                 $enhancement.find('.rte-button-editEnhancement a').each(function() {
@@ -455,17 +465,15 @@ var Rte = wysihtml5.Editor.extend({
                             href = $anchor.attr('href');
 
                     href = href.replace(/([?&])id=[^&]*/, '$1');
-                    href += '&id=' + $placeholder.attr('data-id');
+                    href += '&id=' + ($placeholder.attr('data-id') || '');
 
                     $anchor.attr('href', href);
                 });
             }
 
-            $enhancement.data('rte-visited', true);
+            $.data($enhancement[0], 'rte-visited', true);
 
-            // Position enhancement to cover the placeholder.
-            var placeholderOffset = $placeholder.offset();
-
+            // Position the enhancement to cover the placeholder.
             $enhancement.css({
                 'height': $placeholder.outerHeight(),
                 'left': placeholderOffset.left,
@@ -474,28 +482,34 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             // Copy the enhancement label.
-            var $label = $enhancement.find('.rte-enhancement-label');
-            var preview = $placeholder.attr('data-preview');
+            $enhancementLabel = $enhancement.find('.rte-enhancement-label');
+            newLabel = $placeholder.attr('data-label');
+            newPreview = $placeholder.attr('data-preview');
 
-            if (preview) {
-                $label.html($('<figure/>', {
-                    'html': $('<img/>', {
-                        'src': preview
-                    })
-                }));
+            if (newPreview) {
+                if ($enhancementLabel.find('figure img').attr('src') !== newPreview) {
+                    $enhancementLabel.html($('<figure/>', {
+                        'html': $('<img/>', {
+                            'src': newPreview
+                        })
+                    }));
+                }
+
+                $enhancementLabel.find('figure img').attr('alt', newLabel);
 
             } else {
-                $label.text(
-                        $placeholder.attr('data-label') ||
-                        'Empty ' + (isMarker ? 'Marker' : 'Enhancement'));
+                if (!newLabel) {
+                    newLabel = 'Empty ' + (isMarker ? 'Marker' : 'Enhancement');
+                }
+
+                $enhancementLabel.text(newLabel);
             }
         });
 
         // Remove orphaned enhancements.
         $overlay.children().each(function() {
-            var $enhancement = $(this);
-            if (!$enhancement.data('rte-visited')) {
-                $enhancement.remove();
+            if (!$.data(this, 'rte-visited')) {
+                $(this).remove();
             }
         });
     }
