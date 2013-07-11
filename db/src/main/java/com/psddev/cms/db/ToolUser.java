@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -492,10 +493,8 @@ public class ToolUser extends Record implements ToolEntity {
     }
 
     @Override
-    public void sendNotification(NotificationSender sender) {
-        for (NotificationMethod method : getNotifyVia()) {
-            sender.send(this, method);
-        }
+    public Iterable<? extends ToolUser> getUsers() {
+        return Collections.singleton(this);
     }
 
     public static final class Static {

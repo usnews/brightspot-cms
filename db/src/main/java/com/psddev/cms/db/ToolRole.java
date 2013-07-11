@@ -1,9 +1,5 @@
 package com.psddev.cms.db;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.Iterator;
-
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
@@ -54,23 +50,7 @@ public class ToolRole extends Record implements ToolEntity {
     }
 
     @Override
-    public void sendNotification(NotificationSender sender) {
-        Iterator<ToolUser> i = Query.from(ToolUser.class).where("role = ?", this).iterable(0).iterator();
-
-        try {
-            try {
-                while (i.hasNext()) {
-                    i.next().sendNotification(sender);
-                }
-
-            } finally {
-                if (i instanceof Closeable) {
-                    ((Closeable) i).close();
-                }
-            }
-
-        } catch (IOException error) {
-            throw new IllegalStateException(error);
-        }
+    public Iterable<? extends ToolUser> getUsers() {
+        return Query.from(ToolUser.class).where("role = ?", this).iterable(0);
     }
 }

@@ -5,9 +5,9 @@ import com.psddev.dari.db.Recordable;
 public interface ToolEntity extends Recordable {
 
     /**
-     * Sends a notification to this entity using the given {@code sender}.
+     * Returns all tool users that are represented by this entity.
      *
-     * @param sender Can't be {@code null}.
+     * @return Never {@code null}.
      */
-    public void sendNotification(NotificationSender sender);
+    public Iterable<? extends ToolUser> getUsers();
 }
