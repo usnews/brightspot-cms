@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
@@ -22,6 +25,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PageContextFilter;
 
 /** Represents a generic content. */
 @Content.Searchable
@@ -60,6 +64,17 @@ public abstract class Content extends Record {
     /** Returns the tool user that last updated this object. */
     public ToolUser getUpdateUser() {
         return as(ObjectModification.class).getUpdateUser();
+    }
+
+    /**
+     * Returns the tool user that's currently logged in.
+     *
+     * @return May be {@code null}.
+     */
+    protected ToolUser getCurrentToolUser() {
+        HttpServletRequest request = PageContextFilter.Static.getRequestOrNull();
+
+        return request != null ? AuthenticationFilter.Static.getUser(request) : null;
     }
 
     /** Modification that adds CMS content information. */
