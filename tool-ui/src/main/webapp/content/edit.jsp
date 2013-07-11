@@ -445,6 +445,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                                 wp.writeHtml(" by ");
 
                                             } else {
+                                                wp.writeHtml(" ");
                                                 wp.writeStart("q");
                                                     wp.writeHtml(comment);
                                                 wp.writeEnd();
