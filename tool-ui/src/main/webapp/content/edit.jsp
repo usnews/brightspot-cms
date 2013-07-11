@@ -409,6 +409,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                         // Workflow actions.
                         if (editingState.isNew() ||
+                                !editingState.isVisible() ||
                                 editingState.as(Workflow.Data.class).getCurrentState() != null) {
                             Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
 
