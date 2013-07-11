@@ -752,15 +752,9 @@ var Rte = wysihtml5.Editor.extend({
                 $(composer.element).addClass('rte-trackChanges');
             }
 
-            rte.updateOverlay();
-
-            $(composer.element).keyup(function() {
+            setInterval(function() {
                 rte.updateOverlay();
-            });
-
-            rte.on('aftercommand:composer', function() {
-                rte.updateOverlay();
-            });
+            }, 100);
         });
     },
 
