@@ -82,7 +82,7 @@ writer.start("html");
                     "position", "static",
                     "width", "auto");
 
-            writer.css("body.rte-trackChanges del[data-comment]:after, body.rte-trackChanges ins[data-comment]:after",
+            writer.css("body.rte-trackChanges [data-comment]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
                     "content", "' ' attr(data-comment) ' -' attr(data-user) ' '",

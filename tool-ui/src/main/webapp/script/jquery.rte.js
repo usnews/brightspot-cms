@@ -170,12 +170,8 @@ var createToolbar = function(rte, inline) {
     }));
 
     $misc.append($('<span/>', {
-        'class': 'rte-button',
-        'data-wysihtml5-command': 'inDelOrInsElement',
-        'text': '?',
-        'css': {
-            'display': 'none'
-        }
+        'class': 'rte-button rte-button-annotate',
+        'text': 'Annotate'
     }));
 
     return $container[0];
@@ -379,19 +375,202 @@ var Rte = wysihtml5.Editor.extend({
                 ' <a data-wysihtml5-dialog-action="cancel">Reset</a></div>' +
             '</div>'));
 
-        $dialogs.append($(
-            '<div class="rte-dialog" data-wysihtml5-dialog="inDelOrInsElement" style="display: none;">' +
-                '<h2>The Change</h2>' +
-                '<div class="rte-dialogChangeMessage"></div>' +
-                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="accept">Accept</a>' +
-                ' <a data-wysihtml5-dialog-action="revert">Revert</a></div>' +
-                '<h2>Comment</h2>' +
-                '<div class="rte-dialogLine"><input type="text" data-wysihtml5-dialog-field="data-comment"></div>' +
-                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="save">Save</a>' +
-                ' <a data-wysihtml5-dialog-action="cancel">Reset</a></div>' +
-            '</div>'));
-
         container.appendChild($dialogs[0]);
+
+        var getAnnotationComments = function($element) {
+            var comments = $.parseJSON($element.attr('data-comments') || '[]'),
+                    text;
+
+            if (comments.length === 0) {
+                text = $element.attr('data-comment');
+
+                if (text) {
+                    comments.push({
+                        'time': $element.attr('data-time'),
+                        'userId': $element.attr('data-user-id'),
+                        'user': $element.attr('data-user'),
+                        'text': text
+                    });
+                }
+            }
+
+            return comments;
+        };
+
+        var addAnnotationComment = function($element, commentText) {
+            var comments = getAnnotationComments($element),
+                    commentsLength = comments.length,
+                    lastComment,
+                    userId = $(rte.textarea.element).attr('data-user-id'),
+                    user = $(rte.textarea.element).attr('data-user'),
+                    addComment = true;
+
+            if (!$element.is('code, del, ins')) {
+                $element = $('<code/>');
+
+                rte.composer.selection.insertNode($element[0]);
+            }
+
+            if (commentsLength > 0) {
+                lastComment = comments[commentsLength - 1];
+
+                if (userId === lastComment.userId) {
+                    lastComment.text = commentText;
+                    addComment = false;
+                }
+            }
+
+            if (addComment) {
+                comments.push({
+                    'time': +new Date(),
+                    'userId': userId,
+                    'user': user,
+                    'text': commentText
+                });
+            }
+
+            $element.attr('data-comments', JSON.stringify(comments));
+
+            lastComment = comments[comments.length - 1];
+
+            $element.attr('data-comment', lastComment.text);
+            $element.attr('data-user', lastComment.user);
+        };
+
+        var $annotationDialog = $(
+                '<div>' +
+                    '<div class="rte-dialogAnnotationChange">' +
+                        '<h2>The Change</h2>' +
+                        '<div class="rte-dialogAnnotationMessage"></div>' +
+                        '<a class="rte-dialogAnnotationAccept">Accept</a>' +
+                        ' <a class="rte-dialogAnnotationRevert">Revert</a>' +
+                    '</div>' +
+                    '<div class="rte-dialogAnnotationChangeAll">' +
+                        '<h2>All Changes</h2>' +
+                        '<a class="rte-dialogAnnotationAcceptAll">Accept All</a>' +
+                        ' <a class="rte-dialogAnnotationRevertAll">Revert All</a>' +
+                    '</div>' +
+                    '<h2>Comment</h2>' +
+                    '<input type="text" class="rte-dialogAnnotationComment">' +
+                    '<a class="rte-dialogAnnotationSave">Save</a>' +
+                    '<ul class="rte-dialogAnnotationComments">' +
+                    '</ul>' +
+                '</div>');
+
+        $annotationDialog.on('click', '.rte-dialogAnnotationAccept', function() {
+            var $selected = getSelectedElement();
+
+            if ($selected.is('del')) {
+                $selected.remove();
+
+            } else if ($selected.is('ins')) {
+                $selected.before($selected.html());
+                $selected.remove();
+            }
+
+            $(this).popup('close');
+        });
+
+        $annotationDialog.on('click', '.rte-dialogAnnotationAcceptAll', function() {
+            $(rte.composer.element).find('ins').each(function() {
+                var $ins = $(this);
+
+                $ins.before($ins.html());
+                $ins.remove();
+            });
+
+            $(rte.composer.element).find('del').remove();
+            $(this).popup('close');
+        });
+
+        $annotationDialog.on('click', '.rte-dialogAnnotationRevert', function() {
+            var $selected = getSelectedElement();
+
+            if ($selected.is('del')) {
+                $selected.before($selected.html());
+                $selected.remove();
+
+            } else if ($selected.is('ins')) {
+                $selected.remove();
+            }
+
+            $(this).popup('close');
+        });
+
+        $annotationDialog.on('click', '.rte-dialogAnnotationRevertAll', function() {
+            $(rte.composer.element).find('del').each(function() {
+                var $del = $(this);
+
+                $del.before($del.html());
+                $del.remove();
+            });
+
+            $(rte.composer.element).find('ins').remove();
+            $(this).popup('close');
+        });
+
+        $annotationDialog.on('click', '.rte-dialogAnnotationSave', function() {
+            addAnnotationComment(getSelectedElement(), $annotationDialog.find('.rte-dialogAnnotationComment').val());
+            $(this).popup('close');
+        });
+
+        $(doc.body).append($annotationDialog);
+        $annotationDialog.popup();
+        $annotationDialog.popup('close');
+
+        $(config.toolbar).find('.rte-button-annotate').click(function() {
+            var composerOffset = $(rte.composer.iframe).offset(),
+                    $selected = getSelectedElement(),
+                    selectedOffset = $selected.offset(),
+                    $change = $annotationDialog.find('.rte-dialogAnnotationChange'),
+                    $message = $annotationDialog.find('.rte-dialogAnnotationMessage'),
+                    comments = getAnnotationComments($selected),
+                    $comments = $annotationDialog.find('.rte-dialogAnnotationComments'),
+                    lastComment;
+
+            if ($selected.is('del')) {
+                $change.show();
+                $message.html('Deleted <q>' + $selected.html() + '</q>');
+
+            } else if ($selected.is('ins')) {
+                $change.show();
+                $message.html('Inserted <q>' + $selected.html() + '</q>');
+
+            } else {
+                $change.hide();
+            }
+
+            $annotationDialog.popup('open');
+            $annotationDialog.popup('container').css({
+                'position': 'absolute',
+                'top': composerOffset.top + selectedOffset.top + $selected.outerHeight()
+            });
+
+            $comments.empty();
+            $.each(comments.reverse(), function(i, comment) {
+                var html = '';
+
+                if (!lastComment) {
+                    lastComment = comment;
+                }
+
+                if (comment.text) {
+                    html += '<q>' + comment.text + '</q> said ';
+                }
+
+                html += comment.user;
+                html += ' at ';
+                html += new Date(parseInt(comment.time, 10));
+
+                $comments.append($('<li/>', {
+                    'html': html
+                }));
+            });
+
+            $comments.toggle(!!lastComment);
+            $annotationDialog.find('.rte-dialogAnnotationComment').val(
+                    lastComment && lastComment.userId === $(rte.textarea.element).attr('data-user-id') ? lastComment.text || '' : '');
+        });
 
         // Initialize wysihtml5.
         container.appendChild(originalTextarea);
@@ -413,55 +592,13 @@ var Rte = wysihtml5.Editor.extend({
         this.observe('show:dialog', function(options) {
             var $selected = getSelectedElement(),
                     selectedOffset = $selected.offset(),
-                    $dialog = $(options.dialogContainer),
-                    $changeMessage = $dialog.find('.rte-dialogChangeMessage'),
-                    message;
-
-            if ($changeMessage.length > 0) {
-                message = $selected.is('del') ? 'deleted' : $selected.is('ins') ? 'inserted' : null;
-
-                if (message) {
-                    $changeMessage.html(
-                            $selected.attr('data-user') +
-                            ' ' + message +
-                            ' <q>' + $selected.html() +
-                            '</q> at ' + new Date(parseInt($selected.attr('data-time'), 10)));
-                }
-            }
+                    $dialog = $(options.dialogContainer);
 
             $dialog.css({
                 'left': selectedOffset.left,
                 'position': 'absolute',
                 'top': selectedOffset.top + $selected.outerHeight() + 10
             });
-        });
-
-        $(container).on('click', '[data-wysihtml5-dialog-action="accept"]', function() {
-            var $selected = getSelectedElement();
-
-            if ($selected.is('del')) {
-                $selected.remove();
-
-            } else if ($selected.is('ins')) {
-                $selected.before($selected.html());
-                $selected.remove();
-            }
-
-            $(this).closest('.rte-dialog').hide();
-        });
-
-        $(container).on('click', '[data-wysihtml5-dialog-action="revert"]', function() {
-            var $selected = getSelectedElement();
-
-            if ($selected.is('del')) {
-                $selected.before($selected.html());
-                $selected.remove();
-
-            } else if ($selected.is('ins')) {
-                $selected.remove();
-            }
-
-            $(this).closest('.rte-dialog').hide();
         });
 
         this.observe('load', function() {
@@ -612,12 +749,13 @@ var Rte = wysihtml5.Editor.extend({
             wrap = function(tag) {
                 var tempClass,
                         $element,
-                        comment,
-                        oldComment,
+                        comments,
+                        oldComments,
                         prev,
                         $prev,
                         next,
-                        $next;
+                        $next,
+                        newComments;
 
                 if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
                     return;
@@ -630,8 +768,7 @@ var Rte = wysihtml5.Editor.extend({
 
                 $element = $(tag + '.' + tempClass, composer.element);
 
-                $element.attr('data-user', $(textarea.element).attr('data-user'));
-                $element.attr('data-time', +new Date());
+                addAnnotationComment($element, '');
                 $element.removeClass(tempClass);
 
                 for (; (next = $element[0].nextSibling); $element = $next) {
@@ -644,12 +781,16 @@ var Rte = wysihtml5.Editor.extend({
                     $next.prepend($element.html());
                     $element.remove();
 
-                    comment = $element.attr('data-comment');
+                    comments = $element.attr('data-comments');
 
-                    if (comment) {
-                        oldComment = $next.attr('data-comment');
+                    if (comments) {
+                        oldComments = $next.attr('data-comments');
 
-                        $next.attr('data-comment', oldComment ? comment + ', ' + oldComment : comment);
+                        if (oldComments) {
+                            newComments= $.parseJSON(oldComment);
+                            newComments.push($.parseJSON(comments)[0]);
+                            $next.attr('data-comments', JSON.stringify(newComments));
+                        }
                     }
                 }
             };
