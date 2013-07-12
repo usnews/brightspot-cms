@@ -7,7 +7,7 @@ java.util.Arrays,
 java.util.Collection
 " %><%!
 
-private static final Collection<String> INCLUDE_FIELDS = Arrays.asList("name", "email", "password", "timeZone", "phoneNumber", "notifyVia", "notifications");
+private static final Collection<String> EXCLUDE_FIELDS = Arrays.asList("role");
 %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -20,7 +20,7 @@ ToolUser user = wp.getUser();
 
 if (wp.isFormPost()) {
     try {
-        wp.include("/WEB-INF/objectPost.jsp", "object", user, "includeFields", INCLUDE_FIELDS);
+        wp.include("/WEB-INF/objectPost.jsp", "object", user, "excludeFields", EXCLUDE_FIELDS);
         user.save();
         wp.redirect("");
         return;
@@ -51,7 +51,7 @@ wp.writeStart("div", "class", "widget");
             "method", "post",
             "enctype", "multipart/form-data",
             "action", wp.objectUrl("", user));
-        wp.include("/WEB-INF/objectForm.jsp", "object", user, "includeFields", INCLUDE_FIELDS);
+        wp.include("/WEB-INF/objectForm.jsp", "object", user, "excludeFields", EXCLUDE_FIELDS);
 
         wp.writeStart("div", "class", "actions");
             wp.writeStart("button", "class", "icon icon-action-save");
