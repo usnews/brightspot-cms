@@ -44,6 +44,7 @@ ToolUser user = wp.getUser();
 UUID currentPreviewId = user.getCurrentPreviewId();
 Map<String, Object> selectedMap = selectedState.getSimpleValues();
 
+/*
 preview.getState().setId(currentPreviewId);
 preview.setCreateDate(new Date());
 preview.setObjectType(selectedState.getType());
@@ -52,6 +53,7 @@ preview.setObjectValues(selectedMap);
 preview.setSite(wp.getSite());
 preview.save();
 user.saveAction(request, selected);
+*/
 
 List<Directory.Path> automaticPaths = (List<Directory.Path>) selectedState.getExtras().get("cms.automaticPaths");
 boolean manual = Directory.PathsMode.MANUAL.equals(dirData.getPathsMode());
