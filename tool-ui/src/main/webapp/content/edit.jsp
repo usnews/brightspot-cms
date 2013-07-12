@@ -441,20 +441,24 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         if (log != null) {
                                             String comment = log.getComment();
 
-                                            if (ObjectUtils.isBlank(comment)) {
-                                                wp.writeHtml(" by ");
+                                            wp.writeHtml(" ");
+                                            wp.writeStart("a",
+                                                    "target", "workflowLogs",
+                                                    "href", wp.cmsUrl("/workflowLogs", "objectId", editingState.getId()));
+                                                if (ObjectUtils.isBlank(comment)) {
+                                                    wp.writeHtml("by ");
 
-                                            } else {
-                                                wp.writeHtml(" ");
-                                                wp.writeStart("q");
-                                                    wp.writeHtml(comment);
-                                                wp.writeEnd();
-                                                wp.writeHtml(" said ");
-                                            }
+                                                } else {
+                                                    wp.writeStart("q");
+                                                        wp.writeHtml(comment);
+                                                    wp.writeEnd();
+                                                    wp.writeHtml(" said ");
+                                                }
 
-                                            wp.writeHtml(log.getUserName());
-                                            wp.writeHtml(" at ");
-                                            wp.writeHtml(wp.formatUserDateTime(log.getDate()));
+                                                wp.writeHtml(log.getUserName());
+                                                wp.writeHtml(" at ");
+                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
+                                            wp.writeEnd();
                                         }
 
                                         if (!transitionNames.isEmpty()) {
