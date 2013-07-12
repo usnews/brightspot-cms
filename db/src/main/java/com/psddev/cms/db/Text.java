@@ -7,12 +7,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.psddev.dari.util.HtmlWriter;
 
+@Text.DisplayName("Raw HTML")
+@ToolUi.Referenceable
 public class Text extends Content implements Renderer {
 
     @Indexed(unique = true)
     @Required
     private String name;
 
+    @DisplayName("HTML")
     private String text;
 
     /** Returns the name. */
