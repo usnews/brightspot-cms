@@ -22,6 +22,7 @@ $.plugin2('dropDown', {
                 isFixedPosition = $original.isFixedPosition(),
                 isMultiple = $original.is('[multiple]'),
                 isSearchable = $original.is('[data-searchable="true"]'),
+                placeholder = $original.attr('placeholder'),
                 $input,
                 $label,
                 $search,
@@ -82,11 +83,12 @@ $.plugin2('dropDown', {
         });
 
         $label.bind('dropDown-update', function() {
-            var texts = $.map($original.find('option:selected'), function(option) {
+            var newLabel = $.map($original.find('option:selected'), function(option) {
                 return $(option).text();
-            });
+            }).join(', ');
 
-            $label.html(texts.join(', ') || '&nbsp;');
+            $label.html(newLabel || placeholder || '&nbsp;');
+            $label.toggleClass('state-placeholder', !newLabel);
         });
 
         containerCss = {

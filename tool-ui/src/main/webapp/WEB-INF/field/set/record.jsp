@@ -150,6 +150,18 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     PageWriter writer = wp.getWriter();
 
     if (wp.isObjectSelectDropDown(field)) {
+        ToolUi ui = field.as(ToolUi.class);
+        String placeholder = ui.getPlaceholder();
+
+        if (field.isRequired()) {
+            if (ObjectUtils.isBlank(placeholder)) {
+                placeholder = "(Required)";
+
+            } else {
+                placeholder += " (Required)";
+            }
+        }
+
         writer.start("div", "class", "inputSmall");
             List<?> items = new Search(field).toQuery().selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
@@ -157,6 +169,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             writer.start("select",
                     "multiple", "multiple",
                     "data-searchable", "true",
+                    "placeholder", placeholder,
                     "name", inputName);
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
