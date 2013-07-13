@@ -165,6 +165,18 @@ writer.start("html");
             writer.css(".marker",
                     "height", "46px");
 
+            writer.css(".rte-cursor",
+                    "position", "relative");
+
+            writer.css(".rte-cursor:after",
+                    "background-color", "rgba(0, 0, 0, 0.5)",
+                    "content", "''",
+                    "height", "16px",
+                    "left", "-1px",
+                    "position", "absolute",
+                    "top", 0,
+                    "width", "2px");
+
             CmsTool cms = wp.getCmsTool();
             String defaultCss = cms.getDefaultTextOverlayCss();
 

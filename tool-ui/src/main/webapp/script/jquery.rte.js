@@ -522,7 +522,8 @@ var Rte = wysihtml5.Editor.extend({
         $(config.toolbar).find('.rte-button-annotate').click(function() {
             var composerOffset = $(rte.composer.iframe).offset(),
                     $selected = getSelectedElement(),
-                    selectedOffset = $selected.offset(),
+                    $cursor,
+                    cursorOffset,
                     $change = $annotationDialog.find('.rte-dialogAnnotationChange'),
                     $message = $annotationDialog.find('.rte-dialogAnnotationMessage'),
                     comments = getAnnotationComments($selected),
@@ -543,9 +544,13 @@ var Rte = wysihtml5.Editor.extend({
 
             $annotationDialog.popup('open');
             $annotationDialog.find('.rte-dialogAnnotationComment').focus();
+
+            $cursor = $(rte.composer.element).find('.rte-cursor');
+            cursorOffset = $cursor.offset();
+
             $annotationDialog.popup('container').css({
                 'position': 'absolute',
-                'top': composerOffset.top + selectedOffset.top + $selected.outerHeight()
+                'top': composerOffset.top + cursorOffset.top + $cursor.outerHeight()
             });
 
             $comments.empty();
@@ -604,6 +609,23 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         this.observe('load', function() {
+            var $cursor = $(rte.composer.doc.createElement('span'));
+
+            $cursor.addClass('rte-cursor');
+
+            $annotationDialog.popup('container').bind('open', function() {
+                var selection = rte.composer.selection;
+
+                selection.getSelection().collapseToEnd();
+                selection.insertNode($cursor[0]);
+                selection.setBefore($cursor[0]);
+            });
+
+            $annotationDialog.popup('container').bind('close', function() {
+                rte.composer.selection.setBefore($cursor[0]);
+                $cursor.remove();
+                rte.focus();
+            });
 
             // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
             var convertNodes = function(parent, oldTagName, newTagName, callback) {
