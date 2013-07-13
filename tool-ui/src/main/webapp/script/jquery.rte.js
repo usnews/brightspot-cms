@@ -542,6 +542,7 @@ var Rte = wysihtml5.Editor.extend({
             }
 
             $annotationDialog.popup('open');
+            $annotationDialog.find('.rte-dialogAnnotationComment').focus();
             $annotationDialog.popup('container').css({
                 'position': 'absolute',
                 'top': composerOffset.top + selectedOffset.top + $selected.outerHeight()
