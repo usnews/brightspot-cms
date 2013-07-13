@@ -433,8 +433,9 @@ var Rte = wysihtml5.Editor.extend({
 
             lastComment = comments[comments.length - 1];
 
-            $element.attr('data-comment', lastComment.text);
-            $element.attr('data-user', lastComment.user);
+            if (lastComment.text) {
+                $element.attr('data-text', lastComment.text + ' -' + lastComment.user);
+            }
         };
 
         var $annotationDialog = $(
