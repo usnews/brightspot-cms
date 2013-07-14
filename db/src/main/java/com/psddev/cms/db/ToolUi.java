@@ -28,6 +28,8 @@ import com.psddev.dari.util.TypeDefinition;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private boolean displayFirst;
+    private boolean displayLast;
     private boolean dropDown;
     private Boolean filterable;
     private boolean globalFilter;
@@ -50,6 +52,22 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMaximum;
     private Number suggestedMinimum;
     private String tab;
+
+    public boolean isDisplayFirst() {
+        return displayFirst;
+    }
+
+    public void setDisplayFirst(boolean displayFirst) {
+        this.displayFirst = displayFirst;
+    }
+
+    public boolean isDisplayLast() {
+        return displayLast;
+    }
+
+    public void setDisplayLast(boolean displayLast) {
+        this.displayLast = displayLast;
+    }
 
     public boolean isDropDown() {
         return dropDown;
@@ -321,6 +339,46 @@ public class ToolUi extends Modification<Object> {
 
     public void setTab(String tab) {
         this.tab = tab;
+    }
+
+    /**
+     * Specifies that the target field should be displayed before any other
+     * fields.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DisplayFirstProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DisplayFirst {
+        boolean value() default true;
+    }
+
+    private static class DisplayFirstProcessor implements ObjectField.AnnotationProcessor<DisplayFirst> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, DisplayFirst annotation) {
+            field.as(ToolUi.class).setDisplayFirst(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies that the target field should be displayed after all other
+     * fields.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DisplayLastProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DisplayLast {
+        boolean value() default true;
+    }
+
+    private static class DisplayLastProcessor implements ObjectField.AnnotationProcessor<DisplayLast> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, DisplayLast annotation) {
+            field.as(ToolUi.class).setDisplayLast(annotation.value());
+        }
     }
 
     /**

@@ -10,7 +10,9 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
 
+java.util.ArrayList,
 java.util.Collection,
+java.util.Iterator,
 java.util.HashSet,
 java.util.List
 " %><%
@@ -37,6 +39,26 @@ wp.writeStart("div", "class", "objectInputs");
     }
 
     if (fields != null) {
+        List<ObjectField> firsts = new ArrayList<ObjectField>();
+        List<ObjectField> lasts = new ArrayList<ObjectField>();
+
+        for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
+            ObjectField field = i.next();
+            ToolUi ui = field.as(ToolUi.class);
+
+            if (ui.isDisplayFirst()) {
+                firsts.add(field);
+                i.remove();
+
+            } else if (ui.isDisplayLast()) {
+                lasts.add(field);
+                i.remove();
+            }
+        }
+
+        fields.addAll(0, firsts);
+        fields.addAll(lasts);
+
         Object old = request.getAttribute("modificationHeadings");
 
         try {
