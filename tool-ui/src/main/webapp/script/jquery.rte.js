@@ -153,6 +153,23 @@ var createToolbar = function(rte, inline, firstDraft) {
         });
     }
 
+    var $track = $createToolbarGroup('Track');
+    $toolbar.append($track);
+    $track = $track.find('.rte-group-buttons');
+
+    if (!firstDraft) {
+        $track.append($('<span/>', {
+            'class': 'rte-button rte-button-trackChanges',
+            'data-wysihtml5-command': 'trackChanges',
+            'text': 'Changes'
+        }));
+    }
+
+    $track.append($('<span/>', {
+        'class': 'rte-button rte-button-annotate',
+        'text': 'Annotate'
+    }));
+
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
     $misc = $misc.find('.rte-group-buttons');
@@ -161,19 +178,6 @@ var createToolbar = function(rte, inline, firstDraft) {
         'class': 'rte-button rte-button-html',
         'data-wysihtml5-action': 'change_view',
         'text': 'HTML'
-    }));
-
-    if (!firstDraft) {
-        $misc.append($('<span/>', {
-            'class': 'rte-button rte-button-trackChanges',
-            'data-wysihtml5-command': 'trackChanges',
-            'text': 'Track Changes'
-        }));
-    }
-
-    $misc.append($('<span/>', {
-        'class': 'rte-button rte-button-annotate',
-        'text': 'Annotate'
     }));
 
     return $container[0];
@@ -1165,18 +1169,6 @@ wysihtml5.commands.trackChanges = {
 
     'state': function(composer) {
         return $(composer.element).hasClass('rte-trackChanges');
-    }
-};
-
-wysihtml5.commands.inDelOrInsElement = {
-
-    'exec': function() {
-    },
-
-    'state': function(composer, command) {
-        return $(composer.element).hasClass('rte-trackChanges') &&
-                (wysihtml5.commands.formatInline.state(composer, command, 'del') ||
-                wysihtml5.commands.formatInline.state(composer, command, 'ins'));
     }
 };
 
