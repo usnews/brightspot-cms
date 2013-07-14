@@ -377,15 +377,15 @@ var Rte = wysihtml5.Editor.extend({
 
         container.appendChild($dialogs[0]);
 
-        var getAnnotationComments = function($element) {
-            var comments = $.parseJSON($element.attr('data-comments') || '[]'),
+        var getAnnotations = function($element) {
+            var annotations = $.parseJSON($element.attr('data-annotations') || $element.attr('data-comments') || '[]'),
                     text;
 
-            if (comments.length === 0) {
+            if (annotations.length === 0) {
                 text = $element.attr('data-comment');
 
                 if (text) {
-                    comments.push({
+                    annotations.push({
                         'time': $element.attr('data-time'),
                         'userId': $element.attr('data-user-id'),
                         'user': $element.attr('data-user'),
@@ -394,16 +394,16 @@ var Rte = wysihtml5.Editor.extend({
                 }
             }
 
-            return comments;
+            return annotations;
         };
 
-        var addAnnotationComment = function($element, commentText) {
-            var comments = getAnnotationComments($element),
-                    commentsLength = comments.length,
-                    lastComment,
+        var addAnnotation = function($element, text) {
+            var annotations = getAnnotations($element),
+                    annotationsLength = annotations.length,
+                    lastAnnotation,
                     userId = $(rte.textarea.element).attr('data-user-id'),
                     user = $(rte.textarea.element).attr('data-user'),
-                    addComment = true;
+                    addAnnotation = true;
 
             if (!$element.is('code, del, ins')) {
                 $element = $('<code/>');
@@ -411,30 +411,35 @@ var Rte = wysihtml5.Editor.extend({
                 rte.composer.selection.insertNode($element[0]);
             }
 
-            if (commentsLength > 0) {
-                lastComment = comments[commentsLength - 1];
+            if (annotationsLength > 0) {
+                lastAnnotation = annotations[annotationsLength - 1];
 
-                if (userId === lastComment.userId) {
-                    lastComment.text = commentText;
-                    addComment = false;
+                if (userId === lastAnnotation.userId) {
+                    lastAnnotation.text = text;
+                    addAnnotation = false;
                 }
             }
 
-            if (addComment) {
-                comments.push({
+            if (addAnnotation) {
+                annotations.push({
                     'time': +new Date(),
                     'userId': userId,
                     'user': user,
-                    'text': commentText
+                    'text': text
                 });
             }
 
-            $element.attr('data-comments', JSON.stringify(comments));
+            $element.removeAttr('data-time');
+            $element.removeAttr('data-user-id');
+            $element.removeAttr('data-user');
+            $element.removeAttr('data-comment');
+            $element.removeAttr('data-text');
+            $element.attr('data-annotations', JSON.stringify(annotations));
 
-            lastComment = comments[comments.length - 1];
+            lastAnnotation = annotations[annotations.length - 1];
 
-            if (lastComment.text) {
-                $element.attr('data-text', lastComment.text + ' -' + lastComment.user);
+            if (lastAnnotation.text) {
+                $element.attr('data-last-annotation', lastAnnotation.text + ' -' + lastAnnotation.user);
             }
         };
 
@@ -452,9 +457,9 @@ var Rte = wysihtml5.Editor.extend({
                         ' <a class="rte-dialogAnnotationRevertAll">Revert All</a>' +
                     '</div>' +
                     '<h2>Comment</h2>' +
-                    '<input type="text" class="rte-dialogAnnotationComment">' +
+                    '<input type="text" class="rte-dialogAnnotationText">' +
                     '<a class="rte-dialogAnnotationSave">Save</a>' +
-                    '<ul class="rte-dialogAnnotationComments">' +
+                    '<ul class="rte-dialogAnnotationTexts">' +
                     '</ul>' +
                 '</div>');
 
@@ -511,7 +516,7 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         $annotationDialog.on('click', '.rte-dialogAnnotationSave', function() {
-            addAnnotationComment(getSelectedElement(), $annotationDialog.find('.rte-dialogAnnotationComment').val());
+            addAnnotation(getSelectedElement(), $annotationDialog.find('.rte-dialogAnnotationText').val());
             $(this).popup('close');
         });
 
@@ -526,9 +531,9 @@ var Rte = wysihtml5.Editor.extend({
                     cursorOffset,
                     $change = $annotationDialog.find('.rte-dialogAnnotationChange'),
                     $message = $annotationDialog.find('.rte-dialogAnnotationMessage'),
-                    comments = getAnnotationComments($selected),
-                    $comments = $annotationDialog.find('.rte-dialogAnnotationComments'),
-                    lastComment;
+                    annotations = getAnnotations($selected),
+                    $texts = $annotationDialog.find('.rte-dialogAnnotationTexts'),
+                    lastAnnotation;
 
             if ($selected.is('del')) {
                 $change.show();
@@ -543,7 +548,7 @@ var Rte = wysihtml5.Editor.extend({
             }
 
             $annotationDialog.popup('open');
-            $annotationDialog.find('.rte-dialogAnnotationComment').focus();
+            $annotationDialog.find('.rte-dialogAnnotationText').focus();
 
             $cursor = $(rte.composer.element).find('.rte-cursor');
             cursorOffset = $cursor.offset();
@@ -553,30 +558,30 @@ var Rte = wysihtml5.Editor.extend({
                 'top': composerOffset.top + cursorOffset.top + $cursor.outerHeight()
             });
 
-            $comments.empty();
-            $.each(comments.reverse(), function(i, comment) {
+            $texts.empty();
+            $.each(annotations.reverse(), function(i, annotation) {
                 var html = '';
 
-                if (!lastComment) {
-                    lastComment = comment;
+                if (!lastAnnotation) {
+                    lastAnnotation = annotation;
                 }
 
-                if (comment.text) {
-                    html += '<q>' + comment.text + '</q> said ';
+                if (annotation.text) {
+                    html += '<q>' + annotation.text + '</q> said ';
                 }
 
-                html += comment.user;
+                html += annotation.user;
                 html += ' at ';
-                html += new Date(parseInt(comment.time, 10));
+                html += new Date(parseInt(annotation.time, 10));
 
-                $comments.append($('<li/>', {
+                $texts.append($('<li/>', {
                     'html': html
                 }));
             });
 
-            $comments.toggle(!!lastComment);
-            $annotationDialog.find('.rte-dialogAnnotationComment').val(
-                    lastComment && lastComment.userId === $(rte.textarea.element).attr('data-user-id') ? lastComment.text || '' : '');
+            $texts.toggle(!!lastAnnotation);
+            $annotationDialog.find('.rte-dialogAnnotationText').val(
+                    lastAnnotation && lastAnnotation.userId === $(rte.textarea.element).attr('data-user-id') ? lastAnnotation.text || '' : '');
         });
 
         // Initialize wysihtml5.
@@ -789,13 +794,13 @@ var Rte = wysihtml5.Editor.extend({
             wrap = function(tag) {
                 var tempClass,
                         $element,
-                        comments,
-                        oldComments,
+                        annotations,
+                        oldAnnotations,
                         prev,
                         $prev,
                         next,
                         $next,
-                        newComments;
+                        newAnnotations;
 
                 if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
                     return;
@@ -808,7 +813,7 @@ var Rte = wysihtml5.Editor.extend({
 
                 $element = $(tag + '.' + tempClass, composer.element);
 
-                addAnnotationComment($element, '');
+                addAnnotation($element, '');
                 $element.removeClass(tempClass);
 
                 for (; (next = $element[0].nextSibling); $element = $next) {
@@ -821,15 +826,15 @@ var Rte = wysihtml5.Editor.extend({
                     $next.prepend($element.html());
                     $element.remove();
 
-                    comments = $element.attr('data-comments');
+                    annotations = $element.attr('data-annotations');
 
-                    if (comments) {
-                        oldComments = $next.attr('data-comments');
+                    if (annotations) {
+                        oldAnnotations = $next.attr('data-annotations');
 
-                        if (oldComments) {
-                            newComments= $.parseJSON(oldComment);
-                            newComments.push($.parseJSON(comments)[0]);
-                            $next.attr('data-comments', JSON.stringify(newComments));
+                        if (oldAnnotations) {
+                            newAnnotations = $.parseJSON(oldAnnotation);
+                            newAnnotations.push($.parseJSON(annotations)[0]);
+                            $next.attr('data-annotations', JSON.stringify(newAnnotations));
                         }
                     }
                 }

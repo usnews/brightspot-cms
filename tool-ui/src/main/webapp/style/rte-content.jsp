@@ -82,10 +82,22 @@ writer.start("html");
                     "position", "static",
                     "width", "auto");
 
+            writer.css("body.rte-trackChanges [data-comment]:after",
+                    "background-color", "white",
+                    "border", "1px solid #333",
+                    "content", "'\u00a0' attr(data-comment) ' -' attr(data-user) '\u00a0'",
+                    "font-style", "italic");
+
             writer.css("body.rte-trackChanges [data-text]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
                     "content", "'\u00a0' attr(data-text) '\u00a0'",
+                    "font-style", "italic");
+
+            writer.css("body.rte-trackChanges [data-last-annotation]:after",
+                    "background-color", "white",
+                    "border", "1px solid #333",
+                    "content", "'\u00a0' attr(data-last-annotation) '\u00a0'",
                     "font-style", "italic");
 
             writer.css("em, i",
