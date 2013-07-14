@@ -587,7 +587,23 @@ var Rte = wysihtml5.Editor.extend({
         this.base(originalTextarea, config);
 
         var getSelectedElement = function() {
-            var selected = rte.composer.selection.getSelectedNode();
+            var range = rte.composer.selection.getRange(),
+                    selected = rte.composer.selection.getSelectedNode(),
+                    $next;
+
+            if (range.collapsed &&
+                    selected.nodeType == 3 &&
+                    selected.length == range.endOffset) {
+                $next = $(selected.nextSibling);
+
+                if ($next.is('.rte-cursor')) {
+                    $next = $($next[0].nextSibling);
+                }
+
+                if ($next.is('code, del, ins')) {
+                    return $next;
+                }
+            }
 
             while (!selected.tagName) {
                 selected = selected.parentNode;
