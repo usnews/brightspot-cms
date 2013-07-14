@@ -96,6 +96,7 @@ if (validValues != null) {
             "data-inline", true,
             "data-user", wp.getObjectLabel(wp.getUser()),
             "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
+            "data-first-draft", state.isNew(),
             "data-track-changes", !state.isNew() && !state.isVisible());
         wp.writeHtml(fieldValue);
     wp.writeEnd();

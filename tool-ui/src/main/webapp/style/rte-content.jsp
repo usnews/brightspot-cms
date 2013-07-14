@@ -94,7 +94,7 @@ writer.start("html");
                     "content", "'\u00a0' attr(data-text) '\u00a0'",
                     "font-style", "italic");
 
-            writer.css("body.rte-trackChanges [data-last-annotation]:after",
+            writer.css("body.rte-firstDraft [data-last-annotation]:after, body.rte-trackChanges [data-last-annotation]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
                     "content", "'\u00a0' attr(data-last-annotation) '\u00a0'",

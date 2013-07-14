@@ -43,7 +43,7 @@ var $createToolbarCommand = function(label, command) {
     });
 };
 
-var createToolbar = function(rte, inline) {
+var createToolbar = function(rte, inline, firstDraft) {
     var $container = $('<div/>', { 'class': 'rte-toolbar-container' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -163,11 +163,13 @@ var createToolbar = function(rte, inline) {
         'text': 'HTML'
     }));
 
-    $misc.append($('<span/>', {
-        'class': 'rte-button rte-button-trackChanges',
-        'data-wysihtml5-command': 'trackChanges',
-        'text': 'Track Changes'
-    }));
+    if (!firstDraft) {
+        $misc.append($('<span/>', {
+            'class': 'rte-button rte-button-trackChanges',
+            'data-wysihtml5-command': 'trackChanges',
+            'text': 'Track Changes'
+        }));
+    }
 
     $misc.append($('<span/>', {
         'class': 'rte-button rte-button-annotate',
@@ -273,7 +275,8 @@ var rtes = [ ],
 var Rte = wysihtml5.Editor.extend({
 
     'constructor': function(originalTextarea, config) {
-        var rte = this;
+        var rte = this,
+                firstDraft = $(originalTextarea).attr('data-first-draft') === 'true';
 
         // Create container.
         var container = this.container = doc.createElement('div');
@@ -282,7 +285,7 @@ var Rte = wysihtml5.Editor.extend({
 
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar(rte, config.inline);
+            config.toolbar = config.toolbar(rte, config.inline, firstDraft);
             container.appendChild(config.toolbar);
         }
 
@@ -773,181 +776,186 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             // Track changes.
-            var IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
-                    downRange,
-                    collapseSelection,
-                    wrap,
-                    wrapInDel,
-                    tempIndex = 0,
-                    handleDelete;
+            if (firstDraft) {
+                $(composer.element).addClass('rte-firstDraft');
 
-            // Move the cursor to the beginning or the end of the selection.
-            collapseSelection = function(selection, direction) {
-                if (direction === 'forward') {
-                    selection.getSelection().collapseToEnd();
+            } else {
+                var IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
+                        downRange,
+                        collapseSelection,
+                        wrap,
+                        wrapInDel,
+                        tempIndex = 0,
+                        handleDelete;
 
-                } else {
-                    selection.getSelection().collapseToStart();
-                }
-            };
+                // Move the cursor to the beginning or the end of the selection.
+                collapseSelection = function(selection, direction) {
+                    if (direction === 'forward') {
+                        selection.getSelection().collapseToEnd();
 
-            wrap = function(tag) {
-                var tempClass,
-                        $element,
-                        annotations,
-                        oldAnnotations,
-                        prev,
-                        $prev,
-                        next,
-                        $next,
-                        newAnnotations;
+                    } else {
+                        selection.getSelection().collapseToStart();
+                    }
+                };
 
-                if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
-                    return;
-                }
+                wrap = function(tag) {
+                    var tempClass,
+                            $element,
+                            annotations,
+                            oldAnnotations,
+                            prev,
+                            $prev,
+                            next,
+                            $next,
+                            newAnnotations;
 
-                ++ tempIndex;
-                tempClass = 'rte-wrap-temp-' + tempIndex;
-
-                wysihtml5.commands.formatInline.exec(composer, null, tag, tempClass, /foobar/g);
-
-                $element = $(tag + '.' + tempClass, composer.element);
-
-                addAnnotation($element, '');
-                $element.removeClass(tempClass);
-
-                for (; (next = $element[0].nextSibling); $element = $next) {
-                    $next = $(next);
-
-                    if (!$next.is(tag)) {
-                        break;
+                    if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
+                        return;
                     }
 
-                    $next.prepend($element.html());
-                    $element.remove();
+                    ++ tempIndex;
+                    tempClass = 'rte-wrap-temp-' + tempIndex;
 
-                    annotations = $element.attr('data-annotations');
+                    wysihtml5.commands.formatInline.exec(composer, null, tag, tempClass, /foobar/g);
 
-                    if (annotations) {
-                        oldAnnotations = $next.attr('data-annotations');
+                    $element = $(tag + '.' + tempClass, composer.element);
 
-                        if (oldAnnotations) {
-                            newAnnotations = $.parseJSON(oldAnnotation);
-                            newAnnotations.push($.parseJSON(annotations)[0]);
-                            $next.attr('data-annotations', JSON.stringify(newAnnotations));
+                    addAnnotation($element, '');
+                    $element.removeClass(tempClass);
+
+                    for (; (next = $element[0].nextSibling); $element = $next) {
+                        $next = $(next);
+
+                        if (!$next.is(tag)) {
+                            break;
+                        }
+
+                        $next.prepend($element.html());
+                        $element.remove();
+
+                        annotations = $element.attr('data-annotations');
+
+                        if (annotations) {
+                            oldAnnotations = $next.attr('data-annotations');
+
+                            if (oldAnnotations) {
+                                newAnnotations = $.parseJSON(oldAnnotation);
+                                newAnnotations.push($.parseJSON(annotations)[0]);
+                                $next.attr('data-annotations', JSON.stringify(newAnnotations));
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            // Wrap the current selection in <del>.
-            wrapInDel = function(direction) {
-                var selection = composer.selection,
-                        range;
+                // Wrap the current selection in <del>.
+                wrapInDel = function(direction) {
+                    var selection = composer.selection,
+                            range;
 
-                wrap('del');
-
-                // <del> shouldn't contain any <ins>s.
-                $.each(selection.getNodes(1, function(node) {
-                    return node.tagName.toLowerCase() === 'ins';
-
-                }), function(i, ins) {
-                    $(ins).remove();
-                });
-
-                collapseSelection(selection, direction);
-            };
-
-            // Handle different types of delete key presses.
-            handleDelete = function(selection, range, direction) {
-
-                // Let the delete go through within <ins>.
-                if ($(selection.getSelectedNode()).closest('ins').length > 0) {
-                    return true;
-
-                // Wrap the character before or after the cursor in <del>.
-                } else if (range.collapsed) {
-                    selection.getSelection().nativeSelection.modify('extend', direction, 'character');
                     wrap('del');
+
+                    // <del> shouldn't contain any <ins>s.
+                    $.each(selection.getNodes(1, function(node) {
+                        return node.tagName.toLowerCase() === 'ins';
+
+                    }), function(i, ins) {
+                        $(ins).remove();
+                    });
+
                     collapseSelection(selection, direction);
+                };
 
-                // Wrap the selection in <del>.
-                } else {
-                    wrapInDel(direction);
-                }
+                // Handle different types of delete key presses.
+                handleDelete = function(selection, range, direction) {
 
-                return false;
-            };
+                    // Let the delete go through within <ins>.
+                    if ($(selection.getSelectedNode()).closest('ins').length > 0) {
+                        return true;
 
-            $(composer.element).bind('keydown', function(event) {
-                var which = event.which,
-                        selection = composer.selection,
-                        range = selection.getRange();
+                    // Wrap the character before or after the cursor in <del>.
+                    } else if (range.collapsed) {
+                        selection.getSelection().nativeSelection.modify('extend', direction, 'character');
+                        wrap('del');
+                        collapseSelection(selection, direction);
 
-                // BACKSPACE.
-                if (which === 8) {
-                    return handleDelete(selection, range, 'backward');
-
-                // DELETE.
-                } else if (which === 46) {
-                    return handleDelete(selection, range, 'forward');
-
-                // For any other key, remember the position for later so that
-                // we know where to start wrapping for <ins>.
-                } else if ($.inArray(which, IGNORE_KEYS) < 0) {
-                    if (!range.collapsed &&
-                            !(event.altKey ||
-                            event.ctrlKey ||
-                            event.metaKey ||
-                            event.shiftKey)) {
-                        wrapInDel();
+                    // Wrap the selection in <del>.
+                    } else {
+                        wrapInDel(direction);
                     }
 
-                    if (!downRange) {
-                        downRange = selection.getRange().cloneRange();
-                    }
+                    return false;
+                };
 
-                    return true;
-                }
-            });
+                $(composer.element).bind('keydown', function(event) {
+                    var which = event.which,
+                            selection = composer.selection,
+                            range = selection.getRange();
 
-            $(composer.element).bind('keyup', function(event) {
-                var selection,
-                        range,
-                        tempClass,
-                        $ins;
+                    // BACKSPACE.
+                    if (which === 8) {
+                        return handleDelete(selection, range, 'backward');
 
-                if (!downRange ||
-                        $.inArray(event.which, IGNORE_KEYS) >= 0) {
-                    return;
-                }
+                    // DELETE.
+                    } else if (which === 46) {
+                        return handleDelete(selection, range, 'forward');
 
-                selection = composer.selection;
-                range = selection.getRange();
+                    // For any other key, remember the position for later so that
+                    // we know where to start wrapping for <ins>.
+                    } else if ($.inArray(which, IGNORE_KEYS) < 0) {
+                        if (!range.collapsed &&
+                                !(event.altKey ||
+                                event.ctrlKey ||
+                                event.metaKey ||
+                                event.shiftKey)) {
+                            wrapInDel();
+                        }
 
-                selection.executeAndRestore(function() {
-                    range.setStart(downRange.startContainer, downRange.startOffset);
-                    selection.setSelection(range);
-                    wrap('ins');
-                });
+                        if (!downRange) {
+                            downRange = selection.getRange().cloneRange();
+                        }
 
-                // Move all <ins>s out of and after the <del>.
-                $(selection.getSelectedNode()).closest('del').each(function() {
-                    var $del = $(this),
-                            $ins = $del.find('ins'),
-                            insLength = $ins.length;
-
-                    if (insLength > 0) {
-                        $del.after($ins);
-                        selection.setAfter($ins[insLength - 1]);
+                        return true;
                     }
                 });
 
-                downRange = null;
-            });
+                $(composer.element).bind('keyup', function(event) {
+                    var selection,
+                            range,
+                            tempClass,
+                            $ins;
 
-            if (rte.config.trackChanges) {
-                $(composer.element).addClass('rte-trackChanges');
+                    if (!downRange ||
+                            $.inArray(event.which, IGNORE_KEYS) >= 0) {
+                        return;
+                    }
+
+                    selection = composer.selection;
+                    range = selection.getRange();
+
+                    selection.executeAndRestore(function() {
+                        range.setStart(downRange.startContainer, downRange.startOffset);
+                        selection.setSelection(range);
+                        wrap('ins');
+                    });
+
+                    // Move all <ins>s out of and after the <del>.
+                    $(selection.getSelectedNode()).closest('del').each(function() {
+                        var $del = $(this),
+                                $ins = $del.find('ins'),
+                                insLength = $ins.length;
+
+                        if (insLength > 0) {
+                            $del.after($ins);
+                            selection.setAfter($ins[insLength - 1]);
+                        }
+                    });
+
+                    downRange = null;
+                });
+
+                if (rte.config.trackChanges) {
+                    $(composer.element).addClass('rte-trackChanges');
+                }
             }
 
             setInterval(function() {

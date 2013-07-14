@@ -46,6 +46,7 @@ wp.writeStart("textarea",
         "name", inputName,
         "data-user", wp.getObjectLabel(wp.getUser()),
         "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
+        "data-first-draft", state.isNew(),
         "data-track-changes", !state.isNew() && !state.isVisible());
 
 if (fieldValue != null) {
