@@ -287,12 +287,6 @@ var Rte = wysihtml5.Editor.extend({
         container.className = 'rte-container';
         originalTextarea.parentNode.insertBefore(container, originalTextarea);
 
-        // Create toolbar?
-        if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar(rte, config.inline, firstDraft);
-            container.appendChild(config.toolbar);
-        }
-
         // Create overlay.
         var overlay = this.overlay = doc.createElement('div');
         overlay.className = 'rte-overlay';
@@ -300,6 +294,12 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.left = '0px';
         overlay.style.top = '0px';
         container.appendChild(overlay);
+
+        // Create toolbar?
+        if (typeof config.toolbar === 'function') {
+            config.toolbar = config.toolbar(rte, config.inline, firstDraft);
+            container.appendChild(config.toolbar);
+        }
 
         // Handle toolbar action clicks.
         $(overlay).delegate('[data-action]', 'click', function() {
@@ -1267,6 +1267,7 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
                 $header,
                 headerBottom,
                 $container,
+                $overlay,
                 containerTop,
                 windowTop;
 
@@ -1281,12 +1282,14 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         $header = $('.toolHeader');
         headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
         $container = $(this.container);
+        $overlay = $(this.overlay);
         containerTop = $container.offset().top;
         windowTop = $win.scrollTop() + headerBottom;
 
         // Completely in view.
         if (windowTop < containerTop) {
             $container.css('padding-top', 0);
+            $overlay.css('top', $toolbar.outerHeight());
             $toolbar.removeClass('rte-toolbar-fixed');
             $toolbar.attr('style', this._toolbarOldStyle);
             this._toolbarOldStyle = null;
@@ -1297,6 +1300,7 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
             // Partially in view.
             if (windowTop < containerTop + $container.height()) {
                 $container.css('padding-top', $toolbar.outerHeight());
+                $overlay.css('top', 0);
                 $toolbar.addClass('rte-toolbarContainer-fixed');
                 $toolbar.css({
                     'left': $toolbar.offset().left,
