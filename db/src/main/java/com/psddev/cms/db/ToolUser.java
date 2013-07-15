@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -427,11 +428,15 @@ public class ToolUser extends Record implements ToolEntity {
      */
     public ToolUser lockContent(UUID id) {
         String idPrefix = id.toString() + '/';
-        Set<String> locks = createLocks(idPrefix);
+        long counter = System.currentTimeMillis() / 10000;
+        String currentCounter = String.valueOf(counter);
+        String nextCounter = String.valueOf(counter + 1);
+        String currentLock = idPrefix + currentCounter;
+        String nextLock = idPrefix + nextCounter;
         ToolUser user = Query.
                 from(ToolUser.class).
                 where("_id != ?", this).
-                and("contentLocks = ?", locks).
+                and("contentLocks = ?", Arrays.asList(currentLock, nextLock)).
                 first();
 
         if (user != null) {
@@ -442,12 +447,17 @@ public class ToolUser extends Record implements ToolEntity {
         Set<String> oldLocks = new HashSet<String>(newLocks);
 
         for (Iterator<String> i = newLocks.iterator(); i.hasNext(); ) {
-            if (i.next().startsWith(idPrefix)) {
+            String lock = i.next();
+
+            if (lock.startsWith(idPrefix) ||
+                    !(lock.endsWith(currentCounter) ||
+                    lock.endsWith(nextCounter))) {
                 i.remove();
             }
         }
 
-        newLocks.addAll(locks);
+        newLocks.add(currentLock);
+        newLocks.add(nextLock);
 
         if (!newLocks.equals(oldLocks)) {
             contentLocks = newLocks;
