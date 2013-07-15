@@ -25,9 +25,23 @@ public class ContentUnlock extends PageServlet {
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         ToolUser user = page.getUser();
         UUID contentId = page.param(UUID.class, "id");
+        RuntimeException lastError = null;
 
-        user.unlockContent(contentId);
-        user.lockContent(contentId);
-        JspUtils.redirect(page.getRequest(), page.getResponse(), page.param(String.class, "returnUrl"));
+        for (int i = 0; i < 5; ++ i) {
+            try {
+                user.unlockContent(contentId);
+                user.lockContent(contentId);
+
+            } catch (RuntimeException error) {
+                lastError = error;
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+
+        } else {
+            JspUtils.redirect(page.getRequest(), page.getResponse(), page.param(String.class, "returnUrl"));
+        }
     }
 }
