@@ -440,6 +440,7 @@ var Rte = wysihtml5.Editor.extend({
             $element.removeAttr('data-user-id');
             $element.removeAttr('data-user');
             $element.removeAttr('data-comment');
+            $element.removeAttr('data-comments');
             $element.removeAttr('data-text');
             $element.attr('data-annotations', JSON.stringify(annotations));
 
@@ -531,9 +532,8 @@ var Rte = wysihtml5.Editor.extend({
         $annotationDialog.popup();
         $annotationDialog.popup('close');
 
-        $(config.toolbar).find('.rte-button-annotate').click(function() {
+        var openAnnotationDialog = function($selected) {
             var composerOffset = $(rte.composer.iframe).offset(),
-                    $selected = getSelectedElement(),
                     $cursor,
                     cursorOffset,
                     $change = $annotationDialog.find('.rte-dialogAnnotationChange'),
@@ -589,6 +589,10 @@ var Rte = wysihtml5.Editor.extend({
             $texts.toggle(!!lastAnnotation);
             $annotationDialog.find('.rte-dialogAnnotationText').val(
                     lastAnnotation && lastAnnotation.userId === $(rte.textarea.element).attr('data-user-id') ? lastAnnotation.text || '' : '');
+        };
+
+        $(config.toolbar).find('.rte-button-annotate').click(function() {
+            openAnnotationDialog(getSelectedElement());
         });
 
         // Initialize wysihtml5.
@@ -777,6 +781,10 @@ var Rte = wysihtml5.Editor.extend({
 
             $(composer.element).bind('keyup', function() {
                 $(textarea.element).trigger('input');
+            });
+
+            $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
+                openAnnotationDialog($(event.target));
             });
 
             // Track changes.
