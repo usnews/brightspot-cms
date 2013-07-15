@@ -767,6 +767,7 @@ var Rte = wysihtml5.Editor.extend({
                 }
 
                 this.toolbar.show();
+                $annotationDialog.popup('close');
             });
 
             // Hack to make sure that the proper focus fires when clicking
