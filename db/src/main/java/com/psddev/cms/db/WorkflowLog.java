@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 
 public class WorkflowLog extends Record {
@@ -12,6 +13,8 @@ public class WorkflowLog extends Record {
     @Indexed
     @ToolUi.Hidden
     private UUID objectId;
+
+    private transient Object object;
 
     @Indexed
     @ToolUi.Hidden
@@ -38,6 +41,7 @@ public class WorkflowLog extends Record {
 
     public void setObjectId(UUID objectId) {
         this.objectId = objectId;
+        this.object = null;
     }
 
     public Date getDate() {
@@ -94,7 +98,24 @@ public class WorkflowLog extends Record {
      * @return May be {@code null}.
      */
     public Object getObject() {
-        return Query.from(Object.class).where("_id = ?", getObjectId()).first();
+        if (object == null) {
+            object = Query.from(Object.class).where("_id = ?", getObjectId()).first();
+        }
+
+        return object;
+    }
+
+    /**
+     * Sets the object.
+     *
+     * @param object May be {@code null}.
+     */
+    public void setObject(Object object) {
+        if (object != null) {
+            setObjectId(State.getInstance(object).getId());
+        }
+
+        this.object = object;
     }
 
     /**

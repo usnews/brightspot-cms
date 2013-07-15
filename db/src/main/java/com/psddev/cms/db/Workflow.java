@@ -184,7 +184,7 @@ public class Workflow extends Record {
                     log = new WorkflowLog();
                 }
 
-                log.setObjectId(getId());
+                log.setObject(getOriginalObject());
                 log.setDate(new Date());
                 log.setTransition(transitionName);
                 log.setOldWorkflowState(previousState);
