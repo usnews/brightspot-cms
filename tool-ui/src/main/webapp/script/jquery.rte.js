@@ -641,12 +641,15 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         this.observe('load', function() {
-            var $cursor = $(rte.composer.doc.createElement('span'));
-
-            $cursor.addClass('rte-cursor');
+            var $cursor;
 
             $annotationDialog.popup('container').bind('open', function() {
                 var selection = rte.composer.selection;
+
+                if (!$cursor) {
+                    $cursor = $(rte.composer.doc.createElement('span'));
+                    $cursor.addClass('rte-cursor');
+                }
 
                 selection.getSelection().collapseToEnd();
                 selection.insertNode($cursor[0]);
@@ -654,9 +657,11 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             $annotationDialog.popup('container').bind('close', function() {
-                rte.composer.selection.setBefore($cursor[0]);
-                $cursor.remove();
-                rte.focus();
+                if ($cursor) {
+                    rte.composer.selection.setBefore($cursor[0]);
+                    $cursor.remove();
+                    rte.focus();
+                }
             });
 
             // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
