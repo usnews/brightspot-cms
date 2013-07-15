@@ -471,15 +471,15 @@ var Rte = wysihtml5.Editor.extend({
                     '</ul>' +
                 '</div>');
 
+        var $lastSelected = $();
+
         $annotationDialog.on('click', '.rte-dialogAnnotationAccept', function() {
-            var $selected = getSelectedElement();
+            if ($lastSelected.is('del')) {
+                $lastSelected.remove();
 
-            if ($selected.is('del')) {
-                $selected.remove();
-
-            } else if ($selected.is('ins')) {
-                $selected.before($selected.html());
-                $selected.remove();
+            } else if ($lastSelected.is('ins')) {
+                $lastSelected.before($lastSelected.html());
+                $lastSelected.remove();
             }
 
             $(this).popup('close');
@@ -498,14 +498,12 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         $annotationDialog.on('click', '.rte-dialogAnnotationRevert', function() {
-            var $selected = getSelectedElement();
+            if ($lastSelected.is('del')) {
+                $lastSelected.before($lastSelected.html());
+                $lastSelected.remove();
 
-            if ($selected.is('del')) {
-                $selected.before($selected.html());
-                $selected.remove();
-
-            } else if ($selected.is('ins')) {
-                $selected.remove();
+            } else if ($lastSelected.is('ins')) {
+                $lastSelected.remove();
             }
 
             $(this).popup('close');
@@ -524,7 +522,7 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         $annotationDialog.on('click', '.rte-dialogAnnotationSave', function() {
-            addAnnotation(getSelectedElement(), $annotationDialog.find('.rte-dialogAnnotationText').val());
+            addAnnotation($lastSelected, $annotationDialog.find('.rte-dialogAnnotationText').val());
             $(this).popup('close');
         });
 
@@ -541,6 +539,8 @@ var Rte = wysihtml5.Editor.extend({
                     annotations = getAnnotations($selected),
                     $texts = $annotationDialog.find('.rte-dialogAnnotationTexts'),
                     lastAnnotation;
+
+            $lastSelected = $selected;
 
             if ($selected.is('del')) {
                 $change.show();
