@@ -521,6 +521,16 @@ var Rte = wysihtml5.Editor.extend({
             $(this).popup('close');
         });
 
+        $annotationDialog.on('keydown', '.rte-dialogAnnotationText', function(event) {
+            if (event.which === 13) {
+                $annotationDialog.find('.rte-dialogAnnotationSave').click();
+                return false;
+
+            } else {
+                return true;
+            }
+        });
+
         $annotationDialog.on('click', '.rte-dialogAnnotationSave', function() {
             addAnnotation($lastSelected, $annotationDialog.find('.rte-dialogAnnotationText').val());
             $(this).popup('close');
