@@ -772,6 +772,7 @@ var Rte = wysihtml5.Editor.extend({
                 }
 
                 this.toolbar.show();
+                $(this.overlay).css('top', $(rte.config.toolbar).outerHeight());
                 $annotationDialog.popup('close');
             });
 
@@ -1281,11 +1282,12 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
                 $header,
                 headerBottom,
                 $container,
-                $overlay,
+                $overlay = $(this.overlay),
                 containerTop,
                 windowTop;
 
         if (!$toolbar.is(':visible')) {
+            $overlay.css('top', 0);
             return;
         }
 
@@ -1296,7 +1298,6 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         $header = $('.toolHeader');
         headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
         $container = $(this.container);
-        $overlay = $(this.overlay);
         containerTop = $container.offset().top;
         windowTop = $win.scrollTop() + headerBottom;
 
