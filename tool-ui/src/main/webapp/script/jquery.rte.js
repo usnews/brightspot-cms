@@ -777,6 +777,7 @@ var Rte = wysihtml5.Editor.extend({
                     $(rte.container).css('padding-top', 0);
                     $(rte.config.toolbar).removeClass('rte-toolbar-fixed');
                     $(rte.config.toolbar).attr('style', rte._toolbarOldStyle);
+                    $(rte.overlay).css('top', 0);
                     rte._toolbarOldStyle = null;
                     rte.toolbar.hide();
                 }
