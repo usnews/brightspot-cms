@@ -143,6 +143,12 @@ $.plugin2('repeatable', {
                         $addedItem.change();
                         $addedItem.trigger('create');
                         $win.resize();
+
+                        var $select = $addedItem.find('.objectId-select');
+
+                        if ($select.length > 0) {
+                            $select.click();
+                        }
                     };
 
                     // Load an external form if the template consists of a single link without any other inputs.
