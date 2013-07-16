@@ -1312,12 +1312,13 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         var $toolbar = $(this.config.toolbar),
                 $header,
                 headerBottom,
-                $container,
+                $container = $(this.container),
                 $overlay = $(this.overlay),
                 containerTop,
                 windowTop;
 
         if (!$toolbar.is(':visible')) {
+            $container.css('padding-top', 0);
             $overlay.css('top', 0);
             return;
         }
@@ -1328,7 +1329,6 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
 
         $header = $('.toolHeader');
         headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
-        $container = $(this.container);
         containerTop = $container.offset().top;
         windowTop = $win.scrollTop() + headerBottom;
 
