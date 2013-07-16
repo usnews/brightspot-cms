@@ -295,6 +295,10 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.top = '0px';
         container.appendChild(overlay);
 
+        $(overlay).on('click', function() {
+            rte.focus();
+        });
+
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
             config.toolbar = config.toolbar(rte, config.inline, firstDraft);
