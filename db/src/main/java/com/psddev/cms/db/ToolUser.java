@@ -46,10 +46,6 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.FieldDisplayType("timeZone")
     private String timeZone;
 
-    @Indexed
-    @ToolUi.Hidden
-    private Set<ToolUserDevice> devices;
-
     @ToolUi.Hidden
     private UUID currentPreviewId;
 
@@ -140,39 +136,24 @@ public class ToolUser extends Record implements ToolEntity {
     }
 
     /**
-     * @return Never {@code null}. Mutable.
-     */
-    public Set<ToolUserDevice> getDevices() {
-        if (devices == null) {
-            devices = new LinkedHashSet<ToolUserDevice>();
-        }
-        return devices;
-    }
-
-    /**
-     * @param devices May be {@code null} to clear the set.
-     */
-    public void setDevices(Set<ToolUserDevice> devices) {
-        this.devices = devices;
-    }
-
-    /**
      * Finds the device that the user is using in the given {@code request}.
      *
      * @param request Can't be {@code null}.
      * @return Never {@code null}.
      */
-    public ToolUserDevice findCurrentDevice(HttpServletRequest request) {
+    public ToolUserDevice findOrCreateCurrentDevice(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
 
         if (userAgent == null) {
             userAgent = "Unknown Device";
         }
 
-        Set<ToolUserDevice> devices = getDevices();
         ToolUserDevice device = null;
 
-        for (ToolUserDevice d : devices) {
+        for (ToolUserDevice d : Query.
+                from(ToolUserDevice.class).
+                where("user = ?", this).
+                selectAll()) {
             if (userAgent.equals(d.getUserAgent())) {
                 device = d;
                 break;
@@ -181,8 +162,32 @@ public class ToolUser extends Record implements ToolEntity {
 
         if (device == null) {
             device = new ToolUserDevice();
+            device.setUser(this);
             device.setUserAgent(userAgent);
-            devices.add(device);
+            device.save();
+        }
+
+        return device;
+    }
+
+    /**
+     * Finds the most recent device that the user was using.
+     *
+     * @return May be {@code null}.
+     */
+    public ToolUserDevice findRecentDevice() {
+        ToolUserDevice device = null;
+
+        for (ToolUserDevice d : Query.
+                from(ToolUserDevice.class).
+                where("user = ?").
+                selectAll()) {
+            if (device == null ||
+                    device.findLastAction() == null ||
+                    (d.findLastAction() != null &&
+                    d.findLastAction().getTime() > device.findLastAction().getTime())) {
+                device = d;
+            }
         }
 
         return device;
@@ -214,28 +219,7 @@ public class ToolUser extends Record implements ToolEntity {
 
         action.setContentId(State.getInstance(content).getId());
         action.setUrl(url.toString());
-        findCurrentDevice(request).addAction(action);
-        save();
-    }
-
-    /**
-     * Finds the most recent device that the user was using.
-     *
-     * @return May be {@code null}.
-     */
-    public ToolUserDevice findRecentDevice() {
-        ToolUserDevice device = null;
-
-        for (ToolUserDevice d : getDevices()) {
-            if (device == null ||
-                    device.findLastAction() == null ||
-                    (d.findLastAction() != null &&
-                    d.findLastAction().getTime() > device.findLastAction().getTime())) {
-                device = d;
-            }
-        }
-
-        return device;
+        findOrCreateCurrentDevice(request).saveAction(action);
     }
 
     /**

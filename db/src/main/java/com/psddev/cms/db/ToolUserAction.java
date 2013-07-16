@@ -8,12 +8,24 @@ import com.psddev.dari.db.Record;
 /**
  * Action taken by a user in the tool.
  */
-@Record.Embedded
 public class ToolUserAction extends Record {
 
+    @Indexed
+    private ToolUserDevice device;
+
+    @Indexed
     private long time;
+
     private UUID contentId;
     private String url;
+
+    public ToolUserDevice getDevice() {
+        return device;
+    }
+
+    public void setDevice(ToolUserDevice device) {
+        this.device = device;
+    }
 
     public long getTime() {
         return time;

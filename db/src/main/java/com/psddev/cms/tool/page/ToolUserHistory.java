@@ -9,6 +9,7 @@ import com.psddev.cms.db.ToolUserAction;
 import com.psddev.cms.db.ToolUserDevice;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.RoutingFilter;
 
@@ -32,8 +33,11 @@ public class ToolUserHistory extends PageServlet {
                 page.writeEnd();
 
                 page.writeStart("ul");
-                    for (ToolUserDevice device : user.getDevices()) {
-                        String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getLookingGlassId());
+                    for (ToolUserDevice device : Query.
+                            from(ToolUserDevice.class).
+                            where("user = ?", user).
+                            selectAll()) {
+                        String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getOrCreateLookingGlassId());
 
                         page.writeStart("li", "style", "clear: right;");
                             page.writeHtml(device.getUserAgentDisplay());
@@ -59,7 +63,11 @@ public class ToolUserHistory extends PageServlet {
                             page.writeEnd();
 
                             page.writeStart("ul", "class", "links");
-                                for (ToolUserAction action : device.getActions()) {
+                                for (ToolUserAction action : Query.
+                                        from(ToolUserAction.class).
+                                        where("device = ?", device).
+                                        sortDescending("time").
+                                        selectAll()) {
                                     Object actionContent = action.getContent();
 
                                     if (actionContent == null) {

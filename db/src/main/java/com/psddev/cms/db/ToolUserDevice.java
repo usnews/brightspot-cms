@@ -1,26 +1,35 @@
 package com.psddev.cms.db;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 
 /**
  * Device used by a user to access the tool.
  */
-@Record.Embedded
 public class ToolUserDevice extends Record {
+
+    @Indexed
+    private ToolUser user;
 
     @Indexed
     private UUID lookingGlassId;
 
     private String userAgent;
-    private List<ToolUserAction> actions;
+
+    public ToolUser getUser() {
+        return user;
+    }
+
+    public void setUser(ToolUser user) {
+        this.user = user;
+    }
 
     public UUID getLookingGlassId() {
         return lookingGlassId;
@@ -70,52 +79,21 @@ public class ToolUserDevice extends Record {
     }
 
     /**
-     * @return Never {@code null}. Mutable.
-     */
-    public List<ToolUserAction> getActions() {
-        if (actions == null) {
-            actions = new ArrayList<ToolUserAction>();
-        }
-        return actions;
-    }
-
-    /**
-     * @param actions May be {@code null} to clear the list.
-     */
-    public void setActions(List<ToolUserAction> actions) {
-        this.actions = actions;
-    }
-
-    /**
-     * Adds the given {@code action} to this device.
+     * Returns or creates an unique looking glass ID.
      *
-     * @param action Can't be {@code null}.
+     * @return Never {@code null}.
      */
-    public void addAction(ToolUserAction action) {
-        action.setTime(System.currentTimeMillis());
+    public UUID getOrCreateLookingGlassId() {
+        UUID id = getLookingGlassId();
 
-        List<ToolUserAction> actions = getActions();
-        Map<String, Object> actionMap = action.getState().getSimpleValues();
+        if (id == null) {
+            id = UUID.randomUUID();
 
-        actionMap.remove("_id");
-        actionMap.remove("time");
-
-        for (Iterator<ToolUserAction> i = actions.iterator(); i.hasNext(); ) {
-            Map<String, Object> currentMap = i.next().getState().getSimpleValues();
-
-            currentMap.remove("_id");
-            currentMap.remove("time");
-
-            if (currentMap.equals(actionMap)) {
-                i.remove();
-            }
+            setLookingGlassId(id);
+            save();
         }
 
-        actions.add(0, action);
-
-        while (actions.size() > 5) {
-            actions.remove(actions.size() - 1);
-        }
+        return id;
     }
 
     /**
@@ -124,10 +102,50 @@ public class ToolUserDevice extends Record {
      * @return May be {@code null}.
      */
     public ToolUserAction findLastAction() {
-        for (ToolUserAction action : getActions()) {
-            return action;
+        return Query.
+                from(ToolUserAction.class).
+                where("device = ?", this).
+                sortDescending("time").
+                first();
+    }
+
+    /**
+     * Saves the given {@code action} associated with this device.
+     *
+     * @param action Can't be {@code null}.
+     */
+    public void saveAction(ToolUserAction action) {
+        action.setDevice(this);
+        action.setTime(System.currentTimeMillis());
+
+        Map<String, Object> actionMap = action.getState().getSimpleValues();
+
+        actionMap.remove("_id");
+        actionMap.remove("time");
+
+        List<ToolUserAction> actions = Query.
+                from(ToolUserAction.class).
+                where("device = ?", this).
+                sortDescending("time").
+                selectAll();
+
+        for (Iterator<ToolUserAction> i = actions.iterator(); i.hasNext(); ) {
+            ToolUserAction a = i.next();
+            Map<String, Object> currentMap = a.getState().getSimpleValues();
+
+            currentMap.remove("_id");
+            currentMap.remove("time");
+
+            if (currentMap.equals(actionMap)) {
+                i.remove();
+                a.delete();
+            }
         }
 
-        return null;
+        action.save();
+
+        while (actions.size() > 5) {
+            actions.remove(actions.size() - 1).delete();
+        }
     }
 }
