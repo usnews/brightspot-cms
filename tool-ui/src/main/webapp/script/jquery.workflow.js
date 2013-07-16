@@ -128,11 +128,12 @@ $.plugin2('workflow', {
                         if (!$input) {
                             $visual.append($input = $('<input/>', {
                                 'type': 'text',
-                                'class': 'workflowTransitionName',
+                                'class': 'expandable workflowTransitionName',
                                 'value': targetData.name || ''
                             }));
 
                             $transitionInputs[transition] = $input;
+                            $visual.trigger('create');
                         }
 
                         targetPosition = $target.position();
@@ -256,6 +257,7 @@ $.plugin2('workflow', {
 
             $state.append($('<input/>', {
                 'type': 'text',
+                'class': 'expandable',
                 'value': stateData.name || ''
             }));
 
@@ -318,6 +320,7 @@ $.plugin2('workflow', {
         }
 
         $textarea.after($visual);
+        $visual.trigger('create');
         $textarea.hide();
 
         $arrows.attr({
