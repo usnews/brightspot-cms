@@ -66,6 +66,10 @@ writer.start("html");
             writer.css("body.placeholder",
                     "color", "#888");
 
+            writer.css("body.rte-fullscreen",
+                    "margin", "20px",
+                    "font-size", "16px");
+
             writer.css("del",
                     "display", "inline-block",
                     "height", 0,

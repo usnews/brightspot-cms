@@ -180,6 +180,8 @@ var createToolbar = function(rte, inline, firstDraft) {
         'text': 'HTML'
     }));
 
+    $misc.append($createToolbarCommand('Fullscreen', 'fullscreen'));
+
     return $container[0];
 };
 
@@ -1215,6 +1217,22 @@ wysihtml5.commands.trackChanges = {
 
     'state': function(composer) {
         return $(composer.element).hasClass('rte-trackChanges');
+    }
+};
+
+// Add support for toggling 'Fullscreen' mode.
+wysihtml5.commands.fullscreen = {
+
+    'exec': function(composer) {
+        $('.toolBroadcast').toggle();
+        $('.toolHeader').toggle();
+        $(composer.parent.container).toggleClass('rte-fullscreen');
+        $(composer.element).toggleClass('rte-fullscreen');
+        $(doc.body).toggleClass('rte-fullscreen');
+    },
+
+    'state': function(composer) {
+        return $(composer.element).hasClass('rte-fullscreen');
     }
 };
 

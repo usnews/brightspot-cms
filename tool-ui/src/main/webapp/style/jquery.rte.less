@@ -11,6 +11,28 @@
     &.state-disabled {
         border-color: @color-note-lighter;
     }
+
+    &.rte-fullscreen {
+        background-color: @color-background;
+        border-style: none;
+        height: 100%;
+        left: 0;
+        overflow: auto;
+        overflow-x: hidden;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 49;
+
+        iframe {
+            margin-bottom: 20px;
+            width: 70em;
+        }
+    }
+}
+
+body.rte-fullscreen {
+    overflow: hidden;
 }
 
 .rte-source {
@@ -45,6 +67,10 @@
     .state-disabled & {
         display: none;
     }
+}
+
+.rte-fullscreen .rte-toolbar-container {
+    top: 0 !important;
 }
 
 .rte-group {
@@ -149,6 +175,7 @@
 .rte-button-indent { .icon; .icon-indent-left; }
 .rte-button-createLink { .icon; .icon-link; }
 .rte-button-annotate { .icon; .icon-comments-alt; }
+.rte-button-fullscreen { .icon; .icon-fullscreen; }
 .rte-button-moveLeft { .icon; .icon-arrow-left; }
 .rte-button-moveUp { .icon; .icon-arrow-up; }
 .rte-button-moveCenter { .icon; .icon-fullscreen; }
