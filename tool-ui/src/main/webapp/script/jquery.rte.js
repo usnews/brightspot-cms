@@ -1022,6 +1022,7 @@ var Rte = wysihtml5.Editor.extend({
                     isMarker = $placeholder.hasClass('marker'),
                     enhancementId = getEnhancementId(this),
                     $enhancement = $('#' + enhancementId),
+                    $editTrigger,
                     placeholderOffset = $placeholder.offset(),
                     $enhancementLabel,
                     newLabel,
@@ -1040,12 +1041,17 @@ var Rte = wysihtml5.Editor.extend({
 
                 $enhancement.find('.rte-button-editEnhancement a').each(function() {
                     var $anchor = $(this),
-                            href = $anchor.attr('href');
+                            href = $anchor.attr('href'),
+                            id = $placeholder.attr('data-id');
 
                     href = href.replace(/([?&])id=[^&]*/, '$1');
-                    href += '&id=' + ($placeholder.attr('data-id') || '');
+                    href += '&id=' + (id || '');
 
                     $anchor.attr('href', href);
+
+                    if (!id) {
+                        $editTrigger = $anchor;
+                    }
                 });
             }
 
@@ -1081,6 +1087,10 @@ var Rte = wysihtml5.Editor.extend({
                 }
 
                 $enhancementLabel.text(newLabel);
+            }
+
+            if ($editTrigger) {
+                $editTrigger.click();
             }
         });
 
