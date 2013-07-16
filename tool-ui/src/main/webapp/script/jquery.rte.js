@@ -787,7 +787,7 @@ var Rte = wysihtml5.Editor.extend({
                 }
 
                 this.toolbar.show();
-                $(this.overlay).css('top', $(rte.config.toolbar).outerHeight());
+                $(this.overlay).css('top', $(this.config.toolbar).outerHeight());
                 $annotationDialog.popup('close');
             });
 
