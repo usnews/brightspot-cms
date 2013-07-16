@@ -1007,7 +1007,13 @@ var Rte = wysihtml5.Editor.extend({
                 composer = rte.composer,
                 composerIframe = composer.iframe,
                 composerWindow = composerIframe.contentWindow,
-                $composerBody = $(composerWindow.document.body);
+                $composerBody;
+
+        if (!composerWindow) {
+            return;
+        }
+
+        $composerBody = $(composerWindow.document.body);
 
         // Hide if viewing source HTML.
         $overlay.toggle(rte.currentView !== textarea);
