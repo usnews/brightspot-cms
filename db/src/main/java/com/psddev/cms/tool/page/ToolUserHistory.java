@@ -62,7 +62,9 @@ public class ToolUserHistory extends PageServlet {
                                                 "size", 150));
                             page.writeEnd();
 
-                            page.writeStart("ul", "class", "links");
+                            page.writeStart("ul",
+                                    "class", "links",
+                                    "style", page.cssString("margin-right", "150px"));
                                 for (ToolUserAction action : Query.
                                         from(ToolUserAction.class).
                                         where("device = ?", device).
