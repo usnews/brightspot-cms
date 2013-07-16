@@ -23,8 +23,10 @@ expand = function($inputs) {
 
     // Write the input text into the shadow.
     $inputs.each(function() {
-        var shadow = $.data(this, SHADOW_DATA);
-        shadow.$element.text($(this).val() + ' foo foo foo');
+        var shadow = $.data(this, SHADOW_DATA),
+                extra = shadow.display === 'block' ? ' foo foo foo' : ' foo';
+
+        shadow.$element.text($(this).val() + extra);
     });
 
     // Write the shadow width if the input's a block element.
@@ -94,7 +96,6 @@ $.plugin2('expandable', {
             'height': bounds.height,
             '$element': $('<div/>', {
                 'class': options.shadowClass,
-                'text': $input.val() + ' foo',
                 'css': {
                     'display': display,
                     'border-width': boxSizing === 'border-box' ? '' : 0,
