@@ -12,10 +12,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.ToolCheck;
 import com.psddev.cms.tool.ToolCheckResponse;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CodeUtils;
@@ -28,6 +31,7 @@ import com.psddev.dari.util.TypeDefinition;
 public class ToolCheckStream extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ToolCheckStream.class);
 
     private static final Lazy<Map<String, ToolCheck>> CHECKS = new Lazy<Map<String, ToolCheck>>() {
 
@@ -78,8 +82,9 @@ public class ToolCheckStream extends HttpServlet {
             boolean hasNonNullResponses = false;
 
             for (Map<String, Object> checkRequest : checkRequests) {
+                String checkName = (String) checkRequest.get("check");
+
                 try {
-                    String checkName = (String) checkRequest.get("check");
                     ToolCheck check = CHECKS.get().get(checkName);
                     ToolUser user = userReference.get();
                     ToolCheckResponse checkResponse = check.check(user, url, checkRequest);
@@ -91,6 +96,7 @@ public class ToolCheckStream extends HttpServlet {
                     }
 
                 } catch (Exception error) {
+                    LOGGER.debug(String.format("Can't run [%s] tool check!", checkName), error);
                 }
             }
 
