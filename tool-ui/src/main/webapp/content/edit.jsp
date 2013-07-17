@@ -466,12 +466,9 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                             WorkflowLog newLog = new WorkflowLog();
 
                                             if (log != null) {
-                                                System.out.println("copying log");
                                                 for (ObjectField field : ObjectType.getInstance(WorkflowLog.class).getFields()) {
-                                                System.out.println("copying log check - " + field.getInternalName());
                                                     if (field.as(WorkflowLog.FieldData.class).isPersistent()) {
                                                         String name = field.getInternalName();
-                                                System.out.println("copying log - " + name);
 
                                                         newLog.getState().put(name, log.getState().get(name));
                                                     }
