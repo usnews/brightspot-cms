@@ -471,7 +471,15 @@
         clear: left;
         float: left;
         margin-bottom: 5px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
+}
+
+.widget-publishingWorkflowComment {
+    margin-bottom: 15px;
 }
 
 .widget-publishingWorkflowLog {
@@ -480,6 +488,7 @@
     }
 
     .inputContainer {
+        margin-top: -2px;
         margin-bottom: 3px;
 
         .inputLabel {
@@ -535,7 +544,7 @@
 
     border-top: 1px solid @color-note;
     margin-bottom: 0;
-    margin-top: 10px;
+    margin-top: 15px;
     padding-top: 5px;
 }
 

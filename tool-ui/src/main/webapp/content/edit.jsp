@@ -509,39 +509,41 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 }
 
                                 if (currentState != null || !transitionNames.isEmpty()) {
+                                    WorkflowLog log = Query.
+                                            from(WorkflowLog.class).
+                                            where("objectId = ?", editingState.getId()).
+                                            sortDescending("date").
+                                            first();
+
                                     wp.writeStart("div", "class", "widget-publishingWorkflow");
                                         if (!ObjectUtils.isBlank(currentState)) {
-                                            wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
-                                                wp.writeHtml(currentState);
-                                            wp.writeEnd();
-                                        }
+                                            wp.writeStart("div", "class", "widget-publishingWorkflowComment");
+                                                wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
+                                                    wp.writeHtml(currentState);
+                                                wp.writeEnd();
 
-                                        WorkflowLog log = Query.
-                                                from(WorkflowLog.class).
-                                                where("objectId = ?", editingState.getId()).
-                                                sortDescending("date").
-                                                first();
+                                                if (log != null) {
+                                                    String comment = log.getComment();
 
-                                        if (log != null) {
-                                            String comment = log.getComment();
+                                                    wp.writeHtml(" ");
+                                                    wp.writeStart("a",
+                                                            "target", "workflowLogs",
+                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", editingState.getId()));
+                                                        if (ObjectUtils.isBlank(comment)) {
+                                                            wp.writeHtml("by ");
 
-                                            wp.writeHtml(" ");
-                                            wp.writeStart("a",
-                                                    "target", "workflowLogs",
-                                                    "href", wp.cmsUrl("/workflowLogs", "objectId", editingState.getId()));
-                                                if (ObjectUtils.isBlank(comment)) {
-                                                    wp.writeHtml("by ");
+                                                        } else {
+                                                            wp.writeStart("q");
+                                                                wp.writeHtml(comment);
+                                                            wp.writeEnd();
+                                                            wp.writeHtml(" said ");
+                                                        }
 
-                                                } else {
-                                                    wp.writeStart("q");
-                                                        wp.writeHtml(comment);
+                                                        wp.writeHtml(log.getUserName());
+                                                        wp.writeHtml(" at ");
+                                                        wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                                     wp.writeEnd();
-                                                    wp.writeHtml(" said ");
                                                 }
-
-                                                wp.writeHtml(log.getUserName());
-                                                wp.writeHtml(" at ");
-                                                wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                             wp.writeEnd();
                                         }
 
@@ -558,7 +560,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                                 }
                                             }
 
-                                            wp.writeStart("div", "class", "widget-publishingWorkflowLog", "style", "margin-top: 15px;");
+                                            wp.writeStart("div", "class", "widget-publishingWorkflowLog");
                                                 wp.writeTag("input",
                                                         "type", "hidden",
                                                         "name", "workflowLogId",
