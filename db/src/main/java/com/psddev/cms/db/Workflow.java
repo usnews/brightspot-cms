@@ -3,7 +3,6 @@ package com.psddev.cms.db;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -122,21 +121,49 @@ public class Workflow extends Record {
         return transitions;
     }
 
-    public Map<String, WorkflowTransition> getTransitionsFrom(String state) {
-        Map<String, WorkflowTransition> transitions = getTransitions();
-
-        if (state == null) {
-            state = "New";
+    public Map<String, WorkflowTransition> getTransitionsFrom(String from) {
+        if (from == null) {
+            from = "New";
         }
 
-        for (Iterator<Map.Entry<String, WorkflowTransition>> i = transitions.entrySet().iterator(); i.hasNext(); ) {
-            WorkflowTransition transition = i.next().getValue();
-            WorkflowState source = transition.getSource();
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        Map<String, List<Map<String, Object>>> actions = (Map) getActions();
+        List<Map<String, Object>> rawStates = actions.get("states");
+        List<Map<String, Object>> rawTransitions = actions.get("transitions");
+        Map<String, WorkflowTransition> transitions = new HashMap<String, WorkflowTransition>();
 
-            if (source == null ||
-                    !state.equals(source.getName()) ||
-                    "Published".equals(transition.getTarget().getName())) {
-                i.remove();
+        if (rawStates != null && rawTransitions != null) {
+            Map<String, WorkflowState> states = new HashMap<String, WorkflowState>();
+            WorkflowState state;
+
+            for (Map<String, Object> s : rawStates) {
+                state = new WorkflowState();
+                state.setName((String) s.get("name"));
+                states.put((String) s.get("id"), state);
+            }
+
+            state = new WorkflowState();
+            state.setName("New");
+            states.put("initial", state);
+
+            state = new WorkflowState();
+            state.setName("Published");
+            states.put("final", state);
+
+            for (Map<String, Object> t : rawTransitions) {
+                WorkflowTransition transition = new WorkflowTransition();
+                String name = (String) t.get("name");
+                WorkflowState source = states.get(t.get("source"));
+
+                transition.setName(name);
+                transition.setSource(source);
+                transition.setTarget(states.get(t.get("target")));
+
+                if (!(source == null ||
+                        !from.equals(source.getName()) ||
+                        "Published".equals(transition.getTarget().getName()))) {
+                    transitions.put(name, transition);
+                }
             }
         }
 
