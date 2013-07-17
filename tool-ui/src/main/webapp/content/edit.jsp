@@ -25,6 +25,7 @@ com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 
+com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
@@ -462,15 +463,28 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         }
 
                                         if (!transitionNames.isEmpty()) {
-                                            log = new WorkflowLog();
+                                            WorkflowLog newLog = new WorkflowLog();
+
+                                            if (log != null) {
+                                                System.out.println("copying log");
+                                                for (ObjectField field : ObjectType.getInstance(WorkflowLog.class).getFields()) {
+                                                System.out.println("copying log check - " + field.getInternalName());
+                                                    if (field.as(WorkflowLog.FieldData.class).isPersistent()) {
+                                                        String name = field.getInternalName();
+                                                System.out.println("copying log - " + name);
+
+                                                        newLog.getState().put(name, log.getState().get(name));
+                                                    }
+                                                }
+                                            }
 
                                             wp.writeStart("div", "class", "widget-publishingWorkflowLog", "style", "margin-top: 15px;");
                                                 wp.writeTag("input",
                                                         "type", "hidden",
                                                         "name", "workflowLogId",
-                                                        "value", log.getId());
+                                                        "value", newLog.getId());
 
-                                                JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", log);
+                                                JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", newLog);
                                             wp.writeEnd();
 
                                             for (String transitionName : transitionNames) {

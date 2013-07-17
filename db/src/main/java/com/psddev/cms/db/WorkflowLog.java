@@ -1,8 +1,17 @@
 package com.psddev.cms.db;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Date;
 import java.util.UUID;
 
+import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -137,5 +146,44 @@ public class WorkflowLog extends Record {
         String name = user != null ? user.getLabel() : getUserId();
 
         return ObjectUtils.isBlank(name) ? "Unknown User" : name;
+    }
+
+    /**
+     * {@link WorkflowLog}-specific field type modification.
+     */
+    @FieldInternalNamePrefix("cms.workflowLog.")
+    public static class FieldData extends Modification<ObjectField> {
+
+        private boolean persistent;
+
+        public boolean isPersistent() {
+            return persistent;
+        }
+
+        public void setPersistent(boolean persistent) {
+            this.persistent = persistent;
+        }
+    }
+
+    /**
+     * Specifies that the target field should persist and copy from the
+     * previous workflow log when a new one is created.
+     */
+    @Documented
+    @Inherited
+    @ObjectField.AnnotationProcessorClass(PersistentProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Persistent {
+
+        boolean value() default true;
+    }
+
+    private static class PersistentProcessor implements ObjectField.AnnotationProcessor<Persistent> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Persistent annotation) {
+            field.as(FieldData.class).setPersistent(annotation.value());
+        }
     }
 }
