@@ -1922,7 +1922,7 @@ public class ToolPageContext extends WebPageContext {
                     throw new ValidationException(Arrays.asList(state));
                 }
 
-                if (draft == null) {
+                if (draft == null || param(boolean.class, "newSchedule")) {
                     draft = new Draft();
                     draft.setOwner(user);
                 }

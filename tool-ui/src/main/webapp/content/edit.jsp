@@ -586,6 +586,26 @@ boolean lockedOut = !user.equals(contentLockOwner);
                         if (!isTrash && wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
                             wp.writeStart("div", "class", "widget-publishingPublish");
                                 if (wp.getUser().getCurrentSchedule() == null) {
+                                    if (!contentData.isDraft() && schedule != null) {
+                                        boolean newSchedule = wp.param(boolean.class, "newSchedule");
+
+                                        wp.writeStart("div", "style", wp.cssString("margin-bottom", "5px"));
+                                            wp.writeStart("select", "name", "newSchedule");
+                                                wp.writeStart("option",
+                                                        "selected", newSchedule ? null : "selected",
+                                                        "value", "");
+                                                    wp.writeHtml("Update Existing Schedule");
+                                                wp.writeEnd();
+
+                                                wp.writeStart("option",
+                                                        "selected", newSchedule ? "selected" : null,
+                                                        "value", "true");
+                                                    wp.writeHtml("Create New Schedule");
+                                                wp.writeEnd();
+                                            wp.writeEnd();
+                                        wp.writeEnd();
+                                    }
+
                                     wp.writeTag("input",
                                             "type", "text",
                                             "class", "date dateInput",

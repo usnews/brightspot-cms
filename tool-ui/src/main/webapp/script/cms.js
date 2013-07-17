@@ -883,9 +883,11 @@ $doc.ready(function() {
     $('.widget-publishing').each(function() {
         var $widget = $(this),
                 $dateInput = $widget.find('.dateInput'),
+                $newSchedule = $widget.find('select[name="newSchedule"]'),
                 $publishButton = $widget.find('[name="action-publish"]'),
                 oldPublishText = $publishButton.text(),
-                oldDate = $dateInput.val();
+                oldDate = $dateInput.val(),
+                onChange;
 
         // Change the publish button label if scheduling.
         if ($dateInput.length === 0) {
@@ -893,16 +895,21 @@ $doc.ready(function() {
             $publishButton.text('Schedule');
 
         } else {
-            $dateInput.change($.run(function() {
+            onChange = function() {
                 if ($dateInput.val()) {
                     $publishButton.addClass('schedule');
-                    $publishButton.text(oldDate ? 'Reschedule' : 'Schedule');
+                    $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
 
                 } else {
                     $publishButton.removeClass('schedule');
                     $publishButton.text(oldPublishText);
                 }
-            }));
+            };
+
+            onChange();
+
+            $dateInput.change(onChange);
+            $newSchedule.change(onChange);
         }
 
         // Move the widget to the top if within aside section.
