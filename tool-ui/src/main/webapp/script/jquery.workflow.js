@@ -1,7 +1,26 @@
 /** Workflows. */
 (function($, win, undef) {
 
-var $win = $(win);
+var $win = $(win),
+        getTransitionColor;
+
+(function() {
+    var hue = Math.random(),
+            GOLDEN_RATIO = 0.618033988749895;
+
+    getTransitionColor = function($input) {
+        var transitionColor = $.data($input[0], 'workflow-transitionColor');
+
+        if (!transitionColor) {
+            hue += GOLDEN_RATIO;
+            hue %= 1.0;
+            transitionColor = 'hsl(' + (hue * 360) + ', 50%, 50%)';
+            $.data($input[0], 'workflow-transitionColor', transitionColor);
+        }
+
+        return transitionColor;
+    };
+})();
 
 $.plugin2('workflow', {
     '_create': function(textarea) {
@@ -26,19 +45,39 @@ $.plugin2('workflow', {
         drawArrow = function(context, color, $source, targetX, targetY) {
             var sourcePosition = $source.position(),
                     sourceX = sourcePosition.left,
-                    sourceY = sourcePosition.top + $source.outerHeight() * 0.1,
+                    sourceY,
+                    $target,
+                    targetPosition,
                     sourceDirection,
                     targetDirection,
                     arrowSize;
 
+            if (typeof targetY === 'undefined') {
+                $target = targetX;
+                targetPosition = $target.position();
+                targetX = targetPosition.left;
+                targetY = targetPosition.top;
+            }
+
             if (sourceX > targetX) {
+                sourceY = sourcePosition.top + $source.outerHeight() * 0.9;
                 sourceDirection = -1;
                 targetDirection = 1;
 
+                if ($target) {
+                    targetX += $target.outerWidth();
+                    targetY += $target.outerHeight() * 0.9;
+                }
+
             } else {
                 sourceX += $source.outerWidth();
+                sourceY = sourcePosition.top + $source.outerHeight() * 0.1;
                 sourceDirection = 1;
                 targetDirection = -1;
+
+                if ($target) {
+                    targetY += $target.outerHeight() * 0.1;
+                }
             }
 
             sourceControlX = sourceX + sourceDirection * 100;
@@ -93,8 +132,7 @@ $.plugin2('workflow', {
                 var $source = $(this),
                         sourceId = $source.attr('data-id'),
                         sourcePosition = $source.position(),
-                        targets = $.data(this, 'workflow-targets'),
-                        targetYOffset = 0.9;
+                        targets = $.data(this, 'workflow-targets');
 
                 if (!(sourceId === 'initial' ||
                         sourceId === 'final')) {
@@ -112,9 +150,7 @@ $.plugin2('workflow', {
                                 $target = $visual.find('[data-id="' + targetId + '"]'),
                                 transition,
                                 $input,
-                                targetPosition,
-                                targetX,
-                                targetY,
+                                transitionColor,
                                 bound,
                                 boundOffset;
 
@@ -136,18 +172,15 @@ $.plugin2('workflow', {
                             $visual.trigger('create');
                         }
 
-                        targetPosition = $target.position();
-                        targetX = targetPosition.left;
-                        targetY = targetPosition.top + $target.outerHeight() * targetYOffset;
-                        targetYOffset -= 0.1;
-                        bound = drawArrow(context, 'black', $source, targetX, targetY);
+                        transitionColor = getTransitionColor($input);
+                        bound = drawArrow(context, transitionColor, $source, $target);
                         boundOffset = bound.sourceX < bound.targetX ? 0.3 : 0.7;
 
                         $input.css({
+                            'border-color': transitionColor,
                             'left': (bound.sourceX + bound.targetX - $input.outerWidth()) / 2,
                             'position': 'absolute',
-                            'top': (bound.sourceY + bound.targetY - $input.outerHeight()) / 2,
-                            'transform': 'rotate(' + (Math.atan((bound.targetY - bound.sourceY) / (bound.targetX - bound.sourceX)) * 180 / Math.PI) + 'deg)'
+                            'top': (bound.sourceY + bound.targetY - $input.outerHeight()) / 2
                         });
 
                         $input.show();
@@ -257,7 +290,7 @@ $.plugin2('workflow', {
 
             $state.append($('<input/>', {
                 'type': 'text',
-                'class': 'expandable',
+                'class': 'expandable workflowStateName',
                 'value': stateData.name || ''
             }));
 
@@ -273,6 +306,7 @@ $.plugin2('workflow', {
             }));
 
             appendTransitionAdd($state);
+            $visual.css('height', 100 * $visual.find('.workflowState').length);
 
             return $state;
         };
@@ -283,11 +317,12 @@ $.plugin2('workflow', {
             'click': function() {
                 addState({
                     'id': nextStateId,
-                    'left': Math.random() * 0.6 + 0.1,
-                    'top': Math.random() * 0.7 + 0.1
+                    'left': 0.30,
+                    'top': 0.01
                 });
 
                 ++ nextStateId;
+                $arrows.trigger('redraw');
 
                 return false;
             }
