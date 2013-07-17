@@ -8,14 +8,14 @@ var $win = $(win),
     var hue = Math.random(),
             GOLDEN_RATIO = 0.618033988749895;
 
-    getTransitionColor = function($input) {
-        var transitionColor = $.data($input[0], 'workflow-transitionColor');
+    getTransitionColor = function($transition) {
+        var transitionColor = $.data($transition[0], 'workflow-transitionColor');
 
         if (!transitionColor) {
             hue += GOLDEN_RATIO;
             hue %= 1.0;
             transitionColor = 'hsl(' + (hue * 360) + ', 50%, 50%)';
-            $.data($input[0], 'workflow-transitionColor', transitionColor);
+            $.data($transition[0], 'workflow-transitionColor', transitionColor);
         }
 
         return transitionColor;
@@ -29,7 +29,7 @@ $.plugin2('workflow', {
                 $visual,
                 drawArrow,
                 $arrows,
-                $transitionInputs = { },
+                $transitions = { },
                 addTransitionTarget,
                 appendTransitionAdd,
                 addState,
@@ -126,7 +126,6 @@ $.plugin2('workflow', {
 
             definition = { 'states': [ ], 'transitions': [ ] };
             context.clearRect(0, 0, $visual.width(), $visual.height());
-            $visual.find('.workflowTransitionName').hide();
 
             $visual.find('.workflowState').each(function() {
                 var $source = $(this),
@@ -149,7 +148,8 @@ $.plugin2('workflow', {
                         var targetId = targetData.target,
                                 $target = $visual.find('[data-id="' + targetId + '"]'),
                                 transition,
-                                $input,
+                                $transition,
+                                $transitionInput,
                                 transitionColor,
                                 bound,
                                 boundOffset;
@@ -159,34 +159,60 @@ $.plugin2('workflow', {
                         }
 
                         transition = sourceId + '/' + targetId;
-                        $input = $transitionInputs[transition];
+                        $transition = $transitions[transition];
 
-                        if (!$input) {
-                            $visual.append($input = $('<input/>', {
+                        if (!$transition) {
+                            $transition = $('<div/>', {
+                                'class': 'workflowTransition'
+                            });
+
+                            $transition.append($('<input/>', {
                                 'type': 'text',
                                 'class': 'expandable workflowTransitionName',
                                 'value': targetData.name || ''
                             }));
 
-                            $transitionInputs[transition] = $input;
+                            $transition.append($('<a/>', {
+                                'class': 'workflowTransitionRemove',
+                                'text': 'Remove',
+                                'click': function() {
+                                    var targets = $.data($source[0], 'workflow-targets');
+
+                                    if (targets) {
+                                        $.data($source[0], 'workflow-targets', $.map(targets, function(target) {
+                                            return target.source === sourceId && target.target === targetId ? null : target;
+                                        }));
+                                    }
+
+                                    $transitions[transition] = undef;
+                                    $transition.remove();
+                                    $arrows.trigger('redraw');
+
+                                    return false;
+                                }
+                            }));
+
+                            $visual.append($transition);
+                            $transitions[transition] = $transition;
                             $visual.trigger('create');
                         }
 
-                        transitionColor = getTransitionColor($input);
+                        $transitionInput = $transition.find(':input');
+                        transitionColor = getTransitionColor($transition);
                         bound = drawArrow(context, transitionColor, $source, $target);
                         boundOffset = bound.sourceX < bound.targetX ? 0.3 : 0.7;
 
-                        $input.css({
-                            'border-color': transitionColor,
-                            'left': (bound.sourceX + bound.targetX - $input.outerWidth()) / 2,
-                            'position': 'absolute',
-                            'top': (bound.sourceY + bound.targetY - $input.outerHeight()) / 2
+                        $transition.css({
+                            'left': (bound.sourceX + bound.targetX - $transitionInput.outerWidth()) / 2,
+                            'top': (bound.sourceY + bound.targetY - $transitionInput.outerHeight()) / 2
                         });
 
-                        $input.show();
+                        $transitionInput.css({
+                            'border-color': transitionColor
+                        });
 
                         definition.transitions.push({
-                            'name': $input.val(),
+                            'name': $transitionInput.val(),
                             'source': sourceId,
                             'target': targetId
                         });

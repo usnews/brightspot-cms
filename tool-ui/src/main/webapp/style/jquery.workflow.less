@@ -39,25 +39,40 @@
     }
 }
 
-.workflowStateRemove {
+.workflowTransition {
+    position: absolute;
+}
+
+.workflowStateRemove,
+.workflowTransitionRemove {
     .icon;
     .icon-remove;
     .icon-only;
 
     color: @color-alert-lighter !important;
     position: absolute;
-    right: 1px;
-    top: 0;
 
     &:hover {
         background-color: transparent;
     }
 }
 
+.workflowStateRemove {
+    right: 1px;
+    top: 0;
+}
+
+.workflowTransitionRemove {
+    right: -6px;
+    top: -10px;
+}
+
 .workflowStateAdd,
 .workflowTransitionAdd {
     .icon;
     .icon-action-add;
+}
 
+.workflowTransitionAdd {
     display: block;
 }
