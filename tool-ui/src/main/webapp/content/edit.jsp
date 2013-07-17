@@ -408,6 +408,89 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                     if (isWritable) {
 
+                        // Message and actions if the content is a draft.
+                        if (isDraft) {
+                            Content.ObjectModification draftContentData = State.
+                                    getInstance(draft != null ? draft : editing).
+                                    as(Content.ObjectModification.class);
+
+                            wp.writeStart("div", "class", "message message-warning");
+                                wp.writeStart("p");
+                                    if (schedule != null) {
+                                        wp.writeHtml("Draft scheduled to be published ");
+                                        wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
+                                        wp.writeHtml(" by ");
+                                        wp.writeObjectLabel(schedule.getTriggerUser());
+                                        wp.writeHtml(".");
+
+                                    } else {
+                                        wp.writeHtml("Draft last saved ");
+                                        wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                        wp.writeHtml(" by ");
+                                        wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                        wp.writeHtml(".");
+                                    }
+                                wp.writeEnd();
+
+                                wp.writeStart("div", "class", "actions");
+                                    if (!draftContentData.isDraft()) {
+                                        wp.writeStart("a",
+                                                "class", "icon icon-action-edit",
+                                                "href", wp.url("", "draftId", null));
+                                            wp.writeHtml("Current");
+                                        wp.writeEnd();
+                                    }
+
+                                    wp.writeStart("button",
+                                            "class", "link icon icon-action-save",
+                                            "name", "action-draft",
+                                            "value", "true");
+                                        wp.writeHtml("Save");
+                                    wp.writeEnd();
+
+                                    wp.writeStart("button",
+                                            "class", "link icon icon-action-delete",
+                                            "name", "action-delete",
+                                            "value", "true");
+                                        wp.writeHtml("Delete");
+                                    wp.writeEnd();
+                                wp.writeEnd();
+                            wp.writeEnd();
+
+                        // Message and actions if the content is a past revision.
+                        } else if (isHistory) {
+                            wp.writeStart("div", "class", "message message-warning");
+                                wp.writeStart("p");
+                                    wp.writeHtml("Past revision saved ");
+                                    wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(history.getUpdateUser());
+                                    wp.writeHtml(".");
+                                wp.writeEnd();
+
+                                wp.writeStart("div", "class", "actions");
+                                    wp.writeStart("a",
+                                            "class", "icon icon-action-edit",
+                                            "href", wp.url("", "historyId", null));
+                                        wp.writeHtml("Current");
+                                    wp.writeEnd();
+
+                                    wp.writeHtml(" ");
+
+                                    wp.writeStart("a",
+                                            "class", "icon icon-object-history",
+                                            "href", wp.url("/historyEdit", "id", history.getId()),
+                                            "target", "historyEdit");
+                                        wp.writeHtml("Name Revision");
+                                    wp.writeEnd();
+                                wp.writeEnd();
+                            wp.writeEnd();
+
+                        // Message and actions if the content is a trash.
+                        } else if (isTrash) {
+                            wp.writeTrashMessage(editing);
+                        }
+
                         // Workflow actions.
                         if (editingState.isNew() ||
                                 !editingState.isVisible() ||
@@ -495,89 +578,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                     wp.writeEnd();
                                 }
                             }
-                        }
-
-                        // Message and actions if the content is a draft.
-                        if (isDraft) {
-                            Content.ObjectModification draftContentData = State.
-                                    getInstance(draft != null ? draft : editing).
-                                    as(Content.ObjectModification.class);
-
-                            wp.writeStart("div", "class", "message message-warning");
-                                wp.writeStart("p");
-                                    if (schedule != null) {
-                                        wp.writeHtml("Draft scheduled to be published ");
-                                        wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(schedule.getTriggerUser());
-                                        wp.writeHtml(".");
-
-                                    } else {
-                                        wp.writeHtml("Draft last saved ");
-                                        wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                        wp.writeHtml(".");
-                                    }
-                                wp.writeEnd();
-
-                                wp.writeStart("div", "class", "actions");
-                                    if (!draftContentData.isDraft()) {
-                                        wp.writeStart("a",
-                                                "class", "icon icon-action-edit",
-                                                "href", wp.url("", "draftId", null));
-                                            wp.writeHtml("Current");
-                                        wp.writeEnd();
-                                    }
-
-                                    wp.writeStart("button",
-                                            "class", "link icon icon-action-save",
-                                            "name", "action-draft",
-                                            "value", "true");
-                                        wp.writeHtml("Save");
-                                    wp.writeEnd();
-
-                                    wp.writeStart("button",
-                                            "class", "link icon icon-action-delete",
-                                            "name", "action-delete",
-                                            "value", "true");
-                                        wp.writeHtml("Delete");
-                                    wp.writeEnd();
-                                wp.writeEnd();
-                            wp.writeEnd();
-
-                        // Message and actions if the content is a past revision.
-                        } else if (isHistory) {
-                            wp.writeStart("div", "class", "message message-warning");
-                                wp.writeStart("p");
-                                    wp.writeHtml("Past revision saved ");
-                                    wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
-                                    wp.writeHtml(" by ");
-                                    wp.writeObjectLabel(history.getUpdateUser());
-                                    wp.writeHtml(".");
-                                wp.writeEnd();
-
-                                wp.writeStart("div", "class", "actions");
-                                    wp.writeStart("a",
-                                            "class", "icon icon-action-edit",
-                                            "href", wp.url("", "historyId", null));
-                                        wp.writeHtml("Current");
-                                    wp.writeEnd();
-
-                                    wp.writeHtml(" ");
-
-                                    wp.writeStart("a",
-                                            "class", "icon icon-object-history",
-                                            "href", wp.url("/historyEdit", "id", history.getId()),
-                                            "target", "historyEdit");
-                                        wp.writeHtml("Name Revision");
-                                    wp.writeEnd();
-                                wp.writeEnd();
-                            wp.writeEnd();
-
-                        // Message and actions if the content is a trash.
-                        } else if (isTrash) {
-                            wp.writeTrashMessage(editing);
                         }
 
                         // Publish and trash buttons.
