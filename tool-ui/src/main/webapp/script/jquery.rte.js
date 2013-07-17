@@ -669,6 +669,7 @@ var Rte = wysihtml5.Editor.extend({
                 if ($cursor) {
                     rte.composer.selection.setBefore($cursor[0]);
                     $cursor.remove();
+                    $cursor = null;
                     rte.focus();
                 }
             });
