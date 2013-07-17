@@ -43,7 +43,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     if (ui.isRichText()) {
         StringBuilder newValueBuilder = new StringBuilder();
 
-        for (Object item : new ReferentialText(newValue, state.isNew() || state.isVisible())) {
+        for (Object item : new ReferentialText(newValue, Boolean.TRUE.equals(request.getAttribute("finalDraft")))) {
             if (!(item == null || item instanceof Reference)) {
                 newValueBuilder.append(item.toString());
             }
@@ -96,8 +96,8 @@ if (validValues != null) {
             "data-inline", true,
             "data-user", wp.getObjectLabel(wp.getUser()),
             "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
-            "data-first-draft", state.isNew(),
-            "data-track-changes", !state.isNew() && !state.isVisible());
+            "data-first-draft", Boolean.TRUE.equals(request.getAttribute("firstDraft")),
+            "data-track-changes", !Boolean.TRUE.equals(request.getAttribute("finalDraft")));
         wp.writeHtml(fieldValue);
     wp.writeEnd();
 }

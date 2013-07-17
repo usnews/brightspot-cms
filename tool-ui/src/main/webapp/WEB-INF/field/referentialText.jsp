@@ -32,7 +32,7 @@ ReferentialText fieldValue = (ReferentialText) state.getValue(fieldName);
 String inputName = (String) request.getAttribute("inputName");
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-    fieldValue = new ReferentialText(wp.param(String.class, inputName), state.isNew() || state.isVisible());
+    fieldValue = new ReferentialText(wp.param(String.class, inputName), Boolean.TRUE.equals(request.getAttribute("finalDraft")));
     state.putValue(fieldName, fieldValue);
     return;
 }
@@ -46,8 +46,8 @@ wp.writeStart("textarea",
         "name", inputName,
         "data-user", wp.getObjectLabel(wp.getUser()),
         "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
-        "data-first-draft", state.isNew(),
-        "data-track-changes", !state.isNew() && !state.isVisible());
+        "data-first-draft", Boolean.TRUE.equals(request.getAttribute("firstDraft")),
+        "data-track-changes", !Boolean.TRUE.equals(request.getAttribute("finalDraft")));
 
 if (fieldValue != null) {
     for (Object item : fieldValue) {

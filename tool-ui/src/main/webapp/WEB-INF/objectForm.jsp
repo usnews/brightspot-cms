@@ -64,6 +64,11 @@ wp.writeStart("div", "class", "objectInputs");
         try {
             request.setAttribute("modificationHeadings", new HashSet<String>());
 
+            if (request.getAttribute("firstDraft") == null) {
+                request.setAttribute("firstDraft", state.isNew());
+                request.setAttribute("finalDraft", state.isNew() || state.isVisible());
+            }
+
             for (ObjectField field : fields) {
                 String name = field.getInternalName();
 
@@ -77,6 +82,8 @@ wp.writeStart("div", "class", "objectInputs");
 
         } finally {
             request.setAttribute("modificationHeadings", old);
+            request.setAttribute("firstDraft", null);
+            request.setAttribute("finalDraft", null);
         }
 
     } else { %>

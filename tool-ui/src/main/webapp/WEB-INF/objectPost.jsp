@@ -23,15 +23,26 @@ ObjectType type = state.getType();
 List<ObjectField> fields = type != null ? type.getFields() : null;
 
 if (fields != null) {
-    for (ObjectField field : fields) {
-        String name = field.getInternalName();
-
-        if ((includeFields == null ||
-                includeFields.contains(name)) &&
-                (excludeFields == null ||
-                !excludeFields.contains(name))) {
-            wp.processField(object, field);
+    try {
+        if (request.getAttribute("firstDraft") == null) {
+            request.setAttribute("firstDraft", state.isNew());
+            request.setAttribute("finalDraft", state.isNew() || state.isVisible());
         }
+
+        for (ObjectField field : fields) {
+            String name = field.getInternalName();
+
+            if ((includeFields == null ||
+                    includeFields.contains(name)) &&
+                    (excludeFields == null ||
+                    !excludeFields.contains(name))) {
+                wp.processField(object, field);
+            }
+        }
+
+    } finally {
+        request.setAttribute("firstDraft", null);
+        request.setAttribute("finalDraft", null);
     }
 
 } else {
