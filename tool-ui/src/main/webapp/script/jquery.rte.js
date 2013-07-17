@@ -158,11 +158,8 @@ var createToolbar = function(rte, inline, firstDraft) {
     $track = $track.find('.rte-group-buttons');
 
     if (!firstDraft) {
-        $track.append($('<span/>', {
-            'class': 'rte-button rte-button-trackChanges',
-            'data-wysihtml5-command': 'trackChanges',
-            'text': 'Changes'
-        }));
+        $track.append($createToolbarCommand('Changes', 'trackChanges'));
+        $track.append($createToolbarCommand('All Comments', 'allComments'));
     }
 
     $track.append($('<span/>', {
@@ -391,23 +388,31 @@ var Rte = wysihtml5.Editor.extend({
         container.appendChild($dialogs[0]);
 
         var getAnnotations = function($element) {
-            var annotations = $.parseJSON($element.attr('data-annotations') || $element.attr('data-comments') || '[]'),
-                    text;
+            return $.parseJSON($element.attr('data-annotations') || '[]');
+        };
 
-            if (annotations.length === 0) {
-                text = $element.attr('data-comment');
+        var setAnnotations = function($element, annotations) {
+            var annotationsLength = annotations.length,
+                    allComments,
+                    lastAnnotation;
 
-                if (text) {
-                    annotations.push({
-                        'time': $element.attr('data-time'),
-                        'userId': $element.attr('data-user-id'),
-                        'user': $element.attr('data-user'),
-                        'text': text
-                    });
-                }
+            $element.attr('data-annotations', JSON.stringify(annotations));
+            $element.removeAttr('data-last-annotation');
+
+            if (annotationsLength > 0) {
+                allComments = '';
+                lastAnnotation = annotations[annotationsLength - 1];
+
+                $.each(annotations, function(i, annotation) {
+                    allComments += annotation.text;
+                    allComments += ' -';
+                    allComments += annotation.user;
+                    allComments += ', ';
+                });
+
+                $element.attr('data-all-comments', allComments.substring(0, allComments.length - 2));
+                $element.attr('data-last-comment', lastAnnotation.text + ' -' + lastAnnotation.user);
             }
-
-            return annotations;
         };
 
         var addAnnotation = function($element, text) {
@@ -442,19 +447,7 @@ var Rte = wysihtml5.Editor.extend({
                 });
             }
 
-            $element.removeAttr('data-time');
-            $element.removeAttr('data-user-id');
-            $element.removeAttr('data-user');
-            $element.removeAttr('data-comment');
-            $element.removeAttr('data-comments');
-            $element.removeAttr('data-text');
-            $element.attr('data-annotations', JSON.stringify(annotations));
-
-            lastAnnotation = annotations[annotations.length - 1];
-
-            if (lastAnnotation.text) {
-                $element.attr('data-last-annotation', lastAnnotation.text + ' -' + lastAnnotation.user);
-            }
+            setAnnotations($element, annotations);
         };
 
         var $annotationDialog = $(
@@ -761,6 +754,38 @@ var Rte = wysihtml5.Editor.extend({
             };
 
             composer.setValue(textarea.getValue());
+
+            // Legacy annotation support.
+            $(composer.element).find('[data-comment], [data-text]').each(function() {
+                var $element = $(this);
+
+                $element.attr('data-annotations', JSON.stringify([ {
+                    'time': $element.attr('data-time'),
+                    'userId': $element.attr('data-user-id'),
+                    'user': $element.attr('data-user'),
+                    'text': $element.attr('data-comment') || $element.attr('data-text')
+                } ]));
+
+                $element.removeAttr('data-time');
+                $element.removeAttr('data-user-id');
+                $element.removeAttr('data-user');
+                $element.removeAttr('data-comment');
+                $element.removeAttr('data-text');
+            });
+
+            $(composer.element).find('[data-comments]').each(function() {
+                var $element = $(this);
+
+                $element.attr('data-annotations', $element.attr('data-comments'));
+                $element.removeAttr('data-comments');
+            });
+
+            $(composer.element).find('[data-annotations]').each(function() {
+                var $element = $(this),
+                        annotations = getAnnotations($element);
+
+                setAnnotations($element, annotations);
+            });
 
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
@@ -1217,6 +1242,18 @@ wysihtml5.commands.trackChanges = {
 
     'state': function(composer) {
         return $(composer.element).hasClass('rte-trackChanges');
+    }
+};
+
+// Add support for toggling all annotation comments.
+wysihtml5.commands.allComments = {
+
+    'exec': function(composer) {
+        $(composer.element).toggleClass('rte-allComments');
+    },
+
+    'state': function(composer) {
+        return $(composer.element).hasClass('rte-allComments');
     }
 };
 

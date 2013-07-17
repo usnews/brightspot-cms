@@ -86,22 +86,16 @@ writer.start("html");
                     "position", "static",
                     "width", "auto");
 
-            writer.css("body.rte-trackChanges [data-comment]:after",
+            writer.css("body.rte-firstDraft [data-last-comment]:after, body.rte-trackChanges [data-last-comment]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-comment) ' -' attr(data-user) '\u00a0'",
+                    "content", "'\u00a0' attr(data-last-comment) '\u00a0'",
                     "font-style", "italic");
 
-            writer.css("body.rte-trackChanges [data-text]:after",
+            writer.css("body.rte-allComments [data-all-comments]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-text) '\u00a0'",
-                    "font-style", "italic");
-
-            writer.css("body.rte-firstDraft [data-last-annotation]:after, body.rte-trackChanges [data-last-annotation]:after",
-                    "background-color", "white",
-                    "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-last-annotation) '\u00a0'",
+                    "content", "'\u00a0' attr(data-all-comments) '\u00a0'",
                     "font-style", "italic");
 
             writer.css("em, i",
