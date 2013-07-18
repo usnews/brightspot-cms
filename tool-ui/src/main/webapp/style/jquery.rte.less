@@ -173,7 +173,7 @@ body.rte-fullscreen {
 .rte-button-insertOrderedList { .icon; .icon-list-ol; }
 .rte-button-outdent { .icon; .icon-indent-right; }
 .rte-button-indent { .icon; .icon-indent-left; }
-.rte-button-createLink { .icon; .icon-link; }
+.rte-button-link { .icon; .icon-link; }
 .rte-button-annotate { .icon; .icon-comments-alt; }
 .rte-button-fullscreen { .icon; .icon-fullscreen; }
 .rte-button-moveLeft { .icon; .icon-arrow-left; }
@@ -201,48 +201,32 @@ body.rte-fullscreen {
     font-size: 14px !important;
 }
 
-.rte-dialog {
-    background-color: @color-background;
-    .border-radius(5px);
-    .box-shadow(@color-text 0 0 5px);
-    clear: left;
-    margin-bottom: 3px;
-    max-width: 25em;
-    padding: 5px;
-
-    input[type='text'] {
-        width: 25em;
-    }
-
-    [data-wysihtml5-dialog-action='accept'],
-    [data-wysihtml5-dialog-action='save'] {
-        .icon;
-        .icon-ok;
-    }
-
-    [data-wysihtml5-dialog-action='revert'],
-    [data-wysihtml5-dialog-action='cancel'] {
-        .icon;
-        .icon-remove;
-
-        color: @color-alert;
-    }
-}
-
 .rte-dialogLine {
     margin-bottom: 5px;
 }
 
-.rte-dialogButtons {
-    overflow: hidden;
+.rte-dialogLinkHref {
+    width: 100%;
+}
 
-    &:not(:last-child) {
-        margin-bottom: 15px;
-    }
+.rte-dialogLinkSave {
+    .icon;
+    .icon-ok;
 
-    [data-wysihtml5-dialog-action='cancel'] {
-        float: right;
-    }
+    margin-right: 10px;
+}
+
+.rte-dialogLinkOpen {
+    .icon;
+    .icon-share;
+}
+
+.rte-dialogLinkUnlink {
+    .icon;
+    .icon-unlink;
+
+    color: @color-alert;
+    float: right;
 }
 
 .rte-dialogAnnotationChange {

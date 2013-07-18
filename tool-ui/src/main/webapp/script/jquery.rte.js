@@ -101,7 +101,10 @@ var createToolbar = function(rte, inline, firstDraft) {
     $toolbar.append($enhancement);
     $enhancement = $enhancement.find('.rte-group-buttons');
 
-    $enhancement.append($createToolbarCommand('Link', 'createLink'));
+    $enhancement.append($('<span/>', {
+        'class': 'rte-button rte-button-link',
+        'text': 'Link'
+    }));
 
     if (!inline) {
         $enhancement.append($createToolbarCommand('Enhancement', 'insertEnhancement'));
@@ -373,19 +376,133 @@ var Rte = wysihtml5.Editor.extend({
             }
         });
 
-        $dialogs.append($(
-            '<div class="rte-dialog" data-wysihtml5-dialog="createLink" style="display: none;">' +
-                '<h2>Link</h2>' +
-                '<div class="rte-dialogLine"><input type="text" data-wysihtml5-dialog-field="href" value="http://"></div>' +
-                '<div class="rte-dialogLine"><select data-wysihtml5-dialog-field="target">' +
-                    '<option value="">Same Window</option>' +
-                    '<option value="_blank">New Window</option>' +
-                '</select></div>' +
-                '<div class="rte-dialogButtons"><a data-wysihtml5-dialog-action="save">Save</a>' +
-                ' <a data-wysihtml5-dialog-action="cancel">Reset</a></div>' +
-            '</div>'));
+        var $linkDialog = $(
+                '<div>' +
+                    '<h2>Link</h2>' +
+                    '<div class="rte-dialogLine"><input type="text" class="rte-dialogLinkHref"></div>' +
+                    '<div class="rte-dialogLine">' +
+                        '<select class="rte-dialogLinkTarget">' +
+                            '<option value="">Same Window</option>' +
+                            '<option value="_blank">New Window</option>' +
+                        '</select>' +
+                        ' <select class="rte-dialogLinkRel">' +
+                            '<option value="">Relation</option>' +
+                            '<option value="nofollow">nofollow</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<a class="rte-dialogLinkSave">Save</a>' +
+                    ' <a class="rte-dialogLinkOpen" target="_blank">Open</a>' +
+                    ' <a class="rte-dialogLinkUnlink">Unlink</a>' +
+                '</div>');
 
-        container.appendChild($dialogs[0]);
+        var $lastAnchor = $();
+
+        $linkDialog.on('click', '.rte-dialogLinkSave', function() {
+            var target = $linkDialog.find('.rte-dialogLinkTarget').val(),
+                    rel = $linkDialog.find('.rte-dialogLinkRel').val();
+
+            $lastAnchor.attr('href', $linkDialog.find('.rte-dialogLinkHref').val() || '');
+
+            if (target) {
+                $lastAnchor.attr('target', target);
+
+            } else {
+                $lastAnchor.removeAttr('target');
+            }
+
+            if (rel) {
+                $lastAnchor.attr('rel', rel);
+
+            } else {
+                $lastAnchor.removeAttr('rel');
+            }
+
+            $linkDialog.popup('close');
+        });
+
+        $linkDialog.on('keydown', '.rte-dialogLinkHref', function(event) {
+            if (event.which === 13) {
+                $linkDialog.find('.rte-dialogLinkSave').click();
+                return false;
+
+            } else {
+                return true;
+            }
+        });
+
+        $linkDialog.on('input', '.rte-dialogLinkHref', function(event) {
+            $linkDialog.find('.rte-dialogLinkOpen').attr('href', $(event.target).val());
+        });
+
+        $linkDialog.on('click', '.rte-dialogLinkUnlink', function() {
+            $lastAnchor.after($lastAnchor.html());
+            $lastAnchor.remove();
+            $linkDialog.popup('close');
+        });
+
+        $(doc.body).append($linkDialog);
+        $linkDialog.popup();
+        $linkDialog.popup('close');
+
+        var openLinkDialog = function($anchor) {
+            var composerOffset = $(rte.composer.iframe).offset(),
+                    $href = $linkDialog.find('.rte-dialogLinkHref'),
+                    $popup,
+                    popupWidth,
+                    anchorOffset = $anchor.offset(),
+                    left,
+                    leftDelta;
+
+            $lastAnchor = $anchor;
+
+            $linkDialog.popup('open');
+            $href.val($anchor.attr('href') || 'http://');
+            $linkDialog.find('.rte-dialogLinkTarget').val($anchor.attr('target') || '');
+            $linkDialog.find('.rte-dialogLinkRel').val($anchor.attr('rel') || '');
+            $linkDialog.find('.rte-dialogLinkOpen').attr('href', $href.val());
+            $href.focus();
+
+            $popup = $linkDialog.popup('container');
+            popupWidth = $popup.outerWidth();
+            left = anchorOffset.left + ($anchor.outerWidth() - popupWidth) / 2;
+
+            if (left < 35) {
+                left = 35;
+
+            } else {
+                leftDelta = left + popupWidth - $(doc).width() + 35;
+
+                if (leftDelta > 0) {
+                    left -= leftDelta;
+                }
+            }
+
+            $popup.css({
+                'left': left,
+                'margin-left': 0,
+                'position': 'absolute',
+                'top': composerOffset.top + $anchor.offset().top + $anchor.outerHeight()
+            });
+        };
+
+        (function() {
+            var tempIndex = 0;
+
+            $(config.toolbar).find('.rte-button-link').click(function() {
+                var tempClass,
+                        $anchor;
+
+                ++ tempIndex;
+                tempClass = 'rte-link-temp-' + tempIndex;
+
+                wysihtml5.commands.createLink.exec(rte.composer, 'createLink', { 'class': tempClass });
+
+                $anchor = $('a.' + tempClass, rte.composer.element);
+
+                $anchor.removeClass(tempClass);
+                openLinkDialog($anchor);
+            });
+        })();
 
         var getAnnotations = function($element) {
             return $.parseJSON($element.attr('data-annotations') || '[]');
@@ -831,6 +948,10 @@ var Rte = wysihtml5.Editor.extend({
 
             $(composer.element).bind('keyup', function() {
                 $(textarea.element).trigger('input');
+            });
+
+            $(composer.element).on('click', 'a', function(event) {
+                openLinkDialog($(event.target));
             });
 
             $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
