@@ -9,13 +9,13 @@ import java.util.UUID;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ObjectUtils;
 
 /** Unpublished object or unsaved changes to an existing object. */
-public class Draft extends Record {
+@ToolUi.Hidden
+public class Draft extends Content {
 
     private @Indexed DraftStatus status;
     private @Indexed Schedule schedule;
