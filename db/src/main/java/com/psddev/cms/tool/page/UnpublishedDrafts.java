@@ -118,6 +118,7 @@ public class UnpublishedDrafts extends PageServlet {
 
         int limit = page.pageParam(int.class, "limit", 20);
         PaginatedResult<?> drafts = draftsQuery.
+                and("* matches *").
                 and(Content.UPDATE_DATE_FIELD + " != missing").
                 and(page.siteItemsPredicate()).
                 sortDescending(Content.UPDATE_DATE_FIELD).
