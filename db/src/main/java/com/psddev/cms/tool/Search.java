@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.CompoundPredicate;
@@ -558,11 +559,7 @@ public class Search extends Record {
             }
         }
 
-        for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
-            if (t.as(ToolUi.class).isHidden()) {
-                query.and("_type != ?", t);
-            }
-        }
+        query.and("_type != ?", ObjectType.getInstance(Draft.class));
 
         return query;
     }
