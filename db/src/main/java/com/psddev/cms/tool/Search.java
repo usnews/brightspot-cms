@@ -558,6 +558,12 @@ public class Search extends Record {
             }
         }
 
+        for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+            if (t.as(ToolUi.class).isHidden()) {
+                query.and("_type != ?", t);
+            }
+        }
+
         return query;
     }
 
