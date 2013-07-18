@@ -42,6 +42,7 @@ public class UnpublishedDrafts extends PageServlet {
                 or("_type = ?", Draft.class).
                 or("cms.content.draft = true").
                 or("cms.workflow.currentState != missing").
+                and("* matches *").
                 hasMoreThan(0)) {
             return;
         }
