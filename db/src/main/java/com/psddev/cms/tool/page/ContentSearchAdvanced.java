@@ -62,7 +62,8 @@ public class ContentSearchAdvanced extends PageServlet {
                 "cms.content.publishDate",
                 "cms.content.publishUser",
                 "cms.content.updateDate",
-                "cms.content.updateUser" }) {
+                "cms.content.updateUser",
+                "cms.directory.paths" }) {
             allFields.add(environment.getField(fieldName));
         }
 
@@ -424,11 +425,28 @@ public class ContentSearchAdvanced extends PageServlet {
 
                                         for (ObjectField field : fields) {
                                             page.writeStart("td");
-                                                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                                                    Object value = i.next();
-                                                    page.writeObject(value);
-                                                    if (i.hasNext()) {
-                                                        page.writeHtml(", ");
+                                                if ("cms.directory.paths".equals(field.getInternalName())) {
+                                                    for (Directory.Path p : itemState.as(Directory.ObjectModification.class).getPaths()) {
+                                                        String path = p.getPath();
+
+                                                        page.writeStart("div");
+                                                            page.writeStart("a", "href", path, "target", "_blank");
+                                                                page.writeHtml(path);
+                                                            page.writeEnd();
+
+                                                            page.writeHtml(" (");
+                                                            page.writeHtml(p.getType());
+                                                            page.writeHtml(")");
+                                                        page.writeEnd();
+                                                    }
+
+                                                } else {
+                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                                                        Object value = i.next();
+                                                        page.writeObject(value);
+                                                        if (i.hasNext()) {
+                                                            page.writeHtml(", ");
+                                                        }
                                                     }
                                                 }
                                             page.writeEnd();

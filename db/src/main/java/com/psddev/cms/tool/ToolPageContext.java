@@ -1370,6 +1370,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    Draft.class.equals(type.getObjectClass()) ||
                     (type.isDeprecated() &&
                     !Query.fromType(type).hasMoreThan(0))) {
                 i.remove();
