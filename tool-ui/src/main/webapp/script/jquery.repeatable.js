@@ -148,7 +148,7 @@ $.plugin2('repeatable', {
 
                         if ($select.length > 0 &&
                                 $select.closest('.repeatableObjectId').length > 0) {
-                            $select.click();
+                            // $select.click();
                         }
                     };
 
