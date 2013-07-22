@@ -93,7 +93,11 @@ public class Schedule extends Record {
                         }
                     }
 
-                    State.getInstance(object).as(Content.ObjectModification.class).setDraft(false);
+                    Content.ObjectModification contentData = State.getInstance(object).as(Content.ObjectModification.class);
+
+                    contentData.setDraft(false);
+                    contentData.setPublishDate(triggerDate);
+                    contentData.setPublishUser(triggerUser);
                     Content.Static.publish(object, getTriggerSite(), triggerUser);
                 }
 
