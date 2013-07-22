@@ -538,24 +538,26 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (object != null) {
-            ObjectType objectType = State.getInstance(object).getType();
+            if (workStream == null) {
+                ObjectType objectType = State.getInstance(object).getType();
 
-            if (!ObjectUtils.isBlank(validTypes) &&
-                    !validTypes.contains(objectType)) {
-                StringBuilder tb = new StringBuilder();
+                if (!ObjectUtils.isBlank(validTypes) &&
+                        !validTypes.contains(objectType)) {
+                    StringBuilder tb = new StringBuilder();
 
-                for (ObjectType type : validTypes) {
-                    tb.append(type.getLabel());
-                    tb.append(", ");
+                    for (ObjectType type : validTypes) {
+                        tb.append(type.getLabel());
+                        tb.append(", ");
+                    }
+
+                    tb.setLength(tb.length() - 2);
+
+                    throw new IllegalArgumentException(String.format(
+                            "Expected one of [%s] types for [%s] object"
+                            + " but it is of [%s] type", tb, objectId,
+                            objectType != null ? objectType.getLabel()
+                            : "unknown"));
                 }
-
-                tb.setLength(tb.length() - 2);
-
-                throw new IllegalArgumentException(String.format(
-                        "Expected one of [%s] types for [%s] object"
-                        + " but it is of [%s] type", tb, objectId,
-                        objectType != null ? objectType.getLabel()
-                        : "unknown"));
             }
 
         } else if (!ObjectUtils.isBlank(validTypes)) {
