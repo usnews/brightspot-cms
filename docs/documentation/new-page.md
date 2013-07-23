@@ -28,7 +28,7 @@ Grid layouts are defined in CSS files contained within your project
 directories. 
 
 Brightspot implements the following css properties defined in 
-the W3 Grid Layout specification: **display: grid, grid-template, grid-definition-columns, grid-definition-rows**
+the W3 Grid Layout specification: **display: -dari-grid, -dari-grid-template, -dari-grid-definition-columns, -dari-grid-definition-rows**
 
 Grid lengths allow the following units: **percentages, em, px, auto and fr**.
 
@@ -38,19 +38,19 @@ An example grid:
 
 {% highlight css %}
 .layout-global {
-    display: grid;
-    grid-template: ".    header  .   "
+    display: -dari-grid;
+    -dari-grid-template: ".    header  .   "
                    "main  main   main"
                    ".    footer  .   ";
  
-    grid-definition-columns: 1fr 1140px 1fr;
-    grid-definition-rows: 158px auto auto;
+    -dari-grid-definition-columns: 1fr 1140px 1fr;
+    -dari-grid-definition-rows: 158px auto auto;
 
     margin-bottom: 10px;
 }
 {% endhighlight %}
 
-It is useful to look at a `grid-template` like a table. For this version there are three columns, and three rows. The header sits in the middle column, and the main area sits across all three. The footer, like the header, sits in the middle. The `grid-definition-columns` define the widths of each column, and the `grid-definition-rows` define the height.
+It is useful to look at a `-dari-grid-template` like a table. For this version there are three columns, and three rows. The header sits in the middle column, and the main area sits across all three. The footer, like the header, sits in the middle. The `-dari-grid-definition-columns` define the widths of each column, and the `-dari-grid-definition-rows` define the height.
 
 ### Placing Content in the Grid
 
@@ -103,23 +103,23 @@ To modify the layout dynamically, based on the size of the screen being used to 
 
 {% highlight css %}
 .layout {
-    display: grid;
-    grid-template: ". main . right .";
+    display: -dari-grid;
+    -dari-grid-template: ". main . right .";
  
-    grid-definition-columns: 1fr 680px 80px 360px 1fr;
-    grid-definition-rows: auto;
+    -dari-grid-definition-columns: 1fr 680px 80px 360px 1fr;
+    -dari-grid-definition-rows: auto;
 
     padding: 10px;
     }
 
 @media only screen and (min-width: 300px) and (max-width:700px) {
         .layout {
-        display: grid;
-        grid-template: ". main    ."
+        display: -dari-grid;
+        -dari-grid-template: ". main    ."
                        ". right   .";
      
-        grid-definition-columns: 1fr 320px 1fr;
-        grid-definition-rows: auto auto;
+        -dari-grid-definition-columns: 1fr 320px 1fr;
+        -dari-grid-definition-rows: auto auto;
 
         padding: 10px;
     }
