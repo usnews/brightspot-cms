@@ -14,7 +14,7 @@ This section looks at some of the most commonly used and helpful annotations. Fo
 
 ## Data Indexing
 
-To maximize performance, not all fields on an object are indexed automatically. By adding the `@Indexed` annotation a field is indexed, and can be queried against. Note, fields can be returned and rendered without indexing, however in order to query on a field, it must be indexed. In the example below, if we want to query for all Articles where the headline starts with A we would need the field to be `@Indexed`. See the [Querying](/querying.html) documentation for more on this.
+The `@Indexed` annotation is key in defining data that you want to be able to query. It is a common mistake to get carried away and add the @Indexed annotation to all the fields on every class you create. Doing so creates extra potentially unnecessary rows in the underlying database and can lead to poor performance in systems with large amounts of data. Only add the annotation to fields that you think you will query on. Note, fields can be returned and rendered without indexing, however in order to query on a field, it must be indexed. In the example below, if we want to query for all Articles where the headline starts with A we would need the field to be `@Indexed`. See the [Querying](/querying.html) documentation for more on this.
 
 <div class="highlight">{% highlight java %}package com.psddev.brightspot;
 

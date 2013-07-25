@@ -96,27 +96,17 @@ public class Article extends Content {
                     <div class="title" style="width: 300px;">List of Media Items</div>
                     <div style="width:300px!important;" class="description">A list of items containing a StorageItem, where <code>@PreviewField("file")</code> references the StorageItem field automatically creates a quick bulk upload user interface</div>
                 </div>
+            </div>
+            <div class="highlight-line left" style="top: 620px; width: 300px;">
+            <div class="highlight-box">
+                    <div class="title" style="width: 300px;">Location</div>
+                    <div style="width:300px!important;" class="description">Allow Latitude and Longitude to be set using the Dari Location type. Add <code>private Location location;</code> to your class.</div>
+                </div>
             </div>                     
             <img width="690" style="margin-left:320px;" class="shadow" src="img/developer/article-ui-advanced.png"/>
             <br/>
         </div>
-    </br><p><h2>Annotations</h2>As well as automatically generating the user interface, directly from the Java class, Brightspot provides annotations that can be used to control and assist user input and business logic. Below are some of the most common annotations. You can see a full list <a href="/annotations.html">here</a>.</p>
-
-<div class="highlight">{% highlight java %}
-public class Article extends Content {
-
-    @Required
-    private String headline;
-    private ReferentialText body;
-    @CollectionMaximum(5)
-    private List<Tag> tags;
-    @ToolUi.Note("Add some keywords for the article")
-    private Set<String> keywords;
-
-}{% endhighlight %}</div>
-
-<p></br></br>The <code>@Indexed</code> annotation is key in defining data that you want to be able to query.
-It is a common mistake to get carried away and add the @Indexed annotation to all the fields on every class you create. Doing so creates extra potentially unnecessary rows in the underlying database and can lead to poor performance in systems with large amounts of data. Only add the annotation to fields that you think you will query on. We have added the annotation to the Author property, as we may want to query for all the articles by a particular author. For more information on Querying with Brightspot see the dedicated <a href="querying.html">Querying</a> section. </p>
+<br><br><p><h2>Annotations</h2>As well as automatically generating the user interface, directly from the Java class, Brightspot provides annotations that can be used to control and assist user input and business logic. For a walk through of some of the most common annotations, see the starter guide <a href="/using-annotations.html.html">here</a>, or see the full list <a href="/annotations.html">here</a>.</p>
 
 <p><h2>Associating Objects</h2>Once you have your first object created you can add a second. You can add a reference to an existing class, for example an Author that is associated with each Article. Associate an object by naming it as a return type in your Java class, <code>private Author author;</code>. </br></br>With objects created you can start to use annotations to control aspects of them. For example, every object within Brightspot has a LabelField, which is used to automatically create a label. As a default, the first text string field within an object is used. This label is used when returning search results within the CMS. </br></br>The Author object is a good example of when to override the default LabelField, to help label the object more clearly. The example Author object has two fields, <code>firstName</code> and <code>lastName</code>. When an Author shows up in search results you can only see the first name, as it is the first string text field. This can be fixed to show the two names, as the example below shows: </p>
 
