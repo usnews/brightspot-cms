@@ -78,7 +78,7 @@ The Image object .jsp file can be as simple as the example below. The size refer
 <cms:img src="${content}" size="${imageSize}" alt="${content.altText}" />
 {% endhighlight %}</div>
 
-![](http://cdn.psddev.com/88/07/ee4cb627440e9c6e1fedcace1cab/text-overlay-20.55.44%20AM.png)
+![](http://docs.brightspot.s3.amazonaws.com/image-editing-crop.png)
 
 Editors within the CMS can now add rich text overlays on any image. In order to enable this ability, when using the `cms:img` tag simply add the `overlay=true` parameter:
 
@@ -88,7 +88,7 @@ Editors within the CMS can now add rich text overlays on any image. In order to 
 
 ## Adding the Crop
 
-From within Brightspot, you need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. Create a crop for use with all blog post images, the internal name is `blogCrop`.
+From within Brightspot, you need to create the required image crop size. Access Admin -> Settings and in the left hand rail select New Standard Image Size. Create a crop for use with all blog post images, the internal name is `blogCrop`. You can specify whether the crop will appear grouped with other crops, with the same aspect ratio, or appear independent. The Crop Option and Resize Option allow more control over smaller images resizing etc. 
 
 The simplest implementation does not require any other option to be selected.
 
