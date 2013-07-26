@@ -1,0 +1,239 @@
+.sp-container {
+    background-color: @color-background;
+    border: 1px solid @color-link-lighter;
+    .border-radius(5px);
+    .border-top-left-radius(0);
+    .box-shadow(0 0 4px @color-link-lighter);
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 9999994;
+
+    &:before {
+        background-color: @color-background;
+        content: '';
+        position: absolute;
+        left: 0px;
+        height: 5px;
+        top: -3px;
+        width: 52px;
+        z-index: 1;
+    }
+}
+
+.sp-picker-container {
+    overflow: hidden;
+    padding: 10px;
+    position: relative;
+    width: 163px;
+}
+
+// Saturation/value/hue selection area.
+.sp-top {
+    height: 100px;
+    margin-bottom: 10px;
+    position: relative;
+    width: 100%;
+}
+
+.sp-color,
+.sp-sat,
+.sp-val {
+    height: 100px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100px;
+}
+
+.sp-sat {
+    background-image: -webkit-gradient(linear,  0 0, 100% 0, from(#FFF), to(rgba(204, 154, 129, 0)));
+    background-image: -webkit-linear-gradient(left, #FFF, rgba(204, 154, 129, 0));
+    background-image: -moz-linear-gradient(left, #fff, rgba(204, 154, 129, 0));
+    background-image: -o-linear-gradient(left, #fff, rgba(204, 154, 129, 0));
+    background-image: -ms-linear-gradient(left, #fff, rgba(204, 154, 129, 0));
+    background-image: linear-gradient(to right, #fff, rgba(204, 154, 129, 0));
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType = 1, startColorstr=#FFFFFFFF, endColorstr=#00CC9A81)";
+    filter : progid:DXImageTransform.Microsoft.gradient(GradientType = 1, startColorstr='#FFFFFFFF', endColorstr='#00CC9A81');
+}
+
+.sp-val {
+    background-image: -webkit-gradient(linear, 0 100%, 0 0, from(#000000), to(rgba(204, 154, 129, 0)));
+    background-image: -webkit-linear-gradient(bottom, #000000, rgba(204, 154, 129, 0));
+    background-image: -moz-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));
+    background-image: -o-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));
+    background-image: -ms-linear-gradient(bottom, #000, rgba(204, 154, 129, 0));
+    background-image: linear-gradient(to top, #000, rgba(204, 154, 129, 0));
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#00CC9A81, endColorstr=#FF000000)";
+    filter : progid:DXImageTransform.Microsoft.gradient(startColorstr='#00CC9A81', endColorstr='#FF000000');
+}
+
+.sp-hue {
+    background: -moz-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: -ms-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: -o-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    background: -webkit-gradient(linear, left top, left bottom, from(#ff0000), color-stop(0.17, #ffff00), color-stop(0.33, #00ff00), color-stop(0.5, #00ffff), color-stop(0.67, #0000ff), color-stop(0.83, #ff00ff), to(#ff0000));
+    background: -webkit-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    height: 100px;
+    left: 115px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.sp-1 {
+    height: 17%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0000', endColorstr='#ffff00');
+}
+
+.sp-2 {
+    height: 16%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff00', endColorstr='#00ff00');
+}
+
+.sp-3 {
+    height: 17%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ff00', endColorstr='#00ffff');
+}
+
+.sp-4 {
+    height: 17%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffff', endColorstr='#0000ff');
+}
+
+.sp-5 {
+    height: 16%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000ff', endColorstr='#ff00ff');
+}
+
+.sp-6 {
+    height: 17%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff00ff', endColorstr='#ff0000');
+}
+
+// Saturation/value dragger.
+.sp-dragger {
+   background: #000;
+   border: 1px solid #fff;
+   .border-radius(5px);
+   cursor: pointer;
+   height: 5px;
+   left: 0;
+   position: absolute;
+   top: 0;
+   width: 5px;
+}
+
+// Hue slider.
+.sp-slider {
+    cursor: pointer;
+    height: 3px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &:before {
+        color: black;
+        content: '\f0da';
+        display: inline-block;
+        font-family: 'FontAwesome';
+        -webkit-font-smoothing: antialiased;
+        font-size: @fontSize-icon;
+        font-weight: normal;
+        padding-right: 0.25em;
+        text-align: center;
+        width: 1em;
+
+        left: -10px;
+        position: absolute;
+        top: -8px;
+    }
+}
+
+// Replaces input.
+.sp-replacer {
+    .input;
+
+    cursor: pointer;
+    overflow: hidden;
+
+    &.sp-active {
+        .border-bottom-left-radius(0);
+        .border-bottom-right-radius(0);
+        border-color: @color-link-lighter;
+        .box-shadow(0 0 4px @color-link-lighter);
+    }
+}
+
+// Replacer preview.
+.sp-preview {
+    border: 1px solid @color-note;
+    float: left;
+    height: 18px;
+    width: 28px;
+
+    .sp-preview-inner {
+        height: 100%;
+        width: 100%;
+    }
+}
+
+// Replacer drop-down caret.
+.sp-dd {
+    .icon;
+    .icon-caret-down;
+    .icon-only;
+
+    float: left;
+    height: 20px;
+    line-height: 20px;
+    margin-left: 2px;
+    width: 12px;
+}
+
+// Color hex input.
+.sp-input-container {
+    margin-bottom: 5px;
+}
+
+.sp-input {
+    width: 100%;
+}
+
+// Actions.
+.sp-choose {
+    .icon;
+    .icon-ok;
+
+    float: left;
+}
+
+.sp-cancel {
+    .icon;
+    .icon-remove;
+
+    color: @color-alert;
+    float: right;
+    line-height: 26px;
+}
+
+// Misc.
+.sp-container,
+.sp-replacer,
+.sp-preview,
+.sp-dragger,
+.sp-slider,
+.sp-container.sp-dragging .sp-input,
+.sp-container button {
+    .user-select(none);
+}
+
+.sp-container.sp-input-disabled .sp-input-container,
+.sp-container.sp-buttons-disabled .sp-button-container {
+    display: none;
+}
+
+.sp-hidden {
+    display: none !important;
+}

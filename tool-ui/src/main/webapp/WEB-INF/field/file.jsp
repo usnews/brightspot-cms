@@ -7,6 +7,7 @@ com.psddev.cms.db.ResizeOption,
 com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
@@ -504,6 +505,9 @@ String existingClass = wp.createId();
                         <div class="imageEditor-tools">
                             <h2>Tools</h2>
                             <ul>
+                                <% if (state.as(ColorDistribution.Data.class).getDistribution() != null) { %>
+                                    <li><a class="icon icon-tint" href="<%= wp.h(wp.cmsUrl("/contentColors", "id", state.getId())) %>" target="contentColors">Colors</a></li>
+                                <% } %>
                                 <li><a class="action-preview" href="<%= wp.h(fieldValue.getPublicUrl()) %>" target="_blank">View Original</a></li>
                             </ul>
                         </div>

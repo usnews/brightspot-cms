@@ -56,6 +56,15 @@ $doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.workflow('live', '.workflow');
 
+$doc.onCreate(':text.color', function() {
+    $(this).spectrum({
+        'cancelText': 'Cancel',
+        'chooseText': 'OK',
+        'preferredFormat': 'hex6',
+        'showInput': true
+    });
+});
+
 // Remove placeholder text over search input when there's text.
 $doc.onCreate('.searchInput', function() {
     var $container = $(this),

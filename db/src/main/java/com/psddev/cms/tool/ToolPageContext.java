@@ -1089,6 +1089,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/jquery.pagethumbnails.js",
                             "/script/jquery.repeatable.js",
                             "/script/jquery.sortable.js",
+                            "/script/jquery.spectrum.js",
                             "/script/jquery.taxonomy.js",
                             "/script/jquery.toggleable.js",
                             "/script/jquery.workflow.js",

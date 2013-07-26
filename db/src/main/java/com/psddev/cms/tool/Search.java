@@ -1,5 +1,6 @@
 package com.psddev.cms.tool;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +31,8 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Sorter;
+import com.psddev.dari.util.HuslColorSpace;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StringUtils;
@@ -43,6 +46,7 @@ public class Search extends Record {
     public static final String MISSING_FILTER_PARAMETER_SUFFIX = ".m";
     public static final String NAME_PARAMETER = "n";
     public static final String OFFSET_PARAMETER = "o";
+    public static final String COLOR_PARAMETER = "c";
     public static final String ONLY_PATHED_PARAMETER = "p";
     public static final String PARENT_PARAMETER = "pt";
     public static final String QUERY_STRING_PARAMETER = "q";
@@ -61,6 +65,7 @@ public class Search extends Record {
     private Set<ObjectType> types;
     private ObjectType selectedType;
     private String queryString;
+    private String color;
     private boolean onlyPathed;
     private String additionalPredicate;
     private UUID parentId;
@@ -126,6 +131,7 @@ public class Search extends Record {
 
         setSelectedType(ObjectType.getInstance(page.param(UUID.class, SELECTED_TYPE_PARAMETER)));
         setQueryString(page.paramOrDefault(String.class, QUERY_STRING_PARAMETER, "").trim());
+        setColor(page.param(String.class, COLOR_PARAMETER));
         setOnlyPathed(page.param(boolean.class, IS_ONLY_PATHED));
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
@@ -173,6 +179,14 @@ public class Search extends Record {
 
     public void setQueryString(String queryString) {
         this.queryString = queryString;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public boolean isOnlyPathed() {
@@ -560,6 +574,37 @@ public class Search extends Record {
         }
 
         query.and("_type != ?", ObjectType.getInstance(Draft.class));
+
+        String color = getColor();
+
+        if (color != null && color.startsWith("#")) {
+            int[] husl = HuslColorSpace.Static.toHUSL(new Color(Integer.parseInt(color.substring(1), 16)));
+            int normalized0 = husl[0];
+            int normalized1 = husl[1];
+            int normalized2 = husl[2];
+
+            if (normalized1 < 30 || normalized2 < 15 || normalized2 > 85) {
+                normalized0 = 0;
+                normalized1 = 0;
+            }
+
+            int[] normalized = new int[] {
+                    (((int) Math.round(normalized0 / 24.0)) * 24) % 360,
+                    ((int) Math.round(normalized1 / 20.0)) * 20,
+                    ((int) Math.round(normalized2 / 20.0)) * 20 };
+
+            String fieldName =
+                    "color.distribution/n_" + normalized[0] +
+                    "_" + normalized[1] +
+                    "_" + normalized[2];
+
+            query.and(fieldName + " > 0");
+            query.sortDescending(fieldName);
+
+            List<Sorter> sorters = query.getSorters();
+
+            sorters.add(0, sorters.get(sorters.size() - 1));
+        }
 
         return query;
     }

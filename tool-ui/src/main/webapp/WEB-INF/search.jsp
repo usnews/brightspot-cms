@@ -8,6 +8,7 @@ com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.ColorImage,
 com.psddev.dari.db.Database,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
@@ -206,6 +207,14 @@ writer.start("div", "class", "searchForm");
                     writer.end();
 
                 } else {
+                    if (selectedType.getGroups().contains(ColorImage.class.getName())) {
+                        writer.writeTag("input",
+                                "type", "text",
+                                "class", "color",
+                                "name", Search.COLOR_PARAMETER,
+                                "value", search.getColor());
+                    }
+
                     writer.start("div", "class", "searchFiltersLocal");
                         if (!fieldFilters.isEmpty()) {
                             writer.start("div", "class", "searchMissing");
