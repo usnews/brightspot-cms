@@ -1,6 +1,7 @@
 package com.psddev.cms.db;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Map;
 
@@ -10,10 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.TypeReference;
 
 /**
@@ -66,6 +69,27 @@ public class ExternalContent extends Content implements Renderer {
                 !ObjectUtils.equals(url, response.get("_url")) ||
                 !ObjectUtils.equals(width, response.get("_maximumWidth")) ||
                 !ObjectUtils.equals(height, response.get("_maximumHeight")))) {
+
+            for (Class<? extends ExternalContentProvider> providerClass : ClassFinder.Static.findClasses(ExternalContentProvider.class)) {
+                if (providerClass.isInterface() ||
+                        Modifier.isAbstract(providerClass.getModifiers())) {
+                    continue;
+                }
+
+                ExternalContentProvider provider = TypeDefinition.getInstance(providerClass).newInstance();
+                Map<String, Object> newResponse = provider.createResponse(this);
+
+                if (newResponse != null) {
+                    newResponse.put("_url", url);
+                    newResponse.put("_maximumWidth", width);
+                    newResponse.put("_maximumHeight", height);
+
+                    response = newResponse;
+
+                    return response;
+                }
+            }
+
             try {
                 for (Element link : Jsoup.connect(url).get().select("link[rel=alternate][type=application/json+oembed]")) {
                     String oEmbedUrl = link.attr("href");
