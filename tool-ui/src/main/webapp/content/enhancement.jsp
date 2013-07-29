@@ -75,7 +75,8 @@ if (object == null) {
             $source.attr('href', href);
             $source.rte('enhancement', {
                 'id': '<%= state.getId() %>',
-                'label': '<%= wp.js(state.getLabel()) %>'
+                'label': '<%= wp.js(state.getLabel()) %>',
+                'preview': '<%= wp.js(state.getPreview() != null ? state.getPreview().getPublicUrl() : null) %>'
             });
         })(jQuery);
     </script>
