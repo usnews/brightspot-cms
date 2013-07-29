@@ -184,11 +184,17 @@ $.plugin2('pageThumbnails', {
                     resizeFrame();
 
                     if (leftLarger) {
-                        previewLeft = anchorOffset.left -
-                                $.css($anchor[0], 'padding-left', true) -
-                                $.css($anchor[0], 'border-left-width', true) -
-                                $.css($anchor[0], 'margin-left', true) -
-                                $preview.outerWidth(true);
+                        if ($anchor[0] === $container[0] || $anchor.prev().length === 0) {
+                            previewLeft = anchorOffset.left -
+                                    $.css($anchor[0], 'padding-left', true) -
+                                    $.css($anchor[0], 'border-left-width', true) -
+                                    $.css($anchor[0], 'margin-left', true);
+
+                        } else {
+                            previewLeft = anchorOffset.left - $toggle.outerWidth(true);
+                        }
+
+                        previewLeft -= $preview.outerWidth(true);
 
                     } else {
                         previewLeft = anchorOffset.left + anchorWidth;
