@@ -1111,6 +1111,10 @@ public class ToolPageContext extends WebPageContext {
                             "/script/nv.d3.js",
                             "/script/jquery.handsontable.full.js",
                             "/script/jquery.spreadsheet.js",
+                            "/script/leaflet.js",
+                            "/script/leaflet.common.js",
+                            "/script/l.control.geosearch.js",
+                            "/script/l.geosearch.provider.openstreetmap.js",
                             "/script/cms.js" }) {
                         writeStart("script", "type", "text/javascript", "src", cmsResource(src));
                         writeEnd();
