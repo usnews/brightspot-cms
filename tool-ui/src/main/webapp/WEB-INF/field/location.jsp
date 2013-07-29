@@ -16,6 +16,8 @@ State state = State.getInstance(request.getAttribute("object"));
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
 Object fieldValue = state.getValue(fieldName);
+
+String zoomStateName = fieldName + ".zoom";
 String inputName = ((String) request.getAttribute("inputName")) + "/";
 String xInputName = inputName + "x";
 String yInputName = inputName + "y";
@@ -28,22 +30,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     state.putValue(fieldName, fieldValue);
 
     Integer zoomLevel = wp.intParam(zoomLevelName, null);
-    state.put("location.zoom", zoomLevel);
+    state.put(zoomStateName, zoomLevel);
 
     return;
 }
 
-Integer zoomLevel = ObjectUtils.to(Integer.class, state.get("location.zoom"));
+Integer zoomLevel = ObjectUtils.to(Integer.class, state.get(zoomStateName));
 
-if (fieldValue == null) {
-    Location location = new Location(39.8282, -98.5795);
-    zoomLevel = 4;
-
-    pageContext.setAttribute("location", location);
-} else {
-    pageContext.setAttribute("location", fieldValue);
-}
-
+pageContext.setAttribute("location", fieldValue);
 pageContext.setAttribute("xInputName", xInputName);
 pageContext.setAttribute("yInputName", yInputName);
 pageContext.setAttribute("zoomLevelName", zoomLevelName);
@@ -53,7 +47,7 @@ pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
 %>
 
 <style>
-    #map { 
+    .location-map { 
         left: 7px;
         width: 700px;
         height: 500px;
@@ -98,55 +92,9 @@ pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
     L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
 </script>
 
-<div id='map'></div>
+<div class='location-map'>
+    <input class="location-map-lat" type="hidden" name="${xInputName}" value="${location.x}"/>
+    <input class="location-map-long" type="hidden" name="${yInputName}" value="${location.y}"/>
+    <input class="location-map-zoom" type="hidden" name="${zoomLevelName}" value="${zoomLevel}"/>
+</div>
 
-<input id="x-input" type="hidden" name="${xInputName}" value="${location.x}"/>
-<input id="y-input" type="hidden" name="${yInputName}" value="${location.y}"/>
-<input id="zoomLevel" type="hidden" name="${zoomLevelName}" value="${zoomLevel}"/>
-
-<script type='text/javascript'>
-var map = L.map('map');
-
-new L.TileLayer.MapQuestOpenOSM().addTo(map);
-map.setView([${location.x}, ${location.y}], ${zoomLevel});
-
-var marker = L.marker(
-    [${location.x}, ${location.y}],
-    { draggable: true }
-).addTo(map);
-
-function updateLatLng(marker) {
-    var latlong = marker.getLatLng();
-    $('#x-input').val(latlong.lat);
-    $('#y-input').val(latlong.lng);
-    $('#zoomLevel').val(map.getZoom());
-}
-
-marker.on('dragend', function(e) {
-    updateLatLng(e.target);
-});
-
-map.on('zoomend', function(e) {
-    $('#zoomLevel').val(map.getZoom());
-});
-
-new L.Control.GeoSearch({
-    zoomLevel: 16,
-    provider: new L.GeoSearch.Provider.OpenStreetMap(),
-    success: function(m) {
-        if (marker !== null && m !== marker) {
-            map.removeLayer(marker);
-        }
-
-        marker = m;
-        marker.dragging.enable();
-
-        marker.on('dragend', function(e) {
-            updateLatLng(e.target);
-        });
-
-        updateLatLng(marker);
-    }
-}).addTo(map);
-
-</script>

@@ -55,6 +55,7 @@ $doc.spreadsheet('live', '.spreadsheet');
 $doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.workflow('live', '.workflow');
+$doc.locationMap('live', '.location-map');
 
 $doc.onCreate(':text.color', function() {
     $(this).spectrum({

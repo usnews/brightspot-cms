@@ -82,8 +82,6 @@ L.Control.GeoSearch = L.Control.extend({
         try {
             var provider = this._config.provider;
 
-            console.log(provider);
-
             if(typeof provider.GetLocations == 'function') {
                 var results = provider.GetLocations(qry, function(results) {
                     this._showLocation(results[0].X, results[0].Y, results[0].Zoom);
@@ -95,13 +93,11 @@ L.Control.GeoSearch = L.Control.extend({
                 $.getJSON(url, function (data) {
                     try {
                         var result = provider.ParseJSON(data);
-                        console.log(result);
                         if (result === null)
                             throw this._config.notFoundMessage;
 
                         this._showLocation(result.X, result.Y, result.Zoom);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         this._printError(error);
                     }
                 }.bind(this));
@@ -133,19 +129,15 @@ L.Control.GeoSearch = L.Control.extend({
                     function () { $(this).html(''); });
     },
 
-    _onClick: function(e) {
-        this.geosearch($('#leaflet-control-geosearch-qry').val());
-    },
-    
     _onKeyUp: function (e) {
         var escapeKey = 27;
         var enterKey = 13;
 
         if (e.keyCode === escapeKey) {
-            $('#leaflet-control-geosearch-qry').val('');
+            $(e.target).val('');
             $(this._map._container).focus();
         } else if (e.keyCode === enterKey) {
-            this.geosearch($('#leaflet-control-geosearch-qry').val());
+            this.geosearch($(e.target).val());
             e.preventDefault();
         }
     }

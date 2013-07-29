@@ -25,7 +25,7 @@ L.GeoSearch.Provider.OpenStreetMap = L.Class.extend({
 
     ParseJSON: function (data) {
         if (data.length == 0) {
-            return [];
+            return null;
         }
 
         // - If single result, use it.
