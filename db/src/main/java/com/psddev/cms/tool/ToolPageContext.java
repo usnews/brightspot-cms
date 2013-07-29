@@ -1966,7 +1966,12 @@ public class ToolPageContext extends WebPageContext {
                     draft.delete();
                 }
 
-                contentData.setDraft(false);
+                if (contentData.isDraft()) {
+                    contentData.setDraft(false);
+                    contentData.setPublishDate(null);
+                    contentData.setPublishUser(null);
+                }
+
                 publish(object);
                 state.commitWrites();
                 redirect("",
