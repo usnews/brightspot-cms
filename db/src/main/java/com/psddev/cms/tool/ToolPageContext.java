@@ -1093,7 +1093,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/jquery.taxonomy.js",
                             "/script/jquery.toggleable.js",
                             "/script/jquery.workflow.js",
-                            "/script/jquery.locationMap.js",
+                            "/script/jquery.locationmap.js",
                             "/script/diff.js",
                             "/script/json2.js",
                             "/script/pixastic/pixastic.core.js",
