@@ -18,10 +18,14 @@ $.plugin2('locationMap', {
         var lat = $(latInput).val();
         var lng = $(longInput).val();
         var zoom = $(zoomInput).val();
+        var showMarker = true;
 
-        if (lat === null || lng === null) {
+        if ((lat === null || lat.length === 0) || 
+            (lng === null || lng.length === 0)) {
             lat = 39.8282;
             lng = -98.5795;
+            zoom = 4;
+            showMarker = false;
         }
 
         map.setView([lat, lng], zoom);
@@ -31,10 +35,12 @@ $.plugin2('locationMap', {
         });
 
         var marker = null;
-        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-        marker.on('dragend', function(e) {
-            plugin.updateLatLng(e.target, map, latInput, longInput, zoomInput);
-        });
+        if (showMarker) {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            marker.on('dragend', function(e) {
+                plugin.updateLatLng(e.target, map, latInput, longInput, zoomInput);
+            });
+        }
 
         new L.Control.GeoSearch({
             zoomLevel: 16,

@@ -52,22 +52,21 @@ L.Control.GeoSearch = L.Control.extend({
         this._container = L.DomUtil.create('div', 'leaflet-control-geosearch');
 
         var searchbox = document.createElement('input');
-        searchbox.id = 'leaflet-control-geosearch-qry';
+        searchbox.className = 'leaflet-control-geosearch-searchbox';
         searchbox.type = 'text';
         searchbox.placeholder = this._config.searchLabel;
         this._searchbox = searchbox;
 
         var msgbox = document.createElement('div');
-        msgbox.id = 'leaflet-control-geosearch-msg';
         msgbox.className = 'leaflet-control-geosearch-msg';
         this._msgbox = msgbox;
 
         var resultslist = document.createElement('ul');
-        resultslist.id = 'leaflet-control-geosearch-results';
+        resultslist.style.display = 'none';
         this._resultslist = resultslist;
 
         $(this._msgbox).append(this._resultslist);
-        $(this._container).append(this._searchbox, this._button, this._msgbox);
+        $(this._container).append(this._searchbox, this._msgbox);
 
         L.DomEvent.
             addListener(this._container, 'click', L.DomEvent.stop).
@@ -123,10 +122,10 @@ L.Control.GeoSearch = L.Control.extend({
     },
 
     _printError: function(message) {
-        $(this._resultslist)
-            .html('<li>'+message+'</li>')
-            .fadeIn('slow').delay(this._config.messageHideDelay).fadeOut('slow',
-                    function () { $(this).html(''); });
+        $(this._resultslist).
+            html('<li>' + message + '</li>').
+            fadeIn('slow').delay(this._config.messageHideDelay).
+            fadeOut('slow', function () { $(this).html(''); });
     },
 
     _onKeyUp: function (e) {

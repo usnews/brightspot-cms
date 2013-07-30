@@ -66,7 +66,22 @@ pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
         background: none;
     }
 
-    #leaflet-control-geosearch-qry {
+    .leaflet-control-geosearch ul {
+        list-style: none;
+        margin: 0;
+        margin-top: 10px;
+        width: 99%;
+        color: #b94a48;
+        background: #f2dede;
+        border: 1px solid #eed3d7;
+        font-weight: bold;
+    }
+
+    .leaflet-control-geosearch ul li {
+        padding: 5px;
+    }
+
+    .leaflet-control-geosearch-searchbox {
         width: 100%;
         border-radius: 3px;
         display: block;
