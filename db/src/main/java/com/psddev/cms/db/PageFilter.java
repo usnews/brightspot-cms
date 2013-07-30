@@ -531,28 +531,10 @@ public class PageFilter extends AbstractFilter {
             }
 
             boolean embed = ObjectUtils.to(boolean.class, request.getParameter("_embed"));
-            String layoutPath = null;
-
-            if (mainType != null) {
-                Renderer.TypeModification rendererData = mainType.as(Renderer.TypeModification.class);
-                layoutPath = embed ? rendererData.getEmbedPath() : rendererData.getLayoutPath();
-
-                if (!embed && ObjectUtils.isBlank(layoutPath)) {
-                    layoutPath = rendererData.getLayoutPath();
-                }
-            }
+            String layoutPath = findLayoutPath(mainObject, embed);
 
             if (page != null && ObjectUtils.isBlank(layoutPath)) {
-                ObjectType pageType = page.getState().getType();
-
-                if (pageType != null) {
-                    Renderer.TypeModification rendererData = pageType.as(Renderer.TypeModification.class);
-                    layoutPath = embed ? rendererData.getEmbedPath() : rendererData.getLayoutPath();
-
-                    if (!embed && ObjectUtils.isBlank(layoutPath)) {
-                        layoutPath = rendererData.getLayoutPath();
-                    }
-                }
+                layoutPath = findLayoutPath(page, embed);
 
                 if (ObjectUtils.isBlank(layoutPath)) {
                     layoutPath = page.getRendererPath();
@@ -668,6 +650,28 @@ public class PageFilter extends AbstractFilter {
                 htmlWriter.writeEnd();
             htmlWriter.writeEnd();
         }
+    }
+
+    private String findLayoutPath(Object object, boolean embed) {
+        String layoutPath = null;
+        ObjectType type = State.getInstance(object).getType();
+
+        if (type != null) {
+            Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
+
+            if (embed) {
+                layoutPath = rendererData.getEmbedPath();
+
+                if (ObjectUtils.isBlank(layoutPath)) {
+                    layoutPath = rendererData.getLayoutPath();
+                }
+
+            } else {
+                layoutPath = rendererData.getLayoutPath();
+            }
+        }
+
+        return layoutPath;
     }
 
     /** Renders the beginning of the given {@code page}. */
