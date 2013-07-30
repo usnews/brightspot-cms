@@ -115,6 +115,7 @@
                             <output>${project.build.directory}/${project.build.finalName}/script/all.min.js</output>
                             <includes>
                                 <include>jquery-1.8.3.js</include>
+                                <include>jquery.mousewheel.js</include>
                                 <include>jquery.extra.js</include>
                                 <include>jquery.autosubmit.js</include>
                                 <include>jquery.calendar.js</include>
@@ -129,6 +130,7 @@
                                 <include>jquery.pagethumbnails.js</include>
                                 <include>jquery.repeatable.js</include>
                                 <include>jquery.sortable.js</include>
+                                <include>jquery.spectrum.js</include>
                                 <include>jquery.taxonomy.js</include>
                                 <include>jquery.toggleable.js</include>
                                 <include>jquery.workflow.js</include>
@@ -150,6 +152,10 @@
                                 <include>nv.d3.js</include>
                                 <include>jquery.handsontable.full.js</include>
                                 <include>jquery.spreadsheet.js</include>
+                                <include>leaflet-0.6.4.js</include>
+                                <include>leaflet.common.js</include>
+                                <include>l.control.geosearch.js</include>
+                                <include>l.geosearch.provider.openstreetmap.js</include>
                                 <include>cms.js</include>
                             </includes>
                         </aggregation>
