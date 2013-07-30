@@ -46,63 +46,6 @@ pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
 // --- Presentation ---
 %>
 
-<style>
-    .location-map { 
-        left: 7px;
-        width: 700px;
-        height: 500px;
-    }
-
-    div[data-field=location] {
-        min-height: 500px;
-    }
-
-    .leaflet-control-geosearch, .leaflet-control-geosearch ul {
-        padding: 0px;
-        margin: 10px auto;
-        width: 50%;
-        border-radius: 3px;
-        border: none;
-        background: none;
-    }
-
-    .leaflet-control-geosearch ul {
-        list-style: none;
-        margin: 0;
-        margin-top: 10px;
-        width: 99%;
-        color: #b94a48;
-        background: #f2dede;
-        border: 1px solid #eed3d7;
-        font-weight: bold;
-    }
-
-    .leaflet-control-geosearch ul li {
-        padding: 5px;
-    }
-
-    .leaflet-control-geosearch-searchbox {
-        width: 100%;
-        border-radius: 3px;
-        display: block;
-        box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-        border: none;
-        padding: 5px;
-    }
-
-    .leaflet-center {
-        width: 100%;
-    }
-
-    .leaflet-top, .leaflet-bottom {
-        z-index: 0;
-    }
-
-    .leaflet-control-geosearch {
-        margin: 0 50px;
-        z-index: -1;
-    }
-</style>
 <script type="text/javascript">
     L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
 </script>
