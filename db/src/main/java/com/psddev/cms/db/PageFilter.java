@@ -478,6 +478,15 @@ public class PageFilter extends AbstractFilter {
             stage.setMetaName("robots", seoRobots);
             stage.setMetaName("keywords", seoKeywordsString);
             stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
+
+            stage.findOrCreateHeadElement("link",
+                    "rel", "alternate",
+                    "type", "application/json+oembed").
+                    getAttributes().
+                    put("href", JspUtils.getAbsoluteUrl(request, "",
+                            "_embed", true,
+                            "_format", "oembed"));
+
             stage.update(mainObject);
 
             // Try to set the right content type based on the extension.
@@ -521,13 +530,28 @@ public class PageFilter extends AbstractFilter {
                 request.getSession();
             }
 
-            String layoutPath = mainType != null ? mainType.as(Renderer.TypeModification.class).getLayoutPath() : null;
+            boolean embed = ObjectUtils.to(boolean.class, request.getParameter("_embed"));
+            String layoutPath = null;
+
+            if (mainType != null) {
+                Renderer.TypeModification rendererData = mainType.as(Renderer.TypeModification.class);
+                layoutPath = embed ? rendererData.getEmbedPath() : rendererData.getLayoutPath();
+
+                if (!embed && ObjectUtils.isBlank(layoutPath)) {
+                    layoutPath = rendererData.getLayoutPath();
+                }
+            }
 
             if (page != null && ObjectUtils.isBlank(layoutPath)) {
                 ObjectType pageType = page.getState().getType();
 
                 if (pageType != null) {
-                    layoutPath = pageType.as(Renderer.TypeModification.class).getLayoutPath();
+                    Renderer.TypeModification rendererData = pageType.as(Renderer.TypeModification.class);
+                    layoutPath = embed ? rendererData.getEmbedPath() : rendererData.getLayoutPath();
+
+                    if (!embed && ObjectUtils.isBlank(layoutPath)) {
+                        layoutPath = rendererData.getLayoutPath();
+                    }
                 }
 
                 if (ObjectUtils.isBlank(layoutPath)) {
