@@ -65,6 +65,7 @@ public interface Renderer extends Recordable {
 
         private Map<String, String> paths;
         private String layoutPath;
+        private String embedPath;
 
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
@@ -142,6 +143,14 @@ public interface Renderer extends Recordable {
          */
         public void setLayoutPath(String layoutPath) {
             this.layoutPath = layoutPath;
+        }
+
+        public String getEmbedPath() {
+            return embedPath;
+        }
+
+        public void setEmbedPath(String embedPath) {
+            this.embedPath = embedPath;
         }
 
         /**
@@ -269,6 +278,19 @@ public interface Renderer extends Recordable {
         String value();
     }
 
+    /**
+     * Specifies the servlet path used to render instances of the target type
+     * when embedded in another page.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(EmbedPathProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface EmbedPath {
+        String value();
+    }
+
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     public @interface ListLayout {
@@ -343,6 +365,13 @@ class LayoutPathProcessor implements ObjectType.AnnotationProcessor<Renderer.Lay
     @Override
     public void process(ObjectType type, Renderer.LayoutPath annotation) {
         type.as(Renderer.TypeModification.class).setLayoutPath(annotation.value());
+    }
+}
+
+class EmbedPathProcessor implements ObjectType.AnnotationProcessor<Renderer.EmbedPath> {
+    @Override
+    public void process(ObjectType type, Renderer.EmbedPath annotation) {
+        type.as(Renderer.TypeModification.class).setEmbedPath(annotation.value());
     }
 }
 

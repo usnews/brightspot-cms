@@ -76,6 +76,7 @@
 
                 <configuration>
                     <compress>true</compress>
+                    <lessJs>${project.basedir}/src/main/webapp/script/less-1.4.1.js</lessJs>
 
                     <sourceDirectory>${project.basedir}/src/main/webapp/style/</sourceDirectory>
                     <outputDirectory>${project.build.directory}/${project.build.finalName}/style/</outputDirectory>

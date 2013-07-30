@@ -46,7 +46,7 @@ Brightspot CMS (Dari) can also be run on Glassfish.
 
 **Tomcat Solr Install**
 
-[Download](http://www.apache.org/dyn/closer.cgi/lucene/solr) Solr 3.6.2 and unzip to a directory now referred to as $SOLR_DIST.
+[Download](http://archive.apache.org/dist/lucene/solr/) Solr 3.6.2 and unzip to a directory now referred to as $SOLR_DIST.
 
 Copy solr.war into the Tomcat webapps directory:
 

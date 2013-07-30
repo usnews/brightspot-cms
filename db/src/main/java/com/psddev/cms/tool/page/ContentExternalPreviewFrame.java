@@ -24,13 +24,21 @@ public class ContentExternalPreviewFrame extends PageServlet {
 
         content.setUrl(page.param(String.class, "url"));
 
-        if (content.getResponse() == null) {
-            page.writeStart("div", "class", "message message-error");
-                page.writeHtml("Preview not available!");
+        page.writeTag("!doctype html");
+        page.writeStart("html");
+            page.writeStart("head");
             page.writeEnd();
 
-        } else {
-            content.renderObject(page.getRequest(), page.getResponse(), page);
-        }
+            page.writeStart("body");
+                if (content.getResponse() == null) {
+                    page.writeStart("div", "class", "message message-error");
+                        page.writeHtml("Preview not available!");
+                    page.writeEnd();
+
+                } else {
+                    content.renderObject(page.getRequest(), page.getResponse(), page);
+                }
+            page.writeEnd();
+        page.writeEnd();
     }
 }
