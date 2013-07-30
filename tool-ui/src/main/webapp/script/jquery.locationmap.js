@@ -11,16 +11,16 @@ $.plugin2('locationMap', {
         var map = L.map(locationMap);
         new L.TileLayer.MapQuestOpenOSM().addTo(map);
 
-        var latInput = $(locationMap).find(".location-map-lat");
-        var longInput = $(locationMap).find(".location-map-long");
-        var zoomInput = $(locationMap).find(".location-map-zoom");
+        var latInput = $(locationMap).find(".locationMapLatitude");
+        var longInput = $(locationMap).find(".locationMapLongitude");
+        var zoomInput = $(locationMap).find(".locationMapZoom");
 
         var lat = $(latInput).val();
         var lng = $(longInput).val();
         var zoom = $(zoomInput).val();
         var showMarker = true;
 
-        if ((lat === null || lat.length === 0) || 
+        if ((lat === null || lat.length === 0) ||
             (lng === null || lng.length === 0)) {
             lat = 39.8282;
             lng = -98.5795;
@@ -60,7 +60,7 @@ $.plugin2('locationMap', {
                 plugin.updateLatLng(marker, map, latInput, longInput, zoomInput);
             }
         }).addTo(map);
-         
+
     },
 
     'updateLatLng' : function(marker, map, latInput, longInput, zoomInput) {
