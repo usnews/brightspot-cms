@@ -5,9 +5,15 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Renderer;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Application;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
@@ -64,6 +70,37 @@ public class ContentTools extends PageServlet {
                         page.writeEnd();
                     }
                 page.writeEnd();
+
+                if (object != null) {
+                    State state = State.getInstance(object);
+                    ObjectType type = state.getType();
+
+                    if (type != null &&
+                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getEmbedPath())) {
+                        String permalink = State.getInstance(object).as(Directory.ObjectModification.class).getPermalink();
+
+                        if (!ObjectUtils.isBlank(permalink)) {
+                            String siteUrl = Application.Static.getInstance(CmsTool.class).getDefaultSiteUrl();
+                            StringBuilder embedCode = new StringBuilder();
+
+                            embedCode.append("<script type=\"text/javascript\" src=\"");
+                            embedCode.append(StringUtils.addQueryParameters(
+                                    StringUtils.removeEnd(siteUrl, "/") + permalink,
+                                    "_embed", true,
+                                    "_format", "js"));
+                            embedCode.append("\"></script>");
+
+                            page.writeHtml("Embed Code:");
+                            page.writeTag("br");
+                            page.writeStart("textarea",
+                                    "class", "code",
+                                    "readonly", "readonly",
+                                    "onclick", "this.select();");
+                                page.writeHtml(embedCode);
+                            page.writeEnd();
+                        }
+                    }
+                }
             page.writeEnd();
         page.writeFooter();
     }

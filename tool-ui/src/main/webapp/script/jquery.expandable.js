@@ -95,7 +95,7 @@ $.plugin2('expandable', {
             'width': bounds.width,
             'height': bounds.height,
             '$element': $('<div/>', {
-                'class': options.shadowClass,
+                'class': options.shadowClass + ' ' + $input.attr('class'),
                 'css': {
                     'display': display,
                     'border-width': boxSizing === 'border-box' ? '' : 0,
