@@ -54,7 +54,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             this.sortField = selectedType.getField(search.getSort());
-            this.showTypeLabel = false;
+            this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
                 List<ObjectType> types = new ArrayList<ObjectType>();
