@@ -284,6 +284,22 @@ body.rte-fullscreen {
         max-height: 100%;
         max-width: 100%;
     }
+
+    &.state-removing {
+        background-color: @color-alert-lighter;
+        border-color: @color-alert;
+
+        .rte-button-remove {
+            .icon-undo;
+
+            color: @color-link;
+        }
+
+        .rte-enhancement-label {
+            color: @color-alert-darker;
+            text-decoration: line-through;
+        }
+    }
 }
 
 .rte-enhancement-label {

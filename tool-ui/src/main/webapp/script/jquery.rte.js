@@ -310,11 +310,13 @@ var Rte = wysihtml5.Editor.extend({
         // Handle toolbar action clicks.
         $(overlay).delegate('[data-action]', 'click', function() {
             var $button = $(this);
-            var $placeholder = $button.closest('.rte-enhancement').data('$rte-placeholder');
+            var $enhancement = $button.closest('.rte-enhancement');
+            var $placeholder = $enhancement.data('$rte-placeholder');
             var action = $button.attr('data-action');
 
             if (action == 'remove') {
-                $placeholder.remove();
+                $enhancement.toggleClass('state-removing');
+                $placeholder.toggleClass('state-removing');
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
