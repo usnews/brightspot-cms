@@ -94,6 +94,7 @@ public class ContentTools extends PageServlet {
                             page.writeTag("br");
                             page.writeStart("textarea",
                                     "class", "code",
+                                    "data-expandable-class", "code",
                                     "readonly", "readonly",
                                     "onclick", "this.select();");
                                 page.writeHtml(embedCode);
