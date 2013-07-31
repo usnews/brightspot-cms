@@ -1108,7 +1108,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/html5slider.js",
                             "/script/wysihtml5-0.3.0.js",
                             "/script/jquery.rte.js",
-                            "/script/d3.v2.js",
+                            "/script/d3.v3.js",
                             "/script/nv.d3.js",
                             "/script/jquery.handsontable.full.js",
                             "/script/jquery.spreadsheet.js",
