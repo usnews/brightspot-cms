@@ -95,7 +95,7 @@
  */
 
 
-svg {
+svg.chart {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -109,11 +109,11 @@ svg {
 }
 
 
-svg text {
+svg.chart text {
   font: normal 12px Arial;
 }
 
-svg .title {
+svg.chart .title {
  font: bold 14px Arial;
 }
 
