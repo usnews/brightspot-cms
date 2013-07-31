@@ -98,8 +98,6 @@ public class CreateNew extends PageServlet {
         String widgetId = page.createId();
 
         page.writeStart("style", "type", "text/css");
-            page.writeCss("#" + widgetId, "position", "relative");
-            page.writeCss("#" + widgetId + " .action-customize", "position", "absolute", "right", "32px", "top", "6px");
             page.writeCss("#" + widgetId + " .checkboxContainer", "text-align", "center"); 
         page.writeEnd();
 
@@ -153,10 +151,12 @@ public class CreateNew extends PageServlet {
                 page.writeEnd();
 
             } else {
-                page.writeStart("a",
-                        "class", "action action-customize",
-                        "href", page.url("", "customize", "true"));
-                    page.writeHtml("Customize");
+                page.writeStart("div", "class", "widgetControls");
+                    page.writeStart("a",
+                            "class", "action action-customize",
+                            "href", page.url("", "customize", "true"));
+                        page.writeHtml("Customize");
+                    page.writeEnd();
                 page.writeEnd();
 
                 page.writeStart("ul", "class", "links pageThumbnails");
