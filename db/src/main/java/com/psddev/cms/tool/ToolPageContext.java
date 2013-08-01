@@ -1981,6 +1981,7 @@ public class ToolPageContext extends WebPageContext {
                 state.commitWrites();
                 redirect("",
                         "_isFrame", param(boolean.class, "_isFrame"),
+                        "typeId", state.getTypeId(),
                         "id", state.getId(),
                         "historyId", null,
                         "copyId", null,
