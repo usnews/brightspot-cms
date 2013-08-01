@@ -1971,7 +1971,7 @@ public class ToolPageContext extends WebPageContext {
                     draft.delete();
                 }
 
-                if (contentData.isDraft()) {
+                if (draft != null || contentData.isDraft()) {
                     contentData.setDraft(false);
                     contentData.setPublishDate(null);
                     contentData.setPublishUser(null);

@@ -329,6 +329,7 @@ var Rte = wysihtml5.Editor.extend({
 
             } else {
                 var oldTop = $placeholder.offset().top;
+                var $parent, $prev, $next;
 
                 if (action === 'moveDown') {
                     $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
