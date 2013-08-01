@@ -273,14 +273,31 @@ var Rte = wysihtml5.Editor.extend({
 
             } else {
                 var oldTop = $placeholder.offset().top;
+                var $parent, $prev, $next;
 
                 if (action === 'moveDown') {
-                    $placeholder.parents().andSelf().filter('body > *').next().after($placeholder);
-                    $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+                    for ($parent = $placeholder; !$parent.is('body'); $parent = $parent.parent()) {
+                        for ($next = $parent; ($next = $next.next()).length > 0; ) {
+                            if ($next.css('display') === 'block') {
+                                $next.after($placeholder);
+                                $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+                                rte.updateOverlay();
+                                return false;
+                            }
+                        }
+                    }
 
                 } else if (action === 'moveUp') {
-                    $placeholder.parents().andSelf().filter('body > *').prev().before($placeholder);
-                    $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+                    for ($parent = $placeholder; !$parent.is('body'); $parent = $parent.parent()) {
+                        for ($prev = $parent; ($prev = $prev.prev()).length > 0; ) {
+                            if ($prev.css('display') === 'block') {
+                                $prev.before($placeholder);
+                                $win.scrollTop($win.scrollTop() + $placeholder.offset().top - oldTop);
+                                rte.updateOverlay();
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
 
