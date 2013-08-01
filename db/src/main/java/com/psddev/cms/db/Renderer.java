@@ -66,6 +66,7 @@ public interface Renderer extends Recordable {
         private Map<String, String> paths;
         private String layoutPath;
         private String embedPath;
+        private int embedPreviewWidth;
 
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
@@ -151,6 +152,14 @@ public interface Renderer extends Recordable {
 
         public void setEmbedPath(String embedPath) {
             this.embedPath = embedPath;
+        }
+
+        public int getEmbedPreviewWidth() {
+            return embedPreviewWidth;
+        }
+
+        public void setEmbedPreviewWidth(int embedPreviewWidth) {
+            this.embedPreviewWidth = embedPreviewWidth;
         }
 
         /**
@@ -291,6 +300,19 @@ public interface Renderer extends Recordable {
         String value();
     }
 
+    /**
+     * Specifies the width (in pixels) of the preview for the instances of
+     * the target type.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(EmbedPreviewWidthProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface EmbedPreviewWidth {
+        int value();
+    }
+
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     public @interface ListLayout {
@@ -372,6 +394,13 @@ class EmbedPathProcessor implements ObjectType.AnnotationProcessor<Renderer.Embe
     @Override
     public void process(ObjectType type, Renderer.EmbedPath annotation) {
         type.as(Renderer.TypeModification.class).setEmbedPath(annotation.value());
+    }
+}
+
+class EmbedPreviewWidthProcessor implements ObjectType.AnnotationProcessor<Renderer.EmbedPreviewWidth> {
+    @Override
+    public void process(ObjectType type, Renderer.EmbedPreviewWidth annotation) {
+        type.as(Renderer.TypeModification.class).setEmbedPreviewWidth(annotation.value());
     }
 }
 

@@ -141,6 +141,7 @@ $.plugin2('pageThumbnails', {
                 showPreview = function() {
                     var resizeFrame,
                             resizeFrameTimeout,
+                            embedWidth,
                             previewLeft;
 
                     if (moveToggle) {
@@ -182,6 +183,14 @@ $.plugin2('pageThumbnails', {
                     };
 
                     resizeFrame();
+
+                    embedWidth = parseInt($hover.attr('data-preview-embed-width'), 10);
+
+                    $preview.toggleClass('pageThumbnailsPreview-embed', !!embedWidth);
+                    $preview.css({
+                        'top': !!embedWidth ? $hover.offset().top - 50 : '',
+                        'width': !!embedWidth ? embedWidth: ''
+                    });
 
                     if (leftLarger) {
                         if ($anchor[0] === $container[0] || $anchor.prev().length === 0) {
