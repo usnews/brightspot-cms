@@ -455,34 +455,28 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
-String allClass = wp.createId();
-String newUploadClass = wp.createId();
-String newUrlClass = wp.createId();
-String dropboxClass = wp.createId();
-String existingClass = wp.createId();
-
 %><div class="inputSmall">
     <div class="fileSelector">
-        <select class="toggleable" id="<%= wp.getId() %>" name="<%= wp.h(actionName) %>">
+        <select class="toggleable" data-root=".inputSmall" id="<%= wp.getId() %>" name="<%= wp.h(actionName) %>">
             <% if (fieldValue != null) { %>
-                <option data-hide=".<%= allClass %>" data-show=".<%= existingClass %>" value="keep">Keep Existing</option>
+                <option data-hide=".fileSelectorItem" data-show=".fileSelectorExisting" value="keep">Keep Existing</option>
             <% } %>
-            <option data-hide=".<%= allClass %>" value="none">None</option>
-            <option data-hide=".<%= allClass %>" data-show=".<%= newUploadClass %>" value="newUpload">New Upload</option>
-            <option data-hide=".<%= allClass %>" data-show=".<%= newUrlClass %>" value="newUrl">New URL</option>
+            <option data-hide=".fileSelectorItem" value="none">None</option>
+            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload">New Upload</option>
+            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUrl" value="newUrl">New URL</option>
             <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
-                <option data-hide=".<%= allClass %>" data-show=".<%= dropboxClass %>" value="dropbox">Dropbox</option>
+                <option data-hide=".fileSelectorItem" data-show=".fileSelectorDropbox" value="dropbox">Dropbox</option>
             <% } %>
         </select>
 
-        <input class="<%= allClass + " " + newUploadClass %>" type="file" name="<%= wp.h(fileName) %>">
-        <input class="<%= allClass + " " + newUrlClass %>" type="text" name="<%= wp.h(urlName) %>">
+        <input class="fileSelectorItem fileSelectorNewUpload" type="file" name="<%= wp.h(fileName) %>">
+        <input class="fileSelectorItem fileSelectorNewUrl" type="text" name="<%= wp.h(urlName) %>">
         <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
-            <span class="<%= allClass + " " + dropboxClass %>" style="display: inline-block; vertical-align: bottom;">
+            <span class="fileSelectorItem fileSelectorDropbox" style="display: inline-block; vertical-align: bottom;">
                 <input type="dropbox-chooser" name="<%= wp.h(dropboxName) %>" data-link-type="direct" style="visibility: hidden;">
             </span>
             <script type="text/javascript">
-                $('.<%= dropboxClass %> input').on('DbxChooserSuccess', function(event) {
+                $('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {
                     $(this).val(JSON.stringify(event.originalEvent.files[0]));
                 });
             </script>
@@ -493,7 +487,7 @@ String existingClass = wp.createId();
     if (fieldValue != null) {
         String contentType = fieldValue.getContentType();
         %>
-        <div class="<%= allClass + " " + existingClass %> filePreview">
+        <div class="fileSelectorItem fileSelectorExisting filePreview">
             <input name="<%= wp.h(storageName) %>" type="hidden" value="<%= wp.h(fieldValue.getStorage()) %>">
             <input name="<%= wp.h(pathName) %>" type="hidden" value="<%= wp.h(fieldValue.getPath()) %>">
             <input name="<%= wp.h(contentTypeName) %>" type="hidden" value="<%= wp.h(contentType) %>">

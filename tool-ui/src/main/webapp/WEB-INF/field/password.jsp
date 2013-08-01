@@ -87,15 +87,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 String isNewInputId = wp.getId();
-String passwordContainerId = wp.createId();
 
 %><div class="inputSmall">
-    <select class="toggleable" id="<%= isNewInputId %>" name="<%= isNewName %>">
-        <option data-hide="#<%= passwordContainerId %>" value="false"<%= wp.boolParam(isNewName) ? "" : " selected" %>>Keep Same</option>
-        <option data-show="#<%= passwordContainerId %>" value="true"<%= wp.boolParam(isNewName) ? " selected" : "" %>>Change</option>
+    <select class="toggleable" data-root=".inputSmall" id="<%= isNewInputId %>" name="<%= isNewName %>">
+        <option data-hide=".passwordChange" value="false"<%= wp.boolParam(isNewName) ? "" : " selected" %>>Keep Same</option>
+        <option data-show=".passwordChange" value="true"<%= wp.boolParam(isNewName) ? " selected" : "" %>>Change</option>
     </select>
 
-    <div id="<%= passwordContainerId %>" style="margin-top: 10px;">
+    <div class="passwordChange" style="margin-top: 10px;">
 
         <% if (!state.isNew()) { %>
             <div>Your Current Password:</div>

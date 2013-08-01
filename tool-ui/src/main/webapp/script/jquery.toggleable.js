@@ -1,28 +1,48 @@
-/** Toggle display of other areas. */
-(function($, win, undef) {
+// Toggle display of other areas.
+(function($, window, undefined) {
 
 $.plugin2('toggleable', {
     '_init': function(selector) {
-        this.$caller.delegate(selector, 'toggle.toggleable change', function() {
-            var $option = $(this).find(':selected'),
-                    hideSelector = $option.attr('data-hide'),
-                    showSelector = $option.attr('data-show'),
-                    $toBeHidden,
-                    $toBeShown;
+        var plugin = this;
 
-            if (hideSelector) {
-                $toBeHidden = $(hideSelector);
-                $toBeHidden.hide();
-                $toBeHidden.find(':input').attr('disabled', 'disabled');
+        plugin.$caller.delegate(selector, 'toggle.toggleable change', function() {
+            var $select = $(this),
+                    rootSelector = $select.attr('data-root'),
+                    $root,
+                    $option = $select.find(':selected');
+
+            if (rootSelector) {
+                $root = $select.closest(rootSelector);
             }
 
-            if (showSelector) {
-                $toBeShown = $(showSelector);
-                $toBeShown.show();
-                $toBeShown.find(':input').removeAttr('disabled');
-                $toBeShown.rte('enable');
+            if (!$root || $root.length === 0) {
+                $root = $(window.document.body);
             }
+
+            plugin._toggle($root, $option.attr('data-hide'), true);
+            plugin._toggle($root, $option.attr('data-show'), false);
         });
+    },
+
+    '_toggle': function($root, selector, disable) {
+        var $matching,
+                $inputs;
+
+        if (selector) {
+            $matching = $root.find(selector);
+            $inputs = $matching.find(':input');
+
+            if ($matching.is(':input')) {
+                $inputs = $inputs.add($matching);
+            }
+
+            $matching.toggle(!disable);
+            $inputs.prop('disabled', disable);
+
+            if (!disable) {
+                $matching.rte('enable');
+            }
+        }
     },
 
     '_create': function(element) {
