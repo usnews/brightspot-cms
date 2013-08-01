@@ -241,9 +241,14 @@ if (!isValueExternal) {
                             Collections.sort(layoutNames);
 
                             writer.start("div", "class", "repeatableLabel");
-                                writer.start("select", "name", layoutsName);
+                                writer.start("select",
+                                        "class", "toggleable",
+                                        "data-root", "li",
+                                        "name", layoutsName);
                                     for (String layoutName : layoutNames) {
                                         writer.start("option",
+                                                "data-hide", ".layout",
+                                                "data-show", "." + layoutName,
                                                 "selected", layoutName.equals(fieldLayoutName) ? "selected" : null,
                                                 "value", layoutName);
                                             writer.html(StringUtils.toLabel(layoutName));
@@ -321,9 +326,14 @@ if (!isValueExternal) {
                     Collections.sort(layoutNames);
 
                     writer.start("div", "class", "repeatableLabel");
-                        writer.start("select", "name", layoutsName);
+                        writer.start("select",
+                                "class", "toggleable",
+                                "data-root", "li",
+                                "name", layoutsName);
                             for (String layoutName : layoutNames) {
                                 writer.start("option",
+                                        "data-hide", ".layout",
+                                        "data-show", "." + layoutName,
                                         "value", layoutName);
                                     writer.html(StringUtils.toLabel(layoutName));
                                 writer.end();
@@ -377,19 +387,6 @@ if (!isValueExternal) {
 
                 writer.end();
             writer.end();
-        writer.end();
-
-        writer.start("script", "type", "text/javascript");
-            writer.write("(function($, win, undef) {");
-                writer.write("var toggleLayouts = function() {");
-                    writer.write("var $li = $(this).closest('li');");
-                    writer.write("$li.find('.layout').hide().find(':input').attr('disabled', 'disabled');");
-                    writer.write("$li.find('.' + $li.find('select').val()).show().find(':input').removeAttr('disabled');");
-                writer.write("};");
-                writer.write("$('#" + containerId + "').find('li').each(toggleLayouts);");
-                writer.write("$('#" + containerId + "').onCreate('li', toggleLayouts);");
-                writer.write("$('#" + containerId + "').delegate('select', 'change', toggleLayouts);");
-            writer.write("})(jQuery, window);");
         writer.end();
 
         return;
