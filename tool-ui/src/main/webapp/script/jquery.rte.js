@@ -1231,13 +1231,17 @@ var Rte = wysihtml5.Editor.extend({
             if (newPreview) {
                 if ($enhancementLabel.find('figure img').attr('src') !== newPreview) {
                     $enhancementLabel.html($('<figure/>', {
-                        'html': $('<img/>', {
-                            'src': newPreview
-                        })
+                        'html': [
+                            $('<img/>', {
+                                'src': newPreview
+                            }),
+                            $('<figcaption/>')
+                        ]
                     }));
                 }
 
                 $enhancementLabel.find('figure img').attr('alt', newLabel);
+                $enhancementLabel.find('figure figcaption').text(newLabel);
 
             } else {
                 if (!newLabel) {
