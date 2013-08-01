@@ -27,17 +27,23 @@ refresh = function($inputs) {
         $edit = shadow.$edit;
         $clear = shadow.$clear;
         preview = $input.attr('data-preview');
+        label = $input.attr('data-label');
         visibility = $input.attr('data-visibility');
         value = $input.val();
 
         if (preview) {
-            $select.html($('<img/>', {
-                'src': preview
+            $select.html($('<figure/>', {
+                'html': [
+                    $('<img/>', {
+                        'src': preview
+                    }),
+                    $('<figcaption>', {
+                        'text': label
+                    })
+                ]
             }));
 
         } else {
-            label = $input.attr('data-label');
-
             if (label) {
                 $select.text(label);
 
