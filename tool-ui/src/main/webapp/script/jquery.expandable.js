@@ -93,7 +93,7 @@ $.plugin2('expandable', {
             'width': bounds.width,
             'height': bounds.height,
             '$element': $('<div/>', {
-                'class': options.shadowClass,
+                'class': options.shadowClass + ' ' + $input.attr('data-expandable-class'),
                 'text': $input.val() + ' foo',
                 'css': {
                     'display': display,

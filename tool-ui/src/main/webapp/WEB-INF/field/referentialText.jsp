@@ -77,7 +77,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 wp.write("<div class=\"inputSmall inputSmall-text\">");
-wp.write("<textarea class=\"richtext\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\">");
+wp.write("<textarea class=\"richtext\" data-expandable-class=\"code\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\">");
 
 if (fieldValue != null) {
     for (Object item : fieldValue) {
