@@ -808,7 +808,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 
 			this._tooltip.updateContent({
 				text: 'Release mouse to finish drawing.',
-				subtext: 'Radius: ' + radius + ' m'
+                                subtext: 'Radius: ' + (radius / 1609.34).toFixed(2) + ' miles'
 			});
 		}
 	}
