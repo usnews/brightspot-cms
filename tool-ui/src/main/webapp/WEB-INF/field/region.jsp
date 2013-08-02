@@ -31,8 +31,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     region = Region.fromGeoJson(wp.param(geoJsonName));
     state.putValue(fieldName, region);
 
-    System.out.println("FIELD: " + fieldName + " " + region);
-
     Integer zoomLevel = wp.intParam(zoomLevelName, null);
     state.put(zoomStateName, zoomLevel);
 
