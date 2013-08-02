@@ -1114,6 +1114,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/jquery.spreadsheet.js",
                             "/script/leaflet-0.6.4.js",
                             "/script/leaflet.common.js",
+                            "/script/leaflet.draw.js",
                             "/script/l.control.geosearch.js",
                             "/script/l.geosearch.provider.openstreetmap.js",
                             "/script/cms.js" }) {
