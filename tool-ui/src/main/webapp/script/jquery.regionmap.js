@@ -5,16 +5,16 @@ var doc = win.document,
         $win = $(win);
 
 $.plugin2('regionMap', {
-    '_create': function(locationMap) {
+    '_create': function(regionMap) {
         var plugin = this;
 
-        var map = L.map(locationMap);
+        var map = L.map(regionMap);
         new L.TileLayer.MapQuestOpenOSM().addTo(map);
 
-        var zoomInput = $(locationMap).find(".regionMapZoom");
-        var geoJsonInput = $(locationMap).find(".regionMapGeoJson");
+        var zoomInput = $(regionMap).find(".regionMapZoom");
+        var centerInput = $(regionMap).find(".regionMapCenter");
+        var geoJsonInput = $(regionMap).find(".regionMapGeoJson");
 
-        var zoom = $(zoomInput).val();
         var geojson = $.parseJSON($(geoJsonInput).val());
 
         var myStyle = {
@@ -28,7 +28,11 @@ $.plugin2('regionMap', {
         var lat = 39.8282;
         var lng = -98.5795;
 
-        map.setView([lat, lng], zoom);
+
+        var zoom = zoomInput.val();
+        var center = $.parseJSON(centerInput.val());
+        
+        map.setView([center.lat, center.lng], zoom);
 
         var regionLayer = new L.FeatureGroup();
         map.addLayer(regionLayer);
@@ -74,8 +78,14 @@ $.plugin2('regionMap', {
             geoJsonInput.val(JSON.stringify(geojson));
         };
 
+        map.on('dragend', function(e) {
+            zoomInput.val(map.getZoom());
+            centerInput.val(JSON.stringify(map.getCenter()));
+        });
+
         map.on('zoomend', function(e) {
             zoomInput.val(map.getZoom());
+            centerInput.val(JSON.stringify(map.getCenter()));
         });
 
         map.on('draw:created', function (e) {

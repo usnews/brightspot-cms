@@ -15,7 +15,6 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 State state = State.getInstance(request.getAttribute("object"));
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
-Object fieldValue = state.getValue(fieldName);
 
 Region region = (Region) state.getValue(fieldName);
 if (region == null) {
@@ -24,25 +23,34 @@ if (region == null) {
 
 String inputName = ((String) request.getAttribute("inputName")) + "/";
 String geoJsonName = inputName + "geoJson";
-String zoomLevelName = inputName + "zoom";
-String zoomStateName = fieldName + ".zoom";
+String zoomName = inputName + "zoom";
+String zoomStateName = fieldName + ".leaflet.zoom";
+String centerName = inputName + "bounds";
+String centerStateName = fieldName + ".leaflet.center";
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     region = Region.fromGeoJson(wp.param(geoJsonName));
-    state.putValue(fieldName, region);
 
-    Integer zoomLevel = wp.intParam(zoomLevelName, null);
-    state.put(zoomStateName, zoomLevel);
+    state.putValue(fieldName, region);
+    state.put(centerStateName, wp.param(centerName));
+    state.put(zoomStateName, wp.intParam(zoomName));
 
     return;
 }
 
-Integer zoomLevel = ObjectUtils.to(Integer.class, state.get(zoomStateName));
+String center = (String) state.get(centerStateName);
+if (center == null) {
+    center = "{\"lat\":39.8282, \"lng\":-98.5795}";
+}
 
-pageContext.setAttribute("region", fieldValue);
+Integer zoom = ObjectUtils.to(Integer.class, state.get(zoomStateName));
+if (zoom == null) {
+    zoom = 4;
+}
+
+pageContext.setAttribute("zoomName", zoomName);
+pageContext.setAttribute("centerName", centerName);
 pageContext.setAttribute("geoJsonName", geoJsonName);
-pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
-pageContext.setAttribute("zoomLevelName", zoomLevelName);
 
 // --- Presentation ---
 %>
@@ -51,6 +59,7 @@ pageContext.setAttribute("zoomLevelName", zoomLevelName);
 </script>
 
 <div class='regionMap'>
-    <input class="regionMapZoom" type="hidden" name="${zoomLevelName}" value="${zoomLevel}"/>
+    <input class="regionMapZoom" type="hidden" name="${zoomName}" value="<%= wp.h(zoom) %>" />
+    <input class="regionMapCenter" type="hidden" name="${centerName}" value="<%= wp.h(center) %>" />
     <input class="regionMapGeoJson" type="hidden" name="${geoJsonName}" value="<%= wp.h(region.getGeoJson()) %>"/>
 </div>
