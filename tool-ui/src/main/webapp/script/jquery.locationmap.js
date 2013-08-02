@@ -48,7 +48,22 @@ $.plugin2('locationMap', {
             var drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
             
-            drawnItems.addLayer(L.GeoJSON.geometryToLayer(geojson, myStyle));
+            var savedItems = L.GeoJSON.geometryToLayer(geojson, myStyle);
+            for (x in savedItems.getLayers()) {
+                var layer = savedItems.getLayers()[x];
+
+                if (layer instanceof L.MultiPolygon) {
+                    // Convert to individual polygons.
+                    var latlngs = layer.getLatLngs();
+                    for (x in latlngs) {
+                        var polygon = new L.Polygon(latlngs[x], { shapeOptions: myStyle });
+                        drawnItems.addLayer(polygon);
+                    }
+                } else {
+                    layer.setStyle(myStyle);
+                    drawnItems.addLayer(layer);
+                }
+            }
             drawnItems.setStyle(myStyle);
 
             var drawControl = new L.Control.Draw({
@@ -56,7 +71,7 @@ $.plugin2('locationMap', {
                     polyline:  false,
                     rectangle: false,
                     marker:    false,
-                    polygon:   { shapeOptions: myStyle },
+                    polygon:   { allowIntersection: false, shapeOptions: myStyle },
                     circle:    { shapeOptions: myStyle }
                 },
                 edit: {
@@ -74,8 +89,18 @@ $.plugin2('locationMap', {
 
                 // Extract the MuliPolyon feature.
                 var geojson = drawnItems.toGeoJSON();
-                var polygons = null;
+                geoJsonInput.val(JSON.stringify(geojson));
+            });
 
+            map.on('draw:edited', function (e) {
+                // Extract the MuliPolyon feature.
+                var geojson = drawnItems.toGeoJSON();
+                geoJsonInput.val(JSON.stringify(geojson));
+            });
+
+            map.on('draw:deleted', function (e) {
+                // Extract the MuliPolyon feature.
+                var geojson = drawnItems.toGeoJSON();
                 geoJsonInput.val(JSON.stringify(geojson));
             });
         } else {
