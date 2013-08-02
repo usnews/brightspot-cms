@@ -331,9 +331,9 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 } else {
                     wp.writeStart("a",
                             "class", "icon icon-wrench icon-only",
-                            "href", wp.objectUrl("/content/advanced.jsp", editing),
-                            "target", "contentAdvanced");
-                        wp.writeHtml("Advanced");
+                            "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
+                            "target", "contentTools");
+                        wp.writeHtml("Tools");
                     wp.writeEnd();
 
                     if (workStream != null) {

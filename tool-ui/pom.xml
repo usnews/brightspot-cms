@@ -148,7 +148,7 @@
                                 <include>html5slider.js</include>
                                 <include>wysihtml5-0.3.0.js</include>
                                 <include>jquery.rte.js</include>
-                                <include>d3.v2.js</include>
+                                <include>d3.v3.js</include>
                                 <include>nv.d3.js</include>
                                 <include>jquery.handsontable.full.js</include>
                                 <include>jquery.spreadsheet.js</include>

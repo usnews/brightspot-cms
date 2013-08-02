@@ -53,7 +53,7 @@ if (!ObjectUtils.isBlank(fieldValue)) {
     for (ReferentialText referentialText : fieldValue) {
         if (referentialText != null) {
 
-            wp.write("<li><textarea class=\"richtext\" id=\"", wp.createId(), "\" name=\"", wp.h(inputName), "\">");
+            wp.write("<li><textarea class=\"richtext\" data-expandable-class=\"code\" id=\"", wp.createId(), "\" name=\"", wp.h(inputName), "\">");
             for (Object item : referentialText) {
 
                 if (item instanceof Reference) {
@@ -108,7 +108,7 @@ if (!ObjectUtils.isBlank(fieldValue)) {
     }
 }
 
-wp.write("<li class=\"template\"><textarea class=\"richtext\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\"></textarea></li>");
+wp.write("<li class=\"template\"><textarea class=\"richtext\" data-expandable-class=\"code\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\"></textarea></li>");
 
 wp.write("</ol></div>");
 %><%!

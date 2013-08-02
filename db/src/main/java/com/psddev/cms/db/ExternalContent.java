@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.psddev.dari.util.ClassFinder;
@@ -28,6 +29,7 @@ public class ExternalContent extends Content implements Renderer {
     @Required
     @ToolUi.NoteHtml("<a class=\"icon icon-action-preview\" target=\"contentExternalPreview\" onclick=\"this.href = CONTEXT_PATH + '/content/externalPreview?url=' + encodeURIComponent($(this).closest('.inputContainer').find('> .inputSmall > textarea').val() || ''); return true;\">Preview</a>")
     private String url;
+    private transient Document document;
 
     private Integer maximumWidth;
     private Integer maximumHeight;
@@ -41,6 +43,20 @@ public class ExternalContent extends Content implements Renderer {
 
     public void setUrl(String url) {
         this.url = url;
+        this.document = null;
+    }
+
+    /**
+     * Returns a <a href="http://jsoup.org/">jsoup</a> {@link Document}
+     * associated with the URL, downloading it if necessary.
+     *
+     * @return Never {@code null}.
+     */
+    public Document getOrCreateDocument() throws IOException {
+        if (document == null) {
+            document = Jsoup.connect(url).get();
+        }
+        return document;
     }
 
     public Integer getMaximumWidth() {
@@ -91,7 +107,7 @@ public class ExternalContent extends Content implements Renderer {
             }
 
             try {
-                for (Element link : Jsoup.connect(url).get().select("link[rel=alternate][type=application/json+oembed]")) {
+                for (Element link : getOrCreateDocument().select("link[rel=alternate][type=application/json+oembed]")) {
                     String oEmbedUrl = link.attr("href");
 
                     if (!ObjectUtils.isBlank(oEmbedUrl)) {

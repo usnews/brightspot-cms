@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
+import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
@@ -54,7 +55,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             this.sortField = selectedType.getField(search.getSort());
-            this.showTypeLabel = false;
+            this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
                 List<ObjectType> types = new ArrayList<ObjectType>();
@@ -303,9 +304,26 @@ public class SearchResultRenderer {
         HttpServletRequest request = page.getRequest();
         State itemState = State.getInstance(item);
         String permalink = itemState.as(Directory.ObjectModification.class).getPermalink();
+        Integer embedWidth = null;
+
+        if (ObjectUtils.isBlank(permalink)) {
+            ObjectType type = itemState.getType();
+
+            if (type != null) {
+                Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
+                int previewWidth = rendererData.getEmbedPreviewWidth();
+
+                if (previewWidth > 0 &&
+                        !ObjectUtils.isBlank(rendererData.getEmbedPath())) {
+                    permalink = "/_preview?_embed=true&_cms.db.previewId=" + itemState.getId();
+                    embedWidth = 320;
+                }
+            }
+        }
 
         page.writeStart("tr",
                 "data-preview-url", permalink,
+                "data-preview-embed-width", embedWidth,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
             if (Search.NEWEST_SORT_VALUE.equals(search.getSort())) {

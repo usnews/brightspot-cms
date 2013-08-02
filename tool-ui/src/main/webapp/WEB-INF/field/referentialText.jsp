@@ -42,6 +42,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 wp.writeStart("div", "class", "inputSmall inputSmall-text");
 wp.writeStart("textarea",
         "class", "richtext",
+        "data-expandable-class", "code",
         "id", wp.getId(),
         "name", inputName,
         "data-user", wp.getObjectLabel(wp.getUser()),

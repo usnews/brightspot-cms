@@ -53,7 +53,7 @@ body.rte-fullscreen {
     border-bottom: 1px solid @color-note;
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
-    padding: 3px 0 0 3px;
+    padding: 3px 60px 0 3px;
     position: relative;
     vertical-align: top;
 
@@ -283,6 +283,22 @@ body.rte-fullscreen {
     img {
         max-height: 100%;
         max-width: 100%;
+    }
+
+    &.state-removing {
+        background-color: @color-alert-lighter;
+        border-color: @color-alert;
+
+        .rte-button-remove {
+            .icon-undo;
+
+            color: @color-link;
+        }
+
+        .rte-enhancement-label {
+            color: @color-alert-darker;
+            text-decoration: line-through;
+        }
     }
 }
 

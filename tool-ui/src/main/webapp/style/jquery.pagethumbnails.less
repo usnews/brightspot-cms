@@ -87,6 +87,12 @@
     &.pageThumbnails_preview-right .pageThumbnails_preview_livePage {
         text-align: right;
     }
+
+    &.pageThumbnailsPreview-embed {
+        bottom: auto;
+        min-height: 100px;
+        position: absolute;
+    }
 }
 
 .pageThumbnails_preview_livePage {
@@ -95,6 +101,10 @@
 
     display: block;
     padding: 5px;
+
+    .pageThumbnailsPreview-embed & {
+        display: none;
+    }
 }
 
 .pageThumbnails_preview_frame {
@@ -106,4 +116,12 @@
     width: 1200px;
     .transform(scale(0.25));
     .transform-origin(0 0);
+
+    .pageThumbnailsPreview-embed & {
+        height: auto;
+        margin: 10px;
+        position: static;
+        .transform(none);
+        width: auto;
+    }
 }

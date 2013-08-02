@@ -1108,7 +1108,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/html5slider.js",
                             "/script/wysihtml5-0.3.0.js",
                             "/script/jquery.rte.js",
-                            "/script/d3.v2.js",
+                            "/script/d3.v3.js",
                             "/script/nv.d3.js",
                             "/script/jquery.handsontable.full.js",
                             "/script/jquery.spreadsheet.js",
@@ -1972,7 +1972,7 @@ public class ToolPageContext extends WebPageContext {
                     draft.delete();
                 }
 
-                if (contentData.isDraft()) {
+                if (draft != null || contentData.isDraft()) {
                     contentData.setDraft(false);
                     contentData.setPublishDate(null);
                     contentData.setPublishUser(null);
@@ -1982,6 +1982,7 @@ public class ToolPageContext extends WebPageContext {
                 state.commitWrites();
                 redirect("",
                         "_isFrame", param(boolean.class, "_isFrame"),
+                        "typeId", state.getTypeId(),
                         "id", state.getId(),
                         "historyId", null,
                         "copyId", null,

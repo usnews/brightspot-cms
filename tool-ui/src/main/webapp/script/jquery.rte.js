@@ -310,11 +310,13 @@ var Rte = wysihtml5.Editor.extend({
         // Handle toolbar action clicks.
         $(overlay).delegate('[data-action]', 'click', function() {
             var $button = $(this);
-            var $placeholder = $button.closest('.rte-enhancement').data('$rte-placeholder');
+            var $enhancement = $button.closest('.rte-enhancement');
+            var $placeholder = $enhancement.data('$rte-placeholder');
             var action = $button.attr('data-action');
 
             if (action == 'remove') {
-                $placeholder.remove();
+                $enhancement.toggleClass('state-removing');
+                $placeholder.toggleClass('state-removing');
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
@@ -327,6 +329,7 @@ var Rte = wysihtml5.Editor.extend({
 
             } else {
                 var oldTop = $placeholder.offset().top;
+                var $parent, $prev, $next;
 
                 if (action === 'moveDown') {
                     $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
@@ -1228,13 +1231,17 @@ var Rte = wysihtml5.Editor.extend({
             if (newPreview) {
                 if ($enhancementLabel.find('figure img').attr('src') !== newPreview) {
                     $enhancementLabel.html($('<figure/>', {
-                        'html': $('<img/>', {
-                            'src': newPreview
-                        })
+                        'html': [
+                            $('<img/>', {
+                                'src': newPreview
+                            }),
+                            $('<figcaption/>')
+                        ]
                     }));
                 }
 
                 $enhancementLabel.find('figure img').attr('alt', newLabel);
+                $enhancementLabel.find('figure figcaption').text(newLabel);
 
             } else {
                 if (!newLabel) {

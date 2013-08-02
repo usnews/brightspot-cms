@@ -479,13 +479,16 @@ public class PageFilter extends AbstractFilter {
             stage.setMetaName("keywords", seoKeywordsString);
             stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
 
-            stage.findOrCreateHeadElement("link",
-                    "rel", "alternate",
-                    "type", "application/json+oembed").
-                    getAttributes().
-                    put("href", JspUtils.getAbsoluteUrl(request, "",
-                            "_embed", true,
-                            "_format", "oembed"));
+            if (mainType != null &&
+                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getEmbedPath())) {
+                stage.findOrCreateHeadElement("link",
+                        "rel", "alternate",
+                        "type", "application/json+oembed").
+                        getAttributes().
+                        put("href", JspUtils.getAbsoluteUrl(request, "",
+                                "_embed", true,
+                                "_format", "oembed"));
+            }
 
             stage.update(mainObject);
 
@@ -536,26 +539,31 @@ public class PageFilter extends AbstractFilter {
             if (page != null && ObjectUtils.isBlank(layoutPath)) {
                 layoutPath = findLayoutPath(page, embed);
 
-                if (ObjectUtils.isBlank(layoutPath)) {
+                if (!embed && ObjectUtils.isBlank(layoutPath)) {
                     layoutPath = page.getRendererPath();
                 }
             }
 
-            if (ObjectUtils.isBlank(layoutPath)) {
+            if (!embed && ObjectUtils.isBlank(layoutPath)) {
                 layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
             }
 
+            boolean rendered = false;
+
             if (!ObjectUtils.isBlank(layoutPath)) {
+                rendered = true;
                 JspUtils.include(request, response, writer, StringUtils.ensureStart(layoutPath, "/"));
 
             } else if (page != null) {
                 Page.Layout layout = page.getLayout();
 
                 if (layout != null) {
+                    rendered = true;
                     renderSection(request, response, writer, layout.getOutermostSection());
                 }
+            }
 
-            } else {
+            if (!rendered) {
                 if (Settings.isProduction()) {
                     chain.doFilter(request, response);
                     return;
@@ -653,25 +661,16 @@ public class PageFilter extends AbstractFilter {
     }
 
     private String findLayoutPath(Object object, boolean embed) {
-        String layoutPath = null;
         ObjectType type = State.getInstance(object).getType();
 
         if (type != null) {
             Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
 
-            if (embed) {
-                layoutPath = rendererData.getEmbedPath();
+            return embed ? rendererData.getEmbedPath() : rendererData.getLayoutPath();
 
-                if (ObjectUtils.isBlank(layoutPath)) {
-                    layoutPath = rendererData.getLayoutPath();
-                }
-
-            } else {
-                layoutPath = rendererData.getLayoutPath();
-            }
+        } else {
+            return null;
         }
-
-        return layoutPath;
     }
 
     /** Renders the beginning of the given {@code page}. */

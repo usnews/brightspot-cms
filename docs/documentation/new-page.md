@@ -40,8 +40,8 @@ An example grid:
 .layout-global {
     display: -dari-grid;
     -dari-grid-template: ".    header  .   "
-                   "main  main   main"
-                   ".    footer  .   ";
+                  		  "main  main   main"
+                         ".    footer  .   ";
  
     -dari-grid-definition-columns: 1fr 1140px 1fr;
     -dari-grid-definition-rows: 158px auto auto;
@@ -115,8 +115,8 @@ To modify the layout dynamically, based on the size of the screen being used to 
 @media only screen and (min-width: 300px) and (max-width:700px) {
         .layout {
         display: -dari-grid;
-        -dari-grid-template: ". main    ."
-                       ". right   .";
+        -dari-grid-template: ".  main    ."
+                             ".  right   .";
      
         -dari-grid-definition-columns: 1fr 320px 1fr;
         -dari-grid-definition-rows: auto auto;
