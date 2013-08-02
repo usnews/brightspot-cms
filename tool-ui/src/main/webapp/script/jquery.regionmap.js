@@ -8,7 +8,9 @@ $.plugin2('regionMap', {
     '_create': function(regionMap) {
         var plugin = this;
 
-        var map = L.map(regionMap);
+        var map = L.map(regionMap, {
+                scrollWheelZoom: false
+        });
         new L.TileLayer.MapQuestOpenOSM().addTo(map);
 
         var zoomInput = $(regionMap).find(".regionMapZoom");

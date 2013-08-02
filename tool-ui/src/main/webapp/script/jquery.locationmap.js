@@ -8,7 +8,9 @@ $.plugin2('locationMap', {
     '_create': function(locationMap) {
         var plugin = this;
 
-        var map = L.map(locationMap);
+        var map = L.map(locationMap, {
+                scrollWheelZoom: false
+        });
         new L.TileLayer.MapQuestOpenOSM().addTo(map);
 
         var latInput = $(locationMap).find(".locationMapLatitude");
