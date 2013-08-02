@@ -125,6 +125,7 @@
                                 <include>jquery.frame.js</include>
                                 <include>jquery.imageeditor.js</include>
                                 <include>jquery.locationmap.js</include>
+                                <include>jquery.regionmap.js</include>
                                 <include>jquery.objectid.js</include>
                                 <include>jquery.pagelayout.js</include>
                                 <include>jquery.pagethumbnails.js</include>

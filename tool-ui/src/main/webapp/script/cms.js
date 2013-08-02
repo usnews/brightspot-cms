@@ -48,6 +48,7 @@ $doc.frame({
 
 $doc.imageEditor('live', '.imageEditor');
 $doc.locationMap('live', '.locationMap');
+$doc.regionMap('live', '.regionMap');
 $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');

@@ -40,18 +40,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 Integer zoomLevel = ObjectUtils.to(Integer.class, state.get(zoomStateName));
 
 pageContext.setAttribute("region", fieldValue);
-pageContext.setAttribute("zoomLevelName", zoomLevelName);
 pageContext.setAttribute("geoJsonName", geoJsonName);
 pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
+pageContext.setAttribute("zoomLevelName", zoomLevelName);
 
 // --- Presentation ---
 %>
-<script src="http://leafletjs.com/examples/sample-geojson.js"></script>
 <script type="text/javascript">
     L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
 </script>
 
-<div class='locationMap'>
-    <input class="locationMapZoom" type="hidden" name="${zoomLevelName}" value="${zoomLevel}"/>
-    <input class="locationMapGeoJson" type="hidden" name="${geoJsonName}" value="<%= wp.h(region.getGeoJson()) %>"/>
+<div class='regionMap'>
+    <input class="regionMapZoom" type="hidden" name="${zoomLevelName}" value="${zoomLevel}"/>
+    <input class="regionMapGeoJson" type="hidden" name="${geoJsonName}" value="<%= wp.h(region.getGeoJson()) %>"/>
 </div>

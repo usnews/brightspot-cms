@@ -1085,6 +1085,7 @@ public class ToolPageContext extends WebPageContext {
                             "/script/jquery.frame.js",
                             "/script/jquery.imageeditor.js",
                             "/script/jquery.locationmap.js",
+                            "/script/jquery.regionmap.js",
                             "/script/jquery.objectid.js",
                             "/script/jquery.pagelayout.js",
                             "/script/jquery.pagethumbnails.js",
