@@ -8,7 +8,7 @@ section: documentation
 
 ## Overview
 
-Often an object will be used in multiple places throughout a website, with different rules around how it is displayed for each location. Brightspot provides the ability to render an object differently, based on context. This is available for Brightspot 2.2 
+Often an object will be used in multiple places throughout a website, with different rules around how it is displayed for each location. Brightspot provides the ability to render an object differently, based on context. This is available for Brightspot 2.2.
 
 
 ## Rendering Paths
@@ -30,7 +30,5 @@ Having set the paths, and the context terms on the object, add the matching cont
 	<cms:render value="${content.article}"/>
 </cms:context>
 {% endhighlight %}
-
-
 
 </div>
