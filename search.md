@@ -20,6 +20,16 @@ Once content has been accessed using the search tool, the results are still avai
 
 ![](http://docs.brightspot.s3.amazonaws.com/persist-search-2.1.png)
 
+## Color Search
+
+Where applicable, color can be used to search for images. Choose Image as the content type to search within, then use the color picker to choose a color. You can also add text search terms to narrow. The images returned will be a close match to the hex value set in the color picker.
+
+![](http://docs.brightspot.s3.amazonaws.com/color-search-tool.png)
+
+Every image added will have a Colors view, that allows you to see exactly which Hex values are stored on it. These are dynamically rendered from the image when it is added to the CMS.
+
+![](http://docs.brightspot.s3.amazonaws.com/color-on-image.png)
+
 
 ## Creating Work Streams
 
