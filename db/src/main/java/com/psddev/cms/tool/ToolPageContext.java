@@ -1323,29 +1323,7 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
-        Properties build = BuildDebugServlet.getProperties(getServletContext());
-        String version = build.getProperty("version");
-        String buildNumber = build.getProperty("buildNumber");
-
-        if (ObjectUtils.isBlank(version)) {
-            version = "Unknown";
-        }
-
-        if (ObjectUtils.isBlank(buildNumber)) {
-            buildNumber = "?";
-        }
-
                 writeStart("div", "class", "toolFooter");
-                    writeStart("div", "class", "toolBuild");
-                        writeStart("span", "class", "version");
-                            writeHtml(version);
-                        writeEnd();
-                        writeHtml(" ");
-                        writeStart("span", "class", "buildNumber");
-                            writeHtml("Build #");
-                            writeHtml(buildNumber);
-                        writeEnd();
-                    writeEnd();
                 writeEnd();
             writeTag("/body");
         writeTag("/html");
