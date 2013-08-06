@@ -29,7 +29,7 @@ Start by implementing `PageStage.Updatable` from your class. The example below s
     }
 }{% endhighlight %}
 
-Within the JSP file, the following code will output the Article Title text as the page title.
+Within a JSP file, most likely your header, place the following tag, to include the extra `headNodes`.
 
 {% highlight jsp %}<head>
 <cms:render value="${stage.headNodes}" />
@@ -47,7 +47,7 @@ public void updateStage(PageStage stage) {
 }
 {% endhighlight %}
 
-These are added into the `<head>` section of the page.
+These are added into the `<head>` section of the page, using the `<cms:render value="${stage.headNodes}" />` tag.
 
 For full java-docs [documentation on PageStage](http://www.brightspotcms.com/javadocs/com/psddev/cms/db/PageStage.html) see the docs.
 

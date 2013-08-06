@@ -12,7 +12,7 @@ With Brightspot, individual content types can be syndicated and embeded external
 
 ## Add Embed Paths
 
-Any piece of content with a URL can be embedded outside of Brightspot. Start by adding an `@Renderer.EmbedPath()` annotation on the class that is to be syndicated. The `embed.jsp` file should contain any JavaScript or CSS that is needed to power the content.
+Any piece of content with a URL can be embedded outside of Brightspot. Start by adding an `@Renderer.EmbedPath()` annotation on the class that is to be syndicated. The `embed.jsp` file should contain any JavaScript or CSS that is needed to power the content. It also needs to include the `cms taglibs` for the `<cms:render>` tag.
 
 
 {% highlight java %}@Renderer.EmbedPath("/embed.jsp")
@@ -35,7 +35,10 @@ public class GenericModule extends Content {
 {% endhighlight %}
 Once you have added a URL, in the content edit view, click on the Advanced Tools icon (the wrench) to expose the embed script, which can be added on an external page.
 
+The Site URL which is defined is set in the Admin -> Settings section, the Default Site URL.
+
 ![](http://docs.brightspot.s3.amazonaws.com/embed-shot.png)
+
 </div>
 
 
