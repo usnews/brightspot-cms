@@ -1323,29 +1323,7 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
-        Properties build = BuildDebugServlet.getProperties(getServletContext());
-        String version = build.getProperty("version");
-        String buildNumber = build.getProperty("buildNumber");
-
-        if (ObjectUtils.isBlank(version)) {
-            version = "Unknown";
-        }
-
-        if (ObjectUtils.isBlank(buildNumber)) {
-            buildNumber = "?";
-        }
-
                 writeStart("div", "class", "toolFooter");
-                    writeStart("div", "class", "toolBuild");
-                        writeStart("span", "class", "version");
-                            writeHtml(version);
-                        writeEnd();
-                        writeHtml(" ");
-                        writeStart("span", "class", "buildNumber");
-                            writeHtml("Build #");
-                            writeHtml(buildNumber);
-                        writeEnd();
-                    writeEnd();
                 writeEnd();
             writeTag("/body");
         writeTag("/html");
@@ -1655,6 +1633,15 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes all form fields for the given {@code object}.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void writeFormFields(Object object) throws IOException, ServletException {
+        includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+    }
+
+    /**
      * Writes a standard form for the given {@code object}.
      *
      * @param object Can't be {@code null}.
@@ -1677,7 +1664,7 @@ public class ToolPageContext extends WebPageContext {
                 "autocomplete", "off");
             boolean trash = writeTrashMessage(object);
 
-            includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+            writeFormFields(object);
 
             if (!trash) {
                 writeStart("div", "class", "actions");
@@ -1699,6 +1686,15 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
             }
         writeEnd();
+    }
+
+    /**
+     * Updates the given {@code object} using all request parameters.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void updateUsingParameters(Object object) throws IOException, ServletException {
+        includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
     }
 
     /**
@@ -1784,7 +1780,7 @@ public class ToolPageContext extends WebPageContext {
         Site site = getSite();
 
         try {
-            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+            updateUsingParameters(object);
             updateUsingAllWidgets(object);
 
             if (state.isNew() &&
@@ -2043,7 +2039,7 @@ public class ToolPageContext extends WebPageContext {
         State state = State.getInstance(object);
 
         try {
-            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+            updateUsingParameters(object);
             state.save();
             redirect("", "id", state.getId());
             return true;
@@ -2136,11 +2132,11 @@ public class ToolPageContext extends WebPageContext {
                 if (transition != null) {
                     WorkflowLog log = new WorkflowLog();
 
-                    includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+                    updateUsingParameters(object);
                     updateUsingAllWidgets(object);
                     state.as(Content.ObjectModification.class).setDraft(false);
                     log.getState().setId(param(UUID.class, "workflowLogId"));
-                    includeFromCms("/WEB-INF/objectPost.jsp", "object", log);
+                    updateUsingParameters(log);
                     workflowData.changeState(transition, getUser(), log);
                     publish(object);
                     state.commitWrites();

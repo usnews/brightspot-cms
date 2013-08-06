@@ -23,4 +23,4 @@ State objectState = State.getInstance(object);
 %><input type="hidden" name="<%= wp.h(inputName) %>.id" value="<%= objectState.getId() %>" />
 <input type="hidden" name="<%= wp.h(inputName) %>.typeId" value="<%= type.getId() %>" />
 <input type="hidden" name="<%= wp.h(inputName) %>.publishDate" value="" />
-<% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
+<% wp.writeFormFields(object); %>

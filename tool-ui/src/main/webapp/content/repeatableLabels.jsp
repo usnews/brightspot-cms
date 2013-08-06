@@ -31,7 +31,7 @@ for (int i = 0, s = Math.min(ids.length, typeIds.length); i < s; ++ i) {
         State state = State.getInstance(object);
         try {
             state.beginWrites();
-            wp.include("/WEB-INF/objectPost.jsp", "object", object);
+            wp.updateUsingParameters(object);
         } finally {
             state.endWrites();
         }

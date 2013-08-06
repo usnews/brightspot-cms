@@ -265,7 +265,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             if (history != null) {
                                 wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
                                     wp.writeStart("h2").writeHtml("History").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                    wp.writeFormFields(editing);
                                 wp.writeEnd();
                             }
 
@@ -274,7 +274,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2").writeHtml("Current").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", original.getOriginalObject());
+                                    wp.writeFormFields(original.getOriginalObject());
                                 wp.writeEnd();
 
                             } finally {
@@ -284,17 +284,17 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             if (draft != null) {
                                 wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
                                     wp.writeStart("h2").writeHtml("Draft").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                    wp.writeFormFields(editing);
                                 wp.writeEnd();
                             }
                         wp.writeEnd();
 
                     } else {
-                        wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                        wp.writeFormFields(editing);
                     }
 
                 } else {
-                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                    wp.writeFormFields(editing);
                 }
                 %>
             </div>
@@ -566,7 +566,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                                         "name", "workflowLogId",
                                                         "value", newLog.getId());
 
-                                                JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", newLog);
+                                                wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
                                             for (String transitionName : transitionNames) {
