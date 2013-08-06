@@ -21,7 +21,7 @@ WorkStream object = (WorkStream) wp.findOrReserve(WorkStream.class);
 if (wp.isFormPost() &&
         wp.param(String.class, "action-save") != null) {
     try {
-        wp.include("/WEB-INF/objectPost.jsp", "object", object);
+        wp.updateUsingParameters(object);
 
         String searchString = wp.param(String.class, "search");
 

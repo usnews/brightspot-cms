@@ -19,7 +19,7 @@ State state = State.getInstance(object);
 
 if (wp.isFormPost()) {
     try {
-        wp.include("/WEB-INF/objectPost.jsp", "object", object);
+        wp.updateUsingParameters(object);
         wp.publish(object);
     } catch (Exception ex) {
         wp.getErrors().add(ex);

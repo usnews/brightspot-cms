@@ -32,7 +32,7 @@ Directory.ObjectModification dirData = selectedState.as(Directory.ObjectModifica
 
 try {
     selectedState.beginWrites();
-    wp.include("/WEB-INF/objectPost.jsp", "object", selected);
+    wp.updateUsingParameters(selected);
     wp.updateUsingAllWidgets(selected);
 
 } finally {

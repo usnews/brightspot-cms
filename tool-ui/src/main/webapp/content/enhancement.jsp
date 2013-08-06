@@ -31,7 +31,7 @@ if (typeId == null && (state == null || state.isNew())) {
 
 if (state != null && wp.isFormPost()) {
     try {
-        wp.include("/WEB-INF/objectPost.jsp", "object", object);
+        wp.updateUsingParameters(object);
         wp.publish(object);
     } catch (Exception ex) {
         wp.getErrors().add(ex);

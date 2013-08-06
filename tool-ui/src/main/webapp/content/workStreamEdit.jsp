@@ -17,7 +17,7 @@ WorkStream object = (WorkStream) wp.findOrReserve();
 if (wp.isFormPost()) {
     try {
         if (wp.param(String.class, "action-save") != null) {
-            wp.include("/WEB-INF/objectPost.jsp", "object", object);
+            wp.updateUsingParameters(object);
             wp.publish(object);
 
         } else if (wp.param(String.class, "action-delete") != null) {

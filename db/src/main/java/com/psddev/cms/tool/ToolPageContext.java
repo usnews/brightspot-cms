@@ -1689,6 +1689,15 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Updates the given {@code object} using all request parameters.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void updateUsingParameters(Object object) throws IOException, ServletException {
+        includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+    }
+
+    /**
      * Updates the given {@code object} using all widgets with the data from
      * the current request.
      *
@@ -1771,7 +1780,7 @@ public class ToolPageContext extends WebPageContext {
         Site site = getSite();
 
         try {
-            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+            updateUsingParameters(object);
             updateUsingAllWidgets(object);
 
             if (state.isNew() &&
@@ -2030,7 +2039,7 @@ public class ToolPageContext extends WebPageContext {
         State state = State.getInstance(object);
 
         try {
-            includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+            updateUsingParameters(object);
             state.save();
             redirect("", "id", state.getId());
             return true;
@@ -2123,11 +2132,11 @@ public class ToolPageContext extends WebPageContext {
                 if (transition != null) {
                     WorkflowLog log = new WorkflowLog();
 
-                    includeFromCms("/WEB-INF/objectPost.jsp", "object", object);
+                    updateUsingParameters(object);
                     updateUsingAllWidgets(object);
                     state.as(Content.ObjectModification.class).setDraft(false);
                     log.getState().setId(param(UUID.class, "workflowLogId"));
-                    includeFromCms("/WEB-INF/objectPost.jsp", "object", log);
+                    updateUsingParameters(log);
                     workflowData.changeState(transition, getUser(), log);
                     publish(object);
                     state.commitWrites();

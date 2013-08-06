@@ -56,7 +56,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             ObjectType type = ObjectType.getInstance(typeIds[i]);
             Object item = type.createObject(null);
             State.getInstance(item).setId(ids[i]);
-            wp.include("/WEB-INF/objectPost.jsp", "object", item);
+            wp.updateUsingParameters(item);
             fieldValue.put(keys[i], item);
         }
 

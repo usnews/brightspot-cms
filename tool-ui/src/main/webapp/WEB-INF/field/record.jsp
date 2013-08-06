@@ -82,7 +82,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (fieldValue != null) {
             State fieldValueState = State.getInstance(fieldValue);
             fieldValueState.setId(id);
-            wp.include("/WEB-INF/objectPost.jsp", "object", fieldValue);
+            wp.updateUsingParameters(fieldValue);
             fieldValueState.putValue(Content.PUBLISH_DATE_FIELD, publishDate != null ? publishDate : new Date());
             fieldValueState.putValue(Content.UPDATE_DATE_FIELD, new Date());
         }
