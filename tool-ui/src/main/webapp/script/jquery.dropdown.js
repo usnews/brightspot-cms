@@ -59,7 +59,12 @@ $.plugin2('dropDown', {
                 $label.click();
 
             } else {
-                $search.click();
+                if ($input.hasClass(plugin.className('list-open'))) {
+                    $list.trigger('dropDown-close');
+
+                } else {
+                    $search.click();
+                }
             }
 
             return false;
