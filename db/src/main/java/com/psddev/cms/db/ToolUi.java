@@ -291,7 +291,8 @@ public class ToolUi extends Modification<Object> {
 
         return ObjectField.DATE_TYPE.equals(fieldType) ||
                 ObjectField.NUMBER_TYPE.equals(fieldType) ||
-                ObjectField.TEXT_TYPE.equals(fieldType);
+                ObjectField.TEXT_TYPE.equals(fieldType) ||
+                field.isMetric();
     }
 
     public Set<String> getStandardImageSizes() {

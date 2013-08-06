@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.joda.time.DateTime;
 
-import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
@@ -54,7 +54,7 @@ public class SearchResultRenderer {
         PaginatedResult<?> result = null;
 
         if (selectedType != null) {
-            this.sortField = selectedType.getField(search.getSort());
+            this.sortField = selectedType.getFieldGlobally(search.getSort());
             this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
@@ -71,7 +71,7 @@ public class SearchResultRenderer {
             }
 
         } else {
-            this.sortField = null;
+            this.sortField = Database.Static.getDefault().getEnvironment().getField(search.getSort());
             this.showTypeLabel = search.findValidTypes().size() != 1;
         }
 
@@ -326,26 +326,27 @@ public class SearchResultRenderer {
                 "data-preview-embed-width", embedWidth,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
 
-            if (Search.NEWEST_SORT_VALUE.equals(search.getSort())) {
-                DateTime updateDateTime = page.toUserDateTime(itemState.as(Content.ObjectModification.class).getUpdateDate());
+            if (sortField != null &&
+                    ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                DateTime dateTime = page.toUserDateTime(itemState.get(sortField.getInternalName()));
 
-                if (updateDateTime == null) {
+                if (dateTime == null) {
                     page.writeStart("td", "colspan", 2);
                         page.writeHtml("N/A");
                     page.writeEnd();
 
                 } else {
-                    String updateDate = page.formatUserDate(updateDateTime);
+                    String date = page.formatUserDate(dateTime);
 
                     page.writeStart("td", "class", "date");
-                        if (!ObjectUtils.equals(updateDate, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
-                            request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, updateDate);
-                            page.writeHtml(updateDate);
+                        if (!ObjectUtils.equals(date, request.getAttribute(PREVIOUS_DATE_ATTRIBUTE))) {
+                            request.setAttribute(PREVIOUS_DATE_ATTRIBUTE, date);
+                            page.writeHtml(date);
                         }
                     page.writeEnd();
 
                     page.writeStart("td", "class", "time");
-                        page.writeHtml(page.formatUserTime(updateDateTime));
+                        page.writeHtml(page.formatUserTime(dateTime));
                     page.writeEnd();
                 }
             }
@@ -362,13 +363,20 @@ public class SearchResultRenderer {
                 renderAfterItem(item);
             page.writeEnd();
 
-            if (sortField != null) {
+            if (sortField != null &&
+                    !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
                 Object value = itemState.get(sortField.getInternalName());
 
                 page.writeStart("td");
-                    page.writeHtml(value instanceof Recordable ?
-                            ((Recordable) value).getState().getLabel() :
-                            value);
+                    if (value instanceof Metric) {
+                        page.writeHtml(((Metric) value).getSum());
+
+                    } else if (value instanceof Recordable) {
+                        page.writeHtml(((Recordable) value).getState().getLabel());
+
+                    } else {
+                        page.writeHtml(value);
+                    }
                 page.writeEnd();
             }
 
