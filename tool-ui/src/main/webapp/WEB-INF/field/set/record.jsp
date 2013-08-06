@@ -134,7 +134,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
                     <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
                     <input name="<%= wp.h(publishDateName) %>" type="hidden" value="<%= wp.h(itemPublishDate != null ? itemPublishDate.getTime() : null) %>">
-                    <% wp.include("/WEB-INF/objectForm.jsp", "object", item); %>
+                    <% wp.writeFormFields(item); %>
                 </li>
             <% } %>
             <% for (ObjectType type : validTypes) { %>

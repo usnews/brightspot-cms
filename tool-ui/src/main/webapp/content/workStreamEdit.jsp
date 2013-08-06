@@ -54,7 +54,7 @@ wp.writeStart("form",
         "method", "post",
         "enctype", "multipart/form-data",
         "action", wp.objectUrl("", object));
-    wp.include("/WEB-INF/objectForm.jsp", "object", object);
+    wp.writeFormFields(object);
 
     wp.writeStart("div", "class", "buttons");
         wp.writeStart("button",

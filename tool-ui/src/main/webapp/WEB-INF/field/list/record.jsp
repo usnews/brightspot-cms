@@ -146,7 +146,7 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    wp.include("/WEB-INF/objectForm.jsp", "object", item);
+                    wp.writeFormFields(item);
                 wp.writeEnd();
             }
 

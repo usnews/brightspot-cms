@@ -103,7 +103,7 @@ if (isEmbedded) {
         wp.write("<input name=\"", wp.h(idName), "\" type=\"hidden\" value=\"", fieldValueState.getId(), "\">");
         wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", fieldValueState.getTypeId(), "\">");
         wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(fieldValuePublishDate != null ? fieldValuePublishDate.getTime() : null), "\">");
-        wp.include("/WEB-INF/objectForm.jsp", "object", fieldValue);
+        wp.writeFormFields(fieldValue);
         wp.write("</div>");
 
     } else {
@@ -141,7 +141,7 @@ if (isEmbedded) {
             wp.write("<div class=\"inputLarge ", validObjectClass, "\" id=\"i", validState.getId(), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
-            wp.include("/WEB-INF/objectForm.jsp", "object", validObject);
+            wp.writeFormFields(validObject);
             wp.write("</div>");
         }
     }

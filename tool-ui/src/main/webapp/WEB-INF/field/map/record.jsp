@@ -92,7 +92,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     </div>
                     <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
                     <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
-                    <% wp.include("/WEB-INF/objectForm.jsp", "object", item); %>
+                    <% wp.writeFormFields(item); %>
                 </li>
             <% } %>
             <% for (ObjectType type : validTypes) { %>

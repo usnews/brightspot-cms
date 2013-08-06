@@ -1633,6 +1633,15 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes all form fields for the given {@code object}.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void writeFormFields(Object object) throws IOException, ServletException {
+        includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+    }
+
+    /**
      * Writes a standard form for the given {@code object}.
      *
      * @param object Can't be {@code null}.
@@ -1655,7 +1664,7 @@ public class ToolPageContext extends WebPageContext {
                 "autocomplete", "off");
             boolean trash = writeTrashMessage(object);
 
-            includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+            writeFormFields(object);
 
             if (!trash) {
                 writeStart("div", "class", "actions");

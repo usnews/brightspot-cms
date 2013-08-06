@@ -34,7 +34,7 @@ wp.writeFormHeading(object); %>
 
 <form action="<%= wp.objectUrl("", object) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
     <% wp.include("/WEB-INF/errors.jsp"); %>
-    <% wp.include("/WEB-INF/objectForm.jsp", "object", object); %>
+    <% wp.writeFormFields(object); %>
     <div class="buttons">
         <button class="action action-save">Save</button>
     </div>

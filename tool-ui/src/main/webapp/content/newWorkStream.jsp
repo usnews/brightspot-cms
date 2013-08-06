@@ -64,7 +64,7 @@ wp.writeStart("div", "class", "widget");
                 "name", "incompleteIfMatching",
                 wp.param(boolean.class, "incompleteIfMatching"));
 
-        wp.include("/WEB-INF/objectForm.jsp", "object", object);
+        wp.writeFormFields(object);
 
         wp.writeStart("div", "class", "buttons");
             wp.writeStart("button",
