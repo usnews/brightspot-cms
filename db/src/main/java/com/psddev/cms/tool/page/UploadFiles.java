@@ -87,7 +87,11 @@ public class UploadFiles extends PageServlet {
                 FileItem[] files = request.getFileItems("file");
                 StringBuilder js = new StringBuilder();
 
-                if (files != null) {
+                if (files != null && files.length > 0) {
+                    Object common = selectedType.createObject(page.param(UUID.class, "typeForm-" + selectedType.getId()));
+
+                    page.updateUsingParameters(common);
+
                     for (FileItem file : files) {
 
                         // Checks to make sure the file's content type is valid
@@ -224,6 +228,9 @@ public class UploadFiles extends PageServlet {
 
                         Object object = selectedType.createObject(null);
                         State state = State.getInstance(object);
+
+                        state.setValues(State.getInstance(common));
+
                         Site site = page.getSite();
 
                         if (site != null &&
@@ -330,23 +337,6 @@ public class UploadFiles extends PageServlet {
 
             page.writeStart("div", "class", "inputContainer");
                 page.writeStart("div", "class", "inputLabel");
-                    page.writeStart("label", "for", page.createId()).writeHtml("Type").writeEnd();
-                page.writeEnd();
-                page.writeStart("div", "class", "inputSmall");
-                    page.writeStart("select", "id", page.getId(), "name", "type");
-                        for (ObjectType type : types) {
-                            page.writeStart("option",
-                                    "selected", type.equals(selectedType) ? "selected" : null,
-                                    "value", type.getId());
-                                page.writeHtml(type.getDisplayName());
-                            page.writeEnd();
-                        }
-                    page.writeEnd();
-                page.writeEnd();
-            page.writeEnd();
-
-            page.writeStart("div", "class", "inputContainer");
-                page.writeStart("div", "class", "inputLabel");
                     page.writeStart("label", "for", page.createId()).writeHtml("Files").writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
@@ -357,6 +347,43 @@ public class UploadFiles extends PageServlet {
                             "multiple", "multiple");
                 page.writeEnd();
             page.writeEnd();
+
+            page.writeStart("div", "class", "inputContainer");
+                page.writeStart("div", "class", "inputLabel");
+                    page.writeStart("label", "for", page.createId()).writeHtml("Type").writeEnd();
+                page.writeEnd();
+                page.writeStart("div", "class", "inputSmall");
+                    page.writeStart("select",
+                            "class", "toggleable",
+                            "data-root", "form",
+                            "id", page.getId(),
+                            "name", "type");
+                        for (ObjectType type : types) {
+                            page.writeStart("option",
+                                    "data-hide", ".typeForm",
+                                    "data-show", ".typeForm-" + type.getId(),
+                                    "selected", type.equals(selectedType) ? "selected" : null,
+                                    "value", type.getId());
+                                page.writeHtml(type.getDisplayName());
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+            page.writeEnd();
+
+            for (ObjectType type : types) {
+                String name = "typeForm-" + type.getId();
+                Object common = type.createObject(null);
+
+                page.writeStart("div", "class", "typeForm " + name);
+                    page.writeTag("input",
+                            "type", "hidden",
+                            "name", name,
+                            "value", State.getInstance(common).getId());
+
+                    page.writeFormFields(common);
+                page.writeEnd();
+            }
 
             page.writeStart("div", "class", "buttons");
                 page.writeStart("button", "name", "action-upload").writeHtml("Upload").writeEnd();
