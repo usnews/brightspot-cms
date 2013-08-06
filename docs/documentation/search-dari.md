@@ -5,7 +5,7 @@ id: search
 section: documentation
 ---
 
-<div markdown="1" class="span12">
+<div markdown="1" class="span8">
 
 Brightspot CMS uses [Lucene Solr](http://lucene.apache.org/solr/) to provide full text search capabilities.
 
@@ -13,9 +13,33 @@ Within the CMS itself, the global search is powered by Solr. The Admin panel for
 
 ## CMS Tool Search
 
+![](http://docs.brightspot.s3.amazonaws.com/search-tool-close.png)
+
+
 Out of the box, filtering and advanced searches are enabled within the CMS tool, for editors, however there are a number of ways in which developers can help make the search tool even more useful.
 
 Each of the dashboard widgets that allow filtering allow customization, as well as the object types themselves in the global search. Annotations placed on target fields or content types can help make the experience even easier for the editor.
+
+#### Search Filters
+
+To have a property within a class as a default filter, add the `@Indexed` filter.
+
+#### Color Search
+
+For images, a color picker can be added to the search tool, so they can be searched by color. Each image is saved with the dominant hex values. These are then used to drive the search. To enable start by implementing `ColorImage` on your Image class.
+
+![](http://docs.brightspot.s3.amazonaws.com/color-search-tool.png)
+
+
+<div class="highlight">{% highlight java %}public class Image extends Content implements ColorImage {% endhighlight %}</div>
+
+You also need to add a `getColorImage` method for the `StorageItem` type.
+
+<div class="highlight">{% highlight java %}public StorageItem getColorImage() {
+	return file;
+} {% endhighlight %}</div>
+
+This will allow all newly added images to be searched by color. If you want to enable for existing images, ReSave them.
 
 #### Global Filter
 
@@ -37,7 +61,7 @@ The `@ToolUi.GlobalFilter` annotation also adds filters to global search:
 
 #### Search Filter
 
-A field can be called out as being added as a default filter for a particular object type by adding the annotation `@ToolUi.Filterable`. This will show up on the global search widget, but not the sitemap, as `@ToolUi.GlobalFilter` would.
+A field can be called out as being added as a default filter for a particular object type not only by adding `@Indexed`, but also by adding the annotation `@ToolUi.Filterable`. This will show up on the global search widget, but not the sitemap, as `@ToolUi.GlobalFilter` would.
 
 #### Sort Filter
 
@@ -135,3 +159,14 @@ The Search class extends Record, so it can be saved to the database. This can pr
 <div class="highlight">{% highlight java %}
 Search.named("topPlatforms").toQuery("Top Java CMS Platforms").select(0, 5);
 {% endhighlight %}</div>
+
+</div>
+<div class="span4 dari-docs-sidebar">
+<div markdown="1" style="position:scroll;" class="well sidebar-nav">
+
+
+* auto-gen TOC:
+{:toc}
+
+</div>
+</div>
