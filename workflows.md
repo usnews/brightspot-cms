@@ -20,17 +20,17 @@ Start by navigating to Admin -> Workflows. Create a new workflow, name it and se
 
 Click `Add Status` to start creating the workflow. This will be the status the item is placed in as it moves through the workflow. An example would be `Submitted`. You can drag these status boxes anywhere within the workflow space.
 
-![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_status.png)
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_2.2.1.png)
 
 ## Adding Transitions
 
 Having created the statuses that you need, start with `New` and click `Add Transition`. Drag the transition to the appropriate status and click. A transition label box will appear. This is the label for the transition, example `Submit`. This will appear on the action button for the editor.
 
-![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_transition.png)
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_2.2.2.png)
 
 Using the Status boxes, and the transitions, build out the workflow, with the final transition moving to the `Published` box.
 
-![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_complete.png)
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_2.2.3.png)
 
 ## Using the Workflow
 
