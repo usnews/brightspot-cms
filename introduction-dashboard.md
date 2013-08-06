@@ -41,7 +41,7 @@ Work Steams allow editors to group together content for editing, and then work t
 ![](http://docs.brightspot.s3.amazonaws.com/dashboard_workstream_2.1.png)
 
 
-##Dashboard Layout
+## Dashboard Layout
 
 Each CMS user can customize their own dashboard view, moving the widgets around to suit their workflow. Hover over the top right corner of a widget to move. Click on an arrow direction to move the widgets around.
 
@@ -78,9 +78,12 @@ Once a work stream has been created from the global Search it appears in the das
 
 ## Bulk Upload
 
-Upload files in bulk right from the dashboard. Clicking on Upload Files provides a popup window, where you can choose your file type, and upload in bulk. Alternatively, drag and drop your files in the widget. Once uploaded, files are placed in a draft status for you to add metadata and publish. Find your newly uploaded files in the unpublished drafts widget on the dashboard to add the required fields. Note: If you have no required fields the images will upload to recent activity.
+Upload files in bulk right from the dashboard. Clicking on Upload Files provides a popup window, where you can choose your file type, and upload in bulk. Alternatively, drag and drop your files in the widget to get the same view.
 
-![](http://docs.brightspot.s3.amazonaws.com/bulk_widget_2.1.png)
+The bulk upload allows all uploaded files to be saved with bulk information, provided in the form. This allows you to edit in bulk as you upload.
+
+
+![](http://docs.brightspot.s3.amazonaws.com/bulk_upload_2.2.png)
 
 
 ## Schedules
