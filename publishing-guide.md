@@ -27,9 +27,21 @@ All text fields within Brightspot have a word and character count built-in, also
 
 ## Rich Text Editor
 
-A full set of tools are available when creating rich text. Bold, italics, underline, text align, lists and indentation of text are there by default. Custom text styles can also be added. If you have content already created in an MS Word or Google Doc you can paste directly into Brightspot and retain the text formatting.
+A full set of tools are available when creating rich text. Bold, italics, underline, text align, lists and indentation of text are there by default. Custom text styles can also be added. If you have content already created in an MS Word or Google Doc you can paste directly into Brightspot and retain the text formatting. You can also import directly from Google Docs.
 
 ![](http://docs.brightspot.s3.amazonaws.com/rich-text-2.1.png)
+
+## Adding Links
+
+Select text you would like to turn into a hyperlink and click the Link icon in the Rich Text Toolbar. Add your URl, and select the choice of pop-up window. To Unlink content, click on a link and select, Unlink.
+
+![](http://docs.brightspot.s3.amazonaws.com/link-ui-2.2.png)
+
+## Full Screen Editing
+
+To move into a full-screen editor mode, click the full screen icon in the Rich Text toolbar. This opens the editor into full screen, without any widgets visible. Return to the content edit view by clicking on the fullscreen icon again.
+
+![](http://docs.brightspot.s3.amazonaws.com/full-screen-mode-2.2.png)
 
 
 ## Adding Images
