@@ -17,6 +17,8 @@ java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
 java.util.List,
+java.util.HashMap,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
@@ -119,12 +121,15 @@ if (isEmbedded) {
         Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
 
         String validObjectClass = wp.createId();
+        Map<UUID, String> showClasses = new HashMap<UUID, String>();
         wp.write("<div class=\"inputSmall\">");
         wp.write("<select class=\"toggleable\" name=\"", wp.h(idName), "\">");
         wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\"></option>");
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
-            wp.write("<option data-hide=\".", validObjectClass, "\" data-show=\"#i", validState.getId(), "\" value=\"", validState.getId(), "\"");
+            String showClass = wp.createId();
+            showClasses.put(validState.getId(), showClass);
+            wp.write("<option data-hide=\".", validObjectClass, "\" data-show=\".", showClass, "\" value=\"", validState.getId(), "\"");
             if (validObject.equals(fieldValue)) {
                 wp.write(" selected");
             }
@@ -138,7 +143,7 @@ if (isEmbedded) {
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
             Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
-            wp.write("<div class=\"inputLarge ", validObjectClass, "\" id=\"i", validState.getId(), "\">");
+            wp.write("<div class=\"inputLarge ", validObjectClass, " ", showClasses.get(validState.getId()), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
             wp.writeFormFields(validObject);
