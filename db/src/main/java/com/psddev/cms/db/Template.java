@@ -11,6 +11,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -302,6 +303,13 @@ public class Template extends Page {
          */
         public static List<ObjectType> findUsedTypes(Site site) {
             Set<ObjectType> typesSet = new LinkedHashSet<ObjectType>();
+
+            for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
+                if (type.getGroups().contains(Directory.Item.class.getName())) {
+                    typesSet.add(type);
+                }
+            }
+
             typesSet.add(ObjectType.getInstance(Page.class));
 
             for (Template template : findAll(site)) {
@@ -309,6 +317,7 @@ public class Template extends Page {
             }
 
             List<ObjectType> types = new ArrayList<ObjectType>(typesSet);
+
             Collections.sort(types);
 
             return types;
