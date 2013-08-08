@@ -19,6 +19,7 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
+import com.psddev.dari.db.MetricInterval;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
@@ -32,7 +33,9 @@ import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
 
-    private static final String PREVIOUS_DATE_ATTRIBUTE = SearchResultRenderer.class.getName() + ".previousDate";
+    private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
+    private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
+    private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
 
     protected final ToolPageContext page;
 
@@ -365,11 +368,87 @@ public class SearchResultRenderer {
 
             if (sortField != null &&
                     !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
-                Object value = itemState.get(sortField.getInternalName());
+                String sortFieldName = sortField.getInternalName();
+                Object value = itemState.get(sortFieldName);
 
                 page.writeStart("td");
                     if (value instanceof Metric) {
-                        page.writeHtml(((Metric) value).getSum());
+                        page.writeStart("span", "style", page.cssString("white-space", "nowrap"));
+                            Double maxSum = (Double) request.getAttribute(MAX_SUM_ATTRIBUTE);
+
+                            if (maxSum == null) {
+                                Object maxObject = search.toQuery(page.getSite()).sortDescending(sortFieldName).first();
+                                maxSum = maxObject != null ?
+                                        ((Metric) State.getInstance(maxObject).get(sortFieldName)).getSum() :
+                                        1.0;
+
+                                request.setAttribute(MAX_SUM_ATTRIBUTE, maxSum);
+                            }
+
+                            Metric valueMetric = (Metric) value;
+                            Map<DateTime, Double> sumEntries = valueMetric.groupSumByDate(
+                                    new MetricInterval.Daily(),
+                                    new DateTime().dayOfMonth().roundFloorCopy().minusDays(7),
+                                    null);
+
+                            double sum = valueMetric.getSum();
+                            long sumLong = (long) sum;
+
+                            if (sumLong == sum) {
+                                page.writeHtml(String.format("%,2d ", sumLong));
+
+                            } else {
+                                page.writeHtml(String.format("%,2.2f ", sum));
+                            }
+
+                            if (!sumEntries.isEmpty()) {
+                                long minMillis = Long.MAX_VALUE;
+                                long maxMillis = Long.MIN_VALUE;
+
+                                for (Map.Entry<DateTime, Double> sumEntry : sumEntries.entrySet()) {
+                                    long sumMillis = sumEntry.getKey().getMillis();
+
+                                    if (sumMillis < minMillis) {
+                                        minMillis = sumMillis;
+                                    }
+
+                                    if (sumMillis > maxMillis) {
+                                        maxMillis = sumMillis;
+                                    }
+                                }
+
+                                double cumulativeSum = 0.0;
+                                StringBuilder path = new StringBuilder();
+                                double xRange = maxMillis - minMillis;
+                                int width = 35;
+                                int height = 18;
+
+                                for (Map.Entry<DateTime, Double> sumEntry : sumEntries.entrySet()) {
+                                    cumulativeSum += sumEntry.getValue();
+
+                                    path.append('L');
+                                    path.append((sumEntry.getKey().getMillis() - minMillis) / xRange * width);
+                                    path.append(',');
+                                    path.append(height - cumulativeSum / maxSum * height);
+                                }
+
+                                path.setCharAt(0, 'M');
+
+                                page.writeStart("svg",
+                                        "xmlns", "http://www.w3.org/2000/svg",
+                                        "width", width,
+                                        "height", height,
+                                        "style", page.cssString(
+                                                "display", "inline-block",
+                                                "vertical-align", "middle"));
+                                    page.writeStart("path",
+                                            "fill", "none",
+                                            "stroke", "#444444",
+                                            "d", path.toString());
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+                        page.writeEnd();
 
                     } else if (value instanceof Recordable) {
                         page.writeHtml(((Recordable) value).getState().getLabel());
