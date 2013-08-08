@@ -236,14 +236,7 @@ public class Search extends Record {
     }
 
     public String getSort() {
-        if (sort != null) {
-            return sort;
-
-        } else {
-            return ObjectUtils.isBlank(getQueryString()) ?
-                    "cms.content.updateDate" :
-                    RELEVANT_SORT_VALUE;
-        }
+        return sort;
     }
 
     public void setSort(String sort) {

@@ -56,6 +56,11 @@ public class SearchResultRenderer {
         ObjectType selectedType = search.getSelectedType();
         PaginatedResult<?> result = null;
 
+        if (search.getSort() == null) {
+            search.setSort(ObjectUtils.isBlank(search.getQueryString()) ? "cms.content.updateDate" : Search.RELEVANT_SORT_VALUE);
+            search.setShowMissing(true);
+        }
+
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
             this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
