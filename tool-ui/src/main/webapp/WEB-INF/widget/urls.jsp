@@ -20,7 +20,6 @@ java.util.Map
 ToolPageContext wp = new ToolPageContext(pageContext);
 Object object = JspWidget.getOriginal(wp);
 Object varied = JspWidget.getObject(wp);
-boolean isPage = Page.class.isInstance(object) && !Template.class.isInstance(object);
 Site site = wp.getSite();
 State state = State.getInstance(object);
 
@@ -29,7 +28,6 @@ String automaticName = namePrefix + "automatic";
 String typeName = namePrefix + "type";
 String addName = namePrefix + "add";
 Directory.ObjectModification dirData = state.as(Directory.ObjectModification.class);
-Template template = state.as(Template.ObjectModification.class).getDefault();
 
 if (JspWidget.isUpdating(wp)) {
     List<String> automatic = wp.params(String.class, automaticName);
@@ -46,7 +44,7 @@ if (JspWidget.isUpdating(wp)) {
         dirData.addSitePath(site, adds.get(i), types.get(i));
     }
 
-    if (automatic.size() != 1 && template != null) {
+    if (automatic.size() != 1) {
         List<Directory.Path> manualPaths = dirData.getSitePaths(site);
         List<Directory.Path> automaticPaths = new ArrayList<Directory.Path>();
 
