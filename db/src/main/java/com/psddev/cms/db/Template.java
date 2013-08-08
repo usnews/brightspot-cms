@@ -305,7 +305,8 @@ public class Template extends Page {
             Set<ObjectType> typesSet = new LinkedHashSet<ObjectType>();
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
-                if (type.getGroups().contains(Directory.Item.class.getName())) {
+                if (type.isConcrete() &&
+                        type.getGroups().contains(Directory.Item.class.getName())) {
                     typesSet.add(type);
                 }
             }

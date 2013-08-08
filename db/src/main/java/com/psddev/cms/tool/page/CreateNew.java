@@ -58,7 +58,8 @@ public class CreateNew extends PageServlet {
         }
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
-            if (type.getGroups().contains(Directory.Item.class.getName()) &&
+            if (type.isConcrete() && 
+                    type.getGroups().contains(Directory.Item.class.getName()) &&
                     !typeCounts.containsKey(type)) {
                 TypeTemplate typeTemplate = new TypeTemplate(type, null);
 
