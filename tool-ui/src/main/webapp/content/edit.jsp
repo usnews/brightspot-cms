@@ -723,10 +723,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 embedPreviewWidth = null;
                             }
 
-                            if (!ObjectUtils.isBlank(rendererData.getEmbedPath())) {
-                                contexts.add(new Context("_embed", embedPreviewWidth, "Embed"));
-                            }
-
                             for (String context : rendererData.getPaths().keySet()) {
                                 if (!ObjectUtils.isBlank(context)) {
                                     contexts.add(new Context(context, embedPreviewWidth, StringUtils.toLabel(context)));
