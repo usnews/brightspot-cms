@@ -53,11 +53,23 @@ public class Page extends Content {
     public Layout getLayout() {
         if (layout == null) {
             Section legacySection = resolveReference(Section.class, getState().getValue("layout"));
+
             if (legacySection != null) {
                 layout = new Layout();
+
                 layout.setOutermostSection(convertLegacySection(layout, legacySection));
             }
         }
+
+        if (layout != null) {
+            Section section = layout.getOutermostSection();
+
+            if (section instanceof ScriptSection &&
+                    ObjectUtils.isBlank(((ScriptSection) section).getScript())) {
+                layout = null;
+            }
+        }
+
         return layout;
     }
 
@@ -116,6 +128,7 @@ public class Page extends Content {
         return sections;
     }
 
+    @Deprecated
     private void addSections(List<Section> sections, Section section) {
         if (section != null) {
             sections.add(section);
