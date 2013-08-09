@@ -66,7 +66,7 @@ public interface Renderer extends Recordable {
         private Map<String, String> paths;
         private String layoutPath;
         private String embedPath;
-        private int embedPreviewWidth;
+        private Integer embedPreviewWidth;
 
         // Returns the legacy rendering JSP.
         private String getDefaultRecordJsp() {
@@ -154,11 +154,11 @@ public interface Renderer extends Recordable {
             this.embedPath = embedPath;
         }
 
-        public int getEmbedPreviewWidth() {
+        public Integer getEmbedPreviewWidth() {
             return embedPreviewWidth;
         }
 
-        public void setEmbedPreviewWidth(int embedPreviewWidth) {
+        public void setEmbedPreviewWidth(Integer embedPreviewWidth) {
             this.embedPreviewWidth = embedPreviewWidth;
         }
 
@@ -398,9 +398,12 @@ class EmbedPathProcessor implements ObjectType.AnnotationProcessor<Renderer.Embe
 }
 
 class EmbedPreviewWidthProcessor implements ObjectType.AnnotationProcessor<Renderer.EmbedPreviewWidth> {
+
     @Override
     public void process(ObjectType type, Renderer.EmbedPreviewWidth annotation) {
-        type.as(Renderer.TypeModification.class).setEmbedPreviewWidth(annotation.value());
+        int width = annotation.value();
+
+        type.as(Renderer.TypeModification.class).setEmbedPreviewWidth(width > 0 ? width : null);
     }
 }
 
