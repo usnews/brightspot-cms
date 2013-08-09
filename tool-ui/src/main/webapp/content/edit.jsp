@@ -10,6 +10,7 @@ com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.History,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
+com.psddev.cms.db.Renderer,
 com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
@@ -709,6 +710,44 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             }
                         wp.writeEnd();
 
+                        ObjectType editingType = editingState.getType();
+
+                        if (editingType != null) {
+                            Renderer.TypeModification rendererData = editingType.as(Renderer.TypeModification.class);
+                            Integer embedPreviewWidth = rendererData.getEmbedPreviewWidth();
+                            List<Context> contexts = new ArrayList<Context>();
+
+                            contexts.add(new Context("", null, "Default"));
+
+                            if (!ObjectUtils.isBlank(rendererData.getEmbedPath())) {
+                                contexts.add(new Context("_embed", embedPreviewWidth, "Embed"));
+                            }
+
+                            for (String context : rendererData.getPaths().keySet()) {
+                                if (!ObjectUtils.isBlank(context)) {
+                                    contexts.add(new Context(context, embedPreviewWidth, StringUtils.toLabel(context)));
+                                }
+                            }
+
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "name", "_context",
+                                    "onchange",
+                                            "var $input = $(this)," +
+                                                    "$form = $input.closest('form');" +
+                                            "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.find(':selected').attr('data-width') || '100%');" +
+                                            "$form.submit();");
+                                for (Context context : contexts) {
+                                    wp.writeStart("option",
+                                            "value", context.value,
+                                            "data-width", context.width);
+                                        wp.writeHtml("Context: ");
+                                        wp.writeHtml(context.label);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
+                        }
+
                         List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
 
                         if (paths != null && !paths.isEmpty()) {
@@ -1267,6 +1306,19 @@ private enum Device {
     @Override
     public String toString() {
         return label + " (" + width + ")";
+    }
+}
+
+private static class Context {
+
+    public String value;
+    public Integer width;
+    public String label;
+
+    public Context(String value, Integer width, String label) {
+        this.value = value;
+        this.width = width;
+        this.label = label;
     }
 }
 %>
