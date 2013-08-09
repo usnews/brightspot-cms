@@ -714,10 +714,14 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                         if (editingType != null) {
                             Renderer.TypeModification rendererData = editingType.as(Renderer.TypeModification.class);
-                            Integer embedPreviewWidth = rendererData.getEmbedPreviewWidth();
                             List<Context> contexts = new ArrayList<Context>();
+                            Integer embedPreviewWidth = rendererData.getEmbedPreviewWidth();
 
                             contexts.add(new Context("", null, "Default"));
+
+                            if (embedPreviewWidth <= 0) {
+                                embedPreviewWidth = null;
+                            }
 
                             if (!ObjectUtils.isBlank(rendererData.getEmbedPath())) {
                                 contexts.add(new Context("_embed", embedPreviewWidth, "Embed"));
