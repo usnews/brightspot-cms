@@ -534,9 +534,10 @@ public class PageFilter extends AbstractFilter {
             }
 
             String context = request.getParameter("_context");
+            boolean contextNotBlank = !ObjectUtils.isBlank(context);
             boolean embed = ObjectUtils.coalesce(
                     ObjectUtils.to(Boolean.class, request.getParameter("_embed")),
-                    !ObjectUtils.isBlank(context));
+                    contextNotBlank);
 
             String layoutPath = findLayoutPath(mainObject, embed);
 
@@ -555,7 +556,9 @@ public class PageFilter extends AbstractFilter {
             boolean rendered = false;
 
             try {
-                ContextTag.Static.pushContext(request, context);
+                if (contextNotBlank) {
+                    ContextTag.Static.pushContext(request, context);
+                }
 
                 if (!ObjectUtils.isBlank(layoutPath)) {
                     rendered = true;
@@ -571,7 +574,9 @@ public class PageFilter extends AbstractFilter {
                 }
 
             } finally {
-                ContextTag.Static.popContext(request);
+                if (contextNotBlank) {
+                    ContextTag.Static.popContext(request);
+                }
             }
 
             if (!rendered) {
