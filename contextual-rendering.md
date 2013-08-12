@@ -24,11 +24,24 @@ public class Article extends Content implements Directory.Item {
 
 ## Setting Context
 
-Having set the paths, and the context terms on the object, add the matching context term in the JSP where the object is being rendered, to set when a specific path should be used.
+Having set the paths, and the context terms on the object, add the matching context term in the JSP where the object is being rendered, to set when a specific path should be used. There are two ways to do so, either through the `cms:context` tag, or as an attribute on `cms:render`:
 
 {% highlight jsp %}<cms:context name="module">
-	<cms:render value="${content.article}"/>
+    <cms:render value="${content.article}"/>
 </cms:context>
 {% endhighlight %}
+
+{% highlight jsp %}<cms:render context="module" value="${content.article}"/>
+{% endhighlight %}
+
+## Previewing Context
+
+Content that has various views, based on context, can be previewed accordingly to the options, using the `Context` drop down within the preview tool:
+
+![](http://docs.brightspot.s3.amazonaws.com/context-preview-2.2.png)
+
+In order to enable this view, the content must also have a `@Renderer.EmbedPath("")` annotation. See the [syndication](syndication.html) section to learn about creating an `embed.jsp`.
+
+
 
 </div>
