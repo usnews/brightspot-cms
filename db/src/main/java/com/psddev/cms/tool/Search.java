@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -295,6 +296,12 @@ public class Search extends Record {
         return new LinkedHashSet<ObjectType>(validTypes);
     }
 
+    /**
+     * Finds all sorters that can be applied to this search.
+     *
+     * @return Never {@code null}. The key is the unique ID, and the value
+     * is the label. Sorted by the label.
+     */
     public Map<String, String> findSorts() {
         Map<String, String> sorts = new LinkedHashMap<String, String>();
         ObjectType selectedType = getSelectedType();
@@ -305,6 +312,23 @@ public class Search extends Record {
 
         addSorts(sorts, selectedType);
         addSorts(sorts, Database.Static.getDefault().getEnvironment());
+
+        List<Map.Entry<String, String>> sortsList = new ArrayList<Map.Entry<String, String>>(sorts.entrySet());
+
+        Collections.sort(sortsList, new Comparator<Map.Entry<String, String>>() {
+
+            @Override
+            public int compare(Map.Entry<String, String> x, Map.Entry<String, String> y) {
+                return ObjectUtils.compare(x.getValue(), y.getValue(), false);
+            }
+        });
+
+        sorts.clear();
+
+        for (Map.Entry<String, String> entry : sortsList) {
+            sorts.put(entry.getKey(), entry.getValue());
+        }
+
         return sorts;
     }
 
