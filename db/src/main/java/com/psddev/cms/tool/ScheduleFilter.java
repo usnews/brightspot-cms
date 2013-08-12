@@ -24,6 +24,8 @@ public class ScheduleFilter extends AbstractFilter {
             for (Schedule schedule : Query.
                     from(Schedule.class).
                     sortAscending("triggerDate").
+                    master().
+                    noCache().
                     iterable(0)) {
 
                 try {
@@ -46,7 +48,7 @@ public class ScheduleFilter extends AbstractFilter {
 
     @Override
     protected void doInit() {
-        scheduler.schedule(0.0, 5.0);
+        scheduler.schedule(60.0, 60.0);
     }
 
     @Override
