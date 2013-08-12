@@ -37,7 +37,7 @@ To render the content of the module, create a JSP file to associate with the obj
 {% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
 
-<div style="border-top: 1px solid #333; padding:10px;">
+<div>
     <strong><c:out value="${content.title}"/></strong><br/>
     <cms:render value="${content.body}"/>
 </div>
@@ -76,8 +76,8 @@ Because the module has a `jsp` file associated with it, rendering it using the `
 <div class="highlight">{% highlight jsp %}<cms:layout class="article-layout">
     <cms:render area="content">
         <h1><cms:render value="${content.headline}"/></h1>
-			<h5>Written by: <c:out value="${content.author.name}"/></h5>
-			<cms:render value="${content.body}" /><hr>
+        <h5>Written by: <c:out value="${content.author.name}"/></h5>
+        <cms:render value="${content.body}" /><hr>
 	  </cms:render>
     <cms:render area="right">
         <div>
@@ -186,8 +186,8 @@ The jsp should also be updated, to handle the change of names:
 <div class="highlight">{% highlight jsp %}<cms:layout class="article-layout">
     <cms:render area="content">
         <h1><cms:render value="${content.headline}"/></h1>
-			<h5>Written by: <c:out value="${content.author.name}"/></h5>
-			<cms:render value="${content.body}" /><hr>
+        <h5>Written by: <c:out value="${content.author.name}"/></h5>
+        <cms:render value="${content.body}" /><hr>
 	  </cms:render>
     <cms:render area="right">
         <div>
@@ -201,6 +201,12 @@ The jsp should also be updated, to handle the change of names:
 Now, when adding modules to the Article, both types can be chosen, or added inline.
 
 ![](http://docs.brightspot.s3.amazonaws.com/creating-interfaces.png)
+
+## Embedding Modules
+
+Modules can be embedded on pages using an embed script. This can power syndication, with modules appearing on other Brightspot sites. For full documentation see the [Syndication](syndication.html) section.
+
+
 
 </div>
 

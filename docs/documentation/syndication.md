@@ -19,10 +19,10 @@ Any piece of content with a URL can be embedded outside of Brightspot. Start by 
 @Renderer.Path("/generic-module.jsp")
 public class GenericModule extends Content {
 
-	private String title;
-	private ReferentialText body;
+    private String title;
+    private ReferentialText body;
 
-	// Getters and Setters
+    // Getters and Setters
 }
 {% endhighlight %}
 
