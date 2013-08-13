@@ -17,6 +17,8 @@ java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
 java.util.List,
+java.util.HashMap,
+java.util.Map,
 java.util.Set,
 java.util.UUID
 " %><%
@@ -82,7 +84,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (fieldValue != null) {
             State fieldValueState = State.getInstance(fieldValue);
             fieldValueState.setId(id);
-            wp.include("/WEB-INF/objectPost.jsp", "object", fieldValue);
+            wp.updateUsingParameters(fieldValue);
             fieldValueState.putValue(Content.PUBLISH_DATE_FIELD, publishDate != null ? publishDate : new Date());
             fieldValueState.putValue(Content.UPDATE_DATE_FIELD, new Date());
         }
@@ -103,7 +105,7 @@ if (isEmbedded) {
         wp.write("<input name=\"", wp.h(idName), "\" type=\"hidden\" value=\"", fieldValueState.getId(), "\">");
         wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", fieldValueState.getTypeId(), "\">");
         wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(fieldValuePublishDate != null ? fieldValuePublishDate.getTime() : null), "\">");
-        wp.include("/WEB-INF/objectForm.jsp", "object", fieldValue);
+        wp.writeFormFields(fieldValue);
         wp.write("</div>");
 
     } else {
@@ -119,12 +121,15 @@ if (isEmbedded) {
         Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
 
         String validObjectClass = wp.createId();
+        Map<UUID, String> showClasses = new HashMap<UUID, String>();
         wp.write("<div class=\"inputSmall\">");
         wp.write("<select class=\"toggleable\" name=\"", wp.h(idName), "\">");
         wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\"></option>");
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
-            wp.write("<option data-hide=\".", validObjectClass, "\" data-show=\"#i", validState.getId(), "\" value=\"", validState.getId(), "\"");
+            String showClass = wp.createId();
+            showClasses.put(validState.getId(), showClass);
+            wp.write("<option data-hide=\".", validObjectClass, "\" data-show=\".", showClass, "\" value=\"", validState.getId(), "\"");
             if (validObject.equals(fieldValue)) {
                 wp.write(" selected");
             }
@@ -138,10 +143,10 @@ if (isEmbedded) {
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
             Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
-            wp.write("<div class=\"inputLarge ", validObjectClass, "\" id=\"i", validState.getId(), "\">");
+            wp.write("<div class=\"inputLarge ", validObjectClass, " ", showClasses.get(validState.getId()), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
-            wp.include("/WEB-INF/objectForm.jsp", "object", validObject);
+            wp.writeFormFields(validObject);
             wp.write("</div>");
         }
     }

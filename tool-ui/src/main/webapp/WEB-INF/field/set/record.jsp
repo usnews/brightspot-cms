@@ -85,7 +85,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 itemState.setId(ids[i]);
             }
 
-            wp.include("/WEB-INF/objectPost.jsp", "object", item);
+            wp.updateUsingParameters(item);
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
             fieldValue.add(item);
@@ -134,7 +134,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
                     <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
                     <input name="<%= wp.h(publishDateName) %>" type="hidden" value="<%= wp.h(itemPublishDate != null ? itemPublishDate.getTime() : null) %>">
-                    <% wp.include("/WEB-INF/objectForm.jsp", "object", item); %>
+                    <% wp.writeFormFields(item); %>
                 </li>
             <% } %>
             <% for (ObjectType type : validTypes) { %>

@@ -100,8 +100,8 @@ $.plugin2('frame', {
                 $popup = $frame.popup('container');
 
                 body = data;
-                body = body.replace(/^.*?<body[^>]*>/ig, '');
-                body = body.replace(/<\/body>.*?$/ig, '');
+                body = body.replace(/^[^]*?<body[^>]*>/ig, '');
+                body = body.replace(/<\/body>[^]*?$/ig, '');
 
                 $frame.add($popup).removeClass(loadingClassName).addClass(loadedClassName);
                 options.setBody.call($frame[0], body);

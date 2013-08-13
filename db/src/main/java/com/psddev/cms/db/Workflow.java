@@ -174,6 +174,7 @@ public class Workflow extends Record {
     public static class Data extends Modification<Object> {
 
         @Indexed(visibility = true)
+        @ToolUi.Hidden
         private String currentState;
 
         public String getCurrentState() {

@@ -10,6 +10,7 @@ com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.History,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
+com.psddev.cms.db.Renderer,
 com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
@@ -265,7 +266,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             if (history != null) {
                                 wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
                                     wp.writeStart("h2").writeHtml("History").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                    wp.writeFormFields(editing);
                                 wp.writeEnd();
                             }
 
@@ -274,7 +275,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2").writeHtml("Current").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", original.getOriginalObject());
+                                    wp.writeFormFields(original.getOriginalObject());
                                 wp.writeEnd();
 
                             } finally {
@@ -284,17 +285,17 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             if (draft != null) {
                                 wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
                                     wp.writeStart("h2").writeHtml("Draft").writeEnd();
-                                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                                    wp.writeFormFields(editing);
                                 wp.writeEnd();
                             }
                         wp.writeEnd();
 
                     } else {
-                        wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                        wp.writeFormFields(editing);
                     }
 
                 } else {
-                    wp.include("/WEB-INF/objectForm.jsp", "object", editing);
+                    wp.writeFormFields(editing);
                 }
                 %>
             </div>
@@ -566,7 +567,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                                         "name", "workflowLogId",
                                                         "value", newLog.getId());
 
-                                                JspUtils.include(request, response, out, wp.cmsUrl("/WEB-INF/objectForm.jsp"), "object", newLog);
+                                                wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
                                             for (String transitionName : transitionNames) {
@@ -708,6 +709,44 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 wp.writeEnd();
                             }
                         wp.writeEnd();
+
+                        ObjectType editingType = editingState.getType();
+
+                        if (editingType != null) {
+                            Renderer.TypeModification rendererData = editingType.as(Renderer.TypeModification.class);
+                            List<Context> contexts = new ArrayList<Context>();
+                            Integer embedPreviewWidth = rendererData.getEmbedPreviewWidth();
+
+                            contexts.add(new Context("", null, "Default"));
+
+                            if (embedPreviewWidth <= 0) {
+                                embedPreviewWidth = null;
+                            }
+
+                            for (String context : rendererData.getPaths().keySet()) {
+                                if (!ObjectUtils.isBlank(context)) {
+                                    contexts.add(new Context(context, embedPreviewWidth, StringUtils.toLabel(context)));
+                                }
+                            }
+
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "name", "_context",
+                                    "onchange",
+                                            "var $input = $(this)," +
+                                                    "$form = $input.closest('form');" +
+                                            "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.find(':selected').attr('data-width') || '100%');" +
+                                            "$form.submit();");
+                                for (Context context : contexts) {
+                                    wp.writeStart("option",
+                                            "value", context.value,
+                                            "data-width", context.width);
+                                        wp.writeHtml("Context: ");
+                                        wp.writeHtml(context.label);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
+                        }
 
                         List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
 
@@ -1267,6 +1306,19 @@ private enum Device {
     @Override
     public String toString() {
         return label + " (" + width + ")";
+    }
+}
+
+private static class Context {
+
+    public String value;
+    public Integer width;
+    public String label;
+
+    public Context(String value, Integer width, String label) {
+        this.value = value;
+        this.width = width;
+        this.label = label;
     }
 }
 %>

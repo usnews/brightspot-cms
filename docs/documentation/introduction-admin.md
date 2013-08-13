@@ -32,7 +32,7 @@ Custom workflows can be created for any user role and content type. Build your o
 
 By adding Status boxes, and dragging transitions, workflows can be built for a custom editorial flow. The final transition must move content to the `Published` box.
 
-![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_complete.png)
+![](http://docs.brightspot.s3.amazonaws.com/workflow_creation_2.2.3.png)
 
 **Using the Workflow: Controlling Users**
 

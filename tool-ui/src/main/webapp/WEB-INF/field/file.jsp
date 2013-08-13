@@ -670,6 +670,26 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     <p>No Brightcove player is configured for previewing videos.</p>
                 <% } %>
 
+            <%
+            } else if (contentType != null && contentType.startsWith("video/")) {
+                wp.writeStart("div", "style", wp.cssString("margin-bottom", "5px"));
+                    wp.writeStart("a",
+                            "class", "icon icon-action-preview",
+                            "href", fieldValue.getPublicUrl(),
+                            "target", "_blank");
+                        wp.writeHtml("View Original");
+                    wp.writeEnd();
+                wp.writeEnd();
+
+                wp.writeStart("video",
+                        "controls", "controls",
+                        "preload", "auto");
+                    wp.writeTag("source",
+                            "type", contentType,
+                            "src", fieldValue.getPublicUrl());
+                wp.writeEnd();
+            %>
+
             <% } else { %>
                 <a href="<%= wp.h(fieldValue.getUrl()) %>" target="_blank"><%= wp.h(contentType) %>: <%= wp.h(fieldValue.getPath()) %></a>
             <% } %>

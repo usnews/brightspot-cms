@@ -533,7 +533,12 @@ public class PageFilter extends AbstractFilter {
                 request.getSession();
             }
 
-            boolean embed = ObjectUtils.to(boolean.class, request.getParameter("_embed"));
+            String context = request.getParameter("_context");
+            boolean contextNotBlank = !ObjectUtils.isBlank(context);
+            boolean embed = ObjectUtils.coalesce(
+                    ObjectUtils.to(Boolean.class, request.getParameter("_embed")),
+                    contextNotBlank);
+
             String layoutPath = findLayoutPath(mainObject, embed);
 
             if (page != null && ObjectUtils.isBlank(layoutPath)) {
@@ -550,16 +555,27 @@ public class PageFilter extends AbstractFilter {
 
             boolean rendered = false;
 
-            if (!ObjectUtils.isBlank(layoutPath)) {
-                rendered = true;
-                JspUtils.include(request, response, writer, StringUtils.ensureStart(layoutPath, "/"));
+            try {
+                if (contextNotBlank) {
+                    ContextTag.Static.pushContext(request, context);
+                }
 
-            } else if (page != null) {
-                Page.Layout layout = page.getLayout();
-
-                if (layout != null) {
+                if (!ObjectUtils.isBlank(layoutPath)) {
                     rendered = true;
-                    renderSection(request, response, writer, layout.getOutermostSection());
+                    JspUtils.include(request, response, writer, StringUtils.ensureStart(layoutPath, "/"));
+
+                } else if (page != null) {
+                    Page.Layout layout = page.getLayout();
+
+                    if (layout != null) {
+                        rendered = true;
+                        renderSection(request, response, writer, layout.getOutermostSection());
+                    }
+                }
+
+            } finally {
+                if (contextNotBlank) {
+                    ContextTag.Static.popContext(request);
                 }
             }
 
@@ -569,11 +585,28 @@ public class PageFilter extends AbstractFilter {
                     return;
 
                 } else {
-                    throw new IllegalStateException(String.format(
-                            "No template for [%s] [%s]! (ID: %s)",
-                            mainObject.getClass().getName(),
-                            mainState.getLabel(),
-                            mainState.getId().toString().replaceAll("-", "")));
+                    StringBuilder message = new StringBuilder();
+
+                    if (embed) {
+                        message.append("@Renderer.EmbedPath required on [");
+                        message.append(mainObject.getClass().getName());
+                        message.append("] to render it in [");
+                        message.append(ObjectUtils.isBlank(context) ? "_embed" : context);
+                        message.append("] context");
+
+                    } else {
+                        message.append("@Renderer.Path or @Renderer.LayoutPath required on [");
+                        message.append(mainObject.getClass().getName());
+                        message.append("] to render it");
+                    }
+
+                    message.append(" (Object: [");
+                    message.append(mainState.getLabel());
+                    message.append("], ID: [");
+                    message.append(mainState.getId().toString().replaceAll("-", ""));
+                    message.append("])!");
+
+                    throw new IllegalStateException(message.toString());
                 }
             }
 

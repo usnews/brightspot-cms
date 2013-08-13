@@ -32,9 +32,9 @@ Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The sc
 
 ## Create Application Server
 
-**Tomcat 6.x**
+**Tomcat 7.x**
 
-[Download](http://tomcat.apache.org/download-60.cgi) Tomcat and unzip to a directory now referred to as $TOMCAT_HOME. 
+[Download](http://tomcat.apache.org/download-70.cgi) Tomcat and unzip to a directory now referred to as $TOMCAT_HOME. 
 
 Note: For Windows users install the generic Tomcat version, NOT the Windows Version. This is required for the on-the-fly code compilation (Reloader Tool) to function correctly.
 

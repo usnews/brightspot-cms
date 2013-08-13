@@ -763,7 +763,7 @@ $doc.delegate(':input', 'blur', function() {
                 });
 
                 replaceFileInput = function() {
-                    var $frameFileInput = $frame.find(':file');
+                    var $frameFileInput = $frame.find(':file').eq(0);
 
                     if ($frameFileInput.length !== 1) {
                         setTimeout(replaceFileInput, 20);

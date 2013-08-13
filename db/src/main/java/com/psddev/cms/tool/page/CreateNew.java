@@ -15,9 +15,11 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "/createNew")
@@ -52,6 +54,22 @@ public class CreateNew extends PageServlet {
 
                 typeTemplates.add(typeTemplate);
                 typeCounts.put(type, typeCounts.containsKey(type) ? typeCounts.get(type) + 1 : 1);
+            }
+        }
+
+        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
+            if (type.isConcrete() && 
+                    type.getGroups().contains(Directory.Item.class.getName()) &&
+                    !typeCounts.containsKey(type)) {
+                TypeTemplate typeTemplate = new TypeTemplate(type, null);
+
+                if (typeTemplate.getCollapsedId().equals(redirect)) {
+                    page.redirect("/content/edit.jsp", "typeId", type.getId());
+                    return;
+                }
+
+                typeTemplates.add(typeTemplate);
+                typeCounts.put(type, 1);
             }
         }
 
@@ -175,7 +193,7 @@ public class CreateNew extends PageServlet {
                                     "target", "_top",
                                     "href", page.url("/content/edit.jsp",
                                             "typeId", type.getId(),
-                                            "templateId", template.getId()));
+                                            "templateId", template != null ? template.getId() : null));
                                 page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
                             page.writeEnd();
                         page.writeEnd();
@@ -208,13 +226,14 @@ public class CreateNew extends PageServlet {
 
     private String getTypeTemplateLabel(Map<ObjectType, Integer> typeCounts, TypeTemplate typeTemplate) {
         ObjectType type = typeTemplate.type;
+        Template template = typeTemplate.template;
         StringBuilder label = new StringBuilder();
 
         label.append(ToolPageContext.Static.getObjectLabel(type));
 
-        if (typeCounts.get(type) > 1) {
+        if (template != null && typeCounts.get(type) > 1) {
             label.append(" - ");
-            label.append(ToolPageContext.Static.getObjectLabel(typeTemplate.template));
+            label.append(ToolPageContext.Static.getObjectLabel(template));
         }
 
         return label.toString();
@@ -231,17 +250,36 @@ public class CreateNew extends PageServlet {
         }
 
         public String getParameterName() {
-            return "favorite." + type.getId() + "." + template.getId();
+            StringBuilder name = new StringBuilder();
+
+            name.append("favorite.");
+            name.append(type.getId());
+            name.append('.');
+
+            if (template != null) {
+                name.append(template.getId());
+            }
+
+            return name.toString();
         }
 
         public String getCollapsedId() {
-            return type.getId() + "," + template.getId();
+            StringBuilder id = new StringBuilder();
+
+            id.append(type.getId());
+            id.append(',');
+
+            if (template != null) {
+                id.append(template.getId());
+            }
+
+            return id.toString();
         }
 
         @Override
         public int compareTo(TypeTemplate other) {
             int comparison = type.compareTo(other.type);
-            return comparison == 0 ? template.compareTo(other.template) : comparison;
+            return comparison == 0 ? ObjectUtils.compare(template, other.template, true) : comparison;
         }
 
         @Override
@@ -251,7 +289,7 @@ public class CreateNew extends PageServlet {
 
             } else if (other instanceof TypeTemplate) {
                 TypeTemplate o = (TypeTemplate) other;
-                return type.equals(o.type) && template.equals(o.template);
+                return type.equals(o.type) && ObjectUtils.equals(template, o.template);
 
             } else {
                 return false;

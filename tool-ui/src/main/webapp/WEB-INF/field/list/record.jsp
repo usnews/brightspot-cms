@@ -93,7 +93,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 itemState.setId(ids[i]);
             }
 
-            wp.include("/WEB-INF/objectPost.jsp", "object", item);
+            wp.updateUsingParameters(item);
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
             fieldValue.add(item);
@@ -146,7 +146,7 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    wp.include("/WEB-INF/objectForm.jsp", "object", item);
+                    wp.writeFormFields(item);
                 wp.writeEnd();
             }
 

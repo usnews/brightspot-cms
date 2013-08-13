@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -295,6 +296,12 @@ public class Search extends Record {
         return new LinkedHashSet<ObjectType>(validTypes);
     }
 
+    /**
+     * Finds all sorters that can be applied to this search.
+     *
+     * @return Never {@code null}. The key is the unique ID, and the value
+     * is the label. Sorted by the label.
+     */
     public Map<String, String> findSorts() {
         Map<String, String> sorts = new LinkedHashMap<String, String>();
         ObjectType selectedType = getSelectedType();
@@ -303,17 +310,36 @@ public class Search extends Record {
             sorts.put(RELEVANT_SORT_VALUE, RELEVANT_SORT_LABEL);
         }
 
-        sorts.put(NEWEST_SORT_VALUE, NEWEST_SORT_LABEL);
+        addSorts(sorts, selectedType);
+        addSorts(sorts, Database.Static.getDefault().getEnvironment());
 
-        if (selectedType != null) {
-            for (ObjectField field : selectedType.getIndexedFields()) {
+        List<Map.Entry<String, String>> sortsList = new ArrayList<Map.Entry<String, String>>(sorts.entrySet());
+
+        Collections.sort(sortsList, new Comparator<Map.Entry<String, String>>() {
+
+            @Override
+            public int compare(Map.Entry<String, String> x, Map.Entry<String, String> y) {
+                return ObjectUtils.compare(x.getValue(), y.getValue(), false);
+            }
+        });
+
+        sorts.clear();
+
+        for (Map.Entry<String, String> entry : sortsList) {
+            sorts.put(entry.getKey(), entry.getValue());
+        }
+
+        return sorts;
+    }
+
+    private void addSorts(Map<String, String> sorts, ObjectStruct struct) {
+        if (struct != null) {
+            for (ObjectField field : ObjectStruct.Static.findIndexedFields(struct)) {
                 if (field.as(ToolUi.class).isEffectivelySortable()) {
                     sorts.put(field.getInternalName(), field.getDisplayName());
                 }
             }
         }
-
-        return sorts;
     }
 
     public Query<?> toQuery(Site site) {
@@ -350,8 +376,41 @@ public class Search extends Record {
         }
 
         String queryString = getQueryString();
+        String sort = getSort();
+        boolean metricSort = false;
 
-        if (ObjectUtils.isBlank(queryString)) {
+        if (RELEVANT_SORT_VALUE.equals(sort)) {
+
+        } else if (sort != null) {
+            ObjectField sortField = selectedType != null ?
+                    selectedType.getFieldGlobally(sort) :
+                    Database.Static.getDefault().getEnvironment().getField(sort);
+
+            if (sortField != null) {
+                if (sortField.isMetric()) {
+                    metricSort = true;
+                }
+
+                String sortName = selectedType != null ?
+                        selectedType.getInternalName() + "/" + sort :
+                        sort;
+
+                if (ObjectField.TEXT_TYPE.equals(sortField.getInternalType())) {
+                    query.sortAscending(sortName);
+
+                } else {
+                    query.sortDescending(sortName);
+                }
+
+                if (!isShowMissing()) {
+                    query.and(sortName + " != missing");
+                }
+            }
+        }
+
+        if (metricSort) {
+
+        } else if (ObjectUtils.isBlank(queryString)) {
             if (isAllSearchable) {
                 query.and("* ~= *");
             }
@@ -503,37 +562,6 @@ public class Search extends Record {
                     } else {
                         query.and(fieldName + " = ?", fieldValue);
                     }
-                }
-            }
-        }
-
-        String sort = getSort();
-
-        if (sort == null) {
-            sort = findSorts().keySet().iterator().next();
-            setSort(sort);
-        }
-
-        if (NEWEST_SORT_VALUE.equals(sort)) {
-            query.sortDescending(Content.UPDATE_DATE_FIELD);
-
-        } else if (RELEVANT_SORT_VALUE.equals(sort)) {
-
-        } else if (selectedType != null && sort != null) {
-            ObjectField sortField = selectedType.getField(sort);
-
-            if (sortField != null) {
-                String sortName = selectedType.getInternalName() + "/" + sort;
-
-                if (ObjectField.TEXT_TYPE.equals(sortField.getInternalType())) {
-                    query.sortAscending(sortName);
-
-                } else {
-                    query.sortDescending(sortName);
-                }
-
-                if (!isShowMissing()) {
-                    query.and(sortName + " != missing");
                 }
             }
         }
