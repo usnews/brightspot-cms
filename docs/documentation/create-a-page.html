@@ -21,7 +21,7 @@ section: documentation
                     To build your first page, create a new Java class, extending the Page class. Using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> add two paths to two new JSP files, one to render the entire page (LayoutPath) and one to render the new object that extends Page. These jsp files will allow you to render the content within your new Page object. The example below shows a Homepage that contains three editorial picked Articles to appear on it. The CSS files being used are from <a href="http://twitter.github.io/bootstrap/‎">Twitter Bootstrap</a><br/><br/>Note, the <code>@Renderer.LayoutPath</code> can often be the same jsp for all pages, sharing the same header and footer.<br/><br/><b>Note:</b> The following examples assume you have created several content types, such as Articles. See the dedicated section for <a href="new-content.html">creating content types</a> if you have not already done so.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.Path("/WEB-INF/model/homepage-object.jsp")
 @Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
-public class Homepage extends Page {
+public class Homepage extends Page implements Singleton {
 
     @Required
     private String name;
@@ -128,7 +128,7 @@ public class Article extends Content implements Directory.item {
                 Using the <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations, the JSP files used to render the layout of the Article template are added.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/page-container.jsp")
 @Renderer.Path("/article-object.jsp")
-public class Article extends Content {
+public class Article extends Content implements Directory.item {
 
 }
 {% endhighlight %}</div></br>
