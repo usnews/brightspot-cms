@@ -28,6 +28,7 @@ import com.psddev.dari.util.TypeDefinition;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private String codeType;
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
@@ -52,6 +53,14 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMaximum;
     private Number suggestedMinimum;
     private String tab;
+
+    public String getCodeType() {
+        return codeType;
+    }
+
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
+    }
 
     public boolean isDisplayFirst() {
         return displayFirst;
@@ -340,6 +349,26 @@ public class ToolUi extends Modification<Object> {
 
     public void setTab(String tab) {
         this.tab = tab;
+    }
+
+    /**
+     * Specifies that the target field should be displayed as code of the
+     * given type {@code value}.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CodeTypeProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CodeType {
+        String value();
+    }
+
+    private static class CodeTypeProcessor implements ObjectField.AnnotationProcessor<CodeType> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CodeType annotation) {
+            field.as(ToolUi.class).setCodeType(annotation.value());
+        }
     }
 
     /**

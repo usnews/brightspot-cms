@@ -119,6 +119,14 @@
                                 <include>jquery.extra.js</include>
                                 <include>jquery.autosubmit.js</include>
                                 <include>jquery.calendar.js</include>
+                                <include>codemirror/codemirror.js</include>
+                                <include>codemirror/mode/clike/clike.js</include>
+                                <include>codemirror/mode/xml/xml.js</include>
+                                <include>codemirror/mode/javascript/javascript.js</include>
+                                <include>codemirror/mode/css/css.js</include>
+                                <include>codemirror/mode/htmlmixed/htmlmixed.js</include>
+                                <include>codemirror/mode/htmlembedded/htmlembedded.js</include>
+                                <include>jquery.code.js</include>
                                 <include>jquery.dropdown.js</include>
                                 <include>jquery.expandable.js</include>
                                 <include>jquery.popup.js</include>

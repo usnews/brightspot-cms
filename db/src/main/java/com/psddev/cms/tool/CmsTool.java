@@ -37,11 +37,18 @@ public class CmsTool extends Tool {
     @ToolUi.Note("Check this to force the generated permalink to replace the existing URLs. This is useful before the site is live when the URL structure is still in flux.")
     private boolean singleGeneratedPermalink;
 
+    @ToolUi.CodeType("text/css")
     private String extraCss;
+
+    @ToolUi.CodeType("text/javascript")
     private String extraJavaScript;
+
     private String defaultSiteUrl;
     private String defaultToolUrl;
+
+    @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
+
     private List<CssClassGroup> textCssClassGroups;
     private List<ResourceItem> resources;
 
@@ -112,7 +119,11 @@ public class CmsTool extends Tool {
         private String internalName;
 
         private String tag;
+
+        @ToolUi.CodeType("text/css")
         private String css;
+
+        @ToolUi.CodeType("text/css")
         private String cmsOnlyCss;
 
         public String getDisplayName() {
