@@ -320,6 +320,7 @@ $doc.onCreate('.objectInputs', function() {
                         });
                     });
 
+                    $container.resize();
                     return false;
                 }
             })
@@ -337,6 +338,7 @@ $doc.onCreate('.objectInputs', function() {
                             $item.show();
                         });
 
+                        $container.resize();
                         return false;
                     }
                 })
