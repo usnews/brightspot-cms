@@ -169,7 +169,7 @@ In the Article object, update the RightRail section to return the interface as a
 
 <div class="highlight">{% highlight java %}@Renderer.Path("/WEB-INF/model/article-object.jsp")
 @Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
-public class NewArticle extends Content implements Directory.Item {
+public class Article extends Content implements Directory.Item {
 
 	@Indexed
 	@Required
