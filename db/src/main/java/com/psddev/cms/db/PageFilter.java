@@ -496,6 +496,12 @@ public class PageFilter extends AbstractFilter {
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
             response.setContentType((ObjectUtils.isBlank(contentType) ? "text/html" : contentType) + ";charset=UTF-8");
 
+            // Disable Webkit's XSS Auditor since it often interferes with
+            // how preview works.
+            if (Static.isPreview(request)) {
+                response.setHeader("X-XSS-Protection", "0");
+            }
+
             // Render the page.
             if (isOverlay(request)) {
                 LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
