@@ -323,7 +323,7 @@ public class PageStage extends Record {
                 removeHeadTag("meta", "http-equiv", httpEquiv);
 
             } else {
-                findOrCreateHeadElement("meta", "http-equiv", httpEquiv).getAttributes().put("contnet", content);
+                findOrCreateHeadElement("meta", "http-equiv", httpEquiv).getAttributes().put("content", content);
             }
         }
     }
