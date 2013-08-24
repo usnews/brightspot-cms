@@ -302,6 +302,9 @@ public class PageFilter extends AbstractFilter {
             return;
         }
 
+        ToolUser user = AuthenticationFilter.Static.getUser(request);
+        request.setAttribute("toolUser", user);
+
         VaryingDatabase varying = new VaryingDatabase();
         varying.setDelegate(Database.Static.getDefault());
         varying.setRequest(request);
@@ -417,8 +420,6 @@ public class PageFilter extends AbstractFilter {
             if (!Static.isPreview(request) &&
                     !mainState.isVisible()) {
                 SCHEDULED: {
-                    ToolUser user = AuthenticationFilter.Static.getUser(request);
-
                     if (user != null) {
                         Schedule currentSchedule = user.getCurrentSchedule();
 
@@ -628,13 +629,7 @@ public class PageFilter extends AbstractFilter {
 
         Object mainObject = PageFilter.Static.getMainObject(request);
 
-        if (mainObject != null) {
-            ToolUser user = AuthenticationFilter.Static.getUser(request);
-
-            if (user == null) {
-                return;
-            }
-
+        if (mainObject != null && user != null) {
             if (!JspUtils.isError(request)) {
                 user.saveAction(request, mainObject);
             }
