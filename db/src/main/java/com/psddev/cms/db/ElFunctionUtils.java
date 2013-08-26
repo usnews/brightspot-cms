@@ -1,11 +1,16 @@
 package com.psddev.cms.db;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -104,7 +109,34 @@ public final class ElFunctionUtils {
             }
         }
 
-        return servletPath;
+        return pathWithTimestamp(servletContext, servletPath);
+    }
+
+    private static String pathWithTimestamp(ServletContext context, String path) {
+        if (context != null) {
+            try {
+                URL resource = CodeUtils.getResource(context, path);
+
+                if (resource != null) {
+                    URLConnection resourceConnection = resource.openConnection();
+                    InputStream resourceInput = resourceConnection.getInputStream();
+
+                    try {
+                        return StringUtils.addQueryParameters(
+                                path,
+                                "_", resourceConnection.getLastModified());
+
+                    } finally {
+                        resourceInput.close();
+                    }
+                }
+
+            } catch (IOException error) {
+                // Ignore any errors and just return the path as is.
+            }
+        }
+
+        return path;
     }
 
     /**
@@ -141,6 +173,6 @@ public final class ElFunctionUtils {
             }
         }
 
-        return servletPath;
+        return pathWithTimestamp(servletContext, servletPath);
     }
 }
