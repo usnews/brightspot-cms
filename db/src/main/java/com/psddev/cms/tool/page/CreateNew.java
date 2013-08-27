@@ -18,6 +18,7 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -45,6 +46,10 @@ public class CreateNew extends PageServlet {
                 selectAll()) {
 
             for (ObjectType type : template.getContentTypes()) {
+                if (type.getGroups().contains(Singleton.class.getName())) {
+                    continue;
+                }
+
                 TypeTemplate typeTemplate = new TypeTemplate(type, template);
 
                 if (typeTemplate.getCollapsedId().equals(redirect)) {
@@ -60,6 +65,7 @@ public class CreateNew extends PageServlet {
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
             if (type.isConcrete() && 
                     type.getGroups().contains(Directory.Item.class.getName()) &&
+                    !type.getGroups().contains(Singleton.class.getName()) &&
                     !typeCounts.containsKey(type)) {
                 TypeTemplate typeTemplate = new TypeTemplate(type, null);
 

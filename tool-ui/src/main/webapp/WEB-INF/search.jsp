@@ -13,6 +13,7 @@ com.psddev.dari.db.Database,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
+com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 
@@ -21,6 +22,7 @@ java.util.Collections,
 java.util.HashSet,
 java.util.Iterator,
 java.util.LinkedHashMap,
+java.util.LinkedHashSet,
 java.util.List,
 java.util.Map,
 java.util.Set,
@@ -389,14 +391,24 @@ writer.start("div", "class", "searchForm");
                         "target", ObjectUtils.isBlank(newTarget) ? null : newTarget);
 
                     if (singleType) {
-                        writer.tag("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
-                        writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
-                            writer.writeHtml("New " + wp.getObjectLabel(selectedType));
-                        writer.writeEnd();
+                        if (!selectedType.getGroups().contains(Singleton.class.getName())) {
+                            writer.tag("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
+                            writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
+                                writer.writeHtml("New " + wp.getObjectLabel(selectedType));
+                            writer.writeEnd();
+                        }
 
                     } else {
+                        Set<ObjectType> creatableTypes = new LinkedHashSet<ObjectType>(validTypes.size());
+
+                        for (ObjectType t : validTypes) {
+                            if (!t.getGroups().contains(Singleton.class.getName())) {
+                                creatableTypes.add(t);
+                            }
+                        }
+
                         wp.writeTypeSelect(
-                                validTypes,
+                                creatableTypes,
                                 selectedType,
                                 null,
                                 "name", "typeId",
