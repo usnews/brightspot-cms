@@ -60,10 +60,10 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
-import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -576,8 +576,14 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 if (object == null) {
-                    object = selectedType.createObject(objectId);
-                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                    if (selectedType.getGroups().contains(Singleton.class.getName())) {
+                        object = Query.fromType(selectedType).first();
+                    }
+
+                    if (object == null) {
+                        object = selectedType.createObject(objectId);
+                        State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                    }
                 }
             }
         }
