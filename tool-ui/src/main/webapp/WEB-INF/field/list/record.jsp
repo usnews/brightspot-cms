@@ -197,6 +197,13 @@ if (!isValueExternal) {
 
             for (String layoutName : layouts.keySet()) {
                 HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+
+                if (grid == null) {
+                    throw new IllegalArgumentException(String.format(
+                            "[%s] isn't a valid layout! Check your CSS and makes sure it's defined properly.",
+                            layoutName));
+                }
+
                 List<CssUnit> frColumns = new ArrayList<CssUnit>();
                 List<List<String>> frTemplate = new ArrayList<List<String>>();
 
