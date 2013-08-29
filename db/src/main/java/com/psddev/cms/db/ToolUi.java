@@ -19,6 +19,7 @@ import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Reference;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
@@ -44,6 +45,7 @@ public class ToolUi extends Modification<Object> {
     private String noteRendererClassName;
     private String placeholder;
     private Boolean referenceable;
+    private String referenceableViaClassName;
     private Boolean readOnly;
     private boolean richText;
     private boolean secret;
@@ -259,6 +261,16 @@ public class ToolUi extends Modification<Object> {
 
     public void setReferenceable(boolean referenceable) {
         this.referenceable = referenceable;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends Reference> getReferenceableViaClass() {
+        Class<?> c = ObjectUtils.getClassByName(referenceableViaClassName);
+        return c != null && Reference.class.isAssignableFrom(c) ? (Class<? extends Reference>) c : null;
+    }
+
+    public void setReferenceableViaClass(Class<? extends Reference> referenceableViaClass) {
+        this.referenceableViaClassName = referenceableViaClass != null ? referenceableViaClass.getName() : null;
     }
 
     public boolean isSecret() {
@@ -719,12 +731,14 @@ public class ToolUi extends Modification<Object> {
     @Target(ElementType.TYPE)
     public @interface Referenceable {
         boolean value() default true;
+        Class<? extends Reference> via() default Reference.class;
     }
 
     private static class ReferenceableProcessor implements ObjectType.AnnotationProcessor<Referenceable> {
         @Override
         public void process(ObjectType type, Referenceable annotation) {
             type.as(ToolUi.class).setReferenceable(annotation.value());
+            type.as(ToolUi.class).setReferenceableViaClass(annotation.via());
         }
     }
 
@@ -1133,6 +1147,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     /** @deprecated Use {@link #setReferenceable(boolean)} instead. */
+    @Deprecated
     public static void setReferenceable(ObjectType type, boolean isReferenceable) {
         type.as(ToolUi.class).setReferenceable(isReferenceable);
     }
