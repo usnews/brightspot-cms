@@ -123,11 +123,15 @@ if (object == null) {
                         "reference", referenceParamWithoutObject(ref),
                         "isEditRef", null) %>">Change Enhancement</a>
             </li>
-            <li>
-                <a class="action action-edit" href="<%= wp.url("",
-                        "reference", referenceParamWithoutObject(ref),
-                        "isEditRef", !isEditRef) %>"><%= isEditRef ? "Edit Enhancement" : "Edit Reference Metadata" %></a>
-            </li>
+            <% if (isEditRef
+                    || !Reference.class.equals(ref.getClass())
+                    || ObjectType.getInstance(Reference.class).getModificationClassNames().size() > 2) { %>
+                <li>
+                    <a class="action action-edit" href="<%= wp.url("",
+                            "reference", referenceParamWithoutObject(ref),
+                            "isEditRef", !isEditRef) %>"><%= isEditRef ? "Edit Enhancement" : "Edit Enhancement Metadata" %></a>
+                </li>
+            <% } %>
         </ul>
 
         <% wp.include("/WEB-INF/errors.jsp"); %>
