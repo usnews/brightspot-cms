@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.ReferentialTextMarker,
+com.psddev.cms.db.RichTextReference,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
@@ -9,11 +10,15 @@ com.psddev.dari.db.Reference,
 com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.StorageItem,
 
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StringUtils,
 
+java.io.StringWriter,
+java.util.ArrayList,
+java.util.List,
 java.util.Map,
 java.util.UUID,
 java.util.regex.Matcher
@@ -58,44 +63,37 @@ if (fieldValue != null) {
             Object referenceObject = reference.getObject();
             if (referenceObject != null) {
 
-                wp.write("<span class=\"enhancement");
-                if (referenceObject instanceof ReferentialTextMarker) {
-                    wp.write(" marker");
-                }
-                wp.write("\"");
+                final List<Object> attributes = new ArrayList<Object>();
+                final State referenceState = State.getInstance(referenceObject);
 
-                for (Map.Entry<String, Object> e : reference.entrySet()) {
-                    if (!"record".equals(e.getKey())) {
-                        wp.write(" data-");
-                        wp.write(wp.h(e.getKey()));
-                        wp.write("=\"");
-                        wp.write(wp.h(e.getValue()));
-                        wp.write("\"");
-                    }
-                }
+                // update the reference label and preview every time
+                reference.as(RichTextReference.class).setLabel(referenceState.getLabel());
+                reference.as(RichTextReference.class).setPreview(
+                        referenceState.getPreview() != null ? referenceState.getPreview().getPublicUrl() : null);
 
-                State referenceState = State.getInstance(referenceObject);
-                wp.write(" data-id=\"");
-                wp.write(referenceState.getId());
-                wp.write("\"");
+                attributes.add("class");
+                attributes.add("enhancement" + ((referenceObject instanceof ReferentialTextMarker) ? " marker" : ""));
 
-                ObjectType referenceType = referenceState.getType();
-                if (referenceType != null) {
-                    for (ObjectField referenceField : referenceType.getFields()) {
-                        if (ObjectField.FILE_TYPE.equals(referenceField.getInternalType())) {
-                            StorageItem file = (StorageItem) referenceState.getValue(referenceField.getInternalName());
-                            if (file != null) {
-                                wp.write(" data-preview=\"");
-                                wp.write(wp.h(file.getUrl()));
-                                wp.write("\"");
-                            }
-                        }
-                    }
-                }
+                attributes.add("data-id");
+                attributes.add(referenceState.getId());
 
-                wp.write(">");
-                wp.write(referenceState.getLabel());
-                wp.write("</span>");
+                attributes.add("data-reference");
+                attributes.add(ObjectUtils.toJson(reference.getState().getSimpleValues()));
+
+                // backward compatibility + rte css attribute selector support
+                attributes.add("data-preview");
+                attributes.add(reference.as(RichTextReference.class).getPreview());
+                attributes.add("data-alignment");
+                attributes.add(reference.as(RichTextReference.class).getAlignment());
+
+                StringWriter html = new StringWriter();
+                new HtmlWriter(html) {{;
+                    writeStart("span", attributes.toArray());
+                    writeHtml(referenceState.getLabel());
+                    writeEnd();
+                }};
+
+                wp.write(wp.h(html.toString()));
             }
 
         } else {

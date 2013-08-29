@@ -313,6 +313,7 @@ var Rte = wysihtml5.Editor.extend({
             var $enhancement = $button.closest('.rte-enhancement');
             var $placeholder = $enhancement.data('$rte-placeholder');
             var action = $button.attr('data-action');
+            var refData;
 
             if (action == 'remove') {
                 $enhancement.toggleClass('state-removing');
@@ -320,12 +321,21 @@ var Rte = wysihtml5.Editor.extend({
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
+                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
+                delete refData['alignment'];
+                $placeholder.attr('data-reference', JSON.stringify(refData));
 
             } else if (action === 'moveLeft') {
                 $placeholder.attr('data-alignment', 'left');
+                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
+                refData['alignment'] = 'left';
+                $placeholder.attr('data-reference', JSON.stringify(refData));
 
             } else if (action === 'moveRight') {
                 $placeholder.attr('data-alignment', 'right');
+                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
+                refData['alignment'] = 'right';
+                $placeholder.attr('data-reference', JSON.stringify(refData));
 
             } else {
                 var oldTop = $placeholder.offset().top;
@@ -1186,7 +1196,8 @@ var Rte = wysihtml5.Editor.extend({
                     newLabel,
                     $oldImage,
                     oldPreview,
-                    newPreview;
+                    newPreview,
+                    refData;
 
             // Create the enhancement if it doesn't exist already.
             if ($enhancement.length === 0) {
@@ -1200,10 +1211,13 @@ var Rte = wysihtml5.Editor.extend({
                 $enhancement.find('.rte-button-editEnhancement a').each(function() {
                     var $anchor = $(this),
                             href = $anchor.attr('href'),
-                            id = $placeholder.attr('data-id');
+                            id = $placeholder.attr('data-id'),
+                            reference = $placeholder.attr('data-reference');
 
                     href = href.replace(/([?&])id=[^&]*/, '$1');
+                    href = href.replace(/([?&])reference=[^&]*/, '$1');
                     href += '&id=' + (id || '');
+                    href += '&reference=' + (reference || '');
 
                     $anchor.attr('href', href);
 
@@ -1225,8 +1239,10 @@ var Rte = wysihtml5.Editor.extend({
 
             // Copy the enhancement label.
             $enhancementLabel = $enhancement.find('.rte-enhancement-label');
-            newLabel = $placeholder.attr('data-label');
-            newPreview = $placeholder.attr('data-preview');
+
+            refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
+            newLabel = refData.label;
+            newPreview = refData.preview;
 
             if (newPreview) {
                 if ($enhancementLabel.find('figure img').attr('src') !== newPreview) {
@@ -1477,7 +1493,8 @@ $.plugin2('rte', {
             });
         }
 
-        var label = data.label;
+        var refData = $.parseJSON(data.reference || '{}');
+        var label = refData.label;
         if (label) {
             $enhancement.find('.rte-enhancement-label').text(label);
         }

@@ -2,7 +2,6 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,8 @@ import javax.servlet.jsp.tagext.Tag;
 
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.util.HtmlNode;
@@ -56,6 +57,8 @@ import com.psddev.dari.util.ObjectUtils;
 public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
+
+    public static final String REFERENCE_ATTRIBUTE = "reference";
 
     private String area;
     private String context;
@@ -252,6 +255,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     writer.write(EMPTY_PARAGRAPH_PATTERN.matcher((String) item).replaceAll(""));
 
                 } else if (item instanceof Reference) {
+                    Object oldReferenceAttribute = null;
                     Map<String, Object> oldAttributes = new LinkedHashMap<String, Object>();
 
                     try {
@@ -259,18 +263,23 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                         Object object = itemReference.getObject();
 
                         if (object != null && !(object instanceof ReferentialTextMarker)) {
-                            for (Map.Entry<String, Object> entry : itemReference.entrySet()) {
-                                String key = entry.getKey();
-                                if (key != null && !key.startsWith("_")) {
-                                    oldAttributes.put(key, request.getAttribute(key));
-                                    request.setAttribute(key, entry.getValue());
-                                }
+                            oldReferenceAttribute = request.getAttribute(REFERENCE_ATTRIBUTE);
+                            request.setAttribute(REFERENCE_ATTRIBUTE, itemReference);
+
+                            // For backward compatibility, ensure these field values are set directly as request attributes
+                            for (ObjectField field : ObjectType.getInstance(RichTextReference.class).getFields()) {
+                                String fieldName = field.getInternalName();
+
+                                oldAttributes.put(fieldName, request.getAttribute(fieldName));
+                                request.setAttribute(fieldName, itemReference.getState().get(fieldName));
                             }
 
                             PageFilter.renderObject(request, response, writer, object);
                         }
 
                     } finally {
+                        request.setAttribute(REFERENCE_ATTRIBUTE, oldReferenceAttribute);
+
                         for (Map.Entry<String, Object> entry : oldAttributes.entrySet()) {
                             request.setAttribute(entry.getKey(), entry.getValue());
                         }
