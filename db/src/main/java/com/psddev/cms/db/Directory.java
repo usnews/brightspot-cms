@@ -341,7 +341,13 @@ public class Directory extends Record {
             pathMatcher.find();
             path = pathMatcher.group(1);
 
-            Directory dir = Query.findUnique(Directory.class, "path", path);
+            Directory dir = Query.
+                    from(Directory.class).
+                    where("path = ?", path).
+                    master().
+                    noCache().
+                    first();
+
             if (dir == null) {
                 dir = new Directory();
                 dir.setPath(path);
