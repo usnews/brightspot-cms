@@ -28,6 +28,12 @@ if (wp.requireUser()) {
 
 String pageId = wp.createId();
 
+String objectFormId = wp.createId();
+String objectPreviewId = wp.createId();
+
+String editObjectFormId = wp.createId();
+String viewObjectPreviewId = wp.createId();
+
 // init enhancement object
 Object object = wp.findOrReserve();
 State state = State.getInstance(object);
@@ -79,17 +85,17 @@ RichTextReference rteRef = ref.as(RichTextReference.class);
 rteRef.setLabel(state != null ? state.getLabel() : null);
 rteRef.setPreview(state != null && state.getPreview() != null ? state.getPreview().getPublicUrl() : null);
 
-boolean isEditRef = wp.param(boolean.class, "isEditRef");
-if (isEditRef) {
-    request.setAttribute("excludeFields", Arrays.asList("record"));
-}
-
 if (object != null && wp.isFormPost()) {
     try {
-        wp.updateUsingParameters(isEditRef ? ref : object);
-        if (!isEditRef) {
+        request.setAttribute("excludeFields", Arrays.asList("record"));
+        wp.updateUsingParameters(ref);
+
+        request.setAttribute("excludeFields", null);
+        if (wp.param(boolean.class, "isEditObject")) {
+            wp.updateUsingParameters(object);
             wp.publish(object);
         }
+
     } catch (Exception ex) {
         wp.getErrors().add(ex);
     }
@@ -115,27 +121,45 @@ if (object == null) {
     %>
 
     <form action="<%= wp.url("", "typeId", state.getTypeId(), "id", state.getId()) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
-        <ul class="breadcrumb">
-            <li>
-                <a class="action action-change" href="<%= wp.url("",
-                        "typeId", null,
-                        "id", null,
-                        "reference", referenceParamWithoutObject(ref),
-                        "isEditRef", null) %>">Change Enhancement</a>
-            </li>
-            <% if (isEditRef
-                    || !Reference.class.equals(ref.getClass())
-                    || ObjectType.getInstance(Reference.class).getModificationClassNames().size() > 2) { %>
-                <li>
-                    <a class="action action-edit" href="<%= wp.url("",
-                            "reference", referenceParamWithoutObject(ref),
-                            "isEditRef", !isEditRef) %>"><%= isEditRef ? "Edit Enhancement" : "Edit Enhancement Metadata" %></a>
-                </li>
-            <% } %>
-        </ul>
+
+        <p><a class="action action-change" href="<%= wp.url("",
+                "typeId", null,
+                "id", null,
+                "reference", referenceParamWithoutObject(ref)) %>">Change Enhancement</a></p>
 
         <% wp.include("/WEB-INF/errors.jsp"); %>
-        <% wp.writeFormFields(isEditRef ? ref : object); %>
+
+        <% request.setAttribute("excludeFields", Arrays.asList("record")); %>
+        <% wp.writeFormFields(ref); %>
+
+        <%-- Object Preview --%>
+        <p id="<%= editObjectFormId %>">
+            <a target="_top" class="action action-edit" href="javascript:;">Edit Enhancement</a>
+        </p>
+        <div id="<%= objectPreviewId %>">
+            <div class="rte-enhancement-label">
+                <% if (state.getPreview() != null) { %>
+                    <figure style="height:300px;">
+                        <img src="<%= state.getPreview().getPublicUrl() %>" style="max-height:100%;max-width:100%;"/>
+                        <figcaption>
+                            <%= wp.h(state.getLabel()) %>
+                        </figcaption>
+                    </figure>
+                <% } else { %>
+                    <%= wp.h(state.getLabel()) %>
+                <% } %>
+            </div>
+        </div>
+
+        <%-- Object Edit Form --%>
+        <p id="<%= viewObjectPreviewId %>" style="display:none;">
+            <a target="_top" class="action action-cancel" href="javascript:;">Cancel Editing</a>
+        </p>
+        <div id="<%= objectFormId %>" style="display:none;">
+            <% request.setAttribute("excludeFields", null); %>
+            <% wp.writeFormFields(object); %>
+        </div>
+
         <div class="buttons">
             <button class="action action-save">Save</button>
         </div>
@@ -143,14 +167,49 @@ if (object == null) {
 
     <script type="text/javascript">
         if (typeof jQuery !== 'undefined') (function($) {
+            var $objectForm = $('#<%= objectFormId %>');
+            var $objectPreview = $('#<%= objectPreviewId %>');
+            var $editObjectForm = $('#<%= editObjectFormId %>');
+            var $viewObjectForm = $('#<%= viewObjectPreviewId %>');
+
+            $objectForm.append($('<input/>', {
+                'type': 'hidden',
+                'name': 'isEditObject',
+                'value': 'false'}));
+
+            $viewObjectForm.click(function(evt) {
+                $viewObjectForm.hide();
+                $editObjectForm.show();
+
+                $objectForm.hide();
+                $objectPreview.show();
+
+                $objectForm.find('input[name="isEditObject"]').val(false);
+                $(window).resize();
+            });
+
+            $editObjectForm.click(function(evt) {
+                $editObjectForm.hide();
+                $viewObjectForm.show();
+
+                $objectPreview.hide();
+                $objectForm.show();;
+
+                $objectForm.find('input[name="isEditObject"]').val(true);
+                $(window).resize();
+            });
+        })(jQuery);
+
+        if (typeof jQuery !== 'undefined') (function($) {
+
             var $source = $('#<%= pageId %>').popup('source');
             var href = $source.attr('href');
 
-            // replace the id param
+            <%-- replace the id param --%>
             href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
             href += 'id=<%= state.getId() %>';
 
-            // replace the reference param
+            <%-- replace the reference param --%>
             href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
             href += 'reference=<%= wp.js(StringUtils.encodeUri(ObjectUtils.toJson(ref.getState().getSimpleValues()))) %>';
 
