@@ -312,30 +312,52 @@ var Rte = wysihtml5.Editor.extend({
             var $button = $(this);
             var $enhancement = $button.closest('.rte-enhancement');
             var $placeholder = $enhancement.data('$rte-placeholder');
+            var $editButtonAnchor = $enhancement.find('.rte-button-editEnhancement a');
             var action = $button.attr('data-action');
-            var refData;
+            var refData, refDataString, href;
 
             if (action == 'remove') {
                 $enhancement.toggleClass('state-removing');
                 $placeholder.toggleClass('state-removing');
 
-            } else if (action === 'moveCenter') {
+            } else if (action === 'moveCenter' || action === 'moveLeft' || action === 'moveRight') {
+
+                // update css attribute
                 $placeholder.removeAttr('data-alignment');
-                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
-                delete refData['alignment'];
-                $placeholder.attr('data-reference', JSON.stringify(refData));
+                if (action === 'moveCenter') {
+                    $placeholder.removeAttr('data-alignment');
 
-            } else if (action === 'moveLeft') {
-                $placeholder.attr('data-alignment', 'left');
-                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
-                refData['alignment'] = 'left';
-                $placeholder.attr('data-reference', JSON.stringify(refData));
+                } else if (action === 'moveLeft') {
+                    $placeholder.attr('data-alignment', 'left');
 
-            } else if (action === 'moveRight') {
-                $placeholder.attr('data-alignment', 'right');
+                } else if (action === 'moveRight') {
+                    $placeholder.attr('data-alignment', 'right');
+                }
+
+                // update main ref attribute
                 refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
-                refData['alignment'] = 'right';
-                $placeholder.attr('data-reference', JSON.stringify(refData));
+                if (action === 'moveCenter') {
+                    delete refData['alignment'];
+
+                } else if (action === 'moveLeft') {
+                    refData['alignment'] = 'left';
+
+                } else if (action === 'moveRight') {
+                    refData['alignment'] = 'right';
+                }
+
+                refDataString = JSON.stringify(refData);
+                $placeholder.attr('data-reference', refDataString);
+
+                // update edit button link URL
+                if ($editButtonAnchor) {
+                    href = $editButtonAnchor.attr('href');
+
+                    href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
+                    href += 'reference=' + (refDataString || '');
+
+                    $editButtonAnchor.attr('href', href);
+                }
 
             } else {
                 var oldTop = $placeholder.offset().top;
