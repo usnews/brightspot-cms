@@ -13,6 +13,7 @@ com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
 com.psddev.dari.util.BrightcoveStorageItem,
+com.psddev.dari.util.KalturaStorageItem,
 com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
@@ -615,7 +616,13 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     </div>
 
                 </div>
-
+            <% } else if(fieldValue instanceof KalturaStorageItem) { %>
+                        <% Integer partnerId = ((KalturaStorageItem) fieldValue).getPartnerId(); %>
+                        <% String  kalturaPlayerKey = ((KalturaStorageItem) fieldValue).getPlayerKey(); %>
+                        <% Integer kalturaPlayerId = ((KalturaStorageItem) fieldValue).getPlayerId(); %>
+                        <div>
+                             <script type="text/javascript" src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>?entry_id=<%=((KalturaStorageItem)fieldValue).getKalturaId()%>&playerId=kaltura_player_<%=kalturaPlayerKey%>&cache_st=<%=kalturaPlayerKey%>&autoembed=true&width=400&height=333"></script>
+                        </div>
             <% } else if(fieldValue instanceof BrightcoveStorageItem) { %>
 
                 <% String playerKey = ((BrightcoveStorageItem) fieldValue).getPreviewPlayerKey(); %>
