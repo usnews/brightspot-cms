@@ -1214,10 +1214,11 @@ var Rte = wysihtml5.Editor.extend({
                             id = $placeholder.attr('data-id'),
                             reference = $placeholder.attr('data-reference');
 
-                    href = href.replace(/([?&])id=[^&]*/, '$1');
-                    href = href.replace(/([?&])reference=[^&]*/, '$1');
-                    href += '&id=' + (id || '');
-                    href += '&reference=' + (reference || '');
+                    href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
+                    href += 'id=' + (id || '');
+
+                    href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
+                    href += 'reference=' + (reference || '');
 
                     $anchor.attr('href', href);
 

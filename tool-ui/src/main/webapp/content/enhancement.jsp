@@ -145,10 +145,15 @@ if (object == null) {
         if (typeof jQuery !== 'undefined') (function($) {
             var $source = $('#<%= pageId %>').popup('source');
             var href = $source.attr('href');
-            href = href.replace(/([?&])id=[^&]*/, '$1');
-            href = href.replace(/([?&])reference=[^&]*/, '$1');
-            href += '&id=<%= state.getId() %>';
-            href += '&reference=<%= wp.js(StringUtils.encodeUri(ObjectUtils.toJson(ref.getState().getSimpleValues()))) %>';
+
+            // replace the id param
+            href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
+            href += 'id=<%= state.getId() %>';
+
+            // replace the reference param
+            href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
+            href += 'reference=<%= wp.js(StringUtils.encodeUri(ObjectUtils.toJson(ref.getState().getSimpleValues()))) %>';
+
             $source.attr('href', href);
             $source.rte('enhancement', {
                 'reference': '<%= wp.js(ObjectUtils.toJson(ref.getState().getSimpleValues())) %>',
