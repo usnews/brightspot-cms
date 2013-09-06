@@ -148,13 +148,32 @@ public class ContentSearchAdvanced extends PageServlet {
 
                 for (ObjectField field : fields) {
                     page.write(",\"");
-                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                        Object value = i.next();
-                        page.writeObject(value);
-                        if (i.hasNext()) {
-                            page.write(", ");
+
+                    if ("cms.directory.paths".equals(field.getInternalName())) {
+                        for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+                            Directory.Path p = i.next();
+                            String path = p.getPath();
+
+                            page.writeHtml(path);
+                            page.writeHtml(" (");
+                            page.writeHtml(p.getType());
+                            page.writeHtml(")");
+
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
+                        }
+
+                    } else {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                            Object value = i.next();
+                            page.writeObject(value);
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
                         }
                     }
+
                     page.write("\"");
                 }
 
