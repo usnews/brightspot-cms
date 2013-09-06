@@ -10,9 +10,17 @@ com.psddev.dari.util.StringUtils,
 java.io.InputStream,
 java.net.URL,
 java.net.URLConnection,
+java.util.Arrays,
+java.util.HashSet,
 java.util.List,
-java.util.Map
-" %><%
+java.util.Locale,
+java.util.Map,
+java.util.Set
+" %><%!
+
+private static final Set<String> HEADER_EXCLUDES = new HashSet<String>(Arrays.asList(
+        "transfer-encoding"));
+%><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -35,7 +43,8 @@ try {
     for (Map.Entry<String, List<String>> entry : urlConnection.getHeaderFields().entrySet()) {
         String name = entry.getKey();
 
-        if (!ObjectUtils.isBlank(name)) {
+        if (!ObjectUtils.isBlank(name) &&
+                !HEADER_EXCLUDES.contains(name.toLowerCase(Locale.ENGLISH))) {
             for (String value : entry.getValue()) {
                 if (!ObjectUtils.isBlank(value)) {
                     response.addHeader(name, value);

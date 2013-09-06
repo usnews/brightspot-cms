@@ -21,9 +21,9 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 
 ## Create Database
 
-**MySQL 5.5.x**
+**MySQL 5.6.x**
 
-If you don't already have MySQL [download](http://dev.mysql.com/downloads/mysql) and [install](http://dev.mysql.com/doc/refman/5.5/en/installing.html).
+If you don't already have MySQL [download](http://dev.mysql.com/downloads/mysql) and [install](http://dev.mysql.com/doc/refman/5.6/en/installing.html).
 
 Start MySQL on the default port 3306 and create a new database. Load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/etc/mysql) into your newly created database.
 

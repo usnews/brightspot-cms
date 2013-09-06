@@ -91,6 +91,7 @@ if (validValues != null) {
             "id", wp.getId(),
             "name", inputName,
             "placeholder", placeholder,
+            "data-code-type", ui.getCodeType(),
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
             "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
             "data-inline", true,

@@ -120,6 +120,11 @@
             <name>lazy</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>mode</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>com.psddev.dari.util.FrameTag$InsertionMode</type>
+        </attribute>
     </tag>
 
     <tag>

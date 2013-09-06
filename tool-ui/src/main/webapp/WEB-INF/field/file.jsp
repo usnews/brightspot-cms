@@ -9,6 +9,7 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
+com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
 com.psddev.dari.util.BrightcoveStorageItem,
@@ -404,11 +405,26 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 crop.setTextWidths(textWidths);
 
                 for (Iterator<ImageTextOverlay> j = crop.getTextOverlays().iterator(); j.hasNext(); ) {
-                    String text = j.next().getText();
+                    ImageTextOverlay textOverlay = j.next();
+                    String text = textOverlay.getText();
 
-                    if (text != null &&
-                            ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
-                        j.remove();
+                    if (text != null) {
+                        StringBuilder cleaned = new StringBuilder();
+
+                        for (Object item : new ReferentialText(text, true)) {
+                            if (item instanceof String) {
+                                cleaned.append((String) item);
+                            }
+                        }
+
+                        text = cleaned.toString();
+
+                        if (ObjectUtils.isBlank(text.replaceAll("<[^>]*>", ""))) {
+                            j.remove();
+
+                        } else {
+                            textOverlay.setText(text);
+                        }
                     }
                 }
 

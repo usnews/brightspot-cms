@@ -60,10 +60,10 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
-import com.psddev.dari.util.BuildDebugServlet;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -576,8 +576,14 @@ public class ToolPageContext extends WebPageContext {
                 }
 
                 if (object == null) {
-                    object = selectedType.createObject(objectId);
-                    State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                    if (selectedType.getGroups().contains(Singleton.class.getName())) {
+                        object = Query.fromType(selectedType).first();
+                    }
+
+                    if (object == null) {
+                        object = selectedType.createObject(objectId);
+                        State.getInstance(object).as(Site.ObjectModification.class).setOwner(getSite());
+                    }
                 }
             }
         }
@@ -971,31 +977,10 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
-        List<Tool> tools = new ArrayList<Tool>();
-
-        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
-            if (!type.isConcrete()) {
-                continue;
-            }
-
-            try {
-                @SuppressWarnings({ "rawtypes", "unchecked" })
-                Class<? extends Tool> toolClass = (Class) type.getObjectClass();
-
-                if (toolClass != null) {
-                    tools.add(Application.Static.getInstance(toolClass));
-                }
-
-            } catch (ClassCastException error) {
-            }
-        }
-
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
         StorageItem companyLogo = cms.getCompanyLogo();
         String environment = cms.getEnvironment();
-        String extraCss = cms.getExtraCss();
-        String extraJavaScript = cms.getExtraJavaScript();
         ToolUser user = getUser();
 
         if (ObjectUtils.isBlank(companyName)) {
@@ -1005,150 +990,9 @@ public class ToolPageContext extends WebPageContext {
         writeTag("!doctype html");
         writeTag("html");
             writeStart("head");
-
-                writeStart("title");
-                    writeHtml(companyName);
-                writeEnd();
-
+                writeStart("title").writeHtml(companyName).writeEnd();
                 writeTag("meta", "name", "robots", "content", "noindex");
-
-                if (getCmsTool().isUseNonMinified()) {
-                    writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
-
-                } else {
-                    writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
-                }
-
-                writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
-                writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
-
-                for (Tool tool : tools) {
-                    tool.writeHeaderAfterStyles(this);
-                }
-
-                if (getCmsTool().isUseNonMinified()) {
-                    writeStart("script", "type", "text/javascript");
-                        write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
-                    writeEnd();
-
-                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.4.1.js"));
-                    writeEnd();
-                }
-
-                if (!ObjectUtils.isBlank(extraCss)) {
-                    writeStart("style", "type", "text/css");
-                        write(extraCss);
-                    writeEnd();
-                }
-
-                List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
-
-                for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
-                    Map<String, Object> groupDef = new HashMap<String, Object>();
-                    cssClassGroups.add(groupDef);
-
-                    groupDef.put("internalName", group.getInternalName());
-                    groupDef.put("displayName", group.getDisplayName());
-                    groupDef.put("dropDown", group.isDropDown());
-
-                    List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
-                    groupDef.put("cssClasses", cssClasses);
-
-                    for (CmsTool.CssClass cssClass : group.getCssClasses()) {
-                        Map<String, String> cssDef = new HashMap<String, String>();
-                        cssClasses.add(cssDef);
-
-                        cssDef.put("internalName", cssClass.getInternalName());
-                        cssDef.put("displayName", cssClass.getDisplayName());
-                        cssDef.put("tag", cssClass.getTag());
-                    }
-                }
-
-                writeStart("script", "type", "text/javascript");
-                    write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
-                    write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
-                writeEnd();
-
-                writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
-                writeEnd();
-
-                if (getCmsTool().isUseNonMinified()) {
-                    for (String src : new String[] {
-                            "/script/jquery-1.8.3.js",
-                            "/script/jquery.mousewheel.js",
-                            "/script/jquery.extra.js",
-                            "/script/jquery.autosubmit.js",
-                            "/script/jquery.calendar.js",
-                            "/script/jquery.dropdown.js",
-                            "/script/jquery.expandable.js",
-                            "/script/jquery.popup.js",
-                            "/script/jquery.frame.js",
-                            "/script/jquery.imageeditor.js",
-                            "/script/jquery.locationmap.js",
-                            "/script/jquery.regionmap.js",
-                            "/script/jquery.objectid.js",
-                            "/script/jquery.pagelayout.js",
-                            "/script/jquery.pagethumbnails.js",
-                            "/script/jquery.repeatable.js",
-                            "/script/jquery.sortable.js",
-                            "/script/jquery.spectrum.js",
-                            "/script/jquery.taxonomy.js",
-                            "/script/jquery.toggleable.js",
-                            "/script/jquery.workflow.js",
-                            "/script/diff.js",
-                            "/script/json2.js",
-                            "/script/pixastic/pixastic.core.js",
-                            "/script/pixastic/actions/brightness.js",
-                            "/script/pixastic/actions/crop.js",
-                            "/script/pixastic/actions/desaturate.js",
-                            "/script/pixastic/actions/fliph.js",
-                            "/script/pixastic/actions/flipv.js",
-                            "/script/pixastic/actions/invert.js",
-                            "/script/pixastic/actions/rotate.js",
-                            "/script/pixastic/actions/sepia.js",
-                            "/script/html5slider.js",
-                            "/script/wysihtml5-0.3.0.js",
-                            "/script/jquery.rte.js",
-                            "/script/d3.v3.js",
-                            "/script/nv.d3.js",
-                            "/script/jquery.handsontable.full.js",
-                            "/script/jquery.spreadsheet.js",
-                            "/script/leaflet-0.6.4.js",
-                            "/script/leaflet.common.js",
-                            "/script/leaflet.draw.js",
-                            "/script/l.control.geosearch.js",
-                            "/script/l.geosearch.provider.openstreetmap.js",
-                            "/script/cms.js" }) {
-                        writeStart("script", "type", "text/javascript", "src", cmsResource(src));
-                        writeEnd();
-                    }
-
-                } else {
-                    writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
-                    writeEnd();
-                }
-
-                String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
-
-                if (!ObjectUtils.isBlank(dropboxAppKey)) {
-                    writeStart("script",
-                            "type", "text/javascript",
-                            "src", "https://www.dropbox.com/static/api/1/dropins.js",
-                            "id", "dropboxjs",
-                            "data-app-key", dropboxAppKey);
-                    writeEnd();
-                }
-
-                for (Tool tool : tools) {
-                    tool.writeHeaderAfterScripts(this);
-                }
-
-                if (!ObjectUtils.isBlank(extraJavaScript)) {
-                    writeStart("script", "type", "text/javascript");
-                        write(extraJavaScript);
-                    writeEnd();
-                }
-
+                writeStylesAndScripts();
             writeEnd();
 
             Schedule currentSchedule = getUser() != null ? getUser().getCurrentSchedule() : null;
@@ -1317,6 +1161,181 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                 writeEnd();
+    }
+
+    public void writeStylesAndScripts() throws IOException {
+        List<Tool> tools = new ArrayList<Tool>();
+
+        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypesByGroup(Tool.class.getName())) {
+            if (!type.isConcrete()) {
+                continue;
+            }
+
+            try {
+                @SuppressWarnings({ "rawtypes", "unchecked" })
+                Class<? extends Tool> toolClass = (Class) type.getObjectClass();
+
+                if (toolClass != null) {
+                    tools.add(Application.Static.getInstance(toolClass));
+                }
+
+            } catch (ClassCastException error) {
+            }
+        }
+
+        CmsTool cms = getCmsTool();
+        String companyName = cms.getCompanyName();
+        String extraCss = cms.getExtraCss();
+        String extraJavaScript = cms.getExtraJavaScript();
+
+        if (ObjectUtils.isBlank(companyName)) {
+            companyName = "Brightspot";
+        }
+
+        if (getCmsTool().isUseNonMinified()) {
+            writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+
+        } else {
+            writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
+        }
+
+        writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
+        writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
+
+        for (Tool tool : tools) {
+            tool.writeHeaderAfterStyles(this);
+        }
+
+        if (getCmsTool().isUseNonMinified()) {
+            writeStart("script", "type", "text/javascript");
+                write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.4.1.js"));
+            writeEnd();
+        }
+
+        if (!ObjectUtils.isBlank(extraCss)) {
+            writeStart("style", "type", "text/css");
+                write(extraCss);
+            writeEnd();
+        }
+
+        List<Map<String, Object>> cssClassGroups  = new ArrayList<Map<String, Object>>();
+
+        for (CmsTool.CssClassGroup group : cms.getTextCssClassGroups()) {
+            Map<String, Object> groupDef = new HashMap<String, Object>();
+            cssClassGroups.add(groupDef);
+
+            groupDef.put("internalName", group.getInternalName());
+            groupDef.put("displayName", group.getDisplayName());
+            groupDef.put("dropDown", group.isDropDown());
+
+            List<Map<String, String>> cssClasses = new ArrayList<Map<String, String>>();
+            groupDef.put("cssClasses", cssClasses);
+
+            for (CmsTool.CssClass cssClass : group.getCssClasses()) {
+                Map<String, String> cssDef = new HashMap<String, String>();
+                cssClasses.add(cssDef);
+
+                cssDef.put("internalName", cssClass.getInternalName());
+                cssDef.put("displayName", cssClass.getDisplayName());
+                cssDef.put("tag", cssClass.getTag());
+            }
+        }
+
+        writeStart("script", "type", "text/javascript");
+            write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
+            write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
+        writeEnd();
+
+        if (getCmsTool().isUseNonMinified()) {
+            for (String src : new String[] {
+                    "/script/jquery-1.8.3.js",
+                    "/script/jquery.mousewheel.js",
+                    "/script/jquery.extra.js",
+                    "/script/jquery.autosubmit.js",
+                    "/script/jquery.calendar.js",
+                    "/script/codemirror/codemirror.js",
+                    "/script/codemirror/mode/clike/clike.js",
+                    "/script/codemirror/mode/xml/xml.js",
+                    "/script/codemirror/mode/javascript/javascript.js",
+                    "/script/codemirror/mode/css/css.js",
+                    "/script/codemirror/mode/htmlmixed/htmlmixed.js",
+                    "/script/codemirror/mode/htmlembedded/htmlembedded.js",
+                    "/script/jquery.code.js",
+                    "/script/jquery.dropdown.js",
+                    "/script/jquery.expandable.js",
+                    "/script/jquery.popup.js",
+                    "/script/jquery.frame.js",
+                    "/script/jquery.imageeditor.js",
+                    "/script/jquery.locationmap.js",
+                    "/script/jquery.objectid.js",
+                    "/script/jquery.pagelayout.js",
+                    "/script/jquery.pagethumbnails.js",
+                    "/script/jquery.regionmap.js",
+                    "/script/jquery.repeatable.js",
+                    "/script/jquery.sortable.js",
+                    "/script/jquery.spectrum.js",
+                    "/script/jquery.taxonomy.js",
+                    "/script/jquery.toggleable.js",
+                    "/script/jquery.workflow.js",
+                    "/script/diff.js",
+                    "/script/json2.js",
+                    "/script/pixastic/pixastic.core.js",
+                    "/script/pixastic/actions/brightness.js",
+                    "/script/pixastic/actions/crop.js",
+                    "/script/pixastic/actions/desaturate.js",
+                    "/script/pixastic/actions/fliph.js",
+                    "/script/pixastic/actions/flipv.js",
+                    "/script/pixastic/actions/invert.js",
+                    "/script/pixastic/actions/rotate.js",
+                    "/script/pixastic/actions/sepia.js",
+                    "/script/html5slider.js",
+                    "/script/wysihtml5-0.3.0.js",
+                    "/script/jquery.rte.js",
+                    "/script/d3.v3.js",
+                    "/script/nv.d3.js",
+                    "/script/jquery.handsontable.full.js",
+                    "/script/jquery.spreadsheet.js",
+                    "/script/leaflet-0.6.4.js",
+                    "/script/leaflet.common.js",
+                    "/script/leaflet.draw.js",
+                    "/script/l.control.geosearch.js",
+                    "/script/l.geosearch.provider.openstreetmap.js",
+                    "/script/cms.js" }) {
+                writeStart("script", "type", "text/javascript", "src", cmsResource(src));
+                writeEnd();
+            }
+
+        } else {
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
+            writeEnd();
+        }
+
+        String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
+
+        if (!ObjectUtils.isBlank(dropboxAppKey)) {
+            writeStart("script",
+                    "type", "text/javascript",
+                    "src", "https://www.dropbox.com/static/api/1/dropins.js",
+                    "id", "dropboxjs",
+                    "data-app-key", dropboxAppKey);
+            writeEnd();
+        }
+
+        for (Tool tool : tools) {
+            tool.writeHeaderAfterScripts(this);
+        }
+
+        if (!ObjectUtils.isBlank(extraJavaScript)) {
+            writeStart("script", "type", "text/javascript");
+                write(extraJavaScript);
+            writeEnd();
+        }
     }
 
     /** Writes the tool footer. */

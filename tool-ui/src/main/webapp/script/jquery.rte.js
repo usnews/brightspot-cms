@@ -221,6 +221,8 @@ var createEnhancement = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Remove Completely', 'removeCompletely'));
 
     $enhancement.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -252,6 +254,8 @@ var createMarker = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Really Remove', 'removeCompletely'));
 
     $marker.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -315,8 +319,16 @@ var Rte = wysihtml5.Editor.extend({
             var action = $button.attr('data-action');
 
             if (action == 'remove') {
-                $enhancement.toggleClass('state-removing');
-                $placeholder.toggleClass('state-removing');
+                $enhancement.addClass('state-removing');
+                $placeholder.addClass('state-removing');
+
+            } else if (action == 'restore') {
+                $enhancement.removeClass('state-removing');
+                $placeholder.removeClass('state-removing');
+
+            } else if (action == 'removeCompletely') {
+                $enhancement.remove();
+                $placeholder.remove();
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
