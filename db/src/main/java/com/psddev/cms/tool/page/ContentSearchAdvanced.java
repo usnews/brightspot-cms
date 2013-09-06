@@ -106,7 +106,7 @@ public class ContentSearchAdvanced extends PageServlet {
             page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
                 @Override
                 public void format(HtmlWriter writer, Metric object) throws IOException {
-                    writer.write(new Double(object.getValue()).toString());
+                    writer.write(new Double(object.getSum()).toString());
                 }
             });
 
@@ -186,7 +186,7 @@ public class ContentSearchAdvanced extends PageServlet {
         page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
             @Override
             public void format(HtmlWriter writer, Metric object) throws IOException {
-                writer.write(new Double(object.getValue()).toString());
+                writer.write(new Double(object.getSum()).toString());
             }
         });
 
