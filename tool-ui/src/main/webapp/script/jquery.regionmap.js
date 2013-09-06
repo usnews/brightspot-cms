@@ -33,12 +33,12 @@ $.plugin2('regionMap', {
 
         var zoom = zoomInput.val();
         var center = $.parseJSON(centerInput.val());
-        
+
         map.setView([center.lat, center.lng], zoom);
 
         var regionLayer = new L.FeatureGroup();
         map.addLayer(regionLayer);
-        
+
         var savedItems = L.GeoJSON.geometryToLayer(geojson, myStyle);
         for (x in savedItems.getLayers()) {
             var layer = savedItems.getLayers()[x];
@@ -74,7 +74,7 @@ $.plugin2('regionMap', {
         map.addControl(drawControl);
 
         // Bind map events.
-        
+
         var updateFunc = function (e) {
             var geojson = regionLayer.toGeoJSON();
             geoJsonInput.val(JSON.stringify(geojson));
