@@ -58,8 +58,10 @@ pageContext.setAttribute("geoJsonName", geoJsonName);
     L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
 </script>
 
-<div class='regionMap'>
-    <input class="regionMapZoom" type="hidden" name="${zoomName}" value="<%= wp.h(zoom) %>" />
-    <input class="regionMapCenter" type="hidden" name="${centerName}" value="<%= wp.h(center) %>" />
-    <input class="regionMapGeoJson" type="hidden" name="${geoJsonName}" value="<%= wp.h(region.getGeoJson()) %>"/>
+<div class="inputSmall">
+    <div class='regionMap'>
+        <input class="regionMapZoom" type="hidden" name="${zoomName}" value="<%= wp.h(zoom) %>" />
+        <input class="regionMapCenter" type="hidden" name="${centerName}" value="<%= wp.h(center) %>" />
+        <input class="regionMapGeoJson" type="hidden" name="${geoJsonName}" value="<%= wp.h(region.getGeoJson()) %>"/>
+    </div>
 </div>
