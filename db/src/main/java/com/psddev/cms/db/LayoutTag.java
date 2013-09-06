@@ -48,6 +48,30 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
 
     // --- TagSupport support ---
 
+    protected HtmlGrid getGrid(HttpServletRequest request, Object area) {
+        if (area instanceof Integer) {
+            int areaInt = (Integer) area;
+            int gridOffset = 0;
+
+            for (CssClassHtmlGrid entry : cssGrids) {
+                HtmlGrid grid = entry.grid;
+                int gridAreaSize = entry.grid.getAreas().size();
+
+                if (areaInt < gridOffset + gridAreaSize) {
+                    return grid;
+
+                } else {
+                    gridOffset += gridAreaSize;
+                }
+            }
+
+        } else if (cssGrids != null && !cssGrids.isEmpty()) {
+            return cssGrids.iterator().next().grid;
+        }
+
+        return null;
+    }
+
     public Object getAreaName(HttpServletRequest request, Object area) {
         if (area instanceof Integer) {
             int areaInt = (Integer) area;
