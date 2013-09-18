@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
@@ -122,7 +124,9 @@ public class PageStage extends Record {
 
     /**
      * Finds or creates an element with the given {@code name} and
-     * {@code attributes} within the {@code <head>}.
+     * {@code attributes} within the {@code <head>}.  Note that stylesheet 
+     * elements are grouped first, followed by all non-script elements, followed
+     * by script elements, with insertion order within the groups preserved.
      *
      * @param name Can't be blank.
      * @param attributes May be {@code null}.
@@ -136,9 +140,50 @@ public class PageStage extends Record {
             
             element.setName(name);
             element.addAttributes(attributes);
-            getHeadNodes().add(element);
+            
+            List<HtmlNode> nodes = getHeadNodes();
+            if (ObjectUtils.isBlank(nodes)) {
+                nodes.add(element);
+            } else {
+                if ("script".equals(name)) { // JS goes last
+                    nodes.add(element); 
+                } else if ("link".equals(name) && 
+                        "text/css".equals(element.getAttributes().get("type"))) { // CSS goes first
+                    int insertIndex = 0;
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                        HtmlNode node = i.next();
+                        if (!(node instanceof HtmlElement)) {
+                            continue;
+                        }
+                        HtmlElement iElement = (HtmlElement) node;
+                        if ("link".equals(iElement.getName()) && 
+                                "text/css".equals(iElement.getAttributes().get("type"))) {
+                            continue;
+                        } else {
+                            insertIndex = i.previousIndex();
+                            break;
+                        }
+                    }
+                    nodes.add(insertIndex, element);
+                } else { // Everything else in between
+                    int insertIndex = 0;
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                        HtmlNode node = i.next();
+                        if (!(node instanceof HtmlElement)) {
+                            continue;
+                        }
+                        HtmlElement iElement = (HtmlElement) node;
+                        if ("script".equals(iElement.getName())) {
+                            insertIndex = i.previousIndex();
+                            break;
+                        } else {
+                            insertIndex = i.nextIndex();
+                        }
+                    }
+                    nodes.add(insertIndex, element);
+                }
+            }
         }
-
         return element;
     }
 
