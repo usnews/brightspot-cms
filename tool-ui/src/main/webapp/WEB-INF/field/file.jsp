@@ -334,9 +334,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     pathBuilder.append(StringUtils.toNormalized(label));
                     pathBuilder.append(extension);
 
-                    newItem = StorageItem.Static.create();
+                    newItem = StorageItem.Static.create(fileContentType);
                     newItem.setPath(pathBuilder.toString());
-                    newItem.setContentType(fileContentType);
 
                     Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
                     httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
