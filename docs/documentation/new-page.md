@@ -40,7 +40,7 @@ An example grid:
 .layout-global {
     display: -dari-grid;
     -dari-grid-template: ".    header  .   "
-                  		  "main  main   main"
+                         "main  main   main"
                          ".    footer  .   ";
  
     -dari-grid-definition-columns: 1fr 1140px 1fr;
