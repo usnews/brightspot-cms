@@ -492,6 +492,19 @@ public class Directory extends Record {
             return null;
         }
 
+        /**
+         * Returns the permalink (path only) in the given {@code site} for
+         * this object.
+         */
+        public String getSitePermalinkPath(Site site) {
+            for (Path path : getSitePaths(site)) {
+                if (path.getType() == PathType.PERMALINK) {
+                    return path.getPath();
+                }
+            }
+            return null;
+        }
+
         /** Returns the site that owns this object. */
         private Site getOwner() {
             return as(Site.ObjectModification.class).getOwner();
