@@ -197,8 +197,8 @@ public class UploadFiles extends PageServlet {
                         httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(file.getSize())));
                         httpHeaders.put("Content-Type", Collections.singletonList(file.getContentType()));
 
-                        StorageItem item = StorageItem.Static.create(file.getContentType());
                         String contentType = file.getContentType();
+                        StorageItem item = StorageItem.Static.createWithContentType(contentType);
 
                         item.setPath(path.toString());
                         item.getMetadata().put("http.headers", httpHeaders);
