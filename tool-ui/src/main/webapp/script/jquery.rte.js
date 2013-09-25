@@ -922,6 +922,7 @@ var Rte = wysihtml5.Editor.extend({
 
                 setAnnotations($element, annotations);
             });
+            */
 
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
@@ -972,6 +973,7 @@ var Rte = wysihtml5.Editor.extend({
                 openAnnotationDialog($(event.target));
             });
 
+            /*
             // Track changes.
             if (firstDraft) {
                 $(composer.element).addClass('rte-firstDraft');
