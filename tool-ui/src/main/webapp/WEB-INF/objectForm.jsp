@@ -60,11 +60,13 @@ wp.writeStart("div", "class", "objectInputs");
         fields.addAll(lasts);
 
         Object old = request.getAttribute("modificationHeadings");
+        boolean draftCheck = false;
 
         try {
             request.setAttribute("modificationHeadings", new HashSet<String>());
 
             if (request.getAttribute("firstDraft") == null) {
+                draftCheck = true;
                 request.setAttribute("firstDraft", state.isNew());
                 request.setAttribute("finalDraft", state.isNew() || state.isVisible());
             }
@@ -82,8 +84,11 @@ wp.writeStart("div", "class", "objectInputs");
 
         } finally {
             request.setAttribute("modificationHeadings", old);
-            request.setAttribute("firstDraft", null);
-            request.setAttribute("finalDraft", null);
+
+            if (draftCheck) {
+                request.setAttribute("firstDraft", null);
+                request.setAttribute("finalDraft", null);
+            }
         }
 
     } else { %>

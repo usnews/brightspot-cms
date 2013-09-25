@@ -156,6 +156,7 @@ var createToolbar = function(rte, inline, firstDraft) {
         });
     }
 
+    /*
     var $track = $createToolbarGroup('Track');
     $toolbar.append($track);
     $track = $track.find('.rte-group-buttons');
@@ -169,6 +170,7 @@ var createToolbar = function(rte, inline, firstDraft) {
         'class': 'rte-button rte-button-annotate',
         'text': 'Annotate'
     }));
+    */
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
@@ -221,6 +223,8 @@ var createEnhancement = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Remove Completely', 'removeCompletely'));
 
     $enhancement.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -252,6 +256,8 @@ var createMarker = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Really Remove', 'removeCompletely'));
 
     $marker.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -315,8 +321,16 @@ var Rte = wysihtml5.Editor.extend({
             var action = $button.attr('data-action');
 
             if (action == 'remove') {
-                $enhancement.toggleClass('state-removing');
-                $placeholder.toggleClass('state-removing');
+                $enhancement.addClass('state-removing');
+                $placeholder.addClass('state-removing');
+
+            } else if (action == 'restore') {
+                $enhancement.removeClass('state-removing');
+                $placeholder.removeClass('state-removing');
+
+            } else if (action == 'removeCompletely') {
+                $enhancement.remove();
+                $placeholder.remove();
 
             } else if (action === 'moveCenter') {
                 $placeholder.removeAttr('data-alignment');
@@ -876,6 +890,7 @@ var Rte = wysihtml5.Editor.extend({
 
             composer.setValue(textarea.getValue());
 
+            /*
             // Legacy annotation support.
             $(composer.element).find('[data-comment], [data-text]').each(function() {
                 var $element = $(this);
@@ -1139,6 +1154,7 @@ var Rte = wysihtml5.Editor.extend({
                     $(composer.element).addClass('rte-trackChanges');
                 }
             }
+            */
 
             setInterval(function() {
                 rte.updateOverlay();

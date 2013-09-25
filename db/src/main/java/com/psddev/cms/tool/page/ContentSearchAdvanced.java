@@ -106,7 +106,7 @@ public class ContentSearchAdvanced extends PageServlet {
             page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
                 @Override
                 public void format(HtmlWriter writer, Metric object) throws IOException {
-                    writer.write(new Double(object.getValue()).toString());
+                    writer.write(new Double(object.getSum()).toString());
                 }
             });
 
@@ -148,13 +148,32 @@ public class ContentSearchAdvanced extends PageServlet {
 
                 for (ObjectField field : fields) {
                     page.write(",\"");
-                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                        Object value = i.next();
-                        page.writeObject(value);
-                        if (i.hasNext()) {
-                            page.write(", ");
+
+                    if ("cms.directory.paths".equals(field.getInternalName())) {
+                        for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+                            Directory.Path p = i.next();
+                            String path = p.getPath();
+
+                            page.writeHtml(path);
+                            page.writeHtml(" (");
+                            page.writeHtml(p.getType());
+                            page.writeHtml(")");
+
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
+                        }
+
+                    } else {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                            Object value = i.next();
+                            page.writeObject(value);
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
                         }
                     }
+
                     page.write("\"");
                 }
 
@@ -186,7 +205,7 @@ public class ContentSearchAdvanced extends PageServlet {
         page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
             @Override
             public void format(HtmlWriter writer, Metric object) throws IOException {
-                writer.write(new Double(object.getValue()).toString());
+                writer.write(new Double(object.getSum()).toString());
             }
         });
 

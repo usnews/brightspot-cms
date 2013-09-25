@@ -181,8 +181,14 @@ $.plugin2('popup', {
 
 // Clicking outside the popups should close them all.
 $win.click(function(event) {
-    var target = event.target;
-    if ($(target).popup('container').length === 0) {
+    var target = event.target,
+            $target = $(target);
+
+    if ($target.closest('#context-menu-layer, .context-menu-root').length > 0) {
+        return;
+    }
+
+    if ($target.popup('container').length === 0) {
         $('.popup').each(function() {
             var $container = $(this);
 
