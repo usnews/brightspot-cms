@@ -989,7 +989,6 @@ public class ToolPageContext extends WebPageContext {
 
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
-        StorageItem companyLogo = cms.getCompanyLogo();
         String environment = cms.getEnvironment();
         String extraCss = cms.getExtraCss();
         String extraJavaScript = cms.getExtraJavaScript();
@@ -999,8 +998,15 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
+        Site site = getSite();
+        StorageItem companyLogo = site != null ? site.getCmsLogo() : null;
+
+        if (companyLogo == null) {
+            companyLogo = cms.getCompanyLogo();
+        }
+
         writeTag("!doctype html");
-        writeTag("html");
+        writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
             writeStart("head");
 
                 writeStart("title");
