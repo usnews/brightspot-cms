@@ -151,7 +151,7 @@ mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.1-SNAPSHOT \
+   -DarchetypeVersion=2.2-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
