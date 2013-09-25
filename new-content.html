@@ -11,7 +11,7 @@ section: documentation
             <div class="span12">
                 <p>When using Brightspot, creating a new object automatically generates a user interface within the CMS, where editors can interact and publish. This guide will look at how to model your objects, and the corresponding UI that is created within the CMS.</br>
 
-                <h2>Creating an object</h2>Having <a href="/installation.html">installed</a> Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the <a target="_blank" href="/search.html">Search tool</a>. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object.</p>
+                <h2>Creating an object</h2>Having <a href="/installation.html">installed</a> Brightspot, you can start to create objects to appear within the CMS. To do so, create a Java class, and extend <code>Content</code>. Save your object within your project at <code>src/main/java/yourGroupID</code>. Once saved, refresh your CMS browser window and click into the <a target="_blank" href="/search.html">Search tool</a>. In the <code>Create</code> drop-down you should see your new object. Click <code>New</code> to open it within the content edit view. The name of your Java class will appear in the CMS as the name of the object. Below is an example Article object.<i>Note: Objects referenced within example classes, such as the Tag object seen below, need to be created. An example Tag object is also included below.</i></p>
 
 
 <div class="highlight">{% highlight java %}package com.psddev.brightspot;
@@ -28,6 +28,17 @@ public class Article extends Content {
     private ReferentialText body;
     private List<Tag> tags;
     private Set<String> keywords;
+
+    // Getters and Setters
+
+}{% endhighlight %}</div>
+
+<br/>
+<div class="highlight">{% highlight java %}package com.psddev.brightspot;
+
+public class Tag extends Content {
+
+    private String name;
 
     // Getters and Setters
 
