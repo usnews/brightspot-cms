@@ -18,6 +18,7 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 - **Step 4.** Create Brightspot CMS project using Maven
 - **Step 5.** Run project in Application Server
 
+This installation uses the latest stable release, Brightspot 2.1.
 
 ## Create Database
 
@@ -151,7 +152,7 @@ mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.2-SNAPSHOT \
+   -DarchetypeVersion=2.1-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
