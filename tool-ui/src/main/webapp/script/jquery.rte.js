@@ -966,7 +966,7 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             $(composer.element).on('click', 'a', function(event) {
-                openLinkDialog($(event.target));
+                openLinkDialog($(event.target).closest('a'));
             });
 
             $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
@@ -1428,6 +1428,7 @@ $.plugin2('rte', {
 
         'parserRules': {
             'tags': {
+                'font': { 'rename_tag': 'span' },
                 'script': { 'remove': true },
                 'style': { 'remove': true },
                 'p': {
