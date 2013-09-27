@@ -29,6 +29,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.KalturaStorageItem;
 import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
@@ -243,6 +244,7 @@ public class SearchResultRenderer {
     public void renderList(Collection<?> listItems) throws IOException {
         List<Object> items = new ArrayList<Object>(listItems);
         Map<Object, StorageItem> previews = new LinkedHashMap<Object, StorageItem>();
+        Map<Object, StorageItem> videoPreviews = new LinkedHashMap<Object, StorageItem>();
 
         for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
             Object item = i.next();
@@ -256,6 +258,10 @@ public class SearchResultRenderer {
                     i.remove();
                     previews.put(item, preview);
                 }
+                if (contentType != null && contentType.startsWith("video/")) {
+                    i.remove();
+                    videoPreviews.put(item, preview);
+                }
             }
         }
 
@@ -266,7 +272,14 @@ public class SearchResultRenderer {
                 }
             page.writeEnd();
         }
-
+        if (!videoPreviews.isEmpty()) {
+            System.err.println("Rendering of video thumbs...");
+            page.writeStart("div", "class", "searchResultImages");
+                for (Map.Entry<Object, StorageItem> entry : videoPreviews.entrySet()) {
+                    renderVideo(entry.getKey(), entry.getValue());
+                }
+            page.writeEnd();
+        }
         if (!items.isEmpty()) {
             page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
                 page.writeStart("tbody");
@@ -291,6 +304,29 @@ public class SearchResultRenderer {
 
         renderBeforeItem(item);
 
+        page.writeStart("figure");
+            page.writeTag("img",
+                    "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
+                    "src", page.url(url));
+
+            page.writeStart("figcaption");
+                if (showTypeLabel) {
+                    page.writeTypeLabel(item);
+                    page.writeHtml(": ");
+                }
+                page.writeObjectLabel(item);
+            page.writeEnd();
+        page.writeEnd();
+
+        renderAfterItem(item);
+    }
+
+    public void renderVideo(Object item, StorageItem video) throws IOException {
+        String url=video.getPublicUrl();
+        if (video instanceof KalturaStorageItem) {
+          url = ((KalturaStorageItem)video).getThumbnailUrl();
+        }
+        renderBeforeItem(item);
         page.writeStart("figure");
             page.writeTag("img",
                     "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
