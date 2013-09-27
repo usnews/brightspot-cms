@@ -969,11 +969,11 @@ var Rte = wysihtml5.Editor.extend({
                 openLinkDialog($(event.target).closest('a'));
             });
 
+            /*
             $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
                 openAnnotationDialog($(event.target));
             });
 
-            /*
             // Track changes.
             if (firstDraft) {
                 $(composer.element).addClass('rte-firstDraft');
