@@ -1,5 +1,7 @@
 package com.psddev.cms.db;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -74,12 +76,19 @@ public class PreviewDatabase extends ForwardingDatabase {
         }
     }
 
-    private class FilteringIterator<E> implements Iterator<E> {
+    private class FilteringIterator<E> implements Closeable, Iterator<E> {
 
         private final Iterator<E> delegate;
 
         public FilteringIterator(Iterator<E> delegate) {
             this.delegate = delegate;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (delegate instanceof Closeable) {
+                ((Closeable) delegate).close();
+            }
         }
 
         @Override

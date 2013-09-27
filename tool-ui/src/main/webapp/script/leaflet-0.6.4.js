@@ -6033,6 +6033,10 @@ L.extend(L.GeoJSON, {
 		case 'MultiPolygon':
 			latlngs = this.coordsToLatLngs(coords, 2, coordsToLatLng);
 			return new L.MultiPolygon(latlngs);
+                
+                case 'Circle':
+                        latlngs = this.coordsToLatLngs(coords, 0, coordsToLatLng);
+                        return new L.Circle([latlngs[0].lat, latlngs[0].lng], geometry.radius);
 
 		case 'GeometryCollection':
 			for (i = 0, len = geometry.geometries.length; i < len; i++) {
@@ -6112,7 +6116,15 @@ var PointToGeoJSON = {
 };
 
 L.Marker.include(PointToGeoJSON);
-L.Circle.include(PointToGeoJSON);
+L.Circle.include({
+	toGeoJSON: function () {
+        	return {
+			type: 'Circle',
+			coordinates: [[this.getLatLng().lng, this.getLatLng().lat]],
+                        radius: this.getRadius()
+                };
+        }
+});
 L.CircleMarker.include(PointToGeoJSON);
 
 L.Polyline.include({

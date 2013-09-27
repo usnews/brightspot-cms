@@ -1,15 +1,16 @@
 package com.psddev.cms.db;
 
-import com.psddev.cms.tool.AuthenticationFilter;
-
-import com.psddev.dari.db.ForwardingDatabase;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.util.PaginatedResult;
-
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import com.psddev.cms.tool.AuthenticationFilter;
+import com.psddev.dari.db.ForwardingDatabase;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.util.PaginatedResult;
 
 /**
  * Database wrapper that applies all profile-specific variations
@@ -96,12 +97,19 @@ public class VaryingDatabase extends ForwardingDatabase {
         }
     }
 
-    private class FilteringIterator<E> implements Iterator<E> {
+    private class FilteringIterator<E> implements Closeable, Iterator<E> {
 
         private final Iterator<E> delegate;
 
         public FilteringIterator(Iterator<E> delegate) {
             this.delegate = delegate;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (delegate instanceof Closeable) {
+                ((Closeable) delegate).close();
+            }
         }
 
         @Override

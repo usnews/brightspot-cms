@@ -2,7 +2,6 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
@@ -188,15 +188,35 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     private void writeArea(HttpServletRequest request, Object area, Object value) throws IOException, ServletException {
         if (layoutTag != null && areas != null) {
             if (!ObjectUtils.isBlank(area)) {
+                HtmlGrid oldGrid = (HtmlGrid) request.getAttribute("grid");
                 Object oldGridArea = request.getAttribute("gridArea");
                 StringWriter body = new StringWriter();
+                boolean contextSet = false;
 
                 try {
-                    request.setAttribute("gridArea", layoutTag.getAreaName(request, area));
+                    HtmlGrid grid = layoutTag.getGrid(request, area);
+                    Object gridArea = layoutTag.getAreaName(request, area);
+
+                    if (grid != null) {
+                        String context = grid.getContexts().get(String.valueOf(gridArea));
+
+                        if (!ObjectUtils.isBlank(context)) {
+                            contextSet = true;
+                            ContextTag.Static.pushContext(request, context);
+                        }
+                    }
+
+                    request.setAttribute("grid", grid);
+                    request.setAttribute("gridArea", gridArea);
                     writeValueWithAttributes(new HtmlWriter(body), value);
                     areas.put(area.toString(), body.toString());
 
                 } finally {
+                    if (contextSet) {
+                        ContextTag.Static.popContext(request);
+                    }
+
+                    request.setAttribute("grid", oldGrid);
                     request.setAttribute("gridArea", oldGridArea);
                 }
             }

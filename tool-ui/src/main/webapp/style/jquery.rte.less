@@ -118,6 +118,10 @@ body.rte-fullscreen {
     &.wysihtml5-command-active {
         background-color: @color-link-lighter;
     }
+
+    a {
+        color: @color-text;
+    }
 }
 
 .rte-group-dropDown {
@@ -181,18 +185,29 @@ body.rte-fullscreen {
 .rte-button-moveCenter { .icon; .icon-fullscreen; }
 .rte-button-moveDown { .icon; .icon-arrow-down; }
 .rte-button-moveRight { .icon; .icon-arrow-right; }
+.rte-button-editEnhancement { .icon; .icon-pencil; }
 .rte-button-remove { .icon; .icon-remove-sign; color: @color-alert; }
+.rte-button-restore { .icon; .icon-undo; }
+.rte-button-removeCompletely { .icon; .icon-remove-sign; color: @color-alert; }
 
 .rte-group-cssClass .rte-button,
 .rte-button-insertEnhancement,
 .rte-button-insertMarker,
-.rte-button-editEnhancement,
 .rte-button-selectMarker,
 .rte-button-import,
 .rte-button-html,
 .rte-button-trackChanges,
 .rte-button-allComments {
     padding: 0 3px;
+    white-space: nowrap;
+    width: auto;
+}
+
+.rte-button-editEnhancement,
+.rte-button-remove,
+.rte-button-restore,
+.rte-button-removeCompletely {
+    padding: 0 3px 0 0;
     white-space: nowrap;
     width: auto;
 }
@@ -285,14 +300,22 @@ body.rte-fullscreen {
         max-width: 100%;
     }
 
+    .rte-button-restore,
+    .rte-button-removeCompletely {
+        display: none;
+    }
+
     &.state-removing {
         background-color: @color-alert-lighter;
         border-color: @color-alert;
 
         .rte-button-remove {
-            .icon-undo;
+            display: none;
+        }
 
-            color: @color-link;
+        .rte-button-restore,
+        .rte-button-removeCompletely {
+            display: inline-block;
         }
 
         .rte-enhancement-label {

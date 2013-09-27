@@ -84,8 +84,8 @@ title: For Developers
         <div class="span6">
             <div class="mini">
 {% highlight java %}
-@Renderer.Engine("JSP")
-@Renderer.Script("/WEB-INF/model/project.jsp")
+@Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
+@Renderer.Path("/WEB-INF/model/project.jsp")
 public class Project extends Content {
     @Required
     @ToolUi.Note("Examples: Perfect Sense")

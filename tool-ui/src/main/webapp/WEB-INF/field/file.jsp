@@ -334,7 +334,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     pathBuilder.append(StringUtils.toNormalized(label));
                     pathBuilder.append(extension);
 
-                    newItem = StorageItem.Static.create(fileContentType);
+                    newItem = StorageItem.Static.createWithContentType(fileContentType);
                     newItem.setPath(pathBuilder.toString());
 
                     Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();

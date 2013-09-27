@@ -1276,6 +1276,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.objectid.js",
                     "/script/jquery.pagelayout.js",
                     "/script/jquery.pagethumbnails.js",
+                    "/script/jquery.regionmap.js",
                     "/script/jquery.repeatable.js",
                     "/script/jquery.sortable.js",
                     "/script/jquery.spectrum.js",
@@ -1302,6 +1303,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.spreadsheet.js",
                     "/script/leaflet-0.6.4.js",
                     "/script/leaflet.common.js",
+                    "/script/leaflet.draw.js",
                     "/script/l.control.geosearch.js",
                     "/script/l.geosearch.provider.openstreetmap.js",
                     "/script/cms.js" }) {
@@ -1375,6 +1377,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    type.getObjectClass() == null ||
                     Draft.class.equals(type.getObjectClass()) ||
                     (type.isDeprecated() &&
                     !Query.fromType(type).hasMoreThan(0))) {
