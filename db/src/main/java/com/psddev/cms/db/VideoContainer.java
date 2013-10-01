@@ -4,11 +4,12 @@ package com.psddev.cms.db;
 import java.util.Map;
 
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.Recordable;
 
 /**
 * Interface used to add VideContainer Modification 
 */
-public interface VideoContainer {
+public interface VideoContainer extends Recordable {
     
     /**
     * Modification which add information specific to video
