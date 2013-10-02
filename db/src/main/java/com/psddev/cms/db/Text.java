@@ -16,6 +16,7 @@ public class Text extends Content implements Renderer {
     private String name;
 
     @DisplayName("HTML")
+    @ToolUi.CodeType("text/html")
     private String text;
 
     /** Returns the name. */

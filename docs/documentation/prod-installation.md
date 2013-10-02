@@ -18,6 +18,7 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 - **Step 4.** Create Brightspot CMS project using Maven
 - **Step 5.** Run project in Application Server
 
+This installation uses the latest stable release, Brightspot 2.1.
 
 ## Create Database
 

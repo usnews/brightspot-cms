@@ -222,19 +222,10 @@ public class ToolUser extends Record implements ToolEntity {
         findOrCreateCurrentDevice(request).saveAction(action);
     }
 
-    /**
-     * @return Never {@code null}.
-     */
     public UUID getCurrentPreviewId() {
-        if (currentPreviewId == null) {
-            currentPreviewId = new Preview().getId();
-        }
         return currentPreviewId;
     }
 
-    /**
-     * @param currentPreviewId May be {@code null}.
-     */
     public void setCurrentPreviewId(UUID currentPreviewId) {
         this.currentPreviewId = currentPreviewId;
     }

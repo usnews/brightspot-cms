@@ -16,10 +16,10 @@ section: documentation
                 </br></br><b>Note:</b> The method for creating Pages and Templates has changed from versions 2.0 and 2.1 of Brightspot. If you are using either of those versions, see the dedicated Template creation documention for them here: <a href="template-tool.html">Brightspot 2.0</a> | <a href="create-a-page-2.1.html">Brightspot 2.1</a>
                 <hr>
                 <h2>Creating a Page</h2>
-                    To build your first page, create a new Java class. Implement <code>Directory.item</code>. Using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> add two paths to two new JSP files, one to render the entire page (LayoutPath) and one to render the object properties. These jsp files will allow you to render the content within your new Page. The example below shows a Homepage that contains three editorial picked Articles to appear on it. The CSS files being used are from <a href="http://twitter.github.io/bootstrap/‎">Twitter Bootstrap</a><br/><br/>Note, the <code>@Renderer.LayoutPath</code> can often be the same jsp for all pages, sharing the same header and footer.<br/><br/><b>Note:</b> The following examples assume you have created several content types, such as Articles. See the dedicated section for <a href="new-content.html">creating content types</a> if you have not already done so.</br></br>
+                    To build your first page, create a new Java class and extend <code>Content</code>. Using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> add two paths to two new JSP files, one to render the entire page (LayoutPath) and one to render the object properties. These jsp files will allow you to render the content within your new Page. The example below shows a Homepage that contains three editorial picked Articles to appear on it. The CSS files being used are from <a href="http://twitter.github.io/bootstrap/‎">Twitter Bootstrap</a><br/><br/>Note, the <code>@Renderer.LayoutPath</code> can often be the same jsp for all pages, sharing the same header and footer.<br/><br/><b>Note:</b> The following examples assume you have created several content types, such as Articles. See the dedicated section for <a href="new-content.html">creating content types</a> if you have not already done so.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.Path("/WEB-INF/model/homepage-object.jsp")
 @Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
-public class Homepage extends Content implements Directory.Item {
+public class Homepage extends Content {
 
     @Required
     private String name;
@@ -34,12 +34,6 @@ public class Homepage extends Content implements Directory.Item {
 
     // Getters and Setters
 
-
-    @Override
-    public String createPermalink(Site site) {
-
-         return "/";
-    } 
 }
 {% endhighlight %}</div>
                 <h4>Create the Layout JSP</h4>
