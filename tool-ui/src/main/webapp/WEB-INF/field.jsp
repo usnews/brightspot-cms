@@ -1,6 +1,8 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.ContentField,
+com.psddev.cms.db.ContentType,
 com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
@@ -8,6 +10,7 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
+com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
@@ -83,7 +86,20 @@ try {
             wp.write(wp.h(size));
         }
 
-        String tab = ui.getTab();
+        String tab = null;
+        ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
+
+        if (ct != null) {
+            for (ContentField cf : ct.getFields()) {
+                if (fieldName.equals(cf.getInternalName())) {
+                    tab = cf.getTab();
+                    break;
+                }
+            }
+
+        } else {
+            tab = ui.getTab();
+        }
 
         if (!ObjectUtils.isBlank(tab)) {
             wp.write("\" data-tab=\"");

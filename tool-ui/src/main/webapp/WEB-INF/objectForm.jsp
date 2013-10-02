@@ -1,11 +1,14 @@
 <%@ page import="
 
+com.psddev.cms.db.ContentField,
+com.psddev.cms.db.ContentType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
+com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
@@ -39,25 +42,46 @@ wp.writeStart("div", "class", "objectInputs");
     }
 
     if (fields != null) {
-        List<ObjectField> firsts = new ArrayList<ObjectField>();
-        List<ObjectField> lasts = new ArrayList<ObjectField>();
+        ContentType ct = Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first();
 
-        for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
-            ObjectField field = i.next();
-            ToolUi ui = field.as(ToolUi.class);
+        if (ct != null) {
+            List<ObjectField> firsts = new ArrayList<ObjectField>();
 
-            if (ui.isDisplayFirst()) {
-                firsts.add(field);
-                i.remove();
+            for (ContentField cf : ct.getFields()) {
+                for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
+                    ObjectField field = i.next();
 
-            } else if (ui.isDisplayLast()) {
-                lasts.add(field);
-                i.remove();
+                    if (field.getInternalName().equals(cf.getInternalName())) {
+                        firsts.add(field);
+                        i.remove();
+                        break;
+                    }
+                }
             }
-        }
 
-        fields.addAll(0, firsts);
-        fields.addAll(lasts);
+            fields.addAll(0, firsts);
+
+        } else {
+            List<ObjectField> firsts = new ArrayList<ObjectField>();
+            List<ObjectField> lasts = new ArrayList<ObjectField>();
+
+            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
+                ObjectField field = i.next();
+                ToolUi ui = field.as(ToolUi.class);
+
+                if (ui.isDisplayFirst()) {
+                    firsts.add(field);
+                    i.remove();
+
+                } else if (ui.isDisplayLast()) {
+                    lasts.add(field);
+                    i.remove();
+                }
+            }
+
+            fields.addAll(0, firsts);
+            fields.addAll(lasts);
+        }
 
         boolean draftCheck = false;
 

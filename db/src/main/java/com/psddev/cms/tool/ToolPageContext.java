@@ -1682,8 +1682,10 @@ public class ToolPageContext extends WebPageContext {
      * Writes a standard form for the given {@code object}.
      *
      * @param object Can't be {@code null}.
+     * @param displayTrashAction If {@code null}, displays the trash action
+     * instead of the delete action.
      */
-    public void writeStandardForm(Object object) throws IOException, ServletException {
+    public void writeStandardForm(Object object, boolean displayTrashAction) throws IOException, ServletException {
         State state = State.getInstance(object);
 
         writeFormHeading(object);
@@ -1713,16 +1715,37 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
 
                     if (!state.isNew()) {
-                        writeStart("button",
-                                "class", "icon icon-action-trash action-pullRight link",
-                                "name", "action-trash",
-                                "value", "true");
-                            writeHtml("Trash");
-                        writeEnd();
+                        if (displayTrashAction) {
+                            writeStart("button",
+                                    "class", "icon icon-action-trash action-pullRight link",
+                                    "name", "action-trash",
+                                    "value", "true");
+                                writeHtml("Trash");
+                            writeEnd();
+
+                        } else {
+                            writeStart("button",
+                                    "class", "icon icon-action-delete action-pullRight link",
+                                    "name", "action-delete",
+                                    "value", "true");
+                                writeHtml("Delete");
+                            writeEnd();
+                        }
                     }
                 writeEnd();
             }
         writeEnd();
+    }
+
+    /**
+     * Writes a standard form for the given {@code object} with the trash
+     * action.
+     *
+     * @param object Can't be {@code null}.
+     * @see #writeStandardForm(Object, boolean)
+     */
+    public void writeStandardForm(Object object) throws IOException, ServletException {
+        writeStandardForm(object, true);
     }
 
     /**
