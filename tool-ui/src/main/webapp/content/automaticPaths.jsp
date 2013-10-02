@@ -92,7 +92,12 @@ if ((automaticPaths != null && !automaticPaths.isEmpty()) || manual) {
             wp.writeStart("ul");
                 for (Directory.Path p : automaticPaths) {
                     wp.writeStart("li");
-                        wp.writeHtml(p.getPath());
+                        wp.writeStart("a",
+                                "target", "_blank",
+                                "href", p.getPath());
+                            wp.writeHtml(p.getPath());
+                        wp.writeEnd();
+
                         wp.writeHtml(" (");
                         wp.writeHtml(p.getType());
                         wp.writeHtml(")");
