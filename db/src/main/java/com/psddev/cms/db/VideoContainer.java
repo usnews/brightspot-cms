@@ -1,44 +1,62 @@
-package com.psddev.cms.db;
-
-//import java.util.LinkedHashMap;
+package com.psddev.cms.db; 
 import java.util.Map;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.util.StorageItem;
+import com.psddev.cms.db.ToolUi;
 
 /**
 * Interface used to add VideContainer Modification 
 */
 public interface VideoContainer extends Recordable {
     
+    public  enum  TranscodingStatus {
+            PENDING,
+            SUCCEEDED,
+            FAILED
+        }
     /**
     * Modification which add information specific to video
     */
     @Modification.FieldInternalNamePrefix("cms.video.")
     public static final class VideoContainerModification extends Modification<VideoContainer> {
         //private Map<String, Object> metadata;
-        @Indexed
-        private String status;
-        public String getStatus() {
-            return status;
-        }
 
-        public void setStatus(String status) {
-            this.status = status;
-        }
+	@Indexed
+	private TranscodingStatus transcodingStatus;
+	
+	public TranscodingStatus getTranscodingStatus() {
+		return transcodingStatus;
+	}
+	public void setTranscodingStatus(TranscodingStatus transcodingStatus) {
+		this.transcodingStatus = transcodingStatus;
+	}
+        @Required
+        @ToolUi.Note("Required Field")
+        private StorageItem file;
+        
+	public StorageItem getFile() {
+		return file;
+	}
+
+	public void setFile(StorageItem file) {
+		this.file = file;
+	}
 
         /** Sets the collection of metadata. */
         public void setMetadata(Map<String, Object> metadata) {
-            // TODO: This needs to find the video StorageItem contained in this originalObject and proxy this call to it
+             file.setMetadata(metadata);
         }
 
         public Map<String, Object> getMetadata() {
-            // TODO: This needs to find the video StorageItem contained in this originalObject and proxy this call to it
-            return null;
+            return file.getMetadata();
         }
 
         @Override
         public void beforeSave() {
+            if (transcodingStatus == null)
+              transcodingStatus=TranscodingStatus.PENDING;
         }
     }
 
