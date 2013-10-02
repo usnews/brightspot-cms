@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -181,6 +182,30 @@ public class ContentSearchAdvanced extends PageServlet {
             }
 
             return;
+
+        } else if (page.param(String.class, "action-trash") != null) {
+            Iterator<Object> queryIterator = query.iterable(0).iterator();
+
+            try {
+                while (queryIterator.hasNext()) {
+                    Object item = queryIterator.next();
+                    State itemState = State.getInstance(item);
+
+                    if (!ids.isEmpty() && !ids.contains(itemState.getId())) {
+                        continue;
+                    }
+
+                    page.trash(item);
+                }
+
+            } finally {
+                if (queryIterator instanceof Closeable) {
+                    ((Closeable) queryIterator).close();
+                }
+            }
+
+            page.getResponse().sendRedirect(page.param(String.class, "returnUrl"));
+            return;
         }
 
         long offset = page.param(long.class, "offset");
@@ -336,6 +361,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             "action", page.url(null));
                         page.writeTag("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
                         page.writeTag("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
+                        page.writeTag("input", "type", "hidden", "name", "returnUrl", "value", page.url(""));
 
                         for (ObjectField field : fields) {
                             page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
@@ -497,6 +523,13 @@ public class ContentSearchAdvanced extends PageServlet {
                                     "href", page.cmsUrl("/content/newWorkStream.jsp",
                                             "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
                                 page.writeHtml("New Work Stream");
+                            page.writeEnd();
+
+                            page.writeStart("button",
+                                    "class", "action action-pullRight link icon icon-action-trash",
+                                    "name", "action-trash",
+                                    "value", "true");
+                                page.writeHtml("Bulk Trash All");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();
