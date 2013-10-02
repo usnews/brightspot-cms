@@ -1463,6 +1463,11 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
+        String placeholder = ObjectUtils.firstNonNull(ui.getPlaceholder(), "");
+
+        if (field.isRequired()) {
+            placeholder += " (Required)";
+        }
 
         if (isObjectSelectDropDown(field)) {
             List<?> items = new Search(field).toQuery(getSite()).selectAll();
@@ -1471,7 +1476,10 @@ public class ToolPageContext extends WebPageContext {
             writeStart("select",
                     "data-searchable", "true",
                     attributes);
-                writeStart("option", "value", "").writeEnd();
+                writeStart("option", "value", "");
+                    writeHtml(placeholder);
+                writeEnd();
+
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
                     writeStart("option",
@@ -1521,6 +1529,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-typeIds", typeIds,
                     "data-visibility", value != null ? state.getVisibilityLabel() : null,
                     "value", value != null ? state.getId() : null,
+                    "placeholder", placeholder,
                     attributes);
         }
     }
