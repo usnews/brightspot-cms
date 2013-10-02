@@ -59,12 +59,9 @@ wp.writeStart("div", "class", "objectInputs");
         fields.addAll(0, firsts);
         fields.addAll(lasts);
 
-        Object old = request.getAttribute("modificationHeadings");
         boolean draftCheck = false;
 
         try {
-            request.setAttribute("modificationHeadings", new HashSet<String>());
-
             if (request.getAttribute("firstDraft") == null) {
                 draftCheck = true;
                 request.setAttribute("firstDraft", state.isNew());
@@ -83,8 +80,6 @@ wp.writeStart("div", "class", "objectInputs");
             }
 
         } finally {
-            request.setAttribute("modificationHeadings", old);
-
             if (draftCheck) {
                 request.setAttribute("firstDraft", null);
                 request.setAttribute("finalDraft", null);

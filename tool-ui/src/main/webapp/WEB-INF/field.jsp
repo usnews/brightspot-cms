@@ -94,25 +94,6 @@ try {
 
         String heading = ui.getHeading();
 
-        if (ObjectUtils.isBlank(heading)) {
-            Set<String> modificationHeadings = (Set<String>) request.getAttribute("modificationHeadings");
-
-            if (modificationHeadings != null) {
-                String declaring = field.getJavaDeclaringClassName();
-
-                if (!modificationHeadings.contains(declaring)) {
-                    modificationHeadings.add(declaring);
-
-                    ObjectType declaringType = ObjectType.getInstance(declaring);
-
-                    if (declaringType != null &&
-                            declaringType.getGroups().contains(Modification.class.getName())) {
-                        heading = declaringType.getLabel();
-                    }
-                }
-            }
-        }
-
         if (!ObjectUtils.isBlank(heading)) {
             wp.write("<h2 style=\"margin-top: 20px;\">");
             wp.writeHtml(heading);
