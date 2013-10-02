@@ -87,18 +87,21 @@ try {
         }
 
         String tab = null;
+        String label = null;
         ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
 
         if (ct != null) {
             for (ContentField cf : ct.getFields()) {
                 if (fieldName.equals(cf.getInternalName())) {
                     tab = cf.getTab();
+                    label = cf.getDisplayName();
                     break;
                 }
             }
 
         } else {
             tab = ui.getTab();
+            label = field.getLabel();
         }
 
         if (!ObjectUtils.isBlank(tab)) {
@@ -121,7 +124,7 @@ try {
             wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
         }
         wp.write("<label for=\"", wp.createId(), "\">");
-        wp.write(wp.h(field.getLabel()));
+        wp.write(wp.h(label));
         wp.write("</label></div>");
 
         // Field-specific error messages.

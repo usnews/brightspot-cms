@@ -780,3 +780,17 @@
         width: 100%;
     }
 }
+
+form[data-type='com.psddev.cms.db.ContentType'] {
+    .inputContainer[data-field='internalName'],
+    .inputContainer[data-field='fields/internalName'] {
+        display: none;
+    }
+
+    .inputContainer[data-field='fields'] {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
+    }
+}

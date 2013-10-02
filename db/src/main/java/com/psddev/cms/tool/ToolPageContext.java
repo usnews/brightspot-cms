@@ -1687,6 +1687,7 @@ public class ToolPageContext extends WebPageContext {
      */
     public void writeStandardForm(Object object, boolean displayTrashAction) throws IOException, ServletException {
         State state = State.getInstance(object);
+        ObjectType type = state.getType();
 
         writeFormHeading(object);
 
@@ -1700,7 +1701,8 @@ public class ToolPageContext extends WebPageContext {
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
-                "autocomplete", "off");
+                "autocomplete", "off",
+                "data-type", type != null ? type.getInternalName() : null);
             boolean trash = writeTrashMessage(object);
 
             writeFormFields(object);
