@@ -111,6 +111,7 @@
         <name>frame</name>
         <tag-class>com.psddev.dari.util.FrameTag</tag-class>
         <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
         <attribute>
             <name>name</name>
             <rtexprvalue>true</rtexprvalue>
