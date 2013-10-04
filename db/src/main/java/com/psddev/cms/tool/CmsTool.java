@@ -21,6 +21,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
 
 /** Brightspot CMS. */
+@CmsTool.DisplayName("CMS")
 public class CmsTool extends Tool {
 
     private static final String ATTRIBUTE_PREFIX = CmsTool.class.getName() + ".";
