@@ -2,7 +2,9 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import org.joda.time.DateTime;
 import java.util.UUID;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,26 +19,31 @@ import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 import com.psddev.dari.util.KalturaStorageItem;
 import com.psddev.dari.util.VideoStorageItemListener;
 import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.Task;
+import com.psddev.dari.util.RepeatingTask;
 
-public  class VideoTranscodingStatusUpdateTask extends Task {
+public  class VideoTranscodingStatusUpdateTask extends RepeatingTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoTranscodingStatusUpdateTask.class);
     private static final String DEFAULT_TASK_NAME = "Video Transcoding Status Update Task";
-
-    public VideoTranscodingStatusUpdateTask(String executor, String name) {
-        super(executor, name);
+    private static final long updateIntervalMillis=60000;
+    @Override
+    protected DateTime calculateRunTime(DateTime currentTime) {
+        return everyMinute(currentTime);
     }
 
-    public VideoTranscodingStatusUpdateTask(String name) {
-        super(null, name);
-    }
+//    public VideoTranscodingStatusUpdateTask(String executor, String name) {
+//        super(executor, name);
+//    }
+//
+//    public VideoTranscodingStatusUpdateTask(String name) {
+//        super(null, name);
+//    }
 
     public VideoTranscodingStatusUpdateTask() {
         super(null, DEFAULT_TASK_NAME);
     }
 
     @Override
-    protected void doTask() throws Exception {
+    protected void doRepeatingTask(DateTime runTime) throws IOException {
         if(!shouldContinue())  return;
         DistributedLock disLock=DistributedLock.Static.getInstance(Database.Static.getDefault(), VideoTranscodingStatusUpdateTask.class.getName());
         LOGGER.info("VideoTranscodingStatusUpdateTask starting....");
@@ -51,6 +58,11 @@ public  class VideoTranscodingStatusUpdateTask extends Task {
         for (VideoContainer videoContainer : pendingVideoList) {
             try {
                 VideoContainer.Data videoData = videoContainer.as(VideoContainer.Data.class);
+                //Check to see if status was updated with in the update interval (currently one minute) ..if so skip it
+                if (videoData.getTranscodingStatusUpdatedAt() != null  && 
+                     (System.currentTimeMillis() - videoData.getTranscodingStatusUpdatedAt().getTime()) < updateIntervalMillis)
+                    continue;
+
                 VideoStorageItem videoStorageItem = videoData.getFile();
                 //If there are listeners set..query using the ids and set it on the storage item
                 //before invoking pull method

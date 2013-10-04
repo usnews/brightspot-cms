@@ -24,6 +24,7 @@ public interface VideoContainer extends Recordable {
         //private static final Logger LOGGER = LoggerFactory.getLogger(Data.class);
         /* Length of the video in seconds */
         @Indexed
+        @ToolUi.ReadOnly
         private Long length;
         
         public Long getLength() {
@@ -34,6 +35,7 @@ public interface VideoContainer extends Recordable {
             this.length = length;
         }
         @Indexed
+        @ToolUi.ReadOnly
         private TranscodingStatus transcodingStatus;
         
         public TranscodingStatus getTranscodingStatus() {
@@ -45,6 +47,7 @@ public interface VideoContainer extends Recordable {
         }
         /* Trascoding error contains information about why the transcoding failed such as
            virus infected, no content etc */
+        @ToolUi.ReadOnly
         private String transcodingError;
         
         public String getTranscodingError() {
@@ -55,6 +58,7 @@ public interface VideoContainer extends Recordable {
             this.transcodingError = transcodingError;
         }
         @Indexed
+        @ToolUi.ReadOnly
         private Date transcodingStatusUpdatedAt;
         
         public Date getTranscodingStatusUpdatedAt() {
