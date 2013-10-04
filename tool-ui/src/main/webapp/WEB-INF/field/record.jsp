@@ -96,14 +96,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     } else {
         fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
     }
-
-    if ("none".equals(wp.param(String.class, setName))) {
-        state.putValue(fieldName, null);
-
-    } else {
-        state.putValue(fieldName, fieldValue);
-    }
-
+    state.putValue(fieldName, fieldValue);
     return;
 }
 
