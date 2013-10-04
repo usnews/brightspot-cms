@@ -1,6 +1,8 @@
 package com.psddev.cms.db; 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import com.psddev.dari.db.DistributedLock;
 import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 import com.psddev.dari.util.KalturaStorageItem;
-import com.psddev.dari.util.VideoTranscodingStatusUpdateListener;
+import com.psddev.dari.util.VideoStorageItemListener;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.Task;
 
@@ -49,25 +51,42 @@ public  class VideoTranscodingStatusUpdateTask extends Task {
         for (VideoContainer videoContainer : pendingVideoList) {
             try {
                 VideoContainer.Data videoData = videoContainer.as(VideoContainer.Data.class);
-                //Invoke pull method from storage to check  the status
                 VideoStorageItem videoStorageItem = videoData.getFile();
+                //If there are listeners set..query using the ids and set it on the storage item
+                //before invoking pull method
+                List <UUID> videoStorageItemListenerIds=videoStorageItem.getVideoStorageItemListenerIds();
+                if (videoStorageItemListenerIds != null ) {
+                   List <VideoStorageItemListener> videoStorageItemListeners= new ArrayList<VideoStorageItemListener>();
+                   for (UUID listenerId : videoStorageItemListenerIds) {
+                       VideoStorageItemListener listener=Query.findById(VideoStorageItemListener.class,listenerId);
+                       if (listener != null ) videoStorageItemListeners.add (listener);
+                   }
+                   videoStorageItem.setVideoStorageItemListeners(videoStorageItemListeners);
+                }
+
+                //Invoke pull method from storage to check  the status
                 videoStorageItem.pull();
                 TranscodingStatus videoTranscodingStatus = videoStorageItem.getTranscodingStatus();  
                 // If transcoding is complete..update transcoding status on the video
                 // and length ..if failed..updated the error message
+                boolean statusUpdated=false;
                 if (videoTranscodingStatus.equals(TranscodingStatus.SUCCEEDED))
                  {
                         videoData.setLength(videoStorageItem.getLength());
+                        statusUpdated=true;
                  } else if (videoTranscodingStatus.equals(TranscodingStatus.FAILED)) {
                         videoData.setTranscodingError(videoStorageItem.getTranscodingError());
+                        statusUpdated=true;
                  }
                  //Updated the transcodingStatus
                  videoData.setTranscodingStatus(videoStorageItem.getTranscodingStatus());
                  videoData.setTranscodingStatusUpdatedAt(new Date());
                  videoData.save();
+                 if (statusUpdated && videoStorageItemListenerIds != null) 
+                     videoStorageItem.notifyVideoStorageItemListeners();
                  //Sends a notification if it implement VideoTranscodingStatusListener
-                 if (videoContainer instanceof  VideoTranscodingStatusUpdateListener)
-                   ((VideoTranscodingStatusUpdateListener)videoContainer).processTranscodingNotification(videoStorageItem);
+                 //if (videoContainer instanceof  VideoTranscodingStatusUpdateListener)
+                  // ((VideoTranscodingStatusUpdateListener)videoContainer).processTranscodingNotification(videoStorageItem);
             } catch (Exception e) {
                 LOGGER.error("Transcoding status update failed for Video :"+ videoContainer.toString(), e);
             }
