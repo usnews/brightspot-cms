@@ -29,7 +29,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.KalturaStorageItem;
+import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
@@ -323,8 +323,8 @@ public class SearchResultRenderer {
 
     public void renderVideo(Object item, StorageItem video) throws IOException {
         String url=video.getPublicUrl();
-        if (video instanceof KalturaStorageItem) {
-          url = ((KalturaStorageItem)video).getThumbnailUrl();
+        if (video instanceof VideoStorageItem) {
+          url = ((VideoStorageItem)video).getThumbnailUrl();
         }
         renderBeforeItem(item);
         page.writeStart("figure");
