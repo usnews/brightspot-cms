@@ -15,6 +15,7 @@ import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.page.ContentRevisions;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
@@ -58,6 +59,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Heading("3rd Party")
     private String dropboxApplicationKey;
+
+    @ToolUi.Tab("Dashboard")
+    private BulkUploadSettings bulkUpload;
 
     @ToolUi.Tab("Debug")
     private boolean useNonMinified;
@@ -362,6 +366,17 @@ public class CmsTool extends Tool {
         this.dropboxApplicationKey = dropboxApplicationKey;
     }
 
+    public BulkUploadSettings getBulkUpload() {
+        if (bulkUpload == null) {
+            bulkUpload = new BulkUploadSettings();
+        }
+        return bulkUpload;
+    }
+
+    public void setBulkUpload(BulkUploadSettings bulkUpload) {
+        this.bulkUpload = bulkUpload;
+    }
+
     public boolean isUseNonMinified() {
         return useNonMinified;
     }
@@ -535,6 +550,20 @@ public class CmsTool extends Tool {
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;
+        }
+    }
+
+    @Embedded
+    public static class BulkUploadSettings extends Record {
+
+        private ObjectType defaultType;
+
+        public ObjectType getDefaultType() {
+            return defaultType;
+        }
+
+        public void setDefaultType(ObjectType defaultType) {
+            this.defaultType = defaultType;
         }
     }
 }
