@@ -87,11 +87,23 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             wp.updateUsingParameters(fieldValue);
             fieldValueState.putValue(Content.PUBLISH_DATE_FIELD, publishDate != null ? publishDate : new Date());
             fieldValueState.putValue(Content.UPDATE_DATE_FIELD, new Date());
+
+            if (field.isEmbedded() && !fieldValueState.isNew()) {
+                fieldValueState.setId(null);
+                fieldValueState.setStatus(null);
+            }
         }
     } else {
         fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
     }
-    state.putValue(fieldName, fieldValue);
+
+    if ("none".equals(wp.param(String.class, setName))) {
+        state.putValue(fieldName, null);
+
+    } else {
+        state.putValue(fieldName, fieldValue);
+    }
+
     return;
 }
 
