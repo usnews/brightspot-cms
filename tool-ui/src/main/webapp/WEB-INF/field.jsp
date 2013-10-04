@@ -1,6 +1,8 @@
 <%@ page import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.ContentField,
+com.psddev.cms.db.ContentType,
 com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
@@ -8,6 +10,7 @@ com.psddev.cms.tool.ToolPageContext,
 com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
+com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
@@ -83,7 +86,23 @@ try {
             wp.write(wp.h(size));
         }
 
-        String tab = ui.getTab();
+        String tab = null;
+        String label = null;
+        ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
+
+        if (ct != null) {
+            for (ContentField cf : ct.getFields()) {
+                if (fieldName.equals(cf.getInternalName())) {
+                    tab = cf.getTab();
+                    label = cf.getDisplayName();
+                    break;
+                }
+            }
+
+        } else {
+            tab = ui.getTab();
+            label = field.getLabel();
+        }
 
         if (!ObjectUtils.isBlank(tab)) {
             wp.write("\" data-tab=\"");
@@ -93,25 +112,6 @@ try {
         wp.write("\">");
 
         String heading = ui.getHeading();
-
-        if (ObjectUtils.isBlank(heading)) {
-            Set<String> modificationHeadings = (Set<String>) request.getAttribute("modificationHeadings");
-
-            if (modificationHeadings != null) {
-                String declaring = field.getJavaDeclaringClassName();
-
-                if (!modificationHeadings.contains(declaring)) {
-                    modificationHeadings.add(declaring);
-
-                    ObjectType declaringType = ObjectType.getInstance(declaring);
-
-                    if (declaringType != null &&
-                            declaringType.getGroups().contains(Modification.class.getName())) {
-                        heading = declaringType.getLabel();
-                    }
-                }
-            }
-        }
 
         if (!ObjectUtils.isBlank(heading)) {
             wp.write("<h2 style=\"margin-top: 20px;\">");
@@ -124,7 +124,7 @@ try {
             wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.objectUrl("/content/guideField.jsp", state, "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
         }
         wp.write("<label for=\"", wp.createId(), "\">");
-        wp.write(wp.h(field.getLabel()));
+        wp.write(wp.h(label));
         wp.write("</label></div>");
 
         // Field-specific error messages.

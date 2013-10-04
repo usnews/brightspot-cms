@@ -615,7 +615,53 @@ public class Directory extends Record {
         /**
          * Finds the object associated with the given {@code site} and
          * {@code path}.
+         *
+         * @param site May be {@code null}.
+         * @param path If {@code null}, returns {@code null}.
+         * @return May be {@code null}.
          */
+        public static Object findByPath(Site site, String path) {
+            path = normalizePath(path);
+
+            if (path == null) {
+                return null;
+            }
+
+            path = path.substring(0, path.length() - 1);
+            int slashAt = path.lastIndexOf("/");
+
+            if (slashAt > -1) {
+                String name = path.substring(slashAt + 1);
+                path = path.substring(0, slashAt + 1);
+                Directory directory = INSTANCES.get().get(path);
+
+                if (directory != null) {
+                    String rawPath = directory.getRawPath() + name;
+                    Object item = null;
+
+                    if (site != null) {
+                        item = Query.findUnique(Object.class, PATHS_FIELD, site.getRawPath() + rawPath);
+                    }
+
+                    if (item == null) {
+                        item = Query.findUnique(Object.class, PATHS_FIELD, rawPath);
+                    }
+
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Finds the object associated with the given {@code site} and
+         * {@code path}.
+         *
+         * @deprecated Use {@link #findByPath} instead. Note that the new
+         * version doesn't return a directory object.
+         */
+        @Deprecated
         public static Object findObject(Site site, String path) {
             path = normalizePath(path);
             if (path == null) {

@@ -1,6 +1,10 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 
@@ -25,6 +29,22 @@ public class ToolUserHistory extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         ToolUser user = page.getUser();
+        Map<String, List<ToolUserDevice>> devicesByUserAgent = new TreeMap<String, List<ToolUserDevice>>();
+
+        for (ToolUserDevice device : Query.
+                from(ToolUserDevice.class).
+                where("user = ?", user).
+                selectAll()) {
+            String userAgent = device.getUserAgentDisplay();
+            List<ToolUserDevice> devices = devicesByUserAgent.get(userAgent);
+
+            if (devices == null) {
+                devices = new ArrayList<ToolUserDevice>();
+                devicesByUserAgent.put(userAgent, devices);
+            }
+
+            devices.add(device);
+        }
 
         page.writeHeader();
             page.writeStart("div", "class", "widget", "style", "overflow: hidden;");
@@ -33,14 +53,37 @@ public class ToolUserHistory extends PageServlet {
                 page.writeEnd();
 
                 page.writeStart("ul");
-                    for (ToolUserDevice device : Query.
-                            from(ToolUserDevice.class).
-                            where("user = ?", user).
-                            selectAll()) {
+                    for (Map.Entry<String, List<ToolUserDevice>> entry : devicesByUserAgent.entrySet()) {
+                        ToolUserDevice device = null;
+                        List<ToolUserAction> actions = null;
+                        long lastTime = 0;
+
+                        for (ToolUserDevice d : entry.getValue()) {
+                            List<ToolUserAction> a = Query.
+                                    from(ToolUserAction.class).
+                                    where("device = ?", d).
+                                    sortDescending("time").
+                                    selectAll();
+
+                            if (!a.isEmpty()) {
+                                long time = a.get(0).getTime();
+
+                                if (lastTime < time) {
+                                    lastTime = time;
+                                    device = d;
+                                    actions = a;
+                                }
+                            }
+                        }
+
+                        if (device == null) {
+                            continue;
+                        }
+
                         String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getOrCreateLookingGlassId());
 
                         page.writeStart("li", "style", "clear: right;");
-                            page.writeHtml(device.getUserAgentDisplay());
+                            page.writeHtml(entry.getKey());
 
                             page.writeStart("div", "style", page.cssString(
                                     "float", "right",
@@ -65,11 +108,7 @@ public class ToolUserHistory extends PageServlet {
                             page.writeStart("ul",
                                     "class", "links",
                                     "style", page.cssString("margin-right", "150px"));
-                                for (ToolUserAction action : Query.
-                                        from(ToolUserAction.class).
-                                        where("device = ?", device).
-                                        sortDescending("time").
-                                        selectAll()) {
+                                for (ToolUserAction action : actions) {
                                     Object actionContent = action.getContent();
 
                                     if (actionContent == null) {

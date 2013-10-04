@@ -142,9 +142,9 @@ body.rte-fullscreen {
     }
 
     &:hover {
-        .box-shadow(0 0 2px @color-text);
-        padding-right: 0;
+        position: relative;
         overflow: visible;
+        z-index: 1;
 
         .rte-group-label {
             .icon-caret-down;
@@ -154,6 +154,7 @@ body.rte-fullscreen {
             background-color: @color-text;
             .border-radius(3px);
             .box-shadow(0 0 2px @color-text);
+            margin-right: -3px;
             padding-bottom: 3px;
             padding-right: 3px;
         }
