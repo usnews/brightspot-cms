@@ -8,11 +8,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Template;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
@@ -36,46 +40,56 @@ public class CreateNew extends PageServlet {
     @SuppressWarnings("unchecked")
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
         String redirect = page.param(String.class, "redirect");
+        CmsTool.CommonContentSettings settings = page.getCmsTool().getCommonContentSettings();
+        Set<ObjectType> createNewTypes = settings.getCreateNewTypes();
+        Set<Content> editExistingContents = new TreeSet<Content>(settings.getEditExistingContents());
         List<TypeTemplate> typeTemplates = new ArrayList<TypeTemplate>();
         Map<ObjectType, Integer> typeCounts = new HashMap<ObjectType, Integer>();
 
-        for (Template template : Query.
-                from(Template.class).
-                where(page.siteItemsPredicate()).
-                sortAscending("name").
-                selectAll()) {
-
-            for (ObjectType type : template.getContentTypes()) {
-                if (type.getGroups().contains(Singleton.class.getName())) {
-                    continue;
-                }
-
-                TypeTemplate typeTemplate = new TypeTemplate(type, template);
-
-                if (typeTemplate.getCollapsedId().equals(redirect)) {
-                    page.redirect("/content/edit.jsp", "typeId", type.getId(), "templateId", template.getId());
-                    return;
-                }
-
-                typeTemplates.add(typeTemplate);
-                typeCounts.put(type, typeCounts.containsKey(type) ? typeCounts.get(type) + 1 : 1);
+        if (!createNewTypes.isEmpty()) {
+            for (ObjectType type : createNewTypes) {
+                typeTemplates.add(new TypeTemplate(type, null));
             }
-        }
 
-        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
-            if (type.isConcrete() && 
-                    type.getGroups().contains(Directory.Item.class.getName()) &&
-                    !type.getGroups().contains(Singleton.class.getName()) &&
-                    !typeCounts.containsKey(type)) {
-                TypeTemplate typeTemplate = new TypeTemplate(type, null);
+        } else {
+            for (Template template : Query.
+                    from(Template.class).
+                    where(page.siteItemsPredicate()).
+                    sortAscending("name").
+                    selectAll()) {
 
-                if (typeTemplate.getCollapsedId().equals(redirect)) {
-                    page.redirect("/content/edit.jsp", "typeId", type.getId());
-                    return;
+                for (ObjectType type : template.getContentTypes()) {
+                    if (type.getGroups().contains(Singleton.class.getName())) {
+                        continue;
+                    }
+
+                    TypeTemplate typeTemplate = new TypeTemplate(type, template);
+
+                    if (typeTemplate.getCollapsedId().equals(redirect)) {
+                        page.redirect("/content/edit.jsp", "typeId", type.getId(), "templateId", template.getId());
+                        return;
+                    }
+
+                    typeTemplates.add(typeTemplate);
+                    typeCounts.put(type, typeCounts.containsKey(type) ? typeCounts.get(type) + 1 : 1);
                 }
+            }
 
-                typeTemplates.add(typeTemplate);
-                typeCounts.put(type, 1);
+            for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
+                if (type.isConcrete() && 
+                        type.getGroups().contains(Directory.Item.class.getName()) &&
+                        !type.getGroups().contains(Singleton.class.getName()) &&
+                        !typeCounts.containsKey(type)) {
+                    TypeTemplate typeTemplate = new TypeTemplate(type, null);
+
+                    if (typeTemplate.getCollapsedId().equals(redirect)) {
+                        page.redirect("/content/edit.jsp", "typeId", type.getId());
+                        return;
+                    }
+
+                    typeTemplates.add(typeTemplate);
+                    typeCounts.put(type, 1);
+                }
             }
         }
 
@@ -126,7 +140,7 @@ public class CreateNew extends PageServlet {
         page.writeEnd();
 
         page.writeStart("div", "class", "widget", "id", widgetId);
-            page.writeStart("h1", "class", "icon icon-action-create").writeHtml("Create New").writeEnd();
+            page.writeStart("h1", "class", "icon icon-file").writeHtml("Common Content").writeEnd();
 
             if (page.param(boolean.class, "customize")) {
                 page.writeStart("form",
@@ -183,49 +197,98 @@ public class CreateNew extends PageServlet {
                     page.writeEnd();
                 page.writeEnd();
 
-                page.writeStart("ul", "class", "links pageThumbnails");
-                    for (TypeTemplate typeTemplate : favorites) {
-                        ObjectType type = typeTemplate.type;
-                        Template template = typeTemplate.template;
-                        State state = State.getInstance(Query.fromType(type).where("cms.template.default = ?", template).first());
-                        String permalink = null;
+                page.writeStart("div", "style", page.cssString(
+                        "-moz-box-sizing", "border-box",
+                        "-webkit-box-sizing", "border-box",
+                        "box-sizing", "border-box",
+                        "float", "left",
+                        "padding-right", "5px",
+                        "width", "50%"));
+                    page.writeStart("h2").writeHtml("Create New").writeEnd();
 
-                        if (state != null) {
-                            permalink = state.as(Directory.ObjectModification.class).getPermalink();
+                    page.writeStart("ul", "class", "links pageThumbnails");
+                        for (TypeTemplate typeTemplate : favorites) {
+                            ObjectType type = typeTemplate.type;
+                            Template template = typeTemplate.template;
+                            State state = State.getInstance(Query.fromType(type).where("cms.template.default = ?", template).first());
+                            String permalink = null;
+
+                            if (state != null) {
+                                permalink = state.as(Directory.ObjectModification.class).getPermalink();
+                            }
+
+                            page.writeStart("li", "data-preview-url", permalink);
+                                page.writeStart("a",
+                                        "target", "_top",
+                                        "href", page.url("/content/edit.jsp",
+                                                "typeId", type.getId(),
+                                                "templateId", template != null ? template.getId() : null));
+                                    page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
+                                page.writeEnd();
+                            page.writeEnd();
                         }
+                    page.writeEnd();
 
-                        page.writeStart("li", "data-preview-url", permalink);
-                            page.writeStart("a",
-                                    "target", "_top",
-                                    "href", page.url("/content/edit.jsp",
-                                            "typeId", type.getId(),
-                                            "templateId", template != null ? template.getId() : null));
-                                page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
+                    if (!collapsed.isEmpty()) {
+                        page.writeStart("form",
+                                "method", "get",
+                                "action", page.url(null),
+                                "target", "_top");
+                            page.writeStart("select", "name", "redirect");
+                                for (TypeTemplate typeTemplate : collapsed) {
+                                    page.writeStart("option", "value", typeTemplate.getCollapsedId());
+                                        page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
+                                    page.writeEnd();
+                                }
+                            page.writeEnd();
+
+                            page.writeHtml(" ");
+
+                            page.writeStart("button", "class", "action action-create");
+                                page.writeHtml("New");
                             page.writeEnd();
                         page.writeEnd();
                     }
                 page.writeEnd();
 
-                if (!collapsed.isEmpty()) {
-                    page.writeStart("form",
-                            "method", "get",
-                            "action", page.url(null),
-                            "target", "_top");
-                        page.writeStart("select", "name", "redirect");
-                            for (TypeTemplate typeTemplate : collapsed) {
-                                page.writeStart("option", "value", typeTemplate.getCollapsedId());
-                                    page.writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate));
+                if (editExistingContents.isEmpty()) {
+                    for (Object item : Query.
+                            from(Object.class).
+                            where("_type = ?", Database.Static.getDefault().getEnvironment().getTypesByGroup(Singleton.class.getName())).
+                            selectAll()) {
+                        if (item instanceof Content) {
+                            editExistingContents.add((Content) item);
+                        }
+                    }
+                }
+
+                if (!editExistingContents.isEmpty()) {
+                    page.writeStart("div", "style", page.cssString(
+                            "-moz-box-sizing", "border-box",
+                            "-webkit-box-sizing", "border-box",
+                            "box-sizing", "border-box",
+                            "float", "left",
+                            "padding-left", "5px",
+                            "width", "50%"));
+                        page.writeStart("h2").writeHtml("Edit Existing").writeEnd();
+
+                        page.writeStart("ul", "class", "links pageThumbnails");
+                            for (Content content : editExistingContents) {
+                                page.writeStart("li");
+                                    page.writeStart("a",
+                                            "target", "_top",
+                                            "href", page.objectUrl("/content/edit.jsp", content));
+                                        page.writeTypeObjectLabel(content);
+                                    page.writeEnd();
                                 page.writeEnd();
                             }
                         page.writeEnd();
-
-                        page.writeHtml(" ");
-
-                        page.writeStart("button", "class", "action action-create");
-                            page.writeHtml("New");
-                        page.writeEnd();
                     page.writeEnd();
                 }
+
+                page.writeStart("div", "style", page.cssString(
+                        "clear", "both"));
+                page.writeEnd();
             }
         page.writeEnd();
     }

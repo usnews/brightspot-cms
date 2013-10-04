@@ -37,7 +37,7 @@ public class BulkUpload extends PageServlet {
             return;
         }
 
-        ObjectType defaultType = page.getCmsTool().getBulkUpload().getDefaultType();
+        ObjectType defaultType = page.getCmsTool().getBulkUploadSettings().getDefaultType();
 
         page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();

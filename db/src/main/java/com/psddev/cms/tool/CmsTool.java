@@ -6,11 +6,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUi;
@@ -61,7 +63,10 @@ public class CmsTool extends Tool {
     private String dropboxApplicationKey;
 
     @ToolUi.Tab("Dashboard")
-    private BulkUploadSettings bulkUpload;
+    private CommonContentSettings commonContentSettings;
+
+    @ToolUi.Tab("Dashboard")
+    private BulkUploadSettings bulkUploadSettings;
 
     @ToolUi.Tab("Debug")
     private boolean useNonMinified;
@@ -366,15 +371,26 @@ public class CmsTool extends Tool {
         this.dropboxApplicationKey = dropboxApplicationKey;
     }
 
-    public BulkUploadSettings getBulkUpload() {
-        if (bulkUpload == null) {
-            bulkUpload = new BulkUploadSettings();
+    public CommonContentSettings getCommonContentSettings() {
+        if (commonContentSettings == null) {
+            commonContentSettings = new CommonContentSettings();
         }
-        return bulkUpload;
+        return commonContentSettings;
     }
 
-    public void setBulkUpload(BulkUploadSettings bulkUpload) {
-        this.bulkUpload = bulkUpload;
+    public void setCommonContentSettings(CommonContentSettings commonContentSettings) {
+        this.commonContentSettings = commonContentSettings;
+    }
+
+    public BulkUploadSettings getBulkUploadSettings() {
+        if (bulkUploadSettings == null) {
+            bulkUploadSettings = new BulkUploadSettings();
+        }
+        return bulkUploadSettings;
+    }
+
+    public void setBulkUploadSettings(BulkUploadSettings bulkUploadSettings) {
+        this.bulkUploadSettings = bulkUploadSettings;
     }
 
     public boolean isUseNonMinified() {
@@ -550,6 +566,35 @@ public class CmsTool extends Tool {
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;
+        }
+    }
+
+    @Embedded
+    public static class CommonContentSettings extends Record {
+
+        private Set<ObjectType> createNewTypes;
+        private Set<Content> editExistingContents;
+
+        public Set<ObjectType> getCreateNewTypes() {
+            if (createNewTypes == null) {
+                createNewTypes = new LinkedHashSet<ObjectType>();
+            }
+            return createNewTypes;
+        }
+
+        public void setCreateNewTypes(Set<ObjectType> createNewTypes) {
+            this.createNewTypes = createNewTypes;
+        }
+
+        public Set<Content> getEditExistingContents() {
+            if (editExistingContents == null) {
+                editExistingContents = new LinkedHashSet<Content>();
+            }
+            return editExistingContents;
+        }
+
+        public void setEditExistingContents(Set<Content> editExistingContents) {
+            this.editExistingContents = editExistingContents;
         }
     }
 
