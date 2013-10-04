@@ -74,6 +74,7 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
+import com.psddev.dari.util.Utf8Filter;
 import com.psddev.dari.util.WebPageContext;
 
 /**
@@ -1117,6 +1118,7 @@ public class ToolPageContext extends WebPageContext {
                                 "action", cmsUrl("/misc/search.jsp"),
                                 "target", "miscSearch");
 
+                            writeTag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                             writeTag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
 
                             writeStart("span", "class", "searchInput");

@@ -16,6 +16,7 @@ com.psddev.dari.db.Query,
 com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.Utf8Filter,
 
 java.util.ArrayList,
 java.util.Collections,
@@ -126,6 +127,7 @@ writer.start("div", "class", "searchForm");
                     "method", "get",
                     "action", wp.url(null));
 
+                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                 writer.tag("input", "type", "hidden", "name", "reset", "value", "true");
                 writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
 
@@ -161,6 +163,7 @@ writer.start("div", "class", "searchForm");
                     "action", wp.url(request.getAttribute("resultJsp")),
                     "target", resultTarget);
 
+                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                 writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
                 writer.tag("input", "type", "hidden", "name", Search.SORT_PARAMETER, "value", search.getSort());
 
