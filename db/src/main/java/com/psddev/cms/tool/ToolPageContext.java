@@ -1169,6 +1169,8 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                 writeEnd();
+
+                writeStart("div", "class", "toolContent");
     }
 
     public void writeStylesAndScripts() throws IOException {
@@ -1352,7 +1354,18 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
+                writeTag("/div");
+
                 writeStart("div", "class", "toolFooter");
+                    writeStart("a",
+                            "target", "_blank",
+                            "href", "http://www.brightspot.com/");
+                        writeTag("img",
+                                "src", cmsUrl("/style/brightspot.png"),
+                                "alt", "Brightspot",
+                                "width", 104,
+                                "height", 14);
+                    writeEnd();
                 writeEnd();
             writeTag("/body");
         writeTag("/html");
