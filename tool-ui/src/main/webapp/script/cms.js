@@ -619,31 +619,46 @@ $doc.delegate('.exception > *', 'click', function() {
 
 // Make sure that the label for the focused input is visible.
 $doc.delegate(':input', 'focus', function() {
-    var $parents = $(this).parentsUntil('form');
+    var $input = $(this),
+            $firstInput = $input.closest('form').find('.inputContainer:visible').eq(0),
+            $parents = $input.parentsUntil('form');
 
     $parents.addClass('state-focus');
 
-    $win.bind('scroll.focus', $.run($.throttle(100, function() {
-        var $label = $('.focusLabel'),
-                labelText = '',
+    $win.bind('scroll.focus', $.run($.throttle(50, function() {
+        var focusLabelHeight,
                 index,
                 $parent,
-                parentPosition,
-                parentLabel;
+                headerHeight = $('.toolHeader').outerHeight(),
+                labelText = '',
+                $focusLabel = $('.focusLabel'),
+                $parentLabel,
+                parentLabelText;
+
+        if ($focusLabel.length === 0) {
+            $focusLabel = $('<div/>', { 'class': 'focusLabel' });
+
+            $(doc.body).append($focusLabel);
+        }
+
+        focusLabelHeight = $focusLabel.outerHeight();
+
+        $parents.each(function() {
+            $(this).find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+        });
 
         for (index = $parents.length - 1; index >= 0; -- index) {
             $parent = $($parents[index]);
 
-            if ($parent.offset().top > $win.scrollTop() + 100) {
+            if ($parent.offset().top > $win.scrollTop() + (focusLabelHeight * 2 / 3) + headerHeight) {
                 if (labelText) {
-                    if ($label.length === 0) {
-                        $label = $('<div/>', { 'class': 'focusLabel' });
-                        $(doc.body).append($label);
-                    }
-
-                    parentPosition = $parent.position();
-                    $label.text(labelText);
-                    $label.show();
+                    $focusLabel.css({
+                        'left': $firstInput.offset().left,
+                        'top': headerHeight,
+                        'width': $firstInput.outerWidth()
+                    });
+                    $focusLabel.text(labelText);
+                    $focusLabel.show();
                     return;
 
                 } else {
@@ -651,25 +666,33 @@ $doc.delegate(':input', 'focus', function() {
                 }
             }
 
-            parentLabel = $parent.find('> .inputLabel').text();
+            $parentLabel = $parent.find('> .inputLabel label, > .repeatableLabel');
+            parentLabelText = $parentLabel.text();
 
-            if (parentLabel) {
+            if (parentLabelText) {
+                $parentLabel.css('visibility', 'hidden');
+
                 if (labelText) {
                     labelText += ' \u2192 ';
                 }
-                labelText += parentLabel;
+
+                labelText += parentLabelText;
             }
         }
 
-        $label.hide();
+        $focusLabel.hide();
     })));
 });
 
 $doc.delegate(':input', 'blur', function() {
-    var $label = $('.focusLabel');
+    $(this).parents('.state-focus').each(function() {
+        var $parent = $(this);
 
-    $label.hide();
-    $(this).parents('.state-focus').removeClass('state-focus');
+        $parent.removeClass('state-focus');
+        $parent.find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+    });
+
+    $('.focusLabel').hide();
     $win.unbind('.state-focus');
 });
 
