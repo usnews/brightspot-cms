@@ -1598,8 +1598,6 @@ public class ToolPageContext extends WebPageContext {
             } else {
                 writeHtml("Edit ");
                 writeHtml(typeLabel);
-                writeHtml(": ");
-                writeHtml(getObjectLabel(object));
             }
         writeEnd();
     }
