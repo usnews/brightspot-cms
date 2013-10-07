@@ -279,7 +279,9 @@ $.plugin2('imageEditor', {
 
             if (!independent) {
                 if ($mainInput) {
-                    $mainInput['$sizeLabel'].html($mainInput['$sizeLabel'].html() + '<br>' + $th.text());
+                    $mainInput['$sizeLabel'].html(
+                            $mainInput['$sizeLabel'].html() +
+                            '<br><span title="' + $th.text() + '">' + $th.text() + '</span>');
 
                     $.each(INPUT_NAMES, function(index, name) {
                         $mainInput[name] = $mainInput[name].add($input[name]);
@@ -551,7 +553,7 @@ $.plugin2('imageEditor', {
 
             var $sizeLabel = $('<span/>', {
                 'class': 'imageEditor-sizeLabel',
-                'text': $th.text()
+                'html': '<span title="' + $th.text() + '">' + $th.text() + '</span>'
             });
 
             $input['$sizeLabel'] = $sizeLabel;
