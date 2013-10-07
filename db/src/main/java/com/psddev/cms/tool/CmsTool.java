@@ -33,33 +33,48 @@ public class CmsTool extends Tool {
     private String companyName;
     private StorageItem companyLogo;
     private String environment;
+
+    @ToolUi.Tab("Defaults")
     private ToolRole defaultRole;
+
+    @ToolUi.Tab("Debug")
     private Set<String> disabledPlugins;
     private String broadcastMessage;
     private Date broadcastExpiration;
 
     @ToolUi.Note("Check this to force the generated permalink to replace the existing URLs. This is useful before the site is live when the URL structure is still in flux.")
+    @ToolUi.Tab("Debug")
     private boolean singleGeneratedPermalink;
 
     @ToolUi.CodeType("text/css")
+    @ToolUi.Tab("Debug")
     private String extraCss;
 
     @ToolUi.CodeType("text/javascript")
+    @ToolUi.Tab("Debug")
     private String extraJavaScript;
 
+    @ToolUi.Tab("Defaults")
     private String defaultSiteUrl;
+
+    @ToolUi.Tab("Defaults")
     private String defaultToolUrl;
 
+    @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
 
+    @ToolUi.Tab("RTE")
     private List<CssClassGroup> textCssClassGroups;
+
+    @ToolUi.Tab("Dashboard")
     private List<ResourceItem> resources;
 
+    @Deprecated
     @Embedded
     private Template modulePreviewTemplate;
 
-    @ToolUi.Heading("3rd Party")
+    @ToolUi.Tab("Integrations")
     private String dropboxApplicationKey;
 
     @ToolUi.Tab("Dashboard")
