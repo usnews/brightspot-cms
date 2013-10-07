@@ -481,6 +481,10 @@
     .dashboardCell-collapse & {
         .icon-collapse;
     }
+
+    &:hover {
+        color: @color-text;
+    }
 }
 
 .dashboardMoveContainer {
@@ -499,17 +503,13 @@
     }
 
     &:hover {
-        background-color: fade(@color-text, 20%);
-        .border-radius(50px);
+        color: @color-text;
         height: 50px;
-        margin-right: -16px;
-        margin-top: -12px;
-        width: 50px;
+        line-height: 50px;
+        font-size: 40px;
+        margin-right: -15px;
+        margin-top: -15px;
         z-index: 1;
-
-        &:before {
-            display: none;
-        }
     }
 }
 
@@ -519,59 +519,35 @@
 .dashboardMoveRight {
     .link;
 
-    color: @color-text;
-    line-height: 1;
+    .border-radius(100%);
+    display: none;
+    height: 19px;
     position: absolute;
+    width: 19px;
 
     .dashboardMoveContainer:hover & {
         display: block;
     }
 }
 
-.dashboardMoveUp,
-.dashboardMoveDown {
-    left: 19px;
-}
-
 .dashboardMoveUp {
-    .icon;
-    .icon-arrow-up;
-    .icon-only;
-
-    display: none;
+    left: 12px;
     top: 2px;
 }
 
 .dashboardMoveDown {
-    .icon;
-    .icon-arrow-down;
-    .icon-only;
-
-    display: none;
     bottom: 2px;
-}
-
-.dashboardMoveLeft,
-.dashboardMoveRight {
-    top: 17px;
+    left: 12px;
 }
 
 .dashboardMoveLeft {
-    .icon;
-    .icon-arrow-left;
-    .icon-only;
-
-    display: none;
-    left: 2px;
+    left: 0;
+    top: 15px;
 }
 
 .dashboardMoveRight {
-    .icon;
-    .icon-arrow-right;
-    .icon-only;
-
-    display: none;
-    right: 0px;
+    top: 15px;
+    right: 0;
 }
 
 .withLeftNav {

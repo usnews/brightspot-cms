@@ -113,13 +113,14 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.toggleClass('dashboardCell-collapse');
             saveDashboard();
-
-            return false;
         }
     });
 
     $moveContainer = $('<span/>', {
-        'class': 'dashboardMoveContainer'
+        'class': 'dashboardMoveContainer',
+        'click': function() {
+            $(this).toggleClass('dashboardMoveContainer-open');
+        }
     });
 
     saveDashboard = function() {
@@ -163,8 +164,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.prev().before($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -173,8 +172,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.next().after($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -194,8 +191,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $prevColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -215,8 +210,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $nextColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
