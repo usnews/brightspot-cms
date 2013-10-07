@@ -15,6 +15,21 @@ $.plugin2('imageEditor', {
         var $imageClone = $image.clone();
         var imageClone = $imageClone[0];
 
+        $editor.find('> .imageEditor-aside').bind('mousewheel', function(event, delta, deltaX, deltaY) {
+            var $aside = $(this),
+                    maxScrollTop = $.data(this, 'imageEditor-maxScrollTop');
+
+            if (typeof maxScrollTop === 'undefined') {
+                maxScrollTop = $aside.prop('scrollHeight') - $aside.innerHeight();
+                $.data(this, 'imageEditor-maxScrollTop', maxScrollTop);
+            }
+
+            if ((deltaY > 0 && $aside.scrollTop() === 0) ||
+                    (deltaY < 0 && $aside.scrollTop() >= maxScrollTop)) {
+                event.preventDefault();
+            }
+        });
+
         var $tools = $editor.find('.imageEditor-tools ul');
         var $edit = $editor.find('.imageEditor-edit');
 
