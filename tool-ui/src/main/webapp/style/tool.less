@@ -454,7 +454,32 @@
     }
 
     .widgetControls {
-        right: 35px;
+        right: 55px;
+    }
+}
+
+.dashboardCell-collapse .widget {
+    height: 13px;
+    overflow: hidden;
+}
+
+.dashboardCollapse {
+    .icon;
+    .icon-collapse-top;
+    .icon-only;
+    .link;
+
+    color: @color-note;
+    position: absolute;
+    right: 35px;
+    top: 6px;
+
+    .dashboardColumn:last-child & {
+        right: 30px;
+    }
+
+    .dashboardCell-collapse & {
+        .icon-collapse;
     }
 }
 

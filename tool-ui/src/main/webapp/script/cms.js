@@ -100,12 +100,23 @@ $doc.onCreate('.inputContainer .permissions select', function() {
 // Allow dashboard widgets to move around.
 $doc.onCreate('.dashboardCell', function() {
     var $cell = $(this),
+            $collapse,
             $moveContainer,
             saveDashboard,
             $moveUp,
             $moveDown,
             $moveLeft,
             $moveRight;
+
+    $collapse = $('<span/>', {
+        'class': 'dashboardCollapse',
+        'click': function() {
+            $cell.toggleClass('dashboardCell-collapse');
+            saveDashboard();
+
+            return false;
+        }
+    });
 
     $moveContainer = $('<span/>', {
         'class': 'dashboardMoveContainer'
@@ -114,7 +125,8 @@ $doc.onCreate('.dashboardCell', function() {
     saveDashboard = function() {
         var $dashboard = $cell.closest('.dashboard'),
                 $columns,
-                widgets = [ ];
+                widgets = [ ],
+                widgetsCollapse = [ ];
 
         $dashboard.find('.dashboardColumn:empty').remove();
         $columns = $dashboard.find('.dashboardColumn');
@@ -124,14 +136,25 @@ $doc.onCreate('.dashboardCell', function() {
             var w = widgets[widgets.length] = [ ];
 
             $(this).find('.dashboardCell').each(function() {
-                w[w.length] = $(this).attr('data-widget');
+                var $cell = $(this),
+                        name = $cell.attr('data-widget');
+
+                w[w.length] = name;
+
+                if ($cell.hasClass('dashboardCell-collapse')) {
+                    widgetsCollapse[widgetsCollapse.length] = name;
+                }
             });
         });
 
         $.ajax({
             'type': 'post',
             'url': CONTEXT_PATH + '/misc/updateUserSettings',
-            'data': 'action=dashboardWidgets-position&widgets=' + encodeURIComponent(JSON.stringify(widgets))
+            'data': {
+                'action': 'dashboardWidgets-position',
+                'widgets': JSON.stringify(widgets),
+                'widgetsCollapse': JSON.stringify(widgetsCollapse)
+            }
         });
     };
 
@@ -202,6 +225,7 @@ $doc.onCreate('.dashboardCell', function() {
     $moveContainer.append($moveLeft);
     $moveContainer.append($moveRight);
 
+    $cell.append($collapse);
     $cell.append($moveContainer);
 });
 
