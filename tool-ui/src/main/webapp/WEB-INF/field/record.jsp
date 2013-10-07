@@ -11,6 +11,7 @@ com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
+com.psddev.dari.util.Settings,
 com.psddev.dari.util.StorageItem,
 
 java.util.ArrayList,
@@ -32,6 +33,7 @@ State state = State.getInstance(request.getAttribute("object"));
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
 Object fieldValue = state.getValue(fieldName);
+boolean fieldValueNew = false;
 
 ObjectType fieldValueType = null;
 Set<ObjectType> validTypes = field.findConcreteTypes();
@@ -54,6 +56,7 @@ if (!isEmbedded) {
 }
 
 String inputName = (String) request.getAttribute("inputName");
+String setName = inputName + ".setName";
 String idName = inputName + ".id";
 String typeIdName = inputName + ".typeId";
 String publishDateName = inputName + ".publishDate";
@@ -69,6 +72,8 @@ if ((Boolean) request.getAttribute("isFormPost") && fieldValue != null && !State
 if (fieldValue == null && isEmbedded) {
     if (fieldValueType != null) {
         fieldValue = fieldValueType.createObject(null);
+        fieldValueNew = true;
+
     } else {
         for (ObjectType type : validTypes) {
             if (type.getId().equals(typeId)) {
@@ -96,7 +101,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     } else {
         fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
     }
-    state.putValue(fieldName, fieldValue);
+
+    if ("none".equals(wp.param(String.class, setName))) {
+        state.putValue(fieldName, null);
+
+    } else {
+        state.putValue(fieldName, fieldValue);
+    }
+
     return;
 }
 
@@ -106,6 +118,30 @@ if (isEmbedded) {
     if (fieldValueType != null) {
         State fieldValueState = State.getInstance(fieldValue);
         Date fieldValuePublishDate = fieldValueState.as(Content.ObjectModification.class).getPublishDate();
+
+        if (!field.isRequired() && !Settings.get(boolean.class, "cms/tool/embeddedObjectRequired")) {
+            wp.writeStart("div", "class", "inputSmall");
+                wp.writeStart("select",
+                        "class", "toggleable",
+                        "name", setName,
+                        "data-root", ".inputContainer");
+                    wp.writeStart("option",
+                            "value", "none",
+                            "data-hide", "> .inputLarge",
+                            "selected", fieldValueNew ? "selected" : null);
+                        wp.writeHtmlOrDefault(field.as(ToolUi.class).getPlaceholder(), "None");
+                    wp.writeEnd();
+
+                    wp.writeStart("option",
+                            "value", "",
+                            "data-show", "> .inputLarge",
+                            "selected", fieldValueNew ? null : "selected");
+                        wp.writeHtml("Set:");
+                    wp.writeEnd();
+                wp.writeEnd();
+            wp.writeEnd();
+        }
+
         wp.write("<div class=\"inputLarge\">");
         wp.write("<input name=\"", wp.h(idName), "\" type=\"hidden\" value=\"", fieldValueState.getId(), "\">");
         wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", fieldValueState.getTypeId(), "\">");
