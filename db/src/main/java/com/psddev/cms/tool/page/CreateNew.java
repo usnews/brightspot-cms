@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Template;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -196,6 +197,28 @@ public class CreateNew extends PageServlet {
                         page.writeHtml("Customize");
                     page.writeEnd();
                 page.writeEnd();
+
+                ToolUser user = page.getUser();
+                List<Object> automaticallySavedDrafts = Query.
+                        from(Object.class).
+                        where("_id = ?", user.getAutomaticallySavedDraftIds()).
+                        selectAll();
+
+                if (!automaticallySavedDrafts.isEmpty()) {
+                    page.writeStart("h2").writeHtml("Automatically Saved Drafts").writeEnd();
+
+                    page.writeStart("ul", "class", "links");
+                        for (Object draft : automaticallySavedDrafts) {
+                            page.writeStart("li");
+                                page.writeStart("a",
+                                        "target", "_top",
+                                        "href", page.objectUrl("/content/edit.jsp", draft));
+                                    page.writeTypeObjectLabel(draft);
+                                page.writeEnd();
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
 
                 page.writeStart("div", "style", page.cssString(
                         "-moz-box-sizing", "border-box",

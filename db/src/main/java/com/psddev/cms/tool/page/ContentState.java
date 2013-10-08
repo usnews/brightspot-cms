@@ -5,11 +5,13 @@ import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.ToolUser;
@@ -64,28 +66,58 @@ public class ContentState extends PageServlet {
             state.endWrites();
         }
 
-        // Preview for looking glass.
-        Preview preview = new Preview();
-        ToolUser user = page.getUser();
-        UUID currentPreviewId = user.getCurrentPreviewId();
+        // Expensive operations that should only trigger occasionally.
+        boolean idle = page.param(boolean.class, "idle");
 
-        if (currentPreviewId == null) {
-            currentPreviewId = preview.getId();
+        if (idle) {
+            boolean saveUser = false;
 
-            user.setCurrentPreviewId(currentPreviewId);
-            user.save();
+            // Automatically save newly created drafts when the user is idle.
+            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+            ToolUser user = page.getUser();
+
+            if (idle && (state.isNew() || contentData.isDraft())) {
+                contentData.setDraft(true);
+                contentData.setUpdateDate(new Date());
+                contentData.setUpdateUser(user);
+                state.saveUnsafely();
+
+                Set<UUID> automaticallySavedDraftIds = user.getAutomaticallySavedDraftIds();
+                UUID id = state.getId();
+
+                if (!automaticallySavedDraftIds.contains(id)) {
+                    saveUser = true;
+
+                    automaticallySavedDraftIds.add(id);
+                }
+            }
+
+            // Preview for looking glass.
+            Preview preview = new Preview();
+            UUID currentPreviewId = user.getCurrentPreviewId();
+
+            if (currentPreviewId == null) {
+                saveUser = true;
+                currentPreviewId = preview.getId();
+
+                user.setCurrentPreviewId(currentPreviewId);
+            }
+
+            Map<String, Object> values = state.getSimpleValues();
+
+            preview.getState().setId(currentPreviewId);
+            preview.setCreateDate(new Date());
+            preview.setObjectType(state.getType());
+            preview.setObjectId(state.getId());
+            preview.setObjectValues(values);
+            preview.setSite(page.getSite());
+            preview.save();
+            user.saveAction(page.getRequest(), object);
+
+            if (saveUser) {
+                user.save();
+            }
         }
-
-        Map<String, Object> values= state.getSimpleValues();
-
-        preview.getState().setId(currentPreviewId);
-        preview.setCreateDate(new Date());
-        preview.setObjectType(state.getType());
-        preview.setObjectId(state.getId());
-        preview.setObjectValues(values);
-        preview.setSite(page.getSite());
-        preview.save();
-        user.saveAction(page.getRequest(), object);
 
         // HTML display for the URL widget.
         Map<String, Object> jsonResponse = new CompactMap<String, Object>();

@@ -81,6 +81,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Set<String> contentLocks;
 
+    @ToolUi.Hidden
+    private Set<UUID> automaticallySavedDraftIds;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -466,6 +469,17 @@ public class ToolUser extends Record implements ToolEntity {
 
             user.save();
         }
+    }
+
+    public Set<UUID> getAutomaticallySavedDraftIds() {
+        if (automaticallySavedDraftIds == null) {
+            automaticallySavedDraftIds = new LinkedHashSet<UUID>();
+        }
+        return automaticallySavedDraftIds;
+    }
+
+    public void setAutomaticallySavedDraftIds(Set<UUID> draftIds) {
+        this.automaticallySavedDraftIds = draftIds;
     }
 
     /**

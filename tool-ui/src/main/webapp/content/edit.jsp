@@ -774,25 +774,58 @@ boolean lockedOut = !user.equals(contentLockOwner);
     <script type="text/javascript">
         (function($, window, undefined) {
             var $form = $('.contentForm'),
-                    updateContentState;
+                    updateContentState,
+                    updateContentStateThrottled,
+                    idleTimeout;
 
-            updateContentState = $.throttle(100, function() {
+            updateContentState = function(idle, wait) {
                 var action = $form.attr('action'),
-                        questionAt = action.indexOf('?');
+                        questionAt = action.indexOf('?'),
+                        complete,
+                        end = +new Date() + 1000;
 
                 $.ajax({
                     'type': 'post',
-                    'url': CONTEXT_PATH + 'contentState' + (questionAt > -1 ? action.substring(questionAt) : ''),
+                    'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
+                    'cache': false,
                     'data': $form.serialize(),
                     'dataType': 'json',
+
                     'success': function(data) {
                         $form.trigger('cms-updateContentState', [ data ]);
+                    },
+
+                    'complete': function() {
+                        complete = true;
                     }
                 });
+
+                if (wait) {
+                    while (!complete) {
+                        if (+new Date() > end) {
+                            break;
+                        }
+                    }
+                }
+            };
+
+            updateContentStateThrottled = $.throttle(100, updateContentState);
+
+            updateContentStateThrottled();
+
+            $form.bind('change input', function() {
+                updateContentStateThrottled();
+
+                clearTimeout(idleTimeout);
+
+                idleTimeout = setTimeout(function() {
+                    updateContentStateThrottled(true);
+                }, 2000);
             });
 
-            updateContentState();
-            $form.bind('change input', updateContentState);
+            $(window).bind('beforeunload', function() {
+                updateContentState(true, true);
+            });
         })(jQuery, window);
     </script>
 
