@@ -772,6 +772,31 @@ boolean lockedOut = !user.equals(contentLockOwner);
     </div>
 
     <script type="text/javascript">
+        (function($, window, undefined) {
+            var $form = $('.contentForm'),
+                    updateContentState;
+
+            updateContentState = $.throttle(100, function() {
+                var action = $form.attr('action'),
+                        questionAt = action.indexOf('?');
+
+                $.ajax({
+                    'type': 'post',
+                    'url': CONTEXT_PATH + 'contentState' + (questionAt > -1 ? action.substring(questionAt) : ''),
+                    'data': $form.serialize(),
+                    'dataType': 'json',
+                    'success': function(data) {
+                        $form.trigger('cms-updateContentState', [ data ]);
+                    }
+                });
+            });
+
+            updateContentState();
+            $form.bind('change input', updateContentState);
+        })(jQuery, window);
+    </script>
+
+    <script type="text/javascript">
         (function($, win, undef) {
             var PEEK_WIDTH = 160,
                     $win = $(win),
