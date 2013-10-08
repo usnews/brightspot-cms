@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.Site,
@@ -76,6 +77,8 @@ if (!ObjectUtils.isBlank(errors)) {
 List<Directory.Path> paths = dirData.getSitePaths(site);
 
 if (!paths.isEmpty() &&
+        !state.isNew() &&
+        !state.as(Content.ObjectModification.class).isDraft() &&
         (Directory.PathsMode.MANUAL.equals(dirData.getPathsMode()) ||
         !wp.getCmsTool().isSingleGeneratedPermalink() ||
         State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site).isEmpty())) {
