@@ -58,7 +58,7 @@ Once clicked you will see an 'Empty Enhancement' in your content. Click the Edit
 
 ![](http://docs.brightspot.s3.amazonaws.com/adding-enhancement-2.1.png)
 
-You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name in a grey box. Clicking publish on the content will show the actual image inline.
+You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image. *Note: Inline preview of images was added in Brightspot 2.2*
 
 Once an enhancement has been added, you can use the same menu to position it within your content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
 

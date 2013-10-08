@@ -35,7 +35,7 @@ Every image added will have a Colors view, that allows you to see exactly which 
 
 Work Steams allow editors to group together content for editing, and then work through the task quickly. A new work stream is created directly from a set of search results. Narrow your search results to match the content you want to work through, then click to create a new work stream, consisting of those items. The work stream will then appear within the dedicated widget on the dashboard. Note, you must narrow the search to a single content type when creating work streams.
 
-![](http://docs.brightspot.s3.amazonaws.com/new-work-stream.png)
+![](http://docs.brightspot.s3.amazonaws.com/create-workstream-2.2.png)
 
 ## Advanced Search
 
@@ -45,9 +45,11 @@ Export to CSV as default.
 
 ![](http://docs.brightspot.s3.amazonaws.com/search-guides-shot.png)
 
-## Bulk Edit
+## Bulk Editing
 
-Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save
+Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save.
+
+Content can also be deleted in bulk.
 
 ![](http://docs.brightspot.s3.amazonaws.com/bulk-editing-2.1.png)
 </div>
