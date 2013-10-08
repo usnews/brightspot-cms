@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
@@ -149,6 +150,37 @@ public class ExternalContent extends Content implements Renderer {
 
     public void setResponse(Map<String, Object> response) {
         this.response = response;
+    }
+
+    @Override
+    public String getLabel() {
+        String url = getUrl();
+
+        if (response != null) {
+            String title = ObjectUtils.to(String.class, response.get("title"));
+
+            if (!ObjectUtils.isBlank(title)) {
+                StringBuilder label = new StringBuilder();
+
+                try {
+                    String host = new URL(url).getHost();
+
+                    if (!ObjectUtils.isBlank(host)) {
+                        label.append("(");
+                        label.append(host);
+                        label.append(") ");
+                    }
+
+                } catch (MalformedURLException error) {
+                    // Not a valid URL, but that's OK.
+                }
+
+                label.append(title);
+                return label.toString();
+            }
+        }
+
+        return url;
     }
 
     @Override
