@@ -205,11 +205,11 @@ public class SiteMap extends PageServlet {
                         if (type.equals(URL_TYPE)) {
                             valueType = ObjectType.getInstance(Directory.class);
                             valueQuery = Query.from(Directory.class).sortAscending("path");
+                            valueQuery.where("path != missing");
 
                         } else {
                             valueType = ObjectType.getInstance(ObjectUtils.to(UUID.class, type));
                             valueQuery = Query.fromType(valueType);
-                            valueQuery.where("path != missing");
 
                             for (String fieldName : valueType.getLabelFields()) {
                                 ObjectField field = valueType.getField(fieldName);
