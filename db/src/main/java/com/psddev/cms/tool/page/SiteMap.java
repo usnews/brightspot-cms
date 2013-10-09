@@ -209,6 +209,7 @@ public class SiteMap extends PageServlet {
                         } else {
                             valueType = ObjectType.getInstance(ObjectUtils.to(UUID.class, type));
                             valueQuery = Query.fromType(valueType);
+                            valueQuery.where("path != missing");
 
                             for (String fieldName : valueType.getLabelFields()) {
                                 ObjectField field = valueType.getField(fieldName);
