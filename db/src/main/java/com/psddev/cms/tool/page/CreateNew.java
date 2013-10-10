@@ -6,10 +6,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 
@@ -199,25 +201,45 @@ public class CreateNew extends PageServlet {
                 page.writeEnd();
 
                 ToolUser user = page.getUser();
+                Set<UUID> automaticallySavedDraftIds = user.getAutomaticallySavedDraftIds();
                 List<Object> automaticallySavedDrafts = Query.
                         from(Object.class).
-                        where("_id = ?", user.getAutomaticallySavedDraftIds()).
+                        where("_id = ?", automaticallySavedDraftIds).
                         selectAll();
 
                 if (!automaticallySavedDrafts.isEmpty()) {
-                    page.writeStart("h2").writeHtml("Automatically Saved Drafts").writeEnd();
+                    boolean removed = false;
 
-                    page.writeStart("ul", "class", "links");
-                        for (Object draft : automaticallySavedDrafts) {
-                            page.writeStart("li");
-                                page.writeStart("a",
-                                        "target", "_top",
-                                        "href", page.objectUrl("/content/edit.jsp", draft));
-                                    page.writeTypeObjectLabel(draft);
-                                page.writeEnd();
-                            page.writeEnd();
+                    for (Iterator<Object> i = automaticallySavedDrafts.iterator(); i.hasNext(); ) {
+                        State draft = State.getInstance(i.next());
+
+                        if (!draft.as(Content.ObjectModification.class).isDraft()) {
+                            removed = true;
+
+                            automaticallySavedDraftIds.remove(draft.getId());
+                            i.remove();
                         }
-                    page.writeEnd();
+                    }
+
+                    if (removed) {
+                        user.save();
+                    }
+
+                    if (!automaticallySavedDrafts.isEmpty()) {
+                        page.writeStart("h2").writeHtml("Automatically Saved Drafts").writeEnd();
+
+                        page.writeStart("ul", "class", "links");
+                            for (Object draft : automaticallySavedDrafts) {
+                                page.writeStart("li");
+                                    page.writeStart("a",
+                                            "target", "_top",
+                                            "href", page.objectUrl("/content/edit.jsp", draft));
+                                        page.writeTypeObjectLabel(draft);
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+                        page.writeEnd();
+                    }
                 }
 
                 page.writeStart("div", "style", page.cssString(
