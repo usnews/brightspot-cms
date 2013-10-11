@@ -396,7 +396,10 @@ var Rte = wysihtml5.Editor.extend({
         var $linkDialog = $(
                 '<div>' +
                     '<h2>Link</h2>' +
-                    '<div class="rte-dialogLine"><input type="text" class="rte-dialogLinkHref"></div>' +
+                    '<div class="rte-dialogLine">' +
+                        '<input type="text" class="rte-dialogLinkHref">' +
+                        '<a class="rte-dialogLinkContent" target="linkById" href="' + CONTEXT_PATH + '/content/linkById.jsp?p=true">Content</a>' +
+                    '</div>' +
                     '<div class="rte-dialogLine">' +
                         '<select class="rte-dialogLinkTarget">' +
                             '<option value="">Same Window</option>' +
