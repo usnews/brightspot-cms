@@ -775,14 +775,29 @@ boolean lockedOut = !user.equals(contentLockOwner);
         (function($, window, undefined) {
             var $form = $('.contentForm'),
                     updateContentState,
+                    changed,
                     updateContentStateThrottled,
                     idleTimeout;
 
             updateContentState = function(idle, wait) {
-                var action = $form.attr('action'),
-                        questionAt = action.indexOf('?'),
+                var action,
+                        questionAt,
                         complete,
-                        end = +new Date() + 1000;
+                        end;
+
+                if ($form.find('.state-changed').length > 0) {
+                    changed = true;
+
+                } else if (!changed) {
+                    return;
+
+                } else {
+                    changed = false;
+                }
+
+                action = $form.attr('action');
+                questionAt = action.indexOf('?');
+                end = +new Date() + 1000;
 
                 $.ajax({
                     'type': 'post',
