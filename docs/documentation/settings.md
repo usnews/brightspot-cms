@@ -1,5 +1,5 @@
 ---
-layout: guides
+layout: default
 title: Settings
 id: support
 section: documentation
