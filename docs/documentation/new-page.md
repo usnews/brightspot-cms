@@ -111,7 +111,7 @@ In this example a page is going to be created for an example site. The goal is t
 
 A set of applicable modules that can be used on the page can be grouped together using an interface. For an example of how this can be modeled, see the [Interfaces](/creating-modules.html#interfaces) documentation.
 
-##### Start by creating the page:
+**Start by creating the page:**
 
 Start by creating the Java class that will be the model for your page. Extend `Content` and add two annotations, one to render the page, the `page-container.jsp`, and the other to render the content in the page object, the `page-object.jsp`
 
@@ -129,7 +129,7 @@ public class YourPage extends Content {
 
 {% endhighlight %}
 
-##### Create the three layouts:
+**Create the three layouts:**
 
 Use the grid layout spec to build out the three layouts. The first has a grid area `0` representing the single module spanning the page.
 
@@ -174,7 +174,7 @@ The third layout adds another grid area, `2` and adjusts the spacing to make all
 }
 {% endhighlight %}
 
-##### Add Layouts to Page:
+**Add Layouts to Page:**
 
 Once you have defined the grid layouts for your page, add them as options for an editor to choose from. The actual CSS class names must be used at the grid layouts in the Java class.
 
@@ -210,7 +210,7 @@ public class YourPage extends Content {
 	// Getters and Setters
 {% endhighlight %}
 
-##### Render the Layout:
+**Render the Layout:**
 
 To render the content, use the `<cms:layout>` tag to render the list of content in your defined area.
 
