@@ -24,8 +24,7 @@ layouts much easier and is recommended.
 
 ### Creating a Grid Layout
 
-Grid layouts are defined in CSS files contained within your project
-directories. 
+Grid layouts are defined in CSS files contained within your project directories. 
 
 Brightspot implements the following css properties defined in 
 the W3 Grid Layout specification: **display: -dari-grid, -dari-grid-template, -dari-grid-definition-columns, -dari-grid-definition-rows**
@@ -96,6 +95,141 @@ Content can be rendered from the object, or the template. An example, where the 
     <cms:render value="${template.footer}" area="footer"/>
 </cms:layout>
 {% endhighlight %}
+
+
+### CMS Grid Layouts
+
+As well as providing an easy to implement front-end solution, the grid spec is also used within the CMS, where it can be used to build out an editorial interface representative of the front-end display. This makes it easy for developers to define content that can be placed in areas of the grid, and for editors to build the pages out.
+
+In this example a page is going to be created for an example site. The goal is to create a page that allows an editor to place modules in three layouts. The layouts can be combined to build out the entire page:
+
+- Single Module: A single module spanning the entire layout width.
+
+- Two Modules: Two modules side-by-side, across the entire layout width.
+
+- Three Modules: Three modules side-by-side, across the entire layout width. 
+
+A set of applicable modules that can be used on the page can be grouped together using an interface. For an example of how this can be modeled, see the [Interfaces](/creating-modules.html#interfaces) documentation.
+
+##### Start by creating the page:
+
+Start by creating the Java class that will be the model for your page. Extend `Content` and add two annotations, one to render the page, the `page-container.jsp`, and the other to render the content in the page object, the `page-object.jsp`
+
+{% highlight java %}
+
+@Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
+@Renderer.Path("/WEB-INF/model/page-object.jsp")
+public class YourPage extends Content {
+
+	private String name;
+	
+	// Getters and Setters
+
+}
+
+{% endhighlight %}
+
+##### Create the three layouts:
+
+Use the grid layout spec to build out the three layouts. The first has a grid area `0` representing the single module spanning the page.
+
+{% highlight css %}
+.grid-1-module {
+    display: -dari-grid;
+    -dari-grid-template:
+        "0";
+
+    -dari-grid-definition-columns: 940px;
+    -dari-grid-definition-rows: auto;
+    padding-bottom: 30px;
+
+}
+{% endhighlight %}
+
+The second layout adds a new grid area `1` to contain the second module. Adjust the `px` and margins to make room for the other module.
+
+{% highlight css %}
+
+.grid-2-modules {
+    display: -dari-grid;
+    -dari-grid-template:
+        "0 . 1";
+
+    -dari-grid-definition-columns: 460px 20px 460px;
+    -dari-grid-definition-rows: auto;
+    margin-bottom: 30px;
+}
+{% endhighlight %}
+
+The third layout adds another grid area, `2` and adjusts the spacing to make all three areas the same width across the page. The ListLayout processes the grid areas in order. Always add new areas in numerical order if using numbers.
+{% highlight css %}
+.grid-3-modules {
+    display: -dari-grid;
+    -dari-grid-template:
+        "0 . 1 . 2";
+
+    -dari-grid-definition-columns: 300px 20px 300px 20px 300px;
+    -dari-grid-definition-rows: auto;
+    margin-bottom: 30px;
+}
+{% endhighlight %}
+
+##### Add Layouts to Page:
+
+Once you have defined the grid layouts for your page, add them as options for an editor to choose from. The actual CSS class names must be used at the grid layouts in the Java class.
+
+Add a list of the content types that can be placed into the areas you have defined.
+
+In the example below `Placeable.class` is an interface that any module that can be added implements. For the grid areas defined for a layout, specify the content that can be added. In the example, `ImageModule.class` is the only module that can be placed in the one wide grid layout. Also, the third module area in the three wide layout must always be a `TextModule.class`. These modules implement `Placeable.class` so can also be added in the other areas.
+
+
+{% highlight java %}
+@Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
+@Renderer.Path("/WEB-INF/model/page-object.jsp")
+public class YourPage extends Content {
+
+	@Required
+	private String name;
+	
+	@ToolUi.Heading("Modules Grid")
+        @Renderable.ListLayouts(map={
+        
+          @Renderable.ListLayout(name="grid-1-module",
+          itemClasses={ImageModule.class}),
+        
+          @Renderable.ListLayout(name="grid-2-modules",
+          itemClasses={Placeable.class, Placeable.class}),
+        
+          @Renderable.ListLayout(name="grid-3-modules",
+          itemClasses={Placeable.class, Placeable.class, TextModule.class})    
+        
+        })
+    
+	private List<Placeable> modules;
+
+	// Getters and Setters
+{% endhighlight %}
+
+##### Render the Layout:
+
+To render the content, use the `<cms:layout>` tag to render the list of content in your defined area.
+
+{% highlight jsp %}
+<cms:layout class="${cms:listLayouts(content, 'modules')}">
+    <cms:render value="${content.modules}" />
+</cms:layout>
+{% endhighlight %}
+
+##### Creating the Page:
+
+The editorial interface is representative of the layouts defined in the grids. An editor can choose from any of the three layouts, and is given options to fill the grid areas. The areas are presented in the same dimensions as the grid.
+
+Layouts can be dragged and dropped, added and removed and adjusted at any time by the editor.
+
+In the shot below notice that the single wide grid can only accept an Image module, as defined in the `itemClasses` property.
+
+
+![](http://docs.brightspot.s3.amazonaws.com/list-layout-example-2.2.png)
 
 ### Mobile Devices
 
