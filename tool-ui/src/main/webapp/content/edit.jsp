@@ -771,6 +771,25 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
     </div>
 
+    <% if (!editingState.isNew() &&
+            !editingState.as(Content.ObjectModification.class).isDraft()) { %>
+        <script type="text/javascript">
+            (function($, window, undefined) {
+                $('.contentForm').submit(function() {
+                    $.data(this, 'submitting', true);
+                });
+
+                $(window).bind('beforeunload', function() {
+                    var $form = $('.contentForm');
+
+                    return !$.data($form[0], 'submitting') && $form.find('.state-changed').length > 0 ?
+                            'Are you sure you want to leave this page? Unsaved changes will be lost.' :
+                            undefined;
+                });
+            })(jQuery, window);
+        </script>
+    <% } %>
+
     <script type="text/javascript">
         (function($, window, undefined) {
             var $form = $('.contentForm'),
