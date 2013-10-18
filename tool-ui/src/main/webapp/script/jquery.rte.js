@@ -464,6 +464,13 @@ var Rte = wysihtml5.Editor.extend({
         $linkDialog.popup();
         $linkDialog.popup('close');
 
+        $linkDialog.popup('container').bind('close', function() {
+            if (!$lastAnchor.attr('href')) {
+                $lastAnchor.after($lastAnchor.html());
+                $lastAnchor.remove();
+            }
+        });
+
         var openLinkDialog = function($anchor) {
             var composerOffset = $(rte.composer.iframe).offset(),
                     $href = $linkDialog.find('.rte-dialogLinkHref'),
