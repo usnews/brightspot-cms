@@ -556,7 +556,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (!embed && ObjectUtils.isBlank(layoutPath)) {
+            if (page == null && !embed && ObjectUtils.isBlank(layoutPath)) {
                 layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
             }
 
