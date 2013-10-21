@@ -556,10 +556,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (page == null && !embed && ObjectUtils.isBlank(layoutPath)) {
-                layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
-            }
-
+            String typePath = mainType.as(Renderer.TypeModification.class).getPath();
             boolean rendered = false;
 
             try {
@@ -578,6 +575,10 @@ public class PageFilter extends AbstractFilter {
                         rendered = true;
                         renderSection(request, response, writer, layout.getOutermostSection());
                     }
+
+                } else if (!embed && !ObjectUtils.isBlank(typePath)) {
+                    rendered = true;
+                    JspUtils.include(request, response, writer, StringUtils.ensureStart(typePath, "/"));
                 }
 
             } finally {
