@@ -29,6 +29,7 @@ import com.psddev.dari.util.TypeDefinition;
 public class ToolUi extends Modification<Object> {
 
     private String codeType;
+    private String cssClass;
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
@@ -60,6 +61,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setCodeType(String codeType) {
         this.codeType = codeType;
+    }
+
+    public String getCssClass() {
+        return cssClass;
+    }
+
+    public void setCssClass(String cssClass) {
+        this.cssClass = cssClass;
     }
 
     public boolean isDisplayFirst() {
@@ -368,6 +377,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CodeType annotation) {
             field.as(ToolUi.class).setCodeType(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies the CSS class to add to {@code .inputContainer} when
+     * displaying the target field.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CssClassProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CssClass {
+        String value();
+    }
+
+    private static class CssClassProcessor implements ObjectField.AnnotationProcessor<CssClass> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CssClass annotation) {
+            field.as(ToolUi.class).setCssClass(annotation.value());
         }
     }
 

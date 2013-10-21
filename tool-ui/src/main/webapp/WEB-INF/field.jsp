@@ -74,6 +74,14 @@ try {
         if (isReadOnly) {
             wp.write(" inputContainer-readOnly");
         }
+
+        String cssClass = ui.getCssClass();
+
+        if (!ObjectUtils.isBlank(cssClass)) {
+            wp.write(" ");
+            wp.write(cssClass);
+        }
+
         wp.write("\" data-field=\"");
         wp.write(wp.h(fieldPrefix + fieldName));
         wp.write("\" data-name=\"");
