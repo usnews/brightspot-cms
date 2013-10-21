@@ -498,12 +498,16 @@ public class Search extends Record {
         }
 
         if (isAllSearchable && selectedType == null) {
-            String q = getQueryString().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+            String q = getQueryString();
 
-            for (ObjectType t : environment.getTypes()) {
-                if (q.contains(t.getDisplayName().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
-                    query.sortRelevant(20.0, "_type = ?", t.findConcreteTypes());
+            if (!ObjectUtils.isBlank(q)) {
+                q = q.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
+
+                for (ObjectType t : environment.getTypes()) {
+                    if (q.contains(t.getDisplayName().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
+                        query.sortRelevant(20.0, "_type = ?", t.findConcreteTypes());
+                    }
                 }
             }
 
