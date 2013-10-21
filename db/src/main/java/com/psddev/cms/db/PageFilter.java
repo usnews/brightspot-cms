@@ -575,8 +575,9 @@ public class PageFilter extends AbstractFilter {
                         rendered = true;
                         renderSection(request, response, writer, layout.getOutermostSection());
                     }
+                }
 
-                } else if (!embed && !ObjectUtils.isBlank(typePath)) {
+                if (!rendered && !embed && !ObjectUtils.isBlank(typePath)) {
                     rendered = true;
                     JspUtils.include(request, response, writer, StringUtils.ensureStart(typePath, "/"));
                 }
