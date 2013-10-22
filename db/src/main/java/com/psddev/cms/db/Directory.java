@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -640,11 +641,11 @@ public class Directory extends Record {
                     Object item = null;
 
                     if (site != null) {
-                        item = Query.findUnique(Object.class, PATHS_FIELD, site.getRawPath() + rawPath);
+                        item = findByRawPath(site.getRawPath() + rawPath);
                     }
 
                     if (item == null) {
-                        item = Query.findUnique(Object.class, PATHS_FIELD, rawPath);
+                        item = findByRawPath(rawPath);
                     }
 
                     return item;
@@ -652,6 +653,33 @@ public class Directory extends Record {
             }
 
             return null;
+        }
+
+        private static Object findByRawPath(String rawPath) {
+            Set<Object> invisibles = null;
+
+            while (true) {
+                Query<Object> query = Query.
+                        fromAll().
+                        and("cms.directory.paths = ?", rawPath);
+
+                if (invisibles != null) {
+                    query.and("_id != ?", invisibles);
+                }
+
+                Object item = query.first();
+
+                if (item != null && !State.getInstance(item).isVisible()) {
+                    if (invisibles == null) {
+                        invisibles = new HashSet<Object>();
+                    }
+
+                    invisibles.add(item);
+                    continue;
+                }
+
+                return item;
+            }
         }
 
         /**
