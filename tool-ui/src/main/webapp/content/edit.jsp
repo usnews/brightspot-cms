@@ -794,8 +794,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
         (function($, window, undefined) {
             var $form = $('.contentForm'),
                     updateContentState,
-                    changed,
                     updateContentStateThrottled,
+                    changed,
                     idleTimeout;
 
             updateContentState = function(idle, wait) {
@@ -803,16 +803,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
                         questionAt,
                         complete,
                         end;
-
-                if ($form.find('.state-changed').length > 0) {
-                    changed = true;
-
-                } else if (!changed) {
-                    return;
-
-                } else {
-                    changed = false;
-                }
 
                 action = $form.attr('action');
                 questionAt = action.indexOf('?');
@@ -852,13 +842,16 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                 clearTimeout(idleTimeout);
 
+                changed = true;
                 idleTimeout = setTimeout(function() {
                     updateContentStateThrottled(true);
                 }, 2000);
             });
 
             $(window).bind('beforeunload', function() {
-                updateContentState(true, true);
+                if (changed) {
+                    updateContentState(true, true);
+                }
             });
         })(jQuery, window);
     </script>
