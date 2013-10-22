@@ -76,7 +76,9 @@ public class ContentState extends PageServlet {
             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
             ToolUser user = page.getUser();
 
-            if (idle && (state.isNew() || contentData.isDraft())) {
+            if (idle &&
+                    (state.isNew() || contentData.isDraft()) &&
+                    !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
                 contentData.setDraft(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);

@@ -86,6 +86,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean useNonMinified;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableAutomaticallySavingDrafts;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -414,6 +417,15 @@ public class CmsTool extends Tool {
 
     public void setUseNonMinified(boolean useNonMinified) {
         this.useNonMinified = useNonMinified;
+    }
+
+    public boolean isDisableAutomaticallySavingDrafts() {
+        return disableAutomaticallySavingDrafts;
+    }
+
+    public void setDisableAutomaticallySavingDrafts(
+            boolean disableAutomaticallySavingDrafts) {
+        this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
     }
 
     /** Returns the preview URL. */
