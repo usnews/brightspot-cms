@@ -23,6 +23,7 @@ import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -282,8 +283,12 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                             for (Map.Entry<String, Object> entry : itemReference.entrySet()) {
                                 String key = entry.getKey();
                                 if (key != null && !key.startsWith("_")) {
+                                    String keyPc = StringUtils.toCamelCase(key);
+
                                     oldAttributes.put(key, request.getAttribute(key));
+                                    oldAttributes.put(keyPc, request.getAttribute(keyPc));
                                     request.setAttribute(key, entry.getValue());
+                                    request.setAttribute(keyPc, entry.getValue());
                                 }
                             }
 

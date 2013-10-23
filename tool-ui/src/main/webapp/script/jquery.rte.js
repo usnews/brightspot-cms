@@ -195,7 +195,7 @@ var $createEnhancementAction = function(label, action) {
     });
 };
 
-var createEnhancement = function() {
+var createEnhancement = function(rte) {
     var $enhancement = $('<div/>', { 'class': 'rte-enhancement' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -209,6 +209,25 @@ var createEnhancement = function() {
     $position.append($createEnhancementAction('Move Center', 'moveCenter'));
     $position.append($createEnhancementAction('Move Down', 'moveDown'));
     $position.append($createEnhancementAction('Move Right', 'moveRight'));
+
+    var $imageSize = $createToolbarGroup('Image Size');
+    $imageSize.addClass('rte-group-dropDown');
+    $toolbar.append($imageSize);
+    $imageSize = $imageSize.find('.rte-group-buttons');
+
+    var sizes = $(rte.container).closest('.inputContainer').attr('data-standard-image-sizes');
+
+    if (sizes) {
+        sizes = ' ' + sizes + ' ';
+    }
+
+    $imageSize.append($createEnhancementAction('None', 'imageSize-'));
+
+    $.each(STANDARD_IMAGE_SIZES, function() {
+        if (sizes.indexOf(' ' + this.internalName + ' ') > -1) {
+            $imageSize.append($createEnhancementAction(this.displayName, 'imageSize-' + this.internalName));
+        }
+    });
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
@@ -320,7 +339,19 @@ var Rte = wysihtml5.Editor.extend({
             var $placeholder = $enhancement.data('$rte-placeholder');
             var action = $button.attr('data-action');
 
-            if (action == 'remove') {
+            if (action.indexOf('imageSize-') === 0) {
+                var imageSize = action.substring(10);
+
+                if (imageSize) {
+                    $enhancement.attr('data-image-size', $button.text());
+                    $placeholder.attr('data-image-size', imageSize);
+
+                } else {
+                    $enhancement.removeAttr('data-image-size');
+                    $placeholder.removeAttr('data-image-size');
+                }
+
+            } else if (action == 'remove') {
                 $enhancement.addClass('state-removing');
                 $placeholder.addClass('state-removing');
 
@@ -1218,7 +1249,7 @@ var Rte = wysihtml5.Editor.extend({
 
             // Create the enhancement if it doesn't exist already.
             if ($enhancement.length === 0) {
-                $enhancement = $(rte.config[isMarker ? 'marker' : 'enhancement']());
+                $enhancement = $(rte.config[isMarker ? 'marker' : 'enhancement'](rte));
 
                 $enhancement.attr('id', enhancementId);
                 $enhancement.css('position', 'absolute');

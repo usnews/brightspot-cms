@@ -41,6 +41,7 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUi;
@@ -64,6 +65,7 @@ import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -1254,9 +1256,20 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        List<Map<String, String>> standardImageSizes = new ArrayList<Map<String, String>>();
+
+        for (StandardImageSize size : StandardImageSize.findAll()) {
+            Map<String, String> sizeMap = new CompactMap<String, String>();
+
+            sizeMap.put("internalName", size.getInternalName());
+            sizeMap.put("displayName", size.getDisplayName());
+            standardImageSizes.add(sizeMap);
+        }
+
         writeStart("script", "type", "text/javascript");
             write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
+            write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
