@@ -295,7 +295,11 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      * presized image that is smaller than the original image in an effort to
      * improve resize performance.
      */
-    private static StorageItem findStorageItemForSize(StorageItem item, int width, int height) {
+    private static StorageItem findStorageItemForSize(StorageItem item, Integer width, Integer height) {
+        if (width == null || height == null) {
+            return item;
+        }
+
         StorageItem override = StorageItem.Static.createIn(item.getStorage());
                 new ObjectMap(override).putAll(new ObjectMap(item));
 
