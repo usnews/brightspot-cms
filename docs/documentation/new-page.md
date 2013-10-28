@@ -90,9 +90,9 @@ Content can be rendered from the object, or the template. An example, where the 
 
 {% highlight jsp %}
 <cms:layout class="layout-global">
-    <cms:render value="${template.header}" area="header"/>
+    <cms:render value="${header}" area="header"/>
     <cms:render value="${mainContent}" area="main"/>
-    <cms:render value="${template.footer}" area="footer"/>
+    <cms:render value="${footer}" area="footer"/>
 </cms:layout>
 {% endhighlight %}
 
