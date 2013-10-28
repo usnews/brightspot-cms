@@ -210,8 +210,19 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 `@ToolUi.Secret` 
 
-> Specifies whether the target field display should be scrambled.
+> Specifies whether the target field display should be scrambled. 
 
+`@ToolUi.DisplayFirst / @ToolUi.DisplayLast` 
+
+> Annotate fields added through a class modification to change the default behavior (appearing last) and order them accordingly.
+
+`@ToolUi.CodeType` 
+
+> Specifies the type of input text. Example String fields can be defined as `@ToolUi.CodeType("text/css")` to present inline numbers and css code styles. 
+
+`@ToolUi.CssClass` 
+
+> Add a custom CSS Class that can style the .inputContainer
 
 </div>
 
