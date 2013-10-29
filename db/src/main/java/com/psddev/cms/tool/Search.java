@@ -505,7 +505,10 @@ public class Search extends Record {
                 q = q.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
 
                 for (ObjectType t : environment.getTypes()) {
-                    if (q.contains(t.getDisplayName().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
+                    String name = t.getDisplayName();
+
+                    if (!ObjectUtils.isBlank(name) &&
+                            q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
                         query.sortRelevant(20.0, "_type = ?", t.findConcreteTypes());
                     }
                 }
