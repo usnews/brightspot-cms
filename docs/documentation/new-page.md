@@ -192,15 +192,15 @@ public class YourPage extends Content {
 	private String name;
 	
 	@ToolUi.Heading("Modules Grid")
-        @Renderable.ListLayouts(map={
+        @Renderer.ListLayouts(map={
         
-          @Renderable.ListLayout(name="grid-1-module",
+          @Renderer.ListLayout(name="grid-1-module",
           itemClasses={ImageModule.class}),
         
-          @Renderable.ListLayout(name="grid-2-modules",
+          @Renderer.ListLayout(name="grid-2-modules",
           itemClasses={Placeable.class, Placeable.class}),
         
-          @Renderable.ListLayout(name="grid-3-modules",
+          @Renderer.ListLayout(name="grid-3-modules",
           itemClasses={Placeable.class, Placeable.class, TextModule.class})    
         
         })
@@ -262,6 +262,62 @@ To modify the layout dynamically, based on the size of the screen being used to 
 {% endhighlight %}
 
 
+### Grid Area Context
+
+It is often neccessary to determine what grid area a piece of content is being placed into. A simple example would be an image that is being placed into various sizes of grid area. In such an example, a crop size for each area would need to be set. 
+
+In order to allow context to be determined, each grid area can have context set:
+
+{% highlight css %}
+.grid-3-modules {
+    display: -dari-grid;
+    -dari-grid-template:
+        "0 . 1 . 2";
+
+    -dari-grid-definition-columns: 325px 18px 325px 18px 325px;
+    -dari-grid-definition-rows: auto;
+    -dari-grid-contexts: 0 grid-3-modules 1 grid-3-modules 2 grid-3-modules;
+}
+
+.grid-2-modules {
+    display: -dari-grid;
+    -dari-grid-template:
+        "0 . 1";
+
+    -dari-grid-definition-columns: 497px 16px 497px;
+    -dari-grid-definition-rows: auto;
+    -dari-grid-contexts: 0 grid-2-modules 1 grid-2-modules;
+}
+{% endhighlight %}
+
+This in turn allows context to be checked in the jsp and the correct crop set:
+
+{% highlight jsp %}
+<c:if test="${cms:inContext('grid-3-modules')}">
+    <c:set var="size" value="threeWideCrop" />
+</c:if>
+<c:if test="${cms:inContext('grid-2-modules')}">
+    <c:set var="size" value="twoWideCrop" />
+</c:if>
+<cms:img overlay="true" src="${content.image}" size="${size}"/>
+{% endhighlight %}
+
+Context can also be checked on the object render level:
+
+{% highlight java %}
+@Renderer.Paths ({
+  @Renderer.Path(value = "/WEB-INF/common/image.jsp"),
+  @Renderer.Path(context = "grid-3-modules",
+	value = "/WEB-INF/modules/image-three-wide.jsp")
+  @Renderer.Path(context = "grid-2-modules",
+	value = "/WEB-INF/modules/image-two-wide.jsp")
+})
+@Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
+public class ImageModule extends Content {
+
+	
+}
+{% endhighlight %}
 
 ### JSP Tags
 

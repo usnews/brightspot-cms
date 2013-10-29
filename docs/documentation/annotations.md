@@ -142,7 +142,7 @@ The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options f
 
 > Specifies the target field's placeholder text.
 
-`@ToolUi.FieldDisplayType`
+`@ToolUi.DisplayType`
 
 > Specifies the internal type used to render the target field.
 
@@ -154,12 +154,12 @@ The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options f
 
 > Specifies an array of compatible types that the target type may switch to.
 
-`@ToolUi.FieldSuggestedMaximum(int)`
+`@ToolUi.SuggestedMaximum(int)`
 
 > This annotation is used to indicate a suggested upper limit on the length of the field.
 The value passed to the annotation is the limiting value.  When a user is modifying a field annotated, an indicator will appear when the input size has exceeded the specified limit.
 
-`@ToolUi.FieldSuggestedMinimum(int)`
+`@ToolUi.SuggestedMinimum(int)`
 
 > This annotation is used to indicate a suggested lower limit on the length of the field.
 The value passed to the annotation is the limiting value.  When a user is modifying a field annotated, an indicator will appear when the input size falls below the specified limit. 
