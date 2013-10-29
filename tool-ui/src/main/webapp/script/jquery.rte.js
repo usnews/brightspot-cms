@@ -1507,7 +1507,7 @@ $.plugin2('rte', {
     },
 
     'enable': function() {
-        var container = this[0];
+        var container = this.$caller[0];
 
         if (container) {
             $.each(rtes, function() {
