@@ -59,8 +59,7 @@ import com.psddev.dari.util.StringUtils;
 public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
-
-    public static final String REFERENCE_ATTRIBUTE = "reference";
+    private static final String REFERENCE_ATTRIBUTE = "reference";
 
     private String area;
     private String context;
