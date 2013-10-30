@@ -124,9 +124,11 @@ public class PageStage extends Record {
 
     /**
      * Finds or creates an element with the given {@code name} and
-     * {@code attributes} within the {@code <head>}.  Note that stylesheet 
-     * elements are grouped first, followed by all non-script elements, followed
-     * by script elements, with insertion order within the groups preserved.
+     * {@code attributes} within the {@code <head>}.
+     *
+     * <p>Note that the stylesheet elements are grouped first, followed by
+     * all non-script elements, followed by script elements, with insertion
+     * order within the groups preserved.</p>
      *
      * @param name Can't be blank.
      * @param attributes May be {@code null}.
@@ -137,53 +139,74 @@ public class PageStage extends Record {
 
         if (element == null) {
             element = new HtmlElement();
-            
+
             element.setName(name);
             element.addAttributes(attributes);
-            
+
             List<HtmlNode> nodes = getHeadNodes();
+
             if (ObjectUtils.isBlank(nodes)) {
                 nodes.add(element);
+
             } else {
-                if ("script".equals(name)) { // JS goes last
-                    nodes.add(element); 
-                } else if ("link".equals(name) && 
-                        "text/css".equals(element.getAttributes().get("type"))) { // CSS goes first
+
+                // JS goes last.
+                if ("script".equals(name)) {
+                    nodes.add(element);
+
+                // CSS goes first.
+                } else if ("link".equals(name) &&
+                        "text/css".equals(element.getAttributes().get("type"))) {
                     int insertIndex = 0;
+
                     for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
                         HtmlNode node = i.next();
+
                         if (!(node instanceof HtmlElement)) {
                             continue;
                         }
+
                         HtmlElement iElement = (HtmlElement) node;
-                        if ("link".equals(iElement.getName()) && 
+
+                        if ("link".equals(iElement.getName()) &&
                                 "text/css".equals(iElement.getAttributes().get("type"))) {
                             continue;
+
                         } else {
                             insertIndex = i.previousIndex();
                             break;
                         }
                     }
+
                     nodes.add(insertIndex, element);
-                } else { // Everything else in between
+
+                // Everything else in between.
+                } else {
                     int insertIndex = 0;
+
                     for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
                         HtmlNode node = i.next();
+
                         if (!(node instanceof HtmlElement)) {
                             continue;
                         }
+
                         HtmlElement iElement = (HtmlElement) node;
+
                         if ("script".equals(iElement.getName())) {
                             insertIndex = i.previousIndex();
                             break;
+
                         } else {
                             insertIndex = i.nextIndex();
                         }
                     }
+
                     nodes.add(insertIndex, element);
                 }
             }
         }
+
         return element;
     }
 
