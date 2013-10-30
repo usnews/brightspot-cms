@@ -1,6 +1,7 @@
 .popup {
     left: 50%;
     margin-left: -20%;
+    max-width: 600px;
     position: fixed;
     top: 95px;
     width: 40%;
@@ -95,20 +96,14 @@
 // These contain content forms so make them bigger.
 .popup[name=contentEnhancement],
 .popup[name=contentImageMetadata],
+.popup[name=contentRemoteOverlayEdit],
 .popup[name^=objectId-],
 .popup[name=contentRaw],
 .popup[name=contentSectionContent],
+.popup[name=linkById],
 .popup[name=miscSavedSearch],
 .popup[name=miscSearch],
 .popup[name=uploadFiles] {
+    max-width: 1000px;
     width: 70%;
-}
-
-.popup[name=contentRemoteOverlayEdit] {
-    width: 80%;
-}
-
-// Small popups.
-.popup[name=pageBuilderTemplateTypes] {
-    width: 20em;
 }

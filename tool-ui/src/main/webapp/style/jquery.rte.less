@@ -118,6 +118,10 @@ body.rte-fullscreen {
     &.wysihtml5-command-active {
         background-color: @color-link-lighter;
     }
+
+    a {
+        color: @color-text;
+    }
 }
 
 .rte-group-dropDown {
@@ -138,9 +142,9 @@ body.rte-fullscreen {
     }
 
     &:hover {
-        .box-shadow(0 0 2px @color-text);
-        padding-right: 0;
+        position: relative;
         overflow: visible;
+        z-index: 1;
 
         .rte-group-label {
             .icon-caret-down;
@@ -150,6 +154,7 @@ body.rte-fullscreen {
             background-color: @color-text;
             .border-radius(3px);
             .box-shadow(0 0 2px @color-text);
+            margin-right: -3px;
             padding-bottom: 3px;
             padding-right: 3px;
         }
@@ -181,12 +186,15 @@ body.rte-fullscreen {
 .rte-button-moveCenter { .icon; .icon-fullscreen; }
 .rte-button-moveDown { .icon; .icon-arrow-down; }
 .rte-button-moveRight { .icon; .icon-arrow-right; }
+.rte-button-editEnhancement { .icon; .icon-pencil; }
 .rte-button-remove { .icon; .icon-remove-sign; color: @color-alert; }
+.rte-button-restore { .icon; .icon-undo; }
+.rte-button-removeCompletely { .icon; .icon-remove-sign; color: @color-alert; }
 
 .rte-group-cssClass .rte-button,
+.rte-group-dropDown .rte-button,
 .rte-button-insertEnhancement,
 .rte-button-insertMarker,
-.rte-button-editEnhancement,
 .rte-button-selectMarker,
 .rte-button-import,
 .rte-button-html,
@@ -197,16 +205,37 @@ body.rte-fullscreen {
     width: auto;
 }
 
+.rte-button-editEnhancement,
+.rte-button-remove,
+.rte-button-restore,
+.rte-button-removeCompletely {
+    padding: 0 3px 0 0;
+    white-space: nowrap;
+    width: auto;
+}
+
 .rte-button:before {
     font-size: 14px !important;
 }
 
 .rte-dialogLine {
     margin-bottom: 5px;
+    position: relative;
 }
 
 .rte-dialogLinkHref {
+    padding-right: 6em !important;
     width: 100%;
+}
+
+.rte-dialogLinkContent {
+    .icon;
+    .icon-action-search;
+
+    line-height: 26px;
+    position: absolute;
+    right: 5px;
+    top: 0;
 }
 
 .rte-dialogLinkSave {
@@ -285,20 +314,37 @@ body.rte-fullscreen {
         max-width: 100%;
     }
 
+    .rte-button-restore,
+    .rte-button-removeCompletely {
+        display: none;
+    }
+
     &.state-removing {
         background-color: @color-alert-lighter;
         border-color: @color-alert;
 
         .rte-button-remove {
-            .icon-undo;
+            display: none;
+        }
 
-            color: @color-link;
+        .rte-button-restore,
+        .rte-button-removeCompletely {
+            display: inline-block;
         }
 
         .rte-enhancement-label {
             color: @color-alert-darker;
             text-decoration: line-through;
         }
+    }
+
+    &[data-image-size]:after {
+        background-color: fade(@color-background, 80%);
+        content: attr(data-image-size);
+        left: 3px;
+        padding: 4px;
+        position: absolute;
+        top: 42px;
     }
 }
 

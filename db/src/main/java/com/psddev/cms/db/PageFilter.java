@@ -556,10 +556,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (!embed && ObjectUtils.isBlank(layoutPath)) {
-                layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
-            }
-
+            String typePath = mainType.as(Renderer.TypeModification.class).getPath();
             boolean rendered = false;
 
             try {
@@ -578,6 +575,11 @@ public class PageFilter extends AbstractFilter {
                         rendered = true;
                         renderSection(request, response, writer, layout.getOutermostSection());
                     }
+                }
+
+                if (!rendered && !embed && !ObjectUtils.isBlank(typePath)) {
+                    rendered = true;
+                    JspUtils.include(request, response, writer, StringUtils.ensureStart(typePath, "/"));
                 }
 
             } finally {
@@ -1177,20 +1179,19 @@ public class PageFilter extends AbstractFilter {
                     }
 
                 } else {
-                    mainObject = Directory.Static.findObject(site, path);
-                    if (mainObject != null) {
+                    mainObject = Directory.Static.findByPath(site, path);
 
-                        // Directories should have a trailing slash and objects
-                        // should not.
-                        if (mainObject instanceof Directory) {
-                            if (!path.endsWith("/")) {
-                                fixPath(request, servletPath + "/");
-                            }
-                            mainObject = Directory.Static.findObject(site, path + "/index");
+                    if (mainObject == null) {
+                        mainObject = Directory.Static.findByPath(site, path + "/index");
 
-                        } else if (path.endsWith("/")) {
-                            fixPath(request, servletPath.substring(0, servletPath.length() - 1));
+                        // Index pages should have a trailing slash.
+                        if (mainObject != null && !path.endsWith("/")) {
+                            fixPath(request, servletPath + "/");
                         }
+
+                    // Normal pages shouldn't have a trailing slash.
+                    } else if (path.endsWith("/")) {
+                        fixPath(request, servletPath.substring(0, servletPath.length() - 1));
                     }
                 }
 

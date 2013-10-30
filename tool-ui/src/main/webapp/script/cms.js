@@ -49,6 +49,7 @@ $doc.frame({
 
 $doc.imageEditor('live', '.imageEditor');
 $doc.locationMap('live', '.locationMap');
+$doc.regionMap('live', '.regionMap');
 $doc.objectId('live', ':input.objectId');
 $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');
@@ -99,6 +100,7 @@ $doc.onCreate('.inputContainer .permissions select', function() {
 // Allow dashboard widgets to move around.
 $doc.onCreate('.dashboardCell', function() {
     var $cell = $(this),
+            $collapse,
             $moveContainer,
             saveDashboard,
             $moveUp,
@@ -106,14 +108,26 @@ $doc.onCreate('.dashboardCell', function() {
             $moveLeft,
             $moveRight;
 
+    $collapse = $('<span/>', {
+        'class': 'dashboardCollapse',
+        'click': function() {
+            $cell.toggleClass('dashboardCell-collapse');
+            saveDashboard();
+        }
+    });
+
     $moveContainer = $('<span/>', {
-        'class': 'dashboardMoveContainer'
+        'class': 'dashboardMoveContainer',
+        'click': function() {
+            $(this).toggleClass('dashboardMoveContainer-open');
+        }
     });
 
     saveDashboard = function() {
         var $dashboard = $cell.closest('.dashboard'),
                 $columns,
-                widgets = [ ];
+                widgets = [ ],
+                widgetsCollapse = [ ];
 
         $dashboard.find('.dashboardColumn:empty').remove();
         $columns = $dashboard.find('.dashboardColumn');
@@ -123,14 +137,25 @@ $doc.onCreate('.dashboardCell', function() {
             var w = widgets[widgets.length] = [ ];
 
             $(this).find('.dashboardCell').each(function() {
-                w[w.length] = $(this).attr('data-widget');
+                var $cell = $(this),
+                        name = $cell.attr('data-widget');
+
+                w[w.length] = name;
+
+                if ($cell.hasClass('dashboardCell-collapse')) {
+                    widgetsCollapse[widgetsCollapse.length] = name;
+                }
             });
         });
 
         $.ajax({
             'type': 'post',
             'url': CONTEXT_PATH + '/misc/updateUserSettings',
-            'data': 'action=dashboardWidgets-position&widgets=' + encodeURIComponent(JSON.stringify(widgets))
+            'data': {
+                'action': 'dashboardWidgets-position',
+                'widgets': JSON.stringify(widgets),
+                'widgetsCollapse': JSON.stringify(widgetsCollapse)
+            }
         });
     };
 
@@ -139,8 +164,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.prev().before($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -149,8 +172,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.next().after($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -170,8 +191,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $prevColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -191,8 +210,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $nextColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -201,6 +218,7 @@ $doc.onCreate('.dashboardCell', function() {
     $moveContainer.append($moveLeft);
     $moveContainer.append($moveRight);
 
+    $cell.append($collapse);
     $cell.append($moveContainer);
 });
 
@@ -601,31 +619,46 @@ $doc.delegate('.exception > *', 'click', function() {
 
 // Make sure that the label for the focused input is visible.
 $doc.delegate(':input', 'focus', function() {
-    var $parents = $(this).parentsUntil('form');
+    var $input = $(this),
+            $firstInput = $input.closest('form').find('.inputContainer:visible').eq(0),
+            $parents = $input.parentsUntil('form');
 
     $parents.addClass('state-focus');
 
-    $win.bind('scroll.focus', $.run($.throttle(100, function() {
-        var $label = $('.focusLabel'),
-                labelText = '',
+    $win.bind('scroll.focus', $.run($.throttle(50, function() {
+        var focusLabelHeight,
                 index,
                 $parent,
-                parentPosition,
-                parentLabel;
+                headerHeight = $('.toolHeader').outerHeight(),
+                labelText = '',
+                $focusLabel = $('.focusLabel'),
+                $parentLabel,
+                parentLabelText;
+
+        if ($focusLabel.length === 0) {
+            $focusLabel = $('<div/>', { 'class': 'focusLabel' });
+
+            $(doc.body).append($focusLabel);
+        }
+
+        focusLabelHeight = $focusLabel.outerHeight();
+
+        $parents.each(function() {
+            $(this).find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+        });
 
         for (index = $parents.length - 1; index >= 0; -- index) {
             $parent = $($parents[index]);
 
-            if ($parent.offset().top > $win.scrollTop() + 100) {
+            if ($parent.offset().top > $win.scrollTop() + (focusLabelHeight * 2 / 3) + headerHeight) {
                 if (labelText) {
-                    if ($label.length === 0) {
-                        $label = $('<div/>', { 'class': 'focusLabel' });
-                        $(doc.body).append($label);
-                    }
-
-                    parentPosition = $parent.position();
-                    $label.text(labelText);
-                    $label.show();
+                    $focusLabel.css({
+                        'left': $firstInput.offset().left,
+                        'top': headerHeight,
+                        'width': $firstInput.outerWidth()
+                    });
+                    $focusLabel.text(labelText);
+                    $focusLabel.show();
                     return;
 
                 } else {
@@ -633,25 +666,33 @@ $doc.delegate(':input', 'focus', function() {
                 }
             }
 
-            parentLabel = $parent.find('> .inputLabel').text();
+            $parentLabel = $parent.find('> .inputLabel label, > .repeatableLabel');
+            parentLabelText = $parentLabel.text();
 
-            if (parentLabel) {
+            if (parentLabelText) {
+                $parentLabel.css('visibility', 'hidden');
+
                 if (labelText) {
                     labelText += ' \u2192 ';
                 }
-                labelText += parentLabel;
+
+                labelText += parentLabelText;
             }
         }
 
-        $label.hide();
+        $focusLabel.hide();
     })));
 });
 
 $doc.delegate(':input', 'blur', function() {
-    var $label = $('.focusLabel');
+    $(this).parents('.state-focus').each(function() {
+        var $parent = $(this);
 
-    $label.hide();
-    $(this).parents('.state-focus').removeClass('state-focus');
+        $parent.removeClass('state-focus');
+        $parent.find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+    });
+
+    $('.focusLabel').hide();
     $win.unbind('.state-focus');
 });
 

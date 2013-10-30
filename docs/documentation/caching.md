@@ -6,12 +6,7 @@ section: documentation
 ---
 <div markdown="1" class="span12">
 
-When using the CMS Template Tool to build pages, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
-
-`<cms:cache name="${}" duration="60000"> </cms:cache>`
-
-![](http://docs.brightspot.s3.amazonaws.com/cache-duration.png)
-
+The CMS tag `<cms:cache name="${}" duration="60000"> </cms:cache>` can be used around elements to provide a simple caching mechanism.
 
 ## Dari Utils Caching
 
@@ -175,4 +170,14 @@ For periodic cache, `update()` is called at the specified interval to refresh th
             return cache.get(key);
         }
     }
-{% endhighlight %}</div>
+{% endhighlight %}
+
+## Brightspot 2.0 Caching
+
+When using the CMS Template Tool to build pages in Brightspot 2.0, every section created has the ability to be cached. The user interface (see screen grab below) contains a field for Cache Duration in Milliseconds. Adding a timespan here is essentially leveraging the `cms:cache` tag, which can wrap around sections within your jsp files to cache content.
+
+`<cms:cache name="${}" duration="60000"> </cms:cache>`
+
+![](http://docs.brightspot.s3.amazonaws.com/cache-duration.png)
+
+</div>

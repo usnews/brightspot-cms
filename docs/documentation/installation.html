@@ -14,7 +14,7 @@ section: documentation
         <div class="row">
             <div class="span12">
                 <p>Brightspot CMS is built on top of the <a href="http://dariframework.org">Dari Framework</a>. This install will create a new Brightspot CMS application using a Maven project structure, as well as setting up Solr and H2 databases. It will all run within an embedded Tomcat application server using the <a href="http://cargo.codehaus.org/Maven2+plugin">Cargo</a> plugin</p>
-                <p>The quick installation of Brightspot CMS requires two steps. Note, a guide to <a href="/prod-installation.html">production installation</a> is also available.</p>
+                <p>The quick installation of Brightspot CMS requires two steps. It uses the latest snapshot release, Brightspot 2.2. For the latest stable release, Brightspot 2.1, see the dedicated <a class="btn btn-mini" href="/dev-installation.html">Development Installation</a> documentation.</p>
 
                 <h2>Step 1. Create your Project</h2>
 
@@ -26,7 +26,7 @@ mvn archetype:generate -B \
 -DarchetypeRepository=http://public.psddev.com/maven \
 -DarchetypeGroupId=com.psddev \
 -DarchetypeArtifactId=cms-app-archetype \
--DarchetypeVersion=2.1-SNAPSHOT \
+-DarchetypeVersion=2.2-SNAPSHOT \
 -DgroupId=yourGroupID \
 -DartifactId=yourProject
 {% endhighlight %}

@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Page,
 com.psddev.cms.db.Site,
@@ -76,6 +77,8 @@ if (!ObjectUtils.isBlank(errors)) {
 List<Directory.Path> paths = dirData.getSitePaths(site);
 
 if (!paths.isEmpty() &&
+        !state.isNew() &&
+        !state.as(Content.ObjectModification.class).isDraft() &&
         (Directory.PathsMode.MANUAL.equals(dirData.getPathsMode()) ||
         !wp.getCmsTool().isSingleGeneratedPermalink() ||
         State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site).isEmpty())) {
@@ -136,26 +139,12 @@ wp.writeEnd();
 </div>
 
 <script type="text/javascript">
-if (typeof jQuery !== 'undefined') (function($, win, undef) {
-    var $automaticContainer = $('#<%= automaticContainerId %>'),
-            $form = $automaticContainer.closest('form'),
-            updateAutomatic;
+    (function($, window, undefined) {
+        var $automaticContainer = $('#<%= automaticContainerId %>'),
+                $form = $automaticContainer.closest('form');
 
-    updateAutomatic = $.throttle(100, function() {
-        var action = $form.attr('action'),
-                questionAt = action.indexOf('?');
-
-        $.ajax({
-            'data': $form.serialize(),
-            'type': 'post',
-            'url': CONTEXT_PATH + 'content/automaticPaths.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
-            'complete': function(request) {
-                $automaticContainer.html(request.responseText);
-            }
+        $form.bind('cms-updateContentState', function(event, data) {
+            $automaticContainer.html(data._urlWidgetHtml);
         });
-    });
-
-    updateAutomatic();
-    $form.bind('change input', updateAutomatic);
-})(jQuery, window);
+    })(jQuery, window);
 </script>

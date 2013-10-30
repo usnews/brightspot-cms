@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,7 +107,7 @@ public class ContentSearchAdvanced extends PageServlet {
             page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
                 @Override
                 public void format(HtmlWriter writer, Metric object) throws IOException {
-                    writer.write(new Double(object.getValue()).toString());
+                    writer.write(new Double(object.getSum()).toString());
                 }
             });
 
@@ -148,19 +149,62 @@ public class ContentSearchAdvanced extends PageServlet {
 
                 for (ObjectField field : fields) {
                     page.write(",\"");
-                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                        Object value = i.next();
-                        page.writeObject(value);
-                        if (i.hasNext()) {
-                            page.write(", ");
+
+                    if ("cms.directory.paths".equals(field.getInternalName())) {
+                        for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+                            Directory.Path p = i.next();
+                            String path = p.getPath();
+
+                            page.writeHtml(path);
+                            page.writeHtml(" (");
+                            page.writeHtml(p.getType());
+                            page.writeHtml(")");
+
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
+                        }
+
+                    } else {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                            Object value = i.next();
+                            page.writeObject(value);
+                            if (i.hasNext()) {
+                                page.write(", ");
+                            }
                         }
                     }
+
                     page.write("\"");
                 }
 
                 page.write("\r\n");
             }
 
+            return;
+
+        } else if (page.param(String.class, "action-trash") != null) {
+            Iterator<Object> queryIterator = query.iterable(0).iterator();
+
+            try {
+                while (queryIterator.hasNext()) {
+                    Object item = queryIterator.next();
+                    State itemState = State.getInstance(item);
+
+                    if (!ids.isEmpty() && !ids.contains(itemState.getId())) {
+                        continue;
+                    }
+
+                    page.trash(item);
+                }
+
+            } finally {
+                if (queryIterator instanceof Closeable) {
+                    ((Closeable) queryIterator).close();
+                }
+            }
+
+            page.getResponse().sendRedirect(page.param(String.class, "returnUrl"));
             return;
         }
 
@@ -186,7 +230,7 @@ public class ContentSearchAdvanced extends PageServlet {
         page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
             @Override
             public void format(HtmlWriter writer, Metric object) throws IOException {
-                writer.write(new Double(object.getValue()).toString());
+                writer.write(new Double(object.getSum()).toString());
             }
         });
 
@@ -317,6 +361,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             "action", page.url(null));
                         page.writeTag("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
                         page.writeTag("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
+                        page.writeTag("input", "type", "hidden", "name", "returnUrl", "value", page.url(""));
 
                         for (ObjectField field : fields) {
                             page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
@@ -478,6 +523,13 @@ public class ContentSearchAdvanced extends PageServlet {
                                     "href", page.cmsUrl("/content/newWorkStream.jsp",
                                             "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
                                 page.writeHtml("New Work Stream");
+                            page.writeEnd();
+
+                            page.writeStart("button",
+                                    "class", "action action-pullRight link icon icon-action-trash",
+                                    "name", "action-trash",
+                                    "value", "true");
+                                page.writeHtml("Bulk Trash All");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

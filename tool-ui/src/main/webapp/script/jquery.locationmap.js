@@ -8,7 +8,9 @@ $.plugin2('locationMap', {
     '_create': function(locationMap) {
         var plugin = this;
 
-        var map = L.map(locationMap);
+        var map = L.map(locationMap, {
+                scrollWheelZoom: false
+        });
         new L.TileLayer.MapQuestOpenOSM().addTo(map);
 
         var latInput = $(locationMap).find(".locationMapLatitude");
@@ -20,8 +22,8 @@ $.plugin2('locationMap', {
         var zoom = $(zoomInput).val();
         var showMarker = true;
 
-        if ((lat === null || lat.length === 0) ||
-            (lng === null || lng.length === 0)) {
+        if ((!lat || lat === '' || lat.length === 0) ||
+            (!lng || lng === '' || lng.length === 0)) {
             lat = 39.8282;
             lng = -98.5795;
             zoom = 4;
@@ -60,7 +62,6 @@ $.plugin2('locationMap', {
                 plugin.updateLatLng(marker, map, latInput, longInput, zoomInput);
             }
         }).addTo(map);
-
     },
 
     'updateLatLng' : function(marker, map, latInput, longInput, zoomInput) {

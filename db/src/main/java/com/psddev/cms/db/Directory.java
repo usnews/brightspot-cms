@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -341,7 +342,13 @@ public class Directory extends Record {
             pathMatcher.find();
             path = pathMatcher.group(1);
 
-            Directory dir = Query.findUnique(Directory.class, "path", path);
+            Directory dir = Query.
+                    from(Directory.class).
+                    where("path = ?", path).
+                    master().
+                    noCache().
+                    first();
+
             if (dir == null) {
                 dir = new Directory();
                 dir.setPath(path);
@@ -486,6 +493,19 @@ public class Directory extends Record {
             return null;
         }
 
+        /**
+         * Returns the permalink (path only) in the given {@code site} for
+         * this object.
+         */
+        public String getSitePermalinkPath(Site site) {
+            for (Path path : getSitePaths(site)) {
+                if (path.getType() == PathType.PERMALINK) {
+                    return path.getPath();
+                }
+            }
+            return null;
+        }
+
         /** Returns the site that owns this object. */
         private Site getOwner() {
             return as(Site.ObjectModification.class).getOwner();
@@ -596,7 +616,80 @@ public class Directory extends Record {
         /**
          * Finds the object associated with the given {@code site} and
          * {@code path}.
+         *
+         * @param site May be {@code null}.
+         * @param path If {@code null}, returns {@code null}.
+         * @return May be {@code null}.
          */
+        public static Object findByPath(Site site, String path) {
+            path = normalizePath(path);
+
+            if (path == null) {
+                return null;
+            }
+
+            path = path.substring(0, path.length() - 1);
+            int slashAt = path.lastIndexOf("/");
+
+            if (slashAt > -1) {
+                String name = path.substring(slashAt + 1);
+                path = path.substring(0, slashAt + 1);
+                Directory directory = INSTANCES.get().get(path);
+
+                if (directory != null) {
+                    String rawPath = directory.getRawPath() + name;
+                    Object item = null;
+
+                    if (site != null) {
+                        item = findByRawPath(site.getRawPath() + rawPath);
+                    }
+
+                    if (item == null) {
+                        item = findByRawPath(rawPath);
+                    }
+
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        private static Object findByRawPath(String rawPath) {
+            Set<Object> invisibles = null;
+
+            while (true) {
+                Query<Object> query = Query.
+                        fromAll().
+                        and("cms.directory.paths = ?", rawPath);
+
+                if (invisibles != null) {
+                    query.and("_id != ?", invisibles);
+                }
+
+                Object item = query.first();
+
+                if (item != null && !State.getInstance(item).isVisible()) {
+                    if (invisibles == null) {
+                        invisibles = new HashSet<Object>();
+                    }
+
+                    invisibles.add(item);
+                    continue;
+                }
+
+                return item;
+            }
+        }
+
+        /**
+         * Finds the object associated with the given {@code site} and
+         * {@code path}.
+         *
+         * @deprecated Use {@link #findByPath} instead. Note that the new
+         * version doesn't return a directory object.
+         */
+        @Deprecated
         public static Object findObject(Site site, String path) {
             path = normalizePath(path);
             if (path == null) {

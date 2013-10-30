@@ -23,8 +23,11 @@ ObjectType type = state.getType();
 List<ObjectField> fields = type != null ? type.getFields() : null;
 
 if (fields != null) {
+    boolean draftCheck = false;
+
     try {
         if (request.getAttribute("firstDraft") == null) {
+            draftCheck = true;
             request.setAttribute("firstDraft", state.isNew());
             request.setAttribute("finalDraft", state.isNew() || state.isVisible());
         }
@@ -41,8 +44,10 @@ if (fields != null) {
         }
 
     } finally {
-        request.setAttribute("firstDraft", null);
-        request.setAttribute("finalDraft", null);
+        if (draftCheck) {
+            request.setAttribute("firstDraft", null);
+            request.setAttribute("finalDraft", null);
+        }
     }
 
 } else {

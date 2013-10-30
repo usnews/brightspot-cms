@@ -21,9 +21,11 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -191,15 +193,35 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     private void writeArea(HttpServletRequest request, Object area, Object value) throws IOException, ServletException {
         if (layoutTag != null && areas != null) {
             if (!ObjectUtils.isBlank(area)) {
+                HtmlGrid oldGrid = (HtmlGrid) request.getAttribute("grid");
                 Object oldGridArea = request.getAttribute("gridArea");
                 StringWriter body = new StringWriter();
+                boolean contextSet = false;
 
                 try {
-                    request.setAttribute("gridArea", layoutTag.getAreaName(request, area));
+                    HtmlGrid grid = layoutTag.getGrid(request, area);
+                    Object gridArea = layoutTag.getAreaName(request, area);
+
+                    if (grid != null) {
+                        String context = grid.getContexts().get(String.valueOf(gridArea));
+
+                        if (!ObjectUtils.isBlank(context)) {
+                            contextSet = true;
+                            ContextTag.Static.pushContext(request, context);
+                        }
+                    }
+
+                    request.setAttribute("grid", grid);
+                    request.setAttribute("gridArea", gridArea);
                     writeValueWithAttributes(new HtmlWriter(body), value);
                     areas.put(area.toString(), body.toString());
 
                 } finally {
+                    if (contextSet) {
+                        ContextTag.Static.popContext(request);
+                    }
+
+                    request.setAttribute("grid", oldGrid);
                     request.setAttribute("gridArea", oldGridArea);
                 }
             }
@@ -269,9 +291,12 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                             // For backward compatibility, ensure these field values are set directly as request attributes
                             for (ObjectField field : ObjectType.getInstance(RichTextReference.class).getFields()) {
                                 String fieldName = field.getInternalName();
+                                String fieldNamePc = StringUtils.toCamelCase(fieldName);
 
                                 oldAttributes.put(fieldName, request.getAttribute(fieldName));
+                                oldAttributes.put(fieldNamePc, request.getAttribute(fieldNamePc));
                                 request.setAttribute(fieldName, itemReference.getState().get(fieldName));
+                                request.setAttribute(fieldNamePc, itemReference.getState().get(fieldName));
                             }
 
                             PageFilter.renderObject(request, response, writer, object);

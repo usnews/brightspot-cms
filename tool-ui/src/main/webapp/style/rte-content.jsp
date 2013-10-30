@@ -103,7 +103,7 @@ writer.start("html");
 
             writer.css("h1, h2, h3, h4, h5, h6",
                     "font-weight", "bold",
-                    "margin", "0 0 15px 0");
+                    "margin", "0 0 16px 0");
 
             writer.css("h1",
                     "font-size", "200%");
@@ -118,11 +118,11 @@ writer.start("html");
                     "background-color", "#afa");
 
             writer.css("ol, ul",
-                    "margin", "0 0 15px 25px",
+                    "margin", "0 0 16px 25px",
                     "padding", "0");
 
-            writer.css("p",
-                    "margin", "0 0 15px 0");
+            writer.css("p, table",
+                    "margin", "0 0 16px 0");
 
             writer.css("strike",
                     "text-decoration", "line-through");
@@ -136,6 +136,19 @@ writer.start("html");
                     "font-size", "0.83em",
                     "line-height", "0",
                     "vertical-align", "super");
+
+            writer.css("table",
+                    "border", "none",
+                    "border-collapse", "collapse",
+                    "border-spacing", 0);
+
+            writer.css("table td, table th",
+                    "border", "1px solid #bbb",
+                    "padding", "2px 5px");
+
+            writer.css("table th",
+                    "background", "#ddd",
+                    "text-align", "left");
 
             writer.css("u",
                     "text-decoration", "underline");

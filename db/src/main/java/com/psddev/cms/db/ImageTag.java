@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +26,9 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.ImageResizeStorageItemListener;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
@@ -284,6 +287,30 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             crops = new HashMap<String, ImageCrop>();
         }
         return crops;
+    }
+
+    /**
+     * Finds the StorageItem that best matches the provided size. This works
+     * in conjunction with the ImageResizeStorageItemListener class to use a
+     * presized image that is smaller than the original image in an effort to
+     * improve resize performance.
+     */
+    private static StorageItem findStorageItemForSize(StorageItem item, Integer width, Integer height) {
+        if (width == null || height == null) {
+            return item;
+        }
+
+        StorageItem override = StorageItem.Static.createIn(item.getStorage());
+                new ObjectMap(override).putAll(new ObjectMap(item));
+
+        boolean overridden = ImageResizeStorageItemListener.overridePathWithNearestSize(override,
+                width, height);
+
+        if (overridden) {
+            return override;
+        }
+
+        return item;
     }
 
     /**
@@ -838,17 +865,37 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                 // set fields from this standard size if they haven't already been set
                 if (standardImageSize != null) {
-                    // get the standard image dimensions
-                    if (width == null) {
-                        width = standardImageSize.getWidth();
-                        if (width <= 0) {
-                            width = null;
-                        }
+
+                    Integer standardWidth = standardImageSize.getWidth();
+                    Integer standardHeight = standardImageSize.getHeight();
+                    if (standardWidth <= 0) { standardWidth = null; }
+                    if (standardHeight <= 0) { standardHeight = null; }
+
+                    Double standardAspectRatio = null;
+                    if (standardWidth != null && standardHeight != null) {
+                        standardAspectRatio = (double) standardWidth / (double) standardHeight;
                     }
-                    if (height == null) {
-                        height = standardImageSize.getHeight();
-                        if (height <= 0) {
-                            height = null;
+
+                    // if only one of either width or height is set then calculate
+                    // the other dimension based on the standardImageSize aspect
+                    // ratio rather than blindly taking the other standardImageSize
+                    // dimension.
+                    if (standardAspectRatio != null && (width != null || height != null)) {
+
+                        if (width != null && height == null) {
+                            height = (int) (width / standardAspectRatio);
+
+                        } else if (width == null && height != null) {
+                            width = (int) (height * standardAspectRatio);
+                        }
+
+                    } else {
+                        // get the standard image dimensions
+                        if (width == null) {
+                            width = standardWidth;
+                        }
+                        if (height == null) {
+                            height = standardHeight;
                         }
                     }
 
@@ -858,6 +905,15 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
                     if (resizeOption == null) {
                         resizeOption = standardImageSize.getResizeOption();
+                    }
+
+                    // get a potentially smaller image from the StorageItem. This improves
+                    // resize performance on large images.
+                    StorageItem alternateItem = findStorageItemForSize(item, width, height);
+                    if (alternateItem != item) {
+                        item = alternateItem;
+                        originalWidth = findDimension(item, "width");
+                        originalHeight = findDimension(item, "height");
                     }
 
                     // get the crop coordinates

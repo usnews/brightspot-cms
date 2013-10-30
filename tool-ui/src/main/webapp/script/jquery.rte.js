@@ -156,6 +156,7 @@ var createToolbar = function(rte, inline, firstDraft) {
         });
     }
 
+    /*
     var $track = $createToolbarGroup('Track');
     $toolbar.append($track);
     $track = $track.find('.rte-group-buttons');
@@ -169,6 +170,7 @@ var createToolbar = function(rte, inline, firstDraft) {
         'class': 'rte-button rte-button-annotate',
         'text': 'Annotate'
     }));
+    */
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
@@ -193,7 +195,7 @@ var $createEnhancementAction = function(label, action) {
     });
 };
 
-var createEnhancement = function() {
+var createEnhancement = function(rte) {
     var $enhancement = $('<div/>', { 'class': 'rte-enhancement' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -208,6 +210,25 @@ var createEnhancement = function() {
     $position.append($createEnhancementAction('Move Down', 'moveDown'));
     $position.append($createEnhancementAction('Move Right', 'moveRight'));
 
+    var $imageSize = $createToolbarGroup('Image Size');
+    $imageSize.addClass('rte-group-dropDown');
+    $toolbar.append($imageSize);
+    $imageSize = $imageSize.find('.rte-group-buttons');
+
+    var sizes = $(rte.container).closest('.inputContainer').attr('data-standard-image-sizes');
+
+    if (sizes) {
+        sizes = ' ' + sizes + ' ';
+    }
+
+    $imageSize.append($createEnhancementAction('None', 'imageSize-'));
+
+    $.each(STANDARD_IMAGE_SIZES, function() {
+        if (sizes.indexOf(' ' + this.internalName + ' ') > -1) {
+            $imageSize.append($createEnhancementAction(this.displayName, 'imageSize-' + this.internalName));
+        }
+    });
+
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
 
@@ -221,6 +242,8 @@ var createEnhancement = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Remove Completely', 'removeCompletely'));
 
     $enhancement.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -252,6 +275,8 @@ var createMarker = function() {
     }));
 
     $misc.append($createEnhancementAction('Remove', 'remove'));
+    $misc.append($createEnhancementAction('Restore', 'restore'));
+    $misc.append($createEnhancementAction('Really Remove', 'removeCompletely'));
 
     $marker.append($('<div/>', { 'class': 'rte-enhancement-label' }));
 
@@ -316,9 +341,29 @@ var Rte = wysihtml5.Editor.extend({
             var action = $button.attr('data-action');
             var refData, refDataString, href;
 
-            if (action == 'remove') {
-                $enhancement.toggleClass('state-removing');
-                $placeholder.toggleClass('state-removing');
+            if (action.indexOf('imageSize-') === 0) {
+                var imageSize = action.substring(10);
+
+                if (imageSize) {
+                    $enhancement.attr('data-image-size', $button.text());
+                    $placeholder.attr('data-image-size', imageSize);
+
+                } else {
+                    $enhancement.removeAttr('data-image-size');
+                    $placeholder.removeAttr('data-image-size');
+                }
+
+            } else if (action == 'remove') {
+                $enhancement.addClass('state-removing');
+                $placeholder.addClass('state-removing');
+
+            } else if (action == 'restore') {
+                $enhancement.removeClass('state-removing');
+                $placeholder.removeClass('state-removing');
+
+            } else if (action == 'removeCompletely') {
+                $enhancement.remove();
+                $placeholder.remove();
 
             } else if (action === 'moveCenter' || action === 'moveLeft' || action === 'moveRight') {
 
@@ -414,7 +459,10 @@ var Rte = wysihtml5.Editor.extend({
         var $linkDialog = $(
                 '<div>' +
                     '<h2>Link</h2>' +
-                    '<div class="rte-dialogLine"><input type="text" class="rte-dialogLinkHref"></div>' +
+                    '<div class="rte-dialogLine">' +
+                        '<input type="text" class="rte-dialogLinkHref">' +
+                        '<a class="rte-dialogLinkContent" target="linkById" href="' + CONTEXT_PATH + '/content/linkById.jsp?p=true">Content</a>' +
+                    '</div>' +
                     '<div class="rte-dialogLine">' +
                         '<select class="rte-dialogLinkTarget">' +
                             '<option value="">Same Window</option>' +
@@ -478,6 +526,13 @@ var Rte = wysihtml5.Editor.extend({
         $(doc.body).append($linkDialog);
         $linkDialog.popup();
         $linkDialog.popup('close');
+
+        $linkDialog.popup('container').bind('close', function() {
+            if (!$lastAnchor.attr('href')) {
+                $lastAnchor.after($lastAnchor.html());
+                $lastAnchor.remove();
+            }
+        });
 
         var openLinkDialog = function($anchor) {
             var composerOffset = $(rte.composer.iframe).offset(),
@@ -908,6 +963,7 @@ var Rte = wysihtml5.Editor.extend({
 
             composer.setValue(textarea.getValue());
 
+            /*
             // Legacy annotation support.
             $(composer.element).find('[data-comment], [data-text]').each(function() {
                 var $element = $(this);
@@ -939,6 +995,7 @@ var Rte = wysihtml5.Editor.extend({
 
                 setAnnotations($element, annotations);
             });
+            */
 
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
@@ -982,9 +1039,10 @@ var Rte = wysihtml5.Editor.extend({
             });
 
             $(composer.element).on('click', 'a', function(event) {
-                openLinkDialog($(event.target));
+                openLinkDialog($(event.target).closest('a'));
             });
 
+            /*
             $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
                 openAnnotationDialog($(event.target));
             });
@@ -1171,6 +1229,7 @@ var Rte = wysihtml5.Editor.extend({
                     $(composer.element).addClass('rte-trackChanges');
                 }
             }
+            */
 
             setInterval(function() {
                 rte.updateOverlay();
@@ -1223,7 +1282,7 @@ var Rte = wysihtml5.Editor.extend({
 
             // Create the enhancement if it doesn't exist already.
             if ($enhancement.length === 0) {
-                $enhancement = $(rte.config[isMarker ? 'marker' : 'enhancement']());
+                $enhancement = $(rte.config[isMarker ? 'marker' : 'enhancement'](rte));
 
                 $enhancement.attr('id', enhancementId);
                 $enhancement.css('position', 'absolute');
@@ -1449,6 +1508,7 @@ $.plugin2('rte', {
 
         'parserRules': {
             'tags': {
+                'font': { 'rename_tag': 'span' },
                 'script': { 'remove': true },
                 'style': { 'remove': true },
                 'p': {
@@ -1486,7 +1546,7 @@ $.plugin2('rte', {
     },
 
     'enable': function() {
-        var container = this[0];
+        var container = this.$caller[0];
 
         if (container) {
             $.each(rtes, function() {

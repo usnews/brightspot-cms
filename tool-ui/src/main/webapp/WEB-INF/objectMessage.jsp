@@ -38,7 +38,8 @@ if (deleted != null) {
 Date published = wp.dateParam("published");
 if (published != null) {
     wp.write("<div class=\"message message-success\"><p>");
-    wp.write("Published ", published);
+    wp.write("Published ");
+    wp.writeHtml(wp.formatUserDateTime(published));
     wp.write(".</p>");
     wp.write("</div>");
     return;

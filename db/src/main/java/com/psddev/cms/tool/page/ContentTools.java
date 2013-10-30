@@ -1,5 +1,6 @@
 package com.psddev.cms.tool.page;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.CodeUtils;
+import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
@@ -40,6 +43,29 @@ public class ContentTools extends PageServlet {
 
                 page.writeStart("ul", "class", "links");
                     if (object != null) {
+                        ObjectType type = State.getInstance(object).getType();
+
+                        if (type != null) {
+                            String className = type.getObjectClassName();
+                            File source = CodeUtils.getSource(className);
+
+                            page.writeStart("li");
+                                if (source != null) {
+                                    page.writeStart("a",
+                                            "target", "_blank",
+                                            "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                    "file", source));
+                                        page.writeHtml("View Source Class: ");
+                                        page.writeHtml(className);
+                                    page.writeEnd();
+
+                                } else {
+                                    page.writeHtml("Source Class: ");
+                                    page.writeHtml(className);
+                                }
+                            page.writeEnd();
+                        }
+
                         page.writeStart("li");
                             page.writeStart("a",
                                     "target", "_blank",

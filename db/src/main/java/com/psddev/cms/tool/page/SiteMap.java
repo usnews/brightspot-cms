@@ -205,6 +205,7 @@ public class SiteMap extends PageServlet {
                         if (type.equals(URL_TYPE)) {
                             valueType = ObjectType.getInstance(Directory.class);
                             valueQuery = Query.from(Directory.class).sortAscending("path");
+                            valueQuery.where("path != missing");
 
                         } else {
                             valueType = ObjectType.getInstance(ObjectUtils.to(UUID.class, type));

@@ -97,6 +97,11 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
             fieldValue.add(item);
+
+            if (field.isEmbedded() && !itemState.isNew()) {
+                itemState.setId(null);
+                itemState.setStatus(null);
+            }
         }
 
     } else {
@@ -197,6 +202,13 @@ if (!isValueExternal) {
 
             for (String layoutName : layouts.keySet()) {
                 HtmlGrid grid = HtmlGrid.Static.find(application, layoutName);
+
+                if (grid == null) {
+                    throw new IllegalArgumentException(String.format(
+                            "[%s] isn't a valid layout! Check your CSS and makes sure it's defined properly.",
+                            layoutName));
+                }
+
                 List<CssUnit> frColumns = new ArrayList<CssUnit>();
                 List<List<String>> frTemplate = new ArrayList<List<String>>();
 

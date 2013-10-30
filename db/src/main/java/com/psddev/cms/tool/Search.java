@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +33,7 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.Sorter;
 import com.psddev.dari.util.HuslColorSpace;
 import com.psddev.dari.util.ObjectUtils;
@@ -493,6 +495,27 @@ public class Search extends Record {
 
         if (isOnlyPathed()) {
             query.and(Directory.Static.hasPathPredicate());
+        }
+
+        if (isAllSearchable && selectedType == null) {
+            DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+            String q = getQueryString();
+
+            if (!ObjectUtils.isBlank(q)) {
+                q = q.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
+
+                for (ObjectType t : environment.getTypes()) {
+                    String name = t.getDisplayName();
+
+                    if (!ObjectUtils.isBlank(name) &&
+                            q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
+                        query.sortRelevant(20.0, "_type = ?", t.findConcreteTypes());
+                    }
+                }
+            }
+
+            query.sortRelevant(10.0, "_type = ?", environment.getTypeByClass(Singleton.class).findConcreteTypes());
+            query.sortRelevant(5.0, "cms.directory.paths != missing");
         }
 
         String additionalPredicate = getAdditionalPredicate();

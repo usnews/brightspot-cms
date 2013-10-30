@@ -19,6 +19,8 @@ public class WorkStream extends Record {
     @Required
     private String name;
 
+    private String instructions;
+
     @Embedded
     @ToolUi.Hidden
     private com.psddev.cms.tool.Search search;
@@ -43,6 +45,14 @@ public class WorkStream extends Record {
     /** Sets the name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
     }
 
     /** Returns the tool search that can return all items to be worked on. */
