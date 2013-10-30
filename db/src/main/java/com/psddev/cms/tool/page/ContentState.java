@@ -82,7 +82,7 @@ public class ContentState extends PageServlet {
                 contentData.setDraft(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
-                state.saveUnsafely();
+                state.save();
 
                 Set<UUID> automaticallySavedDraftIds = user.getAutomaticallySavedDraftIds();
                 UUID id = state.getId();
