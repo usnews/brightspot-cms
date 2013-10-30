@@ -17,6 +17,8 @@ public class Schedule extends Record {
     @Indexed(unique = true)
     private String name;
 
+    private String description;
+
     @Indexed
     private Date triggerDate;
 
@@ -32,6 +34,14 @@ public class Schedule extends Record {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Date getTriggerDate() {

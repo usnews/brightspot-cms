@@ -253,15 +253,14 @@
 
 .focusLabel {
     background: @color-link-lighter;
+    .box-sizing(border-box);
     display: none;
     font-family: @fontFamily-label;
-    left: 30px;
     min-height: 22px;
     min-width: 130px;
     padding: 5px;
     position: fixed;
-    top: 80px;
-    z-index: 1;
+    z-index: 101;
 }
 
 // --- Content form ---
@@ -778,5 +777,19 @@
         height: 100%;
         .opacity(0);
         width: 100%;
+    }
+}
+
+form[data-type='com.psddev.cms.db.ContentType'] {
+    .inputContainer[data-field='internalName'],
+    .inputContainer[data-field='fields/internalName'] {
+        display: none;
+    }
+
+    .inputContainer[data-field='fields'] {
+        .removeButton,
+        .addButtonContainer {
+            display: none;
+        }
     }
 }

@@ -771,6 +771,92 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
     </div>
 
+    <% if (wp.getCmsTool().isDisableAutomaticallySavingDrafts() ||
+            (!editingState.isNew() &&
+            !editingState.as(Content.ObjectModification.class).isDraft())) { %>
+        <script type="text/javascript">
+            (function($, window, undefined) {
+                $('.contentForm').submit(function() {
+                    $.data(this, 'submitting', true);
+                });
+
+                $(window).bind('beforeunload', function() {
+                    var $form = $('.contentForm');
+
+                    return !$.data($form[0], 'submitting') && $form.find('.state-changed').length > 0 ?
+                            'Are you sure you want to leave this page? Unsaved changes will be lost.' :
+                            undefined;
+                });
+            })(jQuery, window);
+        </script>
+    <% } %>
+
+    <script type="text/javascript">
+        (function($, window, undefined) {
+            var $form = $('.contentForm'),
+                    updateContentState,
+                    updateContentStateThrottled,
+                    changed,
+                    idleTimeout;
+
+            updateContentState = function(idle, wait) {
+                var action,
+                        questionAt,
+                        complete,
+                        end;
+
+                action = $form.attr('action');
+                questionAt = action.indexOf('?');
+                end = +new Date() + 1000;
+
+                $.ajax({
+                    'type': 'post',
+                    'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
+                    'cache': false,
+                    'data': $form.serialize(),
+                    'dataType': 'json',
+
+                    'success': function(data) {
+                        $form.trigger('cms-updateContentState', [ data ]);
+                    },
+
+                    'complete': function() {
+                        complete = true;
+                    }
+                });
+
+                if (wait) {
+                    while (!complete) {
+                        if (+new Date() > end) {
+                            break;
+                        }
+                    }
+                }
+            };
+
+            updateContentStateThrottled = $.throttle(100, updateContentState);
+
+            updateContentStateThrottled();
+
+            $form.bind('change input', function() {
+                updateContentStateThrottled();
+
+                clearTimeout(idleTimeout);
+
+                changed = true;
+                idleTimeout = setTimeout(function() {
+                    updateContentStateThrottled(true);
+                }, 2000);
+            });
+
+            $(window).bind('beforeunload', function() {
+                if (changed) {
+                    updateContentState(true, true);
+                }
+            });
+        })(jQuery, window);
+    </script>
+
     <script type="text/javascript">
         (function($, win, undef) {
             var PEEK_WIDTH = 160,

@@ -154,6 +154,8 @@ The Web Database tool allows data from other instances of Brightspot to be acces
 <div class="highlight">{% highlight java %}
 
  WebDatabase web = new WebDatabase();
+ webDatabase.setRemoteDatabase("databaseName");
+ webDatabase.setRemoteUsername("authUsername"); webDatabase.setRemotePassword("authPassword");
  web.setRemoteUrl(http://localhost:8080/_debug/db-web);
  return Query.from(Article.class).where.("title startsWith foo").using(web).select(0,10);
  
@@ -164,6 +166,8 @@ Moving objects from one database to the other is also possible. Once returned, t
 <div class="highlight">{% highlight java %}
 
 WebDatabase web = new WebDatabase();
+webDatabase.setRemoteDatabase("databaseName");
+webDatabase.setRemoteUsername("authUsername");webDatabase.setRemotePassword("authPassword");
 web.setRemoteUrl("http://localhost:8080/_debug/db-web");
 Article article = Query.from(Article.class).where("_id = ID_HERE").using(web).first();
 article.getState().setDatabase(Database.Static.getDefault()); 

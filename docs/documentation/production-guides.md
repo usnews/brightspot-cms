@@ -18,7 +18,7 @@ No configuration is needed, the guides automatically appear for each page, your 
 
 ## Creating a Guide
 
-Found within Admin -> Guides, Editors can create a guide for each page template that exists in the CMS. This allows every publishable page to have corresponding programming instructions.
+Found within Admin -> Production Guides, Editors can create a guide for each page that exists in the CMS. This allows every publishable page to have corresponding programming instructions.
 
 **Step 1.** Start by selecting the page you would like to create a guide for on the left.
 
@@ -28,7 +28,7 @@ Found within Admin -> Guides, Editors can create a guide for each page template 
 
 **Step 4.** Every section found on the page can be documented, with an adjoining description added. As Editors browse the guide they can see each section highlighted, with the guide shown.
 
-![]http://docs.brightspot.s3.amazonaws.com/creating-guide-2.1.png)
+![](http://docs.brightspot.s3.amazonaws.com/creating-guide-2.1.png)
 
 ## Field Instructions
 

@@ -26,6 +26,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PeriodicValue;
 import com.psddev.dari.util.PullThroughValue;
+import com.psddev.dari.util.StorageItem;
 
 /** Group of pages that's regarded as one entity. */
 @ToolUi.IconName("object-site")
@@ -42,6 +43,9 @@ public class Site extends Record {
     @Indexed(unique = true)
     @Required
     private String name;
+
+    private String cmsCssClass;
+    private StorageItem cmsLogo;
 
     @Indexed(unique = true)
     private List<String> urls;
@@ -70,6 +74,22 @@ public class Site extends Record {
     /** Sets the display name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCmsCssClass() {
+        return cmsCssClass;
+    }
+
+    public void setCmsCssClass(String cmsCssClass) {
+        this.cmsCssClass = cmsCssClass;
+    }
+
+    public StorageItem getCmsLogo() {
+        return cmsLogo;
+    }
+
+    public void setCmsLogo(StorageItem cmsLogo) {
+        this.cmsLogo = cmsLogo;
     }
 
     /** Returns the list of URLs that prefix all pages in this site. */

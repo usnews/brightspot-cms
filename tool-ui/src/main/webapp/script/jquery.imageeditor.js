@@ -15,6 +15,21 @@ $.plugin2('imageEditor', {
         var $imageClone = $image.clone();
         var imageClone = $imageClone[0];
 
+        $editor.find('> .imageEditor-aside').bind('mousewheel', function(event, delta, deltaX, deltaY) {
+            var $aside = $(this),
+                    maxScrollTop = $.data(this, 'imageEditor-maxScrollTop');
+
+            if (typeof maxScrollTop === 'undefined') {
+                maxScrollTop = $aside.prop('scrollHeight') - $aside.innerHeight();
+                $.data(this, 'imageEditor-maxScrollTop', maxScrollTop);
+            }
+
+            if ((deltaY > 0 && $aside.scrollTop() === 0) ||
+                    (deltaY < 0 && $aside.scrollTop() >= maxScrollTop)) {
+                event.preventDefault();
+            }
+        });
+
         var $tools = $editor.find('.imageEditor-tools ul');
         var $edit = $editor.find('.imageEditor-edit');
 
@@ -264,7 +279,9 @@ $.plugin2('imageEditor', {
 
             if (!independent) {
                 if ($mainInput) {
-                    $mainInput['$sizeLabel'].html($mainInput['$sizeLabel'].html() + '<br>' + $th.text());
+                    $mainInput['$sizeLabel'].html(
+                            $mainInput['$sizeLabel'].html() +
+                            '<br><span title="' + $th.text() + '">' + $th.text() + '</span>');
 
                     $.each(INPUT_NAMES, function(index, name) {
                         $mainInput[name] = $mainInput[name].add($input[name]);
@@ -536,7 +553,7 @@ $.plugin2('imageEditor', {
 
             var $sizeLabel = $('<span/>', {
                 'class': 'imageEditor-sizeLabel',
-                'text': $th.text()
+                'html': '<span title="' + $th.text() + '">' + $th.text() + '</span>'
             });
 
             $input['$sizeLabel'] = $sizeLabel;

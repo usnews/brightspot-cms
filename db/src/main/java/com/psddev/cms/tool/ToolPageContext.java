@@ -41,6 +41,7 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUi;
@@ -64,6 +65,7 @@ import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -74,6 +76,7 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
+import com.psddev.dari.util.Utf8Filter;
 import com.psddev.dari.util.WebPageContext;
 
 /**
@@ -979,7 +982,6 @@ public class ToolPageContext extends WebPageContext {
 
         CmsTool cms = getCmsTool();
         String companyName = cms.getCompanyName();
-        StorageItem companyLogo = cms.getCompanyLogo();
         String environment = cms.getEnvironment();
         ToolUser user = getUser();
 
@@ -987,8 +989,15 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
+        Site site = getSite();
+        StorageItem companyLogo = site != null ? site.getCmsLogo() : null;
+
+        if (companyLogo == null) {
+            companyLogo = cms.getCompanyLogo();
+        }
+
         writeTag("!doctype html");
-        writeTag("html");
+        writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
             writeStart("head");
                 writeStart("title").writeHtml(companyName).writeEnd();
                 writeTag("meta", "name", "robots", "content", "noindex");
@@ -1111,6 +1120,7 @@ public class ToolPageContext extends WebPageContext {
                                 "action", cmsUrl("/misc/search.jsp"),
                                 "target", "miscSearch");
 
+                            writeTag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                             writeTag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
 
                             writeStart("span", "class", "searchInput");
@@ -1161,6 +1171,8 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                 writeEnd();
+
+                writeStart("div", "class", "toolContent");
     }
 
     public void writeStylesAndScripts() throws IOException {
@@ -1244,9 +1256,20 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        List<Map<String, String>> standardImageSizes = new ArrayList<Map<String, String>>();
+
+        for (StandardImageSize size : StandardImageSize.findAll()) {
+            Map<String, String> sizeMap = new CompactMap<String, String>();
+
+            sizeMap.put("internalName", size.getInternalName());
+            sizeMap.put("displayName", size.getDisplayName());
+            standardImageSizes.add(sizeMap);
+        }
+
         writeStart("script", "type", "text/javascript");
             write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
+            write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
@@ -1344,7 +1367,18 @@ public class ToolPageContext extends WebPageContext {
             return;
         }
 
+                writeTag("/div");
+
                 writeStart("div", "class", "toolFooter");
+                    writeStart("a",
+                            "target", "_blank",
+                            "href", "http://www.brightspot.com/");
+                        writeTag("img",
+                                "src", cmsUrl("/style/brightspot.png"),
+                                "alt", "Brightspot",
+                                "width", 104,
+                                "height", 14);
+                    writeEnd();
                 writeEnd();
             writeTag("/body");
         writeTag("/html");
@@ -1377,6 +1411,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    type.getObjectClass() == null ||
                     Draft.class.equals(type.getObjectClass()) ||
                     (type.isDeprecated() &&
                     !Query.fromType(type).hasMoreThan(0))) {
@@ -1456,6 +1491,11 @@ public class ToolPageContext extends WebPageContext {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
+        String placeholder = ObjectUtils.firstNonNull(ui.getPlaceholder(), "");
+
+        if (field.isRequired()) {
+            placeholder += " (Required)";
+        }
 
         if (isObjectSelectDropDown(field)) {
             List<?> items = new Search(field).toQuery(getSite()).selectAll();
@@ -1464,7 +1504,10 @@ public class ToolPageContext extends WebPageContext {
             writeStart("select",
                     "data-searchable", "true",
                     attributes);
-                writeStart("option", "value", "").writeEnd();
+                writeStart("option", "value", "");
+                    writeHtml(placeholder);
+                writeEnd();
+
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
                     writeStart("option",
@@ -1514,6 +1557,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-typeIds", typeIds,
                     "data-visibility", value != null ? state.getVisibilityLabel() : null,
                     "value", value != null ? state.getId() : null,
+                    "placeholder", placeholder,
                     attributes);
         }
     }
@@ -1567,8 +1611,6 @@ public class ToolPageContext extends WebPageContext {
             } else {
                 writeHtml("Edit ");
                 writeHtml(typeLabel);
-                writeHtml(": ");
-                writeHtml(getObjectLabel(object));
             }
         writeEnd();
     }
@@ -1666,9 +1708,12 @@ public class ToolPageContext extends WebPageContext {
      * Writes a standard form for the given {@code object}.
      *
      * @param object Can't be {@code null}.
+     * @param displayTrashAction If {@code null}, displays the trash action
+     * instead of the delete action.
      */
-    public void writeStandardForm(Object object) throws IOException, ServletException {
+    public void writeStandardForm(Object object, boolean displayTrashAction) throws IOException, ServletException {
         State state = State.getInstance(object);
+        ObjectType type = state.getType();
 
         writeFormHeading(object);
 
@@ -1682,7 +1727,8 @@ public class ToolPageContext extends WebPageContext {
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
-                "autocomplete", "off");
+                "autocomplete", "off",
+                "data-type", type != null ? type.getInternalName() : null);
             boolean trash = writeTrashMessage(object);
 
             writeFormFields(object);
@@ -1697,16 +1743,37 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
 
                     if (!state.isNew()) {
-                        writeStart("button",
-                                "class", "icon icon-action-trash action-pullRight link",
-                                "name", "action-trash",
-                                "value", "true");
-                            writeHtml("Trash");
-                        writeEnd();
+                        if (displayTrashAction) {
+                            writeStart("button",
+                                    "class", "icon icon-action-trash action-pullRight link",
+                                    "name", "action-trash",
+                                    "value", "true");
+                                writeHtml("Trash");
+                            writeEnd();
+
+                        } else {
+                            writeStart("button",
+                                    "class", "icon icon-action-delete action-pullRight link",
+                                    "name", "action-delete",
+                                    "value", "true");
+                                writeHtml("Delete");
+                            writeEnd();
+                        }
                     }
                 writeEnd();
             }
         writeEnd();
+    }
+
+    /**
+     * Writes a standard form for the given {@code object} with the trash
+     * action.
+     *
+     * @param object Can't be {@code null}.
+     * @see #writeStandardForm(Object, boolean)
+     */
+    public void writeStandardForm(Object object) throws IOException, ServletException {
+        writeStandardForm(object, true);
     }
 
     /**

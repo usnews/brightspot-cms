@@ -18,6 +18,7 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 - **Step 4.** Create Brightspot CMS project using Maven
 - **Step 5.** Run project in Application Server
 
+This installation uses the latest stable release, Brightspot 2.1.
 
 ## Create Database
 
@@ -25,9 +26,10 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 
 If you don't already have MySQL [download](http://dev.mysql.com/downloads/mysql) and [install](http://dev.mysql.com/doc/refman/5.6/en/installing.html).
 
-Start MySQL on the default port 3306 and create a new database. Load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/etc/mysql) into your newly created database.
+Start MySQL on the default port 3306 and create a new database. *Note, if you are using Brightspot 2.1 or earlier, you will need to load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/db/src/main/resources/mysql) into your newly created database.*
 
-Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/etc)
+
+Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/db/src/main/resources)
 
 
 ## Create Application Server
@@ -142,7 +144,7 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.0. You can, however, use the 2.1 snapshot in your archetype, as below does. This will build against the latest version of Brightspot, in Snapshot status.*
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.1. You can, however, use the 2.2 snapshot in your archetype This will build against the latest version of Brightspot, in Snapshot status.*
 
 Run the following Archetype to create the project structure. 
 
@@ -156,7 +158,7 @@ mvn archetype:generate -B \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
     	
-*Note, the GroupID and Project name must not contain spaces or hyphens*
+*Note, the GroupID and Project name must not contain spaces or hyphens. The path to the directory must also not container any spaces*
 
 Once your project has been created access your new pom.xml and add the following dependency, for Solr.
 
@@ -185,16 +187,6 @@ If you are seeing the following error - `The BASEDIR environment variable is not
 
 From $TOMCAT_HOME run the following command `chmod +x bin/*.sh`
 
-
-## Access your CMS
-
-The first time that you access your CMS you will need to perform a `_debug/init`
-
-<http://localhost:8080/_debug/init>
-
-The function of the `_debug/init` is to initialize the CMS Tool Application and widgets.
-
-<img src="http://docs.brightspot.s3.amazonaws.com/init.png"/>
 
 ## Login
 
