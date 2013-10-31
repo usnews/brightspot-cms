@@ -949,16 +949,23 @@ public class ToolUi extends Modification<Object> {
     /** Returns the set of types that the given {@code type} may switch to. */
     public static Set<ObjectType> getCompatibleTypes(ObjectType type) {
         Set<ObjectType> types = new HashSet<ObjectType>();
-        Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
-        if (!ObjectUtils.isBlank(ids)) {
-            DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
-            for (Object idObject : ids) {
-                ObjectType compatibleType = environment.getTypeById(ObjectUtils.to(UUID.class, idObject));
-                if (compatibleType != null) {
-                    types.add(compatibleType);
+
+        if (type != null) {
+            Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
+
+            if (!ObjectUtils.isBlank(ids)) {
+                DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
+
+                for (Object idObject : ids) {
+                    ObjectType compatibleType = environment.getTypeById(ObjectUtils.to(UUID.class, idObject));
+
+                    if (compatibleType != null) {
+                        types.add(compatibleType);
+                    }
                 }
             }
         }
+
         return types;
     }
 
