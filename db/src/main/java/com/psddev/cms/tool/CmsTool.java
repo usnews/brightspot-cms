@@ -89,6 +89,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableAutomaticallySavingDrafts;
 
+    @ToolUi.Tab("Debug")
+    private boolean displayTypesNotAssociatedWithJavaClasses;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -426,6 +429,14 @@ public class CmsTool extends Tool {
     public void setDisableAutomaticallySavingDrafts(
             boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isDisplayTypesNotAssociatedWithJavaClasses() {
+        return displayTypesNotAssociatedWithJavaClasses;
+    }
+
+    public void setDisplayTypesNotAssociatedWithJavaClasses(boolean displayTypesNotAssociatedWithJavaClasses) {
+        this.displayTypesNotAssociatedWithJavaClasses = displayTypesNotAssociatedWithJavaClasses;
     }
 
     /** Returns the preview URL. */
