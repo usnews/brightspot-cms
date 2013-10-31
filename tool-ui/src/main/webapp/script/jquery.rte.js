@@ -1275,6 +1275,8 @@ var Rte = wysihtml5.Editor.extend({
             $.data($enhancement[0], 'rte-visited', true);
 
             // Position the enhancement to cover the placeholder.
+            $placeholder.css('padding-top', $enhancement.find('> .rte-toolbar').outerHeight() - 42);
+
             $enhancement.css({
                 'height': $placeholder.outerHeight(),
                 'left': placeholderOffset.left,
