@@ -18,7 +18,7 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 - **Step 4.** Create Brightspot CMS project using Maven
 - **Step 5.** Run project in Application Server
 
-This installation uses the latest stable release, Brightspot 2.1.
+This installation uses the latest stable release, Brightspot 2.2.
 
 ## Create Database
 
@@ -144,7 +144,7 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.1. You can, however, use the 2.2 snapshot in your archetype This will build against the latest version of Brightspot, in Snapshot status.*
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.2. You can, however, use the 2.3-SNAPSHOT in your archetype. This will build against the latest version of Brightspot*
 
 Run the following Archetype to create the project structure. 
 
@@ -153,7 +153,7 @@ mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.1-SNAPSHOT \
+   -DarchetypeVersion=2.2-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
@@ -204,7 +204,7 @@ To do this simply access `$TOMCAT_HOME/conf/context.xml` and change `value="true
 <Environment name="cms/tool/isAutoCreateUser" override="false" type="java.lang.Boolean" value="false" />
 {% endhighlight %}</div>
 
-The default project contains an `index.jsp` file within your webapp directory, remove this to create your own ROOT file.
+The default project contains an `index.jsp` file within your webapp directory, remove this once you have confirmed install to begin your first project.
 
 #### Java Heap Size
 

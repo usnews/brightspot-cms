@@ -33,7 +33,7 @@ A full set of tools are available when creating rich text. Bold, italics, underl
 
 ## Adding Links
 
-Select text you would like to turn into a hyperlink and click the Link icon in the Rich Text Toolbar. Add your URl, and select the choice of pop-up window. To Unlink content, click on a link and select, Unlink.
+Select text you would like to turn into a hyperlink and click the Link icon in the Rich Text Toolbar. Add your URl, and select the choice of pop-up window. To Unlink content, click on a link and select, Unlink. To link to an existing piece of content in the CMS click the Content link to choose.
 
 ![](http://docs.brightspot.s3.amazonaws.com/link-ui-2.2.png)
 
@@ -119,7 +119,7 @@ After editing or publishing content a new ‘Revisions’ section appears in the
 
 Click on any past version to view a side-by-side difference view, or use the quick preview. Clicking publish when viewing the version will replace the current content with the past version you are viewing, allowing rolling back in a single click.
 
-If you wish to save the past historic version specifically, edit the revision name, which in turn, once saved, places it in the right rail. From there it can be easily found and reused later.
+If you wish to save the past historic version specifically, edit the revision name, which in turn, once saved, places it in the right rail. From there it can be easily found and reused later. To remove a named revision, click Name Revision and remove the custom name. Then click save.
 
 ![](http://docs.brightspot.s3.amazonaws.com/revisions-2.1.png)
 
@@ -146,7 +146,7 @@ Content can be moved to the trash at any time by clicking Trash. This removes th
 
 ![](http://docs.brightspot.s3.amazonaws.com/trashed-reference-2.1.png)
 
-
+To delete items in bulk start by finding them in the CMS global search. Then click `Advanced Search`. You can now select multiple files and bulk trash.
 
 
 
