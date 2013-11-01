@@ -96,10 +96,6 @@ public class CreateNew extends PageServlet {
             }
         }
 
-        if (typeTemplates.isEmpty()) {
-            return;
-        }
-
         Collections.sort(typeTemplates);
 
         List<TypeTemplate> favorites = new ArrayList<TypeTemplate>();
