@@ -54,6 +54,7 @@ public class Search extends Record {
     public static final String PARENT_PARAMETER = "pt";
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
+    public static final String SHOW_DRAFTS_PARAMETER = "d";
     public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
     public static final String SUGGESTIONS_PARAMETER = "sg";
@@ -75,6 +76,7 @@ public class Search extends Record {
     private Map<String, String> globalFilters;
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
+    private boolean showDrafts;
     private boolean showMissing;
     private boolean suggestions;
     private long offset;
@@ -139,6 +141,7 @@ public class Search extends Record {
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
+        setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
         setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
@@ -244,6 +247,14 @@ public class Search extends Record {
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public boolean isShowDrafts() {
+        return showDrafts;
+    }
+
+    public void setShowDrafts(boolean showDrafts) {
+        this.showDrafts = showDrafts;
     }
 
     public boolean isShowMissing() {
@@ -619,7 +630,12 @@ public class Search extends Record {
             }
 
             for (String key : comparisonKeys) {
-                query.and(key + " = missing");
+                if (isShowDrafts()) {
+                    query.and(key + " = missing or " + key + " = true");
+
+                } else {
+                    query.and(key + " = missing");
+                }
             }
         }
 

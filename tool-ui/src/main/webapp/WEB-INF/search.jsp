@@ -372,6 +372,19 @@ writer.start("div", "class", "searchForm");
                     writer.end();
                 }
 
+                writer.writeStart("div", "class", "searchFilter");
+                    writer.writeTag("input",
+                            "type", "checkbox",
+                            "id", wp.createId(),
+                            "name", Search.SHOW_DRAFTS_PARAMETER,
+                            "value", true,
+                            "checked", wp.getUser().getCurrentSchedule() != null ? "checked" : null);
+
+                    writer.writeStart("label",
+                            "for", wp.getId());
+                        writer.writeHtml(" Show Drafts");
+                    writer.writeEnd();
+                writer.writeEnd();
             writer.end();
 
             writer.start("a",
