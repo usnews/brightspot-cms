@@ -51,7 +51,15 @@ public class CreateNew extends PageServlet {
 
         if (!createNewTypes.isEmpty()) {
             for (ObjectType type : createNewTypes) {
-                typeTemplates.add(new TypeTemplate(type, null));
+                TypeTemplate typeTemplate = new TypeTemplate(type, null);
+
+                if (typeTemplate.getCollapsedId().equals(redirect)) {
+                    page.redirect("/content/edit.jsp", "typeId", type.getId());
+                    return;
+                }
+
+                typeTemplates.add(typeTemplate);
+                typeCounts.put(type, 1);
             }
 
         } else {
