@@ -846,6 +846,10 @@ $doc.on('input-disable', ':input', function(event, disable) {
     $(this).prop('disabled', disable);
 });
 
+$doc.onCreate('.inputContainer-readOnly', function() {
+    $(this).find(':input').trigger('input-disable', [ true ]);
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });
