@@ -515,7 +515,6 @@ public class Search extends Record {
             }
 
             query.sortRelevant(10.0, "_type = ?", environment.getTypeByClass(Singleton.class).findConcreteTypes());
-            query.sortRelevant(5.0, "cms.directory.paths != missing");
         }
 
         String additionalPredicate = getAdditionalPredicate();
