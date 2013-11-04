@@ -92,6 +92,7 @@ if (validValues != null) {
             "name", inputName,
             "placeholder", placeholder,
             "data-code-type", ui.getCodeType(),
+            "data-editable-placeholder", ui.isPlaceholderEditable() ? ui.getPlaceholder() : null,
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
             "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
             "data-inline", true,

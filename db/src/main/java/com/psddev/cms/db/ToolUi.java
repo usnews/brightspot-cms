@@ -45,6 +45,7 @@ public class ToolUi extends Modification<Object> {
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
+    private Boolean placeholderEditable;
     private Boolean referenceable;
     private String referenceableViaClassName;
     private Boolean readOnly;
@@ -251,6 +252,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+    }
+
+    public boolean isPlaceholderEditable() {
+        return Boolean.TRUE.equals(placeholderEditable);
+    }
+
+    public void setPlaceholderEditable(boolean placeholderEditable) {
+        this.placeholderEditable = Boolean.TRUE.equals(placeholderEditable) ? Boolean.TRUE : null;
     }
 
     public boolean isRichText() {
@@ -705,21 +714,39 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
-    /** Specifies the target field's placeholder text. */
+    /**
+     * Specifies the target field's placeholder text.
+     */
     @Documented
     @ObjectField.AnnotationProcessorClass(PlaceholderProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface Placeholder {
+
         String value();
+
+        /**
+         * {@code true} if the placeholder text should remain and be editable
+         * when the user clicks into the input.
+         */
+        boolean editable() default false;
     }
 
     private static class PlaceholderProcessor implements ObjectField.AnnotationProcessor<Annotation> {
+
         @Override
         public void process(ObjectType type, ObjectField field, Annotation annotation) {
-            field.as(ToolUi.class).setPlaceholder(annotation instanceof FieldPlaceholder ?
-                    ((FieldPlaceholder) annotation).value() :
-                    ((Placeholder) annotation).value());
+            ToolUi ui = field.as(ToolUi.class);
+
+            if (annotation instanceof FieldPlaceholder) {
+                ui.setPlaceholder(((FieldPlaceholder) annotation).value());
+
+            } else {
+                Placeholder placeholder = (Placeholder) annotation;
+
+                ui.setPlaceholder(placeholder.value());
+                ui.setPlaceholderEditable(placeholder.editable());
+            }
         }
     }
 

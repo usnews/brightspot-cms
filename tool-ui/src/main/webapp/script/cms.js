@@ -37,6 +37,7 @@ $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
 $doc.code('live', 'textarea[data-code-type]');
 $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
+$doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
 $doc.expandable('live', ':text.expandable, textarea', {
     'shadowClass': 'input'
 });

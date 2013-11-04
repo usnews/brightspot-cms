@@ -1291,6 +1291,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/codemirror/mode/htmlembedded/htmlembedded.js",
                     "/script/jquery.code.js",
                     "/script/jquery.dropdown.js",
+                    "/script/jquery.editableplaceholder.js",
                     "/script/jquery.expandable.js",
                     "/script/jquery.popup.js",
                     "/script/jquery.frame.js",
