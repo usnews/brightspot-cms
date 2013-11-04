@@ -1325,7 +1325,7 @@ var Rte = wysihtml5.Editor.extend({
             $enhancementLabel = $enhancement.find('.rte-enhancement-label');
 
             refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
-            newLabel = refData.label || $placeholder.attr('data-label');
+            newLabel = refData.label;
             newPreview = refData.preview;
 
             if (newPreview) {
@@ -1579,7 +1579,7 @@ $.plugin2('rte', {
         }
 
         var refData = $.parseJSON(data.reference || '{}');
-        var label = refData.label || data.label;
+        var label = refData.label;
         if (label) {
             $enhancement.find('.rte-enhancement-label').text(label);
         }
