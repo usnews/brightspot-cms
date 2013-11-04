@@ -102,6 +102,16 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         this.endOffset = endOffset;
     }
 
+    public void setMarker(String marker) {
+        setBeginMarker(marker);
+        setEndMarker(marker);
+    }
+
+    public void setOffset(int offset) {
+        setBeginOffset(offset - 1);
+        setEndOffset(offset);
+    }
+
     // --- DynamicAttributes support ---
 
     @Override
@@ -262,10 +272,22 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     endIndex = findMarker(items, endMarker, endOffset);
                 }
 
-                if (beginIndex < 0 || endIndex < 0 || beginIndex >= endIndex) {
-                    items.clear();
+                if (beginIndex >= 0 && endIndex >= 0) {
+                    if (beginIndex >= endIndex) {
+                        items = items.subList(endIndex, beginIndex);
+
+                    } else {
+                        items = items.subList(beginIndex, endIndex);
+                    }
+
+                } else if (beginIndex < 0 && endIndex >= 0) {
+                    items = items.subList(0, endIndex);
+
+                } else if (endIndex < 0 && beginIndex >= 0) {
+                    items = items.subList(beginIndex, items.size());
+
                 } else {
-                    items = items.subList(beginIndex, endIndex);
+                    items.clear();
                 }
             }
 

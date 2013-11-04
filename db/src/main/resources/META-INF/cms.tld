@@ -248,6 +248,14 @@
             <name>endOffset</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>marker</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>offset</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
 
     <!-- Functions -->
