@@ -3,12 +3,9 @@
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
 
-java.util.Arrays,
+java.util.ArrayList,
 java.util.Collection
-" %><%!
-
-private static final Collection<String> EXCLUDE_FIELDS = Arrays.asList("role");
-%><%
+" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -17,10 +14,17 @@ if (wp.requireUser()) {
 }
 
 ToolUser user = wp.getUser();
+Collection<String> excludeFields = new ArrayList<String>();
+
+excludeFields.add("role");
+
+if (user.isExternal()) {
+    excludeFields.add("password");
+}
 
 if (wp.isFormPost()) {
     try {
-        wp.include("/WEB-INF/objectPost.jsp", "object", user, "excludeFields", EXCLUDE_FIELDS);
+        wp.include("/WEB-INF/objectPost.jsp", "object", user, "excludeFields", excludeFields);
         user.save();
         wp.redirect("");
         return;
@@ -51,7 +55,7 @@ wp.writeStart("div", "class", "widget");
             "method", "post",
             "enctype", "multipart/form-data",
             "action", wp.objectUrl("", user));
-        wp.include("/WEB-INF/objectForm.jsp", "object", user, "excludeFields", EXCLUDE_FIELDS);
+        wp.include("/WEB-INF/objectForm.jsp", "object", user, "excludeFields", excludeFields);
 
         wp.writeStart("div", "class", "actions");
             wp.writeStart("button", "class", "icon icon-action-save");

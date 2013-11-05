@@ -1,21 +1,38 @@
 package com.psddev.cms.db;
 
+import java.util.Map;
+
+import javax.naming.ldap.LdapContext;
+
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AuthenticationException;
 import com.psddev.dari.util.AuthenticationPolicy;
+import com.psddev.dari.util.LdapUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 import com.psddev.dari.util.PasswordException;
 import com.psddev.dari.util.PasswordPolicy;
 import com.psddev.dari.util.Settings;
 
-import java.util.Map;
-
 public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
     @Override
     public ToolUser authenticate(String email, String password) throws AuthenticationException {
         ToolUser user = Query.findUnique(ToolUser.class, "email", email);
+        LdapContext context = LdapUtils.createContext();
+
+        if (context != null &&
+                LdapUtils.authenticate(context, email, password)) {
+            if (user == null) {
+                user = new ToolUser();
+                user.setName(email);
+                user.setEmail(email);
+                user.setExternal(true);
+                user.save();
+            }
+
+            return user;
+        }
 
         if (user != null) {
             if (user.getPassword().check(password)) {

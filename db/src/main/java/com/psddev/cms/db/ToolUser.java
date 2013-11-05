@@ -84,6 +84,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Set<UUID> automaticallySavedDraftIds;
 
+    @ToolUi.Hidden
+    private boolean external;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -480,6 +483,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setAutomaticallySavedDraftIds(Set<UUID> draftIds) {
         this.automaticallySavedDraftIds = draftIds;
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
     }
 
     /**
