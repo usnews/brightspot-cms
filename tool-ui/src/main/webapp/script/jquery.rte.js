@@ -1281,7 +1281,7 @@ var Rte = wysihtml5.Editor.extend({
                 'height': $placeholder.outerHeight(),
                 'left': placeholderOffset.left,
                 'top': placeholderOffset.top,
-                'width': $placeholder.outerWidth()
+                'width': $placeholder.width()
             });
 
             // Copy the enhancement label.
