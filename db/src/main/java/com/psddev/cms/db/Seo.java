@@ -281,7 +281,7 @@ public final class Seo {
             Set<String> keywords = new LinkedHashSet<String>() {
                 @Override
                 public String toString() {
-                    return Joiner.on(',').join(this);
+                    return Joiner.on(',').skipNulls().join(this);
                 }
             };
 
