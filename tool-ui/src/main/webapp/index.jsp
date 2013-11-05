@@ -71,7 +71,16 @@ if (namesByColumn != null) {
     }
 
     if (!widgetsByName.isEmpty()) {
-        List<Widget> widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
+        List<Widget> widgets;
+
+        if (widgetsByColumn.isEmpty()) {
+            widgets = new ArrayList<Widget>();
+
+            widgetsByColumn.add(widgets);
+
+        } else {
+            widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
+        }
 
         for (Widget widget : widgetsByName.values()) {
             widgets.add(widget);
