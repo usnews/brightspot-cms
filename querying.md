@@ -327,6 +327,17 @@ Specific fields from within a Dari object can be returned for a given object. Ot
 Author author = Query.from(Author.class).fields("name", "age").selectAll();
 {% endhighlight %}
 
+### Timeout
+
+
+A specific timeout length for a query can be set in milliseconds.
+
+
+{% highlight java %}
+Query.from(Author.class).sortAscending("name").timeout(1000.0).selectAll();
+{% endhighlight %}
+
+
 </div>
 
 <div class="span4 dari-docs-sidebar">

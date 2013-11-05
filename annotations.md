@@ -204,6 +204,12 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 > Limits results on the returned objects. Example `@ToolUi.Where("title ^= a" )` would limit the returned objects to ones whose title starts with the letter a. A field within an object can also be used. When returning a list of Articles, each with an Author, the annotation can be used like so: `@ToolUi.Where("author/name ^= a" )` 
 
+> The `@ToolUi.Where` annotation can also be used to limit object types based on a common interface. In the example below, only objects that are taggable can be chosen.
+
+    @ToolUi.Where("groups = com.psddev.brightspot.Taggable") 
+    List <ObjectType> types; 
+
+
 `@ToolUi.Tab("tabName")` 
 
 > Creates a new Tab interface in the content edit view, with the annotated fields appearing within it.
