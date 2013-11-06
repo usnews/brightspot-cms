@@ -123,11 +123,7 @@ $.plugin2('expandable', {
 
         // Write the input styles and the shadow into the container.
         $inputs.each(function() {
-            var $input = $(this),
-                    shadow = $.data($input[0], SHADOW_DATA);
-
-            $input.css('overflow', 'hidden');
-            $shadowContainer.append(shadow.$element);
+            $shadowContainer.append($.data(this, SHADOW_DATA).$element);
         });
 
         expand($inputs);
