@@ -32,7 +32,10 @@ List<ObjectField> fields = type != null ? type.getFields() : null;
 
 // --- Presentation ---
 
-wp.writeStart("div", "class", "objectInputs", "data-type", type != null ? type.getInternalName() : null);
+wp.writeStart("div",
+        "class", "objectInputs",
+        "data-type", type != null ? type.getInternalName() : null,
+        "data-id", state.getId());
     if (type != null) {
         String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 

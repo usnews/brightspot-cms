@@ -290,10 +290,13 @@ $doc.on('change', '.inputContainer', function() {
 // Create tabs that organize form fields.
 $doc.onCreate('.objectInputs', function() {
     var $container = $(this),
+            tabParameter = encodeURIComponent($container.attr('data-id') + '/tab'),
+            tabParameterRe = new RegExp('&' + tabParameter + '=([^=]+)'),
             $inputs = $container.find('> .inputContainer'),
             tabItems = { },
             tabs = [ ],
-            $tabs;
+            $tabs,
+            urlMatch;
 
     $inputs.each(function() {
         var $input = $(this),
@@ -321,8 +324,24 @@ $doc.onCreate('.objectInputs', function() {
         $tabs = $('<ul/>', { 'class': 'tabs' });
 
         $tabs.bind('tabs-select.tabs', function(event) {
+            var $selected = $(event.target),
+                    history = win.history,
+                    href,
+                    text;
+
             $(this).find('> li').removeClass('state-selected');
-            $(event.target).closest('li').addClass('state-selected');
+            $selected.closest('li').addClass('state-selected');
+
+            if (history && history.replaceState) {
+                href = win.location.href.replace(tabParameterRe, '');
+                text = $selected.text();
+
+                if (text !== 'Main') {
+                    href += '&' + tabParameter + '=' + encodeURIComponent(text);
+                }
+
+                history.replaceState('', '', href);
+            }
         });
 
         $tabs.append($('<li/>', {
@@ -365,6 +384,25 @@ $doc.onCreate('.objectInputs', function() {
         });
 
         $container.prepend($tabs);
+    }
+
+    urlMatch = tabParameterRe.exec(win.location.href);
+
+    if (urlMatch) {
+        urlMatch = urlMatch[1];
+
+        if (urlMatch) {
+            console.log(urlMatch);
+
+            $tabs.find('> li > a').each(function() {
+                var $tab = $(this);
+
+                if ($tab.text() === urlMatch) {
+                    $tab.click();
+                    return false;
+                }
+            });
+        }
     }
 });
 
