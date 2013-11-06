@@ -266,7 +266,7 @@ $doc.onCreate('.searchSuggestionsForm', function() {
 // Mark changed inputs.
 $doc.on('change', '.inputContainer', function() {
     var $container = $(this),
-            changed;
+            changed = false;
 
     $container.find('input, textarea').each(function() {
         if (this.defaultValue !== this.value) {
