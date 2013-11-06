@@ -15,6 +15,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 
 @ToolUi.IconName("object-workflow")
+@Record.BootstrapPackages(value="Workflows", depends="com.psddev.dari.db.ObjectType")
 public class Workflow extends Record {
 
     @Indexed(unique = true)
