@@ -27,6 +27,7 @@ import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
+@ToolRole.BootstrapPackages("Users and Roles")
 public class ToolUser extends Record implements ToolEntity {
 
     @Indexed

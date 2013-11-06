@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /** Represents a standard image size. */
 @ToolUi.IconName("object-standardImageSize")
+@Record.BootstrapPackages("Standard Image Sizes")
 public class StandardImageSize extends Record {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandardImageSize.class);

@@ -30,6 +30,7 @@ import com.psddev.dari.util.StorageItem;
 
 /** Group of pages that's regarded as one entity. */
 @ToolUi.IconName("object-site")
+@Record.BootstrapPackages(value="Sites")
 public class Site extends Record {
 
     private static final String FIELD_PREFIX = "cms.site.";
