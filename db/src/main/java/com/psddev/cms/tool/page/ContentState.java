@@ -79,7 +79,6 @@ public class ContentState extends PageServlet {
             if (idle &&
                     (state.isNew() || contentData.isDraft()) &&
                     !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
-                /*
                 contentData.setDraft(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
@@ -93,7 +92,6 @@ public class ContentState extends PageServlet {
 
                     automaticallySavedDraftIds.add(id);
                 }
-                */
             }
 
             // Preview for looking glass.
