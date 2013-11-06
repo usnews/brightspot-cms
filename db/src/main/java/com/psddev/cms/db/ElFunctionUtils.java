@@ -9,6 +9,8 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.HtmlGrid;
@@ -77,6 +79,32 @@ public final class ElFunctionUtils {
 
     public static List<String> listLayouts(Object object, String field) {
         return object != null ? State.getInstance(object).as(Renderer.Data.class).getListLayouts().get(field) : null;
+    }
+
+    /**
+     * Returns the number of markers with the given {@code markerInternalName}
+     * in the given {@code text}.
+     *
+     * @param text If {@code null}, returns {@code 0}.
+     * @param markerInternalName If blank, returns {@code 0}.
+     */
+    public static int markerCount(ReferentialText text, String markerInternalName) {
+        int count = 0;
+
+        if (text != null && !ObjectUtils.isBlank(markerInternalName)) {
+            for (Object item : text) {
+                if (item instanceof Reference) {
+                    Object referenced = ((Reference) item).getObject();
+
+                    if (referenced instanceof ReferentialTextMarker &&
+                            (((ReferentialTextMarker) referenced).getInternalName().equals(markerInternalName))) {
+                        ++ count;
+                    }
+                }
+            }
+        }
+
+        return count;
     }
 
     /**

@@ -301,6 +301,14 @@
     </function>
 
     <function>
+        <name>markerCount</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            int markerCount(com.psddev.dari.db.ReferentialText, java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>plainResource</name>
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>
