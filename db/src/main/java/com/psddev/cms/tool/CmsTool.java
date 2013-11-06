@@ -433,6 +433,24 @@ public class CmsTool extends Tool {
         this.useNonMinifiedJavaScript = useNonMinifiedJavaScript;
     }
 
+    /**
+     * @deprecated Use {@link #isUseNonMinifiedCss} or {@link #isUseNonMinifiedJavaScript} instead.
+     */
+    @Deprecated
+    public boolean isUseNonMinified() {
+        return isUseNonMinifiedCss() &&
+                isUseNonMinifiedJavaScript();
+    }
+
+    /**
+     * @deprecated Use {@link #setUseNonMinifiedCss} or {@link #setUseNonMinifiedJavaScript} instead.
+     */
+    @Deprecated
+    public void setUseNonMinified(boolean useNonMinified) {
+        setUseNonMinifiedCss(useNonMinified);
+        setUseNonMinifiedJavaScript(useNonMinified);
+    }
+
     public boolean isDisableAutomaticallySavingDrafts() {
         return true;
         // return disableAutomaticallySavingDrafts;
