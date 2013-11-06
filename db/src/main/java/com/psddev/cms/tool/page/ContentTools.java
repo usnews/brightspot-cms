@@ -2,6 +2,7 @@ package com.psddev.cms.tool.page;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -41,31 +42,8 @@ public class ContentTools extends PageServlet {
                     page.writeHtml("Tools");
                 page.writeEnd();
 
-                page.writeStart("ul", "class", "links");
+                page.writeStart("ul");
                     if (object != null) {
-                        ObjectType type = State.getInstance(object).getType();
-
-                        if (type != null) {
-                            String className = type.getObjectClassName();
-                            File source = CodeUtils.getSource(className);
-
-                            page.writeStart("li");
-                                if (source != null) {
-                                    page.writeStart("a",
-                                            "target", "_blank",
-                                            "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
-                                                    "file", source));
-                                        page.writeHtml("View Source Class: ");
-                                        page.writeHtml(className);
-                                    page.writeEnd();
-
-                                } else {
-                                    page.writeHtml("Source Class: ");
-                                    page.writeHtml(className);
-                                }
-                            page.writeEnd();
-                        }
-
                         page.writeStart("li");
                             page.writeStart("a",
                                     "target", "_blank",
@@ -94,6 +72,72 @@ public class ContentTools extends PageServlet {
                                 page.writeEnd();
                             }
                         page.writeEnd();
+                    }
+
+                    if (object != null) {
+                        ObjectType type = State.getInstance(object).getType();
+
+                        if (type != null) {
+                            String className = type.getObjectClassName();
+                            File source = CodeUtils.getSource(className);
+
+                            page.writeStart("li");
+                                if (source != null) {
+                                    page.writeStart("a",
+                                            "target", "_blank",
+                                            "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                    "file", source));
+                                        page.writeHtml("View Source Class: ");
+                                        page.writeHtml(className);
+                                    page.writeEnd();
+
+                                } else {
+                                    page.writeHtml("Source Class: ");
+                                    page.writeHtml(className);
+                                }
+                            page.writeEnd();
+
+                            String defaultPath = type.as(Renderer.TypeModification.class).getPath();
+                            Map<String, String> paths = type.as(Renderer.TypeModification.class).getPaths();
+
+                            if (!ObjectUtils.isBlank(defaultPath) || !ObjectUtils.isBlank(paths)) {
+                                page.writeStart("li");
+                                    page.writeHtml("Renderers:");
+
+                                    page.writeStart("ul");
+                                        if (!ObjectUtils.isBlank(defaultPath)) {
+                                            page.writeStart("li");
+                                                page.writeStart("a",
+                                                        "target", "_blank",
+                                                        "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                                "action", "edit",
+                                                                "type", "JSP",
+                                                                "servletPath", defaultPath));
+                                                    page.writeHtml("View Default: ");
+                                                    page.writeHtml(defaultPath);
+                                                page.writeEnd();
+                                            page.writeEnd();
+                                        }
+
+                                        for (Map.Entry<String, String> entry : paths.entrySet()) {
+                                            page.writeStart("li");
+                                                page.writeStart("a",
+                                                        "target", "_blank",
+                                                        "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                                "action", "edit",
+                                                                "type", "JSP",
+                                                                "servletPath", entry.getValue()));
+                                                    page.writeHtml("View ");
+                                                    page.writeHtml(entry.getKey());
+                                                    page.writeHtml(": ");
+                                                    page.writeHtml(entry.getValue());
+                                                page.writeEnd();
+                                            page.writeEnd();
+                                        }
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+                        }
                     }
                 page.writeEnd();
 
