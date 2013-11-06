@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
@@ -111,6 +112,38 @@ if (wp.isFormPost()) {
 
         return;
     }
+}
+
+writer.writeStart("h1", "class", "icon icon-action-search");
+    writer.writeHtml("Search");
+writer.writeEnd();
+
+ToolUser user = wp.getUser();
+Map<String, String> savedSearches = user.getSavedSearches();
+
+if (!savedSearches.isEmpty()) {
+    wp.writeStart("div", "class", "widget-contentCreate");
+        List<String> savedSearchNames = new ArrayList<String>(savedSearches.keySet());
+
+        Collections.sort(savedSearchNames, String.CASE_INSENSITIVE_ORDER);
+
+        wp.writeStart("div", "class", "action action-create icon-action-search");
+            wp.writeHtml("Saved Searches");
+        wp.writeEnd();
+
+        wp.writeStart("ul");
+            for (String savedSearchName : savedSearchNames) {
+                String savedSearch = savedSearches.get(savedSearchName);
+
+                wp.writeStart("li");
+                    wp.writeStart("a",
+                            "href", wp.url(null) + "?" + savedSearch);
+                        wp.writeHtml(savedSearchName);
+                    wp.writeEnd();
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
 }
 
 writer.start("div", "class", "searchForm");

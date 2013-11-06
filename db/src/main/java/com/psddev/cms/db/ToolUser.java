@@ -21,6 +21,7 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 
@@ -86,6 +87,9 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Hidden
     private boolean external;
+
+    @ToolUi.Hidden
+    private Map<String, String> savedSearches;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -491,6 +495,17 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setExternal(boolean external) {
         this.external = external;
+    }
+
+    public Map<String, String> getSavedSearches() {
+        if (savedSearches == null) {
+            savedSearches = new CompactMap<String, String>();
+        }
+        return savedSearches;
+    }
+
+    public void setSavedSearches(Map<String, String> savedSearches) {
+        this.savedSearches = savedSearches;
     }
 
     /**
