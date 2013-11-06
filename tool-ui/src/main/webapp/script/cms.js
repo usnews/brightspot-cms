@@ -291,7 +291,7 @@ $doc.on('change', '.inputContainer', function() {
 $doc.onCreate('.objectInputs', function() {
     var $container = $(this),
             tabParameter = encodeURIComponent($container.attr('data-id') + '/tab'),
-            tabParameterRe = new RegExp('&' + tabParameter + '=([^=]+)'),
+            tabParameterRe = new RegExp('([?&])' + tabParameter + '=([^=]+)'),
             $inputs = $container.find('> .inputContainer'),
             tabItems = { },
             tabs = [ ],
@@ -337,7 +337,7 @@ $doc.onCreate('.objectInputs', function() {
                 text = $selected.text();
 
                 if (text !== 'Main') {
-                    href += '&' + tabParameter + '=' + encodeURIComponent(text);
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + tabParameter + '=' + encodeURIComponent(text);
                 }
 
                 history.replaceState('', '', href);
@@ -389,7 +389,7 @@ $doc.onCreate('.objectInputs', function() {
     urlMatch = tabParameterRe.exec(win.location.href);
 
     if (urlMatch) {
-        urlMatch = urlMatch[1];
+        urlMatch = urlMatch[2];
 
         if (urlMatch) {
             console.log(urlMatch);
