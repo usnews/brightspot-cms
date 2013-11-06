@@ -423,11 +423,11 @@ public class CmsTool extends Tool {
     }
 
     public boolean isDisableAutomaticallySavingDrafts() {
-        return disableAutomaticallySavingDrafts;
+        return true;
+        // return disableAutomaticallySavingDrafts;
     }
 
-    public void setDisableAutomaticallySavingDrafts(
-            boolean disableAutomaticallySavingDrafts) {
+    public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
     }
 
