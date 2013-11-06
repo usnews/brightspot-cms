@@ -84,7 +84,10 @@ public class CmsTool extends Tool {
     private BulkUploadSettings bulkUploadSettings;
 
     @ToolUi.Tab("Debug")
-    private boolean useNonMinified;
+    private boolean useNonMinifiedCss;
+
+    @ToolUi.Tab("Debug")
+    private boolean useNonMinifiedJavaScript;
 
     @ToolUi.Tab("Debug")
     private boolean disableAutomaticallySavingDrafts;
@@ -414,12 +417,20 @@ public class CmsTool extends Tool {
         this.bulkUploadSettings = bulkUploadSettings;
     }
 
-    public boolean isUseNonMinified() {
-        return useNonMinified;
+    public boolean isUseNonMinifiedCss() {
+        return useNonMinifiedCss;
     }
 
-    public void setUseNonMinified(boolean useNonMinified) {
-        this.useNonMinified = useNonMinified;
+    public void setUseNonMinifiedCss(boolean useNonMinifiedCss) {
+        this.useNonMinifiedCss = useNonMinifiedCss;
+    }
+
+    public boolean isUseNonMinifiedJavaScript() {
+        return useNonMinifiedJavaScript;
+    }
+
+    public void setUseNonMinifiedJavaScript(boolean useNonMinifiedJavaScript) {
+        this.useNonMinifiedJavaScript = useNonMinifiedJavaScript;
     }
 
     public boolean isDisableAutomaticallySavingDrafts() {

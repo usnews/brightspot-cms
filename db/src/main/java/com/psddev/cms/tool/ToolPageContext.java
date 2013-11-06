@@ -1204,7 +1204,7 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
-        if (getCmsTool().isUseNonMinified()) {
+        if (getCmsTool().isUseNonMinifiedCss()) {
             writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
 
         } else {
@@ -1218,7 +1218,7 @@ public class ToolPageContext extends WebPageContext {
             tool.writeHeaderAfterStyles(this);
         }
 
-        if (getCmsTool().isUseNonMinified()) {
+        if (getCmsTool().isUseNonMinifiedCss()) {
             writeStart("script", "type", "text/javascript");
                 write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
             writeEnd();
@@ -1275,7 +1275,7 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
         writeEnd();
 
-        if (getCmsTool().isUseNonMinified()) {
+        if (getCmsTool().isUseNonMinifiedJavaScript()) {
             for (String src : new String[] {
                     "/script/jquery-1.8.3.js",
                     "/script/jquery.mousewheel.js",
