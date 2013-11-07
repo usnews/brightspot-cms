@@ -92,6 +92,8 @@ public  class VideoTranscodingStatusUpdateTask extends RepeatingTask {
                  }
                  //Updated the transcodingStatus
                  videoData.setTranscodingStatus(videoStorageItem.getTranscodingStatus());
+                 videoData.setDurationType(videoStorageItem.getDurationType());
+                 videoData.setTranscodingFlavors(videoStorageItem.getTranscodingFlavors());
                  videoData.setTranscodingStatusUpdatedAt(new Date());
                  videoData.save();
                  if (statusUpdated && videoStorageItemListenerIds != null) 
