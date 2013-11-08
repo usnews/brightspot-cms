@@ -93,7 +93,13 @@ public  class VideoTranscodingStatusUpdateTask extends RepeatingTask {
                  //Updated the transcodingStatus
                  videoData.setTranscodingStatus(videoStorageItem.getTranscodingStatus());
                  videoData.setDurationType(videoStorageItem.getDurationType());
-                 videoData.setTranscodingFlavors(videoStorageItem.getTranscodingFlavors());
+                 List<Integer> videoFlavorIds=videoStorageItem.getTranscodingFlavorIds();
+                 List<TranscodingFlavor> transcodingFlavors= new ArrayList<TranscodingFlavor>(videoFlavorIds.size());
+                 for (Integer flavorId : videoFlavorIds ) {
+                     TranscodingFlavor tf=Query.from(TranscodingFlavor.class).where (" externalId = " + flavorId).first();
+                     if (tf != null)  transcodingFlavors.add(tf);
+                 }
+                 videoData.setTranscodingFlavors(transcodingFlavors);
                  videoData.setTranscodingStatusUpdatedAt(new Date());
                  videoData.save();
                  if (statusUpdated && videoStorageItemListenerIds != null) 
