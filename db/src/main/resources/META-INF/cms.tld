@@ -331,4 +331,12 @@
             java.lang.String getResource(java.lang.String)
         </function-signature>
     </function>
+
+    <function>
+        <name>url</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder url()
+        </function-signature>
+    </function>
 </taglib>

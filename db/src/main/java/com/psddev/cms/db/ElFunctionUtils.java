@@ -20,6 +20,7 @@ import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.UrlBuilder;
 
 public final class ElFunctionUtils {
 
@@ -202,5 +203,9 @@ public final class ElFunctionUtils {
         }
 
         return pathWithTimestamp(servletContext, servletPath);
+    }
+
+    public static UrlBuilder url() {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).currentPath();
     }
 }
