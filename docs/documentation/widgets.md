@@ -20,6 +20,8 @@ Start by creating a new class and extend Tool. We will add our widget/widgets wi
 
 You can access these tools via Admin > Settings.
 
+There are two types of widget that can be added. A Page Widget is added via ajax, and a JSP Widget is not.
+
 <div class="highlight">{% highlight java %}
 public class Widgets extends Tool {
 
@@ -35,7 +37,7 @@ public class Widgets extends Tool {
                 "/_widgets/dashboardWidget.jsp",
                 DASHBOARD_WIDGET_POSITION, 1, 1));
                 
-         plugins.add(createPageWidget(
+         plugins.add(createJspWidget(
                 "Content Widget",
                 "contentWidget",
                 "/_widgets/contentWidget.jsp",
@@ -134,36 +136,55 @@ A basic example of an application setting that you may want to access within a J
 
 ## Adding a Tab or Menu Item
 
-**Adding a new Main Tab (Area)**
 
-To add a new Tab to the navigation within the CMS, simply add an `Area`. This can be placed in an existing class that extends Tool.
+![](http://docs.brightspot.s3.amazonaws.com/adding-custom-tabs.png)
+
+To add a new Tab to the navigation within the CMS, simply add an `Area`. This can be placed in an existing class that extends Tool. Dropdown items can be added, each with a path associated. The order of the items will be alphabetical.
+
 
 <div class="highlight">{% highlight java %}
 
-Area testArea = createArea("Test Area", "demo.Area", null, "/url-goes-here");
-introducePlugin(testArea);
+public class NewTab extends Tool {
+
+	
+    @Override
+    public List<Plugin> getPlugins() {
+        List<Plugin> plugins = new ArrayList<Plugin>();
+
+        plugins.add(createArea2("Main Tab", "mainTab",
+                 "mainTab", null));
+
+        plugins.add(createArea2("First DropDown", "mainTab",
+                "mainTab/firstDropDown", "path/to/your.jsp"));
+
+        plugins.add(createArea2("Second DropDown", "mainTab",
+                "mainTab/secondDropDown", "path/to/your.jsp"));
+
+        plugins.add(createArea2("Third DropDown", "mainTab",
+                "mainTab/third", "path/to/your.jsp"));
+
+        return plugins;
+    }
+
+}
 
 {% endhighlight %}</div>
 
 **Adding an Item to the Admin Drop-Down**
 
+If you want a custom nav item to be made available within the existing Admin or Pages and Content navigation, simply add the area under the desired section, `admin/customTool` or `dashboard/customTool` :
+
 <div class="highlight">{% highlight java %}
 
-@Override
-public void initialize(Logger LOGGER) throws Exception {
-        
-    Area adminArea = null;
-    for (Area area : findTopAreas()) {
-        if (area.getInternalName().equals("admin")) {
-            adminArea = area;
-        }
-    }
+    @Override
+    public List<Plugin> getPlugins() {
+        List<Plugin> plugins = new ArrayList<Plugin>();
 
-    if (!ObjectUtils.isBlank(adminArea)) {
-        introducePlugin(createArea("New Nav Item", "navItem", adminArea, "path/to/file.jsp"));
-    }
+        plugins.add(createArea2("Custom Tool", "customTool",
+                "admin/customTool", "path/to/your.jsp"));
 
-} 
+        return plugins;
+    }
 {% endhighlight %}</div>
 
 
