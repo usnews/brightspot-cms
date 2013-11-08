@@ -108,13 +108,12 @@ public class Search extends Record {
 
             } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
                 String filterName = name.substring(FIELD_FILTER_PARAMETER_PREFIX.length());
-                int dotAt = filterName.indexOf('.');
-                String filterValueKey;
-
+                //Using the lastIndexOf enables us to search even if internal name prefix of fields has . in them such as cms.video.transcodingStatus
+                int dotAt = filterName.lastIndexOf('.');
+                String filterValueKey="";
                 if (dotAt < 0) {
                     filterValueKey = "";
-
-                } else {
+                } else if (dotAt == (filterName.length()-2) ) { 
                     filterValueKey = filterName.substring(dotAt + 1);
                     filterName = filterName.substring(0, dotAt);
                 }
