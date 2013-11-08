@@ -42,7 +42,7 @@ should behave. The most commonly used annotations are `@Indexed` and
 
 > Specifies whether the target field value is indexed.
 
-`@Indexed(Unique=true)`
+`@Indexed(unique=true)`
 
 > Specifies whether the target field value is indexed, and whether it should be unique.
 

@@ -13,9 +13,10 @@ There are several unique CMS tags that can be used when building the JSP files f
 
 Used to display an image file added within the CMS. Objects or a URL can be passed in to the src attribute provided the image class contains `getUrl()`.
 
-`<cms:img src="${content.photo}" size="internalCropName"/>`
+`<cms:img src="${content.photo}" size="internalCropName" overlay="true"/>`
 
-<div class="highlight">{% highlight java %}<tag>
+<div class="highlight">{% highlight jsp %}<tag>
+       <tag>
     <name>img</name>
     <tag-class>com.psddev.cms.db.ImageTag</tag-class>
     <body-content>empty</body-content>
@@ -45,8 +46,31 @@ Used to display an image file added within the CMS. Objects or a URL can be pass
         <name>height</name>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+        <name>cropOption</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>resizeOption</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>tagName</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>srcAttr</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>hideDimensions</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>overlay</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
 </tag>
-
 {% endhighlight %}</div>
 
 ## cms:a
@@ -72,9 +96,80 @@ A tag for creating links, much like a normal `a href`. If the object has a defin
 
 Used to render areas of ReferentialText, it can be implemented in the following way:
 
-`<cms:render value="${content.bodyText}" />
+	<cms:render value="${content.bodyText}" />
 
 This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine. This can also render any `Referencable` modules added to the RTE.
+
+Context can also be added as an attribute within the tag: `<cms:render context="module" value="${content.bodyText}" />`
+
+<div class="highlight">{% highlight java %}
+<tag>
+    <name>render</name>
+    <tag-class>com.psddev.cms.db.RenderTag</tag-class>
+    <body-content>JSP</body-content>
+    <dynamic-attributes>true</dynamic-attributes>
+    <attribute>
+        <name>area</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>context</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>value</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>beginMarker</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>beginOffset</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>endMarker</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>endOffset</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>marker</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>offset</name>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+</tag>
+{% endhighlight %}</div>
+
+
+## cms:context
+
+Use this tag to set the context across an area:
+
+`<cms:context name="module">
+<cms:render value="${content.article}"/>
+</cms:context>`
+
+Or in a `cms:render` tag: `<cms:render context="module" value="${content.article}"/>`
+
+<div class="highlight">{% highlight java %}
+<tag>
+    <name>context</name>
+    <tag-class>com.psddev.cms.db.ContextTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+        <name>name</name>
+        <rtexprvalue>true</rtexprvalue>
+        <required>true</required>
+    </attribute>
+</tag>
+{% endhighlight %}</div>
 
 ## cms:cache
 
