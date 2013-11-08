@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
@@ -84,7 +86,37 @@ import com.psddev.dari.util.TypeDefinition;
  */
 public class PageStage extends Record {
 
+    private transient ServletContext servletContext;
+
+    private transient HttpServletRequest request;
+
     private final transient List<HtmlNode> headNodes = new ArrayList<HtmlNode>();
+
+    public PageStage() {
+    }
+
+    public PageStage(ServletContext servletContext, HttpServletRequest request) {
+        this.servletContext = servletContext;
+        this.request = request;
+    }
+
+    /**
+     * Returns the servlet context associated with this page stage.
+     *
+     * @return May be {@code null}.
+     */
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    /**
+     * Returns the request associated with this page stage.
+     *
+     * @return May be {@code null}.
+     */
+    public HttpServletRequest getRequest() {
+        return request;
+    }
 
     /**
      * Returns the list of all nodes in the {@code <head>} element.
