@@ -1,6 +1,7 @@
 package com.psddev.cms.db; 
 import java.util.Map;
 import java.util.Date;
+import java.util.List;
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
+import com.psddev.dari.util.VideoStorageItem.DurationType;
 
 /**
 * Interface used to add VideContainer Modification 
@@ -35,6 +37,7 @@ public interface VideoContainer extends Recordable {
             this.length = length;
         }
         @Indexed
+        @ToolUi.Filterable
         @ToolUi.ReadOnly
         private TranscodingStatus transcodingStatus;
         
@@ -68,6 +71,29 @@ public interface VideoContainer extends Recordable {
         public void setTranscodingStatusUpdatedAt(Date transcodingStatusUpdatedAt) {
             this.transcodingStatusUpdatedAt=transcodingStatusUpdatedAt;
         }
+        @Indexed
+        @ToolUi.Filterable
+        @ToolUi.ReadOnly
+        private DurationType durationType;
+        
+        public DurationType getDurationType() {
+            return durationType;
+        }
+        public void setDurationType(DurationType durationType) {
+            this.durationType=durationType;
+        }
+
+        @Indexed
+        @ToolUi.Filterable
+        @ToolUi.ReadOnly
+        private List<TranscodingFlavor> transcodingFlavors;
+        
+        public List<TranscodingFlavor>  getTranscodingFlavors() {
+            return transcodingFlavors;
+        }
+        public void setTranscodingFlavors(List<TranscodingFlavor> transcodingFlavors) {
+            this.transcodingFlavors=transcodingFlavors;
+        }
 
         public ObjectField getVideoStorageItemField() {
             return getState().getType().as(TypeModification.class).getVideoStorageItemField();
@@ -75,6 +101,9 @@ public interface VideoContainer extends Recordable {
 
         public VideoStorageItem getFile() {
             return (getVideoStorageItemField() == null ? null : (VideoStorageItem) getState().getByPath(getVideoStorageItemField().getInternalName()));
+        }
+        public String getExternalId() {
+            return getFile().getExternalId();
         }
 
         @Override
