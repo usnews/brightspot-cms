@@ -669,6 +669,19 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        if (object != null) {
+            State state = State.getInstance(object);
+            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);;
+
+            if (contentData.isDraft()) {
+                Draft draft = Query.from(Draft.class).where("objectId = ?", state.getId()).first();
+
+                if (draft != null) {
+                    state.getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
+                }
+            }
+        }
+
         return object;
     }
 
@@ -1840,9 +1853,27 @@ public class ToolPageContext extends WebPageContext {
         }
 
         try {
+            State state = State.getInstance(object);
             Draft draft = getOverlaidDraft(object);
 
-            State.getInstance(draft != null ? draft : object).delete();
+            if (draft != null) {
+                draft.delete();
+
+                if (state.as(Content.ObjectModification.class).isDraft()) {
+                    state.delete();
+                }
+
+                Schedule schedule = draft.getSchedule();
+
+                if (schedule != null &&
+                        ObjectUtils.isBlank(schedule.getName())) {
+                    schedule.delete();
+                }
+
+            } else {
+                state.delete();
+            }
+
             redirect("");
             return true;
 
@@ -1879,19 +1910,15 @@ public class ToolPageContext extends WebPageContext {
                 state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
             }
 
-            if (draft == null &&
-                    (state.isNew() ||
-                    !state.isVisible())) {
-                if (state.isNew()) {
-                    state.as(Content.ObjectModification.class).setDraft(true);
-                }
-
+            if (state.isNew() ||
+                    state.as(Content.ObjectModification.class).isDraft()) {
+                state.as(Content.ObjectModification.class).setDraft(true);
                 publish(state);
                 redirect("", "id", state.getId());
                 return true;
             }
 
-            if (draft == null || draft.getSchedule() != null) {
+            if (draft == null) {
                 draft = new Draft();
                 draft.setOwner(getUser());
                 draft.setObject(object);
