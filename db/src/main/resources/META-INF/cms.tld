@@ -333,10 +333,26 @@
     </function>
 
     <function>
-        <name>url</name>
+        <name>absolutePath</name>
         <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
         <function-signature>
-            com.psddev.dari.util.UrlBuilder url()
+            com.psddev.dari.util.UrlBuilder absolutePath(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>currentPath</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder currentPath()
+        </function-signature>
+    </function>
+
+    <function>
+        <name>path</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder path(java.lang.String)
         </function-signature>
     </function>
 </taglib>

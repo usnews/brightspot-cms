@@ -205,7 +205,15 @@ public final class ElFunctionUtils {
         return pathWithTimestamp(servletContext, servletPath);
     }
 
-    public static UrlBuilder url() {
+    public static UrlBuilder absolutePath(String path) {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).absolutePath(path);
+    }
+
+    public static UrlBuilder currentPath() {
         return new UrlBuilder(PageContextFilter.Static.getRequest()).currentPath();
+    }
+
+    public static UrlBuilder path(String path) {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).path(path);
     }
 }
