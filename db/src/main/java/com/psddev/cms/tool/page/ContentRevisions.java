@@ -69,12 +69,7 @@ public class ContentRevisions extends Widget {
                 where("objectId = ?", state.getId()).
                 selectAll()) {
             if (d.getSchedule() != null) {
-                State objectState = State.getInstance(d.getObject());
-
-                if (objectState.isVisible() ||
-                        !d.getObjectChanges().isEmpty()) {
-                    scheduled.add(d);
-                }
+                scheduled.add(d);
 
             } else {
                 drafts.add(d);
@@ -120,13 +115,16 @@ public class ContentRevisions extends Widget {
                 page.writeHtml("Revisions");
             page.writeEnd();
 
-            page.writeStart("ul", "class", "links");
-                page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
-                    page.writeStart("a", "href", page.originalUrl(null, object));
-                        page.writeHtml("Current");
+            if (!(selected instanceof Draft &&
+                    state.as(Content.ObjectModification.class).isDraft())) {
+                page.writeStart("ul", "class", "links");
+                    page.writeStart("li", "class", object.equals(selected) ? "selected" : null);
+                        page.writeStart("a", "href", page.originalUrl(null, object));
+                            page.writeHtml("Current");
+                        page.writeEnd();
                     page.writeEnd();
                 page.writeEnd();
-            page.writeEnd();
+            }
 
             if (!scheduled.isEmpty()) {
                 page.writeStart("h2").writeHtml("Scheduled").writeEnd();

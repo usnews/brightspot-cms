@@ -39,6 +39,7 @@ com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
+java.util.Date,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
@@ -254,7 +255,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 <%
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
-                if (history != null || draft != null) {
+                if (!editingState.as(Content.ObjectModification.class).isDraft() &&
+                        (history != null || draft != null)) {
                     State original = State.getInstance(Query.
                             from(Object.class).
                             where("_id = ?", editing).
@@ -417,24 +419,36 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                             wp.writeStart("div", "class", "message message-warning");
                                 wp.writeStart("p");
-                                    if (schedule != null) {
-                                        wp.writeHtml("Draft scheduled to be published ");
-                                        wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(schedule.getTriggerUser());
-                                        wp.writeHtml(".");
+                                    wp.writeHtml("Draft last saved ");
+                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                    wp.writeHtml(".");
 
-                                    } else {
-                                        wp.writeHtml("Draft last saved ");
-                                        wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                        wp.writeHtml(".");
+                                    if (schedule != null) {
+                                        Date triggerDate = schedule.getTriggerDate();
+                                        ToolUser triggerUser = schedule.getTriggerUser();
+
+                                        if (triggerDate != null || triggerUser != null) {
+                                            wp.writeHtml(" Scheduled to be published");
+
+                                            if (triggerDate != null) {
+                                                wp.writeHtml(" ");
+                                                wp.writeHtml(wp.formatUserDateTime(triggerDate));
+                                            }
+
+                                            if (triggerUser != null) {
+                                                wp.writeHtml(" by ");
+                                                wp.writeObjectLabel(triggerUser);
+                                            }
+
+                                            wp.writeHtml(".");
+                                        }
                                     }
                                 wp.writeEnd();
 
                                 wp.writeStart("div", "class", "actions");
-                                    if (!draftContentData.isDraft()) {
+                                    if (!contentData.isDraft()) {
                                         wp.writeStart("a",
                                                 "class", "icon icon-action-edit",
                                                 "href", wp.url("", "draftId", null));
