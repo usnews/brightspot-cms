@@ -889,6 +889,25 @@ $doc.onCreate('.inputContainer-readOnly', function() {
     $(this).find(':input').trigger('input-disable', [ true ]);
 });
 
+// Key bindings.
+$doc.on('keydown', ':input', function(event) {
+    if (event.which === 27) {
+        $(this).blur();
+    }
+});
+
+$doc.on('keypress', function(event) {
+    var $searchInput;
+
+    if (event.which === 47 && $(event.target).closest(':input').length === 0) {
+        $searchInput = $('.toolSearch .searchInput :text');
+
+        $searchInput.val('');
+        $searchInput.focus();
+        return false;
+    }
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });
