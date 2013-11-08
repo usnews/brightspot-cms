@@ -471,7 +471,7 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywordsString", seoKeywordsString);
             }
 
-            PageStage stage = new PageStage();
+            PageStage stage = new PageStage(getServletContext(), request);
 
             request.setAttribute("stage", stage);
             stage.setTitle(seoTitle);
