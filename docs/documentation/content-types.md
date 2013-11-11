@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: guides
 title: Content Types
 id: support
 section: documentation
