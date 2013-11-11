@@ -7,7 +7,8 @@
     width: 40%;
     z-index: 50;
 
-    .frame > .widget {
+    > .popup-content > .frame > .widget,
+    > .content > .frame > .widget {
         margin: -10px;
     }
 }
@@ -106,4 +107,9 @@
 .popup[name=uploadFiles] {
     max-width: 1000px;
     width: 70%;
+}
+
+.popup[name=contentEdit] {
+    max-width: 1200px;
+    width: 90%;
 }

@@ -92,6 +92,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Map<String, String> savedSearches;
 
+    @ToolUi.Placeholder("Full")
+    private InlineEditing inlineEditing;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -509,6 +512,14 @@ public class ToolUser extends Record implements ToolEntity {
         this.savedSearches = savedSearches;
     }
 
+    public InlineEditing getInlineEditing() {
+        return inlineEditing;
+    }
+
+    public void setInlineEditing(InlineEditing inlineEditing) {
+        this.inlineEditing = inlineEditing;
+    }
+
     /**
      * Returns {@code true} if this user is allowed access to the
      * resources identified by the given {@code permissionId}.
@@ -531,6 +542,23 @@ public class ToolUser extends Record implements ToolEntity {
         public static ToolUser getByTotpToken(String totpToken) {
             ToolUser user = Query.from(ToolUser.class).where("totpToken = ?", totpToken).first();
             return user != null && user.totpTokenTime + 60000 > System.currentTimeMillis() ? user : null;
+        }
+    }
+
+    public enum InlineEditing {
+
+        ONLY_MAIN_CONTENT("Only Main Content"),
+        DISABLED("Disabled");
+
+        private final String label;
+
+        private InlineEditing(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 }

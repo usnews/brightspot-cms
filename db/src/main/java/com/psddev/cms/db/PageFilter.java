@@ -260,7 +260,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws Exception {
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingFull(request)) {
             response = new LazyWriterResponse(request, response);
         }
 
@@ -504,7 +504,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             // Render the page.
-            if (isOverlay(request)) {
+            if (Static.isInlineEditingFull(request)) {
                 LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
                 response = lazyResponse;
 
@@ -516,9 +516,9 @@ public class PageFilter extends AbstractFilter {
                 map.put("label", state.getLabel());
                 map.put("typeLabel", state.getType().getLabel());
 
-                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\">");
+                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
-                marker.append("</span>");
+                marker.append("\"></span>");
 
                 lazyResponse.getLazyWriter().writeLazily(marker.toString());
             }
@@ -641,58 +641,26 @@ public class PageFilter extends AbstractFilter {
             @SuppressWarnings("resource")
             HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
             State mainState = State.getInstance(mainObject);
-            Schedule currentSchedule = AuthenticationFilter.Static.getUser(request).getCurrentSchedule();
 
-            htmlWriter.writeStart("div", "style", htmlWriter.cssString(
-                    "background", "rgba(0, 0, 0, 0.7)",
-                    "border-bottom-left-radius", "5px",
-                    "color", "white",
-                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                    "font-size", "13px",
-                    "line-height", "20px",
-                    "padding", "5px 10px",
-                    "position", "fixed",
-                    "top", 0,
-                    "right", 0,
-                    "z-index", 2000000));
-                if (!mainState.isVisible()) {
-                    htmlWriter.writeHtml("Status: ");
-                    htmlWriter.writeHtml(mainState.getVisibilityLabel());
-                    htmlWriter.writeHtml(" - ");
-                }
-
-                if (currentSchedule != null) {
-                    htmlWriter.writeHtml("Schedule: ");
-                    htmlWriter.writeHtml(page.getObjectLabel(currentSchedule));
-                    htmlWriter.writeHtml(" - ");
-                }
-
-                htmlWriter.writeStart("a",
-                        "href", "javascript:" + StringUtils.encodeUri(
-                                "(function(){document.body.appendChild(document.createElement('script')).src='" +
-                                page.cmsUrl("/content/bookmarklet.jsp") +
-                                "';}());"),
+            if (user.getInlineEditing() != ToolUser.InlineEditing.DISABLED) {
+                htmlWriter.writeStart("iframe",
+                        "class", "cms-inlineEditor",
+                        "onload", "this.style.visibility = 'visible';",
+                        "scrolling", "no",
+                        "src", page.cmsUrl("/inlineEditor", "id", mainState.getId()),
                         "style", htmlWriter.cssString(
-                                "color", "#83cbea",
-                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                "font-size", "13px",
-                                "line-height", "20px"));
-                    htmlWriter.writeHtml("Edit Inline");
+                                "border", "none",
+                                "height", 0,
+                                "left", 0,
+                                "margin", 0,
+                                "pointer-events", "none",
+                                "position", "absolute",
+                                "top", 0,
+                                "visibility", "hidden",
+                                "width", "100%",
+                                "z-index", 1000000));
                 htmlWriter.writeEnd();
-
-                htmlWriter.writeHtml(" | ");
-
-                htmlWriter.writeStart("a",
-                        "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
-                        "target", "_blank",
-                        "style", htmlWriter.cssString(
-                                "color", "#83cbea",
-                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                "font-size", "13px",
-                                "line-height", "20px"));
-                    htmlWriter.writeHtml("Edit In CMS");
-                htmlWriter.writeEnd();
-            htmlWriter.writeEnd();
+            }
         }
     }
 
@@ -935,7 +903,7 @@ public class PageFilter extends AbstractFilter {
 
         LazyWriter lazyWriter;
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingFull(request)) {
             lazyWriter = new LazyWriter(request, writer);
             writer = lazyWriter;
 
@@ -966,7 +934,7 @@ public class PageFilter extends AbstractFilter {
                     map.put("typeLabel", state.getType().getLabel());
                 }
 
-                marker.append("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
+                marker.append("<span class=\"cms-objectBegin\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("\"></span>");
 
@@ -989,7 +957,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (lazyWriter != null) {
-                lazyWriter.writeLazily("<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>");
+                lazyWriter.writeLazily("<span class=\"cms-objectEnd\" style=\"display: none;\"></span>");
             }
         }
     }
@@ -1408,6 +1376,19 @@ public class PageFilter extends AbstractFilter {
             }
 
             return null;
+        }
+
+        /**
+         * Returns {@code true} if the tool user has requested for inline
+         * editing to be fully enabled.
+         *
+         * @param request Can't be {@code null}.
+         * @return {@code false} if a tool user isn't logged in.
+         */
+        public static boolean isInlineEditingFull(HttpServletRequest request) {
+            ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+            return user != null && user.getInlineEditing() == null;
         }
 
         /** @deprecated Use {@link ElFunctionUtils#plainResource} instead. */

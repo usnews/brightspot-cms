@@ -27,6 +27,7 @@
 
 @import 'tool.less';
 @import 'guide.less';
+@import 'inlineeditor.less';
 @import 'jquery.calendar.less';
 @import 'jquery.code.less';
 @import 'jquery.dropdown.less';
@@ -624,72 +625,6 @@
 
 .wordCount[data-count-message^='Too']:after {
     background-color: #e90;
-}
-
-// --- Bookmarklet ---
-
-.remoteOverlay-hat {
-    background: rgba(0, 0, 0, 0.7);
-    .border-bottom-left-radius(5px);
-    padding: 5px 10px;
-    position: fixed;
-    right: 0;
-    top: 0;
-    z-index: 1;
-
-    h1 {
-        display: inline-block;
-        margin: 0;
-    }
-
-    a {
-        color: @color-link-lighter;
-    }
-
-    .action-editMain {
-        .icon;
-        .icon-pencil;
-    }
-}
-
-.remoteOverlay-tools {
-    .piped;
-
-    display: none;
-    margin-bottom: 0;
-    margin-left: 20px;
-
-    .remoteOverlay-hat:hover & {
-        display: inline-block;
-    }
-}
-
-.remoteOverlay-section {
-    min-height: 2.5em;
-}
-
-.remoteOverlay-edit {
-    .icon;
-    .icon-pencil;
-
-    background: rgba(0, 0, 0, 0.7);
-    .border-radius(5px);
-    .box-sizing(border-box);
-    color: @color-background;
-    display: inline-block;
-    height: 25px;
-    overflow: hidden;
-    padding: 4px;
-    width: 25px;
-
-    .remoteOverlay-section:hover & {
-        background: rgba(0, 0, 0, 0.7);
-        color: @color-link-lighter;
-        min-height: 100%;
-        overflow: auto;
-        padding: 4px;
-        width: 100%;
-    }
 }
 
 .fieldPreview-enabled {
