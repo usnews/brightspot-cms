@@ -92,7 +92,7 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Map<String, String> savedSearches;
 
-    @ToolUi.Placeholder("Full")
+    @ToolUi.Placeholder("All Contents")
     private InlineEditing inlineEditing;
 
     /** Returns the role. */

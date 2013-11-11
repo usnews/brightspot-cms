@@ -260,7 +260,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws Exception {
 
-        if (Static.isInlineEditingFull(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             response = new LazyWriterResponse(request, response);
         }
 
@@ -504,7 +504,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             // Render the page.
-            if (Static.isInlineEditingFull(request)) {
+            if (Static.isInlineEditingAllContents(request)) {
                 LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
                 response = lazyResponse;
 
@@ -903,7 +903,7 @@ public class PageFilter extends AbstractFilter {
 
         LazyWriter lazyWriter;
 
-        if (Static.isInlineEditingFull(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             lazyWriter = new LazyWriter(request, writer);
             writer = lazyWriter;
 
@@ -1385,7 +1385,7 @@ public class PageFilter extends AbstractFilter {
          * @param request Can't be {@code null}.
          * @return {@code false} if a tool user isn't logged in.
          */
-        public static boolean isInlineEditingFull(HttpServletRequest request) {
+        public static boolean isInlineEditingAllContents(HttpServletRequest request) {
             if (Settings.isDebug()) {
                 return false;
 

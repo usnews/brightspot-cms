@@ -80,7 +80,7 @@ public class InlineEditor extends PageServlet {
                 page.writeEnd();
             page.writeEnd();
 
-            if (PageFilter.Static.isInlineEditingFull(page.getRequest())) {
+            if (PageFilter.Static.isInlineEditingAllContents(page.getRequest())) {
                 page.writeStart("script",
                         "type", "text/javascript",
                         "src", page.cmsUrl("/script/inlineeditor.js"));
