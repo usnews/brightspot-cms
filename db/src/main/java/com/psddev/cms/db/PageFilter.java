@@ -625,7 +625,7 @@ public class PageFilter extends AbstractFilter {
             Database.Static.restoreDefault();
         }
 
-        if (Static.isPreview(request)) {
+        if (Settings.isDebug() || Static.isPreview(request)) {
             return;
         }
 
@@ -1386,9 +1386,14 @@ public class PageFilter extends AbstractFilter {
          * @return {@code false} if a tool user isn't logged in.
          */
         public static boolean isInlineEditingFull(HttpServletRequest request) {
-            ToolUser user = AuthenticationFilter.Static.getUser(request);
+            if (Settings.isDebug()) {
+                return false;
 
-            return user != null && user.getInlineEditing() == null;
+            } else {
+                ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+                return user != null && user.getInlineEditing() == null;
+            }
         }
 
         /** @deprecated Use {@link ElFunctionUtils#plainResource} instead. */
