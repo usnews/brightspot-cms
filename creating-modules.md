@@ -8,13 +8,13 @@ section: documentation
 
 ## Overview
 
-Once [Pages and Templates](/new-page.html) have been created, the next step is to add Module content types, that can be placed on those pages. Examples include railed modules.
+Once [Pages and Templates](/new-page.html) have been created, the next step is to add Module content types, that can be placed on those pages. Examples include rail modules, or modules to appear within rich text areas as enhancements.
 
 ## Creating a Module
 
-Modules are created by building a Java Class with the required fields within it. When included on a page or template, the module is rendered with a JSP file, defined through a `@Renderer.Path("")` annotation on the object.
+Modules are created by building a Java Class with the desired fields within it. When included on a page or template, the module is rendered with a JSP file, defined through a `@Renderer.Path("")` annotation on the object.
 
-Start by creating a Java Class and extend `Content`. Add some basic fields. The example below is a generic module with a title and rich text.
+Start by creating a Java Class and extend `Content`. Add some basic fields. The example below is a generic text module with a title and rich text.
 
 {% highlight java %}@Renderer.Path("/generic-module.jsp")
 public class GenericModule extends Content {
@@ -32,7 +32,7 @@ Once saved, it will appear in the Create drop down, found in the global search t
 
 ## Rendering a Module
 
-To render the content of the module, create a JSP file to associate with the object. The example below renders the `title` and `body` fields.
+To render the content of the module, create a JSP file to associate with the object. The example below renders the `title` and `body` fields. Import the tablibs required for using cms tags, or JSTL in this example.
 
 {% highlight jsp %}<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="cms" uri="http://psddev.com/cms" %>
@@ -43,7 +43,7 @@ To render the content of the module, create a JSP file to associate with the obj
 </div>
 {% endhighlight %}
 
-The shot below shows the creation of the module. The preview on the right is a rendering of the jsp file.
+The screenshot below shows the creation of the module. The preview on the right is a rendering of the jsp file.
 
 ![](http://docs.brightspot.s3.amazonaws.com/creating-single-module.png)
 
@@ -88,6 +88,18 @@ Because the module has a `jsp` file associated with it, rendering it using the `
 </cms:layout>
 {% endhighlight %}</div>
 
+## Previewing Modules
+
+A module can be previewed inline, simply add the following annotations to the java class. The preview appears when the eye icon is clicked in the CMS find tool.
+
+The `EmbedPath` annotation is to a jsp with all the style sheets and JavaScript that is required to power the module - typically this can be one file that is used by all modules. The `EmbedPreviewWidth` annotation specifies the width of the preview module in the CMS pop-up in pixels.
+
+<div class="highlight">{% highlight java %}@Renderer.Path("/render/modules/text-module.jsp")
+@Renderer.EmbedPath("/render/common/embed.jsp")
+@Renderer.EmbedPreviewWidth(300)
+public class TextModule extends Content implements RightRail {
+{% endhighlight %}</div>
+
 ## Query based Modules
 
 Some sections of a page may not require any use of a CMS content object, but rather require a script to return a result set. When this is the case a jsp include can be used to pull in the required code.
@@ -107,7 +119,22 @@ The JSP example below queries from the Author object, and returns all. You can t
 </ul>
 {% endhighlight %}</div>
 
-A query for content can also be placed directly within a Java Class, and the method used to render the result within the jsp.
+A query for content can also be placed directly within a Java Class, and the method used to render the result within the jsp. In the example below a Tag module can be created, where the editor picks the tag in the module to drive the result set. *Note: Page imports are removed from these examples*:
+
+<div class="highlight">{% highlight jsp %}<%  List<Article> articles = Query.from(Article.class)
+	.where("tags = ?", ((TagModule)request.getAttribute("record"))
+	.getTag())
+	.selectAll(); 
+	pageContext.setAttribute("articles", articles);
+%>
+    <c:forEach var="item" items="${articles}">
+      <li>
+        <cms:a href="${item}">
+           <cms:render value="${item.headline}" />
+        </cms:a>
+      </li>
+    </c:forEach>
+ </div>{% endhighlight %}</div>
 
 ## Interfaces
 
