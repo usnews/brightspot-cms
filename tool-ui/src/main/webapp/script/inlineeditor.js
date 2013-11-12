@@ -76,6 +76,9 @@
 
         $parentBody.find('.cms-objectBegin-hasControls').each(function() {
             var $begin = $(this),
+                    $beginCurrent,
+                    beginIndex,
+                    beginCount,
                     $controls = $.data(this, 'inlineEditor-$controls'),
                     found = false,
                     minX = Number.MAX_VALUE,
@@ -88,29 +91,44 @@
             // Figure out the object box size by finding the minimum and
             // maximum coordinates among all the elements between begin
             // and end markers.
-            $begin.nextUntil('.cms-objectEnd').filter(':visible').each(function() {
-                var $item = $(this),
-                        itemOffset = $item.offset(),
-                        itemMinX = itemOffset.left,
-                        itemMaxX = itemMinX + $item.outerWidth(),
-                        itemMinY = itemOffset.top,
-                        itemMaxY = itemMinY + $item.outerHeight();
+            for ($beginCurrent = $begin, beginIndex = 0, beginCount = 1;
+                    beginIndex < beginCount;
+                    $beginCurrent = $beginCurrent.next(), ++ beginIndex) {
 
-                found = true;
+                $beginCurrent.nextUntil('.cms-objectEnd').each(function() {
+                    var $item = $(this),
+                            itemOffset = $item.offset(),
+                            itemMinX = itemOffset.left,
+                            itemMaxX = itemMinX + $item.outerWidth(),
+                            itemMinY = itemOffset.top,
+                            itemMaxY = itemMinY + $item.outerHeight();
 
-                if (minX > itemMinX) {
-                    minX = itemMinX;
-                }
-                if (maxX < itemMaxX) {
-                    maxX = itemMaxX;
-                }
-                if (minY > itemMinY) {
-                    minY = itemMinY;
-                }
-                if (maxY < itemMaxY) {
-                    maxY = itemMaxY;
-                }
-            });
+                    $beginCurrent = $item;
+
+                    if ($item.is('.cms-objectBegin')) {
+                        ++ beginCount;
+                        return;
+
+                    } else if (!$item.is(':visible')) {
+                        return;
+                    }
+
+                    found = true;
+
+                    if (minX > itemMinX) {
+                        minX = itemMinX;
+                    }
+                    if (maxX < itemMaxX) {
+                        maxX = itemMaxX;
+                    }
+                    if (minY > itemMinY) {
+                        minY = itemMinY;
+                    }
+                    if (maxY < itemMaxY) {
+                        maxY = itemMaxY;
+                    }
+                });
+            }
 
             if (!found) {
                 $controls.hide();
