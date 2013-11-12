@@ -43,7 +43,7 @@ public class InlineEditor extends PageServlet {
                 page.writeCss(".toolBroadcast, .toolHeader, .toolFooter", "display", "none");
                 page.writeCss("body, .toolContent", "background", "transparent");
                 page.writeCss("body", "margin-top", "75px !important");
-                page.writeCss(".toolContent", "z-index", 1);
+                page.writeCss(".toolContent", "position", "static");
             page.writeEnd();
 
             page.writeStart("ul", "class", "inlineEditorControls inlineEditorControls-main");
