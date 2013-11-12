@@ -4,19 +4,23 @@
             $parentDocument = $(window.parent.document),
             $parentBody = $($parentDocument[0].body),
             $editor = $parentBody.find('.cms-inlineEditor'),
-            mainObjectData = $.parseJSON($parentBody.find('.cms-mainObject').attr('data-object'));
+            mainObjectData = $.parseJSON($parentBody.find('.cms-mainObject').attr('data-object')),
+            ids = [ mainObjectData.id ];
 
     // Create controls for all the objects in the parent document.
     $parentBody.find('.cms-objectBegin').each(function() {
         var $begin = $(this),
                 objectData = $.parseJSON($begin.attr('data-object')),
+                id = objectData.id,
                 $outline,
                 $edit,
                 $controls;
 
-        if (mainObjectData.id === objectData.id) {
+        if ($.inArray(id, ids) > -1) {
             return;
         }
+
+        ids.push(id);
 
         $outline = $('<div/>', {
             'class': 'inlineEditorOutline'
