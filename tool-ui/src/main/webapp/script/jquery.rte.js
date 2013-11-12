@@ -2,7 +2,13 @@
 (function($, win, undef) {
 
 var $win = $(win),
-        doc = win.document;
+        doc = win.document,
+        targetIndex = 0;
+
+function getContentEnhancementTarget() {
+    ++ targetIndex;
+    return 'contentEnhancement-' + targetIndex;
+}
 
 $.each(CSS_CLASS_GROUPS, function() {
     var command = 'cms-' + this.internalName;
@@ -236,7 +242,7 @@ var createEnhancement = function(rte) {
         'class': 'rte-button rte-button-editEnhancement',
         'html': $('<a/>', {
             'href': CONTEXT_PATH + '/content/enhancement.jsp?id=',
-            'target': 'contentEnhancement',
+            'target': getContentEnhancementTarget(),
             'text': 'Edit'
         })
     }));
@@ -269,7 +275,7 @@ var createMarker = function() {
         'class': 'rte-button rte-button-selectMarker',
         'html': $('<a/>', {
             'href': CONTEXT_PATH + '/content/marker.jsp',
-            'target': 'contentEnhancement',
+            'target': getContentEnhancementTarget(),
             'text': 'Select'
         })
     }));
