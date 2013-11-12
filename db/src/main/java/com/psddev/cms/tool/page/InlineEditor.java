@@ -78,6 +78,15 @@ public class InlineEditor extends PageServlet {
                         page.writeTypeObjectLabel(mainObject);
                     page.writeEnd();
                 page.writeEnd();
+
+                page.writeStart("li");
+                    page.writeStart("a",
+                            "class", "icon icon-action-delete icon-only",
+                            "style", page.cssString("color", "#ff0e40"),
+                            "onclick", "$(window.parent.document.body).find('.cms-inlineEditor').remove(); return false;");
+                        page.writeHtml("Remove");
+                    page.writeEnd();
+                page.writeEnd();
             page.writeEnd();
 
             if (PageFilter.Static.isInlineEditingAllContents(page.getRequest())) {
