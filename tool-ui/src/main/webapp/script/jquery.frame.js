@@ -174,10 +174,12 @@ $.plugin2('frame', {
 
                 $form.attr('action', action + (action.indexOf('?') < 0 ? '?' : '&') + extraFormData);
 
-                var $isFrame = $form.find(':hidden[name="_isFrame"]');
-                if ($isFrame.length === 0) {
-                    $isFrame = $('<input name="_isFrame" type="hidden" value="true"/>');
-                    $form.prepend($isFrame);
+                if ($form.find(':hidden[name="_frame"]').length === 0) {
+                    $form.prepend($('<input/>', {
+                        'name': '_frame',
+                        'type': 'hidden',
+                        'value': 'true'
+                    }));
                 }
 
                 // Add a target for $submitFrame later in case one doesn't exist.
@@ -201,7 +203,7 @@ $.plugin2('frame', {
                 $submitFrame.unbind('.frame');
                 $submitFrame.bind('load.frame', function() {
                     $form.attr('action', action);
-                    endLoad($frame, version, $submitFrame.contents().find('body').html());
+                    endLoad($frame, version, $submitFrame.contents().find('textarea').val());
                     if (!hasTarget) {
                         $form.removeAttr('target');
                         setTimeout(function() { $submitFrame.remove(); }, 0);

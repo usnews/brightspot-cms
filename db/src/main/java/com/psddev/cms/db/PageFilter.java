@@ -205,6 +205,7 @@ public class PageFilter extends AbstractFilter {
     @Override
     public Iterable<Class<? extends Filter>> dependencies() {
         List<Class<? extends Filter>> dependencies = new ArrayList<Class<? extends Filter>>();
+        dependencies.add(FrameFilter.class);
         dependencies.add(ApplicationFilter.class);
         dependencies.add(RemoteWidgetFilter.class);
         dependencies.add(AuthenticationFilter.class);

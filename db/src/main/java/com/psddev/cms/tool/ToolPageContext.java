@@ -989,7 +989,7 @@ public class ToolPageContext extends WebPageContext {
             throw new IllegalStateException();
         }
 
-        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
+        if (isAjaxRequest() || param(boolean.class, "_frame")) {
             return;
         }
 
@@ -1377,7 +1377,7 @@ public class ToolPageContext extends WebPageContext {
 
     /** Writes the tool footer. */
     public void writeFooter() throws IOException {
-        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
+        if (isAjaxRequest() || param(boolean.class, "_frame")) {
             return;
         }
 
@@ -2076,7 +2076,7 @@ public class ToolPageContext extends WebPageContext {
                 publish(draft);
                 state.commitWrites();
                 redirect("",
-                        "_isFrame", param(boolean.class, "_isFrame"),
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
 
             } else {
@@ -2093,7 +2093,7 @@ public class ToolPageContext extends WebPageContext {
                 publish(object);
                 state.commitWrites();
                 redirect("",
-                        "_isFrame", param(boolean.class, "_isFrame"),
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         "typeId", state.getTypeId(),
                         "id", state.getId(),
                         "historyId", null,
