@@ -286,7 +286,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                 } else if (endIndex < 0 && beginIndex >= 0) {
                     items = items.subList(beginIndex, items.size());
 
-                } else {
+                } else if (beginOffset >= 0 || endOffset != 0) {
                     items.clear();
                 }
             }
