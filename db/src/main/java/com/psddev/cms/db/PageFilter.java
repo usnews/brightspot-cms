@@ -62,7 +62,13 @@ public class PageFilter extends AbstractFilter {
     private static final String PARAMETER_PREFIX = "_cms.db.";
 
     public static final String DEBUG_PARAMETER = PARAMETER_PREFIX + "debug";
+
+    /**
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public static final String OVERLAY_PARAMETER = PARAMETER_PREFIX + "overlay";
+
     public static final String PREVIEW_DATA_PARAMETER = PARAMETER_PREFIX + "previewData";
     public static final String PREVIEW_ID_PARAMETER = PARAMETER_PREFIX + "previewId";
     public static final String PREVIEW_SITE_ID_PARAMETER = "_previewSiteId";
@@ -249,10 +255,6 @@ public class PageFilter extends AbstractFilter {
         doRequest(request, response, chain);
     }
 
-    private static boolean isOverlay(HttpServletRequest request) {
-        return ObjectUtils.to(boolean.class, request.getParameter(OVERLAY_PARAMETER));
-    }
-
     @Override
     protected void doInclude(
             HttpServletRequest request,
@@ -274,7 +276,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             try {
                 JspBufferFilter.Static.overrideBuffer(0);
                 doRequestForReal(request, response, chain);
