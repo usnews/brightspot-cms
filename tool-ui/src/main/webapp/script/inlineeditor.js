@@ -42,7 +42,8 @@
                 $parentBody.find('.cms-objectBegin-hasControls').each(function() {
                     var previousBox = $.data(this, 'inlineEditor-box');
 
-                    if (box !== previousBox &&
+                    if (previousBox &&
+                            previousBox !== box &&
                             previousBox.controlsCss.left <= box.controlsCss.left + box.outlineCss.width &&
                             box.controlsCss.left <= previousBox.controlsCss.left + previousBox.controlsDimension.width &&
                             previousBox.controlsCss.top + previousBox.outlineCss.top <= box.controlsCss.top + box.outlineCss.top + box.outlineCss.height &&
