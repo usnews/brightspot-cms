@@ -1,7 +1,8 @@
 (function($, window, undefined) {
-    var $document = $(document),
+    var $document = $(window.document),
             $body = $($document[0].body),
-            $parentDocument = $(window.parent.document),
+            $parent = $(window.parent),
+            $parentDocument = $($parent[0].document),
             $parentBody = $($parentDocument[0].body),
             $editor = $parentBody.find('.cms-inlineEditor'),
             mainObjectData = $.parseJSON($parentBody.find('.cms-mainObject').attr('data-object')),
@@ -195,4 +196,9 @@
 
     equalizeHeight();
     setInterval(equalizeHeight, 100);
+
+    // Make sure that the main object controls are fixed at the top.
+    $parent.scroll(function() {
+        $('.inlineEditorControls-main').css('top', $parent.scrollTop());
+    });
 })(jQuery, window);
