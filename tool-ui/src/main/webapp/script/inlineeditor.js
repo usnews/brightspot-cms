@@ -110,6 +110,10 @@
                 $controls.hide();
 
             } else {
+                if (minY < 37) {
+                    minY = 37;
+                }
+
                 box = {
                     '$controls': $controls,
                     'controlsCss': {
