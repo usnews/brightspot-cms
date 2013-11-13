@@ -29,6 +29,7 @@ com.psddev.cms.tool.Widget,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
+com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
@@ -638,7 +639,11 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft && !isHistory && !editingState.isNew()) {
+                                if (!isDraft &&
+                                        !isHistory &&
+                                        !editingState.isNew() &&
+                                        (editingState.getType() == null ||
+                                        !editingState.getType().getGroups().contains(Singleton.class.getName()))) {
                                     wp.writeStart("button",
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
