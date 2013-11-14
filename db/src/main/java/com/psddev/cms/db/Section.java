@@ -5,6 +5,10 @@ import com.psddev.dari.util.HtmlWriter;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * @deprecated No direct replacement but {@link Renderer.LayoutPath} and
+ * {@link Renderer.ListLayouts} provide similar functionality.
+ */
 @Deprecated
 public abstract class Section extends Content {
 
