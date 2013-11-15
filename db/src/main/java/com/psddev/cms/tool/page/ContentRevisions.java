@@ -15,9 +15,11 @@ import com.psddev.cms.db.Schedule;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.Widget;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PaginatedResult;
 
 public class ContentRevisions extends Widget {
 
@@ -101,12 +103,13 @@ public class ContentRevisions extends Widget {
             namedHistories.add(h);
         }
 
-        for (History h : Query.
+        PaginatedResult<History> historiesResult = Query.
                 from(History.class).
                 where("name = missing and objectId = ?", state.getId()).
                 sortDescending("updateDate").
-                select(0, 10).
-                getItems()) {
+                select(0, 10);
+
+        for (History h : historiesResult.getItems()) {
             histories.add(h);
         }
 
@@ -190,6 +193,25 @@ public class ContentRevisions extends Widget {
 
             if (!histories.isEmpty()) {
                 page.writeStart("h2").writeHtml("Past").writeEnd();
+
+                if (historiesResult.hasNext()) {
+                    page.writeStart("p");
+                        page.writeStart("a",
+                                "class", "icon icon-action-search",
+                                "target", "_top",
+                                "href", page.cmsUrl("/content/searchAdvanced",
+                                        ContentSearchAdvanced.TYPE_PARAMETER, ObjectType.getInstance(History.class).getId(),
+                                        ContentSearchAdvanced.PREDICATE_PARAMETER, "objectId = " + state.getId()));
+                            page.writeHtml("View All ");
+                            page.writeHtml(historiesResult.getCount());
+                            page.writeHtml(" Past Revisions");
+                        page.writeEnd();
+                    page.writeEnd();
+
+                    page.writeStart("h2");
+                        page.writeHtml("Past 10");
+                    page.writeEnd();
+                }
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (History h : histories) {

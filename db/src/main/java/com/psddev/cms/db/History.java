@@ -95,4 +95,22 @@ public class History extends Record {
             return object;
         }
     }
+
+    @Override
+    public String getLabel() {
+        StringBuilder label = new StringBuilder();
+        Date updateDate = getUpdateDate();
+        ToolUser updateUser = getUpdateUser();
+
+        if (updateDate != null) {
+            label.append(updateDate);
+        }
+
+        if (updateUser != null) {
+            label.append(" by ");
+            label.append(updateUser.getLabel());
+        }
+
+        return label.toString();
+    }
 }
