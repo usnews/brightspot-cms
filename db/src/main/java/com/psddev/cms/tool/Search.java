@@ -637,6 +637,17 @@ public class Search extends Record {
                     query.and(key + " = missing");
                 }
             }
+
+        } else if (isShowDrafts()) {
+            Set<String> comparisonKeys = new HashSet<String>();
+            DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+
+            addVisibilityFields(comparisonKeys, environment);
+            addVisibilityFields(comparisonKeys, selectedType);
+
+            for (String key : comparisonKeys) {
+                query.and(key + " = missing or " + key + " = true");
+            }
         }
 
         query.and("_type != ?", ObjectType.getInstance(Draft.class));
