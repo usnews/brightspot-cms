@@ -1275,7 +1275,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                     if (sourceOffset.left > targetOffset.left) {
                         var targetWidth = $target.outerWidth();
-                        pathTargetX = targetOffset.left + targetWidth;
+                        pathTargetX = targetOffset.left + targetWidth + 3;
                         pathTargetY = targetOffset.top + $target.outerHeight() / 2;
                         isBackReference = true;
 
@@ -1295,7 +1295,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     } else {
                         pathSourceX = sourceOffset.left + $source.width();
                         pathSourceY = sourceOffset.top + $source.height() / 2;
-                        pathTargetX = targetOffset.left;
+                        pathTargetX = targetOffset.left - 3;
                         pathTargetY = targetOffset.top + $target.height() / 2;
                         pathSourceDirection = 1;
                         pathTargetDirection = -1;
