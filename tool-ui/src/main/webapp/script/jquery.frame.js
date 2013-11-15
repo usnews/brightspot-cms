@@ -203,7 +203,7 @@ $.plugin2('frame', {
                 $submitFrame.unbind('.frame');
                 $submitFrame.bind('load.frame', function() {
                     $form.attr('action', action);
-                    endLoad($frame, version, $submitFrame.contents().find('textarea').val());
+                    endLoad($frame, version, $submitFrame.contents().find('textarea#frameBody').val() || $submitFrame.contents().find('body').html());
                     if (!hasTarget) {
                         $form.removeAttr('target');
                         setTimeout(function() { $submitFrame.remove(); }, 0);

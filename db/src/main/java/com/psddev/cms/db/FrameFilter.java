@@ -37,7 +37,7 @@ public class FrameFilter extends AbstractFilter {
                 writer.writeTag("!doctype html");
                 writer.writeStart("html");
                     writer.writeStart("body");
-                        writer.writeStart("textarea");
+                        writer.writeStart("textarea", "id", "frameBody");
                             writer.writeHtml(capturing.getOutput());
                         writer.writeEnd();
                     writer.writeEnd();
