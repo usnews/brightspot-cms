@@ -1214,7 +1214,7 @@ public class ToolPageContext extends WebPageContext {
                                                     continue;
                                                 }
 
-                                                writeStart("li", "class", child.getInternalName().equals(area.getInternalName()) ? "selected" : null);
+                                                writeStart("li", "class", area != null && area.getInternalName().equals(child.getInternalName()) ? "selected" : null);
                                                     writeStart("a", "href", toolUrl(child.getTool(), child.getUrl()));
                                                         writeHtml(getObjectLabel(child));
                                                     writeEnd();
