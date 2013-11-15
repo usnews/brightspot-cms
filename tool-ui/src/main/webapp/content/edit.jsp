@@ -156,7 +156,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
 // --- Presentation ---
 
-%><% wp.include("/WEB-INF/header.jsp"); %>
+%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
 
 <div class="content-edit">
     <form class="contentForm contentLock"
