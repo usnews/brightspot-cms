@@ -931,10 +931,20 @@ public class PageFilter extends AbstractFilter {
 
                 if (concrete != null) {
                     State state = State.getInstance(concrete);
+                    ObjectType stateType = state.getType();
 
                     map.put("id", state.getId().toString());
-                    map.put("label", state.getLabel());
-                    map.put("typeLabel", state.getType().getLabel());
+
+                    if (stateType != null) {
+                        map.put("typeLabel", stateType.getLabel());
+                    }
+
+                    try {
+                        map.put("label", state.getLabel());
+
+                    } catch (RuntimeException error) {
+                        // Not a big deal if label can't be retrieved.
+                    }
                 }
 
                 marker.append("<span class=\"cms-objectBegin\" style=\"display: none;\" data-object=\"");
