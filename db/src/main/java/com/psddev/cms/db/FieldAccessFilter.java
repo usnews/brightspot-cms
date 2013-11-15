@@ -29,8 +29,7 @@ public class FieldAccessFilter extends AbstractFilter {
             FilterChain chain)
             throws Exception {
 
-        if (ObjectUtils.to(boolean.class, request.getParameter("_fields")) &&
-                PageFilter.Static.getMainObject(request) != null) {
+        if (ObjectUtils.to(boolean.class, request.getParameter("_fields"))) {
             super.doDispatch(request, response, chain);
 
         } else {

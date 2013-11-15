@@ -29,6 +29,7 @@ com.psddev.cms.tool.Widget,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
+com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
@@ -155,7 +156,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
 // --- Presentation ---
 
-%><% wp.include("/WEB-INF/header.jsp"); %>
+%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
 
 <div class="content-edit">
     <form class="contentForm contentLock"
@@ -638,7 +639,11 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft && !isHistory && !editingState.isNew()) {
+                                if (!isDraft &&
+                                        !isHistory &&
+                                        !editingState.isNew() &&
+                                        (editingState.getType() == null ||
+                                        !editingState.getType().getGroups().contains(Singleton.class.getName()))) {
                                     wp.writeStart("button",
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
@@ -1270,7 +1275,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                     if (sourceOffset.left > targetOffset.left) {
                         var targetWidth = $target.outerWidth();
-                        pathTargetX = targetOffset.left + targetWidth;
+                        pathTargetX = targetOffset.left + targetWidth + 3;
                         pathTargetY = targetOffset.top + $target.outerHeight() / 2;
                         isBackReference = true;
 
@@ -1290,7 +1295,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     } else {
                         pathSourceX = sourceOffset.left + $source.width();
                         pathSourceY = sourceOffset.top + $source.height() / 2;
-                        pathTargetX = targetOffset.left;
+                        pathTargetX = targetOffset.left - 3;
                         pathTargetY = targetOffset.top + $target.height() / 2;
                         pathSourceDirection = 1;
                         pathTargetDirection = -1;

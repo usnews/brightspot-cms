@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated No direct replacement but {@link Renderer.LayoutPath} and
+ * {@link Renderer.ListLayouts} provide similar functionality.
+ */
 @Deprecated
 public abstract class ContainerSection extends Section {
 

@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * @deprecated No direct replacement but {@link Renderer.LayoutPath} and
+ * {@link Renderer.ListLayouts} provide similar functionality.
+ */
 @Deprecated
 public class ContentSection extends ScriptSection {
 

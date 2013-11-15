@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -293,34 +292,61 @@ public class ToolPageContext extends WebPageContext {
         return tool;
     }
 
-    /** Returns the area that's currently in use. */
+    private class AreaUrl implements Comparable<AreaUrl> {
+
+        private final Area area;
+        private final String url;
+
+        public AreaUrl(Area area, String url) {
+            this.area = area;
+            this.url = url;
+        }
+
+        public Area getArea() {
+            return area;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        @Override
+        public int compareTo(AreaUrl other) {
+            return other.url.length() - url.length();
+        }
+    }
+
+    /**
+     * Returns the area that's currently in use.
+     *
+     * @return May be {@code null}.
+     */
     public Area getArea() {
-        Tool tool = getTool();
+        List<AreaUrl> areaUrls = new ArrayList<AreaUrl>();
 
-        if (tool != null) {
-            List<Area> areas = new ArrayList<Area>();
+        for (Area area : Tool.Static.getPluginsByClass(Area.class)) {
+            String url = area.getUrl();
 
-            for (Area area : Tool.Static.getPluginsByClass(Area.class)) {
-                if (area.getTool().equals(tool)) {
-                    areas.add(area);
+            if (!ObjectUtils.isBlank(url)) {
+                Tool tool = area.getTool();
+
+                if (tool != null) {
+                    areaUrls.add(new AreaUrl(area, toolUrl(tool, url)));
                 }
             }
+        }
 
-            Collections.sort(areas, new Comparator<Area>() {
-                @Override
-                public int compare(Area x, Area y) {
-                    return y.getUrl().compareTo(x.getUrl());
-                }
-            });
+        Collections.sort(areaUrls);
 
-            ServletContext context = getServletContext();
-            HttpServletRequest request = getRequest();
-            String path = JspUtils.getEmbeddedServletPath(context, request.getServletPath());
+        String path = getRequest().getServletPath();
 
-            for (Area area : areas) {
-                if (path.startsWith(area.getUrl())) {
-                    return area;
-                }
+        if (path.endsWith("/index.jsp")) {
+            path = path.substring(0, path.length() - 9);
+        }
+
+        for (AreaUrl areaUrl : areaUrls) {
+            if (path.startsWith(areaUrl.getUrl())) {
+                return areaUrl.getArea();
             }
         }
 
@@ -983,17 +1009,22 @@ public class ToolPageContext extends WebPageContext {
         return formatUserDateTimeWith(dateTime, "hh:mm aa");
     }
 
-    /** Writes the tool header. */
-    public void writeHeader() throws IOException {
+    /**
+     * Writes the tool header with the given {@code title}.
+     *
+     * @param title If {@code null}, uses the default title.
+     */
+    public void writeHeader(String title) throws IOException {
         if (requireUser()) {
             throw new IllegalStateException();
         }
 
-        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
+        if (isAjaxRequest() || param(boolean.class, "_frame")) {
             return;
         }
 
         CmsTool cms = getCmsTool();
+        Area area = getArea();
         String companyName = cms.getCompanyName();
         String environment = cms.getEnvironment();
         ToolUser user = getUser();
@@ -1012,7 +1043,20 @@ public class ToolPageContext extends WebPageContext {
         writeTag("!doctype html");
         writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
             writeStart("head");
-                writeStart("title").writeHtml(companyName).writeEnd();
+                writeStart("title");
+                    if (!ObjectUtils.isBlank(title)) {
+                        writeHtml(title);
+                        writeHtml(" | ");
+
+                    } else if (area != null) {
+                        writeObjectLabel(area);
+                        writeHtml(" | ");
+                    }
+
+                    writeHtml("CMS | ");
+                    writeHtml(companyName);
+                writeEnd();
+
                 writeTag("meta", "name", "robots", "content", "noindex");
                 writeStylesAndScripts();
             writeEnd();
@@ -1158,7 +1202,7 @@ public class ToolPageContext extends WebPageContext {
                                 String topLabel = getObjectLabel(top);
 
                                 writeStart("li",
-                                        "class", (top.hasChildren() ? " isNested" : "") + (top.isSelected(getTool(), servletPath) ? " selected" : ""));
+                                        "class", (top.hasChildren() ? " isNested" : "") + (area.getHierarchy().startsWith(top.getHierarchy()) ? " selected" : ""));
                                     writeStart("a", "href", topUrl == null ? "#" : toolUrl(top.getTool(), topUrl));
                                         writeHtml(topLabel);
                                     writeEnd();
@@ -1170,7 +1214,7 @@ public class ToolPageContext extends WebPageContext {
                                                     continue;
                                                 }
 
-                                                writeStart("li", "class", child.isSelected(getTool(), servletPath) ? "selected" : null);
+                                                writeStart("li", "class", child.getInternalName().equals(area.getInternalName()) ? "selected" : null);
                                                     writeStart("a", "href", toolUrl(child.getTool(), child.getUrl()));
                                                         writeHtml(getObjectLabel(child));
                                                     writeEnd();
@@ -1375,9 +1419,16 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    /**
+     * Writes the tool header with the default title.
+     */
+    public void writeHeader() throws IOException {
+        writeHeader(null);
+    }
+
     /** Writes the tool footer. */
     public void writeFooter() throws IOException {
-        if (isAjaxRequest() || param(boolean.class, "_isFrame")) {
+        if (isAjaxRequest() || param(boolean.class, "_frame")) {
             return;
         }
 
@@ -1757,7 +1808,9 @@ public class ToolPageContext extends WebPageContext {
                         writeHtml("Save");
                     writeEnd();
 
-                    if (!state.isNew()) {
+                    if (!state.isNew() &&
+                            (type == null ||
+                            !type.getGroups().contains(Singleton.class.getName()))) {
                         if (displayTrashAction) {
                             writeStart("button",
                                     "class", "icon icon-action-trash action-pullRight link",
@@ -2076,7 +2129,7 @@ public class ToolPageContext extends WebPageContext {
                 publish(draft);
                 state.commitWrites();
                 redirect("",
-                        "_isFrame", param(boolean.class, "_isFrame"),
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
 
             } else {
@@ -2093,7 +2146,7 @@ public class ToolPageContext extends WebPageContext {
                 publish(object);
                 state.commitWrites();
                 redirect("",
-                        "_isFrame", param(boolean.class, "_isFrame"),
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         "typeId", state.getTypeId(),
                         "id", state.getId(),
                         "historyId", null,

@@ -42,6 +42,12 @@ if (published != null) {
     wp.writeHtml(wp.formatUserDateTime(published));
     wp.write(".</p>");
     wp.write("</div>");
+
+    wp.writeStart("script", "type", "text/javascript");
+        wp.writeRaw("if ($('.cms-inlineEditor', window.parent.document.body).length > 0) {");
+            wp.writeRaw("window.parent.location.reload();");
+        wp.writeRaw("}");
+    wp.writeEnd();
     return;
 }
 

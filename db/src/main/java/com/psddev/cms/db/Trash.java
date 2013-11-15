@@ -8,7 +8,12 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.ObjectType;
 
-/** Represents a deleted object that can be restored later. */
+/**
+ * Deleted object that can be restored later.
+ *
+ * @deprecated Use {@link Content.ObjectModification#setTrash} instead.
+ */
+@Deprecated
 public class Trash extends Record {
 
     private @Indexed Date deleteDate;
