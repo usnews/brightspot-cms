@@ -1202,7 +1202,7 @@ public class ToolPageContext extends WebPageContext {
                                 String topLabel = getObjectLabel(top);
 
                                 writeStart("li",
-                                        "class", (top.hasChildren() ? " isNested" : "") + (area.getHierarchy().startsWith(top.getHierarchy()) ? " selected" : ""));
+                                        "class", (top.hasChildren() ? " isNested" : "") + (area != null && area.getHierarchy().startsWith(top.getHierarchy()) ? " selected" : ""));
                                     writeStart("a", "href", topUrl == null ? "#" : toolUrl(top.getTool(), topUrl));
                                         writeHtml(topLabel);
                                     writeEnd();
