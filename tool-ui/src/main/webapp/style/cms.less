@@ -454,7 +454,10 @@
 }
 
 .widget-publishing {
-    .box-shadow(~'0 0 4px rgba(0, 0, 0, 0.4), 0 -15px 10px @{color-background}');
+    @sc: fade(@color-text, 50%);
+    @wc: @color-background;
+
+    .box-shadow(~'0 0 5px @{sc}, 0 -5px 0 5px @{wc}, 0 -15px 0 5px @{wc}');
     margin-bottom: 10px;
 
     .icon-wrench {
@@ -465,6 +468,10 @@
 
     [name='workflowComment'] {
         margin-bottom: 5px;
+    }
+
+    .popup[name='contentEdit'] & {
+        .box-shadow(0 0 5px @sc);
     }
 }
 
