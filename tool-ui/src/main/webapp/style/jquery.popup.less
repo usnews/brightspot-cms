@@ -109,7 +109,17 @@
     width: 70%;
 }
 
-.popup[name=contentEdit] {
+.popup[name='contentEdit'] {
     max-width: 1200px;
     width: 90%;
+
+    > .content {
+        @bc: fade(white, 90%);
+
+        background: @bc;
+
+        > .marker {
+            border-bottom-color: @bc;
+        }
+    }
 }
