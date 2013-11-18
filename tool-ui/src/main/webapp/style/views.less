@@ -169,14 +169,17 @@ figure,
 .figure {
     display: inline-block;
     margin: 0;
+    min-height: 100px;
+    min-width: 100px;
     padding: 0;
     position: relative;
 
     figcaption,
     .figcaption {
-        background-color: fade(@color-background, 80%);
+        background-color: fade(@color-text, 80%);
         bottom: 0;
         .box-sizing(border-box);
+        color: @color-background;
         left: 0;
         line-height: @lineHeight-input;
         margin: 0;
