@@ -2,13 +2,16 @@ package com.psddev.cms.tool.page;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -34,12 +37,61 @@ public class ContentTools extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
+        State state = State.getInstance(object);
         String returnUrl = page.param(String.class, "returnUrl");
 
         page.writeHeader();
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-wrench");
                     page.writeHtml("Tools");
+                page.writeEnd();
+
+                if (object != null) {
+                    Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+                    Date publishDate = contentData.getPublishDate();
+                    ToolUser publishUser = contentData.getPublishUser();
+                    Date updateDate = contentData.getUpdateDate();
+                    ToolUser updateUser = contentData.getUpdateUser();
+
+                    page.writeStart("h2");
+                        page.writeHtml("For Editors");
+                    page.writeEnd();
+
+                    page.writeStart("ul");
+                        if (publishDate != null || publishUser != null) {
+                            page.writeStart("li");
+                                page.writeHtml("Published: ");
+
+                                if (publishDate != null) {
+                                    page.writeHtml(page.formatUserDateTime(publishDate));
+                                }
+
+                                if (publishUser != null) {
+                                    page.writeHtml(publishDate != null ? " by " : "By ");
+                                    page.writeObjectLabel(updateUser);
+                                }
+                            page.writeEnd();
+                        }
+
+                        if (updateDate != null || updateUser != null) {
+                            page.writeStart("li");
+                                page.writeHtml("Last Updated: ");
+
+                                if (updateDate != null) {
+                                    page.writeHtml(page.formatUserDateTime(updateDate));
+                                }
+
+                                if (updateUser != null) {
+                                    page.writeHtml(updateDate != null ? " by " : "By ");
+                                    page.writeObjectLabel(updateUser);
+                                }
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
+
+                page.writeStart("h2");
+                    page.writeHtml("For Developers");
                 page.writeEnd();
 
                 page.writeStart("ul");
@@ -75,7 +127,7 @@ public class ContentTools extends PageServlet {
                     }
 
                     if (object != null) {
-                        ObjectType type = State.getInstance(object).getType();
+                        ObjectType type = state.getType();
 
                         if (type != null) {
                             String className = type.getObjectClassName();
@@ -142,12 +194,11 @@ public class ContentTools extends PageServlet {
                 page.writeEnd();
 
                 if (object != null) {
-                    State state = State.getInstance(object);
                     ObjectType type = state.getType();
 
                     if (type != null &&
                             !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getEmbedPath())) {
-                        String permalink = State.getInstance(object).as(Directory.ObjectModification.class).getPermalink();
+                        String permalink = state.as(Directory.ObjectModification.class).getPermalink();
 
                         if (!ObjectUtils.isBlank(permalink)) {
                             String siteUrl = Application.Static.getInstance(CmsTool.class).getDefaultSiteUrl();
