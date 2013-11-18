@@ -165,7 +165,11 @@ if (isEmbedded) {
         Map<UUID, String> showClasses = new HashMap<UUID, String>();
         wp.write("<div class=\"inputSmall\">");
         wp.write("<select class=\"toggleable\" name=\"", wp.h(idName), "\">");
-        wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\">None</option>");
+
+        if (!field.isRequired()) {
+            wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\">None</option>");
+        }
+
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
             String showClass = wp.createId();
