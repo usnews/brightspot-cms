@@ -234,9 +234,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryC
                     endAt = oldBody.indexOf(FIELD_ACCESS_MARKER_END, beginAt);
 
                     if (endAt > -1) {
-                        newBodyLazy.writeLazily("<span style=\"display: none;\" data-name=\"" +
-                                oldBody.substring(beginAt + FIELD_ACCESS_MARKER_BEGIN.length(), endAt) +
-                                "\"></span>");
+                        newBodyLazy.writeLazily(oldBody.substring(beginAt + FIELD_ACCESS_MARKER_BEGIN.length(), endAt));
 
                         endAt += FIELD_ACCESS_MARKER_END.length();
 
@@ -511,9 +509,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryC
 
             try {
                 bodyContent.write(FIELD_ACCESS_MARKER_BEGIN);
-                bodyContent.write(StringUtils.escapeHtml(state.getId().toString()));
-                bodyContent.write("/");
-                bodyContent.write(StringUtils.escapeHtml(name));
+                bodyContent.write(FieldAccessFilter.createMarkerHtml(state, name));
                 bodyContent.write(FIELD_ACCESS_MARKER_END);
 
             } catch (IOException error) {
