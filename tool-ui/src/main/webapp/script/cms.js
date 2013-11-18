@@ -908,6 +908,58 @@ $doc.on('keypress', function(event) {
     }
 });
 
+// Publishing widget behaviors.
+$doc.onCreate('.widget-publishing', function() {
+    var $widget = $(this),
+            $dateInput = $widget.find('.dateInput'),
+            $newSchedule = $widget.find('select[name="newSchedule"]'),
+            $publishButton = $widget.find('[name="action-publish"]'),
+            oldPublishText = $publishButton.text(),
+            oldDate = $dateInput.val(),
+            onChange;
+
+    // Change the publish button label if scheduling.
+    if ($dateInput.length === 0) {
+        $publishButton.addClass('schedule');
+        $publishButton.text('Schedule');
+
+    } else {
+        onChange = function() {
+            if ($dateInput.val()) {
+                $publishButton.addClass('schedule');
+                $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
+
+            } else {
+                $publishButton.removeClass('schedule');
+                $publishButton.text(oldPublishText);
+            }
+        };
+
+        onChange();
+
+        $dateInput.change(onChange);
+        $newSchedule.change(onChange);
+    }
+
+    // Move the widget to the top if within aside section.
+    $widget.closest('.contentForm-aside').each(function() {
+        var $aside = $(this),
+                asideTop = $aside.offset().top;
+
+        $win.resize($.throttle(100, $.run(function() {
+            $widget.css({
+                'left': $aside.offset().left,
+                'position': 'fixed',
+                'top': asideTop,
+                'width': $widget.width()
+            });
+
+            // Push other areas down.
+            $aside.css('padding-top', $widget.outerHeight(true));
+        })));
+    });
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });
@@ -994,58 +1046,6 @@ $doc.ready(function() {
             });
         }
     }));
-
-    // Publishing widget behaviors.
-    $('.widget-publishing').each(function() {
-        var $widget = $(this),
-                $dateInput = $widget.find('.dateInput'),
-                $newSchedule = $widget.find('select[name="newSchedule"]'),
-                $publishButton = $widget.find('[name="action-publish"]'),
-                oldPublishText = $publishButton.text(),
-                oldDate = $dateInput.val(),
-                onChange;
-
-        // Change the publish button label if scheduling.
-        if ($dateInput.length === 0) {
-            $publishButton.addClass('schedule');
-            $publishButton.text('Schedule');
-
-        } else {
-            onChange = function() {
-                if ($dateInput.val()) {
-                    $publishButton.addClass('schedule');
-                    $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
-
-                } else {
-                    $publishButton.removeClass('schedule');
-                    $publishButton.text(oldPublishText);
-                }
-            };
-
-            onChange();
-
-            $dateInput.change(onChange);
-            $newSchedule.change(onChange);
-        }
-
-        // Move the widget to the top if within aside section.
-        $widget.closest('.contentForm-aside').each(function() {
-            var $aside = $(this),
-                    asideTop = $aside.offset().top;
-
-            $win.resize($.throttle(100, $.run(function() {
-                $widget.css({
-                    'left': $aside.offset().left,
-                    'position': 'fixed',
-                    'top': asideTop,
-                    'width': $widget.width()
-                });
-
-                // Push other areas down.
-                $aside.css('padding-top', $widget.outerHeight(true));
-            })));
-        });
-    });
 
     // Create tabs if the publishing widget contains both the workflow
     // and the publish areas.
