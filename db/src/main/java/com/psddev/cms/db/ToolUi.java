@@ -45,6 +45,7 @@ public class ToolUi extends Modification<Object> {
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
+    private String placeholderDynamicText;
     private Boolean placeholderEditable;
     private Boolean referenceable;
     private String referenceableViaClassName;
@@ -260,6 +261,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setPlaceholderEditable(boolean placeholderEditable) {
         this.placeholderEditable = Boolean.TRUE.equals(placeholderEditable) ? Boolean.TRUE : null;
+    }
+
+    public String getPlaceholderDynamicText() {
+        return placeholderDynamicText;
+    }
+
+    public void setPlaceholderDynamicText(String placeholderDynamicText) {
+        this.placeholderDynamicText = placeholderDynamicText;
     }
 
     public boolean isRichText() {
@@ -723,7 +732,15 @@ public class ToolUi extends Modification<Object> {
     @Target(ElementType.FIELD)
     public @interface Placeholder {
 
-        String value();
+        /**
+         * Static placeholder text.
+         */
+        String value() default "";
+
+        /**
+         * Dynamic placeholder text.
+         */
+        String dynamicText() default "";
 
         /**
          * {@code true} if the placeholder text should remain and be editable
@@ -745,6 +762,7 @@ public class ToolUi extends Modification<Object> {
                 Placeholder placeholder = (Placeholder) annotation;
 
                 ui.setPlaceholder(placeholder.value());
+                ui.setPlaceholderDynamicText(placeholder.dynamicText());
                 ui.setPlaceholderEditable(placeholder.editable());
             }
         }

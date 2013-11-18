@@ -34,6 +34,12 @@ if (field.isRequired()) {
     }
 }
 
+// Hack for Chrome since it can't detect placeholder attr change when the
+// initial value is an empty string.
+if (ObjectUtils.isBlank(placeholder)) {
+    placeholder = " ";
+}
+
 Number suggestedMinimum = ui.getSuggestedMinimum();
 Number suggestedMaximum = ui.getSuggestedMaximum();
 
@@ -91,6 +97,7 @@ if (validValues != null) {
             "id", wp.getId(),
             "name", inputName,
             "placeholder", placeholder,
+            "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
             "data-code-type", ui.getCodeType(),
             "data-editable-placeholder", ui.isPlaceholderEditable() ? ui.getPlaceholder() : null,
             "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,

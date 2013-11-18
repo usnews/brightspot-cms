@@ -2,14 +2,19 @@ package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.el.ELContext;
+import javax.el.ExpressionFactory;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspFactory;
+import javax.servlet.jsp.PageContext;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
@@ -177,6 +182,33 @@ public class ContentState extends PageServlet {
             jsonResponse.put("_urlWidgetHtml", string.toString());
         }
 
+        // Evaluate all dynamic texts.
+        List<String> dynamicTexts = new ArrayList<String>();
+        JspFactory jspFactory = JspFactory.getDefaultFactory();
+        PageContext pageContext = jspFactory.getPageContext(this, page.getRequest(), page.getResponse(), null, false, 0, false);
+
+        try {
+            pageContext.setAttribute("content", object);
+
+            ExpressionFactory expressionFactory = jspFactory.getJspApplicationContext(getServletContext()).getExpressionFactory();
+            ELContext elContext = pageContext.getELContext();
+
+            for (String dynamicText : page.params(String.class, "_dynamicText")) {
+                try {
+                    dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, dynamicText, String.class).getValue(elContext)));
+
+                } catch (RuntimeException error) {
+                    dynamicTexts.add("");
+                }
+            }
+
+        } finally {
+            jspFactory.releasePageContext(pageContext);
+        }
+
+        jsonResponse.put("_dynamicTexts", dynamicTexts);
+
+        // Write the JSON response.
         HttpServletResponse response = page.getResponse();
 
         response.setContentType("application/json");

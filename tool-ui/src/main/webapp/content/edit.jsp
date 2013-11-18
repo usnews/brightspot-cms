@@ -822,21 +822,47 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 var action,
                         questionAt,
                         complete,
-                        end;
+                        end,
+                        $dynamicTexts;
 
                 action = $form.attr('action');
                 questionAt = action.indexOf('?');
                 end = +new Date() + 1000;
+                $dynamicTexts = $form.find('[data-dynamic-text], [data-dynamic-html], [data-dynamic-placeholder]');
 
                 $.ajax({
                     'type': 'post',
                     'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
                     'cache': false,
-                    'data': $form.serialize(),
                     'dataType': 'json',
+
+                    'data': $form.serialize() + $dynamicTexts.map(function() {
+                        var $element = $(this);
+
+                        return '&_dynamicText=' +
+                                ($element.attr('data-dynamic-text') ||
+                                $element.attr('data-dynamic-html') ||
+                                $element.attr('data-dynamic-placeholder') ||
+                                '');
+                    }).get().join(''),
 
                     'success': function(data) {
                         $form.trigger('cms-updateContentState', [ data ]);
+
+                        $dynamicTexts.each(function(index) {
+                            var $element = $(this),
+                                    text = data._dynamicTexts[index] || '';
+
+                            if ($element.is('[data-dynamic-text]')) {
+                                $element.text(text);
+
+                            } else if ($element.is('[data-dynamic-html]')) {
+                                $element.html(text);
+
+                            } else if ($element.is('[data-dynamic-placeholder]')) {
+                                $element.prop('placeholder', text);
+                            }
+                        });
                     },
 
                     'complete': function() {
