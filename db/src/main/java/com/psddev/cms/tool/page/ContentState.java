@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +29,7 @@ import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.Settings;
 
 @RoutingFilter.Path(application = "cms", value = "/contentState")
 public class ContentState extends PageServlet {
@@ -198,7 +200,15 @@ public class ContentState extends PageServlet {
                     dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, dynamicText, String.class).getValue(elContext)));
 
                 } catch (RuntimeException error) {
-                    dynamicTexts.add("");
+                    if (Settings.isProduction()) {
+                        dynamicTexts.add("");
+
+                    } else {
+                        StringWriter string = new StringWriter();
+
+                        error.printStackTrace(new PrintWriter(string));
+                        dynamicTexts.add(string.toString());
+                    }
                 }
             }
 
