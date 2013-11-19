@@ -1401,22 +1401,29 @@ delete wysihtml5.commands.insertImage;
 
 var insertButton = function(composer, button) {
     var $selected = $(composer.selection.getSelectedNode()),
-            precedings = [ ],
+            precedings,
             precedingsLength;
 
-    $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
-        if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
-            precedings.push(this);
-        }
-    });
-
-    precedingsLength = precedings.length;
-
-    if (precedingsLength >= 1) {
-        $(precedings[precedingsLength - 1]).after(button);
+    if ($selected.is('body')) {
+        $($selected[0].childNodes[composer.selection.getRange().startOffset]).after(button);
 
     } else {
-        $selected.closest('body').prepend(button);
+        precedings = [ ];
+
+        $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+            if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
+                precedings.push(this);
+            }
+        });
+
+        precedingsLength = precedings.length;
+
+        if (precedingsLength >= 1) {
+            $(precedings[precedingsLength - 1]).after(button);
+
+        } else {
+            $selected.closest('body').prepend(button);
+        }
     }
 };
 
