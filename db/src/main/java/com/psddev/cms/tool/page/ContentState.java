@@ -20,6 +20,7 @@ import javax.servlet.jsp.PageContext;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Preview;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -128,55 +129,37 @@ public class ContentState extends PageServlet {
             }
         }
 
-        // HTML display for the URL widget.
         Map<String, Object> jsonResponse = new CompactMap<String, Object>();
-        @SuppressWarnings("unchecked")
-        List<Directory.Path> automaticPaths = (List<Directory.Path>) state.getExtras().get("cms.automaticPaths");
-        Directory.ObjectModification dirData = state.as(Directory.ObjectModification.class);
-        boolean manual = Directory.PathsMode.MANUAL.equals(dirData.getPathsMode());
 
-        if ((automaticPaths != null && !automaticPaths.isEmpty()) || manual) {
+        // HTML display for the URL widget.
+        @SuppressWarnings("unchecked")
+        Set<Directory.Path> newPaths = (Set<Directory.Path>) state.getExtras().get("cms.newPaths");
+
+        if (!ObjectUtils.isBlank(newPaths)) {
             StringWriter string = new StringWriter();
             @SuppressWarnings("resource")
             HtmlWriter html = new HtmlWriter(string);
-            String automaticName = state.getId() + "/directory.automatic";
 
-            html.writeStart("div", "class", "widget-urlsAutomatic");
-                html.writeStart("p");
-                    html.writeTag("input",
-                            "type", "hidden",
-                            "name", automaticName,
-                            "value", true);
+            html.writeStart("ul");
+                for (Directory.Path p : newPaths) {
+                    Site s = p.getSite();
 
-                    html.writeTag("input",
-                            "type", "checkbox",
-                            "id", page.createId(),
-                            "name", automaticName,
-                            "value", true,
-                            "checked", manual ? null : "checked");
+                    html.writeStart("li");
+                        html.writeStart("a",
+                                "target", "_blank",
+                                "href", p.getPath());
+                            html.writeHtml(p.getPath());
+                        html.writeEnd();
 
-                    html.writeHtml(" ");
+                        html.writeHtml(" (");
 
-                    html.writeStart("label", "for", page.getId());
-                        html.writeHtml("Generate Permalink?");
-                    html.writeEnd();
-                html.writeEnd();
-
-                if (!manual) {
-                    html.writeStart("ul");
-                        for (Directory.Path p : automaticPaths) {
-                            html.writeStart("li");
-                                html.writeStart("a",
-                                        "target", "_blank",
-                                        "href", p.getPath());
-                                    html.writeHtml(p.getPath());
-                                html.writeEnd();
-
-                                html.writeHtml(" (");
-                                html.writeHtml(p.getType());
-                                html.writeHtml(")");
-                            html.writeEnd();
+                        if (s != null) {
+                            html.writeHtml(s.getLabel());
+                            html.writeHtml(" - ");
                         }
+
+                        html.writeHtml(p.getType());
+                        html.writeHtml(")");
                     html.writeEnd();
                 }
             html.writeEnd();

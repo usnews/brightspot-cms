@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +107,87 @@ public class Directory extends Record {
     @Deprecated
     public Predicate itemsPredicate() {
         return itemsPredicate(null);
+    }
+
+    public static class Data extends Modification<Object> {
+
+        private static final Pattern RAW_PATH_PATTERN = Pattern.compile("^(?:([^/]+):)?([^/]+)/([^/]+)$");
+
+        public PathsMode getPathsMode() {
+            return as(Directory.ObjectModification.class).getPathsMode();
+        }
+
+        public void setPathsMode(PathsMode pathsMode) {
+            as(Directory.ObjectModification.class).setPathsMode(pathsMode);
+        }
+
+        /**
+         * Adds the given {@code path} in the given {@code site} with the
+         * given {@code type} to this object.
+         *
+         * @param site May be {@code null}.
+         * @param path If blank, does nothing.
+         * @param type May be {@code null}.
+         */
+        public void addPath(Site site, String path, PathType type) {
+            as(Directory.ObjectModification.class).addSitePath(site, path, type);
+        }
+
+        /**
+         * Clears all paths associated with this object.
+         */
+        public void clearPaths() {
+            as(Directory.ObjectModification.class).getRawPaths().clear();
+        }
+
+        /**
+         * Returns a set of all paths associated with this object.
+         *
+         * @return Never {@code null}.
+         */
+        public Set<Path> getPaths() {
+            Directory.ObjectModification dirData = as(Directory.ObjectModification.class);
+            List<String> rawPaths = dirData.getRawPaths();
+
+            if (ObjectUtils.isBlank(rawPaths)) {
+                return Collections.emptySet();
+            }
+
+            Map<String, PathType> pathTypes = dirData.getPathTypes();
+            Set<Path> paths = new LinkedHashSet<Path>();
+
+            for (String rawPath : rawPaths) {
+                Matcher rawPathMatcher = RAW_PATH_PATTERN.matcher(rawPath);
+
+                if (rawPathMatcher.matches()) {
+                    UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
+                    Directory directory = INSTANCES.get().get(directoryId);
+
+                    if (directory == null) {
+                        directory = Query.
+                                from(Directory.class).
+                                where("_id = ?", directoryId).
+                                first();
+                    }
+
+                    if (directory != null) {
+                        String path = directory.getPath() + rawPathMatcher.group(3);
+                        Site site = Query.
+                                from(Site.class).
+                                where("_id = ?", ObjectUtils.to(UUID.class, rawPathMatcher.group(1))).
+                                first();
+
+                        if (path.endsWith("/index")) {
+                            path = path.substring(0, path.length() - 5);
+                        }
+
+                        paths.add(new Path(site, path, pathTypes.get(rawPath)));
+                    }
+                }
+            }
+
+            return paths;
+        }
     }
 
     /** How the paths should be constructed. */
