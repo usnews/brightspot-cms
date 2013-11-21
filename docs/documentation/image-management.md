@@ -36,7 +36,7 @@ Once uploaded, the new files are moved into Draft status, and can be accessed in
 
 ## Image Editing
 
-With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset. Edits apply to each crop, so each version of a crop can have different image edits.
+With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset.
 
 ![](http://cdn.psddev.com/65/ac/eb22b9f34d7dbc4a169da5770c8c/image-editing-20.54.10%20AM.png)
 
