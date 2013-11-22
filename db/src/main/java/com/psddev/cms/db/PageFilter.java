@@ -631,6 +631,10 @@ public class PageFilter extends AbstractFilter {
 
         } finally {
             Database.Static.restoreDefault();
+
+            if (response instanceof LazyWriterResponse) {
+                ((LazyWriterResponse) response).getLazyWriter().writePending();
+            }
         }
 
         if (Settings.isDebug() || Static.isPreview(request)) {
@@ -669,6 +673,10 @@ public class PageFilter extends AbstractFilter {
                                 "z-index", 1000000));
                 htmlWriter.writeEnd();
             }
+        }
+
+        if (response instanceof LazyWriterResponse) {
+            ((LazyWriterResponse) response).getLazyWriter().writePending();
         }
     }
 
