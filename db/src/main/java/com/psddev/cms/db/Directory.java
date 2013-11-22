@@ -569,20 +569,7 @@ public class Directory extends Record {
         public String getSitePermalink(Site site) {
             for (Path path : getSitePaths(site)) {
                 if (path.getType() == PathType.PERMALINK) {
-                    String pathString = path.getPath();
-
-                    if (site != null) {
-                        return site.getPrimaryUrl() + pathString;
-
-                    } else if (Query.from(Site.class).hasMoreThan(0)) {
-                        String defaultSiteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
-
-                        if (defaultSiteUrl != null) {
-                            return StringUtils.removeEnd(defaultSiteUrl, "/") + pathString;
-                        }
-                    }
-
-                    return pathString;
+                    return site != null ? site.getPrimaryUrl() + path.getPath() : path.getPath();
                 }
             }
             return null;
