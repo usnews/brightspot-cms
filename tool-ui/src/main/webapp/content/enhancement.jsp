@@ -105,7 +105,7 @@ if (object != null && wp.isFormPost()) {
 
 if (object == null) {
     Set<UUID> validTypeIds = new HashSet<UUID>();
-    for (ObjectType type : Database.Static.getDefault().readAll(Query.from(ObjectType.class))) {
+    for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
         if (type.as(ToolUi.class).isReferenceable()) {
             validTypeIds.add(type.getId());
         }
