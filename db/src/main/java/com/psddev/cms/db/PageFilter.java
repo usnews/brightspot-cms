@@ -641,6 +641,13 @@ public class PageFilter extends AbstractFilter {
             return;
         }
 
+        String contentType = response.getContentType();
+
+        if (contentType == null ||
+                !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
+            return;
+        }
+
         Object mainObject = PageFilter.Static.getMainObject(request);
 
         if (mainObject != null && user != null) {
