@@ -17,6 +17,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -27,6 +28,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PeriodicValue;
 import com.psddev.dari.util.PullThroughValue;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 
 /** Group of pages that's regarded as one entity. */
 @ToolUi.IconName("object-site")
@@ -142,10 +144,14 @@ public class Site extends Record {
     }
 
     public String getPrimaryUrl() {
-        if (getUrls().size() > 0) {
-            String url = getUrls().get(0);
-            if (url.endsWith("/")) {
-                url = url.substring(0, url.length() - 1);
+        List<String> urls = getUrls();
+
+        if (!urls.isEmpty()) {
+            String url = urls.get(0);
+
+            if (url != null) {
+                url = Query.from(CmsTool.class).first().addHostSuffix(url);
+                url = StringUtils.removeEnd(url, "/");
             }
 
             return url;

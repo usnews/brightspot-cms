@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +24,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 
 /** Brightspot CMS. */
 @CmsTool.DisplayName("CMS")
@@ -29,6 +32,8 @@ public class CmsTool extends Tool {
 
     private static final String ATTRIBUTE_PREFIX = CmsTool.class.getName() + ".";
     private static final String CSS_WRITTEN = ATTRIBUTE_PREFIX + ".cssWritten";
+
+    private static final Pattern URI_PATTERN = Pattern.compile("(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
 
     private String companyName;
     private StorageItem companyLogo;
@@ -94,6 +99,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
+
+    @ToolUi.Tab("Debug")
+    private String hostSuffix;
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -333,7 +341,9 @@ public class CmsTool extends Tool {
 
     /** Returns the default site URL. */
     public String getDefaultSiteUrl() {
-        return defaultSiteUrl;
+        return defaultSiteUrl != null ?
+                StringUtils.removeEnd(addHostSuffix(defaultSiteUrl), "/") :
+                null;
     }
 
     /** Sets the default site URL. */
@@ -466,6 +476,31 @@ public class CmsTool extends Tool {
 
     public void setDisplayTypesNotAssociatedWithJavaClasses(boolean displayTypesNotAssociatedWithJavaClasses) {
         this.displayTypesNotAssociatedWithJavaClasses = displayTypesNotAssociatedWithJavaClasses;
+    }
+
+    public String getHostSuffix() {
+        return hostSuffix;
+    }
+
+    public void setHostSuffix(String hostSuffix) {
+        this.hostSuffix = hostSuffix;
+    }
+
+    public String addHostSuffix(String url) {
+        String hostSuffix = getHostSuffix();
+
+        if (!ObjectUtils.isBlank(hostSuffix)) {
+            Matcher uriMatcher = URI_PATTERN.matcher(url);
+
+            if (uriMatcher.matches()) {
+                return uriMatcher.group(1) +
+                        uriMatcher.group(3) +
+                        hostSuffix +
+                        uriMatcher.group(5);
+            }
+        }
+
+        return url;
     }
 
     /** Returns the preview URL. */
