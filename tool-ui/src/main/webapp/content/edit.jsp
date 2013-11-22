@@ -811,8 +811,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
     <% } %>
 
     <script type="text/javascript">
-        (function($, window, undefined) {
-            var $form = $('.contentForm'),
+        $(window.document).onCreate('.contentForm', function() {
+            var $form = $(this),
                     updateContentState,
                     updateContentStateThrottled,
                     changed,
@@ -839,8 +839,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     'data': $form.serialize() + $dynamicTexts.map(function() {
                         var $element = $(this);
 
-                        return '&_dynamicText=' +
-                                ($element.attr('data-dynamic-text') ||
+                        return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
+                                '&_dtt=' + ($element.attr('data-dynamic-text') ||
                                 $element.attr('data-dynamic-html') ||
                                 $element.attr('data-dynamic-placeholder') ||
                                 '');
@@ -899,7 +899,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     updateContentState(true, true);
                 }
             });
-        })(jQuery, window);
+        });
     </script>
 
     <script type="text/javascript">

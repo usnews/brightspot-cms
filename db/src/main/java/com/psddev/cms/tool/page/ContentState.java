@@ -24,10 +24,14 @@ import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectToIterable;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
@@ -57,6 +61,7 @@ public class ContentState extends PageServlet {
             state.beginWrites();
             page.updateUsingParameters(object);
             page.updateUsingAllWidgets(object);
+            page.publish(object);
 
         } catch (IOException error) {
             throw error;
@@ -173,14 +178,18 @@ public class ContentState extends PageServlet {
         PageContext pageContext = jspFactory.getPageContext(this, page.getRequest(), page.getResponse(), null, false, 0, false);
 
         try {
-            pageContext.setAttribute("content", object);
-
             ExpressionFactory expressionFactory = jspFactory.getJspApplicationContext(getServletContext()).getExpressionFactory();
             ELContext elContext = pageContext.getELContext();
+            List<UUID> contentIds = page.params(UUID.class, "_dti");
+            int contentIdsSize = contentIds.size();
+            List<String> templates = page.params(String.class, "_dtt");
 
-            for (String dynamicText : page.params(String.class, "_dynamicText")) {
+            for (int i = 0, size = templates.size(); i < size; ++ i) {
                 try {
-                    dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, dynamicText, String.class).getValue(elContext)));
+                    Object content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
+
+                    pageContext.setAttribute("content", content != null ? content : object);
+                    dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext)));
 
                 } catch (RuntimeException error) {
                     if (Settings.isProduction()) {
@@ -206,5 +215,67 @@ public class ContentState extends PageServlet {
 
         response.setContentType("application/json");
         page.write(ObjectUtils.toJson(jsonResponse));
+    }
+
+    private Object findContent(Object object, UUID id) {
+        if (id != null) {
+            State state = State.getInstance(object);
+
+            if (state.getId().equals(id)) {
+                return object;
+            }
+
+            for (Map.Entry<String, Object> entry : state.entrySet()) {
+                String name = entry.getKey();
+                Object value = entry.getValue();
+                ObjectField field = state.getField(name);
+                Object found = findEmbedded(value, id, field != null && field.isEmbedded());
+
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Object findEmbedded(Object value, UUID id, boolean embedded) {
+        if (value != null) {
+            if (value instanceof Recordable) {
+                State valueState = ((Recordable) value).getState();
+
+                if (valueState.isNew()) {
+                    ObjectType type;
+
+                    if (embedded ||
+                            ((type = valueState.getType()) != null &&
+                            type.isEmbedded())) {
+                        Object found = findContent(value, id);
+
+                        if (found != null) {
+                            return found;
+                        }
+                    }
+                }
+
+            } else {
+                Iterable<?> valueIterable = value instanceof Map ?
+                        ((Map<?, ?>) value).values() :
+                        ObjectToIterable.iterable(value);
+
+                if (valueIterable != null) {
+                    for (Object item : valueIterable) {
+                        Object found = findEmbedded(item, id, embedded);
+
+                        if (found != null) {
+                            return found;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
