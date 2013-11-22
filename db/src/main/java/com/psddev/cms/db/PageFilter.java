@@ -585,6 +585,11 @@ public class PageFilter extends AbstractFilter {
                     JspUtils.include(request, response, writer, StringUtils.ensureStart(typePath, "/"));
                 }
 
+                if (!rendered && mainObject instanceof Renderer) {
+                    rendered = true;
+                    ((Renderer) mainObject).renderObject(request, response, (HtmlWriter) writer);
+                }
+
             } finally {
                 if (contextNotBlank) {
                     ContextTag.Static.popContext(request);
