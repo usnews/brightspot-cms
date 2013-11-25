@@ -98,13 +98,13 @@ $.plugin2('objectId', {
                     target = $.data(body, 'objectId-target');
 
             if (target && $(event.target).is('[name="' + target + '"]')) {
-                $.removeData(body, 'objectId-target');
-                $.removeData(body, 'objectId-scrollTop');
-                $body.removeClass('objectEditing');
-
                 $body.animate({
                     'scrollTop': $.data(body, 'objectId-scrollTop')
                 });
+
+                $body.removeClass('objectEditing');
+                $.removeData(body, 'objectId-target');
+                $.removeData(body, 'objectId-scrollTop');
             }
         });
     },
