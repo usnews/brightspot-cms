@@ -93,11 +93,15 @@ $.plugin2('objectId', {
         });
 
         this.$caller.on('close', function(event) {
-            var body = win.document.body,
-                    target = $.data(body, 'objectId-target');
+            var $body = $(win.document.body),
+                    target = $.data($body[0], 'objectId-target');
 
             if (target && $(event.target).is('[name="' + target + '"]')) {
-                $(body).removeClass('objectEditing');
+                $body.removeClass('objectEditing');
+
+                $body.animate({
+                    'scrollTop': $.data($body[0], 'objectId-scrollTop')
+                });
             }
         });
     },
@@ -152,6 +156,7 @@ $.plugin2('objectId', {
                 var $body = $(win.document.body);
 
                 if (!$body.is('.objectEditing')) {
+                    $.data($body[0], 'objectId-scrollTop', $body.scrollTop());
                     $.data($body[0], 'objectId-target', target);
                     $body.addClass('objectEditing');
                 }
