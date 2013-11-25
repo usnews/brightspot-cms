@@ -93,14 +93,17 @@ $.plugin2('objectId', {
         });
 
         this.$caller.on('close', function(event) {
-            var $body = $(win.document.body),
-                    target = $.data($body[0], 'objectId-target');
+            var body = win.document.body,
+                    $body = $(body),
+                    target = $.data(body, 'objectId-target');
 
             if (target && $(event.target).is('[name="' + target + '"]')) {
+                $.removeData(body, 'objectId-target');
+                $.removeData(body, 'objectId-scrollTop');
                 $body.removeClass('objectEditing');
 
                 $body.animate({
-                    'scrollTop': $.data($body[0], 'objectId-scrollTop')
+                    'scrollTop': $.data(body, 'objectId-scrollTop')
                 });
             }
         });
