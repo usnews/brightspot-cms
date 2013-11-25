@@ -57,6 +57,8 @@ expand = function($inputs) {
         var shadow = $.data(this, SHADOW_DATA),
                 $input = $(this);
 
+        $input.css('overflow', 'hidden');
+
         if (shadow.display === 'block') {
             $input.css('height', shadow.height);
 
