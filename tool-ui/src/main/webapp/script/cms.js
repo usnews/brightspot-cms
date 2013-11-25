@@ -608,6 +608,10 @@ $doc.delegate('.exception > *', 'click', function() {
                     elementHeight,
                     alignToTop;
 
+            if ($element.closest('.popup').length > 0) {
+                return;
+            }
+
             if (!initialElementTop) {
                 initialElementTop = elementTop;
                 $element.data('initialElementTop', initialElementTop);
@@ -942,6 +946,10 @@ $doc.onCreate('.widget-publishing', function() {
     }
 
     // Move the widget to the top if within aside section.
+    if ($widget.closest('.popup').length > 0) {
+        return;
+    }
+
     $widget.closest('.contentForm-aside').each(function() {
         var $aside = $(this),
                 asideTop = $aside.offset().top;
@@ -951,7 +959,8 @@ $doc.onCreate('.widget-publishing', function() {
                 'left': $aside.offset().left,
                 'position': 'fixed',
                 'top': asideTop,
-                'width': $widget.width()
+                'width': $widget.width(),
+                'z-index': 1
             });
 
             // Push other areas down.

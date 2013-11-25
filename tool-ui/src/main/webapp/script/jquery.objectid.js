@@ -80,7 +80,7 @@ refresh = function($inputs) {
                 $input.closest('.repeatableObjectId').length === 0 &&
                 !!value));
 
-        $edit.attr('href', CONTEXT_PATH + 'content/objectIdEdit.jsp' +
+        $edit.attr('href', CONTEXT_PATH + 'content/edit.jsp' +
                 '?id=' + (value || '') +
                 '&' + (((/[&?](variationId=[^&]+)/).exec(win.location.search) || [ ])[1] || ''));
     });
@@ -90,6 +90,15 @@ $.plugin2('objectId', {
     '_init': function(selector) {
         this.$caller.on('change.objectId', selector, function() {
             refresh($(this));
+        });
+
+        this.$caller.on('close', function(event) {
+            var body = win.document.body,
+                    target = $.data(body, 'objectId-target');
+
+            if (target && $(event.target).is('[name="' + target + '"]')) {
+                $(body).removeClass('objectEditing');
+            }
         });
     },
 
@@ -138,7 +147,19 @@ $.plugin2('objectId', {
         $edit = $('<a/>', {
             'class': 'objectId-edit',
             'target': target,
-            'text': 'Edit'
+            'text': 'Edit',
+            'click': function() {
+                var $body = $(win.document.body);
+
+                if (!$body.is('.objectEditing')) {
+                    $.data($body[0], 'objectId-target', target);
+                    $body.addClass('objectEditing');
+                }
+
+                $body.animate({
+                    'scrollTop': ($edit.closest('.inputContainer').offset().top - $('.toolHeader:visible').outerHeight(true))
+                });
+            }
         });
 
         $clear = $('<a/>', {

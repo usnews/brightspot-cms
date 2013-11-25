@@ -116,6 +116,7 @@ $.plugin2('popup', {
 
         } else {
             var $container = this.$caller.popup('container');
+            $container.attr('data-popup-source-class', $newSource.prop('class'));
             $container.each(function() {
                 $.data(this, 'popup-$source', $newSource);
             });

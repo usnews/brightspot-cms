@@ -307,8 +307,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
 
         <div class="contentForm-aside">
-            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
-
             <div class="widget widget-publishing">
                 <h1 class="icon icon-action-publish">Publishing</h1>
 
@@ -675,6 +673,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 }
                 %>
             </div>
+
+            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
         </div>
     </form>
 </div>
@@ -927,6 +927,10 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     getUniqueColor,
                     fieldHue = Math.random(),
                     GOLDEN_RATIO = 0.618033988749895;
+
+            if ($edit.closest('.popup').length > 0) {
+                return;
+            }
 
             // Append a link for activating the preview.
             appendPreviewAction = function() {

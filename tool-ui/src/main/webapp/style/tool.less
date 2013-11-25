@@ -231,7 +231,13 @@
     margin: -75px -20px 40px -20px;
     padding: 75px 20px 0 20px;
     position: relative;
+    .transition(opacity 0.4s);
     z-index: 0;
+
+    .objectEditing & {
+        opacity: 0.3;
+        .transform(translateZ(0));
+    }
 }
 
 .toolFooter {
@@ -243,10 +249,16 @@
     position: fixed;
     right: 0;
     text-align: center;
+    .transition(bottom 0.0s linear 0.4s);
     z-index: -1;
 
     img {
         vertical-align: middle;
+    }
+
+    .objectEditing & {
+        bottom: -30px;
+        visibility: hidden;
     }
 }
 
