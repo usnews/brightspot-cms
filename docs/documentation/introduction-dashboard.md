@@ -16,16 +16,16 @@ The default URL for access to Brightspot is *www.yoursitename.com/cms*. Once log
 
 ## Tool Hat / User Profile
 
-The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, including changing your time-zone, logging-out and changing which site you are viewing if using Multisite. You can also enable two factor authentication for login, or notifications for workflow submissions. (Note, notifications need to be enabled)
+The Tools at the top of the screen remain visible on all pages in Brightspot. From here you can access your own user profile settings, including changing your time-zone, logging-out and changing which site you are viewing if using Multisite. You can also enable two factor authentication for login, or notifications for workflow submissions. (Note, notifications need to be enabled). You also have the ability to control the inline editing capabilities of Brightspot on a per user basis.
 
 ![](http://docs.brightspot.s3.amazonaws.com/user-profile.png)
 
 
 ## Search
 
-The search tool can be accessed from any screen in Brightspot. Place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content. From within search you can also create new content, start a work stream, or launch advanced searches.
+The search tool can be accessed from any screen in Brightspot. Place your cursor in the search field to get started. Start typing to see the results change. As a default, all content types are shown in the results set, however with customizable options to filter with, using the filters on the left, you can specify exactly what you are looking for. You can also sort the results order on certain fields, or only display items with missing content. From within search you can also create new content, start a work stream, save a search or launch advanced searches.
 
-![](http://docs.brightspot.s3.amazonaws.com/dashboard_search_2.1.png)
+![](http://docs.brightspot.s3.amazonaws.com/search-tool-close.png)
 
 ### Create New
 
