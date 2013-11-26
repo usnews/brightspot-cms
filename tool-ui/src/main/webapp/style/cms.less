@@ -699,9 +699,11 @@
     position: absolute;
     right: 0;
     top: 0;
+    z-index: 1;
 
     &:hover {
-        color: fade(@color-text, 50%);
+        color: @color-link;
+        text-shadow: 0 0 5px @color-background;
     }
 
     .inputContainer:hover > & {
