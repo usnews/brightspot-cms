@@ -127,21 +127,27 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 if (!isValueExternal) {
-    Set<ObjectType> previewableTypes = new HashSet<ObjectType>();
+    Set<ObjectType> previewTypes = new HashSet<ObjectType>();
+    Set<ObjectType> previewUploadTypes = new HashSet<ObjectType>();
 
     PREVIEWABLE: for (ObjectType t : validTypes) {
         for (ObjectField f : t.getFields()) {
             if (ObjectField.RECORD_TYPE.equals(f.getInternalType())) {
                 for (ObjectType ft : f.getTypes()) {
                     if (ft.getPreviewField() != null) {
-                        previewableTypes.add(ft);
+                        previewTypes.add(t);
+                        previewUploadTypes.add(ft);
                     }
                 }
             }
         }
     }
 
-    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!previewableTypes.isEmpty() ? " repeatableForm-previewable" : ""));
+    if (previewTypes.size() != validTypes.size()) {
+        previewUploadTypes.clear();
+    }
+
+    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!previewUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""));
         wp.writeStart("ol");
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
@@ -172,7 +178,7 @@ if (!isValueExternal) {
 
             for (ObjectType type : validTypes) {
                 wp.writeStart("li",
-                        "class", "template" + (!previewableTypes.isEmpty() ? " collapsed" : ""),
+                        "class", "template" + (!previewUploadTypes.isEmpty() ? " collapsed" : ""),
                         "data-type", wp.getObjectLabel(type));
                     wp.writeStart("a",
                             "href", wp.cmsUrl("/content/repeatableObject.jsp",
@@ -183,10 +189,10 @@ if (!isValueExternal) {
             }
         wp.writeEnd();
 
-        if (!previewableTypes.isEmpty()) {
+        if (!previewUploadTypes.isEmpty()) {
             StringBuilder typeIdsQuery = new StringBuilder();
 
-            for (ObjectType type : previewableTypes) {
+            for (ObjectType type : previewUploadTypes) {
                 typeIdsQuery.append("typeId=").append(type.getId()).append("&");
             }
 
