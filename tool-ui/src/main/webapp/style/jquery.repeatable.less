@@ -126,6 +126,89 @@
             display: none;
         }
     }
+
+    &.repeatableForm-previewable {
+        > ol,
+        > ul {
+            overflow: hidden;
+
+            > li {
+                background: @color-background;
+                .box-sizing(border-box);
+                float: left;
+                margin-right: 1%;
+                width: 24%;
+
+                &:nth-child(4n+1) {
+                    clear: left;
+                }
+
+                > .repeatableLabel {
+                    .box-sizing(border-box);
+                    overflow: hidden;
+                    padding-right: 30px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                > .removeButton {
+                    .icon-only;
+
+                    left: auto;
+                    right: 5px;
+                }
+
+                .inputLabel {
+                    display: block;
+                    float: none;
+                    margin: 0 0 5px 0;
+                    padding: 5px;
+                    width: auto;
+                }
+
+                .inputSmall {
+                    margin-left: 0;
+                    padding-left: 2px;
+                }
+
+                .inputNote {
+                    margin-left: 2px;
+                }
+
+                .objectId-select {
+                    width: 100%;
+                }
+
+                .objectId-edit {
+                    margin-left: 0;
+                }
+
+                &.collapsed {
+                    .inputLabel,
+                    .objectId-clear {
+                        display: none !important;
+                    }
+
+                    .objectId-select {
+                        @img-height: 100px;
+
+                        display: block;
+                        height: (@img-height + 2 * (@input-padding + @input-borderWidth));
+
+                        img {
+                            height: @img-height;
+                        }
+                    }
+                }
+            }
+        }
+
+        > [class^="action-"],
+        > [class*=" action-"] {
+            float: left;
+            margin: 0 10px 0 0;
+        }
+    }
 }
 
 .repeatableForm > ol > li.collapsed > .frame,

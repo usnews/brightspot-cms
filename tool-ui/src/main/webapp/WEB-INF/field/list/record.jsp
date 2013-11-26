@@ -26,6 +26,7 @@ java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
 java.util.HashMap,
+java.util.HashSet,
 java.util.List,
 java.util.Map,
 java.util.Set,
@@ -126,7 +127,21 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 if (!isValueExternal) {
-    wp.writeStart("div", "class", "inputLarge repeatableForm");
+    Set<ObjectType> previewableTypes = new HashSet<ObjectType>();
+
+    PREVIEWABLE: for (ObjectType t : validTypes) {
+        for (ObjectField f : t.getFields()) {
+            if (ObjectField.RECORD_TYPE.equals(f.getInternalType())) {
+                for (ObjectType ft : f.getTypes()) {
+                    if (ft.getPreviewField() != null) {
+                        previewableTypes.add(ft);
+                    }
+                }
+            }
+        }
+    }
+
+    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!previewableTypes.isEmpty() ? " repeatableForm-previewable" : ""));
         wp.writeStart("ol");
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
@@ -157,7 +172,7 @@ if (!isValueExternal) {
 
             for (ObjectType type : validTypes) {
                 wp.writeStart("li",
-                        "class", "template",
+                        "class", "template" + (!previewableTypes.isEmpty() ? " collapsed" : ""),
                         "data-type", wp.getObjectLabel(type));
                     wp.writeStart("a",
                             "href", wp.cmsUrl("/content/repeatableObject.jsp",
@@ -167,6 +182,23 @@ if (!isValueExternal) {
                 wp.writeEnd();
             }
         wp.writeEnd();
+
+        if (!previewableTypes.isEmpty()) {
+            StringBuilder typeIdsQuery = new StringBuilder();
+
+            for (ObjectType type : previewableTypes) {
+                typeIdsQuery.append("typeId=").append(type.getId()).append("&");
+            }
+
+            typeIdsQuery.setLength(typeIdsQuery.length() - 1);
+
+            wp.writeStart("a",
+                    "class", "action-upload",
+                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery),
+                    "target", "uploadFiles");
+                wp.writeHtml("Upload Files");
+            wp.writeEnd();
+        }
     wp.writeEnd();
 
 } else {
