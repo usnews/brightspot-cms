@@ -20,7 +20,7 @@
                 cursor: pointer;
                 font-family: @fontFamily-label;
                 left: 0;
-                margin: 0 -6px 6px -6px;
+                margin: 0 -6px 0 -6px;
                 min-height: 22px;
                 padding: 5px 5px 5px 45px;
                 position: relative;
@@ -56,6 +56,10 @@
                 top: 7px;
             }
 
+            .inputContainer:first-child {
+                margin-top: 6px;
+            }
+
             &.state-focus {
                 border-color: @color-link-lighter;
 
@@ -69,7 +73,6 @@
 
                 > .repeatableLabel {
                     border-bottom-style: none;
-                    margin-bottom: 0;
 
                     &:before {
                         content: '\25ba';
@@ -131,12 +134,12 @@
 }
 .repeatableForm > ol > li.collapsed .message,
 .repeatableForm > ul > li.collapsed .message,
-.repeatableForm > ol > li.collapsed .objectInputs,
-.repeatableForm > ul > li.collapsed .objectInputs,
+.repeatableForm > ol > li.collapsed .inputContainer:not(.inputContainer-expanded),
+.repeatableForm > ul > li.collapsed .inputContainer:not(.inputContainer-expanded),
 .repeatableForm > ol > li.toBeRemoved .message,
 .repeatableForm > ul > li.toBeRemoved .message,
-.repeatableForm > ol > li.toBeRemoved .objectInputs,
-.repeatableForm > ul > li.toBeRemoved .objectInputs {
+.repeatableForm > ol > li.toBeRemoved .inputContainer:not(.inputContainer-expanded),
+.repeatableForm > ul > li.toBeRemoved .inputContainer:not(.inputContainer-expanded) {
     display: none;
 }
 

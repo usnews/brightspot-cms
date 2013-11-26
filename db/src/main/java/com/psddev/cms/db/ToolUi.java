@@ -34,6 +34,7 @@ public class ToolUi extends Modification<Object> {
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
+    private Boolean expanded;
     private Boolean filterable;
     private boolean globalFilter;
     private String heading;
@@ -97,6 +98,33 @@ public class ToolUi extends Modification<Object> {
 
     public void setDropDown(boolean dropDown) {
         this.dropDown = dropDown;
+    }
+
+    public boolean isExpanded() {
+        if (expanded != null) {
+            return expanded;
+
+        } else {
+            Object object = getOriginalObject();
+
+            if (object instanceof ObjectField) {
+                ObjectField field = (ObjectField) object;
+
+                if (ObjectField.RECORD_TYPE.equals(field.getInternalType())) {
+                    for (ObjectType t : field.getTypes()) {
+                        if (t.getPreviewField() != null) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded ? Boolean.TRUE : null;
     }
 
     public Boolean getFilterable() {
@@ -487,6 +515,27 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, DropDown annotation) {
             field.as(ToolUi.class).setDropDown(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should always be expanded in an
+     * embedded display.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(ExpandedProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Expanded {
+
+        boolean value() default true;
+    }
+
+    private static class ExpandedProcessor implements ObjectField.AnnotationProcessor<Expanded> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Expanded annotation) {
+            field.as(ToolUi.class).setExpanded(annotation.value());
         }
     }
 

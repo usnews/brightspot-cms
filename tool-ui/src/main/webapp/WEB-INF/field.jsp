@@ -75,6 +75,10 @@ try {
             wp.write(" inputContainer-readOnly");
         }
 
+        if (ui.isExpanded()) {
+            wp.write(" inputContainer-expanded");
+        }
+
         String cssClass = ui.getCssClass();
 
         if (!ObjectUtils.isBlank(cssClass)) {
