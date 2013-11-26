@@ -8,9 +8,13 @@ section: documentation
 <div markdown="1" class="span8">
 
 
-Once content has been published, you can instantly use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search widget.
+Once content has been published, you can instantly use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search tool.
 
-There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing within the filters.
+There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing using the filters.
+
+**Brightspot 2.3 - Drafts in Search**
+
+New in Brightspot 2.3, you can now view Drafts in search. Toggle the `Show Drafts` flag to hide and show them in the search tool.
 
 ![](http://docs.brightspot.s3.amazonaws.com/search-tool-close.png)
 
@@ -19,6 +23,16 @@ The search is also persistent, and can be reset using the reset link.
 Once content has been accessed using the search tool, the results are still available, allowing an editor to click through results quickly in the content edit screen:
 
 ![](http://docs.brightspot.s3.amazonaws.com/persist-search-2.1.png)
+
+## Saved Searches
+
+Editors can save favorite searches, and load the results at any time. Once you have conducted your search, click 'Save Search' and label it.
+
+![](http://docs.brightspot.s3.amazonaws.com/saved-search-create.png)
+
+Now, in the top right of the global search you have your saved searches. These are on a per user basis and can be accessed from any search tool, either globally or in the content edit view.
+
+![](http://docs.brightspot.s3.amazonaws.com/saved-search-select.png)
 
 ## Color Search
 
