@@ -114,27 +114,27 @@ if (!paths.isEmpty() &&
             String href = pathSite != null ? pathSite.getPrimaryUrl() + path.getPath() : path.getPath();
 
             wp.writeStart("li", "class", "widget-urlsItem");
-                wp.writeStart("div", "class", "widget-urlsItemRemove");
-                    wp.writeTag("input",
-                            "type", "hidden",
-                            "id", wp.createId(),
-                            "name", pathName,
-                            "value", path.getPath());
-
-                    wp.writeTag("input",
-                            "type", "checkbox",
-                            "id", wp.createId(),
-                            "name", removeName + "." + index,
-                            "value", "true");
-
-                    wp.writeStart("label", "for", wp.getId());
-                        wp.writeHtml(" Remove");
-                    wp.writeEnd();
-                wp.writeEnd();
+                wp.writeTag("input",
+                        "type", "hidden",
+                        "id", wp.createId(),
+                        "name", pathName,
+                        "value", path.getPath());
 
                 wp.writeStart("div", "class", "widget-urlsItemLabel");
                     wp.writeStart("a", "href", href, "target", "_blank");
                         wp.writeHtml(path.getPath());
+                    wp.writeEnd();
+
+                    wp.writeStart("label",
+                            "class", "widget-urlsItemRemove");
+                        wp.writeHtml(" ");
+
+                        wp.writeTag("input",
+                                "type", "checkbox",
+                                "name", removeName + "." + index,
+                                "value", "true");
+
+                        wp.writeHtml(" Remove");
                     wp.writeEnd();
                 wp.writeEnd();
 
