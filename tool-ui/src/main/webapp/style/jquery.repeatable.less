@@ -217,13 +217,28 @@
 }
 .repeatableForm > ol > li.collapsed .message,
 .repeatableForm > ul > li.collapsed .message,
-.repeatableForm > ol > li.collapsed .inputContainer:not(.inputContainer-expanded),
-.repeatableForm > ul > li.collapsed .inputContainer:not(.inputContainer-expanded),
+.repeatableForm > ol > li.collapsed .inputContainer,
+.repeatableForm > ul > li.collapsed .inputContainer,
 .repeatableForm > ol > li.toBeRemoved .message,
 .repeatableForm > ul > li.toBeRemoved .message,
-.repeatableForm > ol > li.toBeRemoved .inputContainer:not(.inputContainer-expanded),
-.repeatableForm > ul > li.toBeRemoved .inputContainer:not(.inputContainer-expanded) {
+.repeatableForm > ol > li.toBeRemoved .inputContainer,
+.repeatableForm > ul > li.toBeRemoved .inputContainer {
     display: none;
+}
+
+.repeatableForm {
+    > ol,
+    > ul {
+        > li {
+            &.collapsed,
+            &.toBeRemoved {
+                .inputContainer-bulkUpload,
+                .inputContainer-expanded {
+                    display: block;
+                }
+            }
+        }
+    }
 }
 
 .repeatableInputs {

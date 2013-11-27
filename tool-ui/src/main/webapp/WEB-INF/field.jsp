@@ -75,6 +75,10 @@ try {
             wp.write(" inputContainer-readOnly");
         }
 
+        if (ui.isBulkUpload()) {
+            wp.write(" inputContainer-bulkUpload");
+        }
+
         if (ui.isExpanded()) {
             wp.write(" inputContainer-expanded");
         }

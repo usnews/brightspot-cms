@@ -29,6 +29,7 @@ import com.psddev.dari.util.TypeDefinition;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private Boolean bulkUpload;
     private String codeType;
     private String cssClass;
     private boolean displayFirst;
@@ -59,6 +60,14 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMaximum;
     private Number suggestedMinimum;
     private String tab;
+
+    public boolean isBulkUpload() {
+        return Boolean.TRUE.equals(bulkUpload);
+    }
+
+    public void setBulkUpload(boolean bulkUpload) {
+        this.bulkUpload = bulkUpload ? Boolean.TRUE : null;
+    }
 
     public String getCodeType() {
         return codeType;
@@ -101,26 +110,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     public boolean isExpanded() {
-        if (expanded != null) {
-            return expanded;
-
-        } else {
-            Object object = getOriginalObject();
-
-            if (object instanceof ObjectField) {
-                ObjectField field = (ObjectField) object;
-
-                if (ObjectField.RECORD_TYPE.equals(field.getInternalType())) {
-                    for (ObjectType t : field.getTypes()) {
-                        if (t.getPreviewField() != null) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
-        }
+        return Boolean.TRUE.equals(expanded);
     }
 
     public void setExpanded(boolean expanded) {
@@ -416,6 +406,27 @@ public class ToolUi extends Modification<Object> {
 
     public void setTab(String tab) {
         this.tab = tab;
+    }
+
+    /**
+     * Specifies whether the target field should enable and accept files
+     * from the bulk upload feature.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(BulkUploadProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface BulkUpload {
+
+        boolean value() default true;
+    }
+
+    private static class BulkUploadProcessor implements ObjectField.AnnotationProcessor<BulkUpload> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, BulkUpload annotation) {
+            field.as(ToolUi.class).setBulkUpload(annotation.value());
+        }
     }
 
     /**

@@ -127,27 +127,19 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 // --- Presentation ---
 
 if (!isValueExternal) {
-    Set<ObjectType> previewTypes = new HashSet<ObjectType>();
-    Set<ObjectType> previewUploadTypes = new HashSet<ObjectType>();
+    Set<ObjectType> bulkUploadTypes = new HashSet<ObjectType>();
 
-    PREVIEWABLE: for (ObjectType t : validTypes) {
+    for (ObjectType t : validTypes) {
         for (ObjectField f : t.getFields()) {
-            if (ObjectField.RECORD_TYPE.equals(f.getInternalType())) {
+            if (f.as(ToolUi.class).isBulkUpload()) {
                 for (ObjectType ft : f.getTypes()) {
-                    if (ft.getPreviewField() != null) {
-                        previewTypes.add(t);
-                        previewUploadTypes.add(ft);
-                    }
+                    bulkUploadTypes.add(t);
                 }
             }
         }
     }
 
-    if (previewTypes.size() != validTypes.size()) {
-        previewUploadTypes.clear();
-    }
-
-    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!previewUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""));
+    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!bulkUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""));
         wp.writeStart("ol");
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
@@ -178,7 +170,7 @@ if (!isValueExternal) {
 
             for (ObjectType type : validTypes) {
                 wp.writeStart("li",
-                        "class", "template" + (!previewUploadTypes.isEmpty() ? " collapsed" : ""),
+                        "class", "template" + (!bulkUploadTypes.isEmpty() ? " collapsed" : ""),
                         "data-type", wp.getObjectLabel(type));
                     wp.writeStart("a",
                             "href", wp.cmsUrl("/content/repeatableObject.jsp",
@@ -189,10 +181,10 @@ if (!isValueExternal) {
             }
         wp.writeEnd();
 
-        if (!previewUploadTypes.isEmpty()) {
+        if (!bulkUploadTypes.isEmpty()) {
             StringBuilder typeIdsQuery = new StringBuilder();
 
-            for (ObjectType type : previewUploadTypes) {
+            for (ObjectType type : bulkUploadTypes) {
                 typeIdsQuery.append("typeId=").append(type.getId()).append("&");
             }
 
