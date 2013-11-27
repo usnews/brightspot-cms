@@ -295,6 +295,7 @@ $doc.onCreate('.objectInputs', function() {
             $inputs = $container.find('> .inputContainer'),
             tabItems = { },
             tabs = [ ],
+            $mainTabItems = $inputs,
             $tabs,
             urlMatch;
 
@@ -316,7 +317,8 @@ $doc.onCreate('.objectInputs', function() {
             }
 
             $input.hide();
-            items.push($input);
+            items.push($input[0]);
+            $mainTabItems = $mainTabItems.not($input);
         }
     });
 
@@ -345,19 +347,14 @@ $doc.onCreate('.objectInputs', function() {
         });
 
         $tabs.append($('<li/>', {
-            'class': 'state-selected',
+            'class': 'state-selected' + ($mainTabItems.find('.message-error').length > 0 ? ' state-error' : ''),
             'html': $('<a/>', {
                 'text': 'Main',
                 'click': function() {
                     $(this).trigger('tabs-select');
 
-                    $inputs.show();
-                    $.each(tabs, function(i, tab) {
-                        $.each(tab.items, function(j, $item) {
-                            $item.hide();
-                        });
-                    });
-
+                    $inputs.hide();
+                    $mainTabItems.show();
                     $container.resize();
                     return false;
                 }
@@ -366,16 +363,14 @@ $doc.onCreate('.objectInputs', function() {
 
         $.each(tabs, function(i, tab) {
             $tabs.append($('<li/>', {
+                'class': $(tab.items).find('.message-error').length > 0 ? 'state-error' : '',
                 'html': $('<a/>', {
                     'text': tab.name,
                     'click': function() {
                         $(this).trigger('tabs-select');
 
                         $inputs.hide();
-                        $.each(tab.items, function(i, $item) {
-                            $item.show();
-                        });
-
+                        $(tab.items).show();
                         $container.resize();
                         return false;
                     }
