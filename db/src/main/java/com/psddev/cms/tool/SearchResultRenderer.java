@@ -88,20 +88,30 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        boolean resultsDisplayed = false;
+
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
         if (ObjectUtils.isBlank(search.getQueryString()) &&
                 search.getSelectedType() != null &&
                 search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
-            page.writeStart("div", "class", "searchTaxonomy");
-                page.writeStart("ul", "class", "taxonomy");
-                    for (Taxon t : Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass())) {
-                        writeTaxon(t);
-                    }
-                page.writeEnd();
-            page.writeEnd();
 
-        } else {
+            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+
+            if (!roots.isEmpty()) {
+                resultsDisplayed = true;
+
+                page.writeStart("div", "class", "searchTaxonomy");
+                    page.writeStart("ul", "class", "taxonomy");
+                        for (Taxon root : roots) {
+                            writeTaxon(root);
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+            }
+        }
+
+        if (!resultsDisplayed) {
             if (search.findSorts().size() > 1) {
                 page.writeStart("div", "class", "searchSorter");
                     renderSorter();
