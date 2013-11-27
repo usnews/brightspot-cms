@@ -9,7 +9,6 @@
         > li {
             background-color: rgba(255, 255, 255, 0.5);
             border: 1px solid @color-note-lighter;
-            .border-radius(5px);
             margin-bottom: 6px;
             padding: 0 6px;
             position: relative;
@@ -22,7 +21,7 @@
                 left: 0;
                 margin: 0 -6px 0 -6px;
                 min-height: 22px;
-                padding: 5px 5px 5px 45px;
+                padding: 3px 35px 3px 45px;
                 position: relative;
 
                 &:before {
@@ -48,12 +47,13 @@
             > .removeButton {
                 .icon;
                 .icon-minus-sign;
+                .icon-only;
                 .link;
+
                 color: @color-alert;
-                left: 100%;
-                margin-left: -5.8em;
                 position: absolute;
-                top: 7px;
+                right: 5px;
+                top: 4px;
             }
 
             .inputContainer:first-child {
@@ -304,7 +304,6 @@
         > li {
             background-color: rgba(255, 255, 255, 0.5);
             border: 1px solid @color-note-lighter;
-            .border-radius(5px);
             margin-bottom: 6px;
             padding: 0 6px;
             position: relative;
@@ -317,7 +316,7 @@
                 left: 0;
                 margin: 0 -6px 6px -6px;
                 min-height: 22px;
-                padding: 5px;
+                padding: 3px 5px;
             }
 
             > .layouts {
@@ -327,12 +326,13 @@
             > .removeButton {
                 .icon;
                 .icon-minus-sign;
+                .icon-only;
                 .link;
+
                 color: @color-alert;
-                left: 100%;
-                margin-left: -5.8em;
                 position: absolute;
-                top: 7px;
+                right: 5px;
+                top: 4px;
             }
 
             &.state-focus {
