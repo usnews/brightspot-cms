@@ -34,7 +34,7 @@ List<ReferentialText> fieldValue = (List<ReferentialText>) state.getValue(fieldN
 String inputName = (String) request.getAttribute("inputName");
 
 if ((Boolean) request.getAttribute("isFormPost")) {
-    boolean finalDraft = state.isNew() || state.isVisible()
+    boolean finalDraft = state.isNew() || state.isVisible();
     fieldValue = new ArrayList<ReferentialText>();
 
     for (String newHtml : wp.params(String.class, inputName)) {

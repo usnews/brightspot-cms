@@ -38,7 +38,7 @@ if (fieldValue == null) {
     fieldValue = new LinkedHashSet<Object>();
 }
 
-List<ObjectType> validTypes = new ArrayList<ObjectType>(field.findConcreteTypes());
+List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
 boolean isValueExternal = !field.isEmbedded();
 if (isValueExternal && validTypes != null && validTypes.size() > 0) {
     isValueExternal = false;

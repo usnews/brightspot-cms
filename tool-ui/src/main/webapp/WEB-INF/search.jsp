@@ -68,7 +68,7 @@ Set<ObjectType> validTypes = search.findValidTypes();
 ObjectType selectedType = search.getSelectedType();
 
 if (validTypes.isEmpty()) {
-    validTypes.addAll(ObjectType.getInstance(Content.class).findConcreteTypes());
+    validTypes.addAll(ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes());
 }
 
 String resultTarget = wp.createId();

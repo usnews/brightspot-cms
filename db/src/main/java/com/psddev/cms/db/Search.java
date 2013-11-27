@@ -260,7 +260,7 @@ public class Search extends Record {
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
         for (ObjectType type : getTypes()) {
-            allTypes.addAll(type.findConcreteTypes());
+            allTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
         }
 
         query.and("_type = ?", allTypes);
@@ -341,7 +341,7 @@ public class Search extends Record {
 
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
-            query.sortRelevant(getBoost(), "_type = ?", type.findConcreteTypes());
+            query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
         }
     }
 
@@ -498,7 +498,7 @@ public class Search extends Record {
 
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
-            Set<ObjectType> types = getType().findConcreteTypes();
+            List<ObjectType> types = getType().as(ToolUi.class).findDisplayTypes();
 
             for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
                 String word = i.next();

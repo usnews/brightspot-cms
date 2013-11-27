@@ -20,7 +20,6 @@ java.util.Date,
 java.util.List,
 java.util.HashMap,
 java.util.Map,
-java.util.Set,
 java.util.UUID
 " %><%
 
@@ -36,7 +35,7 @@ Object fieldValue = state.getValue(fieldName);
 boolean fieldValueNew = false;
 
 ObjectType fieldValueType = null;
-Set<ObjectType> validTypes = field.findConcreteTypes();
+List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
 if (validTypes.size() == 1) {
     for (ObjectType type : validTypes) {
         fieldValueType = type;

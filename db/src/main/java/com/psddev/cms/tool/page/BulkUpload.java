@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
@@ -24,7 +25,7 @@ public class BulkUpload extends PageServlet {
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
         boolean hasUploadable = false;
 
-        for (ObjectType t : ObjectType.getInstance(Content.class).findConcreteTypes()) {
+        for (ObjectType t : ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes()) {
             for (ObjectField field : t.getFields()) {
                 if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
                     hasUploadable = true;

@@ -17,6 +17,7 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.MetricInterval;
@@ -63,7 +64,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
-            this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
+            this.showTypeLabel = selectedType.as(ToolUi.class).findDisplayTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
                 List<ObjectType> types = new ArrayList<ObjectType>();

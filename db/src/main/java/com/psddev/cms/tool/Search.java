@@ -302,7 +302,7 @@ public class Search extends Record {
         }
 
         for (ObjectType type : types) {
-            validTypes.addAll(type.findConcreteTypes());
+            validTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
         }
 
         Collections.sort(validTypes);
@@ -520,12 +520,12 @@ public class Search extends Record {
 
                     if (!ObjectUtils.isBlank(name) &&
                             q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
-                        query.sortRelevant(20.0, "_type = ?", t.findConcreteTypes());
+                        query.sortRelevant(20.0, "_type = ?", t.as(ToolUi.class).findDisplayTypes());
                     }
                 }
             }
 
-            query.sortRelevant(10.0, "_type = ?", environment.getTypeByClass(Singleton.class).findConcreteTypes());
+            query.sortRelevant(10.0, "_type = ?", environment.getTypeByClass(Singleton.class).as(ToolUi.class).findDisplayTypes());
         }
 
         String additionalPredicate = getAdditionalPredicate();

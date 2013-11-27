@@ -7,6 +7,7 @@ com.psddev.cms.db.ScriptSection,
 com.psddev.cms.db.Section,
 com.psddev.cms.db.VerticalContainerSection,
 com.psddev.cms.db.Template,
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectType,
@@ -57,7 +58,7 @@ if (wp.tryStandardUpdate(selected)) {
 
             <h2>Shareable Sections</h2>
             <ul class="links">
-                <% for (ObjectType type : ObjectType.getInstance(Section.class).findConcreteTypes()) { %>
+                <% for (ObjectType type : ObjectType.getInstance(Section.class).as(ToolUi.class).findDisplayTypes()) { %>
                     <li class="new<%= type.equals(selectedState.getType()) && selectedState.isNew() ? " selected" : "" %>">
                         <a href="<%= wp.typeUrl(null, type.getId()) %>">New <%= wp.h(type.getLabel()) %></a>
                     </li>
