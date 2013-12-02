@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Directory,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
@@ -30,7 +31,9 @@ String removeId = wp.createId();
         public void renderBeforeItem(Object item) throws IOException {
             writer.start("span",
                     "class", "link",
-                    "data-permalink", State.getInstance(item).as(Directory.ObjectModification.class).getPermalink());
+                    "data-permalink", item instanceof Content ?
+                            ((Content) item).getPermalink() :
+                            State.getInstance(item).as(Directory.ObjectModification.class).getPermalink());
         }
 
         @Override

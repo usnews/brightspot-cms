@@ -95,6 +95,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
 
+    @ToolUi.Tab("RTE")
+    private boolean legacyHtml;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -466,6 +469,14 @@ public class CmsTool extends Tool {
 
     public void setDisplayTypesNotAssociatedWithJavaClasses(boolean displayTypesNotAssociatedWithJavaClasses) {
         this.displayTypesNotAssociatedWithJavaClasses = displayTypesNotAssociatedWithJavaClasses;
+    }
+
+    public boolean isLegacyHtml() {
+        return legacyHtml;
+    }
+
+    public void setLegacyHtml(boolean legacyHtml) {
+        this.legacyHtml = legacyHtml;
     }
 
     /** Returns the preview URL. */
