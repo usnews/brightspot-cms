@@ -189,7 +189,12 @@ public class ToolPageContext extends WebPageContext {
         return Static.getTypeLabel(object);
     }
 
-    /** Returns {@code true} is the given {@code object} is previewable. */
+    /**
+     * Returns {@code true} is the given {@code object} is previewable.
+     *
+     * @param object If {@code null}, always returns {@code false}.
+     */
+    @SuppressWarnings("deprecation")
     public boolean isPreviewable(Object object) {
         if (object != null) {
             if (object instanceof Page &&
@@ -201,8 +206,15 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = state.getType();
 
                 if (type != null) {
-                    return Template.Static.findUsedTypes(getSite()).contains(type) ||
-                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getPath());
+                    if (Template.Static.findUsedTypes(getSite()).contains(type)) {
+                        return true;
+
+                    } else {
+                        Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
+
+                        return !ObjectUtils.isBlank(rendererData.getPath()) ||
+                                !ObjectUtils.isBlank(rendererData.getPaths());
+                    }
                 }
             }
         }
