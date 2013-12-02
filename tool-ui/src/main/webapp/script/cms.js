@@ -1022,35 +1022,6 @@ $doc.ready(function() {
         }));
     }());
 
-    // Update repeatable labels as the user edits the related sections.
-    $('.contentForm .repeatableForm').delegate(':input, textarea', 'change input', $.throttle(1000, function() {
-        var $container = $(this).closest('li'),
-                inputs = '_=' + (+new Date()),
-                id;
-
-        $container.find(':input:not([disabled])').each(function() {
-            var $input = $(this);
-            inputs += '&' + encodeURIComponent($input.attr('name')) + '=' + encodeURIComponent($input.val());
-        });
-
-        if ($container.data('repeatableLabels-lastInputs') !== inputs) {
-            $container.data('repeatableLabels-lastInputs', inputs);
-
-            id = $container.find('> :hidden[name$=".id"]').val();
-            inputs += '&id=' + id;
-            inputs += '&typeId=' + $container.find('> :hidden[name$=".typeId"]').val();
-
-            $.ajax({
-                'data': inputs,
-                'type': 'post',
-                'url': CONTEXT_PATH + 'content/repeatableLabels.jsp',
-                'complete': function(request) {
-                    $container.find('> .inputLabel').text($container.attr('data-type') + ': ' + $.parseJSON(request.responseText)[id]);
-                }
-            });
-        }
-    }));
-
     // Create tabs if the publishing widget contains both the workflow
     // and the publish areas.
     (function() {
