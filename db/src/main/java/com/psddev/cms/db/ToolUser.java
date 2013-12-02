@@ -39,8 +39,11 @@ public class ToolUser extends Record implements ToolEntity {
     private String name;
 
     @Indexed(unique = true)
-    @Required
     private String email;
+
+    @Indexed(unique = true)
+    @ToolUi.Placeholder(dynamicText = "${content.email}")
+    private String username;
 
     @ToolUi.FieldDisplayType("password")
     private String password;
@@ -123,6 +126,14 @@ public class ToolUser extends Record implements ToolEntity {
     /** Sets the email. */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /** Returns the password. */
@@ -527,6 +538,22 @@ public class ToolUser extends Record implements ToolEntity {
     public boolean hasPermission(String permissionId) {
         ToolRole role = getRole();
         return role != null ? role.hasPermission(permissionId) : true;
+    }
+
+    @Override
+    protected void beforeSave() {
+        String email = getEmail();
+        String username = getUsername();
+
+        if (ObjectUtils.isBlank(email)) {
+            if (ObjectUtils.isBlank(username)) {
+                throw new IllegalArgumentException("Email or username is required!");
+
+            } else if (username.contains("@")) {
+                setEmail(username);
+                setUsername(null);
+            }
+        }
     }
 
     @Override
