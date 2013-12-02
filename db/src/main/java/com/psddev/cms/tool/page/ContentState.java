@@ -186,9 +186,7 @@ public class ContentState extends PageServlet {
 
             for (int i = 0, size = templates.size(); i < size; ++ i) {
                 try {
-                    Object content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
-
-                    pageContext.setAttribute("content", content != null ? content : object);
+                    pageContext.setAttribute("content", i < contentIdsSize ? findContent(object, contentIds.get(i)) : null);
                     dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext)));
 
                 } catch (RuntimeException error) {
