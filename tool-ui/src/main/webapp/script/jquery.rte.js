@@ -1467,9 +1467,9 @@ $.plugin2('rte', {
         'marker': createMarker,
         'style': false,
         'toolbar': createToolbar,
-        'useLineBreaks': true,
+        'useLineBreaks': !RTE_LEGACY_HTML,
 
-        'parserRules': {
+        'parserRules': RTE_LEGACY_HTML ? { } : {
             'tags': {
                 'font': { 'rename_tag': 'span' },
                 'script': { 'remove': true },

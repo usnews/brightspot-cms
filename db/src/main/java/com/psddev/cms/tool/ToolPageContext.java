@@ -1283,6 +1283,7 @@ public class ToolPageContext extends WebPageContext {
             write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
             write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
+            write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
