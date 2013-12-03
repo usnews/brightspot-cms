@@ -98,6 +98,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("RTE")
     private boolean legacyHtml;
 
+    @ToolUi.Tab("RTE")
+    private boolean enableAnnotations;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -477,6 +480,14 @@ public class CmsTool extends Tool {
 
     public void setLegacyHtml(boolean legacyHtml) {
         this.legacyHtml = legacyHtml;
+    }
+
+    public boolean isEnableAnnotations() {
+        return enableAnnotations;
+    }
+
+    public void setEnableAnnotations(boolean enableAnnotations) {
+        this.enableAnnotations = enableAnnotations;
     }
 
     /** Returns the preview URL. */
