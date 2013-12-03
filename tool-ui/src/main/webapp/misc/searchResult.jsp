@@ -40,6 +40,14 @@ if (!wp.param(boolean.class, "widget")) {
 
     wp.writeStart("div", "class", "buttons");
         wp.writeStart("a",
+                "class", "button icon icon-action-search",
+                "target", "toolUserSaveSearch",
+                "href", wp.cmsUrl("/toolUserSaveSearch",
+                        "search", wp.url("", Search.NAME_PARAMETER, null)));
+            wp.writeHtml("Save Search");
+        wp.writeEnd();
+
+        wp.writeStart("a",
                 "class", "button icon icon-object-workStream",
                 "href", wp.cmsUrl("/content/newWorkStream.jsp",
                         "search", ObjectUtils.toJson(search.getState().getSimpleValues()),

@@ -17,6 +17,7 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.MetricInterval;
@@ -64,7 +65,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
-            this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
+            this.showTypeLabel = selectedType.as(ToolUi.class).findDisplayTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
                 List<ObjectType> types = new ArrayList<ObjectType>();
@@ -89,20 +90,30 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        boolean resultsDisplayed = false;
+
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
         if (ObjectUtils.isBlank(search.getQueryString()) &&
                 search.getSelectedType() != null &&
                 search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
-            page.writeStart("div", "class", "searchTaxonomy");
-                page.writeStart("ul", "class", "taxonomy");
-                    for (Taxon t : Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass())) {
-                        writeTaxon(t);
-                    }
-                page.writeEnd();
-            page.writeEnd();
 
-        } else {
+            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+
+            if (!roots.isEmpty()) {
+                resultsDisplayed = true;
+
+                page.writeStart("div", "class", "searchTaxonomy");
+                    page.writeStart("ul", "class", "taxonomy");
+                        for (Taxon root : roots) {
+                            writeTaxon(root);
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+            }
+        }
+
+        if (!resultsDisplayed) {
             if (search.findSorts().size() > 1) {
                 page.writeStart("div", "class", "searchSorter");
                     renderSorter();

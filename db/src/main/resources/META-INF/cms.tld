@@ -25,6 +25,24 @@
     </tag>
 
     <tag>
+        <name>attr</name>
+        <tag-class>com.psddev.dari.util.AttributeTag</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <name>name</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+
+        <attribute>
+            <name>value</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>cache</name>
         <tag-class>com.psddev.cms.db.CacheTag</tag-class>
         <body-content>JSP</body-content>
@@ -111,6 +129,7 @@
         <name>frame</name>
         <tag-class>com.psddev.dari.util.FrameTag</tag-class>
         <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
         <attribute>
             <name>name</name>
             <rtexprvalue>true</rtexprvalue>
@@ -191,6 +210,12 @@
     </tag>
 
     <tag>
+        <name>local</name>
+        <tag-class>com.psddev.dari.util.LocalTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
         <name>render</name>
         <tag-class>com.psddev.cms.db.RenderTag</tag-class>
         <body-content>JSP</body-content>
@@ -221,6 +246,14 @@
         </attribute>
         <attribute>
             <name>endOffset</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>marker</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>offset</name>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -268,6 +301,14 @@
     </function>
 
     <function>
+        <name>markerCount</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            int markerCount(com.psddev.dari.db.ReferentialText, java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
         <name>plainResource</name>
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>
@@ -288,6 +329,30 @@
         <function-class>com.psddev.cms.db.PageFilter</function-class>
         <function-signature>
             java.lang.String getResource(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>absolutePath</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder absolutePath(java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <name>currentPath</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder currentPath()
+        </function-signature>
+    </function>
+
+    <function>
+        <name>path</name>
+        <function-class>com.psddev.cms.db.ElFunctionUtils</function-class>
+        <function-signature>
+            com.psddev.dari.util.UrlBuilder path(java.lang.String)
         </function-signature>
     </function>
 </taglib>

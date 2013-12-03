@@ -11,6 +11,7 @@ com.psddev.dari.db.Application,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.db.WebResourceOverride,
 
 java.util.Arrays,
 java.util.List
@@ -84,6 +85,21 @@ List<StandardImageSize> standardImageSizes = Query.from(StandardImageSize.class)
                         select()) { %>
                     <li<%= marker.equals(selected) ? " class=\"selected\"" : "" %>>
                         <a href="<%= wp.objectUrl(null, marker) %>"><%= wp.objectLabel(marker) %></a>
+                    </li>
+                <% } %>
+            </ul>
+
+            <h2>Web Resource Overrides</h2>
+            <ul class="links">
+                <li class="new<%= selected instanceof WebResourceOverride && selectedState.isNew() ? " selected" : "" %>">
+                    <a href="<%= wp.typeUrl(null, WebResourceOverride.class) %>">New Web Resource Override</a>
+                </li>
+                <% for (WebResourceOverride override : Query.
+                        from(WebResourceOverride.class).
+                        sortAscending("path").
+                        selectAll()) { %>
+                    <li<%= override.equals(selected) ? " class=\"selected\"" : "" %>>
+                        <a href="<%= wp.objectUrl(null, override) %>"><%= wp.objectLabel(override) %></a>
                     </li>
                 <% } %>
             </ul>

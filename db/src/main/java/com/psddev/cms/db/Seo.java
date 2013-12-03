@@ -135,7 +135,9 @@ public final class Seo {
     @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class ObjectModification extends Modification<Object> {
 
+        @ToolUi.Placeholder(dynamicText = "${content.label}", editable = true)
         private String title;
+
         private String description;
         private Set<String> keywords;
 
@@ -281,7 +283,7 @@ public final class Seo {
             Set<String> keywords = new LinkedHashSet<String>() {
                 @Override
                 public String toString() {
-                    return Joiner.on(',').join(this);
+                    return Joiner.on(',').skipNulls().join(this);
                 }
             };
 

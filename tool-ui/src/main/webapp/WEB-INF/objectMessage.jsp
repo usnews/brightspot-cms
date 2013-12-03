@@ -38,9 +38,16 @@ if (deleted != null) {
 Date published = wp.dateParam("published");
 if (published != null) {
     wp.write("<div class=\"message message-success\"><p>");
-    wp.write("Published ", published);
+    wp.write("Published ");
+    wp.writeHtml(wp.formatUserDateTime(published));
     wp.write(".</p>");
     wp.write("</div>");
+
+    wp.writeStart("script", "type", "text/javascript");
+        wp.writeRaw("if ($('.cms-inlineEditor', window.parent.document.body).length > 0) {");
+            wp.writeRaw("window.parent.location.reload();");
+        wp.writeRaw("}");
+    wp.writeEnd();
     return;
 }
 

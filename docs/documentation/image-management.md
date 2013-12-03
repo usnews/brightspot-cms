@@ -20,7 +20,7 @@ Once clicked you will see an 'Empty Enhancement' in your content. Click the Edit
 
 ![](http://cdn.psddev.com/e1/da/ecc133814354b5ce060030a05a3e/adding-an-enhancement-20.49.37%20AM.png)
 
-You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image name in a grey box. Clicking publish on the content will show the actual image inline.
+You can search for an image already in the CMS, or upload a new one. Click on an image to select, then scroll down to save. Close your enhancement window, you should now see the enhancement area populated with your image. *Note: Inline preview of images was added in Brightspot 2.2*
 
 Once an enhancement has been added, you can use the same menu to position it within your content. The arrows offer alignment options, and also allow you to shift the enhancement above blocks of text. To try this out move your image to the very top of the article using the up arrow.
 
@@ -36,7 +36,7 @@ Once uploaded, the new files are moved into Draft status, and can be accessed in
 
 ## Image Editing
 
-With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset. Edits apply to each crop, so each version of a crop can have different image edits.
+With every image object, you have the ability to apply numerous advanced edits. Brightness, contrast and filters can be chosen, as well as orientation changed. Any changes made can be reset.
 
 ![](http://cdn.psddev.com/65/ac/eb22b9f34d7dbc4a169da5770c8c/image-editing-20.54.10%20AM.png)
 
@@ -53,6 +53,14 @@ Predefined crop sizes are found to the right of an image. These are grouped by a
 New crop sizes are added by a developer through the Standard Image size option, in Admin > Settings. The name appears for editors, and the internal name and dimensions are added and referenced in the object JSP where the crop is being used. For more information on setting up new crops, see the [Image documentation](/image-cropping.html).
 
 ![](http://docs.brightspot.s3.amazonaws.com/standard-image-size.png)
+
+## Image Sizes
+
+For each crop size that is specified, a single image file is generated. Click View Resized and select the crop to grab a version of an image based on the crop.
+
+
+![](http://docs.brightspot.s3.amazonaws.com/view-resized-images-2.2.png)
+
 </div>
 <div class="span4 dari-docs-sidebar">
 <div markdown="1" style="position:scroll;" class="well sidebar-nav">

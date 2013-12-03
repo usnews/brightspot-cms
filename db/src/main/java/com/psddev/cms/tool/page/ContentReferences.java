@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
@@ -28,8 +29,9 @@ public class ContentReferences extends PageServlet {
         UUID id = page.param(UUID.class, "id");
         Query<Object> query = Query.
                 fromGroup(Content.SEARCHABLE_GROUP).
-                where("* matches ?", id).
-                and("id != ?", id);
+                and("* matches ?", id).
+                and("_type != ?", Draft.class).
+                and("_id != ?", id);
         PaginatedResult<Object> result = query.select(0L, 10);
 
         if (result.getItems().isEmpty()) {

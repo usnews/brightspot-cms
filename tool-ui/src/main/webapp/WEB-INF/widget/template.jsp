@@ -33,6 +33,10 @@ if (JspWidget.isUpdating(wp)) {
 
 List<Template> usableTemplates = Template.Static.findUsable(object);
 
+if (usableTemplates.isEmpty()) {
+    return;
+}
+
 Template objectTemplate = objectTemplateMod.getDefault();
 if (objectTemplate == null && usableTemplates.size() == 1) {
     objectTemplate = usableTemplates.get(0);

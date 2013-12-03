@@ -21,11 +21,13 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
+@ToolRole.BootstrapPackages("Users and Roles")
 public class ToolUser extends Record implements ToolEntity {
 
     @Indexed
@@ -37,8 +39,11 @@ public class ToolUser extends Record implements ToolEntity {
     private String name;
 
     @Indexed(unique = true)
-    @Required
     private String email;
+
+    @Indexed(unique = true)
+    @ToolUi.Placeholder(dynamicText = "${content.email}")
+    private String username;
 
     @ToolUi.FieldDisplayType("password")
     private String password;
@@ -81,6 +86,18 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Set<String> contentLocks;
 
+    @ToolUi.Hidden
+    private Set<UUID> automaticallySavedDraftIds;
+
+    @ToolUi.Hidden
+    private boolean external;
+
+    @ToolUi.Hidden
+    private Map<String, String> savedSearches;
+
+    @ToolUi.Placeholder("All Contents")
+    private InlineEditing inlineEditing;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -109,6 +126,14 @@ public class ToolUser extends Record implements ToolEntity {
     /** Sets the email. */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /** Returns the password. */
@@ -468,6 +493,44 @@ public class ToolUser extends Record implements ToolEntity {
         }
     }
 
+    public Set<UUID> getAutomaticallySavedDraftIds() {
+        if (automaticallySavedDraftIds == null) {
+            automaticallySavedDraftIds = new LinkedHashSet<UUID>();
+        }
+        return automaticallySavedDraftIds;
+    }
+
+    public void setAutomaticallySavedDraftIds(Set<UUID> draftIds) {
+        this.automaticallySavedDraftIds = draftIds;
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(boolean external) {
+        this.external = external;
+    }
+
+    public Map<String, String> getSavedSearches() {
+        if (savedSearches == null) {
+            savedSearches = new CompactMap<String, String>();
+        }
+        return savedSearches;
+    }
+
+    public void setSavedSearches(Map<String, String> savedSearches) {
+        this.savedSearches = savedSearches;
+    }
+
+    public InlineEditing getInlineEditing() {
+        return inlineEditing;
+    }
+
+    public void setInlineEditing(InlineEditing inlineEditing) {
+        this.inlineEditing = inlineEditing;
+    }
+
     /**
      * Returns {@code true} if this user is allowed access to the
      * resources identified by the given {@code permissionId}.
@@ -475,6 +538,22 @@ public class ToolUser extends Record implements ToolEntity {
     public boolean hasPermission(String permissionId) {
         ToolRole role = getRole();
         return role != null ? role.hasPermission(permissionId) : true;
+    }
+
+    @Override
+    protected void beforeSave() {
+        String email = getEmail();
+        String username = getUsername();
+
+        if (ObjectUtils.isBlank(email)) {
+            if (ObjectUtils.isBlank(username)) {
+                throw new IllegalArgumentException("Email or username is required!");
+
+            } else if (username.contains("@")) {
+                setEmail(username);
+                setUsername(null);
+            }
+        }
     }
 
     @Override
@@ -490,6 +569,23 @@ public class ToolUser extends Record implements ToolEntity {
         public static ToolUser getByTotpToken(String totpToken) {
             ToolUser user = Query.from(ToolUser.class).where("totpToken = ?", totpToken).first();
             return user != null && user.totpTokenTime + 60000 > System.currentTimeMillis() ? user : null;
+        }
+    }
+
+    public enum InlineEditing {
+
+        ONLY_MAIN_CONTENT("Only Main Content"),
+        DISABLED("Disabled");
+
+        private final String label;
+
+        private InlineEditing(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 }

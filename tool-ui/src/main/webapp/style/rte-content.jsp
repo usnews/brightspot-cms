@@ -142,9 +142,13 @@ writer.start("html");
                     "border-collapse", "collapse",
                     "border-spacing", 0);
 
-            writer.css("table td",
+            writer.css("table td, table th",
                     "border", "1px solid #bbb",
                     "padding", "2px 5px");
+
+            writer.css("table th",
+                    "background", "#ddd",
+                    "text-align", "left");
 
             writer.css("u",
                     "text-decoration", "underline");
@@ -161,6 +165,9 @@ writer.start("html");
             writer.css(".enhancement",
                     "background", "transparent",
                     "border", "none",
+                    "-moz-box-sizing", "content-box",
+                    "-webkit-box-sizing", "content-box",
+                    "box-sizing", "content-box",
                     "display", "block",
                     "height", "72px",
                     "margin", "0 0 1em 0",

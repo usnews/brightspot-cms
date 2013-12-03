@@ -58,7 +58,7 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
             // Make sure there's only one producing output at [R].
             Output o = OUTPUT_CACHE.putIfAbsent(key, output);
             if (o == null) {
-                LOGGER.info("Producing [{}] in [{}]", key, Thread.currentThread());
+                LOGGER.debug("Producing [{}] in [{}]", key, Thread.currentThread());
                 return EVAL_BODY_BUFFERED;
             }
             
@@ -73,7 +73,7 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
             output.body = body;
             output.lastProduced = System.currentTimeMillis();
             output.notifyAll();
-            LOGGER.info("Produced [{}] at [{}]", output.key, output.lastProduced);
+            LOGGER.debug("Produced [{}] at [{}]", output.key, output.lastProduced);
         }
     }
 
@@ -92,7 +92,7 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
             try {
                 synchronized (output) {
                     while (output.lastProduced == Output.PRODUCING) {
-                        LOGGER.info("Waiting for production of [{}] in [{}]", output.key, Thread.currentThread());
+                        LOGGER.debug("Waiting for production of [{}] in [{}]", output.key, Thread.currentThread());
                         output.wait(1000);
                     }
                 }

@@ -6,21 +6,25 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.page.ContentRevisions;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
 
 /** Brightspot CMS. */
+@CmsTool.DisplayName("CMS")
 public class CmsTool extends Tool {
 
     private static final String ATTRIBUTE_PREFIX = CmsTool.class.getName() + ".";
@@ -29,37 +33,70 @@ public class CmsTool extends Tool {
     private String companyName;
     private StorageItem companyLogo;
     private String environment;
+
+    @ToolUi.Tab("Defaults")
     private ToolRole defaultRole;
+
+    @ToolUi.Tab("Debug")
     private Set<String> disabledPlugins;
     private String broadcastMessage;
     private Date broadcastExpiration;
 
     @ToolUi.Note("Check this to force the generated permalink to replace the existing URLs. This is useful before the site is live when the URL structure is still in flux.")
+    @ToolUi.Tab("Debug")
     private boolean singleGeneratedPermalink;
 
     @ToolUi.CodeType("text/css")
+    @ToolUi.Tab("Debug")
     private String extraCss;
 
     @ToolUi.CodeType("text/javascript")
+    @ToolUi.Tab("Debug")
     private String extraJavaScript;
 
+    @ToolUi.Tab("Defaults")
     private String defaultSiteUrl;
+
+    @ToolUi.Tab("Defaults")
     private String defaultToolUrl;
 
+    @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
 
+    @ToolUi.Tab("RTE")
     private List<CssClassGroup> textCssClassGroups;
+
+    @ToolUi.Tab("Dashboard")
     private List<ResourceItem> resources;
 
+    @Deprecated
     @Embedded
     private Template modulePreviewTemplate;
 
-    @ToolUi.Heading("3rd Party")
+    @ToolUi.Tab("Integrations")
     private String dropboxApplicationKey;
 
+    @ToolUi.Tab("Dashboard")
+    private CommonContentSettings commonContentSettings;
+
+    @ToolUi.Tab("Dashboard")
+    private BulkUploadSettings bulkUploadSettings;
+
     @ToolUi.Tab("Debug")
-    private boolean useNonMinified;
+    private boolean useNonMinifiedCss;
+
+    @ToolUi.Tab("Debug")
+    private boolean useNonMinifiedJavaScript;
+
+    @ToolUi.Tab("Debug")
+    private boolean disableAutomaticallySavingDrafts;
+
+    @ToolUi.Tab("Debug")
+    private boolean displayTypesNotAssociatedWithJavaClasses;
+
+    @ToolUi.Tab("RTE")
+    private boolean legacyHtml;
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -361,12 +398,85 @@ public class CmsTool extends Tool {
         this.dropboxApplicationKey = dropboxApplicationKey;
     }
 
-    public boolean isUseNonMinified() {
-        return useNonMinified;
+    public CommonContentSettings getCommonContentSettings() {
+        if (commonContentSettings == null) {
+            commonContentSettings = new CommonContentSettings();
+        }
+        return commonContentSettings;
     }
 
+    public void setCommonContentSettings(CommonContentSettings commonContentSettings) {
+        this.commonContentSettings = commonContentSettings;
+    }
+
+    public BulkUploadSettings getBulkUploadSettings() {
+        if (bulkUploadSettings == null) {
+            bulkUploadSettings = new BulkUploadSettings();
+        }
+        return bulkUploadSettings;
+    }
+
+    public void setBulkUploadSettings(BulkUploadSettings bulkUploadSettings) {
+        this.bulkUploadSettings = bulkUploadSettings;
+    }
+
+    public boolean isUseNonMinifiedCss() {
+        return useNonMinifiedCss;
+    }
+
+    public void setUseNonMinifiedCss(boolean useNonMinifiedCss) {
+        this.useNonMinifiedCss = useNonMinifiedCss;
+    }
+
+    public boolean isUseNonMinifiedJavaScript() {
+        return useNonMinifiedJavaScript;
+    }
+
+    public void setUseNonMinifiedJavaScript(boolean useNonMinifiedJavaScript) {
+        this.useNonMinifiedJavaScript = useNonMinifiedJavaScript;
+    }
+
+    /**
+     * @deprecated Use {@link #isUseNonMinifiedCss} or {@link #isUseNonMinifiedJavaScript} instead.
+     */
+    @Deprecated
+    public boolean isUseNonMinified() {
+        return isUseNonMinifiedCss() &&
+                isUseNonMinifiedJavaScript();
+    }
+
+    /**
+     * @deprecated Use {@link #setUseNonMinifiedCss} or {@link #setUseNonMinifiedJavaScript} instead.
+     */
+    @Deprecated
     public void setUseNonMinified(boolean useNonMinified) {
-        this.useNonMinified = useNonMinified;
+        setUseNonMinifiedCss(useNonMinified);
+        setUseNonMinifiedJavaScript(useNonMinified);
+    }
+
+    public boolean isDisableAutomaticallySavingDrafts() {
+        return true;
+        // return disableAutomaticallySavingDrafts;
+    }
+
+    public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
+        this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isDisplayTypesNotAssociatedWithJavaClasses() {
+        return displayTypesNotAssociatedWithJavaClasses;
+    }
+
+    public void setDisplayTypesNotAssociatedWithJavaClasses(boolean displayTypesNotAssociatedWithJavaClasses) {
+        this.displayTypesNotAssociatedWithJavaClasses = displayTypesNotAssociatedWithJavaClasses;
+    }
+
+    public boolean isLegacyHtml() {
+        return legacyHtml;
+    }
+
+    public void setLegacyHtml(boolean legacyHtml) {
+        this.legacyHtml = legacyHtml;
     }
 
     /** Returns the preview URL. */
@@ -534,6 +644,49 @@ public class CmsTool extends Tool {
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;
+        }
+    }
+
+    @Embedded
+    public static class CommonContentSettings extends Record {
+
+        private Set<ObjectType> createNewTypes;
+        private Set<Content> editExistingContents;
+
+        public Set<ObjectType> getCreateNewTypes() {
+            if (createNewTypes == null) {
+                createNewTypes = new LinkedHashSet<ObjectType>();
+            }
+            return createNewTypes;
+        }
+
+        public void setCreateNewTypes(Set<ObjectType> createNewTypes) {
+            this.createNewTypes = createNewTypes;
+        }
+
+        public Set<Content> getEditExistingContents() {
+            if (editExistingContents == null) {
+                editExistingContents = new LinkedHashSet<Content>();
+            }
+            return editExistingContents;
+        }
+
+        public void setEditExistingContents(Set<Content> editExistingContents) {
+            this.editExistingContents = editExistingContents;
+        }
+    }
+
+    @Embedded
+    public static class BulkUploadSettings extends Record {
+
+        private ObjectType defaultType;
+
+        public ObjectType getDefaultType() {
+            return defaultType;
+        }
+
+        public void setDefaultType(ObjectType defaultType) {
+            this.defaultType = defaultType;
         }
     }
 }

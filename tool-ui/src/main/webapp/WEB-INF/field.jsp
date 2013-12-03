@@ -74,6 +74,22 @@ try {
         if (isReadOnly) {
             wp.write(" inputContainer-readOnly");
         }
+
+        if (ui.isBulkUpload()) {
+            wp.write(" inputContainer-bulkUpload");
+        }
+
+        if (ui.isExpanded()) {
+            wp.write(" inputContainer-expanded");
+        }
+
+        String cssClass = ui.getCssClass();
+
+        if (!ObjectUtils.isBlank(cssClass)) {
+            wp.write(" ");
+            wp.write(cssClass);
+        }
+
         wp.write("\" data-field=\"");
         wp.write(wp.h(fieldPrefix + fieldName));
         wp.write("\" data-name=\"");

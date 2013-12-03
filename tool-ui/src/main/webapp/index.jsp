@@ -43,6 +43,7 @@ wp.include("/WEB-INF/header.jsp");
 HtmlWriter writer = new HtmlWriter(out);
 List<List<Widget>> widgetsByColumn = Tool.Static.getWidgets(CmsTool.DASHBOARD_WIDGET_POSITION);
 List<List<String>> namesByColumn = (List<List<String>>) wp.getUser().getState().get("dashboardWidgets");
+List<String> collapse = (List<String>) wp.getUser().getState().get("dashboardWidgetsCollapse");
 
 if (namesByColumn != null) {
     Map<String, Widget> widgetsByName = new LinkedHashMap<String, Widget>();
@@ -70,7 +71,16 @@ if (namesByColumn != null) {
     }
 
     if (!widgetsByName.isEmpty()) {
-        List<Widget> widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
+        List<Widget> widgets;
+
+        if (widgetsByColumn.isEmpty()) {
+            widgets = new ArrayList<Widget>();
+
+            widgetsByColumn.add(widgets);
+
+        } else {
+            widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
+        }
 
         for (Widget widget : widgetsByName.values()) {
             widgets.add(widget);
@@ -96,7 +106,11 @@ writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size()
                 }
 
                 if (jsp != null) {
-                    writer.start("div", "class", "dashboardCell", "data-widget", widget.getInternalName());
+                    String name = widget.getInternalName();
+
+                    writer.start("div",
+                            "class", "dashboardCell" + (collapse != null && collapse.contains(name) ? " dashboardCell-collapse" : ""),
+                            "data-widget", name);
                         writer.start("div", "class", "frame");
                             writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
                         writer.end();

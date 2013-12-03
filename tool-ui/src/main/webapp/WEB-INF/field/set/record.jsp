@@ -38,7 +38,7 @@ if (fieldValue == null) {
     fieldValue = new LinkedHashSet<Object>();
 }
 
-List<ObjectType> validTypes = new ArrayList<ObjectType>(field.findConcreteTypes());
+List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
 boolean isValueExternal = !field.isEmbedded();
 if (isValueExternal && validTypes != null && validTypes.size() > 0) {
     isValueExternal = false;
@@ -89,6 +89,11 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
             fieldValue.add(item);
+
+            if (field.isEmbedded() && !itemState.isNew()) {
+                itemState.setId(null);
+                itemState.setStatus(null);
+            }
         }
 
     } else {

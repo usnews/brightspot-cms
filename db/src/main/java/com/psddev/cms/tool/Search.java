@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +33,7 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.Sorter;
 import com.psddev.dari.util.HuslColorSpace;
 import com.psddev.dari.util.ObjectUtils;
@@ -52,6 +54,7 @@ public class Search extends Record {
     public static final String PARENT_PARAMETER = "pt";
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
+    public static final String SHOW_DRAFTS_PARAMETER = "d";
     public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
     public static final String SUGGESTIONS_PARAMETER = "sg";
@@ -73,6 +76,7 @@ public class Search extends Record {
     private Map<String, String> globalFilters;
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
+    private boolean showDrafts;
     private boolean showMissing;
     private boolean suggestions;
     private long offset;
@@ -136,6 +140,7 @@ public class Search extends Record {
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
+        setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
         setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
@@ -243,6 +248,14 @@ public class Search extends Record {
         this.sort = sort;
     }
 
+    public boolean isShowDrafts() {
+        return showDrafts;
+    }
+
+    public void setShowDrafts(boolean showDrafts) {
+        this.showDrafts = showDrafts;
+    }
+
     public boolean isShowMissing() {
         return showMissing;
     }
@@ -288,7 +301,7 @@ public class Search extends Record {
         }
 
         for (ObjectType type : types) {
-            validTypes.addAll(type.findConcreteTypes());
+            validTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
         }
 
         Collections.sort(validTypes);
@@ -494,6 +507,26 @@ public class Search extends Record {
             query.and(Directory.Static.hasPathPredicate());
         }
 
+        if (isAllSearchable && selectedType == null) {
+            DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+            String q = getQueryString();
+
+            if (!ObjectUtils.isBlank(q)) {
+                q = q.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
+
+                for (ObjectType t : environment.getTypes()) {
+                    String name = t.getDisplayName();
+
+                    if (!ObjectUtils.isBlank(name) &&
+                            q.contains(name.replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH))) {
+                        query.sortRelevant(20.0, "_type = ?", t.as(ToolUi.class).findDisplayTypes());
+                    }
+                }
+            }
+
+            query.sortRelevant(10.0, "_type = ?", environment.getTypeByClass(Singleton.class).as(ToolUi.class).findDisplayTypes());
+        }
+
         String additionalPredicate = getAdditionalPredicate();
 
         if (!ObjectUtils.isBlank(additionalPredicate)) {
@@ -596,7 +629,23 @@ public class Search extends Record {
             }
 
             for (String key : comparisonKeys) {
-                query.and(key + " = missing");
+                if (isShowDrafts()) {
+                    query.and(key + " = missing or " + key + " = true");
+
+                } else {
+                    query.and(key + " = missing");
+                }
+            }
+
+        } else if (isShowDrafts()) {
+            Set<String> comparisonKeys = new HashSet<String>();
+            DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+
+            addVisibilityFields(comparisonKeys, environment);
+            addVisibilityFields(comparisonKeys, selectedType);
+
+            for (String key : comparisonKeys) {
+                query.and(key + " = missing or " + key + " = true");
             }
         }
 

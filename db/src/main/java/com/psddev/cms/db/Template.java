@@ -19,6 +19,11 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 
+/**
+ * @deprecated No direct replacement but {@link Renderer.LayoutPath} and
+ * {@link Renderer.ListLayouts} provide similar functionality.
+ */
+@Deprecated
 public class Template extends Page {
 
     /** @deprecated Use {@link Directory.Item#createPermalink} instead. */

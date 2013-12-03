@@ -62,7 +62,13 @@ public class PageFilter extends AbstractFilter {
     private static final String PARAMETER_PREFIX = "_cms.db.";
 
     public static final String DEBUG_PARAMETER = PARAMETER_PREFIX + "debug";
+
+    /**
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public static final String OVERLAY_PARAMETER = PARAMETER_PREFIX + "overlay";
+
     public static final String PREVIEW_DATA_PARAMETER = PARAMETER_PREFIX + "previewData";
     public static final String PREVIEW_ID_PARAMETER = PARAMETER_PREFIX + "previewId";
     public static final String PREVIEW_SITE_ID_PARAMETER = "_previewSiteId";
@@ -199,6 +205,7 @@ public class PageFilter extends AbstractFilter {
     @Override
     public Iterable<Class<? extends Filter>> dependencies() {
         List<Class<? extends Filter>> dependencies = new ArrayList<Class<? extends Filter>>();
+        dependencies.add(FrameFilter.class);
         dependencies.add(ApplicationFilter.class);
         dependencies.add(RemoteWidgetFilter.class);
         dependencies.add(AuthenticationFilter.class);
@@ -249,10 +256,6 @@ public class PageFilter extends AbstractFilter {
         doRequest(request, response, chain);
     }
 
-    private static boolean isOverlay(HttpServletRequest request) {
-        return ObjectUtils.to(boolean.class, request.getParameter(OVERLAY_PARAMETER));
-    }
-
     @Override
     protected void doInclude(
             HttpServletRequest request,
@@ -260,7 +263,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws Exception {
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             response = new LazyWriterResponse(request, response);
         }
 
@@ -274,7 +277,7 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             try {
                 JspBufferFilter.Static.overrideBuffer(0);
                 doRequestForReal(request, response, chain);
@@ -471,7 +474,7 @@ public class PageFilter extends AbstractFilter {
                 seo.put("keywordsString", seoKeywordsString);
             }
 
-            PageStage stage = new PageStage();
+            PageStage stage = new PageStage(getServletContext(), request);
 
             request.setAttribute("stage", stage);
             stage.setTitle(seoTitle);
@@ -504,7 +507,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             // Render the page.
-            if (isOverlay(request)) {
+            if (Static.isInlineEditingAllContents(request)) {
                 LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
                 response = lazyResponse;
 
@@ -516,9 +519,9 @@ public class PageFilter extends AbstractFilter {
                 map.put("label", state.getLabel());
                 map.put("typeLabel", state.getType().getLabel());
 
-                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\">");
+                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
-                marker.append("</span>");
+                marker.append("\"></span>");
 
                 lazyResponse.getLazyWriter().writeLazily(marker.toString());
             }
@@ -556,10 +559,7 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (!embed && ObjectUtils.isBlank(layoutPath)) {
-                layoutPath = mainType.as(Renderer.TypeModification.class).getPath();
-            }
-
+            String typePath = mainType.as(Renderer.TypeModification.class).getPath();
             boolean rendered = false;
 
             try {
@@ -578,6 +578,16 @@ public class PageFilter extends AbstractFilter {
                         rendered = true;
                         renderSection(request, response, writer, layout.getOutermostSection());
                     }
+                }
+
+                if (!rendered && !embed && !ObjectUtils.isBlank(typePath)) {
+                    rendered = true;
+                    JspUtils.include(request, response, writer, StringUtils.ensureStart(typePath, "/"));
+                }
+
+                if (!rendered && mainObject instanceof Renderer) {
+                    rendered = true;
+                    ((Renderer) mainObject).renderObject(request, response, (HtmlWriter) writer);
                 }
 
             } finally {
@@ -621,9 +631,20 @@ public class PageFilter extends AbstractFilter {
 
         } finally {
             Database.Static.restoreDefault();
+
+            if (response instanceof LazyWriterResponse) {
+                ((LazyWriterResponse) response).getLazyWriter().writePending();
+            }
         }
 
-        if (Static.isPreview(request)) {
+        if (Settings.isDebug() || Static.isPreview(request)) {
+            return;
+        }
+
+        String contentType = response.getContentType();
+
+        if (contentType == null ||
+                !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
             return;
         }
 
@@ -639,58 +660,30 @@ public class PageFilter extends AbstractFilter {
             @SuppressWarnings("resource")
             HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
             State mainState = State.getInstance(mainObject);
-            Schedule currentSchedule = AuthenticationFilter.Static.getUser(request).getCurrentSchedule();
 
-            htmlWriter.writeStart("div", "style", htmlWriter.cssString(
-                    "background", "rgba(0, 0, 0, 0.7)",
-                    "border-bottom-left-radius", "5px",
-                    "color", "white",
-                    "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                    "font-size", "13px",
-                    "line-height", "20px",
-                    "padding", "5px 10px",
-                    "position", "fixed",
-                    "top", 0,
-                    "right", 0,
-                    "z-index", 2000000));
-                if (!mainState.isVisible()) {
-                    htmlWriter.writeHtml("Status: ");
-                    htmlWriter.writeHtml(mainState.getVisibilityLabel());
-                    htmlWriter.writeHtml(" - ");
-                }
-
-                if (currentSchedule != null) {
-                    htmlWriter.writeHtml("Schedule: ");
-                    htmlWriter.writeHtml(page.getObjectLabel(currentSchedule));
-                    htmlWriter.writeHtml(" - ");
-                }
-
-                htmlWriter.writeStart("a",
-                        "href", "javascript:" + StringUtils.encodeUri(
-                                "(function(){document.body.appendChild(document.createElement('script')).src='" +
-                                page.cmsUrl("/content/bookmarklet.jsp") +
-                                "';}());"),
+            if (user.getInlineEditing() != ToolUser.InlineEditing.DISABLED) {
+                htmlWriter.writeStart("iframe",
+                        "class", "cms-inlineEditor",
+                        "onload", "this.style.visibility = 'visible';",
+                        "scrolling", "no",
+                        "src", page.cmsUrl("/inlineEditor", "id", mainState.getId()),
                         "style", htmlWriter.cssString(
-                                "color", "#83cbea",
-                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                "font-size", "13px",
-                                "line-height", "20px"));
-                    htmlWriter.writeHtml("Edit Inline");
+                                "border", "none",
+                                "height", 0,
+                                "left", 0,
+                                "margin", 0,
+                                "pointer-events", "none",
+                                "position", "absolute",
+                                "top", 0,
+                                "visibility", "hidden",
+                                "width", "100%",
+                                "z-index", 1000000));
                 htmlWriter.writeEnd();
+            }
+        }
 
-                htmlWriter.writeHtml(" | ");
-
-                htmlWriter.writeStart("a",
-                        "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()),
-                        "target", "_blank",
-                        "style", htmlWriter.cssString(
-                                "color", "#83cbea",
-                                "font-family", "'Helvetica Neue', 'Arial', sans-serif",
-                                "font-size", "13px",
-                                "line-height", "20px"));
-                    htmlWriter.writeHtml("Edit In CMS");
-                htmlWriter.writeEnd();
-            htmlWriter.writeEnd();
+        if (response instanceof LazyWriterResponse) {
+            ((LazyWriterResponse) response).getLazyWriter().writePending();
         }
     }
 
@@ -933,7 +926,7 @@ public class PageFilter extends AbstractFilter {
 
         LazyWriter lazyWriter;
 
-        if (isOverlay(request)) {
+        if (Static.isInlineEditingAllContents(request)) {
             lazyWriter = new LazyWriter(request, writer);
             writer = lazyWriter;
 
@@ -958,13 +951,23 @@ public class PageFilter extends AbstractFilter {
 
                 if (concrete != null) {
                     State state = State.getInstance(concrete);
+                    ObjectType stateType = state.getType();
 
                     map.put("id", state.getId().toString());
-                    map.put("label", state.getLabel());
-                    map.put("typeLabel", state.getType().getLabel());
+
+                    if (stateType != null) {
+                        map.put("typeLabel", stateType.getLabel());
+                    }
+
+                    try {
+                        map.put("label", state.getLabel());
+
+                    } catch (RuntimeException error) {
+                        // Not a big deal if label can't be retrieved.
+                    }
                 }
 
-                marker.append("<span class=\"cms-overlayBegin\" style=\"display: none;\" data-object=\"");
+                marker.append("<span class=\"cms-objectBegin\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("\"></span>");
 
@@ -987,7 +990,7 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (lazyWriter != null) {
-                lazyWriter.writeLazily("<span class=\"cms-overlayEnd\" style=\"display: none;\"></span>");
+                lazyWriter.writeLazily("<span class=\"cms-objectEnd\" style=\"display: none;\"></span>");
             }
         }
     }
@@ -1406,6 +1409,24 @@ public class PageFilter extends AbstractFilter {
             }
 
             return null;
+        }
+
+        /**
+         * Returns {@code true} if the tool user has requested for inline
+         * editing to be fully enabled.
+         *
+         * @param request Can't be {@code null}.
+         * @return {@code false} if a tool user isn't logged in.
+         */
+        public static boolean isInlineEditingAllContents(HttpServletRequest request) {
+            if (Settings.isDebug()) {
+                return false;
+
+            } else {
+                ToolUser user = AuthenticationFilter.Static.getUser(request);
+
+                return user != null && user.getInlineEditing() == null;
+            }
         }
 
         /** @deprecated Use {@link ElFunctionUtils#plainResource} instead. */

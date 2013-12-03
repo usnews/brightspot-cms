@@ -22,7 +22,7 @@ java.util.UUID
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 AuthenticationException authError = null;
-String email = wp.param("email");
+String username = wp.param("username");
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
 
 if (wp.isFormPost()) {
@@ -40,7 +40,7 @@ if (wp.isFormPost()) {
                 authPolicy = new ToolAuthenticationPolicy();
             }
 
-            user = (ToolUser) authPolicy.authenticate(email, wp.param(String.class, "password"));
+            user = (ToolUser) authPolicy.authenticate(username, wp.param(String.class, "password"));
 
             if (user.isTfaEnabled()) {
                 String totpToken = UUID.randomUUID().toString();
@@ -120,8 +120,8 @@ body.hasToolBroadcast {
 
     <% if (!Query.from(ToolUser.class).hasMoreThan(0)) { %>
         <div class="message message-info">
-            <p>Welcome! You're our first user. Give us your email and
-            password and we'll make you an administrator.</p>
+            <p>Welcome! You're our first user. Give us your email or
+            username and password and we'll make you an administrator.</p>
         </div>
     <% } %>
 
@@ -129,10 +129,10 @@ body.hasToolBroadcast {
         <% if (user == null) { %>
             <div class="inputContainer">
                 <div class="inputLabel">
-                    <label for="<%= wp.createId() %>">Email</label>
+                    <label for="<%= wp.createId() %>">Username</label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="email" type="text" value="<%= wp.h(email) %>">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>">
                 </div>
             </div>
 

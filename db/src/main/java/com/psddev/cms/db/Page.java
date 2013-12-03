@@ -13,6 +13,11 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ListMap;
 import com.psddev.dari.util.ObjectUtils;
 
+/**
+ * @deprecated No direct replacement but {@link Renderer.LayoutPath} and
+ * {@link Renderer.ListLayouts} provide similar functionality.
+ */
+@Deprecated
 public class Page extends Content {
 
     @Indexed(unique = true)

@@ -108,7 +108,7 @@ $.plugin2('repeatable', {
             $addButtonContainer.append($('<span/>', {
                 'class': 'addButton',
                 'text': options.addButtonText ? options.addButtonText + ' ' + ($template.attr('data-type') || 'Item') : '',
-                'click': function() {
+                'click': function(event, customCallback) {
 
                     // Don't allow blank text in single input mode.
                     if ($singleInput && !$singleInput.val()) {
@@ -123,7 +123,6 @@ $.plugin2('repeatable', {
 
                         $list.append($addedItem);
                         $addedItem.each(createExtra);
-                        $addedItem.removeClass('collapsed');
 
                         // Copy value in single input to the newly added item.
                         if ($singleInput) {
@@ -149,6 +148,10 @@ $.plugin2('repeatable', {
                         if ($select.length > 0 &&
                                 $select.closest('.repeatableObjectId').length > 0) {
                             // $select.click();
+                        }
+
+                        if (customCallback) {
+                            customCallback.call($addedItem[0]);
                         }
                     };
 
@@ -199,6 +202,12 @@ $.plugin2('repeatable', {
 
             $item.change();
         });
+    },
+
+    'add': function(callback) {
+        this.$caller.closest('.addButton').trigger('click', [ callback ]);
+
+        return this.$caller;
     }
 });
 

@@ -32,17 +32,23 @@ List<ObjectField> fields = type != null ? type.getFields() : null;
 
 // --- Presentation ---
 
-wp.writeStart("div", "class", "objectInputs");
-    String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
+wp.writeStart("div",
+        "class", "objectInputs",
+        "data-type", type != null ? type.getInternalName() : null,
+        "data-id", state.getId(),
+        "data-object-id", state.getId());
+    if (type != null) {
+        String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 
-    if (!ObjectUtils.isBlank(noteHtml)) {
-        wp.write("<div class=\"message message-info\">");
-        wp.write(noteHtml);
-        wp.write("</div>");
+        if (!ObjectUtils.isBlank(noteHtml)) {
+            wp.write("<div class=\"message message-info\">");
+            wp.write(noteHtml);
+            wp.write("</div>");
+        }
     }
 
     if (fields != null) {
-        ContentType ct = Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first();
+        ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
 
         if (ct != null) {
             List<ObjectField> firsts = new ArrayList<ObjectField>();
@@ -110,11 +116,23 @@ wp.writeStart("div", "class", "objectInputs");
             }
         }
 
-    } else { %>
-        <div class="inputContainer">
-            <div class="inputLabel"><label for="<%= wp.createId() %>">Data</label></div>
-            <div class="inputSmall"><textarea cols="100" id="<%= wp.getId() %>" name="data" rows="20"><%= wp.h(state.getJsonString()) %></textarea></div>
-        </div>
-    <% }
+    } else {
+        wp.writeStart("div", "class", "inputContainer");
+            wp.writeStart("div", "class", "inputLabel");
+                wp.writeStart("label", "for", wp.createId());
+                    wp.writeHtml("Data");
+                wp.writeEnd();
+            wp.writeEnd();
+
+            wp.writeStart("div", "class", "inputSmall");
+                wp.writeStart("textarea",
+                        "data-code-type", "text/json",
+                        "id", wp.getId(),
+                        "name", "data");
+                    wp.writeHtml(ObjectUtils.toJson(state.getSimpleValues(), true));
+                wp.writeEnd();
+            wp.writeEnd();
+        wp.writeEnd();
+    }
 wp.writeEnd();
 %>

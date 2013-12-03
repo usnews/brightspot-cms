@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -255,12 +256,14 @@ public class UploadFiles extends PageServlet {
                             }
                         }
 
-                        js.append("$addButton.click();");
-                        js.append("$input = $init.find(':input.objectId').eq(-1);");
-                        js.append("$input.attr('data-label', '").append(StringUtils.escapeJavaScript(state.getLabel())).append("');");
-                        js.append("$input.attr('data-preview', '").append(StringUtils.escapeJavaScript(item.getPublicUrl())).append("');");
-                        js.append("$input.val('").append(StringUtils.escapeJavaScript(state.getId().toString())).append("');");
-                        js.append("$input.change();");
+                        js.append("$addButton.repeatable('add', function() {");
+                            js.append("var $added = $(this);");
+                            js.append("$input = $added.find(':input.objectId').eq(-1);");
+                            js.append("$input.attr('data-label', '").append(StringUtils.escapeJavaScript(state.getLabel())).append("');");
+                            js.append("$input.attr('data-preview', '").append(StringUtils.escapeJavaScript(item.getPublicUrl())).append("');");
+                            js.append("$input.val('").append(StringUtils.escapeJavaScript(state.getId().toString())).append("');");
+                            js.append("$input.change();");
+                        js.append("});");
                     }
                 }
 
@@ -296,7 +299,7 @@ public class UploadFiles extends PageServlet {
             ObjectType type = environment.getTypeById(typeId);
 
             if (type != null) {
-                for (ObjectType t : type.findConcreteTypes()) {
+                for (ObjectType t : type.as(ToolUi.class).findDisplayTypes()) {
                     for (ObjectField field : t.getFields()) {
                         if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
                             typesSet.add(t);

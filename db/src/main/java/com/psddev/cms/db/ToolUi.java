@@ -7,10 +7,12 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Reference;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
@@ -28,10 +31,13 @@ import com.psddev.dari.util.TypeDefinition;
 @Modification.Classes({ ObjectField.class, ObjectType.class })
 public class ToolUi extends Modification<Object> {
 
+    private Boolean bulkUpload;
     private String codeType;
+    private String cssClass;
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
+    private Boolean expanded;
     private Boolean filterable;
     private boolean globalFilter;
     private String heading;
@@ -43,7 +49,10 @@ public class ToolUi extends Modification<Object> {
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
+    private String placeholderDynamicText;
+    private Boolean placeholderEditable;
     private Boolean referenceable;
+    private String referenceableViaClassName;
     private Boolean readOnly;
     private boolean richText;
     private boolean secret;
@@ -54,12 +63,28 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMinimum;
     private String tab;
 
+    public boolean isBulkUpload() {
+        return Boolean.TRUE.equals(bulkUpload);
+    }
+
+    public void setBulkUpload(boolean bulkUpload) {
+        this.bulkUpload = bulkUpload ? Boolean.TRUE : null;
+    }
+
     public String getCodeType() {
         return codeType;
     }
 
     public void setCodeType(String codeType) {
         this.codeType = codeType;
+    }
+
+    public String getCssClass() {
+        return cssClass;
+    }
+
+    public void setCssClass(String cssClass) {
+        this.cssClass = cssClass;
     }
 
     public boolean isDisplayFirst() {
@@ -84,6 +109,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setDropDown(boolean dropDown) {
         this.dropDown = dropDown;
+    }
+
+    public boolean isExpanded() {
+        return Boolean.TRUE.equals(expanded);
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded ? Boolean.TRUE : null;
     }
 
     public Boolean getFilterable() {
@@ -242,6 +275,22 @@ public class ToolUi extends Modification<Object> {
         this.readOnly = readOnly;
     }
 
+    public boolean isPlaceholderEditable() {
+        return Boolean.TRUE.equals(placeholderEditable);
+    }
+
+    public void setPlaceholderEditable(boolean placeholderEditable) {
+        this.placeholderEditable = Boolean.TRUE.equals(placeholderEditable) ? Boolean.TRUE : null;
+    }
+
+    public String getPlaceholderDynamicText() {
+        return placeholderDynamicText;
+    }
+
+    public void setPlaceholderDynamicText(String placeholderDynamicText) {
+        this.placeholderDynamicText = placeholderDynamicText;
+    }
+
     public boolean isRichText() {
         return richText;
     }
@@ -259,6 +308,16 @@ public class ToolUi extends Modification<Object> {
 
     public void setReferenceable(boolean referenceable) {
         this.referenceable = referenceable;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends Reference> getReferenceableViaClass() {
+        Class<?> c = ObjectUtils.getClassByName(referenceableViaClassName);
+        return c != null && Reference.class.isAssignableFrom(c) ? (Class<? extends Reference>) c : null;
+    }
+
+    public void setReferenceableViaClass(Class<? extends Reference> referenceableViaClass) {
+        this.referenceableViaClassName = referenceableViaClass != null ? referenceableViaClass.getName() : null;
     }
 
     public boolean isSecret() {
@@ -352,6 +411,60 @@ public class ToolUi extends Modification<Object> {
     }
 
     /**
+     * Finds a list of all concrete types that can be displayed in the
+     * context of this type or field.
+     *
+     * @return Never {@code null}.
+     */
+    public List<ObjectType> findDisplayTypes() {
+        Object object = getOriginalObject();
+        List<ObjectType> displayTypes = new ArrayList<ObjectType>();
+        Set<ObjectType> concreteTypes;
+
+        if (object instanceof ObjectType) {
+            concreteTypes = ((ObjectType) object).findConcreteTypes();
+
+        } else if (object instanceof ObjectField) {
+            concreteTypes = ((ObjectField) object).findConcreteTypes();
+
+        } else {
+            concreteTypes = null;
+        }
+
+        if (concreteTypes != null) {
+            for (ObjectType t : concreteTypes) {
+                if (t.getObjectClass() != null &&
+                        !t.as(ToolUi.class).isHidden()) {
+                    displayTypes.add(t);
+                }
+            }
+        }
+
+        return displayTypes;
+    }
+
+    /**
+     * Specifies whether the target field should enable and accept files
+     * from the bulk upload feature.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(BulkUploadProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface BulkUpload {
+
+        boolean value() default true;
+    }
+
+    private static class BulkUploadProcessor implements ObjectField.AnnotationProcessor<BulkUpload> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, BulkUpload annotation) {
+            field.as(ToolUi.class).setBulkUpload(annotation.value());
+        }
+    }
+
+    /**
      * Specifies that the target field should be displayed as code of the
      * given type {@code value}.
      */
@@ -368,6 +481,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CodeType annotation) {
             field.as(ToolUi.class).setCodeType(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies the CSS class to add to {@code .inputContainer} when
+     * displaying the target field.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(CssClassProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface CssClass {
+        String value();
+    }
+
+    private static class CssClassProcessor implements ObjectField.AnnotationProcessor<CssClass> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, CssClass annotation) {
+            field.as(ToolUi.class).setCssClass(annotation.value());
         }
     }
 
@@ -428,6 +561,27 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, DropDown annotation) {
             field.as(ToolUi.class).setDropDown(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should always be expanded in an
+     * embedded display.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(ExpandedProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Expanded {
+
+        boolean value() default true;
+    }
+
+    private static class ExpandedProcessor implements ObjectField.AnnotationProcessor<Expanded> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, Expanded annotation) {
+            field.as(ToolUi.class).setExpanded(annotation.value());
         }
     }
 
@@ -664,21 +818,48 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
-    /** Specifies the target field's placeholder text. */
+    /**
+     * Specifies the target field's placeholder text.
+     */
     @Documented
     @ObjectField.AnnotationProcessorClass(PlaceholderProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface Placeholder {
-        String value();
+
+        /**
+         * Static placeholder text.
+         */
+        String value() default "";
+
+        /**
+         * Dynamic placeholder text.
+         */
+        String dynamicText() default "";
+
+        /**
+         * {@code true} if the placeholder text should remain and be editable
+         * when the user clicks into the input.
+         */
+        boolean editable() default false;
     }
 
     private static class PlaceholderProcessor implements ObjectField.AnnotationProcessor<Annotation> {
+
         @Override
         public void process(ObjectType type, ObjectField field, Annotation annotation) {
-            field.as(ToolUi.class).setPlaceholder(annotation instanceof FieldPlaceholder ?
-                    ((FieldPlaceholder) annotation).value() :
-                    ((Placeholder) annotation).value());
+            ToolUi ui = field.as(ToolUi.class);
+
+            if (annotation instanceof FieldPlaceholder) {
+                ui.setPlaceholder(((FieldPlaceholder) annotation).value());
+
+            } else {
+                Placeholder placeholder = (Placeholder) annotation;
+
+                ui.setPlaceholder(placeholder.value());
+                ui.setPlaceholderDynamicText(placeholder.dynamicText());
+                ui.setPlaceholderEditable(placeholder.editable());
+            }
         }
     }
 
@@ -719,12 +900,14 @@ public class ToolUi extends Modification<Object> {
     @Target(ElementType.TYPE)
     public @interface Referenceable {
         boolean value() default true;
+        Class<? extends Reference> via() default Reference.class;
     }
 
     private static class ReferenceableProcessor implements ObjectType.AnnotationProcessor<Referenceable> {
         @Override
         public void process(ObjectType type, Referenceable annotation) {
             type.as(ToolUi.class).setReferenceable(annotation.value());
+            type.as(ToolUi.class).setReferenceableViaClass(annotation.via());
         }
     }
 
@@ -920,16 +1103,23 @@ public class ToolUi extends Modification<Object> {
     /** Returns the set of types that the given {@code type} may switch to. */
     public static Set<ObjectType> getCompatibleTypes(ObjectType type) {
         Set<ObjectType> types = new HashSet<ObjectType>();
-        Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
-        if (!ObjectUtils.isBlank(ids)) {
-            DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
-            for (Object idObject : ids) {
-                ObjectType compatibleType = environment.getTypeById(ObjectUtils.to(UUID.class, idObject));
-                if (compatibleType != null) {
-                    types.add(compatibleType);
+
+        if (type != null) {
+            Collection<?> ids = (Collection<?>) type.getState().get(COMPATIBLE_TYPES_FIELD);
+
+            if (!ObjectUtils.isBlank(ids)) {
+                DatabaseEnvironment environment = type.getState().getDatabase().getEnvironment();
+
+                for (Object idObject : ids) {
+                    ObjectType compatibleType = environment.getTypeById(ObjectUtils.to(UUID.class, idObject));
+
+                    if (compatibleType != null) {
+                        types.add(compatibleType);
+                    }
                 }
             }
         }
+
         return types;
     }
 
@@ -1133,6 +1323,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     /** @deprecated Use {@link #setReferenceable(boolean)} instead. */
+    @Deprecated
     public static void setReferenceable(ObjectType type, boolean isReferenceable) {
         type.as(ToolUi.class).setReferenceable(isReferenceable);
     }

@@ -264,7 +264,7 @@
                         if (isPopup) {
                     %>
                     <li><a
-                        href="<%=wp.url("", "_isFrame", false, "templateId",
+                        href="<%=wp.url("", "templateId",
                             pg.getId(), "popup", false)%>"
                         target="_blank">View in Full</a></li>
                     <%

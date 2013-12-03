@@ -11,18 +11,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Renders the given {@code value} safely in HTML context.
@@ -53,9 +59,12 @@ import com.psddev.dari.util.ObjectUtils;
  * </p>
  */
 @SuppressWarnings("serial")
-public class RenderTag extends BodyTagSupport implements DynamicAttributes {
+public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryCatchFinally {
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
+    private static final String FIELD_ACCESS_MARKER_BEGIN = "\ue014\ue027\ue041";
+    private static final String FIELD_ACCESS_MARKER_END = "\ue068\ue077\ue063";
+    private static final String REFERENCE_ATTRIBUTE = "reference";
 
     private String area;
     private String context;
@@ -69,6 +78,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
     private transient HtmlWriter pageWriter;
     private transient LayoutTag layoutTag;
     private transient Map<String, Object> areas;
+    private transient FieldAccessListener fieldAccessListener;
 
     public void setArea(String area) {
         this.area = area;
@@ -96,6 +106,16 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
     public void setEndOffset(int endOffset) {
         this.endOffset = endOffset;
+    }
+
+    public void setMarker(String marker) {
+        setBeginMarker(marker);
+        setEndMarker(marker);
+    }
+
+    public void setOffset(int offset) {
+        setBeginOffset(offset - 1);
+        setEndOffset(offset);
     }
 
     // --- DynamicAttributes support ---
@@ -185,6 +205,59 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
         }
     }
 
+    @Override
+    public void doInitBody() {
+        if (ObjectUtils.to(boolean.class, pageContext.getRequest().getParameter("_fields"))) {
+            fieldAccessListener = new FieldAccessListener();
+
+            State.Static.addListener(fieldAccessListener);
+        }
+    }
+
+    @Override
+    public int doAfterBody() {
+        if (fieldAccessListener != null) {
+            State.Static.removeListener(fieldAccessListener);
+
+            fieldAccessListener = null;
+            BodyContent bodyContent = getBodyContent();
+            String oldBody = bodyContent.getString();
+            StringWriter newBody = new StringWriter();
+            LazyWriter newBodyLazy = new LazyWriter((HttpServletRequest) pageContext.getRequest(), newBody);
+            int beginAt;
+            int endAt = 0;
+
+            try {
+                while ((beginAt = oldBody.indexOf(FIELD_ACCESS_MARKER_BEGIN, endAt)) > -1) {
+                    newBodyLazy.write(oldBody.substring(endAt, beginAt));
+
+                    endAt = oldBody.indexOf(FIELD_ACCESS_MARKER_END, beginAt);
+
+                    if (endAt > -1) {
+                        newBodyLazy.writeLazily(oldBody.substring(beginAt + FIELD_ACCESS_MARKER_BEGIN.length(), endAt));
+
+                        endAt += FIELD_ACCESS_MARKER_END.length();
+
+                    } else {
+                        newBodyLazy.write(oldBody.substring(beginAt, beginAt + FIELD_ACCESS_MARKER_BEGIN.length()));
+
+                        endAt = beginAt + FIELD_ACCESS_MARKER_BEGIN.length();
+                    }
+                }
+
+                newBodyLazy.write(oldBody.substring(endAt));
+                newBodyLazy.writePending();
+                bodyContent.clearBody();
+                bodyContent.write(newBody.toString());
+
+            } catch (IOException error) {
+                // Should never happen when writing to StringWriter.
+            }
+        }
+
+        return SKIP_BODY;
+    }
+
     private void writeArea(HttpServletRequest request, Object area, Object value) throws IOException, ServletException {
         if (layoutTag != null && areas != null) {
             if (!ObjectUtils.isBlank(area)) {
@@ -258,10 +331,22 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     endIndex = findMarker(items, endMarker, endOffset);
                 }
 
-                if (beginIndex < 0 || endIndex < 0 || beginIndex >= endIndex) {
+                if (beginIndex >= 0 && endIndex >= 0) {
+                    if (beginIndex >= endIndex) {
+                        items = items.subList(endIndex, beginIndex);
+
+                    } else {
+                        items = items.subList(beginIndex, endIndex);
+                    }
+
+                } else if (beginIndex < 0 && endIndex >= 0) {
+                    items = items.subList(0, endIndex);
+
+                } else if (endIndex < 0 && beginIndex >= 0) {
+                    items = items.subList(beginIndex, items.size());
+
+                } else if (beginOffset >= 0 || endOffset != 0) {
                     items.clear();
-                } else {
-                    items = items.subList(beginIndex, endIndex);
                 }
             }
 
@@ -272,6 +357,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                     writer.write(EMPTY_PARAGRAPH_PATTERN.matcher((String) item).replaceAll(""));
 
                 } else if (item instanceof Reference) {
+                    Object oldReferenceAttribute = null;
                     Map<String, Object> oldAttributes = new LinkedHashMap<String, Object>();
 
                     try {
@@ -279,18 +365,26 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
                         Object object = itemReference.getObject();
 
                         if (object != null && !(object instanceof ReferentialTextMarker)) {
-                            for (Map.Entry<String, Object> entry : itemReference.entrySet()) {
-                                String key = entry.getKey();
-                                if (key != null && !key.startsWith("_")) {
-                                    oldAttributes.put(key, request.getAttribute(key));
-                                    request.setAttribute(key, entry.getValue());
-                                }
+                            oldReferenceAttribute = request.getAttribute(REFERENCE_ATTRIBUTE);
+                            request.setAttribute(REFERENCE_ATTRIBUTE, itemReference);
+
+                            // For backward compatibility, ensure these field values are set directly as request attributes
+                            for (ObjectField field : ObjectType.getInstance(RichTextReference.class).getFields()) {
+                                String fieldName = field.getInternalName();
+                                String fieldNamePc = StringUtils.toCamelCase(fieldName);
+
+                                oldAttributes.put(fieldName, request.getAttribute(fieldName));
+                                oldAttributes.put(fieldNamePc, request.getAttribute(fieldNamePc));
+                                request.setAttribute(fieldName, itemReference.getState().get(fieldName));
+                                request.setAttribute(fieldNamePc, itemReference.getState().get(fieldName));
                             }
 
                             PageFilter.renderObject(request, response, writer, object);
                         }
 
                     } finally {
+                        request.setAttribute(REFERENCE_ATTRIBUTE, oldReferenceAttribute);
+
                         for (Map.Entry<String, Object> entry : oldAttributes.entrySet()) {
                             request.setAttribute(entry.getKey(), entry.getValue());
                         }
@@ -392,6 +486,35 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes {
 
         } catch (IOException error) {
             throw new JspException(error);
+        }
+    }
+
+    // --- TryCatchFinally support ---
+
+    @Override
+    public void doCatch(Throwable error) throws Throwable {
+        throw error;
+    }
+
+    @Override
+    public void doFinally() {
+        doAfterBody();
+    }
+
+    private class FieldAccessListener extends State.Listener {
+
+        @Override
+        public void beforeFieldGet(State state, String name) {
+            BodyContent bodyContent = getBodyContent();
+
+            try {
+                bodyContent.write(FIELD_ACCESS_MARKER_BEGIN);
+                bodyContent.write(FieldAccessFilter.createMarkerHtml(state, name));
+                bodyContent.write(FIELD_ACCESS_MARKER_END);
+
+            } catch (IOException error) {
+                // Should never happen when writing to BodyContent.
+            }
         }
     }
 }

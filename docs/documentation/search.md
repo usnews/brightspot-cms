@@ -8,9 +8,13 @@ section: documentation
 <div markdown="1" class="span8">
 
 
-Once content has been published, you can instantly use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search widget.
+Once content has been published, you can instantly use the search tool to find it. Clicking into the 'Search' field in the top right of the Dashboard page, or any page globally brings up the search tool.
 
-There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing within the filters.
+There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing using the filters.
+
+**Brightspot 2.3 - Drafts in Search**
+
+New in Brightspot 2.3, you can now view Drafts in search. Toggle the `Show Drafts` flag to hide and show them in the search tool.
 
 ![](http://docs.brightspot.s3.amazonaws.com/search-tool-close.png)
 
@@ -19,6 +23,16 @@ The search is also persistent, and can be reset using the reset link.
 Once content has been accessed using the search tool, the results are still available, allowing an editor to click through results quickly in the content edit screen:
 
 ![](http://docs.brightspot.s3.amazonaws.com/persist-search-2.1.png)
+
+## Saved Searches
+
+Editors can save favorite searches, and load the results at any time. Once you have conducted your search, click 'Save Search' and label it.
+
+![](http://docs.brightspot.s3.amazonaws.com/saved-search-create.png)
+
+Now, in the top right of the global search you have your saved searches. These are on a per user basis and can be accessed from any search tool, either globally or in the content edit view.
+
+![](http://docs.brightspot.s3.amazonaws.com/saved-search-select.png)
 
 ## Color Search
 
@@ -35,7 +49,7 @@ Every image added will have a Colors view, that allows you to see exactly which 
 
 Work Steams allow editors to group together content for editing, and then work through the task quickly. A new work stream is created directly from a set of search results. Narrow your search results to match the content you want to work through, then click to create a new work stream, consisting of those items. The work stream will then appear within the dedicated widget on the dashboard. Note, you must narrow the search to a single content type when creating work streams.
 
-![](http://docs.brightspot.s3.amazonaws.com/new-work-stream.png)
+![](http://docs.brightspot.s3.amazonaws.com/create-workstream-2.2.png)
 
 ## Advanced Search
 
@@ -45,9 +59,11 @@ Export to CSV as default.
 
 ![](http://docs.brightspot.s3.amazonaws.com/search-guides-shot.png)
 
-## Bulk Edit
+## Bulk Editing
 
-Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save
+Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save.
+
+Content can also be deleted in bulk.
 
 ![](http://docs.brightspot.s3.amazonaws.com/bulk-editing-2.1.png)
 </div>

@@ -155,10 +155,7 @@ wp.writeStart("div", "class", "inputSmall permissions");
 
         List<ObjectType> mainTypes = Template.Static.findUsedTypes(wp.getSite());
         List<ObjectType> internalTypes = new ArrayList<ObjectType>();
-        List<ObjectType> typesList = Query.
-                from(ObjectType.class).
-                sortAscending("name").
-                selectAll();
+        List<ObjectType> typesList = new ArrayList<ObjectType>(Database.Static.getDefault().getEnvironment().getTypes());
 
         mainTypes.retainAll(typesList);
         typesList.removeAll(mainTypes);

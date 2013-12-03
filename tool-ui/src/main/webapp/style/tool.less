@@ -226,10 +226,40 @@
     }
 }
 
+.toolContent {
+    background: white;
+    margin: -75px -20px 40px -20px;
+    padding: 75px 20px 0 20px;
+    position: relative;
+    .transition(opacity 0.4s);
+    z-index: 0;
+
+    .objectEditing & {
+        opacity: 0.3;
+        .transform(translateZ(0));
+    }
+}
+
 .toolFooter {
-    background: url(brightspot.png) no-repeat bottom center;
-    margin-top: 20px;
-    min-height: 30px;
+    background: #20343f;
+    bottom: 0;
+    height: 30px;
+    left: 0;
+    line-height: 30px;
+    position: fixed;
+    right: 0;
+    text-align: center;
+    .transition(bottom 0.0s linear 0.4s);
+    z-index: -1;
+
+    img {
+        vertical-align: middle;
+    }
+
+    .objectEditing & {
+        bottom: -30px;
+        visibility: hidden;
+    }
 }
 
 .searchForm {
@@ -382,6 +412,7 @@
         float: left;
         height: 100px;
         margin: 0 5px 5px 0;
+        max-width: 150px;
 
         img {
             max-height: 100%;
@@ -424,6 +455,8 @@
 }
 
 .dashboardCell {
+    min-height: 33px;
+    margin-bottom: 10px;
     padding: 0 5px;
     position: relative;
 
@@ -436,7 +469,40 @@
     }
 
     .widgetControls {
-        right: 35px;
+        right: 55px;
+    }
+
+    .frame .widget {
+        margin-bottom: 0;
+    }
+}
+
+.dashboardCell-collapse .widget {
+    height: 13px;
+    overflow: hidden;
+}
+
+.dashboardCollapse {
+    .icon;
+    .icon-collapse-top;
+    .icon-only;
+    .link;
+
+    color: @color-note;
+    position: absolute;
+    right: 35px;
+    top: 6px;
+
+    .dashboardColumn:last-child & {
+        right: 30px;
+    }
+
+    .dashboardCell-collapse & {
+        .icon-collapse;
+    }
+
+    &:hover {
+        color: @color-text;
     }
 }
 
@@ -456,17 +522,13 @@
     }
 
     &:hover {
-        background-color: fade(@color-text, 20%);
-        .border-radius(50px);
+        color: @color-text;
         height: 50px;
-        margin-right: -16px;
-        margin-top: -12px;
-        width: 50px;
+        line-height: 50px;
+        font-size: 40px;
+        margin-right: -15px;
+        margin-top: -15px;
         z-index: 1;
-
-        &:before {
-            display: none;
-        }
     }
 }
 
@@ -476,59 +538,35 @@
 .dashboardMoveRight {
     .link;
 
-    color: @color-text;
-    line-height: 1;
+    .border-radius(100%);
+    display: none;
+    height: 19px;
     position: absolute;
+    width: 19px;
 
     .dashboardMoveContainer:hover & {
         display: block;
     }
 }
 
-.dashboardMoveUp,
-.dashboardMoveDown {
-    left: 19px;
-}
-
 .dashboardMoveUp {
-    .icon;
-    .icon-arrow-up;
-    .icon-only;
-
-    display: none;
+    left: 12px;
     top: 2px;
 }
 
 .dashboardMoveDown {
-    .icon;
-    .icon-arrow-down;
-    .icon-only;
-
-    display: none;
     bottom: 2px;
-}
-
-.dashboardMoveLeft,
-.dashboardMoveRight {
-    top: 17px;
+    left: 12px;
 }
 
 .dashboardMoveLeft {
-    .icon;
-    .icon-arrow-left;
-    .icon-only;
-
-    display: none;
-    left: 2px;
+    left: 0;
+    top: 15px;
 }
 
 .dashboardMoveRight {
-    .icon;
-    .icon-arrow-right;
-    .icon-only;
-
-    display: none;
-    right: 0px;
+    top: 15px;
+    right: 0;
 }
 
 .withLeftNav {

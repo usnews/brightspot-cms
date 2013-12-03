@@ -37,6 +37,7 @@ $doc.autoSubmit('live', '.autoSubmit');
 $doc.calendar('live', ':text.date');
 $doc.code('live', 'textarea[data-code-type]');
 $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
+$doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
 $doc.expandable('live', ':text.expandable, textarea', {
     'shadowClass': 'input'
 });
@@ -100,6 +101,7 @@ $doc.onCreate('.inputContainer .permissions select', function() {
 // Allow dashboard widgets to move around.
 $doc.onCreate('.dashboardCell', function() {
     var $cell = $(this),
+            $collapse,
             $moveContainer,
             saveDashboard,
             $moveUp,
@@ -107,14 +109,26 @@ $doc.onCreate('.dashboardCell', function() {
             $moveLeft,
             $moveRight;
 
+    $collapse = $('<span/>', {
+        'class': 'dashboardCollapse',
+        'click': function() {
+            $cell.toggleClass('dashboardCell-collapse');
+            saveDashboard();
+        }
+    });
+
     $moveContainer = $('<span/>', {
-        'class': 'dashboardMoveContainer'
+        'class': 'dashboardMoveContainer',
+        'click': function() {
+            $(this).toggleClass('dashboardMoveContainer-open');
+        }
     });
 
     saveDashboard = function() {
         var $dashboard = $cell.closest('.dashboard'),
                 $columns,
-                widgets = [ ];
+                widgets = [ ],
+                widgetsCollapse = [ ];
 
         $dashboard.find('.dashboardColumn:empty').remove();
         $columns = $dashboard.find('.dashboardColumn');
@@ -124,14 +138,25 @@ $doc.onCreate('.dashboardCell', function() {
             var w = widgets[widgets.length] = [ ];
 
             $(this).find('.dashboardCell').each(function() {
-                w[w.length] = $(this).attr('data-widget');
+                var $cell = $(this),
+                        name = $cell.attr('data-widget');
+
+                w[w.length] = name;
+
+                if ($cell.hasClass('dashboardCell-collapse')) {
+                    widgetsCollapse[widgetsCollapse.length] = name;
+                }
             });
         });
 
         $.ajax({
             'type': 'post',
             'url': CONTEXT_PATH + '/misc/updateUserSettings',
-            'data': 'action=dashboardWidgets-position&widgets=' + encodeURIComponent(JSON.stringify(widgets))
+            'data': {
+                'action': 'dashboardWidgets-position',
+                'widgets': JSON.stringify(widgets),
+                'widgetsCollapse': JSON.stringify(widgetsCollapse)
+            }
         });
     };
 
@@ -140,8 +165,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.prev().before($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -150,8 +173,6 @@ $doc.onCreate('.dashboardCell', function() {
         'click': function() {
             $cell.next().after($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -171,8 +192,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $prevColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -192,8 +211,6 @@ $doc.onCreate('.dashboardCell', function() {
 
             $nextColumn.prepend($cell);
             saveDashboard();
-
-            return false;
         }
     });
 
@@ -202,6 +219,7 @@ $doc.onCreate('.dashboardCell', function() {
     $moveContainer.append($moveLeft);
     $moveContainer.append($moveRight);
 
+    $cell.append($collapse);
     $cell.append($moveContainer);
 });
 
@@ -248,7 +266,7 @@ $doc.onCreate('.searchSuggestionsForm', function() {
 // Mark changed inputs.
 $doc.on('change', '.inputContainer', function() {
     var $container = $(this),
-            changed;
+            changed = false;
 
     $container.find('input, textarea').each(function() {
         if (this.defaultValue !== this.value) {
@@ -272,10 +290,14 @@ $doc.on('change', '.inputContainer', function() {
 // Create tabs that organize form fields.
 $doc.onCreate('.objectInputs', function() {
     var $container = $(this),
+            tabParameter = encodeURIComponent($container.attr('data-id') + '/tab'),
+            tabParameterRe = new RegExp('([?&])' + tabParameter + '=([^=]+)'),
             $inputs = $container.find('> .inputContainer'),
             tabItems = { },
             tabs = [ ],
-            $tabs;
+            $mainTabItems = $inputs,
+            $tabs,
+            urlMatch;
 
     $inputs.each(function() {
         var $input = $(this),
@@ -295,7 +317,8 @@ $doc.onCreate('.objectInputs', function() {
             }
 
             $input.hide();
-            items.push($input);
+            items.push($input[0]);
+            $mainTabItems = $mainTabItems.not($input);
         }
     });
 
@@ -303,24 +326,35 @@ $doc.onCreate('.objectInputs', function() {
         $tabs = $('<ul/>', { 'class': 'tabs' });
 
         $tabs.bind('tabs-select.tabs', function(event) {
+            var $selected = $(event.target),
+                    history = win.history,
+                    href,
+                    text;
+
             $(this).find('> li').removeClass('state-selected');
-            $(event.target).closest('li').addClass('state-selected');
+            $selected.closest('li').addClass('state-selected');
+
+            if (history && history.replaceState) {
+                href = win.location.href.replace(tabParameterRe, '');
+                text = $selected.text();
+
+                if (text !== 'Main') {
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + tabParameter + '=' + encodeURIComponent(text);
+                }
+
+                history.replaceState('', '', href);
+            }
         });
 
         $tabs.append($('<li/>', {
-            'class': 'state-selected',
+            'class': 'state-selected' + ($mainTabItems.find('.message-error').length > 0 ? ' state-error' : ''),
             'html': $('<a/>', {
                 'text': 'Main',
                 'click': function() {
                     $(this).trigger('tabs-select');
 
-                    $inputs.show();
-                    $.each(tabs, function(i, tab) {
-                        $.each(tab.items, function(j, $item) {
-                            $item.hide();
-                        });
-                    });
-
+                    $inputs.hide();
+                    $mainTabItems.show();
                     $container.resize();
                     return false;
                 }
@@ -329,16 +363,14 @@ $doc.onCreate('.objectInputs', function() {
 
         $.each(tabs, function(i, tab) {
             $tabs.append($('<li/>', {
+                'class': $(tab.items).find('.message-error').length > 0 ? 'state-error' : '',
                 'html': $('<a/>', {
                     'text': tab.name,
                     'click': function() {
                         $(this).trigger('tabs-select');
 
                         $inputs.hide();
-                        $.each(tab.items, function(i, $item) {
-                            $item.show();
-                        });
-
+                        $(tab.items).show();
                         $container.resize();
                         return false;
                     }
@@ -347,6 +379,25 @@ $doc.onCreate('.objectInputs', function() {
         });
 
         $container.prepend($tabs);
+    }
+
+    urlMatch = tabParameterRe.exec(win.location.href);
+
+    if (urlMatch) {
+        urlMatch = urlMatch[2];
+
+        if (urlMatch) {
+            console.log(urlMatch);
+
+            $tabs.find('> li > a').each(function() {
+                var $tab = $(this);
+
+                if ($tab.text() === urlMatch) {
+                    $tab.click();
+                    return false;
+                }
+            });
+        }
     }
 });
 
@@ -552,6 +603,10 @@ $doc.delegate('.exception > *', 'click', function() {
                     elementHeight,
                     alignToTop;
 
+            if ($element.closest('.popup').length > 0) {
+                return;
+            }
+
             if (!initialElementTop) {
                 initialElementTop = elementTop;
                 $element.data('initialElementTop', initialElementTop);
@@ -602,31 +657,46 @@ $doc.delegate('.exception > *', 'click', function() {
 
 // Make sure that the label for the focused input is visible.
 $doc.delegate(':input', 'focus', function() {
-    var $parents = $(this).parentsUntil('form');
+    var $input = $(this),
+            $firstInput = $input.closest('form').find('.inputContainer:visible').eq(0),
+            $parents = $input.parentsUntil('form');
 
     $parents.addClass('state-focus');
 
-    $win.bind('scroll.focus', $.run($.throttle(100, function() {
-        var $label = $('.focusLabel'),
-                labelText = '',
+    $win.bind('scroll.focus', $.run($.throttle(50, function() {
+        var focusLabelHeight,
                 index,
                 $parent,
-                parentPosition,
-                parentLabel;
+                headerHeight = $('.toolHeader').outerHeight(),
+                labelText = '',
+                $focusLabel = $('.focusLabel'),
+                $parentLabel,
+                parentLabelText;
+
+        if ($focusLabel.length === 0) {
+            $focusLabel = $('<div/>', { 'class': 'focusLabel' });
+
+            $(doc.body).append($focusLabel);
+        }
+
+        focusLabelHeight = $focusLabel.outerHeight();
+
+        $parents.each(function() {
+            $(this).find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+        });
 
         for (index = $parents.length - 1; index >= 0; -- index) {
             $parent = $($parents[index]);
 
-            if ($parent.offset().top > $win.scrollTop() + 100) {
+            if ($parent.offset().top > $win.scrollTop() + (focusLabelHeight * 2 / 3) + headerHeight) {
                 if (labelText) {
-                    if ($label.length === 0) {
-                        $label = $('<div/>', { 'class': 'focusLabel' });
-                        $(doc.body).append($label);
-                    }
-
-                    parentPosition = $parent.position();
-                    $label.text(labelText);
-                    $label.show();
+                    $focusLabel.css({
+                        'left': $firstInput.offset().left,
+                        'top': headerHeight,
+                        'width': $firstInput.outerWidth()
+                    });
+                    $focusLabel.text(labelText);
+                    $focusLabel.show();
                     return;
 
                 } else {
@@ -634,25 +704,33 @@ $doc.delegate(':input', 'focus', function() {
                 }
             }
 
-            parentLabel = $parent.find('> .inputLabel').text();
+            $parentLabel = $parent.find('> .inputLabel label, > .repeatableLabel');
+            parentLabelText = $parentLabel.text();
 
-            if (parentLabel) {
+            if (parentLabelText) {
+                $parentLabel.css('visibility', 'hidden');
+
                 if (labelText) {
                     labelText += ' \u2192 ';
                 }
-                labelText += parentLabel;
+
+                labelText += parentLabelText;
             }
         }
 
-        $label.hide();
+        $focusLabel.hide();
     })));
 });
 
 $doc.delegate(':input', 'blur', function() {
-    var $label = $('.focusLabel');
+    $(this).parents('.state-focus').each(function() {
+        var $parent = $(this);
 
-    $label.hide();
-    $(this).parents('.state-focus').removeClass('state-focus');
+        $parent.removeClass('state-focus');
+        $parent.find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
+    });
+
+    $('.focusLabel').hide();
     $win.unbind('.state-focus');
 });
 
@@ -806,6 +884,86 @@ $doc.on('input-disable', ':input', function(event, disable) {
     $(this).prop('disabled', disable);
 });
 
+$doc.onCreate('.inputContainer-readOnly', function() {
+    $(this).find(':input').trigger('input-disable', [ true ]);
+});
+
+// Key bindings.
+$doc.on('keydown', ':input', function(event) {
+    if (event.which === 27) {
+        $(this).blur();
+    }
+});
+
+$doc.on('keypress', function(event) {
+    var $searchInput;
+
+    if (event.which === 47 && $(event.target).closest(':input').length === 0) {
+        $searchInput = $('.toolSearch .searchInput :text');
+
+        $searchInput.val('');
+        $searchInput.focus();
+        return false;
+    }
+});
+
+// Publishing widget behaviors.
+$doc.onCreate('.widget-publishing', function() {
+    var $widget = $(this),
+            $dateInput = $widget.find('.dateInput'),
+            $newSchedule = $widget.find('select[name="newSchedule"]'),
+            $publishButton = $widget.find('[name="action-publish"]'),
+            oldPublishText = $publishButton.text(),
+            oldDate = $dateInput.val(),
+            onChange;
+
+    // Change the publish button label if scheduling.
+    if ($dateInput.length === 0) {
+        $publishButton.addClass('schedule');
+        $publishButton.text('Schedule');
+
+    } else {
+        onChange = function() {
+            if ($dateInput.val()) {
+                $publishButton.addClass('schedule');
+                $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
+
+            } else {
+                $publishButton.removeClass('schedule');
+                $publishButton.text(oldPublishText);
+            }
+        };
+
+        onChange();
+
+        $dateInput.change(onChange);
+        $newSchedule.change(onChange);
+    }
+
+    // Move the widget to the top if within aside section.
+    if ($widget.closest('.popup').length > 0) {
+        return;
+    }
+
+    $widget.closest('.contentForm-aside').each(function() {
+        var $aside = $(this),
+                asideTop = $aside.offset().top;
+
+        $win.resize($.throttle(100, $.run(function() {
+            $widget.css({
+                'left': $aside.offset().left,
+                'position': 'fixed',
+                'top': asideTop,
+                'width': $widget.width(),
+                'z-index': 1
+            });
+
+            // Push other areas down.
+            $aside.css('padding-top', $widget.outerHeight(true));
+        })));
+    });
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });
@@ -892,58 +1050,6 @@ $doc.ready(function() {
             });
         }
     }));
-
-    // Publishing widget behaviors.
-    $('.widget-publishing').each(function() {
-        var $widget = $(this),
-                $dateInput = $widget.find('.dateInput'),
-                $newSchedule = $widget.find('select[name="newSchedule"]'),
-                $publishButton = $widget.find('[name="action-publish"]'),
-                oldPublishText = $publishButton.text(),
-                oldDate = $dateInput.val(),
-                onChange;
-
-        // Change the publish button label if scheduling.
-        if ($dateInput.length === 0) {
-            $publishButton.addClass('schedule');
-            $publishButton.text('Schedule');
-
-        } else {
-            onChange = function() {
-                if ($dateInput.val()) {
-                    $publishButton.addClass('schedule');
-                    $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
-
-                } else {
-                    $publishButton.removeClass('schedule');
-                    $publishButton.text(oldPublishText);
-                }
-            };
-
-            onChange();
-
-            $dateInput.change(onChange);
-            $newSchedule.change(onChange);
-        }
-
-        // Move the widget to the top if within aside section.
-        $widget.closest('.contentForm-aside').each(function() {
-            var $aside = $(this),
-                    asideTop = $aside.offset().top;
-
-            $win.resize($.throttle(100, $.run(function() {
-                $widget.css({
-                    'left': $aside.offset().left,
-                    'position': 'fixed',
-                    'top': asideTop,
-                    'width': $widget.width()
-                });
-
-                // Push other areas down.
-                $aside.css('padding-top', $widget.outerHeight(true));
-            })));
-        });
-    });
 
     // Create tabs if the publishing widget contains both the workflow
     // and the publish areas.

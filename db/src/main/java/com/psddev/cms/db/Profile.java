@@ -144,6 +144,14 @@ public class Profile extends Record {
     public boolean isUserAgentMsie() {
         return isTrident();
     }
+    
+    /** 
+     * Returns {@code true} if the user agent is Microsoft Internet
+     * Explorer Mobile.
+     */
+    public boolean isUserAgentMsieMobile(){
+        return checkUserAgent("IEMobile/");
+    }
 
     /** Returns {@code true} if the user agent is Opera. */
     public boolean isUserAgentOpera() {
