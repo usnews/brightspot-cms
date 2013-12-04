@@ -551,7 +551,8 @@ public class CmsTool extends Tool {
         List<Plugin> plugins = new ArrayList<Plugin>();
 
         // Areas.
-        plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
+        plugins.add(createArea2("Content", "dashboard", "dashboard", null));
+        plugins.add(createArea2("Dashboard", "cms.dashboard", "dashboard/dashboard", "/"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
         plugins.add(createArea2("Content Types", "cms.adminContentTypes", "admin/contentTypes", "/adminContentTypes"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));
