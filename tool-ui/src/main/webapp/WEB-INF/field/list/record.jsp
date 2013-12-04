@@ -133,7 +133,7 @@ if (!isValueExternal) {
         for (ObjectField f : t.getFields()) {
             if (f.as(ToolUi.class).isBulkUpload()) {
                 for (ObjectType ft : f.getTypes()) {
-                    bulkUploadTypes.add(t);
+                    bulkUploadTypes.add(ft);
                 }
             }
         }
