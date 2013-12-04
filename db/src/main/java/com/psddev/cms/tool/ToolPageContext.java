@@ -912,22 +912,29 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
+            String typeLabel;
+
             if (type == null) {
-                writeHtml("Unknown Type");
+                typeLabel = "Unknown Type";
 
             } else {
-                String typeLabel = type.getLabel();
+                typeLabel = type.getLabel();
 
-                writeHtml(ObjectUtils.isBlank(typeLabel) ?
-                        type.getId() :
-                        typeLabel);
+                if (ObjectUtils.isBlank(typeLabel)) {
+                    typeLabel = type.getId().toString();
+                }
             }
 
-            writeHtml(": ");
+            if (ObjectUtils.isBlank(label)) {
+                label = state.getId().toString();
+            }
 
-            writeHtml(ObjectUtils.isBlank(label) ?
-                    state.getId() :
-                    label);
+            writeHtml(typeLabel);
+
+            if (!typeLabel.equals(label)) {
+                writeHtml(": ");
+                writeHtml(label);
+            }
         }
     }
 
