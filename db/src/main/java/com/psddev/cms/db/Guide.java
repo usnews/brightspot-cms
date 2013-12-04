@@ -24,6 +24,7 @@ import com.psddev.dari.util.StorageItem;
  * GuideType classes
  */
 @ToolUi.IconName("object-guide")
+@Record.BootstrapPackages("Production Guides")
 public class Guide extends Record {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Guide.class);
@@ -34,6 +35,7 @@ public class Guide extends Record {
     private String title;
 
     @ToolUi.Note("Select the templates (or one-off pages) to be included in this Production Guide in the order they should appear")
+    @BootstrapFollowReferences
     private List<Page> templatesToIncludeInGuide;
 
     @ToolUi.Note("Production Guide Overview Section")

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Record.LabelFields({ "documentedType/name" })
+@Record.BootstrapPackages("Production Guides")
 public class GuideType extends Record {
 
     private static final Logger LOGGER = LoggerFactory
