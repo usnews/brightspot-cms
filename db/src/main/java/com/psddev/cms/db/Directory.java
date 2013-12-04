@@ -31,6 +31,7 @@ import com.psddev.dari.util.PullThroughCache;
 import com.psddev.dari.util.PullThroughValue;
 import com.psddev.dari.util.StringUtils;
 
+@Record.BootstrapTypeMappable(groups = Directory.Item.class, uniqueKey = "path")
 public class Directory extends Record {
 
     public static final String FIELD_PREFIX = "cms.directory.";
