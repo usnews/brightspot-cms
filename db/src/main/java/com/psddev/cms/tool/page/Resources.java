@@ -25,28 +25,31 @@ public class Resources extends PageServlet {
         CmsTool cms = page.getCmsTool();
         List<CmsTool.ResourceItem> resources = cms.getResources();
 
-        if (resources.isEmpty()) {
-            return;
-        }
-
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-globe").writeHtml("Resources").writeEnd();
 
-            page.writeStart("ul", "class", "links");
-                for (CmsTool.ResourceItem item : resources) {
-                    String url = item.getUrl();
+            if (resources.isEmpty()) {
+                page.writeStart("div", "class", "message message-info");
+                    page.writeHtml("There aren't any resources.");
+                page.writeEnd();
 
-                    if (!ObjectUtils.isBlank(url)) {
-                        page.writeStart("li");
-                            page.writeStart("a",
-                                    "href", url,
-                                    "target", item.isSameWindow() ? null : "_blank");
-                                page.writeHtml(item.getName());
+            } else {
+                page.writeStart("ul", "class", "links");
+                    for (CmsTool.ResourceItem item : resources) {
+                        String url = item.getUrl();
+
+                        if (!ObjectUtils.isBlank(url)) {
+                            page.writeStart("li");
+                                page.writeStart("a",
+                                        "href", url,
+                                        "target", item.isSameWindow() ? null : "_blank");
+                                    page.writeHtml(item.getName());
+                                page.writeEnd();
                             page.writeEnd();
-                        page.writeEnd();
+                        }
                     }
-                }
-            page.writeEnd();
+                page.writeEnd();
+            }
         page.writeEnd();
     }
 }
