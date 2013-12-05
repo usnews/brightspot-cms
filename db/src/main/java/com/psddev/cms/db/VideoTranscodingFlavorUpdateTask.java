@@ -1,10 +1,9 @@
-package com.psddev.cms.db; 
+package com.psddev.cms.db;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import org.joda.time.DateTime;
 
-import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DistributedLock;
 import com.psddev.dari.util.ObjectUtils;
@@ -16,6 +15,7 @@ import com.psddev.dari.util.Settings;
 public  class VideoTranscodingFlavorUpdateTask extends RepeatingTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoTranscodingFlavorUpdateTask.class);
     private static final String DEFAULT_TASK_NAME = "Video Transcoding Flavor Update Task";
+
     @Override
     protected DateTime calculateRunTime(DateTime currentTime) {
         return everyMinute(currentTime);
@@ -27,20 +27,33 @@ public  class VideoTranscodingFlavorUpdateTask extends RepeatingTask {
 
     @Override
     protected void doRepeatingTask(DateTime runTime) throws IOException {
-        if(!shouldContinue())  return;
-        DistributedLock disLock=DistributedLock.Static.getInstance(Database.Static.getDefault(), VideoTranscodingStatusUpdateTask.class.getName());
-        LOGGER.info("VideoTranscodingFlavorUpdateTask starting....");
+        if(!shouldContinue()) {
+            return;
+        }
+
+        DistributedLock disLock = null;
+        LOGGER.debug("VideoTranscodingFlavorUpdateTask starting....");
+
         try {
+           String defaultVideoStorage = ObjectUtils.to(String.class, Settings.get("dari/defaultVideoStorage"));
+           if (defaultVideoStorage == null) {
+               return;
+           }
+           VideoTranscodingService ts = VideoTranscodingServiceFactory.getTranscodingService(defaultVideoStorage);
+           if (ts == null) {
+               return;
+           }
+           disLock = DistributedLock.Static.getInstance(Database.Static.getDefault(), VideoTranscodingStatusUpdateTask.class.getName());
            disLock.lock();
            this.setProgress("Starting ....");
-           String defaultVideoStorage=ObjectUtils.to(String.class,Settings.get("dari/defaultVideoStorage"));
-           TranscodingService ts=TranscodingServiceFactory.getTranscodingService(defaultVideoStorage);
            ts.updateTranscodingFlavorsInCms();
            this.setProgress("All Done ....");
         } catch(Exception e) {
-                LOGGER.error("Transcoding flavor update task failed ", e);
+            LOGGER.error("Transcoding flavor update task failed ", e);
         } finally {
-            if ( disLock != null) disLock.unlock();
+            if (disLock != null) {
+                disLock.unlock();
+            }
         }
     }
 }
