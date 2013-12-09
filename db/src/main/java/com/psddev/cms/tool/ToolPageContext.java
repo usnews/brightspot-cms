@@ -1990,6 +1990,11 @@ public class ToolPageContext extends WebPageContext {
                 publish(state);
                 redirect("", "id", state.getId());
                 return true;
+
+            } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
+                publish(state);
+                redirect("");
+                return true;
             }
 
             if (draft == null) {
