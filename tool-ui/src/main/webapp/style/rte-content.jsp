@@ -76,6 +76,7 @@ writer.start("html");
                     "left", "-30000px",
                     "overflow", "hidden",
                     "position", "relative",
+                    "text-decoration", "line-through",
                     "width", 0);
 
             writer.css("body.rte-trackChanges del",
@@ -90,13 +91,17 @@ writer.start("html");
                     "background-color", "white",
                     "border", "1px solid #333",
                     "content", "'\u00a0' attr(data-last-comment) '\u00a0'",
-                    "font-style", "italic");
+                    "display", "inline-block",
+                    "font-style", "italic",
+                    "text-decoration", "none");
 
             writer.css("body.rte-allComments [data-all-comments]:after",
                     "background-color", "white",
                     "border", "1px solid #333",
                     "content", "'\u00a0' attr(data-all-comments) '\u00a0'",
-                    "font-style", "italic");
+                    "display", "inline-block",
+                    "font-style", "italic",
+                    "text-decoration", "none");
 
             writer.css("em, i",
                     "font-style", "italic");
