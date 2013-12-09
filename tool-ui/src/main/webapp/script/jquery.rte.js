@@ -632,7 +632,13 @@ var Rte = wysihtml5.Editor.extend({
                 });
 
                 $element.attr('data-all-comments', allComments.substring(0, allComments.length - 2));
-                $element.attr('data-last-comment', lastComment.text + ' -' + lastComment.user);
+
+                if (lastComment.text) {
+                    $element.attr('data-last-comment', lastComment.text + ' -' + lastComment.user);
+
+                } else {
+                    $element.removeAttr('data-last-comment');
+                }
             }
         };
 
