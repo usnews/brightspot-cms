@@ -608,7 +608,7 @@ var Rte = wysihtml5.Editor.extend({
         var setAnnotations = function($element, annotations) {
             var annotationsLength = annotations.length,
                     allComments,
-                    lastAnnotation;
+                    lastComment;
 
             annotations.sort(function(x, y) {
                 return x.time > y.time ? -1 : (x.time < y.time ? 1 : 0);
