@@ -387,8 +387,6 @@ $doc.onCreate('.objectInputs', function() {
         urlMatch = urlMatch[2];
 
         if (urlMatch) {
-            console.log(urlMatch);
-
             $tabs.find('> li > a').each(function() {
                 var $tab = $(this);
 
