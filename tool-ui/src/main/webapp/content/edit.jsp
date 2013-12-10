@@ -790,9 +790,10 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
     </div>
 
-    <% if (wp.getCmsTool().isDisableAutomaticallySavingDrafts() ||
+    <% if (!wp.getUser().isDisableNavigateAwayAlert() &&
+            (wp.getCmsTool().isDisableAutomaticallySavingDrafts() ||
             (!editingState.isNew() &&
-            !editingState.as(Content.ObjectModification.class).isDraft())) { %>
+            !editingState.as(Content.ObjectModification.class).isDraft()))) { %>
         <script type="text/javascript">
             (function($, window, undefined) {
                 $('.contentForm').submit(function() {

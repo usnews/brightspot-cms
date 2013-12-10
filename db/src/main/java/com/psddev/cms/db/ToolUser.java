@@ -99,6 +99,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Placeholder("All Contents")
     private InlineEditing inlineEditing;
 
+    @ToolUi.Tab("Advanced")
+    private boolean disableNavigateAwayAlert;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -530,6 +533,20 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setInlineEditing(InlineEditing inlineEditing) {
         this.inlineEditing = inlineEditing;
+    }
+
+    /**
+     * @return the disableNavigateAwayAlert
+     */
+    public boolean isDisableNavigateAwayAlert() {
+        return disableNavigateAwayAlert;
+    }
+
+    /**
+     * @param disableNavigateAwayAlert the disableNavigateAwayAlert to set
+     */
+    public void setDisableNavigateAwayAlert(boolean disableNavigateAwayAlert) {
+        this.disableNavigateAwayAlert = disableNavigateAwayAlert;
     }
 
     /**
