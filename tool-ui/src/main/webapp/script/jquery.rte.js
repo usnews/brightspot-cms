@@ -1131,8 +1131,15 @@ var Rte = wysihtml5.Editor.extend({
                     }
 
                     $(composer.element).bind('keydown', function(event) {
-                        var which = event.which,
-                                selection = composer.selection;
+                        var which,
+                                selection;
+
+                        if (event.metaKey) {
+                            return true;
+                        }
+
+                        which = event.which;
+                        selection = composer.selection;
 
                         function doDelete(direction) {
                             var rangySelection = selection.getSelection();
@@ -1179,7 +1186,7 @@ var Rte = wysihtml5.Editor.extend({
                                 range,
                                 $del;
 
-                        if (!down) {
+                        if (!down || event.metaKey) {
                             return;
                         }
 
