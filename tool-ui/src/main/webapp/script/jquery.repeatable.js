@@ -125,6 +125,7 @@ $.plugin2('repeatable', {
 
                         $list.append($addedItem);
                         $addedItem.each(createExtra);
+                        $addedItem.removeClass('collapsed');
 
                         // Copy value in single input to the newly added item.
                         if ($singleInput) {
