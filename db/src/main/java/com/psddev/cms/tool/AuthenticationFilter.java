@@ -17,6 +17,7 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
 
 public class AuthenticationFilter extends AbstractFilter {
@@ -67,32 +68,76 @@ public class AuthenticationFilter extends AbstractFilter {
         }
     }
 
-    /** {@link AuthenticationFilter} utility methods. */
+    /**
+     * {@link AuthenticationFilter} utility methods.
+     */
     public static final class Static {
 
-        private Static() {
+        private static void setCookieDomain(Cookie cookie) {
+            String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
+
+            if (!ObjectUtils.isBlank(siteUrl)) {
+                siteUrl = siteUrl.replaceFirst("^(?i)(?:https?://)?(?:www)?", "");
+                int slashAt = siteUrl.indexOf('/');
+
+                if (slashAt > -1) {
+                    siteUrl = siteUrl.substring(0, slashAt);
+                }
+
+                int colonAt = siteUrl.indexOf(':');
+
+                if (colonAt > -1) {
+                    siteUrl = siteUrl.substring(0, colonAt);
+                }
+
+                cookie.setDomain(siteUrl);
+            }
         }
 
-        /** Logs in the given tool {@code user}. */
+        /**
+         * Logs in the given tool {@code user}.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         * @param user Can't be {@code null}.
+         */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
 
-            cookie.setPath("/");
             cookie.setSecure(JspUtils.isSecure(request));
+            setCookieDomain(cookie);
+            cookie.setPath("/");
             JspUtils.setSignedCookie(response, cookie);
-
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
 
-        /** Logs out the current tool user. */
-        public static void logOut(HttpServletResponse response) {
+        /**
+         * Logs out the current tool user.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         */
+        public static void logOut(HttpServletRequest request, HttpServletResponse response) {
             Cookie cookie = new Cookie(USER_COOKIE, null);
 
             cookie.setMaxAge(0);
+            cookie.setSecure(JspUtils.isSecure(request));
+            setCookieDomain(cookie);
             cookie.setPath("/");
-
             response.addCookie(cookie);
+        }
+
+        /**
+         * Logs out the current tool user.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         * @deprecated Use {@link #logOut(HttpServletRequest, HttpServletResponse)} instead.
+         */
+        @Deprecated
+        public static void logOut(HttpServletResponse response) {
+            logOut(PageContextFilter.Static.getRequest(), response);
         }
 
         /**
