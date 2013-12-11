@@ -211,6 +211,15 @@
     // document.
     function equalizeHeight() {
         $editor.height(Math.max($document.height(), $parentBody.height()));
+        $editor.css({
+            'border': 'none',
+            'left': 0,
+            'margin': 0,
+            'position': 'absolute',
+            'top': 0,
+            'width': '100%',
+            'z-index': 1000000
+        });
     }
 
     equalizeHeight();
