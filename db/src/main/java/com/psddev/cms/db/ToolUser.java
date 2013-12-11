@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -431,6 +432,10 @@ public class ToolUser extends Record implements ToolEntity {
      * @return The tool user that holds the lock. Never {@code null}.
      */
     public ToolUser lockContent(UUID id) {
+        if (Query.from(CmsTool.class).first().isDisableContentLocking()) {
+            return this;
+        }
+
         String idPrefix = id.toString() + '/';
         long counter = System.currentTimeMillis() / 10000;
         String currentCounter = String.valueOf(counter);

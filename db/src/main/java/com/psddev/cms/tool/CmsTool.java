@@ -101,6 +101,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("RTE")
     private boolean enableAnnotations;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableContentLocking;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -488,6 +491,14 @@ public class CmsTool extends Tool {
 
     public void setEnableAnnotations(boolean enableAnnotations) {
         this.enableAnnotations = enableAnnotations;
+    }
+
+    public boolean isDisableContentLocking() {
+        return disableContentLocking;
+    }
+
+    public void setDisableContentLocking(boolean disableContentLocking) {
+        this.disableContentLocking = disableContentLocking;
     }
 
     /** Returns the preview URL. */
