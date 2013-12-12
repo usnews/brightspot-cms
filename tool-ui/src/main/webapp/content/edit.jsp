@@ -852,7 +852,11 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                         $dynamicTexts.each(function(index) {
                             var $element = $(this),
-                                    text = data._dynamicTexts[index] || '';
+                                    text = data._dynamicTexts[index];
+
+                            if (text === null) {
+                                return;
+                            }
 
                             if ($element.is('[data-dynamic-text]')) {
                                 $element.text(text);
