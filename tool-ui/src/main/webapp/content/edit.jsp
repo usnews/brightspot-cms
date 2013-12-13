@@ -829,7 +829,10 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 action = $form.attr('action');
                 questionAt = action.indexOf('?');
                 end = +new Date() + 1000;
-                $dynamicTexts = $form.find('[data-dynamic-text], [data-dynamic-html], [data-dynamic-placeholder]');
+                $dynamicTexts = $form.find(
+                        '[data-dynamic-text][data-dynamic-text != ""],' +
+                        '[data-dynamic-html][data-dynamic-html != ""],' +
+                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
 
                 $.ajax({
                     'type': 'post',
