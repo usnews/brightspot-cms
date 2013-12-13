@@ -996,11 +996,6 @@ var Rte = wysihtml5.Editor.extend({
             composer.iframe.contentDocument.body.className += ' rte-loaded';
             textarea.element.className += ' rte-source';
 
-            // Make sure only one toolbar is visible at a time.
-            if (this !== rtes[0]) {
-                this.toolbar.hide();
-            }
-
             this.on('focus', function() {
                 $(textarea.element).parentsUntil('form').addClass('state-focus');
 
