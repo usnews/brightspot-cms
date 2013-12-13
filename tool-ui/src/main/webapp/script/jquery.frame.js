@@ -69,17 +69,13 @@ $.plugin2('frame', {
         // Begins loading $frame using $source.
         beginLoad = function($frame, $source, event) {
             var version = ($frame.data('frame-loadVersion') || 0) + 1,
-                    $popup = $frame.popup('container'),
-                    $oldSource;
+                    $popup = $frame.popup('container');
 
             $frame.add($popup).removeClass(loadedClassName).addClass(loadingClassName);
             $frame.data('frame-loadVersion', version);
             $frame.data('frame-$source', $source);
 
-            // Source change on popup?
-            $oldSource = $frame.popup('source');
-
-            if ($popup[0] && (!$oldSource || $oldSource[0] != $source[0]) && (!$source[0] || !$.contains($popup[0], $source[0]))) {
+            if ($popup[0] && $source[0] && !$.contains($popup[0], $source[0])) {
                 $frame.popup('source', $source, event);
                 $frame.empty();
             }
