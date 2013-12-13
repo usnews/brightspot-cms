@@ -1007,10 +1007,8 @@ var Rte = wysihtml5.Editor.extend({
                     $(rte.config.toolbar).attr('style', rte._toolbarOldStyle);
                     $(rte.overlay).css('top', 0);
                     rte._toolbarOldStyle = null;
-                    rte.toolbar.hide();
                 }
 
-                this.toolbar.show();
                 $(this.overlay).css('top', $(this.config.toolbar).outerHeight());
                 $annotationDialog.popup('close');
             });
