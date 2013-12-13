@@ -45,7 +45,7 @@ writer.start("html");
                     "font-size", "13px",
                     "font-style", "normal",
                     "font-weight", "normal",
-                    "line-height", "1.23076923077",
+                    "line-height", "20px",
                     "margin", "4px",
                     "padding", "0",
                     "vertical-align", "baseline",
@@ -68,7 +68,8 @@ writer.start("html");
 
             writer.css("body.rte-fullscreen",
                     "margin", "20px",
-                    "font-size", "16px");
+                    "font-size", "16px",
+                    "line-height", "24px");
 
             writer.css("del",
                     "display", "inline-block",
