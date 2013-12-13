@@ -3,6 +3,7 @@
 
 var $win = $(win),
         doc = win.document,
+        $doc = $(doc),
         targetIndex = 0;
 
 function getContentEnhancementTarget() {
@@ -291,7 +292,8 @@ var createMarker = function() {
 
 // Wrap wysihtml5 to add functionality.
 var rtes = [ ],
-        getEnhancementId;
+        getEnhancementId,
+        keepToolbarInView;
 
 (function() {
     var enhancementIndex = 0;
@@ -1023,6 +1025,7 @@ var Rte = wysihtml5.Editor.extend({
 
                 $(this.overlay).css('top', $(this.config.toolbar).outerHeight());
                 $annotationDialog.popup('close');
+                keepToolbarInView();
             });
 
             // Hack to make sure that the proper focus fires when clicking
@@ -1590,7 +1593,7 @@ $.plugin2('rte', {
 });
 
 // Make sure that the editorial toolbar is visible as long as possible.
-$win.bind('resize.rte scroll.rte', $.throttle(100, function() {
+$win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function() {
     $.each(rtes, function() {
         var $toolbar = $(this.config.toolbar),
                 $header,
