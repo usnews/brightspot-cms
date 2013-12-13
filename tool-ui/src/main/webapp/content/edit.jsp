@@ -861,6 +861,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                 return;
                             }
 
+                            $element.closest('.message').toggle(text !== '');
+
                             if ($element.is('[data-dynamic-text]')) {
                                 $element.text(text);
 
