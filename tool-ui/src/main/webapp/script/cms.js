@@ -322,6 +322,11 @@ $doc.onCreate('.objectInputs', function() {
         }
     });
 
+    if (tabs.length === 1 && $mainTabItems.length === 0) {
+        $inputs.show();
+        return;
+    }
+
     if (tabs.length > 0) {
         $tabs = $('<ul/>', { 'class': 'tabs' });
 
@@ -346,20 +351,22 @@ $doc.onCreate('.objectInputs', function() {
             }
         });
 
-        $tabs.append($('<li/>', {
-            'class': 'state-selected' + ($mainTabItems.find('.message-error').length > 0 ? ' state-error' : ''),
-            'html': $('<a/>', {
-                'text': 'Main',
-                'click': function() {
-                    $(this).trigger('tabs-select');
+        if ($mainTabItems.length > 0) {
+            $tabs.append($('<li/>', {
+                'class': $mainTabItems.find('.message-error').length > 0 ? ' state-error' : '',
+                'html': $('<a/>', {
+                    'text': 'Main',
+                    'click': function() {
+                        $(this).trigger('tabs-select');
 
-                    $inputs.hide();
-                    $mainTabItems.show();
-                    $container.resize();
-                    return false;
-                }
-            })
-        }));
+                        $inputs.hide();
+                        $mainTabItems.show();
+                        $container.resize();
+                        return false;
+                    }
+                })
+            }));
+        }
 
         $.each(tabs, function(i, tab) {
             $tabs.append($('<li/>', {
@@ -379,6 +386,7 @@ $doc.onCreate('.objectInputs', function() {
         });
 
         $container.prepend($tabs);
+        $tabs.find('li:first-child').trigger('tabs-select');
     }
 
     urlMatch = tabParameterRe.exec(win.location.href);
