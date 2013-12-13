@@ -97,6 +97,20 @@ public class ContentTools extends PageServlet {
                 page.writeStart("ul");
                     if (object != null) {
                         page.writeStart("li");
+                            page.writeStart("label");
+                                page.writeHtml("ID: ");
+
+                                page.writeTag("input",
+                                        "type", "text",
+                                        "class", "code",
+                                        "value", state.getId(),
+                                        "readonly", "readonly",
+                                        "style", "width:290px;",
+                                        "onclick", "this.select();");
+                            page.writeEnd();
+                        page.writeEnd();
+
+                        page.writeStart("li");
                             page.writeStart("a",
                                     "target", "_blank",
                                     "href", page.objectUrl("/contentRaw", object));
