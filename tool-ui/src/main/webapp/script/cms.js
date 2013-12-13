@@ -386,7 +386,7 @@ $doc.onCreate('.objectInputs', function() {
         });
 
         $container.prepend($tabs);
-        $tabs.find('li:first-child').trigger('tabs-select');
+        $tabs.find('li:first-child a').click();
     }
 
     urlMatch = tabParameterRe.exec(win.location.href);
