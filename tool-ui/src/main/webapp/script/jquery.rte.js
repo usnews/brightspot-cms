@@ -329,6 +329,18 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.top = '0px';
         container.appendChild(overlay);
 
+        // Changes the focus method to retain the scrolling position.
+        (function() {
+            var originalFocus = rte.focus;
+
+            rte.focus = function() {
+                var scrollTop = $win.scrollTop();
+
+                originalFocus.apply(rte, arguments);
+                $win.scrollTop(scrollTop);
+            };
+        })();
+
         $(overlay).on('click', function() {
             rte.focus();
         });
