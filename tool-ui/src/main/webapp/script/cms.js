@@ -1091,6 +1091,10 @@ $doc.ready(function() {
                 }
 
             }).done(function(responses) {
+                if (!responses) {
+                    return;
+                }
+
                 $.each(responses, function(i, response) {
                     if (response) {
                         toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
