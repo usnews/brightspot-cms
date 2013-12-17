@@ -223,6 +223,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 %></h1>
 
                 <div class="widgetControls">
+                    <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
                     <%
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
