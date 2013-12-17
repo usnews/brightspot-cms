@@ -120,11 +120,8 @@ try {
             label = field.getLabel();
         }
 
-        if (!ObjectUtils.isBlank(tab)) {
-            wp.write("\" data-tab=\"");
-            wp.writeHtml(tab);
-        }
-
+        wp.write("\" data-tab=\"");
+        wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
         wp.write("\">");
 
         String heading = ui.getHeading();

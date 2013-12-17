@@ -56,6 +56,7 @@ $doc.pageLayout('live', '.pageLayout');
 $doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
 $doc.spreadsheet('live', '.spreadsheet');
+$doc.tabbed('live', '.tabbed, .objectInputs');
 $doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.workflow('live', '.workflow');
@@ -285,126 +286,6 @@ $doc.on('change', '.inputContainer', function() {
     }
 
     $container.toggleClass('state-changed', changed);
-});
-
-// Create tabs that organize form fields.
-$doc.onCreate('.objectInputs', function() {
-    var $container = $(this),
-            tabParameter = encodeURIComponent($container.attr('data-id') + '/tab'),
-            tabParameterRe = new RegExp('([?&])' + tabParameter + '=([^=]+)'),
-            $inputs = $container.find('> .inputContainer'),
-            tabItems = { },
-            tabs = [ ],
-            $mainTabItems = $inputs,
-            $tabs,
-            urlMatch;
-
-    $inputs.each(function() {
-        var $input = $(this),
-                tabName = $input.attr('data-tab'),
-                items;
-
-        if (tabName) {
-            items = tabItems[tabName];
-
-            if (!items) {
-                items = tabItems[tabName] = [ ];
-
-                tabs.push({
-                    'name': tabName,
-                    'items': items
-                });
-            }
-
-            $input.hide();
-            items.push($input[0]);
-            $mainTabItems = $mainTabItems.not($input);
-        }
-    });
-
-    if (tabs.length === 1 && $mainTabItems.length === 0) {
-        $inputs.show();
-        return;
-    }
-
-    if (tabs.length > 0) {
-        $tabs = $('<ul/>', { 'class': 'tabs' });
-
-        $tabs.bind('tabs-select.tabs', function(event) {
-            var $selected = $(event.target),
-                    history = win.history,
-                    href,
-                    text;
-
-            $(this).find('> li').removeClass('state-selected');
-            $selected.closest('li').addClass('state-selected');
-
-            if (history && history.replaceState) {
-                href = win.location.href.replace(tabParameterRe, '');
-                text = $selected.text();
-
-                if (text !== 'Main') {
-                    href += (href.indexOf('?') > -1 ? '&' : '?') + tabParameter + '=' + encodeURIComponent(text);
-                }
-
-                history.replaceState('', '', href);
-            }
-        });
-
-        if ($mainTabItems.length > 0) {
-            $tabs.append($('<li/>', {
-                'class': $mainTabItems.find('.message-error').length > 0 ? ' state-error' : '',
-                'html': $('<a/>', {
-                    'text': 'Main',
-                    'click': function() {
-                        $(this).trigger('tabs-select');
-
-                        $inputs.hide();
-                        $mainTabItems.show();
-                        $container.resize();
-                        return false;
-                    }
-                })
-            }));
-        }
-
-        $.each(tabs, function(i, tab) {
-            $tabs.append($('<li/>', {
-                'class': $(tab.items).find('.message-error').length > 0 ? 'state-error' : '',
-                'html': $('<a/>', {
-                    'text': tab.name,
-                    'click': function() {
-                        $(this).trigger('tabs-select');
-
-                        $inputs.hide();
-                        $(tab.items).show();
-                        $container.resize();
-                        return false;
-                    }
-                })
-            }));
-        });
-
-        $container.prepend($tabs);
-        $tabs.find('li:first-child a').click();
-    }
-
-    urlMatch = tabParameterRe.exec(win.location.href);
-
-    if (urlMatch) {
-        urlMatch = urlMatch[2];
-
-        if (urlMatch) {
-            $tabs.find('> li > a').each(function() {
-                var $tab = $(this);
-
-                if ($tab.text() === urlMatch) {
-                    $tab.click();
-                    return false;
-                }
-            });
-        }
-    }
 });
 
 // Content diff with a side by side view.
