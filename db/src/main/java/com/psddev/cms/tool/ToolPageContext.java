@@ -1,5 +1,6 @@
 package com.psddev.cms.tool;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -64,7 +65,9 @@ import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
+import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -1864,6 +1867,56 @@ public class ToolPageContext extends WebPageContext {
      */
     public void writeStandardForm(Object object) throws IOException, ServletException {
         writeStandardForm(object, true);
+    }
+
+    /**
+     * Writes a link that points to either the Javadoc or the source for the
+     * given {@code objectClass}.
+     *
+     * @param objectClass Can't be {@code null}.
+     */
+    public void writeJavaClassLink(Class<?> objectClass) throws IOException {
+        String objectClassName = objectClass.getName();
+        String javadocUrlPrefix;
+
+        if (objectClassName.startsWith("com.psddev.cms.db.")) {
+            javadocUrlPrefix = "http://public.psddev.com/javadoc/brightspot-cms/";
+
+        } else if (objectClassName.startsWith("com.psddev.dari.db.")) {
+            javadocUrlPrefix = "http://public.psddev.com/javadoc/dari/";
+
+        } else {
+            javadocUrlPrefix = null;
+        }
+
+        if (ObjectUtils.isBlank(javadocUrlPrefix)) {
+            File source = CodeUtils.getSource(objectClassName);
+
+            if (source != null) {
+                writeStart("a",
+                        "target", "_blank",
+                        "href", DebugFilter.Static.getServletPath(getRequest(), "code",
+                                "file", source));
+                    writeStart("code");
+                        writeHtml(objectClassName);
+                    writeEnd();
+                writeEnd();
+
+            } else {
+                writeStart("code");
+                    writeHtml(objectClassName);
+                writeEnd();
+            }
+
+        } else {
+            writeStart("a",
+                    "target", "_blank",
+                    "href", javadocUrlPrefix + objectClassName.replace('.', '/').replace('$', '.') + ".html");
+                writeStart("code");
+                    writeHtml(objectClassName);
+                writeEnd();
+            writeEnd();
+        }
     }
 
     /**

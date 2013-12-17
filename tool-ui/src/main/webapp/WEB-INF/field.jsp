@@ -133,9 +133,7 @@ try {
         }
 
         wp.write("<div class=\"inputLabel\">");
-        if (GuideType.Static.hasFieldGuideInfo(state, field.getInternalName())) {
-            wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.cmsUrl("/guideField", "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
-        }
+        wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.cmsUrl("/guideField", "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
         wp.write("<label for=\"", wp.createId(), "\">");
         wp.write(wp.h(label));
         wp.write("</label></div>");
