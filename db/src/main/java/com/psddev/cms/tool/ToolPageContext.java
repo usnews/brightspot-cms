@@ -72,6 +72,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.WebPageContext;
@@ -1502,9 +1503,11 @@ public class ToolPageContext extends WebPageContext {
                             setWidth(1000).
                             setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
                             toUrl();
-
                 } else {
-                    previewUrl = preview.getPublicUrl();
+                    if (preview instanceof VideoStorageItem) 
+                       previewUrl = ((VideoStorageItem)preview).getThumbnailUrl();
+                    else
+                       previewUrl = preview.getPublicUrl();
                 }
             }
 
