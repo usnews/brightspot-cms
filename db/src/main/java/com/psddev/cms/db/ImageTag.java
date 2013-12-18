@@ -29,6 +29,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.WebPageContext;
@@ -934,8 +935,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (width != null || height != null) {
                     item = ImageEditor.Static.resize(editor, item, options, width, height);
                 }
-
                 String url = item.getPublicUrl();
+                if (item instanceof VideoStorageItem) {
+                    url=((VideoStorageItem)item).getThumbnailUrl();
+                }
                 if (url != null) {
                     attributes.put(srcAttr != null ? srcAttr : "src", url);
                 }
