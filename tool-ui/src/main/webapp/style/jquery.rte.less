@@ -179,7 +179,11 @@ body.rte-fullscreen {
 .rte-button-outdent { .icon; .icon-indent-right; }
 .rte-button-indent { .icon; .icon-indent-left; }
 .rte-button-link { .icon; .icon-link; }
-.rte-button-annotate { .icon; .icon-comments-alt; }
+.rte-button-commentAdd { .icon; .icon-comment-alt; }
+.rte-button-commentCollapse { .icon; .icon-ellipsis-horizontal; }
+.rte-button-commentRemove { .icon; .icon-remove; }
+.rte-button-changesAccept { .icon; .icon-ok; }
+.rte-button-changesReject { .icon; .icon-remove; }
 .rte-button-fullscreen { .icon; .icon-fullscreen; }
 .rte-button-moveLeft { .icon; .icon-arrow-left; }
 .rte-button-moveUp { .icon; .icon-arrow-up; }
@@ -191,15 +195,54 @@ body.rte-fullscreen {
 .rte-button-restore { .icon; .icon-undo; }
 .rte-button-removeCompletely { .icon; .icon-remove-sign; color: @color-alert; }
 
+.rte-button-commentCollapse,
+.rte-button-commentRemove {
+    display: none;
+
+    &.wysihtml5-command-active {
+        background: white;
+    }
+
+    .rte-toolbarContainer-inComment & {
+        display: inline-block;
+    }
+}
+
+.rte-button-commentAdd {
+    .rte-toolbarContainer-inComment & {
+        display: none;
+    }
+}
+
+.rte-button-commentCollapse {
+    &.wysihtml5-command-active {
+        .icon-resize-horizontal;
+    }
+}
+
+.rte-button-commentRemove {
+    &.wysihtml5-command-active {
+        .icon-undo;
+    }
+}
+
+.rte-button-changesAccept,
+.rte-button-changesReject {
+    display: none;
+
+    .rte-toolbarContainer-changesTracking & {
+        display: inline-block;
+    }
+}
+
 .rte-group-cssClass .rte-button,
 .rte-group-dropDown .rte-button,
 .rte-button-insertEnhancement,
 .rte-button-insertMarker,
 .rte-button-selectMarker,
+.rte-button-changesTrack,
 .rte-button-import,
-.rte-button-html,
-.rte-button-trackChanges,
-.rte-button-allComments {
+.rte-button-html {
     padding: 0 3px;
     white-space: nowrap;
     width: auto;

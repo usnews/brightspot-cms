@@ -80,29 +80,13 @@ writer.start("html");
                     "text-decoration", "line-through",
                     "width", 0);
 
-            writer.css("body.rte-trackChanges del",
-                    "background-color", "#faa",
+            writer.css("body.rte-changesTracking del",
+                    "background", "#ffaaaa",
                     "display", "inline",
                     "height", "auto",
                     "overflow", "visible",
                     "position", "static",
                     "width", "auto");
-
-            writer.css("body.rte-firstDraft [data-last-comment]:after, body.rte-trackChanges [data-last-comment]:after",
-                    "background-color", "white",
-                    "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-last-comment) '\u00a0'",
-                    "display", "inline-block",
-                    "font-style", "italic",
-                    "text-decoration", "none");
-
-            writer.css("body.rte-allComments [data-all-comments]:after",
-                    "background-color", "white",
-                    "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-all-comments) '\u00a0'",
-                    "display", "inline-block",
-                    "font-style", "italic",
-                    "text-decoration", "none");
 
             writer.css("em, i",
                     "font-style", "italic");
@@ -120,7 +104,7 @@ writer.start("html");
             writer.css("h3",
                     "font-size", "120%");
 
-            writer.css("body.rte-trackChanges ins",
+            writer.css("body.rte-changesTracking ins",
                     "background-color", "#afa");
 
             writer.css("ol, ul",
@@ -197,17 +181,28 @@ writer.start("html");
             writer.css(".marker",
                     "height", "46px");
 
-            writer.css(".rte-cursor",
-                    "position", "relative");
+            writer.css(".rte-comment",
+                    "background-color", "white",
+                    "border", "1px solid #333",
+                    "font-style", "italic");
 
-            writer.css(".rte-cursor:after",
-                    "background-color", "rgba(0, 0, 0, 0.5)",
-                    "content", "''",
-                    "height", "16px",
-                    "left", "-1px",
-                    "position", "absolute",
-                    "top", 0,
-                    "width", "2px");
+            writer.css(".rte-comment:before, .rte-comment:after",
+                    "content", "'\\00a0'",
+                    "display", "inline-block");
+
+            writer.css(".rte-comment-collapsed",
+                    "display", "inline-block",
+                    "overflow", "hidden",
+                    "white-space", "nowrap",
+                    "width", "16px");
+
+            writer.css(".rte-comment-collapsed:before",
+                    "content", "'\\00a0\\2026'");
+
+            writer.css(".rte-comment-removed",
+                    "border-color", "#cc2200",
+                    "color", "#cc2200",
+                    "text-decoration", "line-through");
 
             CmsTool cms = wp.getCmsTool();
             String defaultCss = cms.getDefaultTextOverlayCss();
