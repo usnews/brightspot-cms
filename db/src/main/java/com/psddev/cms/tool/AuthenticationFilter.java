@@ -17,6 +17,8 @@ import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.KalturaSessionUtils;
+import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.Settings;
 
 public class AuthenticationFilter extends AbstractFilter {
@@ -28,6 +30,7 @@ public class AuthenticationFilter extends AbstractFilter {
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
+    public static final String KALTURA_SESSION_ID = ATTRIBUTE_PREFIX + "kalturaSessionId";
 
     public static final String LOG_IN_PATH = "/logIn.jsp";
     public static final String RETURN_PATH_PARAMETER = "returnPath";
@@ -75,6 +78,7 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /** Logs in the given tool {@code user}. */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
+
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
 
             cookie.setPath("/");
@@ -83,6 +87,13 @@ public class AuthenticationFilter extends AbstractFilter {
 
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            //Create a kaltura session when a user logs in. Kaltura Adming Session is needed to 
+            //see player updates without caching as well as to create thumbnails
+            if (VideoStorageItem.isDefaultVideoStorageKaltura()) {
+              if (request.getSession(false) != null && (request.getSession().getAttribute(KALTURA_SESSION_ID) == null)) {
+                request.getSession().setAttribute(KALTURA_SESSION_ID, KalturaSessionUtils.getKalturaSessionId());
+              }
+            }
         }
 
         /** Logs out the current tool user. */
