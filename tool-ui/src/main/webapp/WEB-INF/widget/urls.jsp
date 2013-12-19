@@ -140,11 +140,11 @@ if (!paths.isEmpty() &&
 
                 if (!sites.isEmpty()) {
                     wp.writeStart("select", "name", siteIdName);
-                        for (Site s : sites.values()) {
-                            wp.writeStart("option", "value", "");
-                                wp.writeHtml("Global");
-                            wp.writeEnd();
+                        wp.writeStart("option", "value", "");
+                            wp.writeHtml("Global");
+                        wp.writeEnd();
 
+                        for (Site s : sites.values()) {
                             wp.writeStart("option",
                                     "selected", s.equals(path.getSite()) ? "selected" : null,
                                     "value", s.getId());
