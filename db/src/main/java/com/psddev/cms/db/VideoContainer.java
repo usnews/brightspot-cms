@@ -10,9 +10,11 @@ import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
-import com.psddev.dari.util.VideoStorageItem;
+import com.psddev.dari.util.ObjectUtils;
+//import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 import com.psddev.dari.util.VideoStorageItem.DurationType;
+import com.psddev.dari.util.Settings;
 
 /**
 * Interface used to add VideContainer Modification 
@@ -94,6 +96,29 @@ public interface VideoContainer extends Recordable {
         public void setTranscodingFlavors(List<TranscodingFlavor> transcodingFlavors) {
             this.transcodingFlavors=transcodingFlavors;
         }
+        /*
+        @Indexed
+        @Embedded
+        @ToolUi.Filterable
+        private List<VideoEvent> events;
+        
+        public List<VideoEvent>  getEvents() {
+            return events;
+        }
+        public void setEvents(List<VideoEvent> events) {
+            this.events=events;
+        } */
+        @Indexed
+        @ToolUi.Hidden
+        private String externalId;
+        
+        public String  getExternalId() {
+            return externalId;
+        }
+        public void setExternalId(String externalId) {
+            this.externalId=externalId;
+        }
+
 
         public ObjectField getVideoStorageItemField() {
             return getState().getType().as(TypeModification.class).getVideoStorageItemField();
@@ -102,14 +127,13 @@ public interface VideoContainer extends Recordable {
         public VideoStorageItem getFile() {
             return (getVideoStorageItemField() == null ? null : (VideoStorageItem) getState().getByPath(getVideoStorageItemField().getInternalName()));
         }
-        public String getExternalId() {
-            return getFile().getExternalId();
-        }
 
         @Override
         public void beforeSave() {
             if (transcodingStatus == null)
                 transcodingStatus=TranscodingStatus.PENDING;
+            //TranscodingService ts=TranscodingServiceFactory.getTranscodingService(defaultVideoStorage);
+            //ts.updateEventData(this);
         }
     }
 
