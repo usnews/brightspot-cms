@@ -108,6 +108,12 @@ public class AuthenticationFilter extends AbstractFilter {
             setCookieDomain(cookie);
             cookie.setPath("/");
             JspUtils.setSignedCookie(response, cookie);
+
+            Cookie domainlessCookie = new Cookie(USER_COOKIE, user.getId().toString());
+            domainlessCookie.setSecure(JspUtils.isSecure(request));
+            domainlessCookie.setPath("/");
+            JspUtils.setSignedCookie(response, domainlessCookie);
+
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
@@ -126,6 +132,13 @@ public class AuthenticationFilter extends AbstractFilter {
             setCookieDomain(cookie);
             cookie.setPath("/");
             response.addCookie(cookie);
+
+            Cookie domainlessCookie = new Cookie(USER_COOKIE, null);
+
+            domainlessCookie.setMaxAge(0);
+            domainlessCookie.setSecure(JspUtils.isSecure(request));
+            domainlessCookie.setPath("/");
+            response.addCookie(domainlessCookie);
         }
 
         /**
