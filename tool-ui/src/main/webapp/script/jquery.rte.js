@@ -1265,7 +1265,6 @@ wysihtml5.commands.allComments = {
         'changesTrack': {
             'exec': function(composer) {
                 $(composer.element).toggleClass('rte-changesTracking');
-                $(composer.config.toolbar).toggleClass('rte-toolbarContainer-changesTracking');
             },
 
             'state': function(composer) {

@@ -72,21 +72,8 @@ writer.start("html");
                     "line-height", "24px");
 
             writer.css("del",
-                    "display", "inline-block",
-                    "height", 0,
-                    "left", "-30000px",
-                    "overflow", "hidden",
-                    "position", "relative",
-                    "text-decoration", "line-through",
-                    "width", 0);
-
-            writer.css("body.rte-changesTracking del",
                     "background", "#ffaaaa",
-                    "display", "inline",
-                    "height", "auto",
-                    "overflow", "visible",
-                    "position", "static",
-                    "width", "auto");
+                    "text-decoration", "line-through");
 
             writer.css("em, i",
                     "font-style", "italic");
@@ -104,7 +91,7 @@ writer.start("html");
             writer.css("h3",
                     "font-size", "120%");
 
-            writer.css("body.rte-changesTracking ins",
+            writer.css("ins",
                     "background-color", "#afa");
 
             writer.css("ol, ul",
