@@ -29,15 +29,6 @@ public  class VideoTranscodingStatusUpdateTask extends RepeatingTask {
     protected DateTime calculateRunTime(DateTime currentTime) {
         return everyMinute(currentTime);
     }
-
-//    public VideoTranscodingStatusUpdateTask(String executor, String name) {
-//        super(executor, name);
-//    }
-//
-//    public VideoTranscodingStatusUpdateTask(String name) {
-//        super(null, name);
-//    }
-
     public VideoTranscodingStatusUpdateTask() {
         super(null, DEFAULT_TASK_NAME);
     }
@@ -93,14 +84,9 @@ public  class VideoTranscodingStatusUpdateTask extends RepeatingTask {
                  //Updated the transcodingStatus
                  videoData.setTranscodingStatus(videoStorageItem.getTranscodingStatus());
                  videoData.setDurationType(videoStorageItem.getDurationType());
-                 List<Integer> videoFlavorIds=videoStorageItem.getTranscodingFlavorIds();
-                 List<TranscodingFlavor> transcodingFlavors= new ArrayList<TranscodingFlavor>(videoFlavorIds.size());
-                 for (Integer flavorId : videoFlavorIds ) {
-                     TranscodingFlavor tf=Query.from(TranscodingFlavor.class).where (" externalId = " + flavorId).first();
-                     if (tf != null)  transcodingFlavors.add(tf);
-                 }
-                 videoData.setTranscodingFlavors(transcodingFlavors);
+                 //End update related to transcoding flavor
                  videoData.setTranscodingStatusUpdatedAt(new Date());
+                 videoData.setExternalId(videoStorageItem.getExternalId());
                  videoData.save();
                  if (statusUpdated && videoStorageItemListenerIds != null) 
                      videoStorageItem.notifyVideoStorageItemListeners();
