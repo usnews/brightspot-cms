@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -265,7 +266,9 @@ public class ContentTools extends PageServlet {
 
             for (Class<? extends Annotation> ac : ClassFinder.Static.findClasses(Annotation.class)) {
                 if (!ac.isAnnotationPresent(Deprecated.class) &&
-                        ac.isAnnotationPresent(ObjectField.AnnotationProcessorClass.class)) {
+                        ac.isAnnotationPresent(annotated instanceof Field ?
+                                ObjectField.AnnotationProcessorClass.class :
+                                ObjectType.AnnotationProcessorClass.class)) {
                     possibleAnnotationClasses.add(ac);
                     continue;
                 }
