@@ -768,17 +768,23 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             wp.writeEnd();
                         }
 
-                        List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
+                        Set<Directory.Path> paths = editingState.as(Directory.Data.class).getPaths();
 
                         if (paths != null && !paths.isEmpty()) {
                             wp.writeHtml(" ");
                             wp.writeStart("select",
                                     "class", "autoSubmit",
                                     "name", "_previewPath");
-                                for (int i = paths.size() - 1; i >= 0; -- i) {
-                                    String path = paths.get(i).getPath();
+                                for (Directory.Path p : paths) {
+                                    Site s = p.getSite();
+                                    String path = p.getPath();
 
                                     wp.writeStart("option", "value", path);
+                                        if (s != null) {
+                                            wp.writeObjectLabel(s);
+                                            wp.writeHtml(": ");
+                                        }
+
                                         wp.writeHtml(path);
                                     wp.writeEnd();
                                 }
