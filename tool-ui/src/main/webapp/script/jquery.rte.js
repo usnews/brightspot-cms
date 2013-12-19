@@ -1259,7 +1259,7 @@ var Rte = wysihtml5.Editor.extend({
         $overlay.toggle(rte.currentView !== textarea);
 
         // Automatically size the iframe height to match the content.
-        $(composerIframe).css('min-height', Math.max(24, $composerBody.outerHeight(true)));
+        $(composerIframe).css('min-height', Math.max(28, $composerBody.outerHeight(true)));
         $(composerWindow).scrollTop(0);
 
         // Overlay enhancements on top of the placeholders in the composer.
