@@ -1229,17 +1229,25 @@ wysihtml5.commands.allComments = {
     }
 };
 
-// Changes support.
+// Changes and comment support.
 (function() {
+    function iterateElements(composer, selector, callback) {
+        var selection = composer.selection,
+                range = selection.getRange();
+
+        $(range.collapsed ?
+                $(range.commonAncestorContainer).closest(selector) :
+                range.getNodes([ Node.ELEMENT_NODE ])).each(function() {
+            if ($(this).is(selector)) {
+                callback.call(this);
+            }
+        });
+    }
+
     function acceptOrReject(removeTag, unwrapTag) {
         return {
             'exec': function(composer) {
-                var selection = composer.selection,
-                        range = selection.getRange();
-
-                $(range.collapsed ?
-                        $(range.commonAncestorContainer).closest('del, ins') :
-                        range.getNodes([ Node.ELEMENT_NODE ])).each(function() {
+                iterateElements(composer, 'del, ins', function() {
                     var $element = $(this);
 
                     if ($element.is(removeTag)) {
@@ -1250,9 +1258,6 @@ wysihtml5.commands.allComments = {
                         $element.remove();
                     }
                 });
-
-                range.collapse(true);
-                selection.setSelection(range);
             },
 
             'state': function() {
@@ -1273,72 +1278,77 @@ wysihtml5.commands.allComments = {
         },
 
         'changesAccept': acceptOrReject('del', 'ins'),
-        'changesReject': acceptOrReject('ins', 'del')
+        'changesReject': acceptOrReject('ins', 'del'),
+
+        'commentAdd': {
+            'exec': function(composer) {
+                var selection = composer.selection,
+                        $comment = $(selection.getRange().commonAncestorContainer).closest('.rte-comment');
+
+                if ($comment.length === 0) {
+                    wysihtml5.commands.formatInline.exec(composer, null, 'span', 'rte rte-comment');
+                }
+            },
+
+            'state': function(composer) {
+                $(composer.config.toolbar).toggleClass(
+                        'rte-toolbarContainer-inComment',
+                        $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0);
+                return false;
+            }
+        },
+
+        'commentCollapse': {
+            'exec': function(composer) {
+                iterateElements(composer, '.rte-comment', function() {
+                    var $selected = $(this),
+                            comment = $selected.attr('data-comment');
+
+                    if (comment) {
+                        $selected.text(comment);
+                        $selected.removeAttr('data-comment');
+
+                    } else {
+                        $selected.attr('data-comment', $selected.text());
+                        $selected.text('\u2026');
+                    }
+                });
+            },
+
+            'state': function(composer) {
+                return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-collapsed').length > 0;
+            }
+        },
+
+        'commentRemove': {
+            'exec': function(composer) {
+                iterateElements(composer, '.rte-comment', function() {
+                    var $selected = $(this),
+                            text,
+                            textLength;
+
+                    if ($selected.length > 0) {
+                        text = $selected.text();
+                        textLength = text.length;
+
+                        if (textLength === 0 ||
+                                (textLength === 1 &&
+                                text.charCodeAt(0) === 65279)) {
+                            $selected.remove();
+
+                        } else {
+                            $selected.toggleClass('rte-comment-removed');
+                        }
+                    }
+                });
+            },
+
+            'state': function(composer) {
+                return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-removed').length > 0;
+            }
+        }
     });
 })();
-
-// Comment support.
-$.extend(wysihtml5.commands, {
-    'commentAdd': {
-        'exec': function(composer) {
-            var selection = composer.selection,
-                    $comment = $(selection.getRange().commonAncestorContainer).closest('.rte-comment');
-
-            if ($comment.length > 0) {
-                selection.setAfter($comment[0]);
-            }
-
-            wysihtml5.commands.formatInline.exec(composer, null, 'span', 'rte rte-comment');
-        },
-
-        'state': function(composer) {
-            $(composer.config.toolbar).toggleClass(
-                    'rte-toolbarContainer-inComment',
-                    $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0);
-            return false;
-        }
-    },
-
-    'commentCollapse': {
-        'exec': function(composer) {
-            var $selected = $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment');
-
-            if ($selected.length > 0) {
-                $selected.toggleClass('rte-comment-collapsed');
-            }
-        },
-
-        'state': function(composer) {
-            return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-collapsed').length > 0;
-        }
-    },
-
-    'commentRemove': {
-        'exec': function(composer) {
-            var $selected = $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment'),
-                    text,
-                    textLength;
-
-            if ($selected.length > 0) {
-                text = $selected.text();
-                textLength = text.length;
-
-                if (textLength === 0 ||
-                        (textLength === 1 &&
-                        text.charCodeAt(0) === 65279)) {
-                    $selected.remove();
-
-                } else {
-                    $selected.toggleClass('rte-comment-removed');
-                }
-            }
-        },
-
-        'state': function(composer) {
-            return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-removed').length > 0;
-        }
-    }
-});
 
 // Add support for toggling 'Fullscreen' mode.
 wysihtml5.commands.fullscreen = {

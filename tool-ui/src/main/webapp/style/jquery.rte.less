@@ -197,20 +197,15 @@ body.rte-fullscreen {
 
 .rte-button-commentCollapse,
 .rte-button-commentRemove {
-    display: none;
-
     &.wysihtml5-command-active {
         background: white;
-    }
-
-    .rte-toolbarContainer-inComment & {
-        display: inline-block;
     }
 }
 
 .rte-button-commentAdd {
     .rte-toolbarContainer-inComment & {
-        display: none;
+        background: @color-note-lighter;
+        color: @color-note-darker;
     }
 }
 
