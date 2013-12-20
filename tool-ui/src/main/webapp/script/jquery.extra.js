@@ -398,4 +398,41 @@ $.easing.easeOutBack = function (x, t, b, c, d, s) {
     return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
 };
 
+$.addQueryParameters = function() {
+    var uri = arguments[0],
+            questionAt = uri.indexOf('?'),
+            queryString,
+            argIndex,
+            argLength = arguments.length,
+            paramName,
+            paramValue;
+
+    if (questionAt > -1) {
+        queryString = '&' + uri.substring(questionAt + 1);
+        uri = uri.substring(0, questionAt);
+
+    } else {
+        queryString = '';
+    }
+
+    for (argIndex = 1; argIndex < argLength; argIndex += 2) {
+        paramName = arguments[argIndex];
+        paramValue = arguments[argIndex + 1];
+        queryString = queryString.replace(new RegExp('&' + paramName + '=[^&]*', 'g'), '');
+
+        if (paramValue !== undefined && paramValue !== null) {
+            $.each($.isArray(paramValue) ? paramValue : [ paramValue ], function(i, v) {
+                queryString += '&';
+                queryString += encodeURIComponent(paramName);
+                queryString += '=';
+                queryString += encodeURIComponent(v);
+            });
+        }
+    }
+
+    return queryString.length > 1 ?
+            uri + '?' + queryString.substring(1) :
+            uri;
+};
+
 }(jQuery, window));
