@@ -538,9 +538,40 @@ var Rte = wysihtml5.Editor.extend({
             $linkDialog.find('.rte-dialogLinkOpen').attr('href', $(event.target).val());
         });
 
+        function removeLink() {
+            var $ins,
+                    $del;
+
+            if ($(rte.composer.element).hasClass('rte-changesTracking')) {
+                $ins = $lastAnchor.parent('ins');
+
+                if ($ins.length > 0) {
+                    $del = $ins.prev('del');
+
+                    if ($del.length > 0 && $del.text() === $lastAnchor.text()) {
+                        $ins.after($lastAnchor.html());
+                        $ins.remove();
+                        $del.remove();
+                        return;
+                    }
+                }
+
+                $del = $('<del/>');
+
+                $lastAnchor.after($del);
+                $del.append($lastAnchor);
+                $del.after($('<ins/>', {
+                    'html': $lastAnchor.html()
+                }));
+
+            } else {
+                $lastAnchor.after($lastAnchor.html());
+                $lastAnchor.remove();
+            }
+        }
+
         $linkDialog.on('click', '.rte-dialogLinkUnlink', function() {
-            $lastAnchor.after($lastAnchor.html());
-            $lastAnchor.remove();
+            removeLink();
             $linkDialog.popup('close');
         });
 
@@ -550,8 +581,7 @@ var Rte = wysihtml5.Editor.extend({
 
         $linkDialog.popup('container').bind('close', function() {
             if (!$lastAnchor.attr('href')) {
-                $lastAnchor.after($lastAnchor.html());
-                $lastAnchor.remove();
+                removeLink();
             }
         });
 
@@ -601,7 +631,9 @@ var Rte = wysihtml5.Editor.extend({
 
             $(config.toolbar).find('.rte-button-link').click(function() {
                 var tempClass,
-                        $anchor;
+                        $anchor,
+                        $ins,
+                        $del;
 
                 ++ tempIndex;
                 tempClass = 'rte-link-temp-' + tempIndex;
@@ -611,6 +643,32 @@ var Rte = wysihtml5.Editor.extend({
                 $anchor = $('a.' + tempClass, rte.composer.element);
 
                 $anchor.removeClass(tempClass);
+
+                if ($(rte.composer.element).hasClass('rte-changesTracking')) {
+                    $ins = $anchor.parent('ins');
+
+                    if ($ins.length > 0) {
+                        $del = $ins.prev('del');
+                        console.log('del', $del[0]);
+
+                        if ($del.length > 0 && $del.text() === $anchor.text()) {
+                            $ins.after($anchor);
+                            $ins.remove();
+                            $del.remove();
+                            openLinkDialog($anchor);
+                            return;
+                        }
+                    }
+                }
+
+                $anchor.before($('<del/>', {
+                    'html': $anchor.html()
+                }));
+
+                $ins = $('<ins/>');
+
+                $anchor.after($ins);
+                $ins.append($anchor);
                 openLinkDialog($anchor);
             });
         })();
