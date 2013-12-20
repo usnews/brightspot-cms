@@ -150,7 +150,7 @@ writer.start("html");
                     "margin", "0 0 1em 0",
                     "width", "100%");
 
-            writer.css(".enhancement[data-preview]",
+            writer.css(".enhancement[data-preview][data-preview != '']",
                     "height", "200px");
 
             writer.css(".enhancement[data-alignment=left]",
