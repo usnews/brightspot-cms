@@ -1319,7 +1319,10 @@ wysihtml5.commands.allComments = {
             },
 
             'state': function(composer) {
-                return $(composer.selection.getRange().commonAncestorContainer).closest('del, ins').length > 0;
+                var range = composer.selection.getRange();
+
+                return !range.collapsed ||
+                        $(range.commonAncestorContainer).closest('del, ins').length > 0;
             }
         };
     }
@@ -1349,9 +1352,11 @@ wysihtml5.commands.allComments = {
             },
 
             'state': function(composer) {
+                var range = composer.selection.getRange();
                 $(composer.config.toolbar).toggleClass(
                         'rte-toolbarContainer-inComment',
-                        $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0);
+                        !range.collapsed ||
+                                $(range.commonAncestorContainer).closest('.rte-comment').length > 0);
                 return false;
             }
         },
