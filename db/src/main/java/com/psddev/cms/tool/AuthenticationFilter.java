@@ -89,7 +89,7 @@ public class AuthenticationFilter extends AbstractFilter {
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
             //Create a kaltura session when a user logs in. Kaltura Adming Session is needed to 
             //see player updates without caching as well as to create thumbnails
-            if (VideoStorageItem.isDefaultVideoStorageKaltura()) {
+            if (VideoStorageItem.isDefaultVideoTranscodingProviderKaltura()) {
               if (request.getSession(false) != null && (request.getSession().getAttribute(KALTURA_SESSION_ID) == null)) {
                 request.getSession().setAttribute(KALTURA_SESSION_ID, KalturaSessionUtils.getKalturaSessionId());
               }
