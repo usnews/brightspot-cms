@@ -6,6 +6,7 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.StringUtils,
 
 java.util.Date,
 java.util.Map,
@@ -37,7 +38,7 @@ String host = request.getHeader("X-Forwarded-Host");
 if (ObjectUtils.isBlank(host)) {
     host = request.getHeader("Host");
 }
-wp.redirect(
-        request.getScheme() + "://" + host + wp.getCmsTool().getPreviewUrl(),
-        PageFilter.PREVIEW_ID_PARAMETER, preview.getId());
+response.sendRedirect(StringUtils.addQueryParameters(
+        wp.getCmsTool().getPreviewUrl(),
+        PageFilter.PREVIEW_ID_PARAMETER, preview.getId()));
 %>

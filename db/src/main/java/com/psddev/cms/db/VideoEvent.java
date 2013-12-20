@@ -71,16 +71,6 @@ public class VideoEvent extends Record {
     public void setTags(String tags) {
         this.tags = tags;
     }
-    @Override
-    public  void beforeDelete() {
-        System.err.println("Control in video event delete ....");
-        if (externalId != null) {
-            System.err.println("Control in video event delete to delete...." + externalId);
-            String defaultVideoStorage=ObjectUtils.to(String.class,Settings.get("dari/defaultVideoStorage"));
-            TranscodingService ts=TranscodingServiceFactory.getTranscodingService(defaultVideoStorage);
-            ts.deleteEvent(externalId);
-        }
-    }
     public VideoEvent() {
     }
     

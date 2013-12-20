@@ -43,5 +43,43 @@ Content that has various views, based on context, can be previewed accordingly t
 In order to enable this view, the content must also have a `@Renderer.EmbedPath("")` annotation. See the [syndication](syndication.html) section to learn about creating an `embed.jsp`.
 
 
+## Dari Grid Context
+
+It is often neccessary to determine what grid area a piece of content is being placed into. Each defined area can have a context set on it, which can then be checked:
+
+{% highlight css %}
+.home-layout {
+    display: -dari-grid;
+    -dari-grid-template:
+        " content . rail ";
+
+    -dari-grid-definition-columns: 700px 30px 200px;
+    -dari-grid-definition-rows: auto;
+    -dari-grid-contexts: 0 content 1 rightRail;
+}
+{% endhighlight %}
+
+By setting the context of each area it can be checked in the jsp rendering:
+
+{% highlight jsp %}
+<c:if test="${cms:inContext('content')}">
+	// Render in specific way
+</c:if>
+{% endhighlight %}
+
+Context can also be checked on the object renderer level:
+
+{% highlight java %}
+@Renderer.Paths ({
+  @Renderer.Path(value = "/WEB-INF/model/article.jsp"),
+  @Renderer.Path(context = "rail",
+	value = "/WEB-INF/model/rail-article.jsp")
+})
+@Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
+public class Article extends Content {
+
+	
+}
+{% endhighlight %}
 
 </div>

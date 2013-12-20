@@ -24,15 +24,15 @@ new SearchResultRenderer(wp, search) {
 
     @Override
     public void renderBeforeItem(Object item) throws IOException {
-        writer.start("a",
+        page.writeStart("a",
                 "data-objectId", State.getInstance(item).getId(),
-                "href", page.objectUrl("/content/enhancement.jsp", item),
+                "href", page.objectUrl("/content/enhancement.jsp", item, "reference", page.param(String.class, "reference")),
                 "target", "_parent");
     }
 
     @Override
     public void renderAfterItem(Object item) throws IOException {
-        writer.end();
+        page.writeEnd();
     }
 }.render();
 %>

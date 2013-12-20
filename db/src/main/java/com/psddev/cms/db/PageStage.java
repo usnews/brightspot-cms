@@ -9,6 +9,10 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectType;
@@ -82,7 +86,37 @@ import com.psddev.dari.util.TypeDefinition;
  */
 public class PageStage extends Record {
 
+    private transient ServletContext servletContext;
+
+    private transient HttpServletRequest request;
+
     private final transient List<HtmlNode> headNodes = new ArrayList<HtmlNode>();
+
+    public PageStage() {
+    }
+
+    public PageStage(ServletContext servletContext, HttpServletRequest request) {
+        this.servletContext = servletContext;
+        this.request = request;
+    }
+
+    /**
+     * Returns the servlet context associated with this page stage.
+     *
+     * @return May be {@code null}.
+     */
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    /**
+     * Returns the request associated with this page stage.
+     *
+     * @return May be {@code null}.
+     */
+    public HttpServletRequest getRequest() {
+        return request;
+    }
 
     /**
      * Returns the list of all nodes in the {@code <head>} element.
@@ -124,6 +158,10 @@ public class PageStage extends Record {
      * Finds or creates an element with the given {@code name} and
      * {@code attributes} within the {@code <head>}.
      *
+     * <p>Note that the stylesheet elements are grouped first, followed by
+     * all non-script elements, followed by script elements, with insertion
+     * order within the groups preserved.</p>
+     *
      * @param name Can't be blank.
      * @param attributes May be {@code null}.
      * @return Never {@code null}.
@@ -133,10 +171,72 @@ public class PageStage extends Record {
 
         if (element == null) {
             element = new HtmlElement();
-            
+
             element.setName(name);
             element.addAttributes(attributes);
-            getHeadNodes().add(element);
+
+            List<HtmlNode> nodes = getHeadNodes();
+
+            if (ObjectUtils.isBlank(nodes)) {
+                nodes.add(element);
+
+            } else {
+
+                // JS goes last.
+                if ("script".equals(name)) {
+                    nodes.add(element);
+
+                // CSS goes first.
+                } else if ("link".equals(name) &&
+                        "text/css".equals(element.getAttributes().get("type"))) {
+                    int insertIndex = 0;
+
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                        HtmlNode node = i.next();
+
+                        if (!(node instanceof HtmlElement)) {
+                            continue;
+                        }
+
+                        HtmlElement iElement = (HtmlElement) node;
+
+                        if ("link".equals(iElement.getName()) &&
+                                "text/css".equals(iElement.getAttributes().get("type"))) {
+                            continue;
+
+                        } else {
+                            insertIndex = i.previousIndex();
+                            break;
+                        }
+                    }
+
+                    nodes.add(insertIndex, element);
+
+                // Everything else in between.
+                } else {
+                    int insertIndex = 0;
+
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                        HtmlNode node = i.next();
+
+                        if (!(node instanceof HtmlElement)) {
+                            continue;
+                        }
+
+                        HtmlElement iElement = (HtmlElement) node;
+
+                        if ("script".equals(iElement.getName())) {
+                            insertIndex = i.previousIndex();
+                            break;
+
+                        } else {
+                            insertIndex = i.nextIndex();
+                        }
+                    }
+
+                    nodes.add(insertIndex, element);
+                }
+            }
         }
 
         return element;

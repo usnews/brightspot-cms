@@ -41,6 +41,7 @@ public class UpdateUserSettings extends PageServlet {
 
             } else if ("dashboardWidgets-position".equals(action)) {
                 userState.put("dashboardWidgets", ObjectUtils.fromJson(page.param(String.class, "widgets")));
+                userState.put("dashboardWidgetsCollapse", ObjectUtils.fromJson(page.param(String.class, "widgetsCollapse")));
 
             } else if ("scheduleSet".equals(action)) {
                 user.setCurrentSchedule(Query.

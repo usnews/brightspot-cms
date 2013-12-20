@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
@@ -7,6 +8,7 @@ com.psddev.dari.db.State,
 
 com.psddev.dari.util.ObjectUtils
 " %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Set" %>
@@ -27,7 +29,7 @@ if(fieldValue == null) {
     fieldValue = new HashMap<String, Object>();
 }
 
-Set<ObjectType> validTypes = field.findConcreteTypes();
+List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
 boolean isValueExternal = true;
 if (validTypes != null && validTypes.size() > 0) {
     isValueExternal = false;

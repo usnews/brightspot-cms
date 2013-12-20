@@ -18,7 +18,7 @@ Installing Brightspot CMS requires five main steps. This installation will walk 
 - **Step 4.** Create Brightspot CMS project using Maven
 - **Step 5.** Run project in Application Server
 
-This installation uses the latest stable release, Brightspot 2.1.
+This installation uses the latest stable release, Brightspot 2.2.
 
 ## Create Database
 
@@ -26,9 +26,10 @@ This installation uses the latest stable release, Brightspot 2.1.
 
 If you don't already have MySQL [download](http://dev.mysql.com/downloads/mysql) and [install](http://dev.mysql.com/doc/refman/5.6/en/installing.html).
 
-Start MySQL on the default port 3306 and create a new database. Load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/etc/mysql) into your newly created database.
+Start MySQL on the default port 3306 and create a new database. *Note, if you are using Brightspot 2.1 or earlier, you will need to load the [Dari Database Schema file](https://github.com/perfectsense/dari/tree/master/db/src/main/resources/mysql) into your newly created database.*
 
-Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/etc)
+
+Note: Brightspot CMS (Dari) also supports PostgreSQL, Oracle and MongoDB. The schema files for these databases can be found in the Dari Github repo, [here](https://github.com/perfectsense/dari/tree/master/db/src/main/resources)
 
 
 ## Create Application Server
@@ -143,7 +144,7 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.0. You can, however, use the 2.1 snapshot in your archetype, as below does. This will build against the latest version of Brightspot, in Snapshot status.*
+OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.2. You can, however, use the 2.3-SNAPSHOT in your archetype. This will build against the latest version of Brightspot*
 
 Run the following Archetype to create the project structure. 
 
@@ -152,12 +153,12 @@ mvn archetype:generate -B \
    -DarchetypeRepository=http://public.psddev.com/maven \
    -DarchetypeGroupId=com.psddev \
    -DarchetypeArtifactId=cms-app-archetype \
-   -DarchetypeVersion=2.1-SNAPSHOT \
+   -DarchetypeVersion=2.2-SNAPSHOT \
    -DgroupId=yourGroupID \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
     	
-*Note, the GroupID and Project name must not contain spaces or hyphens*
+*Note, the GroupID and Project name must not contain spaces or hyphens. The path to the directory must also not container any spaces*
 
 Once your project has been created access your new pom.xml and add the following dependency, for Solr.
 
@@ -187,16 +188,6 @@ If you are seeing the following error - `The BASEDIR environment variable is not
 From $TOMCAT_HOME run the following command `chmod +x bin/*.sh`
 
 
-## Access your CMS
-
-The first time that you access your CMS you will need to perform a `_debug/init`
-
-<http://localhost:8080/_debug/init>
-
-The function of the `_debug/init` is to initialize the CMS Tool Application and widgets.
-
-<img src="http://docs.brightspot.s3.amazonaws.com/init.png"/>
-
 ## Login
 
 Once installed, and assuming the default port is being used, you can access the CMS application at: <http://localhost:8080/cms>
@@ -213,7 +204,7 @@ To do this simply access `$TOMCAT_HOME/conf/context.xml` and change `value="true
 <Environment name="cms/tool/isAutoCreateUser" override="false" type="java.lang.Boolean" value="false" />
 {% endhighlight %}</div>
 
-The default project contains an `index.jsp` file within your webapp directory, remove this to create your own ROOT file.
+The default project contains an `index.jsp` file within your webapp directory, remove this once you have confirmed install to begin your first project.
 
 #### Java Heap Size
 

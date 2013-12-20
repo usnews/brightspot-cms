@@ -1,4 +1,4 @@
-package com.psddev.cms.db; 
+package com.psddev.cms.db;
 import java.util.Map;
 import java.util.Date;
 import java.util.List;
@@ -11,15 +11,16 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
-//import com.psddev.dari.util.VideoStorageItem;
+import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 import com.psddev.dari.util.VideoStorageItem.DurationType;
 import com.psddev.dari.util.Settings;
 
 /**
-* Interface used to add VideContainer Modification 
+* Interface used to add VideContainer Modification
 */
 public interface VideoContainer extends Recordable {
+
     /**
     * Modification which add information specific to video
     */
@@ -29,8 +30,33 @@ public interface VideoContainer extends Recordable {
         /* Length of the video in seconds */
         @Indexed
         @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
         private Long length;
-        
+
+        @Indexed
+        @ToolUi.Filterable
+        @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
+        private TranscodingStatus transcodingStatus;
+
+        /* Trascoding error contains information about why the transcoding failed such as
+           virus infected, no content etc */
+        @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
+        private String transcodingError;
+
+        @Indexed
+        @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
+        private Date transcodingStatusUpdatedAt;
+
+        @Indexed
+        @ToolUi.Filterable
+        @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
+        private DurationType durationType;
+
+
         public Long getLength() {
             return length;
         }
@@ -38,11 +64,7 @@ public interface VideoContainer extends Recordable {
         public void setLength(Long length) {
             this.length = length;
         }
-        @Indexed
-        @ToolUi.Filterable
-        @ToolUi.ReadOnly
-        private TranscodingStatus transcodingStatus;
-        
+
         public TranscodingStatus getTranscodingStatus() {
             return transcodingStatus;
         }
@@ -50,11 +72,7 @@ public interface VideoContainer extends Recordable {
         public void setTranscodingStatus(TranscodingStatus transcodingStatus) {
             this.transcodingStatus = transcodingStatus;
         }
-        /* Trascoding error contains information about why the transcoding failed such as
-           virus infected, no content etc */
-        @ToolUi.ReadOnly
-        private String transcodingError;
-        
+
         public String getTranscodingError() {
             return transcodingError;
         }
@@ -62,10 +80,7 @@ public interface VideoContainer extends Recordable {
         public void setTranscodingError(String transcodingError) {
             this.transcodingError = transcodingError;
         }
-        @Indexed
-        @ToolUi.ReadOnly
-        private Date transcodingStatusUpdatedAt;
-        
+
         public Date getTranscodingStatusUpdatedAt() {
             return transcodingStatusUpdatedAt;
         }
@@ -73,11 +88,7 @@ public interface VideoContainer extends Recordable {
         public void setTranscodingStatusUpdatedAt(Date transcodingStatusUpdatedAt) {
             this.transcodingStatusUpdatedAt=transcodingStatusUpdatedAt;
         }
-        @Indexed
-        @ToolUi.Filterable
-        @ToolUi.ReadOnly
-        private DurationType durationType;
-        
+
         public DurationType getDurationType() {
             return durationType;
         }
@@ -85,17 +96,6 @@ public interface VideoContainer extends Recordable {
             this.durationType=durationType;
         }
 
-        @Indexed
-        @ToolUi.Filterable
-        @ToolUi.ReadOnly
-        private List<TranscodingFlavor> transcodingFlavors;
-        
-        public List<TranscodingFlavor>  getTranscodingFlavors() {
-            return transcodingFlavors;
-        }
-        public void setTranscodingFlavors(List<TranscodingFlavor> transcodingFlavors) {
-            this.transcodingFlavors=transcodingFlavors;
-        }
         /*
         @Indexed
         @Embedded
@@ -143,7 +143,6 @@ public interface VideoContainer extends Recordable {
         private ObjectField videoStorageItemField;
 
         public ObjectField getVideoStorageItemField() {
-            videoStorageItemField = null;
             if (videoStorageItemField == null) {
                 for (ObjectField field : getOriginalObject().getFields()) {
                     if (VideoStorageItem.class.isAssignableFrom(field.getJavaField(getOriginalObject().getObjectClass()).getType())) {

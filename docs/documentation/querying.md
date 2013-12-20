@@ -246,11 +246,11 @@ for (Grouping grouping : groupings) {
 {% endhighlight %}
 
 
-To sort the count, add standard sorters;
+Sort the count using the `_count`:
 
 
 {% highlight java %}
-List<Grouping<Article>> groupings = Query.from(Article.class).sortAscending("tag").groupBy("tag");
+List<Grouping<Article>> groupings = Query.from(Article.class).sortAscending("_count").groupBy("tag");
 
 for (Grouping grouping : groupings) {
     Tag tag = (Tag) grouping.getKeys().get(0);
@@ -258,6 +258,7 @@ for (Grouping grouping : groupings) {
 }
 {% endhighlight %}
 
+![GroupBy](http://docs.brightspot.s3.amazonaws.com/groupBy-code-preview.png)
 
 ### Query Tool
 
@@ -325,6 +326,17 @@ Specific fields from within a Dari object can be returned for a given object. Ot
 {% highlight java %}
 Author author = Query.from(Author.class).fields("name", "age").selectAll();
 {% endhighlight %}
+
+### Timeout
+
+
+A specific timeout length for a query can be set in milliseconds.
+
+
+{% highlight java %}
+Query.from(Author.class).sortAscending("name").timeout(1000.0).selectAll();
+{% endhighlight %}
+
 
 </div>
 

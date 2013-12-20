@@ -43,6 +43,37 @@ public class Image extends Content {
 
 To use the storage item to preview the object in the CMS the annotation `@PreviewField("file")` is used, where "file" is the name of the property.
 
+**Color Image Search**
+
+To enable Editors to search for Images by color update your Image class the following:
+
+- Import ColorImage
+- Implement ColorImage
+- Add Method
+
+<div class="highlight">
+{% highlight java %}
+
+import com.psddev.dari.db.ColorImage;
+
+public class Image extends Content implements ColorImage {
+
+	private String name;
+	private StorageItem file;
+	private String altText;
+
+	// Getters and Setters
+ 
+
+	public StorageItem getColorImage() {
+		return file;
+	} 
+}
+
+{% endhighlight %}
+</div>
+
+
 **Bulk Uploads**
 
 Brightspot provides a bulk upload widget on the dashboard, that allows editors to upload multiple files at once. When the object being uploaded contains `@Required` fields, the objects are created in a draft status, and placed in the unpublished drafts widget. where they can have fields updated.

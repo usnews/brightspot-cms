@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +26,9 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.ImageResizeStorageItemListener;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
@@ -285,6 +288,30 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             crops = new HashMap<String, ImageCrop>();
         }
         return crops;
+    }
+
+    /**
+     * Finds the StorageItem that best matches the provided size. This works
+     * in conjunction with the ImageResizeStorageItemListener class to use a
+     * presized image that is smaller than the original image in an effort to
+     * improve resize performance.
+     */
+    private static StorageItem findStorageItemForSize(StorageItem item, Integer width, Integer height) {
+        if (width == null || height == null) {
+            return item;
+        }
+
+        StorageItem override = StorageItem.Static.createIn(item.getStorage());
+                new ObjectMap(override).putAll(new ObjectMap(item));
+
+        boolean overridden = ImageResizeStorageItemListener.overridePathWithNearestSize(override,
+                width, height);
+
+        if (overridden) {
+            return override;
+        }
+
+        return item;
     }
 
     /**
@@ -879,6 +906,15 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     }
                     if (resizeOption == null) {
                         resizeOption = standardImageSize.getResizeOption();
+                    }
+
+                    // get a potentially smaller image from the StorageItem. This improves
+                    // resize performance on large images.
+                    StorageItem alternateItem = findStorageItemForSize(item, width, height);
+                    if (alternateItem != item) {
+                        item = alternateItem;
+                        originalWidth = findDimension(item, "width");
+                        originalHeight = findDimension(item, "height");
                     }
 
                     // get the crop coordinates

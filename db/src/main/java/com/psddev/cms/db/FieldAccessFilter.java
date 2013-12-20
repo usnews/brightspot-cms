@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.JspBufferFilter;
@@ -29,8 +31,7 @@ public class FieldAccessFilter extends AbstractFilter {
             FilterChain chain)
             throws Exception {
 
-        if (ObjectUtils.to(boolean.class, request.getParameter("_fields")) &&
-                PageFilter.Static.getMainObject(request) != null) {
+        if (ObjectUtils.to(boolean.class, request.getParameter("_fields"))) {
             super.doDispatch(request, response, chain);
 
         } else {
@@ -83,6 +84,50 @@ public class FieldAccessFilter extends AbstractFilter {
         }
     }
 
+    /**
+     * Creates the marker HTML that identifies access to a field with the
+     * given {@code name} in the given {@code state}.
+     *
+     * @param state Can't be {@code null}.
+     * @param name Can't be {@code null}.
+     * @return Never blank.
+     */
+    public static String createMarkerHtml(State state, String name) {
+        StringBuilder marker = new StringBuilder();
+
+        marker.append("<span style=\"display: none;\"");
+
+        ObjectType type = state.getType();
+
+        if (type != null) {
+            ObjectField field = type.getField(name);
+
+            if (field != null) {
+                String fieldType = field.getInternalType();
+
+                if (ObjectField.TEXT_TYPE.equals(fieldType)) {
+                    Object value = state.get(name);
+
+                    marker.append(" data-cms-field-text=\"");
+
+                    if (value != null) {
+                        marker.append(StringUtils.escapeHtml(value.toString()));
+                    }
+
+                    marker.append("\"");
+                }
+            }
+        }
+
+        marker.append(" data-name=\"");
+        marker.append(StringUtils.escapeHtml(state.getId().toString()));
+        marker.append("/");
+        marker.append(StringUtils.escapeHtml(name));
+        marker.append("\">");
+        marker.append("</span>");
+        return marker.toString();
+    }
+
     private static class FieldAccessListener extends State.Listener {
 
         private final HttpServletRequest request;
@@ -93,20 +138,11 @@ public class FieldAccessFilter extends AbstractFilter {
 
         @Override
         public void beforeFieldGet(State state, String name) {
-            StringBuilder marker = new StringBuilder();
-
-            marker.append("<span style=\"display: none;\" data-name=\"");
-            marker.append(StringUtils.escapeHtml(state.getId().toString()));
-            marker.append("/");
-            marker.append(StringUtils.escapeHtml(name));
-            marker.append("\">");
-            marker.append("</span>");
-
             LazyWriterResponse response = (LazyWriterResponse) request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
 
             if (response != null) {
                 try {
-                    response.getLazyWriter().writeLazily(marker.toString());
+                    response.getLazyWriter().writeLazily(createMarkerHtml(state, name));
                 } catch (IOException error) {
                 }
             }

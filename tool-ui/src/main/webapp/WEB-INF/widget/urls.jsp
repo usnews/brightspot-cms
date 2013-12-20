@@ -1,20 +1,21 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.Directory,
-com.psddev.cms.db.Page,
 com.psddev.cms.db.Site,
-com.psddev.cms.db.Template,
-com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.JspWidget,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.ObjectUtils,
 
-java.util.ArrayList,
-java.util.LinkedHashMap,
+java.util.LinkedHashSet,
 java.util.List,
-java.util.Map
+java.util.Map,
+java.util.Set,
+java.util.UUID
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -25,38 +26,47 @@ State state = State.getInstance(object);
 
 String namePrefix = state.getId() + "/directory.";
 String automaticName = namePrefix + "automatic";
+String pathName = namePrefix + "path";
+String removeName = namePrefix + "remove";
 String typeName = namePrefix + "type";
-String addName = namePrefix + "add";
-Directory.ObjectModification dirData = state.as(Directory.ObjectModification.class);
+String siteIdName = namePrefix + "siteId";
+
+Directory.Data dirData = state.as(Directory.Data.class);
+Map<UUID, Site> sites = new CompactMap<UUID, Site>();
+
+for (Site s : Query.
+        from(Site.class).
+        sortAscending("name").
+        selectAll()) {
+    sites.put(s.getId(), s);
+}
 
 if (JspWidget.isUpdating(wp)) {
-    List<String> automatic = wp.params(String.class, automaticName);
+    dirData.setPathsMode(wp.param(boolean.class, automaticName) ? null : Directory.PathsMode.MANUAL);
+    dirData.clearPaths();
+
+    List<String> paths = wp.params(String.class, pathName);
+    List<UUID> siteIds = wp.params(UUID.class, siteIdName);
     List<Directory.PathType> types = wp.params(Directory.PathType.class, typeName);
-    List<String> adds = wp.params(String.class, addName);
 
-    if (automatic.size() > 0) {
-        dirData.setPathsMode(automatic.size() != 1 ? null : Directory.PathsMode.MANUAL);
+    for (int i = 0, size = Math.min(paths.size(), types.size()); i < size; i ++) {
+        if (!wp.param(boolean.class, removeName + "." + i)) {
+            dirData.addPath(i < siteIds.size() ? sites.get(siteIds.get(i)) : null, paths.get(i), types.get(i));
+        }
     }
 
-    dirData.clearSitePaths(site);
-
-    for (int i = 0, size = Math.min(types.size(), adds.size()); i < size; i ++) {
-        dirData.addSitePath(site, adds.get(i), types.get(i));
-    }
-
-    if (automatic.size() != 1) {
-        List<Directory.Path> manualPaths = dirData.getSitePaths(site);
-        List<Directory.Path> automaticPaths = new ArrayList<Directory.Path>();
-
-        state.getExtras().put("cms.automaticPaths", automaticPaths);
+    // Automatically generate URLs if requested.
+    if (!Directory.PathsMode.MANUAL.equals(dirData.getPathsMode())) {
+        Set<Directory.Path> oldPaths = new LinkedHashSet<Directory.Path>(dirData.getPaths());
 
         for (Directory.Path path : State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site)) {
-            dirData.addSitePath(path.getSite(), path.getPath(), path.getType());
-
-            if (!manualPaths.contains(path)) {
-                automaticPaths.add(path);
-            }
+            dirData.addPath(path.getSite(), path.getPath(), path.getType());
         }
+
+        Set<Directory.Path> newPaths = new LinkedHashSet<Directory.Path>(dirData.getPaths());
+
+        newPaths.removeAll(oldPaths);
+        state.getExtras().put("cms.newPaths", newPaths);
     }
 
     return;
@@ -73,36 +83,78 @@ if (!ObjectUtils.isBlank(errors)) {
     wp.writeEnd();
 }
 
-List<Directory.Path> paths = dirData.getSitePaths(site);
+wp.writeStart("div", "class", "widget-urlsAutomatic");
+    wp.writeStart("label");
+        wp.writeTag("input",
+                "type", "checkbox",
+                "name", automaticName,
+                "value", "true",
+                "checked", Directory.PathsMode.MANUAL.equals(dirData.getPathsMode()) ? null : "checked");
+
+        wp.writeHtml(" Generate Permalink?");
+    wp.writeEnd();
+
+    wp.writeStart("div", "id", automaticContainerId);
+    wp.writeEnd();
+wp.writeEnd();
+
+Set<Directory.Path> paths = dirData.getPaths();
 
 if (!paths.isEmpty() &&
+        !state.isNew() &&
+        !state.as(Content.ObjectModification.class).isDraft() &&
         (Directory.PathsMode.MANUAL.equals(dirData.getPathsMode()) ||
         !wp.getCmsTool().isSingleGeneratedPermalink() ||
         State.getInstance(varied).as(Directory.ObjectModification.class).createPaths(site).isEmpty())) {
+    int index = 0;
+
     wp.writeStart("ul");
         for (Directory.Path path : paths) {
-            String href = site != null ? site.getPrimaryUrl() + path.getPath() : path.getPath();
+            Site pathSite = path.getSite();
+            String href = pathSite != null ? pathSite.getPrimaryUrl() + path.getPath() : path.getPath();
+
             wp.writeStart("li", "class", "widget-urlsItem");
-                wp.writeStart("div", "class", "widget-urlsItemRemove");
-                    wp.writeTag("input",
-                            "type", "checkbox",
-                            "id", wp.createId(),
-                            "name", addName,
-                            "value", path.getPath(),
-                            "checked", "checked");
-
-                    wp.writeHtml(" ");
-
-                    wp.writeStart("label", "for", wp.getId());
-                        wp.writeHtml("Keep");
-                    wp.writeEnd();
-                wp.writeEnd();
+                wp.writeTag("input",
+                        "type", "hidden",
+                        "id", wp.createId(),
+                        "name", pathName,
+                        "value", path.getPath());
 
                 wp.writeStart("div", "class", "widget-urlsItemLabel");
                     wp.writeStart("a", "href", href, "target", "_blank");
                         wp.writeHtml(path.getPath());
                     wp.writeEnd();
+
+                    wp.writeStart("label",
+                            "class", "widget-urlsItemRemove");
+                        wp.writeHtml(" ");
+
+                        wp.writeTag("input",
+                                "type", "checkbox",
+                                "name", removeName + "." + index,
+                                "value", "true");
+
+                        wp.writeHtml(" Remove");
+                    wp.writeEnd();
                 wp.writeEnd();
+
+                if (!sites.isEmpty()) {
+                    wp.writeStart("select", "name", siteIdName);
+                        for (Site s : sites.values()) {
+                            wp.writeStart("option", "value", "");
+                                wp.writeHtml("Global");
+                            wp.writeEnd();
+
+                            wp.writeStart("option",
+                                    "selected", s.equals(path.getSite()) ? "selected" : null,
+                                    "value", s.getId());
+                                wp.writeObjectLabel(s);
+                            wp.writeEnd();
+                        }
+                    wp.writeEnd();
+
+                    wp.writeHtml(" ");
+                }
 
                 wp.writeStart("select", "name", typeName);
                     for (Directory.PathType pathType : Directory.PathType.values()) {
@@ -114,48 +166,54 @@ if (!paths.isEmpty() &&
                     }
                 wp.writeEnd();
             wp.writeEnd();
+
+            ++ index;
         }
     wp.writeEnd();
 }
-
-wp.writeStart("div", "id", automaticContainerId);
-wp.writeEnd();
 %>
 
 <div class="repeatableInputs">
     <ul>
         <li class="template widget-urlsItem" data-type="URL">
-            <textarea class="widget-urlsItemLabel" name="<%= wp.h(addName) %>"></textarea>
-            <select name="<%= wp.h(typeName) %>">
-                <% for (Directory.PathType pathType : Directory.PathType.values()) { %>
-                    <option value="<%= wp.h(pathType.name()) %>"><%= wp.h(pathType) %></option>
-                <% } %>
-            </select>
+            <textarea class="widget-urlsItemLabel" name="<%= wp.h(pathName) %>"></textarea>
+
+            <%
+            if (!sites.isEmpty()) {
+                wp.writeStart("select", "name", siteIdName);
+                    wp.writeStart("option", "value", "");
+                        wp.writeHtml("Global");
+                    wp.writeEnd();
+
+                    for (Site s : sites.values()) {
+                        wp.writeStart("option", "value", s.getId());
+                            wp.writeObjectLabel(s);
+                        wp.writeEnd();
+                    }
+                wp.writeEnd();
+
+                wp.writeHtml(" ");
+            }
+
+            wp.writeStart("select", "name", typeName);
+                for (Directory.PathType pathType : Directory.PathType.values()) {
+                    wp.writeStart("option", "value", pathType.name());
+                        wp.writeHtml(pathType);
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+            %>
         </li>
     </ul>
 </div>
 
 <script type="text/javascript">
-if (typeof jQuery !== 'undefined') (function($, win, undef) {
-    var $automaticContainer = $('#<%= automaticContainerId %>'),
-            $form = $automaticContainer.closest('form'),
-            updateAutomatic;
+    (function($, window, undefined) {
+        var $automaticContainer = $('#<%= automaticContainerId %>'),
+                $form = $automaticContainer.closest('form');
 
-    updateAutomatic = $.throttle(100, function() {
-        var action = $form.attr('action'),
-                questionAt = action.indexOf('?');
-
-        $.ajax({
-            'data': $form.serialize(),
-            'type': 'post',
-            'url': CONTEXT_PATH + 'content/automaticPaths.jsp' + (questionAt > -1 ? action.substring(questionAt) : ''),
-            'complete': function(request) {
-                $automaticContainer.html(request.responseText);
-            }
+        $form.bind('cms-updateContentState', function(event, data) {
+            $automaticContainer.html(data._urlWidgetHtml || '');
         });
-    });
-
-    updateAutomatic();
-    $form.bind('change input', updateAutomatic);
-})(jQuery, window);
+    })(jQuery, window);
 </script>

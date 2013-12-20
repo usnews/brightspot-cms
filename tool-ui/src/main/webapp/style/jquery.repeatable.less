@@ -9,7 +9,6 @@
         > li {
             background-color: rgba(255, 255, 255, 0.5);
             border: 1px solid @color-note-lighter;
-            .border-radius(5px);
             margin-bottom: 6px;
             padding: 0 6px;
             position: relative;
@@ -20,9 +19,9 @@
                 cursor: pointer;
                 font-family: @fontFamily-label;
                 left: 0;
-                margin: 0 -6px 6px -6px;
+                margin: 0 -6px 0 -6px;
                 min-height: 22px;
-                padding: 5px 5px 5px 35px;
+                padding: 3px 35px 3px 45px;
                 position: relative;
 
                 &:before {
@@ -48,12 +47,17 @@
             > .removeButton {
                 .icon;
                 .icon-minus-sign;
+                .icon-only;
                 .link;
+
                 color: @color-alert;
-                left: 100%;
-                margin-left: -5.8em;
                 position: absolute;
-                top: 7px;
+                right: 5px;
+                top: 4px;
+            }
+
+            .inputContainer:first-child {
+                margin-top: 6px;
             }
 
             &.state-focus {
@@ -69,7 +73,6 @@
 
                 > .repeatableLabel {
                     border-bottom-style: none;
-                    margin-bottom: 0;
 
                     &:before {
                         content: '\25ba';
@@ -123,6 +126,89 @@
             display: none;
         }
     }
+
+    &.repeatableForm-previewable {
+        > ol,
+        > ul {
+            overflow: hidden;
+
+            > li {
+                background: @color-background;
+                .box-sizing(border-box);
+                float: left;
+                margin-right: 1%;
+                width: 24%;
+
+                &:nth-child(4n+1) {
+                    clear: left;
+                }
+
+                > .repeatableLabel {
+                    .box-sizing(border-box);
+                    overflow: hidden;
+                    padding-right: 30px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                > .removeButton {
+                    .icon-only;
+
+                    left: auto;
+                    right: 5px;
+                }
+
+                .inputLabel {
+                    display: block;
+                    float: none;
+                    margin: 0 0 5px 0;
+                    padding: 5px;
+                    width: auto;
+                }
+
+                .inputSmall {
+                    margin-left: 0;
+                    padding-left: 2px;
+                }
+
+                .inputNote {
+                    margin-left: 2px;
+                }
+
+                .objectId-select {
+                    width: 100%;
+                }
+
+                .objectId-edit {
+                    margin-left: 0;
+                }
+
+                &.collapsed {
+                    .inputLabel,
+                    .objectId-clear {
+                        display: none !important;
+                    }
+
+                    .objectId-select {
+                        @img-height: 100px;
+
+                        display: block;
+                        height: (@img-height + 2 * (@input-padding + @input-borderWidth));
+
+                        img {
+                            height: @img-height;
+                        }
+                    }
+                }
+            }
+        }
+
+        > [class^="action-"],
+        > [class*=" action-"] {
+            float: left;
+            margin: 0 10px 0 0;
+        }
+    }
 }
 
 .repeatableForm > ol > li.collapsed > .frame,
@@ -131,13 +217,28 @@
 }
 .repeatableForm > ol > li.collapsed .message,
 .repeatableForm > ul > li.collapsed .message,
-.repeatableForm > ol > li.collapsed .objectInputs,
-.repeatableForm > ul > li.collapsed .objectInputs,
+.repeatableForm > ol > li.collapsed .inputContainer,
+.repeatableForm > ul > li.collapsed .inputContainer,
 .repeatableForm > ol > li.toBeRemoved .message,
 .repeatableForm > ul > li.toBeRemoved .message,
-.repeatableForm > ol > li.toBeRemoved .objectInputs,
-.repeatableForm > ul > li.toBeRemoved .objectInputs {
+.repeatableForm > ol > li.toBeRemoved .inputContainer,
+.repeatableForm > ul > li.toBeRemoved .inputContainer {
     display: none;
+}
+
+.repeatableForm {
+    > ol,
+    > ul {
+        > li {
+            &.collapsed,
+            &.toBeRemoved {
+                .inputContainer-bulkUpload,
+                .inputContainer-expanded {
+                    display: block;
+                }
+            }
+        }
+    }
 }
 
 .repeatableInputs {
@@ -203,7 +304,6 @@
         > li {
             background-color: rgba(255, 255, 255, 0.5);
             border: 1px solid @color-note-lighter;
-            .border-radius(5px);
             margin-bottom: 6px;
             padding: 0 6px;
             position: relative;
@@ -216,7 +316,7 @@
                 left: 0;
                 margin: 0 -6px 6px -6px;
                 min-height: 22px;
-                padding: 5px;
+                padding: 3px 5px;
             }
 
             > .layouts {
@@ -226,12 +326,13 @@
             > .removeButton {
                 .icon;
                 .icon-minus-sign;
+                .icon-only;
                 .link;
+
                 color: @color-alert;
-                left: 100%;
-                margin-left: -5.8em;
                 position: absolute;
-                top: 7px;
+                right: 5px;
+                top: 4px;
             }
 
             &.state-focus {

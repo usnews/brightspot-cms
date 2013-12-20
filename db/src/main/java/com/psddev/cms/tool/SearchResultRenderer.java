@@ -17,6 +17,7 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.MetricInterval;
@@ -64,7 +65,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
-            this.showTypeLabel = selectedType.findConcreteTypes().size() != 1;
+            this.showTypeLabel = selectedType.as(ToolUi.class).findDisplayTypes().size() != 1;
 
             if (ObjectType.getInstance(ObjectType.class).equals(selectedType)) {
                 List<ObjectType> types = new ArrayList<ObjectType>();
@@ -89,20 +90,30 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        boolean resultsDisplayed = false;
+
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
         if (ObjectUtils.isBlank(search.getQueryString()) &&
                 search.getSelectedType() != null &&
                 search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
-            page.writeStart("div", "class", "searchTaxonomy");
-                page.writeStart("ul", "class", "taxonomy");
-                    for (Taxon t : Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass())) {
-                        writeTaxon(t);
-                    }
-                page.writeEnd();
-            page.writeEnd();
 
-        } else {
+            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+
+            if (!roots.isEmpty()) {
+                resultsDisplayed = true;
+
+                page.writeStart("div", "class", "searchTaxonomy");
+                    page.writeStart("ul", "class", "taxonomy");
+                        for (Taxon root : roots) {
+                            writeTaxon(root);
+                        }
+                    page.writeEnd();
+                page.writeEnd();
+            }
+        }
+
+        if (!resultsDisplayed) {
             if (search.findSorts().size() > 1) {
                 page.writeStart("div", "class", "searchSorter");
                     renderSorter();
@@ -244,7 +255,6 @@ public class SearchResultRenderer {
     public void renderList(Collection<?> listItems) throws IOException {
         List<Object> items = new ArrayList<Object>(listItems);
         Map<Object, StorageItem> previews = new LinkedHashMap<Object, StorageItem>();
-        Map<Object, StorageItem> videoPreviews = new LinkedHashMap<Object, StorageItem>();
 
         for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
             Object item = i.next();
@@ -254,13 +264,9 @@ public class SearchResultRenderer {
             if (preview != null) {
                 String contentType = preview.getContentType();
 
-                if (contentType != null && contentType.startsWith("image/")) {
+                if (contentType != null && (contentType.startsWith("image/") || contentType.startsWith("video/"))) {
                     i.remove();
                     previews.put(item, preview);
-                }
-                if (contentType != null && contentType.startsWith("video/")) {
-                    i.remove();
-                    videoPreviews.put(item, preview);
                 }
             }
         }
@@ -272,14 +278,7 @@ public class SearchResultRenderer {
                 }
             page.writeEnd();
         }
-        if (!videoPreviews.isEmpty()) {
-            System.err.println("Rendering of video thumbs...");
-            page.writeStart("div", "class", "searchResultImages");
-                for (Map.Entry<Object, StorageItem> entry : videoPreviews.entrySet()) {
-                    renderVideo(entry.getKey(), entry.getValue());
-                }
-            page.writeEnd();
-        }
+
         if (!items.isEmpty()) {
             page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
                 page.writeStart("tbody");
@@ -294,39 +293,23 @@ public class SearchResultRenderer {
     public void renderImage(Object item, StorageItem image) throws IOException {
         String url = null;
 
-        if (ImageEditor.Static.getDefault() != null) {
-            url = new ImageTag.Builder(image).setHeight(100).toUrl();
-        }
+        if (image instanceof VideoStorageItem) {
+            url = ((VideoStorageItem) image).getThumbnailUrl();
 
-        if (url == null) {
-            url = image.getPublicUrl();
+        } else {
+
+            if (ImageEditor.Static.getDefault() != null) {
+                url = new ImageTag.Builder(image).setHeight(100).toUrl();
+            }
+
+            if (url == null) {
+                url = image.getPublicUrl();
+            }
+
         }
 
         renderBeforeItem(item);
 
-        page.writeStart("figure");
-            page.writeTag("img",
-                    "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
-                    "src", page.url(url));
-
-            page.writeStart("figcaption");
-                if (showTypeLabel) {
-                    page.writeTypeLabel(item);
-                    page.writeHtml(": ");
-                }
-                page.writeObjectLabel(item);
-            page.writeEnd();
-        page.writeEnd();
-
-        renderAfterItem(item);
-    }
-
-    public void renderVideo(Object item, StorageItem video) throws IOException {
-        String url=video.getPublicUrl();
-        if (video instanceof VideoStorageItem) {
-          url = ((VideoStorageItem)video).getThumbnailUrl();
-        }
-        renderBeforeItem(item);
         page.writeStart("figure");
             page.writeTag("img",
                     "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),

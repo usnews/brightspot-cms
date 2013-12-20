@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
@@ -16,6 +17,7 @@ com.psddev.dari.db.Query,
 com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.Utf8Filter,
 
 java.util.ArrayList,
 java.util.Collections,
@@ -66,7 +68,7 @@ Set<ObjectType> validTypes = search.findValidTypes();
 ObjectType selectedType = search.getSelectedType();
 
 if (validTypes.isEmpty()) {
-    validTypes.addAll(ObjectType.getInstance(Content.class).findConcreteTypes());
+    validTypes.addAll(ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes());
 }
 
 String resultTarget = wp.createId();
@@ -112,6 +114,38 @@ if (wp.isFormPost()) {
     }
 }
 
+writer.writeStart("h1", "class", "icon icon-action-search");
+    writer.writeHtml("Search");
+writer.writeEnd();
+
+ToolUser user = wp.getUser();
+Map<String, String> savedSearches = user.getSavedSearches();
+
+if (!savedSearches.isEmpty()) {
+    wp.writeStart("div", "class", "widget-contentCreate");
+        List<String> savedSearchNames = new ArrayList<String>(savedSearches.keySet());
+
+        Collections.sort(savedSearchNames, String.CASE_INSENSITIVE_ORDER);
+
+        wp.writeStart("div", "class", "action action-create icon-action-search");
+            wp.writeHtml("Saved Searches");
+        wp.writeEnd();
+
+        wp.writeStart("ul");
+            for (String savedSearchName : savedSearchNames) {
+                String savedSearch = savedSearches.get(savedSearchName);
+
+                wp.writeStart("li");
+                    wp.writeStart("a",
+                            "href", wp.url(null) + "?" + savedSearch);
+                        wp.writeHtml(savedSearchName);
+                    wp.writeEnd();
+                wp.writeEnd();
+            }
+        wp.writeEnd();
+    wp.writeEnd();
+}
+
 writer.start("div", "class", "searchForm");
     writer.start("div", "class", "searchControls");
 
@@ -126,6 +160,7 @@ writer.start("div", "class", "searchForm");
                     "method", "get",
                     "action", wp.url(null));
 
+                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                 writer.tag("input", "type", "hidden", "name", "reset", "value", "true");
                 writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
 
@@ -161,6 +196,7 @@ writer.start("div", "class", "searchForm");
                     "action", wp.url(request.getAttribute("resultJsp")),
                     "target", resultTarget);
 
+                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
                 writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
                 writer.tag("input", "type", "hidden", "name", Search.SORT_PARAMETER, "value", search.getSort());
 
@@ -369,6 +405,19 @@ writer.start("div", "class", "searchForm");
                     writer.end();
                 }
 
+                writer.writeStart("div", "class", "searchFilter");
+                    writer.writeTag("input",
+                            "type", "checkbox",
+                            "id", wp.createId(),
+                            "name", Search.SHOW_DRAFTS_PARAMETER,
+                            "value", true,
+                            "checked", wp.getUser().getCurrentSchedule() != null ? "checked" : null);
+
+                    writer.writeStart("label",
+                            "for", wp.getId());
+                        writer.writeHtml(" Show Drafts");
+                    writer.writeEnd();
+                writer.writeEnd();
             writer.end();
 
             writer.start("a",

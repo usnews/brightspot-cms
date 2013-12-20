@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import com.psddev.dari.db.Record;
 
+@Record.BootstrapPackages("Referential Text Markers")
 public class ReferentialTextMarker extends Record {
 
     @Required

@@ -9,6 +9,8 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.dari.db.Reference;
+import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.HtmlGrid;
@@ -18,6 +20,7 @@ import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.UrlBuilder;
 
 public final class ElFunctionUtils {
 
@@ -77,6 +80,32 @@ public final class ElFunctionUtils {
 
     public static List<String> listLayouts(Object object, String field) {
         return object != null ? State.getInstance(object).as(Renderer.Data.class).getListLayouts().get(field) : null;
+    }
+
+    /**
+     * Returns the number of markers with the given {@code markerInternalName}
+     * in the given {@code text}.
+     *
+     * @param text If {@code null}, returns {@code 0}.
+     * @param markerInternalName If blank, returns {@code 0}.
+     */
+    public static int markerCount(ReferentialText text, String markerInternalName) {
+        int count = 0;
+
+        if (text != null && !ObjectUtils.isBlank(markerInternalName)) {
+            for (Object item : text) {
+                if (item instanceof Reference) {
+                    Object referenced = ((Reference) item).getObject();
+
+                    if (referenced instanceof ReferentialTextMarker &&
+                            (((ReferentialTextMarker) referenced).getInternalName().equals(markerInternalName))) {
+                        ++ count;
+                    }
+                }
+            }
+        }
+
+        return count;
     }
 
     /**
@@ -174,5 +203,17 @@ public final class ElFunctionUtils {
         }
 
         return pathWithTimestamp(servletContext, servletPath);
+    }
+
+    public static UrlBuilder absolutePath(String path) {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).absolutePath(path);
+    }
+
+    public static UrlBuilder currentPath() {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).currentPath();
+    }
+
+    public static UrlBuilder path(String path) {
+        return new UrlBuilder(PageContextFilter.Static.getRequest()).path(path);
     }
 }

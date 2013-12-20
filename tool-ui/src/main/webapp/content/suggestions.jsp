@@ -1,6 +1,7 @@
 <%@ page import="
 
 com.psddev.cms.db.Site,
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
@@ -63,11 +64,9 @@ try {
     Map<Object, Float> suggestions = new HashMap<Object, Float>();
     StringBuilder filter = new StringBuilder();
 
-    for (ObjectType type : field.getTypes()) {
-        for (ObjectType t : type.findConcreteTypes()) {
-            filter.append(SolrDatabase.Static.escapeValue(t.getId()));
-            filter.append(" || ");
-        }
+    for (ObjectType t : field.as(ToolUi.class).findDisplayTypes()) {
+        filter.append(SolrDatabase.Static.escapeValue(t.getId()));
+        filter.append(" || ");
     }
 
     Site site = wp.getUser().getCurrentSite();
