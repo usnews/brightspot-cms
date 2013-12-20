@@ -56,6 +56,7 @@ if (!wp.param(boolean.class, "widget")) {
                 "target", "newWorkStream");
             wp.writeHtml("New Work Stream");
         wp.writeEnd();
+        /* 
         //Display create playlist button on search result page if Video Container interface is implemented
         if (search.getSelectedType() != null && search.getSelectedType().getGroups().contains(VideoContainer.class.getName())) {
             wp.writeStart("a",
@@ -66,8 +67,7 @@ if (!wp.param(boolean.class, "widget")) {
                     "target", "newPlaylist");
                 wp.writeHtml("New Playlist");
             wp.writeEnd();
-        }
-
+        } */
         wp.writeStart("a",
                 "class", "button action action-search",
                 "target", "_top",
