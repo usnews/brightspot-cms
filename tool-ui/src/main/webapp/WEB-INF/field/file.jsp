@@ -618,10 +618,32 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 </div>
             <% } else if(fieldValue instanceof KalturaStorageItem) { %>
                         <% Integer partnerId = ((KalturaStorageItem) fieldValue).getPartnerId(); %>
+                        <% String externalId = ((KalturaStorageItem) fieldValue).getExternalId(); %>
                         <% String  kalturaPlayerKey = ((KalturaStorageItem) fieldValue).getPlayerKey(); %>
                         <% Integer kalturaPlayerId = ((KalturaStorageItem) fieldValue).getPlayerId(); %>
-                        <div>
-                             <script type="text/javascript" src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>?entry_id=<%=((KalturaStorageItem)fieldValue).getKalturaId()%>&playerId=kaltura_player_<%=kalturaPlayerKey%>&cache_st=<%=kalturaPlayerKey%>&autoembed=true&width=400&height=333"></script>
+                        <% String kalturaSession=(String) session.getAttribute("com.psddev.cms.tool.AuthenticationFilter.kalturaSessionId"); %>
+                             <div>
+                             <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>"></script>
+                             <object id="kaltura_player_<%=kalturaPlayerKey%>" name="kaltura_player_<%=kalturaPlayerKey%>" type="application/x-shockwave-flash" allowFullScreen="true" 
+                             allowNetworking="all" allowScriptAccess="always" height="395" width="560" bgcolor="#000000" style="width: 560px; height: 395px;" 
+                             xmlns:dc="http://purl.org/dc/terms/" xmlns:media="http://search.yahoo.com/searchmonkey/media/" rel="media:video" 
+                             resource="http://cdnapi.kaltura.com/index.php/kwidget/cache_st/<%=kalturaPlayerKey%>/wid/_<%=partnerId%>/uiconf_id/<%=kalturaPlayerId%>/entry_id/<%=externalId%>"
+                             data="http://cdnapi.kaltura.com/index.php/kwidget/cache_st/<%=kalturaPlayerKey%>/wid/_<%=partnerId%>/uiconf_id/<%=kalturaPlayerId%>/entry_id/<%=externalId%>">
+                                    <param name="allowFullScreen" value="true" />
+                                    <param name="allowNetworking" value="all" />
+                                    <param name="allowScriptAccess" value="always" />
+                                    <param name="bgcolor" value="#000000" />
+                                    <param name="flashVars" value="ks=<%=kalturaSession%>" />
+                                    <param name="movie"
+                                     value="http://cdnapi.kaltura.com/index.php/kwidget/cache_st/<%=kalturaPlayerKey%>/wid/_<%=partnerId%>/uiconf_id/<%=kalturaPlayerId%>/entry_id/<%=externalId%>" />
+                                                        
+                                    <a rel="media:thumbnail" href=""></a>
+                                    <span property="dc:description" content=""></span>
+                                    <span property="media:title" content="video"></span>
+                                    <span property="media:width" content="560"></span>
+                                    <span property="media:height" content="395"></span>
+                                    <span property="media:type" content="application/x-shockwave-flash"></span> 
+                             </object>
                         </div>
             <% } else if(fieldValue instanceof BrightcoveStorageItem) { %>
 
