@@ -1608,4 +1608,23 @@ $doc.on('click', '[data-enhancement]', function(event) {
     event.stopImmediatePropagation();
 });
 
+// Remove the enhancement if selection popup is closed without enhancement
+// being set.
+$doc.on('close', '.popup[name ^= "contentEnhancement-"]', function() {
+    var $group = $(this).popup('source').closest('.rte-group'),
+            $enhancement,
+            $placeholder;
+
+    if (!$group.hasClass('rte-group-enhancementSet')) {
+        $enhancement = $group.closest('.rte-enhancement');
+        $placeholder = $enhancement.data('$rte-placeholder');
+
+        $enhancement.remove();
+
+        if ($placeholder) {
+            $placeholder.remove();
+        }
+    }
+});
+
 }(jQuery, window));
