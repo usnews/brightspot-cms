@@ -26,6 +26,6 @@ if (listener == null) {
     return;
 }
 UploadInfo ui2= new UploadInfo(listener);
-out.println(jsonProcessor.generate(ui));
+out.println(jsonProcessor.generate(ui2));
 %>
 
