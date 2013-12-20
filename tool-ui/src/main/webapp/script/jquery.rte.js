@@ -1260,8 +1260,8 @@ wysihtml5.commands.allComments = {
                 });
             },
 
-            'state': function() {
-                return false;
+            'state': function(composer) {
+                return $(composer.selection.getRange().commonAncestorContainer).closest('del, ins').length > 0;
             }
         };
     }

@@ -197,8 +197,14 @@ body.rte-fullscreen {
 
 .rte-button-commentCollapse,
 .rte-button-commentRemove {
+    color: @color-note;
+
     &.wysihtml5-command-active {
         background: white;
+    }
+
+    .rte-toolbarContainer-inComment & {
+        color: @color-text;
     }
 }
 
@@ -217,6 +223,16 @@ body.rte-fullscreen {
 .rte-button-commentRemove {
     &.wysihtml5-command-active {
         .icon-undo;
+    }
+}
+
+.rte-button-changesAccept,
+.rte-button-changesReject {
+    color: @color-note;
+
+    &.wysihtml5-command-active {
+        background: @color-background;
+        color: @color-text;
     }
 }
 
