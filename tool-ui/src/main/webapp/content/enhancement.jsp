@@ -130,12 +130,6 @@ if (object == null) {
     %>
 
     <form action="<%= wp.url("", "typeId", state.getTypeId(), "id", state.getId()) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
-
-        <p><a class="action action-change" href="<%= wp.url("",
-                "typeId", null,
-                "id", null,
-                "reference", referenceParamWithoutObject(ref)) %>">Change Enhancement</a></p>
-
         <% wp.include("/WEB-INF/errors.jsp"); %>
 
         <%

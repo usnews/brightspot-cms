@@ -240,9 +240,18 @@ var createEnhancement = function(rte) {
     $toolbar.append($misc);
 
     $misc.append($('<span/>', {
-        'class': 'rte-button rte-button-editEnhancement',
+        'class': 'rte-button rte-button-enhancementSelect',
         'html': $('<a/>', {
-            'href': CONTEXT_PATH + '/content/enhancement.jsp?id=',
+            'href': CONTEXT_PATH + '/enhancementSelect',
+            'target': getContentEnhancementTarget(),
+            'text': 'Select'
+        })
+    }));
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-enhancementEdit',
+        'html': $('<a/>', {
+            'href': CONTEXT_PATH + '/content/enhancement.jsp',
             'target': getContentEnhancementTarget(),
             'text': 'Edit'
         })
@@ -1099,19 +1108,14 @@ var Rte = wysihtml5.Editor.extend({
                 $.data($enhancement[0], '$rte-placeholder', $placeholder);
                 $overlay.append($enhancement);
 
-                $enhancement.find('.rte-button-editEnhancement a').each(function() {
+                $enhancement.find('.rte-button-enhancementSelect a').each(function() {
                     var $anchor = $(this),
-                            href = $anchor.attr('href'),
-                            id = $placeholder.attr('data-id'),
-                            reference = $placeholder.attr('data-reference');
+                            id = $placeholder.attr('data-id');
 
-                    href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
-                    href += 'id=' + (id || '');
-
-                    href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
-                    href += 'reference=' + (reference || '');
-
-                    $anchor.attr('href', href);
+                    $anchor.attr('href', $.addQueryParameters(
+                            $anchor.attr('href'),
+                            'id', id,
+                            'reference', $placeholder.attr('data-reference')));
 
                     if (!id) {
                         $editTrigger = $anchor;
@@ -1575,5 +1579,33 @@ $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function(
         }
     });
 }));
+
+// Handle enhancement selection within a popup.
+$doc.on('click', '[data-enhancement]', function(event) {
+    var $target = $(this),
+            $select = $target.popup('source'),
+            $group = $select.closest('.rte-group'),
+            $edit = $group.find('.rte-button-enhancementEdit a'),
+            enhancement = $target.attr('data-enhancement'),
+            enhancementJson = $.parseJSON(enhancement);
+
+    $select.text('Change');
+    $group.addClass('rte-group-enhancementSet');
+
+    $edit.attr('href', $.addQueryParameters(
+            $edit.attr('href'),
+            'id', enhancementJson.id));
+
+    $edit.rte('enhancement', {
+        'id': enhancementJson.id,
+        'label': enhancementJson.label,
+        'preview': enhancementJson.preview,
+        'reference': enhancement
+    });
+
+    $target.popup('close');
+    event.preventDefault();
+    event.stopImmediatePropagation();
+});
 
 }(jQuery, window));

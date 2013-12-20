@@ -190,7 +190,8 @@ body.rte-fullscreen {
 .rte-button-moveCenter { .icon; .icon-fullscreen; }
 .rte-button-moveDown { .icon; .icon-arrow-down; }
 .rte-button-moveRight { .icon; .icon-arrow-right; }
-.rte-button-editEnhancement { .icon; .icon-pencil; }
+.rte-button-enhancementSelect { .icon; .icon-random; }
+.rte-button-enhancementEdit { .icon; .icon-pencil; }
 .rte-button-remove { .icon; .icon-remove-sign; color: @color-alert; }
 .rte-button-restore { .icon; .icon-undo; }
 .rte-button-removeCompletely { .icon; .icon-remove-sign; color: @color-alert; }
@@ -236,6 +237,14 @@ body.rte-fullscreen {
     }
 }
 
+.rte-button-enhancementEdit {
+    display: none;
+
+    .rte-group-enhancementSet & {
+        display: inline-block;
+    }
+}
+
 .rte-group-cssClass .rte-button,
 .rte-group-dropDown .rte-button,
 .rte-button-insertEnhancement,
@@ -249,7 +258,8 @@ body.rte-fullscreen {
     width: auto;
 }
 
-.rte-button-editEnhancement,
+.rte-button-enhancementSelect,
+.rte-button-enhancementEdit,
 .rte-button-remove,
 .rte-button-restore,
 .rte-button-removeCompletely {
