@@ -171,7 +171,7 @@ var createToolbar = function(rte, inline, firstDraft, finalDraft) {
     $changes.append($createToolbarCommand('Accept', 'changesAccept'));
     $changes.append($createToolbarCommand('Reject', 'changesReject'));
 
-    var $comment = $createToolbarGroup('Comment');
+    var $comment = $createToolbarGroup('Comments');
     $toolbar.append($comment);
     $comment = $comment.find('.rte-group-buttons');
 
@@ -1316,7 +1316,7 @@ wysihtml5.commands.allComments = {
             },
 
             'state': function(composer) {
-                return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-collapsed').length > 0;
+                return !!$(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').attr('data-comment');
             }
         },
 
