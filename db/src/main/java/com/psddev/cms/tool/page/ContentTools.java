@@ -59,7 +59,9 @@ public class ContentTools extends PageServlet {
                 page.writeEnd();
 
                 page.writeStart("div", "class", "tabbed");
-                    page.writeStart("div", "data-tab", "For Editors");
+                    page.writeStart("div",
+                            "class", "fixedScrollable",
+                            "data-tab", "For Editors");
                         if (object != null) {
                             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
                             Date publishDate = contentData.getPublishDate();
@@ -101,7 +103,9 @@ public class ContentTools extends PageServlet {
                         }
                     page.writeEnd();
 
-                    page.writeStart("div", "data-tab", "For Developers");
+                    page.writeStart("div",
+                            "class", "fixedScrollable",
+                            "data-tab", "For Developers");
                         page.writeStart("ul");
                             if (object != null) {
                                 page.writeStart("li");

@@ -42,6 +42,8 @@ $doc.expandable('live', ':text.expandable, textarea', {
     'shadowClass': 'input'
 });
 
+$doc.fixedScrollable('live', '.fixedScrollable');
+
 $doc.frame({
     'frameClassName': 'frame',
     'loadingClassName': 'loading',

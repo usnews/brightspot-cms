@@ -1375,6 +1375,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.editableplaceholder.js",
                     "/script/jquery.expandable.js",
                     "/script/jquery.popup.js",
+                    "/script/jquery.fixedscrollable.js",
                     "/script/jquery.frame.js",
                     "/script/jquery.imageeditor.js",
                     "/script/jquery.locationmap.js",

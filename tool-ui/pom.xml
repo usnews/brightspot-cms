@@ -131,6 +131,7 @@
                                 <include>jquery.editableplaceholder.js</include>
                                 <include>jquery.expandable.js</include>
                                 <include>jquery.popup.js</include>
+                                <include>jquery.fixedscrollable.js</include>
                                 <include>jquery.frame.js</include>
                                 <include>jquery.imageeditor.js</include>
                                 <include>jquery.locationmap.js</include>
