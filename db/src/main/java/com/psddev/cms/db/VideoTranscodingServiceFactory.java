@@ -5,7 +5,7 @@ import com.psddev.dari.util.VideoStorageItem;
 
 public class VideoTranscodingServiceFactory {
          public static VideoTranscodingService getDefault() {
-             if (VideoStorageItem.isDefaultVideoStorageKaltura()) {
+             if (VideoStorageItem.isDefaultVideoTranscodingProviderKaltura()) {
                  return new KalturaVideoTranscodingService();
              }
              return null;

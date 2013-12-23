@@ -3,13 +3,14 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.kaltura.client.KalturaClient;
 import com.kaltura.client.KalturaConfiguration;
 import com.kaltura.client.types.KalturaFlavorParams;
 import com.kaltura.client.enums.KalturaContainerFormat;
 import com.kaltura.client.enums.KalturaVideoCodec;
 import com.kaltura.client.enums.KalturaAudioCodec;
+import com.kaltura.client.enums.KalturaEntryType;
+import com.kaltura.client.enums.KalturaPlaylistType;
 import com.psddev.dari.db.Query;
 import com.psddev.cms.db.VideoContainer;
 import com.kaltura.client.KalturaApiException;
@@ -23,8 +24,10 @@ import com.kaltura.client.types.KalturaFlavorParams;
 import com.kaltura.client.types.KalturaMediaEntryFilter;
 import com.kaltura.client.types.KalturaMediaListResponse;
 import com.kaltura.client.types.KalturaMediaEntry;
+import com.kaltura.client.types.KalturaPlaylist;
 import com.kaltura.client.types.KalturaUiConf;
 import com.kaltura.client.types.KalturaUiConfListResponse;
+import com.kaltura.client.services.KalturaPlaylistService;
 import com.psddev.dari.util.KalturaSessionUtils;
 import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.KalturaStorageItem;
@@ -110,7 +113,6 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
          } */
      
          private KalturaCuePoint addCuePoint(VideoEvent videoEvent)  throws KalturaApiException { 
-             logger.info("control in addCuePoint");
              KalturaAnnotation kalturaAnnotation= new KalturaAnnotation();
              updateCuePointDataFromEvent(kalturaAnnotation,videoEvent);
              KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
@@ -125,7 +127,6 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
          }
          
          private KalturaCuePoint updateCuePoint(VideoEvent videoEvent)  throws KalturaApiException {
-             logger.info("control in updateCuePoint");
              KalturaAnnotation kalturaAnnotation= new KalturaAnnotation();
              updateCuePointDataFromEvent(kalturaAnnotation,videoEvent);
              KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
@@ -146,10 +147,87 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
              kalturaCuePoint.startTime=videoEvent.getStartTime();
              kalturaCuePoint.endTime=videoEvent.getEndTime();
              kalturaCuePoint.entryId=videoEvent.getEntryId();
-             //kalturaCuePoint.entryId="1_mrsidaot";
-             //JSONObject jsonObject= JSONObject.fromObject(videoEvent.getMetadata());
-             //kalturaCuePoint.partnerData=jsonObject.toString();
-             //kalturaAnnotation.partnerData="{\"desc\":\"FIRST CHAPTER  VIA API\"}";
          }
-         
+         public String createPlayList(String name,List<VideoContainer> items) {
+         try {
+             //Step1: Start kaltura session 
+             KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
+             KalturaClient client= new KalturaClient(kalturaConfig);
+             KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+             //Step2: Create a playlist
+             KalturaPlaylist playlist = new KalturaPlaylist();
+             playlist.name =name;
+             playlist.type = KalturaEntryType.PLAYLIST;
+             playlist.playlistType = KalturaPlaylistType.STATIC_LIST;
+             StringBuffer playListContentIds= new StringBuffer();
+             for ( VideoContainer vc : items) {
+                 if (playListContentIds.length() > 0)  playListContentIds.append(",");
+                 VideoContainer.Data videoData=vc.as(VideoContainer.Data.class);
+                 playListContentIds.append(videoData.getExternalId());
+             }
+             playlist.playlistContent=playListContentIds.toString();
+             KalturaPlaylist pl = client.getPlaylistService().add(playlist);
+             //Step3: Close kaltura session
+             KalturaSessionUtils.closeSession(client);
+             return pl.id;
+         }
+         catch (Exception e ) {
+             logger.error("createPlayList failed", e);
+             return "";
+         }
+         }
+         public boolean updatePlayList(String externalId,List<VideoContainer> items) {
+         try {
+             //Step1: Start kaltura session 
+             KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
+             KalturaClient client= new KalturaClient(kalturaConfig);
+             KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+             //Step2: Get the  playlist and update the order of items
+             KalturaPlaylistService playListService = client.getPlaylistService()  ;
+             KalturaPlaylist playList = playListService.get(externalId);
+             //playlist.type = KalturaEntryType.PLAYLIST;
+             //playlist.playlistType = KalturaPlaylistType.STATIC_LIST;
+             StringBuffer playListContentIds= new StringBuffer();
+             for ( VideoContainer vc : items) {
+                 if (playListContentIds.length() > 0)  playListContentIds.append(",");
+                 VideoContainer.Data videoData=vc.as(VideoContainer.Data.class);
+                 playListContentIds.append(videoData.getExternalId());
+             }
+             
+             //If there is a change..update kaltura
+             if (!playList.playlistContent.equals(playListContentIds.toString())) {
+                 KalturaPlaylist playlist = new KalturaPlaylist();
+                 playlist.name =playList.name;
+                 playlist.type = KalturaEntryType.PLAYLIST;
+                 playlist.playlistType = KalturaPlaylistType.STATIC_LIST;
+                 playlist.playlistContent=playListContentIds.toString(); 
+                 client.getPlaylistService().update(externalId,playlist);
+             }
+             //Step3: Close kaltura session
+             KalturaSessionUtils.closeSession(client);
+             return true;
+         }
+         catch (Exception e ) {
+             logger.error("updatePlayList failed", e);
+             return false;
+         }
+         }
+         public boolean deletePlayList(String externalId) {
+         try {
+             //Step1: Start kaltura session 
+             KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
+             KalturaClient client= new KalturaClient(kalturaConfig);
+             KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+             //Step2: Get the  playlist and update the order of items
+             KalturaPlaylistService playListService = client.getPlaylistService()  ;
+             playListService.delete(externalId);
+             //Step3: Close kaltura session
+             KalturaSessionUtils.closeSession(client);
+             return true;
+         }
+         catch (Exception e ) {
+             logger.error("updatePlayList failed", e);
+             return false;
+         }
+         }
 }
