@@ -39,6 +39,8 @@ $.plugin2('repeatable', {
                 var $label = $('<div/>', {
                     'class': 'repeatableLabel',
                     'text': type + (label ? ': ' + label : ''),
+                    'data-object-id': $item.find('> :hidden[name$=".id"]').val(),
+                    'data-dynamic-text': '${content.state.getType().label}: ${content.label}',
                     'click': function() {
                         $item.toggleClass('collapsed');
                         $item.resize();
@@ -123,6 +125,7 @@ $.plugin2('repeatable', {
 
                         $list.append($addedItem);
                         $addedItem.each(createExtra);
+                        $addedItem.removeClass('collapsed');
 
                         // Copy value in single input to the newly added item.
                         if ($singleInput) {

@@ -1,5 +1,6 @@
 package com.psddev.cms.tool;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -64,7 +65,9 @@ import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.StateStatus;
 import com.psddev.dari.db.ValidationException;
+import com.psddev.dari.util.CodeUtils;
 import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageEditor;
@@ -190,7 +193,12 @@ public class ToolPageContext extends WebPageContext {
         return Static.getTypeLabel(object);
     }
 
-    /** Returns {@code true} is the given {@code object} is previewable. */
+    /**
+     * Returns {@code true} is the given {@code object} is previewable.
+     *
+     * @param object If {@code null}, always returns {@code false}.
+     */
+    @SuppressWarnings("deprecation")
     public boolean isPreviewable(Object object) {
         if (object != null) {
             if (object instanceof Page &&
@@ -202,8 +210,15 @@ public class ToolPageContext extends WebPageContext {
                 ObjectType type = state.getType();
 
                 if (type != null) {
-                    return Template.Static.findUsedTypes(getSite()).contains(type) ||
-                            !ObjectUtils.isBlank(type.as(Renderer.TypeModification.class).getPath());
+                    if (Template.Static.findUsedTypes(getSite()).contains(type)) {
+                        return true;
+
+                    } else {
+                        Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
+
+                        return !ObjectUtils.isBlank(rendererData.getPath()) ||
+                                !ObjectUtils.isBlank(rendererData.getPaths());
+                    }
                 }
             }
         }
@@ -901,22 +916,44 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
+            String typeLabel;
+
             if (type == null) {
-                writeHtml("Unknown Type");
+                typeLabel = "Unknown Type";
 
             } else {
-                String typeLabel = type.getLabel();
+                typeLabel = type.getLabel();
+<<<<<<< .merge_file_izVh3x
 
-                writeHtml(ObjectUtils.isBlank(typeLabel) ?
-                        type.getId() :
-                        typeLabel);
+                if (ObjectUtils.isBlank(typeLabel)) {
+                    typeLabel = type.getId().toString();
+                }
             }
 
-            writeHtml(": ");
+            if (ObjectUtils.isBlank(label)) {
+                label = state.getId().toString();
+            }
 
-            writeHtml(ObjectUtils.isBlank(label) ?
-                    state.getId() :
-                    label);
+            writeHtml(typeLabel);
+
+=======
+
+                if (ObjectUtils.isBlank(typeLabel)) {
+                    typeLabel = type.getId().toString();
+                }
+            }
+
+            if (ObjectUtils.isBlank(label)) {
+                label = state.getId().toString();
+            }
+
+            writeHtml(typeLabel);
+
+>>>>>>> .merge_file_Ge2D0u
+            if (!typeLabel.equals(label)) {
+                writeHtml(": ");
+                writeHtml(label);
+            }
         }
     }
 
@@ -1329,6 +1366,7 @@ public class ToolPageContext extends WebPageContext {
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
             write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
             write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
+            write("var RTE_ENABLE_ANNOTATIONS = ", getCmsTool().isEnableAnnotations(), ';');
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
@@ -1353,6 +1391,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.editableplaceholder.js",
                     "/script/jquery.expandable.js",
                     "/script/jquery.popup.js",
+                    "/script/jquery.fixedscrollable.js",
                     "/script/jquery.frame.js",
                     "/script/jquery.imageeditor.js",
                     "/script/jquery.locationmap.js",
@@ -1363,6 +1402,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.repeatable.js",
                     "/script/jquery.sortable.js",
                     "/script/jquery.spectrum.js",
+                    "/script/jquery.tabbed.js",
                     "/script/jquery.taxonomy.js",
                     "/script/jquery.toggleable.js",
                     "/script/jquery.workflow.js",
@@ -1849,6 +1889,56 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes a link that points to either the Javadoc or the source for the
+     * given {@code objectClass}.
+     *
+     * @param objectClass Can't be {@code null}.
+     */
+    public void writeJavaClassLink(Class<?> objectClass) throws IOException {
+        String objectClassName = objectClass.getName();
+        String javadocUrlPrefix;
+
+        if (objectClassName.startsWith("com.psddev.cms.db.")) {
+            javadocUrlPrefix = "http://public.psddev.com/javadoc/brightspot-cms/";
+
+        } else if (objectClassName.startsWith("com.psddev.dari.db.")) {
+            javadocUrlPrefix = "http://public.psddev.com/javadoc/dari/";
+
+        } else {
+            javadocUrlPrefix = null;
+        }
+
+        if (ObjectUtils.isBlank(javadocUrlPrefix)) {
+            File source = CodeUtils.getSource(objectClassName);
+
+            if (source != null) {
+                writeStart("a",
+                        "target", "_blank",
+                        "href", DebugFilter.Static.getServletPath(getRequest(), "code",
+                                "file", source));
+                    writeStart("code");
+                        writeHtml(objectClassName);
+                    writeEnd();
+                writeEnd();
+
+            } else {
+                writeStart("code");
+                    writeHtml(objectClassName);
+                writeEnd();
+            }
+
+        } else {
+            writeStart("a",
+                    "target", "_blank",
+                    "href", javadocUrlPrefix + objectClassName.replace('.', '/').replace('$', '.') + ".html");
+                writeStart("code");
+                    writeHtml(objectClassName);
+                writeEnd();
+            writeEnd();
+        }
+    }
+
+    /**
      * Updates the given {@code object} using all request parameters.
      *
      * @param object Can't be {@code null}.
@@ -1972,6 +2062,11 @@ public class ToolPageContext extends WebPageContext {
                 state.as(Content.ObjectModification.class).setDraft(true);
                 publish(state);
                 redirect("", "id", state.getId());
+                return true;
+
+            } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
+                publish(state);
+                redirect("");
                 return true;
             }
 

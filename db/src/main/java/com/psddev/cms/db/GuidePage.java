@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Record.LabelFields({ "pageType/name" })
+@Record.BootstrapPackages("Production Guides")
 public class GuidePage extends Record {
 
     private static final Logger LOGGER = LoggerFactory
@@ -25,6 +26,7 @@ public class GuidePage extends Record {
     @Required
     @Indexed(unique = true)
     @DisplayName("Template or One-Off Page")
+    @BootstrapFollowReferences
     Page pageType;
 
     @ToolUi.Note("Production Guide summary for this page type")
@@ -32,6 +34,7 @@ public class GuidePage extends Record {
     ReferentialText description;
 
     @ToolUi.Note("Sample (Published) Page as documentation example for this page/template")
+    @BootstrapFollowReferences
     private Content samplePage;
 
     @ToolUi.Note("Sample Page snapshot image used for Printouts")

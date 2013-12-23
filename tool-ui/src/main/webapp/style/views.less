@@ -454,6 +454,7 @@ figure,
 .icon-unlink { &:before { content: '\f127'; } }
 .icon-superscript { &:before { content: '\f12b'; } }
 .icon-subscript { &:before { content: '\f12c'; } }
+.icon-ellipsis-horizontal { &:before { content: '\f141'; } }
 .icon-collapse { &:before { content: '\f150'; } }
 .icon-collapse-top { &:before { content: '\f151'; } }
 .icon-youtube { &:before { content: '\f167'; } }
@@ -630,6 +631,7 @@ figure,
     padding: 0;
 
     &:hover {
+        background: transparent;
         text-decoration: underline;
     }
 
@@ -661,8 +663,7 @@ ul.links {
             > a {
                 background-color: inherit;
                 color: inherit;
-                left: (0 - @marginLeft);
-                margin-right: (0 - @marginLeft);
+                margin-left: (0 - @marginLeft);
                 padding-left: @marginLeft;
             }
         }
@@ -766,6 +767,7 @@ table.links.table-striped {
     .border-radius(5px);
     color: @color-text;
     margin-bottom: 15px;
+    min-height: 20px;
     padding: 10px 10px 10px 33px;
     position: relative;
 
@@ -1089,6 +1091,9 @@ table.links.table-striped {
 
         &.state-error {
             a {
+                .icon;
+                .icon-exclamation-sign;
+
                 color: @color-alert;
             }
         }

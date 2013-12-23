@@ -31,7 +31,8 @@ public class ContentReferences extends PageServlet {
                 fromGroup(Content.SEARCHABLE_GROUP).
                 and("* matches ?", id).
                 and("_type != ?", Draft.class).
-                and("_id != ?", id);
+                and("_id != ?", id).
+                sortDescending("cms.content.updateDate");
         PaginatedResult<Object> result = query.select(0L, 10);
 
         if (result.getItems().isEmpty()) {
@@ -57,7 +58,7 @@ public class ContentReferences extends PageServlet {
                 page.writeEnd();
 
                 page.writeStart("h2");
-                    page.writeHtml("Top 10");
+                    page.writeHtml("10 Most Recent");
                 page.writeEnd();
             }
 

@@ -37,16 +37,6 @@ public class UnpublishedDrafts extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        if (!Query.
-                from(Object.class).
-                or("_type = ?", Draft.class).
-                or("cms.content.draft = true").
-                or("cms.workflow.currentState != missing").
-                and("* matches *").
-                hasMoreThan(0)) {
-            return;
-        }
-
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
         Map<String, String> workflowStateLabels = new TreeMap<String, String>();
 

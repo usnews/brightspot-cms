@@ -223,11 +223,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             } else if (request instanceof MultipartRequest) {
                 MultipartRequest mpRequest = (MultipartRequest) request;
                 FileItem fileItem = mpRequest.getFileItem(fileName);
-                name = fileItem.getName();
-                fileContentType = fileItem.getContentType();
-                fileSize = fileItem.getSize();
 
-                fileItem.write(file);
+                if (fileItem != null) {
+                    name = fileItem.getName();
+                    fileContentType = fileItem.getContentType();
+                    fileSize = fileItem.getSize();
+
+                    fileItem.write(file);
+                }
             }
 
             if (name != null &&
@@ -478,7 +481,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 <option data-hide=".fileSelectorItem" data-show=".fileSelectorExisting" value="keep">Keep Existing</option>
             <% } %>
             <option data-hide=".fileSelectorItem" value="none">None</option>
-            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload">New Upload</option>
+            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload"<%= fieldValue == null && state.isNew() ? " selected" : "" %>>New Upload</option>
             <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUrl" value="newUrl">New URL</option>
             <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
                 <option data-hide=".fileSelectorItem" data-show=".fileSelectorDropbox" value="dropbox">Dropbox</option>

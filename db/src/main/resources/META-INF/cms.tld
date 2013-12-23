@@ -131,6 +131,10 @@
         <body-content>JSP</body-content>
         <dynamic-attributes>true</dynamic-attributes>
         <attribute>
+            <name>tagName</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>name</name>
             <rtexprvalue>true</rtexprvalue>
             <required>true</required>

@@ -3,6 +3,7 @@
 
 var $win = $(win),
         doc = win.document,
+        $doc = $(doc),
         targetIndex = 0;
 
 function getContentEnhancementTarget() {
@@ -49,7 +50,7 @@ var $createToolbarCommand = function(label, command) {
     });
 };
 
-var createToolbar = function(rte, inline, firstDraft) {
+var createToolbar = function(rte, inline, firstDraft, finalDraft) {
     var $container = $('<div/>', { 'class': 'rte-toolbar-container' });
 
     var $toolbar = $('<div/>', { 'class': 'rte-toolbar' });
@@ -162,21 +163,21 @@ var createToolbar = function(rte, inline, firstDraft) {
         });
     }
 
-    /*
-    var $track = $createToolbarGroup('Track');
-    $toolbar.append($track);
-    $track = $track.find('.rte-group-buttons');
+    var $changes = $createToolbarGroup('Changes');
+    $toolbar.append($changes);
+    $changes = $changes.find('.rte-group-buttons');
 
-    if (!firstDraft) {
-        $track.append($createToolbarCommand('Changes', 'trackChanges'));
-        $track.append($createToolbarCommand('All Comments', 'allComments'));
-    }
+    $changes.append($createToolbarCommand('Track', 'changesTrack'));
+    $changes.append($createToolbarCommand('Accept', 'changesAccept'));
+    $changes.append($createToolbarCommand('Reject', 'changesReject'));
 
-    $track.append($('<span/>', {
-        'class': 'rte-button rte-button-annotate',
-        'text': 'Annotate'
-    }));
-    */
+    var $comment = $createToolbarGroup('Comments');
+    $toolbar.append($comment);
+    $comment = $comment.find('.rte-group-buttons');
+
+    $comment.append($createToolbarCommand('Comment', 'commentAdd'));
+    $comment.append($createToolbarCommand('Collapse', 'commentCollapse'));
+    $comment.append($createToolbarCommand('Remove', 'commentRemove'));
 
     var $misc = $createToolbarGroup('Misc');
     $toolbar.append($misc);
@@ -239,9 +240,18 @@ var createEnhancement = function(rte) {
     $toolbar.append($misc);
 
     $misc.append($('<span/>', {
-        'class': 'rte-button rte-button-editEnhancement',
+        'class': 'rte-button rte-button-enhancementSelect',
         'html': $('<a/>', {
-            'href': CONTEXT_PATH + '/content/enhancement.jsp?id=',
+            'href': CONTEXT_PATH + '/enhancementSelect',
+            'target': getContentEnhancementTarget(),
+            'text': 'Select'
+        })
+    }));
+
+    $misc.append($('<span/>', {
+        'class': 'rte-button rte-button-enhancementEdit',
+        'html': $('<a/>', {
+            'href': CONTEXT_PATH + '/content/enhancement.jsp',
             'target': getContentEnhancementTarget(),
             'text': 'Edit'
         })
@@ -291,7 +301,8 @@ var createMarker = function() {
 
 // Wrap wysihtml5 to add functionality.
 var rtes = [ ],
-        getEnhancementId;
+        getEnhancementId,
+        keepToolbarInView;
 
 (function() {
     var enhancementIndex = 0;
@@ -313,7 +324,8 @@ var Rte = wysihtml5.Editor.extend({
 
     'constructor': function(originalTextarea, config) {
         var rte = this,
-                firstDraft = $(originalTextarea).attr('data-first-draft') === 'true';
+                firstDraft = $(originalTextarea).attr('data-first-draft') === 'true',
+                finalDraft = $(originalTextarea).attr('data-final-draft') === 'true';
 
         // Create container.
         var container = this.container = doc.createElement('div');
@@ -328,13 +340,25 @@ var Rte = wysihtml5.Editor.extend({
         overlay.style.top = '0px';
         container.appendChild(overlay);
 
+        // Changes the focus method to retain the scrolling position.
+        (function() {
+            var originalFocus = rte.focus;
+
+            rte.focus = function() {
+                var scrollTop = $win.scrollTop();
+
+                originalFocus.apply(rte, arguments);
+                $win.scrollTop(scrollTop);
+            };
+        })();
+
         $(overlay).on('click', function() {
             rte.focus();
         });
 
         // Create toolbar?
         if (typeof config.toolbar === 'function') {
-            config.toolbar = config.toolbar(rte, config.inline, firstDraft);
+            config.toolbar = config.toolbar(rte, config.inline, firstDraft, finalDraft);
             container.appendChild(config.toolbar);
         }
 
@@ -523,9 +547,40 @@ var Rte = wysihtml5.Editor.extend({
             $linkDialog.find('.rte-dialogLinkOpen').attr('href', $(event.target).val());
         });
 
+        function removeLink() {
+            var $ins,
+                    $del;
+
+            if ($(rte.composer.element).hasClass('rte-changesTracking')) {
+                $ins = $lastAnchor.parent('ins');
+
+                if ($ins.length > 0) {
+                    $del = $ins.prev('del');
+
+                    if ($del.length > 0 && $del.text() === $lastAnchor.text()) {
+                        $ins.after($lastAnchor.html());
+                        $ins.remove();
+                        $del.remove();
+                        return;
+                    }
+                }
+
+                $del = $('<del/>');
+
+                $lastAnchor.after($del);
+                $del.append($lastAnchor);
+                $del.after($('<ins/>', {
+                    'html': $lastAnchor.html()
+                }));
+
+            } else {
+                $lastAnchor.after($lastAnchor.html());
+                $lastAnchor.remove();
+            }
+        }
+
         $linkDialog.on('click', '.rte-dialogLinkUnlink', function() {
-            $lastAnchor.after($lastAnchor.html());
-            $lastAnchor.remove();
+            removeLink();
             $linkDialog.popup('close');
         });
 
@@ -535,8 +590,7 @@ var Rte = wysihtml5.Editor.extend({
 
         $linkDialog.popup('container').bind('close', function() {
             if (!$lastAnchor.attr('href')) {
-                $lastAnchor.after($lastAnchor.html());
-                $lastAnchor.remove();
+                removeLink();
             }
         });
 
@@ -586,7 +640,9 @@ var Rte = wysihtml5.Editor.extend({
 
             $(config.toolbar).find('.rte-button-link').click(function() {
                 var tempClass,
-                        $anchor;
+                        $anchor,
+                        $ins,
+                        $del;
 
                 ++ tempIndex;
                 tempClass = 'rte-link-temp-' + tempIndex;
@@ -596,226 +652,35 @@ var Rte = wysihtml5.Editor.extend({
                 $anchor = $('a.' + tempClass, rte.composer.element);
 
                 $anchor.removeClass(tempClass);
+
+                if ($(rte.composer.element).hasClass('rte-changesTracking')) {
+                    $ins = $anchor.parent('ins');
+
+                    if ($ins.length > 0) {
+                        $del = $ins.prev('del');
+                        console.log('del', $del[0]);
+
+                        if ($del.length > 0 && $del.text() === $anchor.text()) {
+                            $ins.after($anchor);
+                            $ins.remove();
+                            $del.remove();
+                            openLinkDialog($anchor);
+                            return;
+                        }
+                    }
+                }
+
+                $anchor.before($('<del/>', {
+                    'html': $anchor.html()
+                }));
+
+                $ins = $('<ins/>');
+
+                $anchor.after($ins);
+                $ins.append($anchor);
                 openLinkDialog($anchor);
             });
         })();
-
-        var getAnnotations = function($element) {
-            return $.parseJSON($element.attr('data-annotations') || '[]');
-        };
-
-        var setAnnotations = function($element, annotations) {
-            var annotationsLength = annotations.length,
-                    allComments,
-                    lastAnnotation;
-
-            $element.attr('data-annotations', JSON.stringify(annotations));
-            $element.removeAttr('data-last-annotation');
-
-            if (annotationsLength > 0) {
-                allComments = '';
-                lastAnnotation = annotations[annotationsLength - 1];
-
-                $.each(annotations, function(i, annotation) {
-                    allComments += annotation.text;
-                    allComments += ' -';
-                    allComments += annotation.user;
-                    allComments += ', ';
-                });
-
-                $element.attr('data-all-comments', allComments.substring(0, allComments.length - 2));
-                $element.attr('data-last-comment', lastAnnotation.text + ' -' + lastAnnotation.user);
-            }
-        };
-
-        var addAnnotation = function($element, text) {
-            var annotations = getAnnotations($element),
-                    annotationsLength = annotations.length,
-                    lastAnnotation,
-                    userId = $(rte.textarea.element).attr('data-user-id'),
-                    user = $(rte.textarea.element).attr('data-user'),
-                    addAnnotation = true;
-
-            if (!$element.is('code, del, ins')) {
-                $element = $('<code/>');
-
-                rte.composer.selection.insertNode($element[0]);
-            }
-
-            if (annotationsLength > 0) {
-                lastAnnotation = annotations[annotationsLength - 1];
-
-                if (userId === lastAnnotation.userId) {
-                    lastAnnotation.text = text;
-                    addAnnotation = false;
-                }
-            }
-
-            if (addAnnotation) {
-                annotations.push({
-                    'time': +new Date(),
-                    'userId': userId,
-                    'user': user,
-                    'text': text
-                });
-            }
-
-            setAnnotations($element, annotations);
-        };
-
-        var $annotationDialog = $(
-                '<div>' +
-                    '<div class="rte-dialogAnnotationChange">' +
-                        '<h2>The Change</h2>' +
-                        '<div class="rte-dialogAnnotationMessage"></div>' +
-                        '<a class="rte-dialogAnnotationAccept">Accept</a>' +
-                        ' <a class="rte-dialogAnnotationRevert">Revert</a>' +
-                    '</div>' +
-                    '<div class="rte-dialogAnnotationChangeAll">' +
-                        '<h2>All Changes</h2>' +
-                        '<a class="rte-dialogAnnotationAcceptAll">Accept All</a>' +
-                        ' <a class="rte-dialogAnnotationRevertAll">Revert All</a>' +
-                    '</div>' +
-                    '<h2>Comment</h2>' +
-                    '<input type="text" class="rte-dialogAnnotationText">' +
-                    '<a class="rte-dialogAnnotationSave">Save</a>' +
-                    '<ul class="rte-dialogAnnotationTexts">' +
-                    '</ul>' +
-                '</div>');
-
-        var $lastSelected = $();
-
-        $annotationDialog.on('click', '.rte-dialogAnnotationAccept', function() {
-            if ($lastSelected.is('del')) {
-                $lastSelected.remove();
-
-            } else if ($lastSelected.is('ins')) {
-                $lastSelected.before($lastSelected.html());
-                $lastSelected.remove();
-            }
-
-            $(this).popup('close');
-        });
-
-        $annotationDialog.on('click', '.rte-dialogAnnotationAcceptAll', function() {
-            $(rte.composer.element).find('ins').each(function() {
-                var $ins = $(this);
-
-                $ins.before($ins.html());
-                $ins.remove();
-            });
-
-            $(rte.composer.element).find('del').remove();
-            $(this).popup('close');
-        });
-
-        $annotationDialog.on('click', '.rte-dialogAnnotationRevert', function() {
-            if ($lastSelected.is('del')) {
-                $lastSelected.before($lastSelected.html());
-                $lastSelected.remove();
-
-            } else if ($lastSelected.is('ins')) {
-                $lastSelected.remove();
-            }
-
-            $(this).popup('close');
-        });
-
-        $annotationDialog.on('click', '.rte-dialogAnnotationRevertAll', function() {
-            $(rte.composer.element).find('del').each(function() {
-                var $del = $(this);
-
-                $del.before($del.html());
-                $del.remove();
-            });
-
-            $(rte.composer.element).find('ins').remove();
-            $(this).popup('close');
-        });
-
-        $annotationDialog.on('keydown', '.rte-dialogAnnotationText', function(event) {
-            if (event.which === 13) {
-                $annotationDialog.find('.rte-dialogAnnotationSave').click();
-                return false;
-
-            } else {
-                return true;
-            }
-        });
-
-        $annotationDialog.on('click', '.rte-dialogAnnotationSave', function() {
-            addAnnotation($lastSelected, $annotationDialog.find('.rte-dialogAnnotationText').val());
-            $(this).popup('close');
-        });
-
-        $(doc.body).append($annotationDialog);
-        $annotationDialog.popup();
-        $annotationDialog.popup('close');
-
-        var openAnnotationDialog = function($selected) {
-            var composerOffset = $(rte.composer.iframe).offset(),
-                    $cursor,
-                    cursorOffset,
-                    $change = $annotationDialog.find('.rte-dialogAnnotationChange'),
-                    $message = $annotationDialog.find('.rte-dialogAnnotationMessage'),
-                    annotations = getAnnotations($selected),
-                    $texts = $annotationDialog.find('.rte-dialogAnnotationTexts'),
-                    lastAnnotation;
-
-            $lastSelected = $selected;
-
-            if ($selected.is('del')) {
-                $change.show();
-                $message.html('Deleted <q>' + $selected.html() + '</q>');
-
-            } else if ($selected.is('ins')) {
-                $change.show();
-                $message.html('Inserted <q>' + $selected.html() + '</q>');
-
-            } else {
-                $change.hide();
-            }
-
-            $annotationDialog.popup('open');
-            $annotationDialog.find('.rte-dialogAnnotationText').focus();
-
-            $cursor = $(rte.composer.element).find('.rte-cursor');
-            cursorOffset = $cursor.offset();
-
-            $annotationDialog.popup('container').css({
-                'position': 'absolute',
-                'top': composerOffset.top + cursorOffset.top + $cursor.outerHeight()
-            });
-
-            $texts.empty();
-            $.each(annotations.reverse(), function(i, annotation) {
-                var html = '';
-
-                if (!lastAnnotation) {
-                    lastAnnotation = annotation;
-                }
-
-                if (annotation.text) {
-                    html += '<q>' + annotation.text + '</q> said ';
-                }
-
-                html += annotation.user;
-                html += ' at ';
-                html += new Date(parseInt(annotation.time, 10));
-
-                $texts.append($('<li/>', {
-                    'html': html
-                }));
-            });
-
-            $texts.toggle(!!lastAnnotation);
-            $annotationDialog.find('.rte-dialogAnnotationText').val(
-                    lastAnnotation && lastAnnotation.userId === $(rte.textarea.element).attr('data-user-id') ? lastAnnotation.text || '' : '');
-        };
-
-        $(config.toolbar).find('.rte-button-annotate').click(function() {
-            openAnnotationDialog(getSelectedElement());
-        });
 
         // Initialize wysihtml5.
         container.appendChild(originalTextarea);
@@ -833,10 +698,6 @@ var Rte = wysihtml5.Editor.extend({
                     selected.nodeType == 3 &&
                     selected.length == range.endOffset) {
                 $next = $(selected.nextSibling);
-
-                if ($next.is('.rte-cursor')) {
-                    $next = $($next[0].nextSibling);
-                }
 
                 if ($next.is('code, del, ins')) {
                     return $next;
@@ -863,29 +724,6 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         this.observe('load', function() {
-            var $cursor;
-
-            $annotationDialog.popup('container').bind('open', function() {
-                var selection = rte.composer.selection;
-
-                if (!$cursor) {
-                    $cursor = $(rte.composer.doc.createElement('span'));
-                    $cursor.addClass('rte-cursor');
-                }
-
-                selection.getSelection().collapseToEnd();
-                selection.insertNode($cursor[0]);
-                selection.setBefore($cursor[0]);
-            });
-
-            $annotationDialog.popup('container').bind('close', function() {
-                if ($cursor) {
-                    rte.composer.selection.setBefore($cursor[0]);
-                    $cursor.remove();
-                    $cursor = null;
-                    rte.focus();
-                }
-            });
 
             // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
             var convertNodes = function(parent, oldTagName, newTagName, callback) {
@@ -969,50 +807,11 @@ var Rte = wysihtml5.Editor.extend({
 
             composer.setValue(textarea.getValue());
 
-            /*
-            // Legacy annotation support.
-            $(composer.element).find('[data-comment], [data-text]').each(function() {
-                var $element = $(this);
-
-                $element.attr('data-annotations', JSON.stringify([ {
-                    'time': $element.attr('data-time'),
-                    'userId': $element.attr('data-user-id'),
-                    'user': $element.attr('data-user'),
-                    'text': $element.attr('data-comment') || $element.attr('data-text')
-                } ]));
-
-                $element.removeAttr('data-time');
-                $element.removeAttr('data-user-id');
-                $element.removeAttr('data-user');
-                $element.removeAttr('data-comment');
-                $element.removeAttr('data-text');
-            });
-
-            $(composer.element).find('[data-comments]').each(function() {
-                var $element = $(this);
-
-                $element.attr('data-annotations', $element.attr('data-comments'));
-                $element.removeAttr('data-comments');
-            });
-
-            $(composer.element).find('[data-annotations]').each(function() {
-                var $element = $(this),
-                        annotations = getAnnotations($element);
-
-                setAnnotations($element, annotations);
-            });
-            */
-
             // Some style clean-ups.
             composer.iframe.style.overflow = 'hidden';
             composer.iframe.contentDocument.body.style.overflow = 'hidden';
             composer.iframe.contentDocument.body.className += ' rte-loaded';
             textarea.element.className += ' rte-source';
-
-            // Make sure only one toolbar is visible at a time.
-            if (this !== rtes[0]) {
-                this.toolbar.hide();
-            }
 
             this.on('focus', function() {
                 $(textarea.element).parentsUntil('form').addClass('state-focus');
@@ -1025,12 +824,10 @@ var Rte = wysihtml5.Editor.extend({
                     $(rte.config.toolbar).attr('style', rte._toolbarOldStyle);
                     $(rte.overlay).css('top', 0);
                     rte._toolbarOldStyle = null;
-                    rte.toolbar.hide();
                 }
 
-                this.toolbar.show();
                 $(this.overlay).css('top', $(this.config.toolbar).outerHeight());
-                $annotationDialog.popup('close');
+                keepToolbarInView();
             });
 
             // Hack to make sure that the proper focus fires when clicking
@@ -1048,194 +845,210 @@ var Rte = wysihtml5.Editor.extend({
                 openLinkDialog($(event.target).closest('a'));
             });
 
-            /*
-            $(composer.element).on('dblclick', 'del, ins, [data-annotations]', function(event) {
-                openAnnotationDialog($(event.target));
-            });
+            // Keyboard navigation into comments should skip over them.
+            (function() {
+                var lastRange,
+                        inComment;
+
+                $(composer.element).keydown(function() {
+                    lastRange = composer.selection.getRange().cloneRange();
+                    inComment = $(lastRange.commonAncestorContainer).closest('.rte-comment').length > 0;
+                });
+
+                $(composer.element).keyup(function() {
+                    var range,
+                            $comment;
+
+                    if (!inComment) {
+                        range = composer.selection.getRange();
+                        $comment = $(range.commonAncestorContainer).closest('.rte-comment');
+
+                        if ($comment.length > 0) {
+                            composer.selection[lastRange && lastRange.compareBoundaryPoints(range.START_TO_START, range) > 0 ? 'setBefore' : 'setAfter']($comment[0]);
+                        }
+                    }
+                });
+            })();
 
             // Track changes.
-            if (firstDraft) {
-                $(composer.element).addClass('rte-firstDraft');
-
-            } else {
-                var IGNORE_KEYS = [ 16, 17, 18, 37, 38, 39, 40, 91 ],
+            (function() {
+                var down = false,
                         downRange,
-                        collapseSelection,
-                        wrap,
-                        wrapInDel,
-                        tempIndex = 0,
-                        handleDelete;
+                        downLength = -1,
+                        downContents,
+                        tempIndex = 0;
 
-                // Move the cursor to the beginning or the end of the selection.
-                collapseSelection = function(selection, direction) {
-                    if (direction === 'forward') {
-                        selection.getSelection().collapseToEnd();
-
-                    } else {
-                        selection.getSelection().collapseToStart();
-                    }
-                };
-
-                wrap = function(tag) {
+                function wrapCurrentSelectionRange(tag) {
                     var tempClass,
-                            $element,
-                            annotations,
-                            oldAnnotations,
-                            prev,
-                            $prev,
-                            next,
-                            $next,
-                            newAnnotations;
+                            $element;
 
-                    if (wysihtml5.commands.formatInline.state(composer, null, tag)) {
-                        return;
-                    }
+                    if (!wysihtml5.commands.formatInline.state(composer, null, tag)) {
+                        ++ tempIndex;
+                        tempClass = 'rte-wrap-temp-' + tempIndex;
 
-                    ++ tempIndex;
-                    tempClass = 'rte-wrap-temp-' + tempIndex;
+                        wysihtml5.commands.formatInline.exec(composer, null, tag, tempClass, /foobar/g);
 
-                    wysihtml5.commands.formatInline.exec(composer, null, tag, tempClass, /foobar/g);
+                        $element = $(tag + '.' + tempClass, composer.element);
 
-                    $element = $(tag + '.' + tempClass, composer.element);
-
-                    addAnnotation($element, '');
-                    $element.removeClass(tempClass);
-
-                    for (; (next = $element[0].nextSibling); $element = $next) {
-                        $next = $(next);
-
-                        if (!$next.is(tag)) {
-                            break;
-                        }
-
-                        $next.prepend($element.html());
-                        $element.remove();
-
-                        annotations = $element.attr('data-annotations');
-
-                        if (annotations) {
-                            oldAnnotations = $next.attr('data-annotations');
-
-                            if (oldAnnotations) {
-                                newAnnotations = $.parseJSON(oldAnnotation);
-                                newAnnotations.push($.parseJSON(annotations)[0]);
-                                $next.attr('data-annotations', JSON.stringify(newAnnotations));
-                            }
+                        if ($element.length > 0) {
+                            $element.removeClass(tempClass);
                         }
                     }
-                };
+                }
 
-                // Wrap the current selection in <del>.
-                wrapInDel = function(direction) {
-                    var selection = composer.selection,
-                            range;
+                function cleanUp() {
+                    var $composerElement = $(composer.element),
+                            merged;
 
-                    wrap('del');
+                    $composerElement.find('ins del').remove();
 
-                    // <del> shouldn't contain any <ins>s.
-                    $.each(selection.getNodes(1, function(node) {
-                        return node.tagName.toLowerCase() === 'ins';
+                    // Move <ins> elements out of <del> elements.
+                    $composerElement.find('del ins').each(function() {
+                        var $ins = $(this),
+                                $del = $ins.closest('del');
 
-                    }), function(i, ins) {
-                        $(ins).remove();
+                        $del.after($ins);
                     });
 
-                    collapseSelection(selection, direction);
-                };
+                    // Flatten <del> and <ins> elements.
+                    $composerElement.find('del:has(del), ins:has(ins)').each(function() {
+                        var $element = $(this);
 
-                // Handle different types of delete key presses.
-                handleDelete = function(selection, range, direction) {
+                        $element.text($element.text());
+                    });
 
-                    // Let the delete go through within <ins>.
-                    if ($(selection.getSelectedNode()).closest('ins').length > 0) {
-                        return true;
+                    // Remove empty <del> and <ins> elements.
+                    $composerElement.find('del, ins').each(function() {
+                        var $current = $(this),
+                                firstLetter = $current.text()[0];
 
-                    // Wrap the character before or after the cursor in <del>.
-                    } else if (range.collapsed) {
-                        selection.getSelection().nativeSelection.modify('extend', direction, 'character');
-                        wrap('del');
-                        collapseSelection(selection, direction);
+                        if (!firstLetter || firstLetter.charCodeAt(0) === 65279) {
+                            $current.remove();
+                        }
+                    });
 
-                    // Wrap the selection in <del>.
-                    } else {
-                        wrapInDel(direction);
-                    }
+                    // Merge consecutive <del> and <ins> elements.
+                    do {
+                        merged = false;
 
-                    return false;
-                };
+                        $composerElement.find('del, ins').each(function() {
+                            var $current = $(this),
+                                    currentTagName,
+                                    next,
+                                    $next;
+
+                            if ($.contains(composer.element, $current[0])) {
+                                currentTagName = this.tagName;
+                                next = this;
+
+                                while (!!(next = next.nextSibling) &&
+                                        next.nodeType === 1 &&
+                                        next.tagName === currentTagName) {
+                                    merged = true;
+                                    $next = $(next);
+
+                                    $current.append($next.html());
+                                    $next.remove();
+                                }
+                            }
+                        });
+                    } while (merged);
+                }
 
                 $(composer.element).bind('keydown', function(event) {
-                    var which = event.which,
-                            selection = composer.selection,
-                            range = selection.getRange();
+                    var which,
+                            selection;
+
+                    if (event.metaKey ||
+                            !$(composer.element).hasClass('rte-changesTracking') ||
+                            $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0) {
+                        return true;
+                    }
+
+                    which = event.which;
+                    selection = composer.selection;
+
+                    function doDelete(direction) {
+                        var rangySelection = selection.getSelection();
+
+                        if (selection.getRange().collapsed) {
+                            rangySelection.nativeSelection.modify('extend', direction, 'character');
+                        }
+
+                        wrapCurrentSelectionRange('del');
+
+                        if (direction === 'forward') {
+                            rangySelection.collapseToEnd();
+
+                        } else {
+                            rangySelection.collapseToStart();
+                        }
+
+                        cleanUp();
+                    }
 
                     // BACKSPACE.
                     if (which === 8) {
-                        return handleDelete(selection, range, 'backward');
+                        doDelete('backward');
+                        return false;
 
                     // DELETE.
                     } else if (which === 46) {
-                        return handleDelete(selection, range, 'forward');
+                        doDelete('forward');
+                        return false;
 
-                    // For any other key, remember the position for later so that
-                    // we know where to start wrapping for <ins>.
-                    } else if ($.inArray(which, IGNORE_KEYS) < 0) {
-                        if (!range.collapsed &&
-                                !(event.altKey ||
-                                event.ctrlKey ||
-                                event.metaKey ||
-                                event.shiftKey)) {
-                            wrapInDel();
-                        }
-
-                        if (!downRange) {
-                            downRange = selection.getRange().cloneRange();
-                        }
-
-                        return true;
+                    // Save state for later on any other key.
+                    } else if (!down) {
+                        down = true;
+                        downRange = selection.getRange().cloneRange();
+                        downLength = $(composer.element).text().length;
+                        downContents = downRange.collapsed ? null : downRange.cloneContents();
                     }
+
+                    return true;
                 });
 
                 $(composer.element).bind('keyup', function(event) {
                     var selection,
                             range,
-                            tempClass,
-                            $ins;
+                            $del;
 
-                    if (!downRange ||
-                            $.inArray(event.which, IGNORE_KEYS) >= 0) {
+                    if (!down ||
+                            event.metaKey ||
+                            !$(composer.element).hasClass('rte-changesTracking') ||
+                            $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0) {
                         return;
                     }
 
-                    selection = composer.selection;
-                    range = selection.getRange();
+                    if ($(composer.element).text().length !== downLength) {
+                        selection = composer.selection;
+                        range = selection.getRange();
 
-                    selection.executeAndRestore(function() {
-                        range.setStart(downRange.startContainer, downRange.startOffset);
-                        selection.setSelection(range);
-                        wrap('ins');
-                    });
+                        // Previously selected text was somehow removed so clone
+                        // and wrap it in <del>.
+                        if (downContents && range.collapsed) {
+                            $del = $('<del/>', composer.iframe.contentDocument);
 
-                    // Move all <ins>s out of and after the <del>.
-                    $(selection.getSelectedNode()).closest('del').each(function() {
-                        var $del = $(this),
-                                $ins = $del.find('ins'),
-                                insLength = $ins.length;
-
-                        if (insLength > 0) {
-                            $del.after($ins);
-                            selection.setAfter($ins[insLength - 1]);
+                            $del.append(downContents);
+                            range.insertNode($del[0]);
                         }
-                    });
 
+                        // Wrap newly inserted text in <ins>.
+                        selection.executeAndRestore(function() {
+                            range.setStart(downRange.startContainer, downRange.startOffset);
+                            selection.setSelection(range);
+                            wrapCurrentSelectionRange('ins');
+                        });
+                    }
+
+                    down = false;
                     downRange = null;
-                });
+                    downLength = -1;
+                    downContents = null;
 
-                if (rte.config.trackChanges) {
-                    $(composer.element).addClass('rte-trackChanges');
-                }
-            }
-            */
+                    cleanUp();
+                });
+            })();
 
             setInterval(function() {
                 rte.updateOverlay();
@@ -1264,7 +1077,7 @@ var Rte = wysihtml5.Editor.extend({
         $overlay.toggle(rte.currentView !== textarea);
 
         // Automatically size the iframe height to match the content.
-        $(composerIframe).css('min-height', $composerBody.height() + (rte.config.inline ? 10 : 40));
+        $(composerIframe).css('min-height', Math.max(28, $composerBody.outerHeight(true)));
         $(composerWindow).scrollTop(0);
 
         // Overlay enhancements on top of the placeholders in the composer.
@@ -1295,19 +1108,14 @@ var Rte = wysihtml5.Editor.extend({
                 $.data($enhancement[0], '$rte-placeholder', $placeholder);
                 $overlay.append($enhancement);
 
-                $enhancement.find('.rte-button-editEnhancement a').each(function() {
+                $enhancement.find('.rte-button-enhancementSelect a').each(function() {
                     var $anchor = $(this),
-                            href = $anchor.attr('href'),
-                            id = $placeholder.attr('data-id'),
-                            reference = $placeholder.attr('data-reference');
+                            id = $placeholder.attr('data-id');
 
-                    href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
-                    href += 'id=' + (id || '');
-
-                    href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
-                    href += 'reference=' + (reference || '');
-
-                    $anchor.attr('href', href);
+                    $anchor.attr('href', $.addQueryParameters(
+                            $anchor.attr('href'),
+                            'id', id,
+                            'reference', $placeholder.attr('data-reference')));
 
                     if (!id) {
                         $editTrigger = $anchor;
@@ -1471,18 +1279,6 @@ wysihtml5.commands.insertMarker = {
     }
 };
 
-// Add support for toggling 'Track Changes' mode.
-wysihtml5.commands.trackChanges = {
-
-    'exec': function(composer) {
-        $(composer.element).toggleClass('rte-trackChanges');
-    },
-
-    'state': function(composer) {
-        return $(composer.element).hasClass('rte-trackChanges');
-    }
-};
-
 // Add support for toggling all annotation comments.
 wysihtml5.commands.allComments = {
 
@@ -1494,6 +1290,132 @@ wysihtml5.commands.allComments = {
         return $(composer.element).hasClass('rte-allComments');
     }
 };
+
+// Changes and comment support.
+(function() {
+    function iterateElements(composer, selector, callback) {
+        var selection = composer.selection,
+                range = selection.getRange();
+
+        $(range.collapsed ?
+                $(range.commonAncestorContainer).closest(selector) :
+                range.getNodes([ Node.ELEMENT_NODE ])).each(function() {
+            if ($(this).is(selector)) {
+                callback.call(this);
+            }
+        });
+    }
+
+    function acceptOrReject(removeTag, unwrapTag) {
+        return {
+            'exec': function(composer) {
+                iterateElements(composer, 'del, ins', function() {
+                    var $element = $(this);
+
+                    if ($element.is(removeTag)) {
+                        $element.remove();
+
+                    } else if ($element.is(unwrapTag)) {
+                        $element.after($element.html());
+                        $element.remove();
+                    }
+                });
+            },
+
+            'state': function(composer) {
+                var range = composer.selection.getRange();
+
+                return !range.collapsed ||
+                        $(range.commonAncestorContainer).closest('del, ins').length > 0;
+            }
+        };
+    }
+
+    $.extend(wysihtml5.commands, {
+        'changesTrack': {
+            'exec': function(composer) {
+                $(composer.element).toggleClass('rte-changesTracking');
+            },
+
+            'state': function(composer) {
+                return $(composer.element).hasClass('rte-changesTracking');
+            }
+        },
+
+        'changesAccept': acceptOrReject('del', 'ins'),
+        'changesReject': acceptOrReject('ins', 'del'),
+
+        'commentAdd': {
+            'exec': function(composer) {
+                var selection = composer.selection,
+                        $comment = $(selection.getRange().commonAncestorContainer).closest('.rte-comment');
+
+                if ($comment.length === 0) {
+                    wysihtml5.commands.formatInline.exec(composer, null, 'span', 'rte rte-comment');
+                }
+            },
+
+            'state': function(composer) {
+                var range = composer.selection.getRange();
+                $(composer.config.toolbar).toggleClass(
+                        'rte-toolbarContainer-inComment',
+                        !range.collapsed ||
+                                $(range.commonAncestorContainer).closest('.rte-comment').length > 0);
+                return false;
+            }
+        },
+
+        'commentCollapse': {
+            'exec': function(composer) {
+                iterateElements(composer, '.rte-comment', function() {
+                    var $selected = $(this),
+                            comment = $selected.attr('data-comment');
+
+                    if (comment) {
+                        $selected.text(comment);
+                        $selected.removeAttr('data-comment');
+
+                    } else {
+                        $selected.attr('data-comment', $selected.text());
+                        $selected.text('\u2026');
+                    }
+                });
+            },
+
+            'state': function(composer) {
+                return !!$(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').attr('data-comment');
+            }
+        },
+
+        'commentRemove': {
+            'exec': function(composer) {
+                iterateElements(composer, '.rte-comment', function() {
+                    var $selected = $(this),
+                            text,
+                            textLength;
+
+                    if ($selected.length > 0) {
+                        text = $selected.text();
+                        textLength = text.length;
+
+                        if (textLength === 0 ||
+                                (textLength === 1 &&
+                                text.charCodeAt(0) === 65279)) {
+                            $selected.remove();
+
+                        } else {
+                            $selected.toggleClass('rte-comment-removed');
+                        }
+                    }
+                });
+            },
+
+            'state': function(composer) {
+                return $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment-removed').length > 0;
+            }
+        }
+    });
+})();
 
 // Add support for toggling 'Fullscreen' mode.
 wysihtml5.commands.fullscreen = {
@@ -1548,10 +1470,6 @@ $.plugin2('rte', {
             options.inline = true;
         }
 
-        if ($element.attr('data-track-changes') === 'true') {
-            options.trackChanges = true;
-        }
-
         rte = new Rte(element, options);
 
         $element.bind('input-disable', function(event, disable) {
@@ -1602,7 +1520,7 @@ $.plugin2('rte', {
 });
 
 // Make sure that the editorial toolbar is visible as long as possible.
-$win.bind('resize.rte scroll.rte', $.throttle(100, function() {
+$win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function() {
     $.each(rtes, function() {
         var $toolbar = $(this.config.toolbar),
                 $header,
@@ -1661,5 +1579,52 @@ $win.bind('resize.rte scroll.rte', $.throttle(100, function() {
         }
     });
 }));
+
+// Handle enhancement selection within a popup.
+$doc.on('click', '[data-enhancement]', function(event) {
+    var $target = $(this),
+            $select = $target.popup('source'),
+            $group = $select.closest('.rte-group'),
+            $edit = $group.find('.rte-button-enhancementEdit a'),
+            enhancement = $target.attr('data-enhancement'),
+            enhancementJson = $.parseJSON(enhancement);
+
+    $select.text('Change');
+    $group.addClass('rte-group-enhancementSet');
+
+    $edit.attr('href', $.addQueryParameters(
+            $edit.attr('href'),
+            'id', enhancementJson.id));
+
+    $edit.rte('enhancement', {
+        'id': enhancementJson.id,
+        'label': enhancementJson.label,
+        'preview': enhancementJson.preview,
+        'reference': enhancement
+    });
+
+    $target.popup('close');
+    event.preventDefault();
+    event.stopImmediatePropagation();
+});
+
+// Remove the enhancement if selection popup is closed without enhancement
+// being set.
+$doc.on('close', '.popup[name ^= "contentEnhancement-"]', function() {
+    var $group = $(this).popup('source').closest('.rte-group'),
+            $enhancement,
+            $placeholder;
+
+    if (!$group.hasClass('rte-group-enhancementSet')) {
+        $enhancement = $group.closest('.rte-enhancement');
+        $placeholder = $enhancement.data('$rte-placeholder');
+
+        $enhancement.remove();
+
+        if ($placeholder) {
+            $placeholder.remove();
+        }
+    }
+});
 
 }(jQuery, window));

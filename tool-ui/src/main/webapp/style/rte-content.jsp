@@ -45,7 +45,7 @@ writer.start("html");
                     "font-size", "13px",
                     "font-style", "normal",
                     "font-weight", "normal",
-                    "line-height", "1.23076923077",
+                    "line-height", "20px",
                     "margin", "4px",
                     "padding", "0",
                     "vertical-align", "baseline",
@@ -68,35 +68,12 @@ writer.start("html");
 
             writer.css("body.rte-fullscreen",
                     "margin", "20px",
-                    "font-size", "16px");
+                    "font-size", "16px",
+                    "line-height", "24px");
 
             writer.css("del",
-                    "display", "inline-block",
-                    "height", 0,
-                    "left", "-30000px",
-                    "overflow", "hidden",
-                    "position", "relative",
-                    "width", 0);
-
-            writer.css("body.rte-trackChanges del",
-                    "background-color", "#faa",
-                    "display", "inline",
-                    "height", "auto",
-                    "overflow", "visible",
-                    "position", "static",
-                    "width", "auto");
-
-            writer.css("body.rte-firstDraft [data-last-comment]:after, body.rte-trackChanges [data-last-comment]:after",
-                    "background-color", "white",
-                    "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-last-comment) '\u00a0'",
-                    "font-style", "italic");
-
-            writer.css("body.rte-allComments [data-all-comments]:after",
-                    "background-color", "white",
-                    "border", "1px solid #333",
-                    "content", "'\u00a0' attr(data-all-comments) '\u00a0'",
-                    "font-style", "italic");
+                    "background", "#ffaaaa",
+                    "text-decoration", "line-through");
 
             writer.css("em, i",
                     "font-style", "italic");
@@ -114,7 +91,7 @@ writer.start("html");
             writer.css("h3",
                     "font-size", "120%");
 
-            writer.css("body.rte-trackChanges ins",
+            writer.css("ins",
                     "background-color", "#afa");
 
             writer.css("ol, ul",
@@ -173,7 +150,7 @@ writer.start("html");
                     "margin", "0 0 1em 0",
                     "width", "100%");
 
-            writer.css(".enhancement[data-preview]",
+            writer.css(".enhancement[data-preview][data-preview != '']",
                     "height", "200px");
 
             writer.css(".enhancement[data-alignment=left]",
@@ -191,17 +168,28 @@ writer.start("html");
             writer.css(".marker",
                     "height", "46px");
 
-            writer.css(".rte-cursor",
-                    "position", "relative");
+            writer.css(".rte-comment",
+                    "background-color", "white",
+                    "border", "1px solid #333",
+                    "font-style", "italic");
 
-            writer.css(".rte-cursor:after",
-                    "background-color", "rgba(0, 0, 0, 0.5)",
-                    "content", "''",
-                    "height", "16px",
-                    "left", "-1px",
-                    "position", "absolute",
-                    "top", 0,
-                    "width", "2px");
+            writer.css(".rte-comment:before, .rte-comment:after",
+                    "content", "'\\00a0'",
+                    "display", "inline-block");
+
+            writer.css(".rte-comment-collapsed",
+                    "display", "inline-block",
+                    "overflow", "hidden",
+                    "white-space", "nowrap",
+                    "width", "16px");
+
+            writer.css(".rte-comment-collapsed:before",
+                    "content", "'\\00a0\\2026'");
+
+            writer.css(".rte-comment-removed",
+                    "border-color", "#cc2200",
+                    "color", "#cc2200",
+                    "text-decoration", "line-through");
 
             CmsTool cms = wp.getCmsTool();
             String defaultCss = cms.getDefaultTextOverlayCss();

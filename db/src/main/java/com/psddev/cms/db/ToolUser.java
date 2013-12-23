@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -27,7 +28,8 @@ import com.psddev.dari.util.Password;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
-@ToolRole.BootstrapPackages("Users and Roles")
+@Record.BootstrapPackages("Users and Roles")
+@Record.BootstrapTypeMappable(groups = Content.class, uniqueKey = "email")
 public class ToolUser extends Record implements ToolEntity {
 
     @Indexed
@@ -97,6 +99,9 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Placeholder("All Contents")
     private InlineEditing inlineEditing;
+
+    @ToolUi.Tab("Advanced")
+    private boolean disableNavigateAwayAlert;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -427,6 +432,10 @@ public class ToolUser extends Record implements ToolEntity {
      * @return The tool user that holds the lock. Never {@code null}.
      */
     public ToolUser lockContent(UUID id) {
+        if (Query.from(CmsTool.class).first().isDisableContentLocking()) {
+            return this;
+        }
+
         String idPrefix = id.toString() + '/';
         long counter = System.currentTimeMillis() / 10000;
         String currentCounter = String.valueOf(counter);
@@ -529,6 +538,20 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setInlineEditing(InlineEditing inlineEditing) {
         this.inlineEditing = inlineEditing;
+    }
+
+    /**
+     * @return the disableNavigateAwayAlert
+     */
+    public boolean isDisableNavigateAwayAlert() {
+        return disableNavigateAwayAlert;
+    }
+
+    /**
+     * @param disableNavigateAwayAlert the disableNavigateAwayAlert to set
+     */
+    public void setDisableNavigateAwayAlert(boolean disableNavigateAwayAlert) {
+        this.disableNavigateAwayAlert = disableNavigateAwayAlert;
     }
 
     /**

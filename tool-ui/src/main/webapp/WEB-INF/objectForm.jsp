@@ -1,8 +1,10 @@
 <%@ page import="
 
+com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Modification,
@@ -95,7 +97,10 @@ wp.writeStart("div",
             if (request.getAttribute("firstDraft") == null) {
                 draftCheck = true;
                 request.setAttribute("firstDraft", state.isNew());
-                request.setAttribute("finalDraft", state.isNew() || state.isVisible());
+                request.setAttribute("finalDraft", !state.isNew() &&
+                        !state.as(Content.ObjectModification.class).isDraft() &&
+                        state.as(Workflow.Data.class).getCurrentState() == null &&
+                        wp.getOverlaidDraft(object) == null);
             }
 
             for (ObjectField field : fields) {

@@ -207,10 +207,39 @@
         $editor.css('pointer-events', 'auto');
     });
 
+    // Collapse the editor on right click because Chrome activates it on the
+    // editor even with pointer-events: none.
+    $document.on('contextmenu', function(event) {
+        var $logo = $body.find('.inlineEditorLogo');
+
+        $editor.css({
+            'max-height': $logo.outerHeight(true),
+            'max-width': $logo.outerWidth(true)
+        });
+
+        $logo.find('a').one('click', function() {
+            $editor.css({
+                'max-height': '',
+                'max-width': ''
+            });
+
+            return false;
+        });
+    });
+
     // Make sure that the editor IFRAME is at least as high as the parent
     // document.
     function equalizeHeight() {
         $editor.height(Math.max($document.height(), $parentBody.height()));
+        $editor.css({
+            'border': 'none',
+            'left': 0,
+            'margin': 0,
+            'position': 'absolute',
+            'top': 0,
+            'width': '100%',
+            'z-index': 1000000
+        });
     }
 
     equalizeHeight();

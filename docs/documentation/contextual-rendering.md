@@ -15,7 +15,7 @@ Often an object will be used in multiple places throughout a website, with diffe
 
 Start by changing the `@Renderer.Path` annotation on the object to `@Renderer.Paths`. This allows multiple paths to be defined. The `value` is the default rendering of the object. Set the `context` for other rendering locations. The example below provides a new jsp for when the article object is used as a module.
 
-{% highlight java %}@Renderer.Paths `({
+{% highlight java %}@Renderer.Paths ({
 	@Renderer.Path(value = "/article-object.jsp"),
 	@Renderer.Path(context = "module", value = "/module-article-object.jsp")
 })

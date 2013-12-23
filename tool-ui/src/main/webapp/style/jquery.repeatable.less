@@ -557,16 +557,26 @@
                 .icon;
                 .icon-minus-sign;
                 .link;
+
                 color: @color-alert;
                 position: absolute;
                 right: 1px;
                 top: 4px;
+                .user-select(none);
             }
 
-            &.toBeRemoved > .removeButton {
-                .icon;
-                .icon-plus-sign;
-                color: @color-link;
+            &.toBeRemoved {
+                > input[type='text'] {
+                    color: @color-alert;
+                    text-decoration: line-through;
+                }
+
+                > .removeButton {
+                    .icon;
+                    .icon-plus-sign;
+
+                    color: @color-link;
+                }
             }
         }
     }

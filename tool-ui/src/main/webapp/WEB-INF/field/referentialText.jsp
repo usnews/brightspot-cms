@@ -53,7 +53,7 @@ wp.writeStart("textarea",
         "data-user", wp.getObjectLabel(wp.getUser()),
         "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
         "data-first-draft", Boolean.TRUE.equals(request.getAttribute("firstDraft")),
-        "data-track-changes", !Boolean.TRUE.equals(request.getAttribute("finalDraft")));
+        "data-final-draft", Boolean.TRUE.equals(request.getAttribute("finalDraft")));
 
 if (fieldValue != null) {
     for (Object item : fieldValue) {

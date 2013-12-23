@@ -98,6 +98,12 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("RTE")
     private boolean legacyHtml;
 
+    @ToolUi.Tab("RTE")
+    private boolean enableAnnotations;
+
+    @ToolUi.Tab("Debug")
+    private boolean disableContentLocking;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -479,6 +485,22 @@ public class CmsTool extends Tool {
         this.legacyHtml = legacyHtml;
     }
 
+    public boolean isEnableAnnotations() {
+        return enableAnnotations;
+    }
+
+    public void setEnableAnnotations(boolean enableAnnotations) {
+        this.enableAnnotations = enableAnnotations;
+    }
+
+    public boolean isDisableContentLocking() {
+        return disableContentLocking;
+    }
+
+    public void setDisableContentLocking(boolean disableContentLocking) {
+        this.disableContentLocking = disableContentLocking;
+    }
+
     /** Returns the preview URL. */
     public String getPreviewUrl() {
         String url = getDefaultSiteUrl();
@@ -540,7 +562,8 @@ public class CmsTool extends Tool {
         List<Plugin> plugins = new ArrayList<Plugin>();
 
         // Areas.
-        plugins.add(createArea2("Pages & Content", "dashboard", "dashboard", "/"));
+        plugins.add(createArea2("Content", "dashboard", "dashboard", null));
+        plugins.add(createArea2("Dashboard", "cms.dashboard", "dashboard/dashboard", "/"));
         plugins.add(createArea2("Admin", "admin", "admin", null));
         plugins.add(createArea2("Content Types", "cms.adminContentTypes", "admin/contentTypes", "/adminContentTypes"));
         plugins.add(createArea2("Production Guides", "adminGuides", "admin/adminGuides", "/admin/guides.jsp"));

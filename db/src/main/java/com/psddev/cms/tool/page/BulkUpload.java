@@ -34,25 +34,28 @@ public class BulkUpload extends PageServlet {
             }
         }
 
-        if (!hasUploadable) {
-            return;
-        }
-
         ObjectType defaultType = page.getCmsTool().getBulkUploadSettings().getDefaultType();
 
         page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();
-            page.writeStart("div", "class", "message");
-                page.writeHtml("Drag and drop or ");
-                page.writeStart("a",
-                        "class", "uploadableLink",
-                        "target", "uploadFiles",
-                        "href", page.url("/content/uploadFiles",
-                                "typeId", ObjectType.getInstance(Content.class).getId(),
-                                "type", defaultType != null ? defaultType.getId() : null));
-                    page.writeHtml("select");
-                page.writeEnd();
-                page.writeHtml(" files.");
+            page.writeStart("div", "class", "message message-info");
+
+                if (!hasUploadable) {
+                    page.writeHtml("There aren't any content types that can be uploaded in bulk.");
+
+                } else {
+                    page.writeHtml("Drag and drop or ");
+                    page.writeStart("a",
+                            "class", "uploadableLink",
+                            "target", "uploadFiles",
+                            "href", page.url("/content/uploadFiles",
+                                    "typeId", ObjectType.getInstance(Content.class).getId(),
+                                    "type", defaultType != null ? defaultType.getId() : null));
+                        page.writeHtml("select");
+                    page.writeEnd();
+                    page.writeHtml(" files.");
+                }
+
             page.writeEnd();
         page.writeEnd();
     }

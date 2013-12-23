@@ -5,6 +5,7 @@ com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Database,
+com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.Reference,
@@ -118,19 +119,25 @@ if (object == null) {
 
 } else {
     wp.writeFormHeading(object);
+
+    int refFieldCount = -1;
+
+    for (ObjectField f : ref.getState().getType().getFields()) {
+        if (!f.as(ToolUi.class).isHidden()) {
+            ++ refFieldCount;
+        }
+    }
     %>
 
     <form action="<%= wp.url("", "typeId", state.getTypeId(), "id", state.getId()) %>" enctype="multipart/form-data" id="<%= pageId %>" method="post">
-
-        <p><a class="action action-change" href="<%= wp.url("",
-                "typeId", null,
-                "id", null,
-                "reference", referenceParamWithoutObject(ref)) %>">Change Enhancement</a></p>
-
         <% wp.include("/WEB-INF/errors.jsp"); %>
 
-        <% request.setAttribute("excludeFields", Arrays.asList("record")); %>
-        <% wp.writeFormFields(ref); %>
+        <%
+        if (refFieldCount > 0) {
+            request.setAttribute("excludeFields", Arrays.asList("record"));
+            wp.writeFormFields(ref);
+        }
+        %>
 
         <%-- Object Preview --%>
         <p id="<%= editObjectFormId %>">
@@ -198,6 +205,14 @@ if (object == null) {
                 $objectForm.find('input[name="isEditObject"]').val(true);
                 $(window).resize();
             });
+
+            <% if (refFieldCount == 0 || state.isNew()) { %>
+                $editObjectForm.click();
+            <% } %>
+
+            <% if (refFieldCount == 0) { %>
+                $viewObjectForm.remove();
+            <% } %>
         })(jQuery);
 
         if (typeof jQuery !== 'undefined') (function($) {

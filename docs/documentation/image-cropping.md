@@ -143,3 +143,47 @@ The .jsp file used to render the Blog post object will reference the crop that i
 <cms:render value="${blog.body}" />
 </div>
 {% endhighlight %}</div>
+
+## Controlling Enhancement Alignment
+
+When an editor moves an enhancement left or right in the rich text editor, a `alignment` value is created on the request. You can access this, and control the style to be applied based on the alignment that the editor is requesting:
+
+#### Check the alignment
+
+In your `image.jsp` file check the alignment being provided, and then set it as a class on the image containing div.
+
+<div class="highlight">{% highlight jsp %}
+<%@include file="/render/common/taglibs.jsp" %>
+
+<c:if test="${!empty alignment}">
+    <c:set var="imageAlignment" value=" ${alignment}" />
+</c:if>
+
+    <div class="enhancement${imageAlignment}">
+        <cms:img src="${content}"/>
+    </div>
+
+{% endhighlight %}</div>
+
+Provide CSS style based on the class being inserted, to control the view on the front-end:
+
+<div class="highlight">{% highlight css %}
+.enhancement.left { 
+  float:left;
+  margin-right:20px;
+  width:300px;
+  padding-right:15px;
+  padding-bottom: 15px;
+
+}
+
+.enhancement.right {
+  float:right;
+  margin-left:20px;
+  width:300px;
+  padding-left:15px;
+  padding-bottom: 15px;
+  
+}
+
+{% endhighlight %}</div>

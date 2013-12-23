@@ -508,22 +508,7 @@ public class PageFilter extends AbstractFilter {
 
             // Render the page.
             if (Static.isInlineEditingAllContents(request)) {
-                LazyWriterResponse lazyResponse = new LazyWriterResponse(request, response);
-                response = lazyResponse;
-
-                Map<String, String> map = new HashMap<String, String>();
-                State state = State.getInstance(mainObject);
-                StringBuilder marker = new StringBuilder();
-
-                map.put("id", state.getId().toString());
-                map.put("label", state.getLabel());
-                map.put("typeLabel", state.getType().getLabel());
-
-                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\" data-object=\"");
-                marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
-                marker.append("\"></span>");
-
-                lazyResponse.getLazyWriter().writeLazily(marker.toString());
+                response = new LazyWriterResponse(request, response);
             }
 
             writer = new HtmlWriter(response.getWriter());
@@ -628,6 +613,23 @@ public class PageFilter extends AbstractFilter {
             }
 
             endPage(request, response, writer, page);
+
+            if (Static.isInlineEditingAllContents(request)) {
+                LazyWriterResponse lazyResponse = (LazyWriterResponse) response;
+                Map<String, String> map = new HashMap<String, String>();
+                State state = State.getInstance(mainObject);
+                StringBuilder marker = new StringBuilder();
+
+                map.put("id", state.getId().toString());
+                map.put("label", state.getLabel());
+                map.put("typeLabel", state.getType().getLabel());
+
+                marker.append("<span class=\"cms-mainObject\" style=\"display: none;\" data-object=\"");
+                marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
+                marker.append("\"></span>");
+
+                lazyResponse.getLazyWriter().writeLazily(marker.toString());
+            }
 
         } finally {
             Database.Static.restoreDefault();
