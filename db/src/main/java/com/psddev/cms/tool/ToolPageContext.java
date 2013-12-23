@@ -923,8 +923,6 @@ public class ToolPageContext extends WebPageContext {
 
             } else {
                 typeLabel = type.getLabel();
-<<<<<<< .merge_file_izVh3x
-
                 if (ObjectUtils.isBlank(typeLabel)) {
                     typeLabel = type.getId().toString();
                 }
@@ -935,12 +933,8 @@ public class ToolPageContext extends WebPageContext {
             }
 
             writeHtml(typeLabel);
-
-=======
-
-                if (ObjectUtils.isBlank(typeLabel)) {
+            if (ObjectUtils.isBlank(typeLabel)) {
                     typeLabel = type.getId().toString();
-                }
             }
 
             if (ObjectUtils.isBlank(label)) {
@@ -949,7 +943,6 @@ public class ToolPageContext extends WebPageContext {
 
             writeHtml(typeLabel);
 
->>>>>>> .merge_file_Ge2D0u
             if (!typeLabel.equals(label)) {
                 writeHtml(": ");
                 writeHtml(label);
