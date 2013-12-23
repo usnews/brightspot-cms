@@ -52,7 +52,7 @@ public class ToolUserHistory extends PageServlet {
                     page.writeHtml("History");
                 page.writeEnd();
 
-                page.writeStart("ul");
+                page.writeStart("div", "class", "tabbed");
                     for (Map.Entry<String, List<ToolUserDevice>> entry : devicesByUserAgent.entrySet()) {
                         ToolUserDevice device = null;
                         List<ToolUserAction> actions = null;
@@ -82,9 +82,7 @@ public class ToolUserHistory extends PageServlet {
 
                         String lookingGlassUrl = page.cmsUrl("/lookingGlass", "id", device.getOrCreateLookingGlassId());
 
-                        page.writeStart("li", "style", "clear: right;");
-                            page.writeHtml(entry.getKey());
-
+                        page.writeStart("div", "data-tab", entry.getKey());
                             page.writeStart("div", "style", page.cssString(
                                     "float", "right",
                                     "text-align", "center"));
