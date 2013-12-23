@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.cms.db.KalturaVideoTranscodingService;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ForwardingDatabase;
@@ -16,14 +17,11 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-<<<<<<< .merge_file_AX7kGo
 import com.psddev.dari.util.KalturaSessionUtils;
-import com.psddev.dari.util.VideoStorageItem;
-=======
->>>>>>> .merge_file_685jWl
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
 
 public class AuthenticationFilter extends AbstractFilter {
 
@@ -43,11 +41,7 @@ public class AuthenticationFilter extends AbstractFilter {
     // --- AbstractFilter support ---
 
     @Override
-    protected void doRequest(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
-            throws Exception {
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
 
         try {
             chain.doFilter(request, response);
@@ -102,10 +96,13 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs in the given tool {@code user}.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
-         * @param user Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
+         * @param user
+         *            Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
 
@@ -123,20 +120,24 @@ public class AuthenticationFilter extends AbstractFilter {
 
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
-            //Create a kaltura session when a user logs in. Kaltura Adming Session is needed to 
-            //see player updates without caching as well as to create thumbnails
-            if (VideoStorageItem.isDefaultVideoTranscodingProviderKaltura()) {
-              if (request.getSession(false) != null && (request.getSession().getAttribute(KALTURA_SESSION_ID) == null)) {
-                request.getSession().setAttribute(KALTURA_SESSION_ID, KalturaSessionUtils.getKalturaSessionId());
-              }
+            // Create a kaltura session when a user logs in. Kaltura Adming
+            // Session is needed to
+            // see player updates without caching as well as to create
+            // thumbnails
+            if (KalturaVideoTranscodingService.NAME.equals(ObjectUtils.to(String.class, Settings.get(StorageItem.DEFAULT_VIDEO_STORAGE_SETTING)))) {
+                if (request.getSession(false) != null && request.getSession().getAttribute(KALTURA_SESSION_ID) == null) {
+                    request.getSession().setAttribute(KALTURA_SESSION_ID, KalturaSessionUtils.getKalturaSessionId());
+                }
             }
         }
 
         /**
          * Logs out the current tool user.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
          */
         public static void logOut(HttpServletRequest request, HttpServletResponse response) {
             Cookie cookie = new Cookie(USER_COOKIE, null);
@@ -157,10 +158,14 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs out the current tool user.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
-         * @deprecated Use {@link #logOut(HttpServletRequest, HttpServletResponse)} instead.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
+         * @deprecated Use
+         *             {@link #logOut(HttpServletRequest, HttpServletResponse)}
+         *             instead.
          */
         @Deprecated
         public static void logOut(HttpServletResponse response) {
@@ -170,8 +175,9 @@ public class AuthenticationFilter extends AbstractFilter {
         /**
          * Returns {@code true} if a tool user is authenticated in the given
          * {@code request}.
-         *
-         * @param request Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
          */
         public static boolean isAuthenticated(HttpServletRequest request) {
             return Boolean.TRUE.equals(request.getAttribute(AUTHENTICATED_ATTRIBUTE));
@@ -230,8 +236,7 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         /**
-         * Returns the user setting value associated with the given
-         * {@code key}.
+         * Returns the user setting value associated with the given {@code key}.
          */
         public static Object getUserSetting(HttpServletRequest request, String key) {
             ToolUser user = getUser(request);
@@ -241,8 +246,8 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Puts the given user setting {@code value} at the given {@code key}.
-         * The user, along with the setting values, are saved once at the end
-         * of the given {@code request}.
+         * The user, along with the setting values, are saved once at the end of
+         * the given {@code request}.
          */
         public static void putUserSetting(HttpServletRequest request, String key, Object value) {
             ToolUser user = getUser(request);
