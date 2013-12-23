@@ -129,6 +129,12 @@ public interface VideoContainer extends Recordable {
         }
 
         @Override
+        public void beforeDelete() {
+            if (getFile() != null )
+                getFile().delete();
+        }
+        
+        @Override
         public void beforeSave() {
             if (transcodingStatus == null)
                 transcodingStatus=TranscodingStatus.PENDING;

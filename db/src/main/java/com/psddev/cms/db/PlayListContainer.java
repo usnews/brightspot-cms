@@ -1,4 +1,5 @@
-package com.psddev.cms.db; 
+package com.psddev.cms.db;
+
 import java.util.Map;
 import java.util.Date;
 import java.util.List;
@@ -13,19 +14,19 @@ import com.psddev.dari.db.Recordable;
 import com.psddev.cms.db.VideoContainer;
 
 /**
-* Interface used to  create a playlist
-*/
+ * Interface used to create a playlist
+ */
 public interface PlayListContainer extends Recordable {
     /**
-    * Modification which add information specific to playlist
-    */
+     * Modification which add information specific to playlist
+     */
     @Modification.FieldInternalNamePrefix("cms.playlist.")
     public static final class Data extends Modification<PlayListContainer> {
         private static final Logger LOGGER = LoggerFactory.getLogger(Data.class);
         @Indexed
         @ToolUi.ReadOnly
         private String externalId;
-        
+
         public String getExternalId() {
             return externalId;
         }
@@ -33,6 +34,7 @@ public interface PlayListContainer extends Recordable {
         public void setExternalId(String externalId) {
             this.externalId = externalId;
         }
+
         public ObjectField getVideoContainerListItemField() {
             return getState().getType().as(TypeModification.class).getVideoContainerListItemField();
         }
@@ -43,21 +45,29 @@ public interface PlayListContainer extends Recordable {
 
         @Override
         public void beforeSave() {
-            VideoTranscodingService pls= VideoTranscodingServiceFactory.getDefault();
-            List<VideoContainer> videoContainers=getVideoContainers();
+            VideoTranscodingService pls = VideoTranscodingServiceFactory.getDefault();
+            List<VideoContainer> videoContainers = getVideoContainers();
             if (externalId == null) {
-                if (videoContainers != null & videoContainers.size() > 0 )
-                {
-                  externalId= pls.createPlayList( Long.toString(new Date().getTime()),videoContainers);
+                if (videoContainers != null & videoContainers.size() > 0) {
+                    externalId = pls.createPlayList(Long.toString(new Date().getTime()), videoContainers);
                 }
             } else {
-                  pls.updatePlayList(externalId,videoContainers);
+                pls.updatePlayList(externalId, videoContainers);
+            }
+        }
+
+        @Override
+        public void beforeDelete() {
+            if (externalId != null) {
+                VideoTranscodingService pls = VideoTranscodingServiceFactory.getDefault();
+                pls.deletePlayList(externalId);
             }
         }
     }
 
     public static final class TypeModification extends Modification<ObjectType> {
-        //private static final Logger LOGGER = LoggerFactory.getLogger(TypeModification.class);
+        // private static final Logger LOGGER =
+        // LoggerFactory.getLogger(TypeModification.class);
 
         private ObjectField videoStorageItemField;
 
