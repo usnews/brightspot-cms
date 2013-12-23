@@ -3,8 +3,8 @@ import java.util.Map;
 import java.util.Date;
 import java.util.List;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
@@ -20,13 +20,12 @@ import com.psddev.dari.util.Settings;
 * Interface used to add VideContainer Modification
 */
 public interface VideoContainer extends Recordable {
-
     /**
     * Modification which add information specific to video
     */
     @Modification.FieldInternalNamePrefix("cms.video.")
     public static final class Data extends Modification<VideoContainer> {
-        //private static final Logger LOGGER = LoggerFactory.getLogger(Data.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(Data.class);
         /* Length of the video in seconds */
         @Indexed
         @ToolUi.ReadOnly
@@ -130,8 +129,12 @@ public interface VideoContainer extends Recordable {
 
         @Override
         public void beforeDelete() {
-            if (getFile() != null )
-                getFile().delete();
+            try {
+                if (getFile() != null)
+                    getFile().delete();
+            } catch (Exception e) {
+                LOGGER.error("Failed to delete storage item", e);
+            }
         }
         
         @Override
