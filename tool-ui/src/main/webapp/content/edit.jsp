@@ -264,6 +264,7 @@ playListId=data.getExternalId();
   <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=Settings.get("dari/storage/kaltura/playlistPlayerId")%>/partner_id/<%=partnerId%>?autoembed=true&playerId=kaltura_player_1381428262&width=400&height=680&flashvars[playlistAPI.kpl0Id]=<%=playListId%>&flashvars[ks]=<%=kalturaSession%>"></script>
 <% } %>
                 <div class="widgetControls">
+                    <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
                     <%
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
@@ -791,17 +792,23 @@ playListId=data.getExternalId();
                             wp.writeEnd();
                         }
 
-                        List<Directory.Path> paths = editingState.as(Directory.ObjectModification.class).getPaths();
+                        Set<Directory.Path> paths = editingState.as(Directory.Data.class).getPaths();
 
                         if (paths != null && !paths.isEmpty()) {
                             wp.writeHtml(" ");
                             wp.writeStart("select",
                                     "class", "autoSubmit",
                                     "name", "_previewPath");
-                                for (int i = paths.size() - 1; i >= 0; -- i) {
-                                    String path = paths.get(i).getPath();
+                                for (Directory.Path p : paths) {
+                                    Site s = p.getSite();
+                                    String path = p.getPath();
 
                                     wp.writeStart("option", "value", path);
+                                        if (s != null) {
+                                            wp.writeObjectLabel(s);
+                                            wp.writeHtml(": ");
+                                        }
+
                                         wp.writeHtml(path);
                                     wp.writeEnd();
                                 }
@@ -813,6 +820,128 @@ playListId=data.getExternalId();
             </ul>
         </div>
     </div>
+
+    <% if (!wp.getUser().isDisableNavigateAwayAlert() &&
+            (wp.getCmsTool().isDisableAutomaticallySavingDrafts() ||
+            (!editingState.isNew() &&
+            !editingState.as(Content.ObjectModification.class).isDraft()))) { %>
+        <script type="text/javascript">
+            (function($, window, undefined) {
+                $('.contentForm').submit(function() {
+                    $.data(this, 'submitting', true);
+                });
+
+                $(window).bind('beforeunload', function() {
+                    var $form = $('.contentForm');
+
+                    return !$.data($form[0], 'submitting') && $form.find('.state-changed').length > 0 ?
+                            'Are you sure you want to leave this page? Unsaved changes will be lost.' :
+                            undefined;
+                });
+            })(jQuery, window);
+        </script>
+    <% } %>
+
+    <script type="text/javascript">
+        $(window.document).onCreate('.contentForm', function() {
+            var $form = $(this),
+                    updateContentState,
+                    updateContentStateThrottled,
+                    changed,
+                    idleTimeout;
+
+            updateContentState = function(idle, wait) {
+                var action,
+                        questionAt,
+                        complete,
+                        end,
+                        $dynamicTexts;
+
+                action = $form.attr('action');
+                questionAt = action.indexOf('?');
+                end = +new Date() + 1000;
+                $dynamicTexts = $form.find(
+                        '[data-dynamic-text][data-dynamic-text != ""],' +
+                        '[data-dynamic-html][data-dynamic-html != ""],' +
+                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
+
+                $.ajax({
+                    'type': 'post',
+                    'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
+                    'cache': false,
+                    'dataType': 'json',
+
+                    'data': $form.serialize() + $dynamicTexts.map(function() {
+                        var $element = $(this);
+
+                        return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
+                                '&_dtt=' + ($element.attr('data-dynamic-text') ||
+                                $element.attr('data-dynamic-html') ||
+                                $element.attr('data-dynamic-placeholder') ||
+                                '');
+                    }).get().join(''),
+
+                    'success': function(data) {
+                        $form.trigger('cms-updateContentState', [ data ]);
+
+                        $dynamicTexts.each(function(index) {
+                            var $element = $(this),
+                                    text = data._dynamicTexts[index];
+
+                            if (text === null) {
+                                return;
+                            }
+
+                            $element.closest('.message').toggle(text !== '');
+
+                            if ($element.is('[data-dynamic-text]')) {
+                                $element.text(text);
+
+                            } else if ($element.is('[data-dynamic-html]')) {
+                                $element.html(text);
+
+                            } else if ($element.is('[data-dynamic-placeholder]')) {
+                                $element.prop('placeholder', text);
+                            }
+                        });
+                    },
+
+                    'complete': function() {
+                        complete = true;
+                    }
+                });
+
+                if (wait) {
+                    while (!complete) {
+                        if (+new Date() > end) {
+                            break;
+                        }
+                    }
+                }
+            };
+
+            updateContentStateThrottled = $.throttle(100, updateContentState);
+
+            updateContentStateThrottled();
+
+            $form.bind('change input', function() {
+                updateContentStateThrottled();
+
+                clearTimeout(idleTimeout);
+
+                changed = true;
+                idleTimeout = setTimeout(function() {
+                    updateContentStateThrottled(true);
+                }, 2000);
+            });
+
+            $(window).bind('beforeunload', function() {
+                if (changed) {
+                    updateContentState(true, true);
+                }
+            });
+        });
+    </script>
 
     <script type="text/javascript">
         (function($, win, undef) {
