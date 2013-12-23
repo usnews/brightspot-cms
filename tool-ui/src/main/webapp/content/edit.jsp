@@ -1,5 +1,4 @@
 <%@ page import="
-
 com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
@@ -22,14 +21,14 @@ com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowLog,
 com.psddev.cms.db.WorkStream,
+com.psddev.cms.db.PlayListContainer,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
-
+com.psddev.cms.tool.AuthenticationFilter,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
-com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
@@ -37,10 +36,13 @@ com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
+com.psddev.dari.util.KalturaSessionUtils,
+com.psddev.dari.util.StorageItem,
+com.psddev.dari.util.Settings,
+com.kaltura.client.KalturaConfiguration,
 
 java.io.StringWriter,
 java.util.ArrayList,
-java.util.Date,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
@@ -154,21 +156,44 @@ ToolUser user = wp.getUser();
 ToolUser contentLockOwner = user.lockContent(editingState.getId());
 boolean lockedOut = !user.equals(contentLockOwner);
 
+String playListId=null;
+try {
+PlayListContainer.Data data=State.getInstance(editing).as(PlayListContainer.Data.class);
+playListId=data.getExternalId();
+} catch (Exception e) {
+}
+
 // --- Presentation ---
 
-%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
-
+%><% wp.include("/WEB-INF/header.jsp"); %>
 <div class="content-edit">
     <form class="contentForm contentLock"
             method="post"
             enctype="multipart/form-data"
+            <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
+            onsubmit="startProgress()"
+            <% } %>
             action="<%= wp.objectUrl("", selected) %>"
             autocomplete="off"
             data-object-id="<%= State.getInstance(selected).getId() %>"
             data-content-id="<%= State.getInstance(editing).getId() %>"
             data-content-lock-owner-id="<%= contentLockOwner.getId() %>"
             data-content-locked-out="<%= lockedOut %>">
-        <div class="contentForm-main">
+           
+            <!-- Code related to upload progress bar --> 
+            <!--specify width on this uploadProgressBar, otherwise the progress indicator wont move -->
+            <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
+                    <script src="/cms/script/progressbar.js"></script>
+                    <div id="uploadStatus">
+                    <div id="uploadProgressMessage"></div>
+                    <div id="uploadProgressBar" style="width:800px;">
+                          <div id="uploadIndicator"></div>
+                    </div>
+                    <div id="uploadPercentage"></div>
+                    </div>
+            <% } %>
+            <!-- End related to upload progress bar --> 
+            <div class="contentForm-main">
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
                     String search = wp.param(String.class, "search");
@@ -222,6 +247,22 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     wp.include("/WEB-INF/objectVariation.jsp", "object", editing);
                 %></h1>
 
+ <!-- Code to render kaltura playlist player embed code --> 
+ <% if (playListId != null ) {
+     String kalturaSession=(String) session.getAttribute("com.psddev.cms.tool.AuthenticationFilter.kalturaSessionId");
+     KalturaConfiguration kalturaConfig=KalturaSessionUtils.getKalturaConfig();     
+     Integer partnerId=kalturaConfig.getPartnerId();
+    %>
+  <div id="kaltura_player_1381428262" style="width: 400px; height: 680px;" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
+   <span itemprop="name" content=""></span>
+   <span itemprop="description" content=""></span>
+   <span itemprop="duration" content=""></span>
+   <span itemprop="thumbnail" content=""></span>
+   <span itemprop="width" content="400"></span>
+   <span itemprop="height" content="680"></span>
+  </div>
+  <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=Settings.get("dari/storage/kaltura/playlistPlayerId")%>/partner_id/<%=partnerId%>?autoembed=true&playerId=kaltura_player_1381428262&width=400&height=680&flashvars[playlistAPI.kpl0Id]=<%=playListId%>&flashvars[ks]=<%=kalturaSession%>"></script>
+<% } %>
                 <div class="widgetControls">
                     <%
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
@@ -256,8 +297,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 <%
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
-                if (!editingState.as(Content.ObjectModification.class).isDraft() &&
-                        (history != null || draft != null)) {
+                if (history != null || draft != null) {
                     State original = State.getInstance(Query.
                             from(Object.class).
                             where("_id = ?", editing).
@@ -307,6 +347,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
 
         <div class="contentForm-aside">
+            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
+
             <div class="widget widget-publishing">
                 <h1 class="icon icon-action-publish">Publishing</h1>
 
@@ -418,36 +460,24 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                             wp.writeStart("div", "class", "message message-warning");
                                 wp.writeStart("p");
-                                    wp.writeHtml("Draft last saved ");
-                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                    wp.writeHtml(" by ");
-                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                    wp.writeHtml(".");
-
                                     if (schedule != null) {
-                                        Date triggerDate = schedule.getTriggerDate();
-                                        ToolUser triggerUser = schedule.getTriggerUser();
+                                        wp.writeHtml("Draft scheduled to be published ");
+                                        wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
+                                        wp.writeHtml(" by ");
+                                        wp.writeObjectLabel(schedule.getTriggerUser());
+                                        wp.writeHtml(".");
 
-                                        if (triggerDate != null || triggerUser != null) {
-                                            wp.writeHtml(" Scheduled to be published");
-
-                                            if (triggerDate != null) {
-                                                wp.writeHtml(" ");
-                                                wp.writeHtml(wp.formatUserDateTime(triggerDate));
-                                            }
-
-                                            if (triggerUser != null) {
-                                                wp.writeHtml(" by ");
-                                                wp.writeObjectLabel(triggerUser);
-                                            }
-
-                                            wp.writeHtml(".");
-                                        }
+                                    } else {
+                                        wp.writeHtml("Draft last saved ");
+                                        wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                        wp.writeHtml(" by ");
+                                        wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                        wp.writeHtml(".");
                                     }
                                 wp.writeEnd();
 
                                 wp.writeStart("div", "class", "actions");
-                                    if (!contentData.isDraft()) {
+                                    if (!draftContentData.isDraft()) {
                                         wp.writeStart("a",
                                                 "class", "icon icon-action-edit",
                                                 "href", wp.url("", "draftId", null));
@@ -637,11 +667,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft &&
-                                        !isHistory &&
-                                        !editingState.isNew() &&
-                                        (editingState.getType() == null ||
-                                        !editingState.getType().getGroups().contains(Singleton.class.getName()))) {
+                                if (!isDraft && !isHistory && !editingState.isNew()) {
                                     wp.writeStart("button",
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
@@ -673,8 +699,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
                 }
                 %>
             </div>
-
-            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
         </div>
     </form>
 </div>
@@ -790,118 +814,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
         </div>
     </div>
 
-    <% if (wp.getCmsTool().isDisableAutomaticallySavingDrafts() ||
-            (!editingState.isNew() &&
-            !editingState.as(Content.ObjectModification.class).isDraft())) { %>
-        <script type="text/javascript">
-            (function($, window, undefined) {
-                $('.contentForm').submit(function() {
-                    $.data(this, 'submitting', true);
-                });
-
-                $(window).bind('beforeunload', function() {
-                    var $form = $('.contentForm');
-
-                    return !$.data($form[0], 'submitting') && $form.find('.state-changed').length > 0 ?
-                            'Are you sure you want to leave this page? Unsaved changes will be lost.' :
-                            undefined;
-                });
-            })(jQuery, window);
-        </script>
-    <% } %>
-
-    <script type="text/javascript">
-        $(window.document).onCreate('.contentForm', function() {
-            var $form = $(this),
-                    updateContentState,
-                    updateContentStateThrottled,
-                    changed,
-                    idleTimeout;
-
-            updateContentState = function(idle, wait) {
-                var action,
-                        questionAt,
-                        complete,
-                        end,
-                        $dynamicTexts;
-
-                action = $form.attr('action');
-                questionAt = action.indexOf('?');
-                end = +new Date() + 1000;
-                $dynamicTexts = $form.find('[data-dynamic-text], [data-dynamic-html], [data-dynamic-placeholder]');
-
-                $.ajax({
-                    'type': 'post',
-                    'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
-                    'cache': false,
-                    'dataType': 'json',
-
-                    'data': $form.serialize() + $dynamicTexts.map(function() {
-                        var $element = $(this);
-
-                        return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
-                                '&_dtt=' + ($element.attr('data-dynamic-text') ||
-                                $element.attr('data-dynamic-html') ||
-                                $element.attr('data-dynamic-placeholder') ||
-                                '');
-                    }).get().join(''),
-
-                    'success': function(data) {
-                        $form.trigger('cms-updateContentState', [ data ]);
-
-                        $dynamicTexts.each(function(index) {
-                            var $element = $(this),
-                                    text = data._dynamicTexts[index] || '';
-
-                            if ($element.is('[data-dynamic-text]')) {
-                                $element.text(text);
-
-                            } else if ($element.is('[data-dynamic-html]')) {
-                                $element.html(text);
-
-                            } else if ($element.is('[data-dynamic-placeholder]')) {
-                                $element.prop('placeholder', text);
-                            }
-                        });
-                    },
-
-                    'complete': function() {
-                        complete = true;
-                    }
-                });
-
-                if (wait) {
-                    while (!complete) {
-                        if (+new Date() > end) {
-                            break;
-                        }
-                    }
-                }
-            };
-
-            updateContentStateThrottled = $.throttle(100, updateContentState);
-
-            updateContentStateThrottled();
-
-            $form.bind('change input', function() {
-                updateContentStateThrottled();
-
-                clearTimeout(idleTimeout);
-
-                changed = true;
-                idleTimeout = setTimeout(function() {
-                    updateContentStateThrottled(true);
-                }, 2000);
-            });
-
-            $(window).bind('beforeunload', function() {
-                if (changed) {
-                    updateContentState(true, true);
-                }
-            });
-        });
-    </script>
-
     <script type="text/javascript">
         (function($, win, undef) {
             var PEEK_WIDTH = 160,
@@ -927,10 +839,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     getUniqueColor,
                     fieldHue = Math.random(),
                     GOLDEN_RATIO = 0.618033988749895;
-
-            if ($edit.closest('.popup').length > 0) {
-                return;
-            }
 
             // Append a link for activating the preview.
             appendPreviewAction = function() {
@@ -1305,7 +1213,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                     if (sourceOffset.left > targetOffset.left) {
                         var targetWidth = $target.outerWidth();
-                        pathTargetX = targetOffset.left + targetWidth + 3;
+                        pathTargetX = targetOffset.left + targetWidth;
                         pathTargetY = targetOffset.top + $target.outerHeight() / 2;
                         isBackReference = true;
 
@@ -1325,7 +1233,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     } else {
                         pathSourceX = sourceOffset.left + $source.width();
                         pathSourceY = sourceOffset.top + $source.height() / 2;
-                        pathTargetX = targetOffset.left - 3;
+                        pathTargetX = targetOffset.left;
                         pathTargetY = targetOffset.top + $target.height() / 2;
                         pathSourceDirection = 1;
                         pathTargetDirection = -1;
