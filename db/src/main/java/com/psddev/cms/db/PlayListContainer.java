@@ -1,6 +1,5 @@
 package com.psddev.cms.db;
 
-import java.util.Map;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
-import com.psddev.cms.db.VideoContainer;
 
 /**
  * Interface used to create a playlist
@@ -40,7 +38,7 @@ public interface PlayListContainer extends Recordable {
         }
 
         public List<VideoContainer> getVideoContainers() {
-            return (getVideoContainerListItemField() == null ? null : (List<VideoContainer>) getState().getByPath(getVideoContainerListItemField().getInternalName()));
+            return getVideoContainerListItemField() == null ? null : (List<VideoContainer>) getState().getByPath(getVideoContainerListItemField().getInternalName());
         }
 
         @Override
