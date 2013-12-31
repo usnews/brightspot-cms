@@ -158,14 +158,10 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs out the current tool user.
-         * 
-         * @param request
-         *            Can't be {@code null}.
-         * @param response
-         *            Can't be {@code null}.
-         * @deprecated Use
-         *             {@link #logOut(HttpServletRequest, HttpServletResponse)}
-         *             instead.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         * @deprecated Use {@link #logOut(HttpServletRequest, HttpServletResponse)} instead.
          */
         @Deprecated
         public static void logOut(HttpServletResponse response) {

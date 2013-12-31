@@ -932,14 +932,10 @@ public class ToolPageContext extends WebPageContext {
                 label = state.getId().toString();
             }
 
-            writeHtml(typeLabel);
-            if (ObjectUtils.isBlank(typeLabel)) {
+                if (ObjectUtils.isBlank(typeLabel)) {
                     typeLabel = type.getId().toString();
-            }
+                }
 
-            if (ObjectUtils.isBlank(label)) {
-                label = state.getId().toString();
-            }
 
             writeHtml(typeLabel);
 
