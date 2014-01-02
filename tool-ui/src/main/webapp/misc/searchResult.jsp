@@ -38,7 +38,7 @@ if (!wp.param(boolean.class, "widget")) {
         }
     }
 
-    wp.writeStart("div", "class", "buttons");
+    wp.writeStart("div", "class", "buttons", "style", "margin-bottom:0;");
         wp.writeStart("a",
                 "class", "button icon icon-action-search",
                 "target", "toolUserSaveSearch",
