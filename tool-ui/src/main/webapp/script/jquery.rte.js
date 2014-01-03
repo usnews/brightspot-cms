@@ -1599,19 +1599,20 @@ $doc.on('click', '[data-enhancement]', function(event) {
             enhancement = $target.attr('data-enhancement'),
             enhancementJson = $.parseJSON(enhancement);
 
-    $select.text('Change');
     $group.addClass('rte-group-enhancementSet');
-
-    $edit.attr('href', $.addQueryParameters(
-            $edit.attr('href'),
-            'id', enhancementJson.record._id));
-
-    $edit.rte('enhancement', {
+    $select.text('Change');
+    $select.rte('enhancement', {
         'id': enhancementJson.record._id,
         'label': enhancementJson.label,
         'preview': enhancementJson.preview,
         'reference': enhancement
     });
+
+    if ($edit.length > 0) {
+        $edit.attr('href', $.addQueryParameters(
+                $edit.attr('href'),
+                'id', enhancementJson.record._id));
+    }
 
     $target.popup('close');
     event.preventDefault();
