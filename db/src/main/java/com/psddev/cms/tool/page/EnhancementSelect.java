@@ -40,7 +40,7 @@ public class EnhancementSelect extends PageServlet {
                 page.getResponse(),
                 page,
                 page.cmsUrl("/WEB-INF/search.jsp"),
-                        "newJsp", "/enhancementEdit",
+                        "newJsp", "/content/enhancement.jsp",
                         "resultJsp", "/enhancementSearchResult",
                         "validTypeIds", validTypeIds.toArray(new UUID[validTypeIds.size()]));
     }
