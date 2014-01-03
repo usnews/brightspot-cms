@@ -1119,6 +1119,16 @@ var Rte = wysihtml5.Editor.extend({
 
                     if (!id) {
                         $editTrigger = $anchor;
+
+                    } else {
+                        $enhancement.find('.rte-button-enhancementEdit a').each(function() {
+                            var $edit = $(this);
+
+                            $edit.closest('.rte-group').addClass('rte-group-enhancementSet');
+                            $edit.attr('href', $.addQueryParameters(
+                                    $edit.attr('href'),
+                                    'id', id));
+                        });
                     }
                 });
             }
@@ -1594,10 +1604,10 @@ $doc.on('click', '[data-enhancement]', function(event) {
 
     $edit.attr('href', $.addQueryParameters(
             $edit.attr('href'),
-            'id', enhancementJson.id));
+            'id', enhancementJson.record._id));
 
     $edit.rte('enhancement', {
-        'id': enhancementJson.id,
+        'id': enhancementJson.record._id,
         'label': enhancementJson.label,
         'preview': enhancementJson.preview,
         'reference': enhancement
