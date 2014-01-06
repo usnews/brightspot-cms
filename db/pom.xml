@@ -39,7 +39,6 @@
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-util</artifactId>
-            <version>2.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>

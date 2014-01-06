@@ -12,7 +12,7 @@ import com.psddev.dari.util.RepeatingTask;
 
 public class VideoThumbnailUpdateTask extends RepeatingTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoThumbnailUpdateTask.class);
-    private static final String DEFAULT_TASK_NAME = "Video Thumbnail  Update Task";
+    private static final String DEFAULT_TASK_NAME = "Video Thumbnail Update Task";
 
     @Override
     protected DateTime calculateRunTime(DateTime currentTime) {

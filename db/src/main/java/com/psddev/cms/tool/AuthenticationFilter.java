@@ -41,7 +41,11 @@ public class AuthenticationFilter extends AbstractFilter {
     // --- AbstractFilter support ---
 
     @Override
-    protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+    protected void doRequest(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws Exception {
 
         try {
             chain.doFilter(request, response);
@@ -96,16 +100,12 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs in the given tool {@code user}.
-         * 
-         * @param request
-         *            Can't be {@code null}.
-         * @param response
-         *            Can't be {@code null}.
-         * @param user
-         *            Can't be {@code null}.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         * @param user Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
-
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
 
             cookie.setSecure(JspUtils.isSecure(request));
@@ -120,7 +120,7 @@ public class AuthenticationFilter extends AbstractFilter {
 
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
-            // Create a kaltura session when a user logs in. Kaltura Adming
+            // Create a kaltura session when a user logs in. Kaltura Admin
             // Session is needed to
             // see player updates without caching as well as to create
             // thumbnails
@@ -133,11 +133,9 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs out the current tool user.
-         * 
-         * @param request
-         *            Can't be {@code null}.
-         * @param response
-         *            Can't be {@code null}.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
          */
         public static void logOut(HttpServletRequest request, HttpServletResponse response) {
             Cookie cookie = new Cookie(USER_COOKIE, null);
@@ -171,9 +169,8 @@ public class AuthenticationFilter extends AbstractFilter {
         /**
          * Returns {@code true} if a tool user is authenticated in the given
          * {@code request}.
-         * 
-         * @param request
-         *            Can't be {@code null}.
+         *
+         * @param request Can't be {@code null}.
          */
         public static boolean isAuthenticated(HttpServletRequest request) {
             return Boolean.TRUE.equals(request.getAttribute(AUTHENTICATED_ATTRIBUTE));
@@ -232,7 +229,8 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         /**
-         * Returns the user setting value associated with the given {@code key}.
+         * Returns the user setting value associated with the given
+         * {@code key}.
          */
         public static Object getUserSetting(HttpServletRequest request, String key) {
             ToolUser user = getUser(request);
@@ -242,8 +240,8 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Puts the given user setting {@code value} at the given {@code key}.
-         * The user, along with the setting values, are saved once at the end of
-         * the given {@code request}.
+         * The user, along with the setting values, are saved once at the end
+         * of the given {@code request}.
          */
         public static void putUserSetting(HttpServletRequest request, String key, Object value) {
             ToolUser user = getUser(request);

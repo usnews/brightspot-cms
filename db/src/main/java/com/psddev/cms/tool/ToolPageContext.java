@@ -923,6 +923,7 @@ public class ToolPageContext extends WebPageContext {
 
             } else {
                 typeLabel = type.getLabel();
+
                 if (ObjectUtils.isBlank(typeLabel)) {
                     typeLabel = type.getId().toString();
                 }
@@ -1622,6 +1623,7 @@ public class ToolPageContext extends WebPageContext {
                             setWidth(1000).
                             setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
                             toUrl();
+
                 } else {
                     if (preview instanceof VideoStorageItem) 
                        previewUrl = ((VideoStorageItem)preview).getThumbnailUrl();

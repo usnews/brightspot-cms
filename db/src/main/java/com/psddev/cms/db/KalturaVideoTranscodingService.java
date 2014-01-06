@@ -34,7 +34,7 @@ import com.psddev.dari.util.VideoStorageItem;
  * flavors/profiles/players etc from kaltura and it also has methods to update
  * data from kaltura to BrightSpot
  **/
-public class KalturaVideoTranscodingService implements VideoTranscodingService {
+class KalturaVideoTranscodingService implements VideoTranscodingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(KalturaVideoTranscodingService.class);
     public static final String NAME = "kaltura";
 
