@@ -418,6 +418,23 @@ writer.start("div", "class", "searchForm");
                         writer.writeHtml(" Show Drafts");
                     writer.writeEnd();
                 writer.writeEnd();
+
+                writer.writeStart("div", "class", "searchFilter searchFilter-advancedQuery");
+                    writer.writeStart("textarea",
+                            "class", "code",
+                            "data-expandable-class", "code",
+                            "name", Search.ADVANCED_QUERY_PARAMETER,
+                            "placeholder", "Advanced Query");
+                        writer.writeHtml(search.getAdvancedQuery());
+                    writer.writeEnd();
+
+                    writer.writeStart("a",
+                            "class", "icon icon-action-edit icon-only",
+                            "href", wp.cmsUrl("/searchAdvancedQuery"),
+                            "target", "searchAdvancedQuery");
+                        writer.writeHtml("Edit");
+                    writer.writeEnd();
+                writer.writeEnd();
             writer.end();
 
             writer.start("a",

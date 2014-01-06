@@ -283,8 +283,8 @@
 }
 
 .searchFilters {
-    margin-bottom: 20px;
-    margin-top: 50px;
+    margin: 50px -10px 20px -10px;
+    padding: 0 10px 0 10px;
     position: relative;
 
     form {
@@ -303,7 +303,7 @@
 
         color: @color-alert;
         position: absolute;
-        right: 0;
+        right: 10px;
         top: -2px;
     }
 }
@@ -366,6 +366,16 @@
 
     &.searchFilter-number input[type='text'] {
         width: 50%;
+    }
+
+    &.searchFilter-advancedQuery {
+        position: relative;
+
+        .icon-action-edit {
+            bottom: 2px;
+            position: absolute;
+            right: 4px;
+        }
     }
 }
 

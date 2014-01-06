@@ -43,6 +43,7 @@ import com.psddev.dari.util.StringUtils;
 public class Search extends Record {
 
     public static final String ADDITIONAL_PREDICATE_PARAMETER = "aq";
+    public static final String ADVANCED_QUERY_PARAMETER = "av";
     public static final String GLOBAL_FILTER_PARAMETER_PREFIX = "gf.";
     public static final String FIELD_FILTER_PARAMETER_PREFIX = "f.";
     public static final String LIMIT_PARAMETER = "l";
@@ -72,6 +73,7 @@ public class Search extends Record {
     private String color;
     private boolean onlyPathed;
     private String additionalPredicate;
+    private String advancedQuery;
     private UUID parentId;
     private Map<String, String> globalFilters;
     private Map<String, Map<String, String>> fieldFilters;
@@ -139,6 +141,7 @@ public class Search extends Record {
         setColor(page.param(String.class, COLOR_PARAMETER));
         setOnlyPathed(page.param(boolean.class, IS_ONLY_PATHED));
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
+        setAdvancedQuery(page.param(String.class, ADVANCED_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
@@ -209,6 +212,14 @@ public class Search extends Record {
 
     public void setAdditionalPredicate(String additionalPredicate) {
         this.additionalPredicate = additionalPredicate;
+    }
+
+    public String getAdvancedQuery() {
+        return advancedQuery;
+    }
+
+    public void setAdvancedQuery(String advancedQuery) {
+        this.advancedQuery = advancedQuery;
     }
 
     public UUID getParentId() {
@@ -535,6 +546,12 @@ public class Search extends Record {
                     from(Object.class).
                     where("_id = ?", getParentId()).
                     first());
+        }
+
+        String advancedQuery = getAdvancedQuery();
+
+        if (!ObjectUtils.isBlank(advancedQuery)) {
+            query.and(advancedQuery);
         }
 
         for (String filter : getGlobalFilters().values()) {
