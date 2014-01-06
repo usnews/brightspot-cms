@@ -2,12 +2,22 @@
 
 var $window = $(window);
 
+function isFixed($popup) {
+    return $popup.css('position') === 'fixed';
+}
+
 function resizeScrollable() {
     var $scrollable = $(this),
             $popup = $scrollable.closest('.popup'),
             scrollableTop,
             bottomPadding;
 
+    if (!isFixed($popup)) {
+        $scrollable.removeClass('fixedScrollableArea');
+        return;
+    }
+
+    $scrollable.addClass('fixedScrollableArea');
     $scrollable.css('max-height', '');
 
     scrollableTop = $scrollable.offset().top;
@@ -31,7 +41,13 @@ $.plugin2('fixedScrollable', {
 
         plugin.$caller.on('mousewheel', selector, function(event, delta, deltaX, deltaY) {
             var $list = $(this),
-                    maxScrollTop = $.data(this, 'dropDown-maxScrollTop');
+                    maxScrollTop;
+
+            if (!isFixed($list.closest('.popup'))) {
+                return;
+            }
+
+            maxScrollTop = $.data(this, 'dropDown-maxScrollTop');
 
             if (typeof maxScrollTop === 'undefined') {
                 maxScrollTop = $list.prop('scrollHeight') - $list.innerHeight();
@@ -50,11 +66,7 @@ $.plugin2('fixedScrollable', {
     },
 
     '_create': function(scrollable) {
-        var $scrollable = $(scrollable);
-
-        if ($scrollable.closest('.popup').css('position') === 'fixed') {
-            resizeScrollable.call($scrollable[0]);
-        }
+        resizeScrollable.call($(scrollable));
     }
 });
 
