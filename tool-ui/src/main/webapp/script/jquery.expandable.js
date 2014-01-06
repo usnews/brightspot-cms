@@ -25,9 +25,10 @@ expand = function($inputs) {
     $inputs.each(function() {
         var $input = $(this),
                 shadow = $.data(this, SHADOW_DATA),
+                value = $input.val(),
                 extra = shadow.display === 'block' ? ' foo foo foo' : ' foo';
 
-        shadow.$element.text(($input.val() || $input.prop('placeholder')) + extra);
+        shadow.$element.text(value ? value + extra : ($input.prop('placeholder') || extra));
     });
 
     // Write the shadow width if the input's a block element.
