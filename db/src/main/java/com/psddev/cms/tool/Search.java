@@ -116,7 +116,7 @@ public class Search extends Record {
                 int dotAt = filterName.lastIndexOf('.');
                 String filterValueKey = "";
 
-                if (dotAt >= 0 && dotAt == (filterName.length()-2) ) {
+                if (dotAt >= 0 && dotAt == (filterName.length() - 2) ) {
                     filterValueKey = filterName.substring(dotAt + 1);
                     filterName = filterName.substring(0, dotAt);
                 }

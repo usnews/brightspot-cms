@@ -196,6 +196,15 @@ body.rte-fullscreen {
 .rte-button-restore { .icon; .icon-undo; }
 .rte-button-removeCompletely { .icon; .icon-remove-sign; color: @color-alert; }
 
+.rte-button-link {
+    color: @color-note;
+
+    &.wysihtml5-command-active {
+        background: white;
+        color: @color-text;
+    }
+}
+
 .rte-button-commentCollapse,
 .rte-button-commentRemove {
     color: @color-note;

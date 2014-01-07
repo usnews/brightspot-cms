@@ -36,7 +36,7 @@ public interface VideoContainer extends Recordable {
         private TranscodingStatus transcodingStatus;
 
         /*
-         * Trascoding error contains information about why the transcoding
+         * Transcoding error contains information about why the transcoding
          * failed such as virus infected, no content etc
          */
         @ToolUi.ReadOnly

@@ -16,11 +16,14 @@ $.plugin2('sortable', {
         $container.find(options.itemSelector).addClass('_sortable-item');
 
         $container.delegate(options.itemSelector, 'mousedown.sortable', function(event) {
-            if ($(event.target).closest('._sortable')[0] != container) {
+            var $target = $(event.target);
+
+            if ($target.closest('._sortable')[0] != container) {
                 return;
             }
 
-            if ($(event.target).is(':input')) {
+            if ($target.is(':input') ||
+                    $target.closest('.CodeMirror').length > 0) {
                 return;
             }
 

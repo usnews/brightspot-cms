@@ -1,17 +1,17 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.ImageTag;
+import com.psddev.cms.db.RichTextReference;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultRenderer;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -34,25 +34,26 @@ public class EnhancementSearchResult extends PageServlet {
 
             @Override
             public void renderBeforeItem(Object item) throws IOException {
-                Map<String, String> enhancement = new CompactMap<String, String>();
+                Reference enhancement = new Reference();
+                RichTextReference rt = enhancement.as(RichTextReference.class);
                 State state = State.getInstance(item);
 
-                enhancement.put("id", state.getId().toString());
-                enhancement.put("label", state.getLabel());
+                enhancement.setObject(item);
+                rt.setLabel(state.getLabel());
 
                 StorageItem preview = state.getPreview();
 
                 if (preview != null) {
                     if (ImageEditor.Static.getDefault() != null) {
-                        enhancement.put("preview", new ImageTag.Builder(preview).setHeight(100).toUrl());
+                        rt.setPreview(new ImageTag.Builder(preview).setHeight(100).toUrl());
 
                     } else {
-                        enhancement.put("preview", preview.getPublicUrl());
+                        rt.setPreview(preview.getPublicUrl());
                     }
                 }
 
                 page.writeStart("a",
-                        "data-enhancement", ObjectUtils.toJson(enhancement),
+                        "data-enhancement", ObjectUtils.toJson(enhancement.getState().getSimpleValues()),
                         "href", "#");
             }
 

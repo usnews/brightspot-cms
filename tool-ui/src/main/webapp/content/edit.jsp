@@ -158,8 +158,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
 String playListId=null;
 try {
-PlayListContainer.Data data=State.getInstance(editing).as(PlayListContainer.Data.class);
-playListId=data.getExternalId();
+    PlayListContainer.Data data = State.getInstance(editing).as(PlayListContainer.Data.class);
+    playListId=data.getExternalId();
 } catch (Exception e) {
 }
 
@@ -171,7 +171,7 @@ playListId=data.getExternalId();
             method="post"
             enctype="multipart/form-data"
             <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
-            onsubmit="startProgress()"
+                onsubmit="startProgress()"
             <% } %>
             action="<%= wp.objectUrl("", selected) %>"
             autocomplete="off"
@@ -179,7 +179,6 @@ playListId=data.getExternalId();
             data-content-id="<%= State.getInstance(editing).getId() %>"
             data-content-lock-owner-id="<%= contentLockOwner.getId() %>"
             data-content-locked-out="<%= lockedOut %>">
-           
             <!-- Code related to upload progress bar --> 
             <!--specify width on this uploadProgressBar, otherwise the progress indicator wont move -->
             <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
@@ -193,7 +192,7 @@ playListId=data.getExternalId();
                     </div>
             <% } %>
             <!-- End related to upload progress bar --> 
-            <div class="contentForm-main">
+        <div class="contentForm-main">
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
                     String search = wp.param(String.class, "search");
