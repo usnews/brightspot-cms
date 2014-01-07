@@ -281,11 +281,20 @@ List <ObjectType> types;
 
 #### @ToolUi.CodeType
 
-> Specifies the type of input text. Example String fields can be defined as `@ToolUi.CodeType("text/css")` to present inline numbers and css code styles. 
+> Specifies the type of input text. Example String fields can be defined as `@ToolUi.CodeType("text/css")` to present inline numbers and css code styles. For a full list of valid values see [CodeMirror Documentation](http://codemirror.net/mode/). Use the MIME type.
 
 #### @ToolUi.CssClass
 
 > Add a custom CSS Class that can style the .inputContainer
+
+#### @ToolUi.BulkUpload
+
+> Specifies whether the target field should enable and accept files using the bulk upload feature.
+
+#### @ToolUi.Expanded
+
+> Specifies whether the target field should always be expanded in an embedded display.
+
 
 </div>
 
