@@ -16,12 +16,12 @@ import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 
 /***
- * 
+ *
  * This task performs a check for changes to transcoding status using the
  * storage item and updates the CMS if there is a change. Storage iteminternally
  * uses OVP API to retrieve information. Also updates thumbnail path of the
  * video if it's updated in the OVP's such as Kaltura/thePlatform etc
- * 
+ *
  */
 public class VideoServiceTask extends RepeatingTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoServiceTask.class);

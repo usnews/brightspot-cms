@@ -8,7 +8,6 @@ com.psddev.cms.tool.page.ContentSearchAdvanced,
 
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
-com.psddev.cms.db.VideoContainer,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
@@ -56,6 +55,7 @@ if (!wp.param(boolean.class, "widget")) {
                 "target", "newWorkStream");
             wp.writeHtml("New Work Stream");
         wp.writeEnd();
+
         wp.writeStart("a",
                 "class", "button action action-search",
                 "target", "_top",
