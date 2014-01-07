@@ -15,9 +15,17 @@ import com.psddev.dari.util.RepeatingTask;
 import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 
-public class VideoTranscodingStatusUpdateTask extends RepeatingTask {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoTranscodingStatusUpdateTask.class);
-    private static final String DEFAULT_TASK_NAME = "Video Transcoding Status Update Task";
+/***
+ * 
+ * This task performs a check for changes to transcoding status using the
+ * storage item and updates the CMS if there is a change. Storage iteminternally
+ * uses OVP API to retrieve information. Also updates thumbnail path of the
+ * video if it's updated in the OVP's such as Kaltura/thePlatform etc
+ * 
+ */
+public class VideoServiceTask extends RepeatingTask {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoServiceTask.class);
+    private static final String DEFAULT_TASK_NAME = "Video Service Task";
     private static final long updateIntervalMillis = 60000L;
 
     @Override
@@ -25,7 +33,7 @@ public class VideoTranscodingStatusUpdateTask extends RepeatingTask {
         return everyMinute(currentTime);
     }
 
-    public VideoTranscodingStatusUpdateTask() {
+    public VideoServiceTask() {
         super(null, DEFAULT_TASK_NAME);
     }
 
@@ -35,14 +43,21 @@ public class VideoTranscodingStatusUpdateTask extends RepeatingTask {
             return;
         }
         DistributedLock disLock = null;
-        LOGGER.debug("VideoTranscodingStatusUpdateTask starting....");
+        disLock = DistributedLock.Static.getInstance(Database.Static.getDefault(), VideoServiceTask.class.getName());
+        disLock.lock();
+
+        LOGGER.debug("VideoServiceTask starting....");
         try {
+            // Update thumbnail paths if they are updated
+            if (VideoTranscodingServiceFactory.getDefault() != null) {
+                VideoTranscodingServiceFactory.getDefault().updateThumbnailsInCms();
+            }
+
+            // Update video transcoding status
             if (Query.from(VideoContainer.class).where("cms.video.transcodingStatus = 'pending'").first() == null) {
                 return;
             }
 
-            disLock = DistributedLock.Static.getInstance(Database.Static.getDefault(), VideoTranscodingStatusUpdateTask.class.getName());
-            disLock.lock();
             this.setProgress("Starting ....");
             List<VideoContainer> pendingVideoList = Query.from(VideoContainer.class).where("cms.video.transcodingStatus = 'pending' ").selectAll();
             this.setProgress("Identified pending videos. Pending video count ...." + pendingVideoList.size());
@@ -54,13 +69,12 @@ public class VideoTranscodingStatusUpdateTask extends RepeatingTask {
                     if (videoData.getTranscodingStatusUpdatedAt() != null && System.currentTimeMillis() - videoData.getTranscodingStatusUpdatedAt().getTime() < updateIntervalMillis) {
                         continue;
                     }
-                    VideoStorageItem videoStorageItem = videoData.getFile();
+                    VideoStorageItem videoStorageItem = videoContainer.getVideo();
                     // Invoke pull method from storage to check the status
                     videoStorageItem.pull();
                     TranscodingStatus videoTranscodingStatus = videoStorageItem.getTranscodingStatus();
-                    // If transcoding is complete..update transcoding status on
-                    // the video
-                    // and length ..if failed..updated the error message
+                    // If transcoding is complete..update transcoding status and length/duration
+                    // if failed..updated the error message
                     boolean statusUpdated = false;
                     if (videoTranscodingStatus.equals(TranscodingStatus.SUCCEEDED)) {
                         videoData.setLength(videoStorageItem.getLength());
@@ -79,17 +93,13 @@ public class VideoTranscodingStatusUpdateTask extends RepeatingTask {
                     videoData.save();
                     if (statusUpdated && videoStorageItem.getVideoStorageItemListenerIds() != null) {
                         videoStorageItem.notifyVideoStorageItemListeners();
-                        // Sends a notification if it implement
-                        // VideoTranscodingStatusListener
-                        // if (videoContainer instanceof
-                        // VideoTranscodingStatusUpdateListener)
-                        // ((VideoTranscodingStatusUpdateListener)videoContainer).processTranscodingNotification(videoStorageItem);
                     }
                 } catch (Exception e) {
                     LOGGER.error("Transcoding status update failed for Video :" + videoContainer.toString(), e);
                 }
 
             }
+
             this.setProgress("All Done ....");
         } catch (Exception e) {
             LOGGER.error("Transcoding status update task failed ", e);

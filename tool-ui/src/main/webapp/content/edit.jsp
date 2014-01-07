@@ -248,8 +248,8 @@ playListId=data.getExternalId();
                 %></h1>
 
  <!-- Code to render kaltura playlist player embed code --> 
- <% if (playListId != null ) {
-     String kalturaSession=(String) session.getAttribute("com.psddev.cms.tool.AuthenticationFilter.kalturaSessionId");
+ <% if (playListId != null &&  (KalturaVideoTranscodingService.NAME.equals(ObjectUtils.to(String.class, Settings.get(StorageItem.DEFAULT_VIDEO_STORAGE_SETTING))))  ) {
+     String kalturaSession=(String) session.getAttribute(AuthenticationFilter.OVP_SESSION_ID);
      KalturaConfiguration kalturaConfig=KalturaSessionUtils.getKalturaConfig();     
      Integer partnerId=kalturaConfig.getPartnerId();
     %>

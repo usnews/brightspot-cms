@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.psddev.dari.db.Modification;
-import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.VideoStorageItem;
 import com.psddev.dari.util.VideoStorageItem.DurationType;
@@ -17,6 +15,8 @@ import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
  * Interface used to add VideContainer Modification
  */
 public interface VideoContainer extends Recordable {
+    public VideoStorageItem getVideo();
+
     /**
      * Modification which add information specific to video
      */
@@ -94,16 +94,6 @@ public interface VideoContainer extends Recordable {
             this.durationType = durationType;
         }
 
-        /*
-         * @Indexed
-         * 
-         * @Embedded
-         * 
-         * @ToolUi.Filterable private List<VideoEvent> events;
-         * 
-         * public List<VideoEvent> getEvents() { return events; } public void
-         * setEvents(List<VideoEvent> events) { this.events=events; }
-         */
         @Indexed
         @ToolUi.Hidden
         private String externalId;
@@ -116,19 +106,11 @@ public interface VideoContainer extends Recordable {
             this.externalId = externalId;
         }
 
-        public ObjectField getVideoStorageItemField() {
-            return getState().getType().as(TypeModification.class).getVideoStorageItemField();
-        }
-
-        public VideoStorageItem getFile() {
-            return getVideoStorageItemField() == null ? null : (VideoStorageItem) getState().getByPath(getVideoStorageItemField().getInternalName());
-        }
-
         @Override
         public void beforeDelete() {
             try {
-                if (getFile() != null) {
-                    getFile().delete();
+                if (getState().getType().as(VideoContainer.class).getVideo() != null) {
+                    getState().getType().as(VideoContainer.class).getVideo().delete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to delete storage item", e);
@@ -139,30 +121,7 @@ public interface VideoContainer extends Recordable {
         public void beforeSave() {
             if (transcodingStatus == null) {
                 transcodingStatus = TranscodingStatus.PENDING;
-                // TranscodingService
-                // ts=TranscodingServiceFactory.getTranscodingService(defaultVideoStorage);
-                // ts.updateEventData(this);
             }
         }
     }
-
-    public static final class TypeModification extends Modification<ObjectType> {
-        // private static final Logger LOGGER =
-        // LoggerFactory.getLogger(TypeModification.class);
-
-        private ObjectField videoStorageItemField;
-
-        public ObjectField getVideoStorageItemField() {
-            if (videoStorageItemField == null) {
-                for (ObjectField field : getOriginalObject().getFields()) {
-                    if (VideoStorageItem.class.isAssignableFrom(field.getJavaField(getOriginalObject().getObjectClass()).getType())) {
-                        videoStorageItemField = field;
-                        break;
-                    }
-                }
-            }
-            return videoStorageItemField;
-        }
-    }
-
 }

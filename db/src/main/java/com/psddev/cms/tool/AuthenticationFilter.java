@@ -9,19 +9,17 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.psddev.cms.db.KalturaVideoTranscodingService;
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.db.VideoTranscodingServiceFactory;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.KalturaSessionUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
-import com.psddev.dari.util.StorageItem;
 
 public class AuthenticationFilter extends AbstractFilter {
 
@@ -32,7 +30,7 @@ public class AuthenticationFilter extends AbstractFilter {
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
-    public static final String KALTURA_SESSION_ID = ATTRIBUTE_PREFIX + "kalturaSessionId";
+    public static final String OVP_SESSION_ID = ATTRIBUTE_PREFIX + "ovpSessionId";
 
     public static final String LOG_IN_PATH = "/logIn.jsp";
     public static final String RETURN_PATH_PARAMETER = "returnPath";
@@ -120,13 +118,13 @@ public class AuthenticationFilter extends AbstractFilter {
 
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
-            // Create a kaltura session when a user logs in. Kaltura Adming
-            // Session is needed to
-            // see player updates without caching as well as to create
-            // thumbnails
-            if (KalturaVideoTranscodingService.NAME.equals(ObjectUtils.to(String.class, Settings.get(StorageItem.DEFAULT_VIDEO_STORAGE_SETTING)))) {
-                if (request.getSession(false) != null && request.getSession().getAttribute(KALTURA_SESSION_ID) == null) {
-                    request.getSession().setAttribute(KALTURA_SESSION_ID, KalturaSessionUtils.getKalturaSessionId());
+            // Create a online video platform session when a user logs in. OVP's
+            // such as Kaltura needs
+            // admin session token to view player updates without caching as
+            // well as to create thumbnails using their player.
+            if (VideoTranscodingServiceFactory.getDefault() != null) {
+                if (request.getSession(false) != null && request.getSession().getAttribute(OVP_SESSION_ID) == null) {
+                    request.getSession().setAttribute(OVP_SESSION_ID, VideoTranscodingServiceFactory.getDefault().getSessionId());
                 }
             }
         }
@@ -158,10 +156,14 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs out the current tool user.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
-         * @deprecated Use {@link #logOut(HttpServletRequest, HttpServletResponse)} instead.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
+         * @deprecated Use
+         *             {@link #logOut(HttpServletRequest, HttpServletResponse)}
+         *             instead.
          */
         @Deprecated
         public static void logOut(HttpServletResponse response) {

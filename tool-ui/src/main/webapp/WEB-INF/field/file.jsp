@@ -6,6 +6,7 @@ com.psddev.cms.db.ImageTextOverlay,
 com.psddev.cms.db.ResizeOption,
 com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.tool.AuthenticationFilter,
 
 com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
@@ -624,7 +625,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <% String externalId = ((KalturaStorageItem) fieldValue).getExternalId(); %>
                         <% String  kalturaPlayerKey = ((KalturaStorageItem) fieldValue).getPlayerKey(); %>
                         <% Integer kalturaPlayerId = ((KalturaStorageItem) fieldValue).getPlayerId(); %>
-                        <% String kalturaSession=(String) session.getAttribute("com.psddev.cms.tool.AuthenticationFilter.kalturaSessionId"); %>
+                        <% String kalturaSession=(String) session.getAttribute(AuthenticationFilter.OVP_SESSION_ID); %>
                              <div>
                              <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>"></script>
                              <object id="kaltura_player_<%=kalturaPlayerKey%>" name="kaltura_player_<%=kalturaPlayerKey%>" type="application/x-shockwave-flash" allowFullScreen="true" 

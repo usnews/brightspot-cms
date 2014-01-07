@@ -37,7 +37,10 @@ import com.psddev.dari.util.VideoStorageItem;
 public class KalturaVideoTranscodingService implements VideoTranscodingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(KalturaVideoTranscodingService.class);
     public static final String NAME = "kaltura";
-
+    @Override
+    public String getSessionId() {
+        return KalturaSessionUtils.getKalturaSessionId();
+    }
     @Override
     public boolean updateThumbnailsInCms() {
         try {
@@ -52,7 +55,7 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
                 VideoContainer videoContainer = Query.from(VideoContainer.class).where("cms.video.externalId = " + mediaEntry.id).first();
                 if (videoContainer != null) {
                     VideoContainer.Data videoData = videoContainer.as(VideoContainer.Data.class);
-                    VideoStorageItem videoStorageItem = videoData.getFile();
+                    VideoStorageItem videoStorageItem = videoContainer.getVideo();
                     LOGGER.error("value of updated thumbnail is:" + mediaEntry.thumbnailUrl);
                     videoStorageItem.setThumbnailUrl(mediaEntry.thumbnailUrl);
                     videoData.save();
