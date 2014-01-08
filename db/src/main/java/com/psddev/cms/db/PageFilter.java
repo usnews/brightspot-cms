@@ -1188,8 +1188,17 @@ public class PageFilter extends AbstractFilter {
                         mainObject = Directory.Static.findByPath(site, path + "/index");
 
                         // Index pages should have a trailing slash.
-                        if (mainObject != null && !path.endsWith("/")) {
-                            fixPath(request, servletPath + "/");
+                        if (mainObject != null) {
+
+                            // Except when told not to.
+                            if (Query.from(CmsTool.class).first().isRemoveTrailingSlashes()) {
+                                if (path.length() > 1 && path.endsWith("/")) {
+                                    fixPath(request, servletPath.substring(0, servletPath.length() - 1));
+                                }
+
+                            } else if (!path.endsWith("/")) {
+                                fixPath(request, servletPath + "/");
+                            }
                         }
 
                     // Normal pages shouldn't have a trailing slash.
@@ -1253,7 +1262,13 @@ public class PageFilter extends AbstractFilter {
 
                     if (mainObject != null) {
                         final String pathInfo = path.substring(checkPath.length());
-                        if (pathInfo.length() < 1) {
+
+                        if (Query.from(CmsTool.class).first().isRemoveTrailingSlashes()) {
+                            if ("/".equals(pathInfo)) {
+                                fixPath(request, servletPath.substring(0, servletPath.length() - 1));
+                            }
+
+                        } else if (pathInfo.length() < 1) {
                             fixPath(request, servletPath + "/");
                         }
 

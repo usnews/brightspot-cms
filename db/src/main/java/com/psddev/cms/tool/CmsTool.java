@@ -104,6 +104,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableContentLocking;
 
+    @ToolUi.Tab("Debug")
+    private boolean removeTrailingSlashes;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -499,6 +502,14 @@ public class CmsTool extends Tool {
 
     public void setDisableContentLocking(boolean disableContentLocking) {
         this.disableContentLocking = disableContentLocking;
+    }
+
+    public boolean isRemoveTrailingSlashes() {
+        return removeTrailingSlashes;
+    }
+
+    public void setRemoveTrailingSlashes(boolean removeTrailingSlashes) {
+        this.removeTrailingSlashes = removeTrailingSlashes;
     }
 
     /** Returns the preview URL. */
