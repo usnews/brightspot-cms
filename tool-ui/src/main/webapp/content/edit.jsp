@@ -1,4 +1,5 @@
 <%@ page import="
+
 com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
@@ -27,9 +28,11 @@ com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
 com.psddev.cms.tool.AuthenticationFilter,
+
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
+com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
 com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
@@ -44,6 +47,7 @@ com.kaltura.client.KalturaConfiguration,
 
 java.io.StringWriter,
 java.util.ArrayList,
+java.util.Date,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
@@ -157,16 +161,18 @@ ToolUser user = wp.getUser();
 ToolUser contentLockOwner = user.lockContent(editingState.getId());
 boolean lockedOut = !user.equals(contentLockOwner);
 
+// --- Presentation ---
+
 String playListId=null;
+
 try {
     PlayListContainer.Data data = State.getInstance(editing).as(PlayListContainer.Data.class);
-    playListId=data.getExternalId();
+    playListId = data.getExternalId();
 } catch (Exception e) {
 }
 
-// --- Presentation ---
+%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
 
-%><% wp.include("/WEB-INF/header.jsp"); %>
 <div class="content-edit">
     <form class="contentForm contentLock"
             method="post"
@@ -298,7 +304,8 @@ try {
                 <%
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
-                if (history != null || draft != null) {
+                if (!editingState.as(Content.ObjectModification.class).isDraft() &&
+                        (history != null || draft != null)) {
                     State original = State.getInstance(Query.
                             from(Object.class).
                             where("_id = ?", editing).
@@ -348,8 +355,6 @@ try {
         </div>
 
         <div class="contentForm-aside">
-            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
-
             <div class="widget widget-publishing">
                 <h1 class="icon icon-action-publish">Publishing</h1>
 
@@ -461,24 +466,36 @@ try {
 
                             wp.writeStart("div", "class", "message message-warning");
                                 wp.writeStart("p");
-                                    if (schedule != null) {
-                                        wp.writeHtml("Draft scheduled to be published ");
-                                        wp.writeHtml(wp.formatUserDateTime(schedule.getTriggerDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(schedule.getTriggerUser());
-                                        wp.writeHtml(".");
+                                    wp.writeHtml("Draft last saved ");
+                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                    wp.writeHtml(" by ");
+                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                    wp.writeHtml(".");
 
-                                    } else {
-                                        wp.writeHtml("Draft last saved ");
-                                        wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                        wp.writeHtml(" by ");
-                                        wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                        wp.writeHtml(".");
+                                    if (schedule != null) {
+                                        Date triggerDate = schedule.getTriggerDate();
+                                        ToolUser triggerUser = schedule.getTriggerUser();
+
+                                        if (triggerDate != null || triggerUser != null) {
+                                            wp.writeHtml(" Scheduled to be published");
+
+                                            if (triggerDate != null) {
+                                                wp.writeHtml(" ");
+                                                wp.writeHtml(wp.formatUserDateTime(triggerDate));
+                                            }
+
+                                            if (triggerUser != null) {
+                                                wp.writeHtml(" by ");
+                                                wp.writeObjectLabel(triggerUser);
+                                            }
+
+                                            wp.writeHtml(".");
+                                        }
                                     }
                                 wp.writeEnd();
 
                                 wp.writeStart("div", "class", "actions");
-                                    if (!draftContentData.isDraft()) {
+                                    if (!contentData.isDraft()) {
                                         wp.writeStart("a",
                                                 "class", "icon icon-action-edit",
                                                 "href", wp.url("", "draftId", null));
@@ -668,7 +685,11 @@ try {
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft && !isHistory && !editingState.isNew()) {
+                                if (!isDraft &&
+                                        !isHistory &&
+                                        !editingState.isNew() &&
+                                        (editingState.getType() == null ||
+                                        !editingState.getType().getGroups().contains(Singleton.class.getName()))) {
                                     wp.writeStart("button",
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
@@ -700,6 +721,8 @@ try {
                 }
                 %>
             </div>
+
+            <% renderWidgets(wp, editing, CmsTool.CONTENT_RIGHT_WIDGET_POSITION); %>
         </div>
     </form>
 </div>
@@ -968,6 +991,10 @@ try {
                     getUniqueColor,
                     fieldHue = Math.random(),
                     GOLDEN_RATIO = 0.618033988749895;
+
+            if ($edit.closest('.popup').length > 0) {
+                return;
+            }
 
             // Append a link for activating the preview.
             appendPreviewAction = function() {
@@ -1342,7 +1369,7 @@ try {
 
                     if (sourceOffset.left > targetOffset.left) {
                         var targetWidth = $target.outerWidth();
-                        pathTargetX = targetOffset.left + targetWidth;
+                        pathTargetX = targetOffset.left + targetWidth + 3;
                         pathTargetY = targetOffset.top + $target.outerHeight() / 2;
                         isBackReference = true;
 
@@ -1362,7 +1389,7 @@ try {
                     } else {
                         pathSourceX = sourceOffset.left + $source.width();
                         pathSourceY = sourceOffset.top + $source.height() / 2;
-                        pathTargetX = targetOffset.left;
+                        pathTargetX = targetOffset.left - 3;
                         pathTargetY = targetOffset.top + $target.height() / 2;
                         pathSourceDirection = 1;
                         pathTargetDirection = -1;

@@ -640,7 +640,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     <param name="flashVars" value="ks=<%=kalturaSession%>" />
                                     <param name="movie"
                                      value="http://cdnapi.kaltura.com/index.php/kwidget/cache_st/<%=kalturaPlayerKey%>/wid/_<%=partnerId%>/uiconf_id/<%=kalturaPlayerId%>/entry_id/<%=externalId%>" />
-                                                        
+
                                     <a rel="media:thumbnail" href=""></a>
                                     <span property="dc:description" content=""></span>
                                     <span property="media:title" content="video"></span>

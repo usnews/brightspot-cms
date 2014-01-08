@@ -1,12 +1,6 @@
 package com.psddev.cms.db;
 
-import java.util.HashMap;
-import java.util.Map;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.Settings;
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.*;
-import com.psddev.dari.util.*;
 
 /**
  * Abstracts an event in the video such as beginning of a chapter,ad etc
@@ -18,7 +12,7 @@ public class VideoEvent extends Record {
     public final static String VIDEO_EVENT_THUMBNAIL_METADATA_KEY="thumbUrl";
 
     @Indexed
-    private String name; 
+    private String name;
     private String description;
     private int startTime;
     private int endTime;
@@ -26,7 +20,7 @@ public class VideoEvent extends Record {
     private String thumbnailUrl;
     private String externalId;
     private String entryId;
-   
+
     public String getExternalId() {
         return externalId;
     }
@@ -93,7 +87,7 @@ public class VideoEvent extends Record {
 
     public VideoEvent() {
     }
-    
+
     public String toString() {
         StringBuffer sb=new StringBuffer(" externalId:"+ externalId );
         sb.append(", name:").append(name);

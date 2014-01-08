@@ -12,7 +12,7 @@ import com.psddev.dari.util.VideoStorageItem.DurationType;
 import com.psddev.dari.util.VideoStorageItem.TranscodingStatus;
 
 /**
- * Interface used to add VideContainer Modification
+ * Interface used to add VideoContainer Modification
  */
 public interface VideoContainer extends Recordable {
     public VideoStorageItem getVideo();
@@ -109,8 +109,9 @@ public interface VideoContainer extends Recordable {
         @Override
         public void beforeDelete() {
             try {
-                if (getState().getType().as(VideoContainer.class).getVideo() != null) {
-                    getState().getType().as(VideoContainer.class).getVideo().delete();
+                VideoContainer vidContainer = (VideoContainer) getState().getOriginalObject();
+                if (vidContainer != null && vidContainer.getVideo() != null) {
+                    vidContainer.getVideo().delete();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to delete storage item", e);
