@@ -95,7 +95,8 @@ public interface VideoContainer extends Recordable {
         }
 
         @Indexed
-        @ToolUi.Hidden
+        @ToolUi.ReadOnly
+        @ToolUi.Tab("Video Detail")
         private String externalId;
 
         public String getExternalId() {
