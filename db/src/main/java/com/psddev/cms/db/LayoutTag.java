@@ -31,6 +31,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
     private transient HtmlWriter writer;
     private transient List<CssClassHtmlGrid> cssGrids;
     private transient List<String> cssClasses;
+    private transient String extraCss;
     private transient Map<String, Object> areas;
 
     public Map<String, Object> getAreas() {
@@ -101,6 +102,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
             writer = new HtmlWriter(pageContext.getOut());
             cssGrids = new ArrayList<CssClassHtmlGrid>();
             cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
+            extraCss = ObjectUtils.to(String.class, attributes.remove("extraClass"));
 
             if (cssClasses != null) {
                 for (Object cssClassObject : cssClasses) {
@@ -132,8 +134,8 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                 writer.writeStart("div",
                         attributes,
                         "class", cssClasses != null && !cssClasses.isEmpty() ?
-                                cssClasses.get(0) :
-                                null);
+                                cssClasses.get(0) + " " + extraCss :
+                                extraCss);
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
@@ -180,6 +182,10 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
                     }
 
                     gridOffset += gridAreaSize;
+
+                    if (extraCss != null) {
+                        cssClass += " " + extraCss;
+                    }
 
                     writer.writeStart("div", attributes, "class", cssClass);
                         writer.writeGrid(items, grid);
