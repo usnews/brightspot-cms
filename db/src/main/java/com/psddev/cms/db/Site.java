@@ -45,14 +45,22 @@ public class Site extends Record {
     @Required
     private String name;
 
+    @ToolUi.Tab("Advanced")
     private String cmsCssClass;
+
+    @ToolUi.Tab("Advanced")
     private StorageItem cmsLogo;
 
     @Indexed(unique = true)
     private List<String> urls;
 
+    @ToolUi.Tab("Advanced")
     private Variation defaultVariation;
+
+    @ToolUi.Tab("Advanced")
     private Boolean isAllSitesAccessible;
+
+    @ToolUi.Tab("Advanced")
     private Set<Site> accessibleSites;
 
     /** @deprecated Use {@link Static#findAll} instead. */
