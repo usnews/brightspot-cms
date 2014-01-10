@@ -24,6 +24,7 @@ com.psddev.dari.util.Settings,
 com.psddev.dari.util.SparseSet,
 com.psddev.dari.util.StorageItem,
 com.psddev.dari.util.StorageItem.Static,
+com.psddev.dari.util.VideoStorageItem,
 com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.TypeReference,
 
@@ -483,7 +484,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             <% } %>
             <option data-hide=".fileSelectorItem" value="none">None</option>
             <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload"<%= fieldValue == null && state.isNew() ? " selected" : "" %>>New Upload</option>
+            <% if (! VideoStorageItem.class.isAssignableFrom(field.getJavaField(state.getType().getObjectClass()).getType()) ) { %> 
             <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUrl" value="newUrl">New URL</option>
+            <% } %>
             <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
                 <option data-hide=".fileSelectorItem" data-show=".fileSelectorDropbox" value="dropbox">Dropbox</option>
             <% } %>
