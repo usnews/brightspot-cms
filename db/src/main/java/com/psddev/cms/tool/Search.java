@@ -408,14 +408,25 @@ public class Search extends Record {
         if (RELEVANT_SORT_VALUE.equals(sort)) {
             if (selectedType != null) {
                 List<String> labelFields = selectedType.getLabelFields();
+
                 if (labelFields != null && !labelFields.isEmpty()) {
+                    Set<String> indexedFields = new HashSet<String>();
+
+                    for (ObjectIndex index : selectedType.getIndexes()) {
+                        indexedFields.addAll(index.getFields());
+                    }
+
                     for (ObjectField field : selectedType.getFields()) {
-                        if (labelFields.contains(field.getInternalName())) {
+                        String fieldName = field.getInternalName();
+
+                        if (indexedFields.contains(fieldName) &&
+                                labelFields.contains(fieldName)) {
                             query.sortRelevant(RELEVANT_SORT_LABEL_BOOST, field.getUniqueName() + " ~= ?", queryString);
                         }
                     }
                 }
             }
+
         } else if (sort != null) {
             ObjectField sortField = selectedType != null ?
                     selectedType.getFieldGlobally(sort) :
