@@ -22,13 +22,9 @@ com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowLog,
 com.psddev.cms.db.WorkStream,
-com.psddev.cms.db.PlayListContainer,
-com.psddev.cms.db.KalturaVideoTranscodingService,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.Widget,
-com.psddev.cms.tool.AuthenticationFilter,
-
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -40,11 +36,8 @@ com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
-com.psddev.dari.util.KalturaSessionUtils,
 com.psddev.dari.util.StorageItem,
 com.psddev.dari.util.Settings,
-com.kaltura.client.KalturaConfiguration,
-
 java.io.StringWriter,
 java.util.ArrayList,
 java.util.Date,
@@ -163,21 +156,13 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
 // --- Presentation ---
 
-String playListId=null;
-
-try {
-    PlayListContainer.Data data = State.getInstance(editing).as(PlayListContainer.Data.class);
-    playListId = data.getExternalId();
-} catch (Exception e) {
-}
-
 %><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
-
 <div class="content-edit">
     <form class="contentForm contentLock"
             method="post"
             enctype="multipart/form-data"
-            <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
+            <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class) && state.isNew()) { %>
+                
                 onsubmit="startProgress()"
             <% } %>
             action="<%= wp.objectUrl("", selected) %>"
@@ -252,23 +237,6 @@ try {
 
                     wp.include("/WEB-INF/objectVariation.jsp", "object", editing);
                 %></h1>
-
- <!-- Code to render kaltura playlist player embed code --> 
- <% if (playListId != null &&  (KalturaVideoTranscodingService.NAME.equals(ObjectUtils.to(String.class, Settings.get(StorageItem.DEFAULT_VIDEO_STORAGE_SETTING))))  ) {
-     String kalturaSession=(String) session.getAttribute(AuthenticationFilter.OVP_SESSION_ID);
-     KalturaConfiguration kalturaConfig=KalturaSessionUtils.getKalturaConfig();     
-     Integer partnerId=kalturaConfig.getPartnerId();
-    %>
-  <div id="kaltura_player_1381428262" style="width: 400px; height: 680px;" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
-   <span itemprop="name" content=""></span>
-   <span itemprop="description" content=""></span>
-   <span itemprop="duration" content=""></span>
-   <span itemprop="thumbnail" content=""></span>
-   <span itemprop="width" content="400"></span>
-   <span itemprop="height" content="680"></span>
-  </div>
-  <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=Settings.get("dari/storage/kaltura/playlistPlayerId")%>/partner_id/<%=partnerId%>?autoembed=true&playerId=kaltura_player_1381428262&width=400&height=680&flashvars[playlistAPI.kpl0Id]=<%=playListId%>&flashvars[ks]=<%=kalturaSession%>"></script>
-<% } %>
                 <div class="widgetControls">
                     <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
                     <%
