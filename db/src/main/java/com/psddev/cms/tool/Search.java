@@ -66,6 +66,8 @@ public class Search extends Record {
     public static final String RELEVANT_SORT_LABEL = "Relevant";
     public static final String RELEVANT_SORT_VALUE = "_relevant";
 
+    public static final double RELEVANT_SORT_LABEL_BOOST = 10.0;
+
     private String name;
     private Set<ObjectType> types;
     private ObjectType selectedType;
@@ -404,7 +406,16 @@ public class Search extends Record {
         boolean metricSort = false;
 
         if (RELEVANT_SORT_VALUE.equals(sort)) {
-
+            if (selectedType != null) {
+                List<String> labelFields = selectedType.getLabelFields();
+                if (labelFields != null && !labelFields.isEmpty()) {
+                    for (ObjectField field : selectedType.getFields()) {
+                        if (labelFields.contains(field.getInternalName())) {
+                            query.sortRelevant(RELEVANT_SORT_LABEL_BOOST, field.getUniqueName() + " ~= ?", queryString);
+                        }
+                    }
+                }
+            }
         } else if (sort != null) {
             ObjectField sortField = selectedType != null ?
                     selectedType.getFieldGlobally(sort) :
