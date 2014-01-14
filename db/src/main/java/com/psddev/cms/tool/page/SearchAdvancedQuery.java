@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ComparisonPredicate;
@@ -315,7 +316,11 @@ public class SearchAdvancedQuery extends PageServlet {
         }
 
         for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
-            if (!indexedFields.contains(i.next().getInternalName())) {
+            ObjectField field = i.next();
+
+            if (!indexedFields.contains(field.getInternalName()) ||
+                    field.isDeprecated() ||
+                    field.as(ToolUi.class).isHidden()) {
                 i.remove();
             }
         }
