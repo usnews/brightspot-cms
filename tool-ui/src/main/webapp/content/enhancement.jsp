@@ -79,6 +79,7 @@ for (Map.Entry<?, ?> entry : ((Map<?, ?>) refMap).entrySet()) {
     ref.getState().put(key != null ? key.toString() : null, entry.getValue());
 }
 
+ref.getState().setId(wp.param(UUID.class, "refId"));
 ref.setObject(object);
 
 // Always reset the label and preview to the current object
@@ -135,6 +136,7 @@ if (object == null) {
         <%
         if (refFieldCount > 0) {
             request.setAttribute("excludeFields", Arrays.asList("record"));
+            wp.writeTag("input", "type", "hidden", "name", "refId", "value", ref.getId());
             wp.writeFormFields(ref);
         }
         %>

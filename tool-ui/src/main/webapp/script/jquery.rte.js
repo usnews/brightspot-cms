@@ -1115,8 +1115,7 @@ var Rte = wysihtml5.Editor.extend({
 
                     $anchor.attr('href', $.addQueryParameters(
                             $anchor.attr('href'),
-                            'id', id,
-                            'reference', $placeholder.attr('data-reference')));
+                            'id', id));
 
                     if (!id) {
                         $editTrigger = $anchor;
@@ -1128,7 +1127,8 @@ var Rte = wysihtml5.Editor.extend({
                             $edit.closest('.rte-group').addClass('rte-group-enhancementSet');
                             $edit.attr('href', $.addQueryParameters(
                                     $edit.attr('href'),
-                                    'id', id));
+                                    'id', id,
+                                    'reference', $placeholder.attr('data-reference')));
                         });
                     }
                 });
