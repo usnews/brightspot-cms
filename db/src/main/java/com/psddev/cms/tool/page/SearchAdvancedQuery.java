@@ -81,7 +81,7 @@ public class SearchAdvancedQuery extends PageServlet {
                         }
                     page.writeEnd();
 
-                    page.writeStart("ul");
+                    page.writeStart("ul", "class", "fixedScrollable");
                         for (String paramName : paramNames) {
                             if (paramName.startsWith("p")) {
                                 Integer index = ObjectUtils.to(Integer.class, paramName.substring(1));
