@@ -76,37 +76,41 @@ public class SearchAdvancedQuery extends PageServlet {
                                         "selected", pt.equals(globalPredicateType) ? "selected" : null,
                                         "value", pt.name());
                                     page.writeHtml(pt.getLabel());
+                                    page.writeHtml(":");
                                 page.writeEnd();
                             }
                         }
                     page.writeEnd();
 
-                    page.writeStart("ul", "class", "fixedScrollable");
-                        for (String paramName : paramNames) {
-                            if (paramName.startsWith("p")) {
-                                Integer index = ObjectUtils.to(Integer.class, paramName.substring(1));
+                    page.writeStart("div", "class", "fixedScrollable");
+                        page.writeStart("ul");
+                            for (String paramName : paramNames) {
+                                if (paramName.startsWith("p")) {
+                                    Integer index = ObjectUtils.to(Integer.class, paramName.substring(1));
 
-                                if (index != null) {
-                                    if (lastIndex < index) {
-                                        lastIndex = index;
+                                    if (index != null) {
+                                        if (lastIndex < index) {
+                                            lastIndex = index;
+                                        }
+
+                                        page.writeStart("li");
+                                            globalPredicate = CompoundPredicate.combine(
+                                                    globalPredicateType.getCompoundOperator(),
+                                                    globalPredicate,
+                                                    writePredicateType(page, paramNames, paramName, String.valueOf(index)));
+                                        page.writeEnd();
                                     }
-
-                                    page.writeStart("li");
-                                        globalPredicate = CompoundPredicate.combine(
-                                                globalPredicateType.getCompoundOperator(),
-                                                globalPredicate,
-                                                writePredicateType(page, paramNames, paramName, String.valueOf(index)));
-                                    page.writeEnd();
                                 }
                             }
-                        }
+                        page.writeEnd();
                     page.writeEnd();
 
                     page.writeStart("button",
                             "class", "icon icon-action-add link",
                             "name", "p" + (lastIndex + 1),
                             "value", 1);
-                        page.writeHtml("Add");
+                        page.writeHtml("Add Another ");
+                        page.writeHtml(globalPredicateType.getLabel());
                     page.writeEnd();
 
                     page.writeStart("div", "class", "actions");
@@ -248,6 +252,7 @@ public class SearchAdvancedQuery extends PageServlet {
                             "selected", op.equals(comparisonOperator) ? "selected" : null,
                             "value", op.name());
                         page.writeHtml(op.getLabel());
+                        page.writeHtml(":");
                     page.writeEnd();
                 }
             page.writeEnd();
@@ -290,7 +295,8 @@ public class SearchAdvancedQuery extends PageServlet {
                     "class", "icon icon-action-add link",
                     "name", paramPrefix + ".p" + (lastSubPredicateIndex + 1),
                     "value", 1);
-                page.writeHtml("Add");
+                page.writeHtml("Add Another ");
+                page.writeHtml(predicateType.getLabel());
             page.writeEnd();
 
             return predicate;
@@ -321,10 +327,10 @@ public class SearchAdvancedQuery extends PageServlet {
 
     private enum PredicateType {
 
-        A("Match All (AND):", "AND"),
-        O("Match Any (OR):", "OR"),
-        N("Match None (NOT):", "NOT"),
-        C("Comparison:", null);
+        A("Match All (AND)", "AND"),
+        O("Match Any (OR)", "OR"),
+        N("Match None (NOT)", "NOT"),
+        C("Comparison", null);
 
         private final String label;
         private final String compoundOperator;
