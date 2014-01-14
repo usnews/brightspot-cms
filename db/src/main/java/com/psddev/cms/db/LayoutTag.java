@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlObject;
@@ -18,8 +19,9 @@ import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeReference;
 
-@SuppressWarnings("serial")
-public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
+public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryCatchFinally {
+
+    private static final long serialVersionUID = 1L;
 
     private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
     private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssWritten";
@@ -45,6 +47,24 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes {
         if (value != null) {
             attributes.put(localName, value);
         }
+    }
+
+    // --- TryCatchFinally support ---
+
+    @Override
+    public void doCatch(Throwable error) throws Throwable {
+        throw error;
+    }
+
+    @Override
+    public void doFinally() {
+        attributes.clear();
+
+        writer = null;
+        cssGrids = null;
+        cssClasses = null;
+        extraCss = null;
+        areas = null;
     }
 
     // --- TagSupport support ---

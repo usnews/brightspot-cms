@@ -58,8 +58,9 @@ import com.psddev.dari.util.StringUtils;
  * <p>Otherwise, the value is rendered using {@link PageFilter#renderObject}.
  * </p>
  */
-@SuppressWarnings("serial")
 public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryCatchFinally {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Pattern EMPTY_PARAGRAPH_PATTERN = Pattern.compile("(?is)\\s*<p[^>]*>\\s*&nbsp;\\s*</p>\\s*");
     private static final String FIELD_ACCESS_MARKER_BEGIN = "\ue014\ue027\ue041";
@@ -499,6 +500,20 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryC
     @Override
     public void doFinally() {
         doAfterBody();
+
+        setArea(null);
+        setContext(null);
+        setValue(null);
+        setBeginMarker(null);
+        setBeginOffset(0);
+        setEndMarker(null);
+        setEndOffset(0);
+        attributes.clear();
+
+        pageWriter = null;
+        layoutTag = null;
+        areas = null;
+        fieldAccessListener = null;
     }
 
     private class FieldAccessListener extends State.Listener {

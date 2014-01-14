@@ -1,38 +1,40 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.db.State;
-import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.DynamicAttributes;
+import javax.servlet.jsp.tagext.TryCatchFinally;
+
+import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 /**
  * Equivalent to the HTML {@code A} tag where its {@code href} attribute
  * may be set to a URL or a Dari object. Note that the context path will
  * automatically be prepended to the final URL.
  */
-public class AnchorTag extends BodyTagSupport implements DynamicAttributes {
+public class AnchorTag extends BodyTagSupport implements DynamicAttributes, TryCatchFinally {
+
+    private static final long serialVersionUID = 1L;
 
     private Object href;
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
 
-    /**
-     * Sets the destination object, which may either be a URL or a Dari
-     * object.
-     */
+    public Object getHref() {
+        return href;
+    }
+
     public void setHref(Object href) {
         this.href = href;
     }
@@ -46,6 +48,7 @@ public class AnchorTag extends BodyTagSupport implements DynamicAttributes {
 
     @Override
     public int doEndTag() throws JspException {
+        Object href = getHref();
         String hrefString = null;
 
         if (href == null) {
@@ -129,5 +132,18 @@ public class AnchorTag extends BodyTagSupport implements DynamicAttributes {
     @Override
     public void setDynamicAttribute(String uri, String localName, Object value) {
         attributes.put(localName, value != null ? value.toString() : null);
+    }
+
+    // --- TryCatchFinally support ---
+
+    @Override
+    public void doCatch(Throwable error) throws Throwable {
+        throw error;
+    }
+
+    @Override
+    public void doFinally() {
+        setHref(null);
+        attributes.clear();
     }
 }
