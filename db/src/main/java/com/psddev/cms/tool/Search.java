@@ -406,7 +406,7 @@ public class Search extends Record {
         boolean metricSort = false;
 
         if (RELEVANT_SORT_VALUE.equals(sort)) {
-            if (selectedType != null) {
+            if (isAllSearchable && selectedType != null) {
                 List<String> labelFields = selectedType.getLabelFields();
 
                 if (labelFields != null && !labelFields.isEmpty()) {
