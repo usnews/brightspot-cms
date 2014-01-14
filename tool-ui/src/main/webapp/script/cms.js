@@ -329,7 +329,9 @@ $doc.onCreate('.contentDiff', function() {
         $tabs.find('li').removeClass('state-selected');
         $tabEdit.addClass('state-selected');
 
+        $left.find('> .objectInputs > .tabs').css('height', '');
         $left.find('> .objectInputs > .inputContainer').css('height', '');
+        $right.find('> .objectInputs > .tabs').css('height', '');
         $right.find('> .objectInputs > .inputContainer').css('height', '');
     });
 
@@ -338,13 +340,24 @@ $doc.onCreate('.contentDiff', function() {
         $tabs.find('li').removeClass('state-selected');
         $tabSideBySide.addClass('state-selected');
 
-        $left.find('> .objectInputs > .inputContainer').each(function() {
-            var $leftInput = $(this),
-                    $rightInput = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]');
-
+        function equalizeHeight($left, $right) {
             setTimeout(function() {
-                $leftInput.add($rightInput).height(Math.max($leftInput.height(), $rightInput.height()));
-            }, 500);
+                $left.add($right).height(Math.max($left.height(), $right.height()));
+            }, 100);
+        }
+
+        $left.add($right).find('.collapsed').removeClass('collapsed');
+
+        $left.find('> .objectInputs > .tabs').each(function() {
+            var $leftTabs = $(this);
+
+            equalizeHeight($leftTabs, $right.find('> .objectInputs > .tabs'));
+        });
+
+        $left.find('> .objectInputs > .inputContainer').each(function() {
+            var $leftInput = $(this);
+
+            equalizeHeight($leftInput, $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]'));
         });
     });
 
