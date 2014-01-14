@@ -1136,16 +1136,6 @@ var Rte = wysihtml5.Editor.extend({
 
             $.data($enhancement[0], 'rte-visited', true);
 
-            // Position the enhancement to cover the placeholder.
-            $placeholder.css('padding-top', $enhancement.find('> .rte-toolbar').outerHeight() - 42);
-
-            $enhancement.css({
-                'height': $placeholder.outerHeight(),
-                'left': placeholderOffset.left,
-                'top': placeholderOffset.top,
-                'width': $placeholder.width()
-            });
-
             // Copy the enhancement label.
             $enhancementLabel = $enhancement.find('.rte-enhancement-label');
 
@@ -1175,6 +1165,19 @@ var Rte = wysihtml5.Editor.extend({
 
                 $enhancementLabel.text(newLabel);
             }
+
+            // Position the enhancement to cover the placeholder.
+            $placeholder.css({
+                'min-height': $enhancement.height(),
+                'padding-top': $enhancement.find('> .rte-toolbar').outerHeight() - 42
+            });
+
+            $enhancement.css({
+                'left': placeholderOffset.left,
+                'min-height': $placeholder.height(),
+                'top': placeholderOffset.top,
+                'width': $placeholder.width()
+            });
 
             if ($editTrigger) {
                 $editTrigger.click();
