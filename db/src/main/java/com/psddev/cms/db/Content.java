@@ -15,9 +15,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Modification;
@@ -26,7 +23,6 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
-import com.psddev.dari.db.TriggerOnce;
 import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
@@ -35,7 +31,6 @@ import com.psddev.dari.util.PageContextFilter;
 @Content.Searchable
 public abstract class Content extends Record {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Content.class);
     private static final String PREFIX = "cms.content.";
     private static final String NOTIFICATIONS_EXTRA = PREFIX + "notifications";
 
@@ -80,20 +75,6 @@ public abstract class Content extends Record {
         HttpServletRequest request = PageContextFilter.Static.getRequestOrNull();
 
         return request != null ? AuthenticationFilter.Static.getUser(request) : null;
-    }
-
-    /**
-     * Triggers right before this content is published. Default
-     * implementation of this method does nothing.
-     */
-    protected void beforePublish() {
-    }
-
-    /**
-     * Triggers right after this content is published. Default
-     * implementation of this method does nothing.
-     */
-    protected void afterPublish() {
     }
 
     /** Modification that adds CMS content information. */
@@ -267,33 +248,6 @@ public abstract class Content extends Record {
                     isSearchableType(State.getInstance(object).getType());
         }
 
-        private static class BeforePublishTrigger extends TriggerOnce {
-
-            @Override
-            protected void executeOnce(Object object) {
-                if (object instanceof Content) {
-                    ((Content) object).beforePublish();
-                }
-            }
-        }
-
-        private static class AfterPublishTrigger extends TriggerOnce {
-
-            @Override
-            protected void executeOnce(Object object) {
-                if (object instanceof Content) {
-                    Content content = (Content) object;
-
-                    try {
-                        content.afterPublish();
-
-                    } catch (RuntimeException error) {
-                        LOGGER.debug("Can't fire afterPublish trigger on [{}]!", content.getId());
-                    }
-                }
-            }
-        }
-
         /**
          * Publishes the given {@code object} in the given {@code site}
          * as the given {@code user}.
@@ -331,12 +285,10 @@ public abstract class Content extends Record {
 
             contentData.setUpdateDate(now);
             contentData.setUpdateUser(user);
-            state.fireTrigger(new BeforePublishTrigger());
 
             if (!state.isVisible() ||
                     object instanceof Draft) {
                 state.save();
-                state.fireTrigger(new AfterPublishTrigger());
                 return null;
 
             } else {
@@ -347,7 +299,6 @@ public abstract class Content extends Record {
                     state.save();
                     history.save();
                     state.commitWrites();
-                    state.fireTrigger(new AfterPublishTrigger());
                     return history;
 
                 } finally {
