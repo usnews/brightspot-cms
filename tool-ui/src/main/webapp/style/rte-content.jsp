@@ -141,13 +141,13 @@ writer.start("html");
 
             writer.css(".enhancement",
                     "background", "transparent",
-                    "border", "none",
-                    "-moz-box-sizing", "content-box",
-                    "-webkit-box-sizing", "content-box",
-                    "box-sizing", "content-box",
+                    "border", "1px solid transparent",
+                    "-moz-box-sizing", "border-box",
+                    "-webkit-box-sizing", "border-box",
+                    "box-sizing", "border-box",
                     "display", "block",
-                    "height", "72px",
-                    "margin", "0 0 1em 0",
+                    "padding", "3px",
+                    "margin", "0 0 24px 0",
                     "width", "100%");
 
             writer.css(".enhancement[data-preview][data-preview != '']",

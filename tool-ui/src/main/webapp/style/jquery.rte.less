@@ -326,10 +326,12 @@ body.rte-fullscreen {
     border: 1px solid @color-note;
     .border-radius(5px);
     .box-sizing(border-box);
+    padding: 3px;
 
     .rte-toolbar {
         background-color: transparent;
         border-style: none;
+        padding: 0;
     }
 
     figure {
@@ -377,9 +379,12 @@ body.rte-fullscreen {
 
 .rte-enhancement-label {
     overflow: hidden;
-    padding-left: 3px;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    figure {
+        float: left;
+    }
 }
 
 .rte-marker {

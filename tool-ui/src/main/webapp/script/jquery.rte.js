@@ -1166,16 +1166,14 @@ var Rte = wysihtml5.Editor.extend({
             }
 
             // Position the enhancement to cover the placeholder.
-            $placeholder.css({
-                'min-height': $enhancement.height(),
-                'padding-top': $enhancement.find('> .rte-toolbar').outerHeight() - 42
-            });
+            $enhancement.css('height', '');
+            $placeholder.height($enhancement.height());
+            $enhancement.height($placeholder.height());
+            $enhancement.width($placeholder.width());
 
             $enhancement.css({
                 'left': placeholderOffset.left,
-                'min-height': $placeholder.height(),
-                'top': placeholderOffset.top,
-                'width': $placeholder.width()
+                'top': placeholderOffset.top
             });
 
             if ($editTrigger) {
