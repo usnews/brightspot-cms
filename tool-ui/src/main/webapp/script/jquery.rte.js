@@ -659,7 +659,6 @@ var Rte = wysihtml5.Editor.extend({
 
                     if ($ins.length > 0) {
                         $del = $ins.prev('del');
-                        console.log('del', $del[0]);
 
                         if ($del.length > 0 && $del.text() === $anchor.text()) {
                             $ins.after($anchor);
@@ -1625,7 +1624,7 @@ $doc.on('click', '[data-enhancement]', function(event) {
     if ($edit.length > 0) {
         $edit.attr('href', $.addQueryParameters(
                 $edit.attr('href'),
-                'id', enhancementJson.record._id));
+                'id', enhancementJson.record._ref));
     }
 
     $target.popup('close');
