@@ -58,14 +58,18 @@ String removeId = wp.createId();
             $input.change();
 
             if ($repeatable.length > 0) {
-                $repeatable.find('.addButton').click();
                 $sourceContainer = $source.closest('li');
-                $added = $sourceContainer.nextAll('li').eq(0);
 
-                if ($added.length > 0) {
-                    $page.popup('source', $added.find('a.objectId-select'));
-                    $win.scrollTop($win.scrollTop() + $sourceContainer.outerHeight(true));
-                    return false;
+                if ($sourceContainer.nextAll('li').length === 0) {
+                    $repeatable.find('.addButton').click();
+
+                    $added = $sourceContainer.nextAll('li').eq(0);
+
+                    if ($added.length > 0) {
+                        $page.popup('source', $added.find('a.objectId-select'));
+                        $win.scrollTop($win.scrollTop() + $sourceContainer.outerHeight(true));
+                        return false;
+                    }
                 }
             }
 
