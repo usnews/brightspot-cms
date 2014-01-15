@@ -1351,6 +1351,7 @@ public class ToolPageContext extends WebPageContext {
             write("var STANDARD_IMAGE_SIZES = ", ObjectUtils.toJson(standardImageSizes), ";");
             write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
             write("var RTE_ENABLE_ANNOTATIONS = ", getCmsTool().isEnableAnnotations(), ';');
+            write("var DISABLE_TOOL_CHECKS = ", getCmsTool().isDisableToolChecks(), ';');
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");

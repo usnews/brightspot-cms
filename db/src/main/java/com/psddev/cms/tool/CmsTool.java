@@ -107,6 +107,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean removeTrailingSlashes;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableToolChecks;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -510,6 +513,14 @@ public class CmsTool extends Tool {
 
     public void setRemoveTrailingSlashes(boolean removeTrailingSlashes) {
         this.removeTrailingSlashes = removeTrailingSlashes;
+    }
+
+    public boolean isDisableToolChecks() {
+        return disableToolChecks;
+    }
+
+    public void setDisableToolChecks(boolean disableToolChecks) {
+        this.disableToolChecks = disableToolChecks;
     }
 
     /** Returns the preview URL. */

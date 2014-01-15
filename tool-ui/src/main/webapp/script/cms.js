@@ -982,39 +982,41 @@ $doc.ready(function() {
     })();
 
     // Starts all server-side tool checks.
-    (function() {
-        var toolCheckPoll = function() {
-            $.ajax({
-                'method': 'post',
-                'url': CONTEXT_PATH + '/toolCheckStream',
-                'cache': false,
-                'dataType': 'json',
-                'data': {
-                    'url': win.location.href,
-                    'r': JSON.stringify(toolChecks)
-                }
-
-            }).done(function(responses) {
-                if (!responses) {
-                    return;
-                }
-
-                $.each(responses, function(i, response) {
-                    if (response) {
-                        toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
+    if (!DISABLE_TOOL_CHECKS) {
+        (function() {
+            var toolCheckPoll = function() {
+                $.ajax({
+                    'method': 'post',
+                    'url': CONTEXT_PATH + '/toolCheckStream',
+                    'cache': false,
+                    'dataType': 'json',
+                    'data': {
+                        'url': win.location.href,
+                        'r': JSON.stringify(toolChecks)
                     }
+
+                }).done(function(responses) {
+                    if (!responses) {
+                        return;
+                    }
+
+                    $.each(responses, function(i, response) {
+                        if (response) {
+                            toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
+                        }
+                    });
+
+                }).done(function() {
+                    setTimeout(toolCheckPoll, 100);
+
+                }).fail(function() {
+                    setTimeout(toolCheckPoll, 10000);
                 });
+            };
 
-            }).done(function() {
-                setTimeout(toolCheckPoll, 100);
-
-            }).fail(function() {
-                setTimeout(toolCheckPoll, 10000);
-            });
-        };
-
-        toolCheckPoll();
-    })();
+            toolCheckPoll();
+        })();
+    }
 });
 
 }(jQuery, window));
