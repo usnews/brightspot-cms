@@ -30,12 +30,6 @@ ToolPageContext wp = new ToolPageContext(pageContext);
 State state = State.getInstance(request.getAttribute("object"));
 
 ObjectField field = (ObjectField) request.getAttribute("field");
-for (ObjectType t : field.getTypes()) {
-    if (Query.class.equals(t.getObjectClass())) {
-        wp.include("query.jsp");
-        return;
-    }
-}
 String fieldName = field.getInternalName();
 Object fieldValue = state.getValue(fieldName);
 boolean fieldValueNew = false;

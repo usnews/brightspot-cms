@@ -64,9 +64,6 @@ public class SearchAdvancedQuery extends PageServlet {
                         "method", "get",
                         "action", page.url(null),
                         "onsubmit", "$(this).addClass('form-submit');return true;");
-                    if (page.param(UUID.class, "typeId") != null) {
-                        page.writeTag("input", "type", "hidden", "name", "typeId", "value", page.param(UUID.class, "typeId"));
-                    }
                     page.writeStart("select",
                             "class", "autoSubmit",
                             "name", "gpt");
@@ -179,9 +176,6 @@ public class SearchAdvancedQuery extends PageServlet {
             String comparisonValueParam = paramPrefix + ".cv";
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
             ObjectType comparisonType = ObjectType.getInstance(page.param(UUID.class, comparisonTypeParam));
-            if (page.param(UUID.class, "typeId") != null) {
-                comparisonType = ObjectType.getInstance(page.param(UUID.class, "typeId"));
-            }
             String comparisonFieldName = page.param(String.class, comparisonFieldNameParam);
             ObjectField comparisonField = environment.getField(comparisonFieldName);
             ComparisonOperator comparisonOperator = page.param(ComparisonOperator.class, comparisonOperatorParam);
@@ -191,17 +185,13 @@ public class SearchAdvancedQuery extends PageServlet {
             }
 
             page.writeHtml(" ");
-            if (page.param(UUID.class, "typeId") == null) {
-                page.writeTypeSelect(
-                        null,
-                        comparisonType,
-                        "Any Types",
-                        "class", "autoSubmit",
-                        "name", comparisonTypeParam,
-                        "data-searchable", true);
-            } else {
-                page.writeTag("input", "type", "text", "disabled", "true", "readonly", "true", "value", comparisonType.getDisplayName());
-            }
+            page.writeTypeSelect(
+                    null,
+                    comparisonType,
+                    "Any Types",
+                    "class", "autoSubmit",
+                    "name", comparisonTypeParam,
+                    "data-searchable", true);
 
             page.writeHtml(" ");
             page.writeStart("select",
