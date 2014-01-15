@@ -45,7 +45,7 @@ boolean isEmbedded = field.isEmbedded();
 
 String inputName = (String) request.getAttribute("inputName");
 
-String predicate = null;
+String predicate = fieldValue.toString();
 if (fieldValue != null && fieldValue.getPredicate() != null) {
     predicate = fieldValue.getPredicate().toString();
 }
