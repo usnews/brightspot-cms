@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -171,18 +172,15 @@ public class SearchAdvancedQuery extends PageServlet {
 
         if (PredicateType.C.equals(predicateType)) {
             String comparisonTypeParam = paramPrefix + ".ct";
-            String comparisonFieldNameParam = paramPrefix + ".cf";
+            String comparisonPathParam = paramPrefix + ".cp";
             String comparisonOperatorParam = paramPrefix + ".co";
             String comparisonValueParam = paramPrefix + ".cv";
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
             ObjectType comparisonType = ObjectType.getInstance(page.param(UUID.class, comparisonTypeParam));
-            String comparisonFieldName = page.param(String.class, comparisonFieldNameParam);
-            ObjectField comparisonField = environment.getField(comparisonFieldName);
+            String comparisonPath = page.param(String.class, comparisonPathParam);
             ComparisonOperator comparisonOperator = page.param(ComparisonOperator.class, comparisonOperatorParam);
-
-            if (comparisonField == null && comparisonType != null) {
-                comparisonField = comparisonType.getField(comparisonFieldName);
-            }
+            PathedField comparisonPathedField = null;
+            ObjectField comparisonField = null;
 
             page.writeHtml(" ");
             page.writeTypeSelect(
@@ -196,7 +194,7 @@ public class SearchAdvancedQuery extends PageServlet {
             page.writeHtml(" ");
             page.writeStart("select",
                     "class", "autoSubmit",
-                    "name", comparisonFieldNameParam,
+                    "name", comparisonPathParam,
                     "data-searchable", true);
                 page.writeStart("option", "value", "");
                     page.writeHtml("Any Fields");
@@ -204,26 +202,46 @@ public class SearchAdvancedQuery extends PageServlet {
 
                 if (comparisonType != null) {
                     page.writeStart("optgroup", "label", comparisonType.getLabel());
-                        for (ObjectField field : getIndexedFields(comparisonType)) {
-                            String fieldName = field.getInternalName();
+                        for (PathedField pf : getPathedFields(comparisonType)) {
+                            String path = pf.getPath();
+
+                            if (comparisonField == null &&
+                                    path.equals(comparisonPath)) {
+                                List<ObjectField> pfs = pf.getFields();
+
+                                if (!pfs.isEmpty()) {
+                                    comparisonPathedField = pf;
+                                    comparisonField = pfs.get(pfs.size() - 1);
+                                }
+                            }
 
                             page.writeStart("option",
-                                    "selected", field.equals(comparisonField) ? "selected" : null,
-                                    "value", fieldName);
-                                page.writeHtml(field.getDisplayName());
+                                    "selected", path.equals(comparisonPath) ? "selected" : null,
+                                    "value", path);
+                                page.writeHtml(pf.getDisplayName());
                             page.writeEnd();
                         }
                     page.writeEnd();
                 }
 
                 page.writeStart("optgroup", "label", "Global");
-                    for (ObjectField field : getIndexedFields(environment)) {
-                        String fieldName = field.getInternalName();
+                    for (PathedField pf : getPathedFields(environment)) {
+                        String path = pf.getPath();
+
+                        if (comparisonField == null &&
+                                path.equals(comparisonPath)) {
+                            List<ObjectField> pfs = pf.getFields();
+
+                            if (!pfs.isEmpty()) {
+                                comparisonPathedField = pf;
+                                comparisonField = pfs.get(pfs.size() - 1);
+                            }
+                        }
 
                         page.writeStart("option",
-                                "selected", field.equals(comparisonField) ? "selected" : null,
-                                "value", fieldName);
-                            page.writeHtml(field.getDisplayName());
+                                "selected", path.equals(comparisonPath) ? "selected" : null,
+                                "value", path);
+                            page.writeHtml(pf.getDisplayName());
                         page.writeEnd();
                     }
                 page.writeEnd();
@@ -234,9 +252,9 @@ public class SearchAdvancedQuery extends PageServlet {
                     "class", "autoSubmit",
                     "name", comparisonOperatorParam);
                 for (ComparisonOperator op : ComparisonOperator.values()) {
-                    if ((comparisonField == null &&
+                    if ((ObjectUtils.isBlank(comparisonPath) &&
                             !op.equals(ComparisonOperator.M)) ||
-                            (comparisonField != null &&
+                            (!ObjectUtils.isBlank(comparisonPath) &&
                             !op.isDisplayedFor(comparisonField))) {
                         if (op.equals(comparisonOperator)) {
                             comparisonOperator = null;
@@ -264,7 +282,7 @@ public class SearchAdvancedQuery extends PageServlet {
             return CompoundPredicate.combine(
                     "AND",
                     comparisonType == null ? null : new ComparisonPredicate("=", false, "_type", Arrays.asList(comparisonType.getId())),
-                    comparisonOperator.createPredicate(page, comparisonValueParam, comparisonField));
+                    comparisonOperator.createPredicate(page, comparisonValueParam, comparisonPathedField));
 
         } else if (predicateType.getCompoundOperator() != null) {
             Predicate predicate = null;
@@ -307,7 +325,15 @@ public class SearchAdvancedQuery extends PageServlet {
         }
     }
 
-    private List<ObjectField> getIndexedFields(ObjectStruct struct) {
+    private List<PathedField> getPathedFields(ObjectStruct struct) {
+        List<PathedField> pathedFields = new ArrayList<PathedField>();
+
+        addPathedFields(pathedFields, null, struct);
+        Collections.sort(pathedFields);
+        return pathedFields;
+    }
+
+    private void addPathedFields(List<PathedField> pathedFields, List<ObjectField> prefix, ObjectStruct struct) {
         List<ObjectField> fields = struct.getFields();
         Set<String> indexedFields = new HashSet<String>();
 
@@ -317,17 +343,96 @@ public class SearchAdvancedQuery extends PageServlet {
 
         for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
             ObjectField field = i.next();
+            String declaring = field.getJavaDeclaringClassName();
 
-            if (!indexedFields.contains(field.getInternalName()) ||
-                    field.isDeprecated() ||
-                    field.as(ToolUi.class).isHidden()) {
-                i.remove();
+            if (declaring != null &&
+                    declaring.startsWith("com.psddev.dari.db.")) {
+                continue;
+            }
+
+            String fieldName = field.getInternalName();
+            boolean embedded = field.isEmbedded();
+
+            if (!embedded &&
+                    ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
+                embedded = true;
+
+                for (ObjectType t : field.getTypes()) {
+                    if (!t.isEmbedded()) {
+                        embedded = false;
+                        break;
+                    }
+                }
+            }
+
+            if (embedded) {
+                for (ObjectType t : field.getTypes()) {
+                    addPathedFields(pathedFields, copyConcatenate(prefix, field), t);
+                }
+
+            } else if (indexedFields.contains(fieldName) &&
+                    !field.isDeprecated() &&
+                    !field.as(ToolUi.class).isHidden()) {
+                pathedFields.add(new PathedField(copyConcatenate(prefix, field)));
             }
         }
+    }
 
-        Collections.sort(fields);
+    private static <T> List<T> copyConcatenate(List<T> list, T item) {
+        list = list != null ? new ArrayList<T>(list) : new ArrayList<T>();
 
-        return fields;
+        list.add(item);
+        return list;
+    }
+
+    private static class PathedField implements Comparable<PathedField> {
+
+        private final List<ObjectField> fields;
+        private final String path;
+        private final String displayName;
+
+        public PathedField(List<ObjectField> fields) {
+            this.fields = Collections.unmodifiableList(fields);
+
+            StringBuilder path = new StringBuilder();
+
+            for (ObjectField f : getFields()) {
+                path.append(f.getInternalName());
+                path.append('/');
+            }
+
+            path.setLength(path.length() - 1);
+
+            this.path = path.toString();
+
+            StringBuilder displayName = new StringBuilder();
+
+            for (ObjectField f : getFields()) {
+                displayName.append(f.getDisplayName());
+                displayName.append(" \u2192 ");
+            }
+
+            displayName.setLength(displayName.length() - 3);
+
+            this.displayName = displayName.toString();
+        }
+
+        public List<ObjectField> getFields() {
+            return fields;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        @Override
+        public int compareTo(PathedField other) {
+            return getDisplayName().compareTo(other.getDisplayName());
+        }
     }
 
     private enum PredicateType {
@@ -383,10 +488,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "matches",
                         page.param(String.class, valueParam));
             }
@@ -428,10 +533,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "=",
                         page.param(String.class, valueParam));
             }
@@ -457,10 +562,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "!=",
                         page.param(String.class, valueParam));
             }
@@ -485,10 +590,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "=",
                         Boolean.TRUE);
             }
@@ -513,10 +618,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "!=",
                         Boolean.TRUE);
             }
@@ -541,10 +646,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "=",
                         Query.MISSING_VALUE);
             }
@@ -569,10 +674,10 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
                 return createPredicateWithOperatorAndValue(
-                        field,
+                        pathedField,
                         "!=",
                         Query.MISSING_VALUE);
             }
@@ -616,16 +721,17 @@ public class SearchAdvancedQuery extends PageServlet {
             public Predicate createPredicate(
                     ToolPageContext page,
                     String valueParam,
-                    ObjectField field) {
+                    PathedField pathedField) {
 
-                boolean date = ObjectField.DATE_TYPE.equals(field.getInternalItemType());
+                List<ObjectField> fields = pathedField.getFields();
+                boolean date = ObjectField.DATE_TYPE.equals(fields.get(fields.size() - 1).getInternalItemType());
                 Object from = page.param(date ? Date.class : Double.class, valueParam);
                 Object to = page.param(date ? Date.class : Double.class, valueParam + "t");
 
                 return CompoundPredicate.combine(
                         "AND",
-                        from == null ? null : createPredicateWithOperatorAndValue(field, ">=", from),
-                        to == null ? null : createPredicateWithOperatorAndValue(field, ">=", to));
+                        from == null ? null : createPredicateWithOperatorAndValue(pathedField, ">=", from),
+                        to == null ? null : createPredicateWithOperatorAndValue(pathedField, ">=", to));
             }
         };
 
@@ -646,14 +752,14 @@ public class SearchAdvancedQuery extends PageServlet {
         public abstract Predicate createPredicate(
                 ToolPageContext page,
                 String valueParam,
-                ObjectField field);
+                PathedField pathedField);
 
         public String getLabel() {
             return label;
         }
 
         public Predicate createPredicateWithOperatorAndValue(
-                ObjectField field,
+                PathedField pathedField,
                 String operator,
                 Object value) {
 
@@ -661,10 +767,27 @@ public class SearchAdvancedQuery extends PageServlet {
                 return null;
 
             } else {
+                StringBuilder key = new StringBuilder();
+
+                if (pathedField == null) {
+                    key.append("_any");
+
+                } else {
+                    for (ObjectField f : pathedField.getFields()) {
+                        if (key.length() == 0) {
+                            key.append(f.getUniqueName());
+
+                        } else {
+                            key.append('/');
+                            key.append(f.getInternalName());
+                        }
+                    }
+                }
+
                 return new ComparisonPredicate(
                         operator,
                         false,
-                        field != null ? field.getUniqueName() : "_any",
+                        key.toString(),
                         Arrays.asList(value));
             }
         }
