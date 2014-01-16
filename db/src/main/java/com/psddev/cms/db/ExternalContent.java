@@ -84,8 +84,8 @@ public class ExternalContent extends Content implements Renderer {
         if (!ObjectUtils.isBlank(url) &&
                 (response == null ||
                 !ObjectUtils.equals(url, response.get("_url")) ||
-                !ObjectUtils.equals(width, response.get("_maximumWidth")) ||
-                !ObjectUtils.equals(height, response.get("_maximumHeight")))) {
+                !ObjectUtils.equals(width, ObjectUtils.to(Integer.class, response.get("_maximumWidth"))) ||
+                !ObjectUtils.equals(height, ObjectUtils.to(Integer.class, response.get("_maximumHeight"))))) {
 
             for (Class<? extends ExternalContentProvider> providerClass : ClassFinder.Static.findClasses(ExternalContentProvider.class)) {
                 if (providerClass.isInterface() ||
