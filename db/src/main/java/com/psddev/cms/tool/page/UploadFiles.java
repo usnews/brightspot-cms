@@ -240,22 +240,7 @@ public class UploadFiles extends PageServlet {
                         }
 
                         state.put(previewField.getInternalName(), item);
-
-                        try {
-                            page.publish(state);
-
-                        } catch (RuntimeException error) {
-                            if (state.hasAnyErrors()) {
-                                Draft draft = new Draft();
-
-                                draft.setOwner(page.getUser());
-                                draft.setObject(object);
-                                page.publish(draft);
-
-                            } else {
-                                throw error;
-                            }
-                        }
+                        page.publish(state);
 
                         js.append("$addButton.repeatable('add', function() {");
                             js.append("var $added = $(this);");
