@@ -958,16 +958,32 @@ var Rte = wysihtml5.Editor.extend({
 
                 $(composer.element).bind('keydown', function(event) {
                     var which,
-                            selection;
+                            selection,
+                            $comment,
+                            spacer;
 
-                    if (event.metaKey ||
-                            !$(composer.element).hasClass('rte-changesTracking') ||
-                            $(composer.selection.getRange().commonAncestorContainer).closest('.rte-comment').length > 0) {
+                    if (event.metaKey) {
                         return true;
                     }
 
                     which = event.which;
                     selection = composer.selection;
+                    $comment = $(selection.getRange().commonAncestorContainer).closest('.rte-comment');
+
+                    if ($comment.length > 0) {
+                        if (which === 13) {
+                            spacer = composer.doc.createTextNode('\u00a0');
+
+                            $comment.after(spacer);
+                            selection.setBefore(spacer);
+                        }
+
+                        return true;
+                    }
+
+                    if (!$(composer.element).hasClass('rte-changesTracking')) {
+                        return true;
+                    }
 
                     function doDelete(direction) {
                         var rangySelection = selection.getSelection();
