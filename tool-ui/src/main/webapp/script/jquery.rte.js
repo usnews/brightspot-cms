@@ -668,16 +668,17 @@ var Rte = wysihtml5.Editor.extend({
                             return;
                         }
                     }
+
+                    $anchor.before($('<del/>', {
+                        'html': $anchor.html()
+                    }));
+
+                    $ins = $('<ins/>');
+
+                    $anchor.after($ins);
+                    $ins.append($anchor);
                 }
 
-                $anchor.before($('<del/>', {
-                    'html': $anchor.html()
-                }));
-
-                $ins = $('<ins/>');
-
-                $anchor.after($ins);
-                $ins.append($anchor);
                 openLinkDialog($anchor);
             });
         })();
