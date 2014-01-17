@@ -1,5 +1,8 @@
 <%@ page import="
 
+com.psddev.cms.db.AbVariation,
+com.psddev.cms.db.AbVariationField,
+com.psddev.cms.db.AbVariationObject,
 com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
@@ -17,10 +20,17 @@ com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.RoutingFilter,
 com.psddev.dari.util.StringUtils,
 
+java.io.IOException,
+java.io.Writer,
 java.net.MalformedURLException,
 java.net.URL,
+java.util.ArrayList,
 java.util.List,
-java.util.Set
+java.util.Map,
+java.util.Set,
+java.util.UUID,
+
+javax.servlet.ServletException
 " %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
@@ -59,6 +69,7 @@ if (isFormPost && isReadOnly) {
 }
 
 // Wrapped in try/finally because return is used for flow control.
+boolean abTesting = wp.param(boolean.class, "ab");
 String fieldPrefix = (String) request.getAttribute("fieldPrefix");
 
 if (fieldPrefix == null) {
@@ -160,6 +171,164 @@ try {
         }
     }
 
+    Map<String, AbVariationField> variantFields = state.as(AbVariationObject.class).getFields();
+    AbVariationField variantField = variantFields.get(fieldName);
+
+    if (variantField == null) {
+        variantField = new AbVariationField();
+
+        variantFields.put(fieldName, variantField);
+    }
+
+    List<AbVariation> variants = variantField.getVariations();
+    String variantIdParam = state.getId() + "/" + fieldName + ".variantId";
+    String actionAddVariationParam = "action-add-variant-" + state.getId() + "-" + fieldName;
+
+    ADD_VARIANT: for (UUID id : wp.params(UUID.class, variantIdParam)) {
+        for (AbVariation variant : variantField.getVariations()) {
+            if (variant.getId().equals(id)) {
+                continue ADD_VARIANT;
+            }
+        }
+
+        AbVariation variant = new AbVariation();
+
+        variant.getState().setId(id);
+        variants.add(variant);
+    }
+
+    if (wp.param(String.class, actionAddVariationParam) != null) {
+        if (variants.isEmpty()) {
+            AbVariation variant = new AbVariation();
+
+            variant.setWeight(50.0);
+            variant.setValue(state.get(fieldName));
+            variants.add(variant);
+        }
+
+        AbVariation variant = new AbVariation();
+
+        variant.setWeight(50.0);
+        variant.setValue(state.get(fieldName));
+        variants.add(variant);
+    }
+
+    if (wp.param(boolean.class, "ab") || !variants.isEmpty()) {
+        wp.writeStart("div", "class", "inputVariationControls");
+            wp.writeStart("button",
+                    "class", "icon icon-action-add link",
+                    "name", actionAddVariationParam,
+                    "value", true);
+                wp.writeHtml("Add ");
+                wp.writeHtml(field.getDisplayName());
+                wp.writeHtml(" Variation");
+            wp.writeEnd();
+
+            wp.writeStart("select");
+                wp.writeStart("option");
+                    wp.writeHtml("Goal: Clicks To This Content");
+                wp.writeEnd();
+
+                wp.writeStart("option");
+                    wp.writeHtml("Goal: Clicks From This Content");
+                wp.writeEnd();
+            wp.writeEnd();
+        wp.writeEnd();
+    }
+
+    if (variants.isEmpty()) {
+        writeInput(wp, application, request, response, out, state, field);
+
+    } else {
+        UUID originalId = state.getId();
+
+        for (int i = 0, size = variants.size(); i < size; ++ i) {
+            AbVariation variant = variants.get(i);
+            UUID variantId = variant.getId();
+            String weightName = variantId + "/weight";
+
+            state.setId(variantId);
+            state.put(fieldName, variant.getValue());
+
+            wp.writeStart("div", "class", "inputVariation");
+                wp.writeStart("div", "class", "inputVariationLabel");
+                    wp.writeHtml((char) ('A' + i));
+
+                    wp.writeTag("input",
+                            "type", "hidden",
+                            "name", variantIdParam,
+                            "value", variantId);
+
+                    wp.writeTag("input",
+                            "type", "range",
+                            "id", wp.createId(),
+                            "name", weightName,
+                            "value", variant.getWeight(),
+                            "min", 0,
+                            "max", 100,
+                            "step", 1);
+
+                    wp.writeStart("output",
+                            "for", wp.getId());
+                    wp.writeEnd();
+                wp.writeEnd();
+
+                request.setAttribute("inputName", variantId + "/" + fieldName);
+                writeInput(wp, application, request, response, out, state, field);
+
+                if (isFormPost) {
+                    variant.setWeight(wp.param(double.class, weightName));
+                    variant.setValue(state.get(fieldName));
+                }
+
+                wp.writeStart("div", "class", "inputVariationConversion");
+                    wp.writeHtml(String.format("%.1f%%", Math.random() * 10));
+                wp.writeEnd();
+            wp.writeEnd();
+        }
+
+        state.setId(originalId);
+        state.put(fieldName, variants.get(0).getValue());
+    }
+
+    if (variants.isEmpty()) {
+        variantFields.remove(fieldName);
+    }
+
+} finally {
+    request.setAttribute("fieldPrefix", fieldPrefix);
+
+    // Standard footer.
+    if (!isFormPost) {
+        wp.write("</div>");
+    }
+}
+%><%!
+
+public static URL getResource(ServletContext context, HttpServletRequest request, String path) throws MalformedURLException {
+    if (Boolean.TRUE.equals(request.getAttribute("resourceChecked." + path))) {
+        return (URL) request.getAttribute("resource." + path);
+    }
+
+    URL resource = context.getResource(path);
+
+    request.setAttribute("resourceChecked." + path, Boolean.TRUE);
+    request.setAttribute("resource." + path, resource);
+    return resource;
+}
+
+public static void writeInput(
+        ToolPageContext wp,
+        ServletContext application,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Writer out,
+        State state,
+        ObjectField field)
+        throws IOException, ServletException {
+
+    String fieldName = field.getInternalName();
+    ToolUi ui = field.as(ToolUi.class);
     String processorPath = ui.getInputProcessorPath();
     if (processorPath != null) {
         JspUtils.include(request, response, out,
@@ -204,26 +373,5 @@ try {
     }
 
     JspUtils.include(request, response, out, prefix + "default.jsp");
-
-} finally {
-    request.setAttribute("fieldPrefix", fieldPrefix);
-
-    // Standard footer.
-    if (!isFormPost) {
-        wp.write("</div>");
-    }
-}
-%><%!
-
-public static URL getResource(ServletContext context, HttpServletRequest request, String path) throws MalformedURLException {
-    if (Boolean.TRUE.equals(request.getAttribute("resourceChecked." + path))) {
-        return (URL) request.getAttribute("resource." + path);
-    }
-
-    URL resource = context.getResource(path);
-
-    request.setAttribute("resourceChecked." + path, Boolean.TRUE);
-    request.setAttribute("resource." + path, resource);
-    return resource;
 }
 %>

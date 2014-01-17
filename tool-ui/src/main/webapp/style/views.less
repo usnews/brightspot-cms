@@ -601,6 +601,69 @@ figure,
     }
 }
 
+.inputLabel > .icon-beaker {
+    float: right;
+    color: fade(@color-text, 25%);
+
+    &:hover {
+        color: fade(@color-text, 40%);
+    }
+}
+
+.inputVariationControls {
+    line-height: 26px;
+    margin-left: 146px;
+    position: relative;
+
+    select {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+.inputVariation {
+    margin-left: 146px;
+    padding-right: 55px;
+    position: relative;
+}
+
+.inputVariationLabel {
+    .icon;
+    .icon-beaker;
+
+    left: 0;
+    line-height: 26px;
+    position: absolute;
+    top: 0;
+
+    input[type='range'] {
+        margin-left: 5px;
+        vertical-align: middle;
+        width: 80px;
+    }
+
+    output {
+        font-size: 10px;
+        margin-left: 2px;
+        vertical-align: middle;
+
+        &:after {
+            content: '%';
+        }
+    }
+}
+
+.inputVariationConversion {
+    .icon;
+    .icon-ok;
+
+    line-height: 26px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
 .inputContainer-listLayoutItemContainer {
     height: 100%;
     overflow: hidden;

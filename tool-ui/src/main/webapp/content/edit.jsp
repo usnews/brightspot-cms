@@ -162,7 +162,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
     <form class="contentForm contentLock"
             method="post"
             enctype="multipart/form-data"
-            action="<%= wp.objectUrl("", selected) %>"
+            action="<%= wp.objectUrl("", selected, "published", null) %>"
             autocomplete="off"
             data-object-id="<%= State.getInstance(selected).getId() %>"
             data-content-id="<%= State.getInstance(editing).getId() %>"
@@ -224,6 +224,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
 
                 <div class="widgetControls">
                     <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
+                    <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
                     <%
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {

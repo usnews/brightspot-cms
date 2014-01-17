@@ -790,6 +790,53 @@ $doc.onCreate('.inputContainer-readOnly', function() {
     $(this).find(':input').trigger('input-disable', [ true ]);
 });
 
+(function() {
+    function sync() {
+        var $input = $(this),
+                $output = $('output[for="' + $input.attr('id') + '"]');
+
+        $output.prop('value', $input.prop('value'));
+    }
+
+    $doc.onCreate('input[type="range"]', sync);
+    $doc.on('change input', 'input[type="range"]', sync);
+
+    function fix() {
+        var $container = $(this).closest('.inputContainer'),
+                $inputs = $container.find('.inputVariation input[type="range"]'),
+                total,
+                max;
+
+        if ($inputs.length === 0) {
+            return;
+        }
+
+        total = 0.0;
+        max = 0.0;
+
+        $inputs.each(function() {
+            var $input = $(this),
+                    inputMax = parseFloat($input.prop('max'));
+
+            total += parseFloat($input.prop('value'));
+
+            if (max < inputMax) {
+                max = inputMax;
+            }
+        });
+
+        $inputs.each(function() {
+            var $input = $(this);
+
+            $input.prop('value', parseFloat($input.prop('value')) / total * max);
+            sync.call(this);
+        });
+    }
+
+    $doc.onCreate('.inputContainer', fix);
+    $doc.on('change input', '.inputVariation input[type="range"]', fix);
+})();
+
 // Key bindings.
 $doc.on('keydown', ':input', function(event) {
     if (event.which === 27) {
