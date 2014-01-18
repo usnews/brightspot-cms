@@ -51,10 +51,14 @@ public class AbFilter extends AbstractFilter implements AbstractFilter.Auto {
         String seed = null;
 
         if (!"reset".equals(request.getParameter("_ab"))) {
-            for (Cookie c : request.getCookies()) {
-                if (SEED_COOKIE.equals(c.getName())) {
-                    seed = c.getValue();
-                    break;
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (SEED_COOKIE.equals(c.getName())) {
+                        seed = c.getValue();
+                        break;
+                    }
                 }
             }
         }
