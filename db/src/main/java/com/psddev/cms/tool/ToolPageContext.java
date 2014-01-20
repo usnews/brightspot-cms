@@ -2233,6 +2233,7 @@ public class ToolPageContext extends WebPageContext {
                         "id", state.getId(),
                         "historyId", null,
                         "copyId", null,
+                        "ab", null,
                         "published", System.currentTimeMillis());
             }
 
