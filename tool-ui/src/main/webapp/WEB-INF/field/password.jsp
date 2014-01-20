@@ -97,8 +97,10 @@ String isNewInputId = wp.getId();
     <div class="passwordChange" style="margin-top: 10px;">
 
         <% if (!state.isNew()) { %>
-            <div>Your Current Password:</div>
-            <input name="<%= currentPasswordName %>" type="password">
+            <div class="message message-info">
+                <div>Please reauthenticate (<%= wp.objectLabel(wp.getUser()) %>) to change this user's password:</div>
+                <input name="<%= currentPasswordName %>" type="password">
+            </div>
         <% } %>
 
         <div>New Password:</div>
