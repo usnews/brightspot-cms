@@ -80,17 +80,18 @@
                 <span class="icon-bar"></span>
             </a>
             <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
-                    <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
-                    <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Documentation/Support</a></li>
-                </ul>
-            </div>
+            <ul class="nav">
+                <li class="{% if page.id == 'index' %}active{% endif %}"><a class="main-link" href="index.html">For Editors</a></li>
+                <li class="{% if page.id == 'developer' %}active{% endif %}"><a class="main-link" href="developer.html">For Developers</a></li>
+                <li class="{% if page.section == 'documentation' %}active{% endif %}"><a class="main-link" href="support.html">Documentation</a></li>
+                <li class="{% if page.section == 'partners' %}active{% endif %}"><a class="main-link" href="partners.html">Our Integration Partners</a></li>
+            </ul>
+        </div>
             <div class="nav pull-right">
-               <ul class="nav">
-                    <li><a class="social" href="mailto:brightspotcms@perfectsensedigital.com"><i class="icon-envelope"></i> Contact Us</a></li>
-                    <li><a class="social" href="https://twitter.com/brightspotcms"><i class="icon-twitter"></i> Follow on Twitter</a></li>
-                    <li><a class="social" href="https://github.com/perfectsense/brightspot-cms"><i class="icon-github"></i> Follow on Github</a></li>
+                <ul class="nav">
+                <li><a class="social" href="mailto:brightspotcms@perfectsensedigital.com"><i class="icon-envelope"></i> Contact Us</a></li>
+                <li><a class="social" href="https://twitter.com/brightspotcms"><i class="icon-twitter"></i> Follow on Twitter</a></li>
+                <li><a class="social" href="https://github.com/perfectsense/brightspot-cms"><i class="icon-github"></i> Follow on Github</a></li>
                 </ul>
             </div>
             </div>
@@ -156,4 +157,3 @@ $(function() {
 
 </body>
 </html>
-
