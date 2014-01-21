@@ -435,7 +435,7 @@ public class Directory extends Record {
             if (dir == null) {
                 dir = new Directory();
                 dir.setPath(path);
-                dir.save();
+                dir.saveImmediately();
             }
 
             String rawPath = dir.getRawPath() + pathMatcher.group(2);
