@@ -732,6 +732,10 @@ public class Search extends Record {
     }
 
     private void addVisibilityFields(Set<String> comparisonKeys, ObjectStruct struct) {
+        if (struct == null) {
+            return;
+        }
+
         for (ObjectIndex index : struct.getIndexes()) {
             if (index.isVisibility()) {
                 for (String fieldName : index.getFields()) {
