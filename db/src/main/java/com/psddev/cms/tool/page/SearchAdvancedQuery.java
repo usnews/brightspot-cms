@@ -44,6 +44,20 @@ public class SearchAdvancedQuery extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         List<String> paramNames = page.paramNamesList();
+
+        for (String paramName : paramNames) {
+            if (paramName.startsWith("action-remove-")) {
+                String index = paramName.substring(14);
+
+                page.getResponse().sendRedirect(page.url("", paramName, null).
+                        replaceAll("\\?p" + index + "=1", "?").
+                        replaceAll("&p" + index + "=1", "").
+                        replaceAll("\\?" + index + "\\.[^=]+=[^&]*", "?").
+                        replaceAll("&" + index + "\\.[^=]+=[^&]*", ""));
+                return;
+            }
+        }
+
         int lastIndex = -1;
         Predicate globalPredicate = null;
         PredicateType globalPredicateType = page.param(PredicateType.class, "gpt");
@@ -286,6 +300,14 @@ public class SearchAdvancedQuery extends PageServlet {
 
             page.writeHtml(" ");
             comparisonOperator.writeValueInputs(page, comparisonValueParam, comparisonField);
+
+            page.writeHtml(" ");
+            page.writeStart("button",
+                    "class", "icon icon-action-remove icon-only link",
+                    "name", "action-remove-" + paramPrefix,
+                    "value", true);
+                page.writeHtml("Remove");
+            page.writeEnd();
 
             return CompoundPredicate.combine(
                     "AND",
