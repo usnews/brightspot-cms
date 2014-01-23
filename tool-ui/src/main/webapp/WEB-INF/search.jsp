@@ -420,9 +420,9 @@ writer.start("div", "class", "searchForm");
                 writer.writeEnd();
 
                 writer.writeStart("div", "class", "searchFilter searchFilter-advancedQuery");
-                    writer.writeStart("textarea",
+                    writer.writeStart("input",
+                            "type", "text",
                             "class", "code",
-                            "data-expandable-class", "code",
                             "name", Search.ADVANCED_QUERY_PARAMETER,
                             "placeholder", "Advanced Query");
                         writer.writeHtml(search.getAdvancedQuery());

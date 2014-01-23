@@ -140,10 +140,10 @@ public class SearchAdvancedQuery extends PageServlet {
                 page.writeRaw("');");
 
                 if (page.param(String.class, "action-search") != null) {
-                    page.writeRaw("var $textarea = $edit.closest('.searchFilter-advancedQuery').find('textarea');");
+                    page.writeRaw("var $input = $edit.closest('.searchFilter-advancedQuery').find('input[type=\"text\"]');");
 
-                    page.writeRaw("$textarea.val('" + StringUtils.escapeJavaScript(globalPredicate != null ? globalPredicate.toString() : "") + "');");
-                    page.writeRaw("$textarea.change();");
+                    page.writeRaw("$input.val('" + StringUtils.escapeJavaScript(globalPredicate != null ? globalPredicate.toString() : "") + "');");
+                    page.writeRaw("$input.change();");
                     page.writeRaw("$page.popup('close');");
                 }
             page.writeEnd();
