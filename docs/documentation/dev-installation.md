@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Production Installation
-id: productionInstallation
+title: Development Installation
+id: devInstallation
 section: documentation
 ---
 
