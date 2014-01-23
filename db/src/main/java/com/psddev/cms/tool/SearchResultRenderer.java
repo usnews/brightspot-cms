@@ -58,8 +58,17 @@ public class SearchResultRenderer {
         PaginatedResult<?> result = null;
 
         if (search.getSort() == null) {
-            search.setSort(ObjectUtils.isBlank(search.getQueryString()) ? "cms.content.updateDate" : Search.RELEVANT_SORT_VALUE);
             search.setShowMissing(true);
+
+            if (!ObjectUtils.isBlank(search.getQueryString())) {
+                search.setSort(Search.RELEVANT_SORT_VALUE);
+
+            } else if (search.getFieldFilters().get("cms.content.publishDate") != null) {
+                search.setSort("cms.content.publishDate");
+
+            } else {
+                search.setSort("cms.content.updateDate");
+            }
         }
 
         if (selectedType != null) {

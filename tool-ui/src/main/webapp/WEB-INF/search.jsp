@@ -11,7 +11,9 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ColorImage,
 com.psddev.dari.db.Database,
+com.psddev.dari.db.DatabaseEnvironment,
 com.psddev.dari.db.ObjectField,
+com.psddev.dari.db.ObjectStruct,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.Singleton,
@@ -80,9 +82,10 @@ if (selectedType == null && singleType) {
     selectedType = validTypes.iterator().next();
 }
 
+DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
 List<ObjectType> globalFilters = new ArrayList<ObjectType>();
 
-for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+for (ObjectType t : environment.getTypes()) {
     if (t.as(ToolUi.class).isGlobalFilter()) {
         globalFilters.add(t);
     }
@@ -92,6 +95,8 @@ globalFilters.remove(selectedType);
 Collections.sort(globalFilters);
 
 Map<String, ObjectField> fieldFilters = new LinkedHashMap<String, ObjectField>();
+
+addFieldFilters(fieldFilters, "", environment);
 
 if (selectedType != null) {
     addFieldFilters(fieldFilters, "", selectedType);
@@ -243,8 +248,9 @@ writer.start("div", "class", "searchForm");
                             writer.end();
                         }
                     writer.end();
+                }
 
-                } else {
+                if (selectedType != null) {
                     if (selectedType.getGroups().contains(ColorImage.class.getName())) {
                         writer.writeTag("input",
                                 "type", "text",
@@ -252,158 +258,158 @@ writer.start("div", "class", "searchForm");
                                 "name", Search.COLOR_PARAMETER,
                                 "value", search.getColor());
                     }
+                }
 
-                    writer.start("div", "class", "searchFiltersLocal");
-                        if (!fieldFilters.isEmpty()) {
-                            writer.start("div", "class", "searchMissing");
-                                writer.html("Missing?");
-                            writer.end();
-                        }
+                writer.start("div", "class", "searchFiltersLocal");
+                    if (!fieldFilters.isEmpty()) {
+                        writer.start("div", "class", "searchMissing");
+                            writer.html("Missing?");
+                        writer.end();
+                    }
 
-                        for (Map.Entry<String, ObjectField> entry : fieldFilters.entrySet()) {
-                            String fieldName = entry.getKey();
-                            ObjectField field = entry.getValue();
-                            ToolUi fieldUi = field.as(ToolUi.class);
-                            Set<ObjectType> fieldTypes = field.getTypes();
-                            StringBuilder fieldTypeIds = new StringBuilder();
+                    for (Map.Entry<String, ObjectField> entry : fieldFilters.entrySet()) {
+                        String fieldName = entry.getKey();
+                        ObjectField field = entry.getValue();
+                        ToolUi fieldUi = field.as(ToolUi.class);
+                        Set<ObjectType> fieldTypes = field.getTypes();
+                        StringBuilder fieldTypeIds = new StringBuilder();
 
-                            if (!ObjectUtils.isBlank(fieldTypes)) {
-                                for (ObjectType fieldType : fieldTypes) {
-                                    fieldTypeIds.append(fieldType.getId()).append(",");
-                                }
-
-                                fieldTypeIds.setLength(fieldTypeIds.length() - 1);
+                        if (!ObjectUtils.isBlank(fieldTypes)) {
+                            for (ObjectType fieldType : fieldTypes) {
+                                fieldTypeIds.append(fieldType.getId()).append(",");
                             }
 
-                            String inputName = "f." + fieldName;
-                            String displayName = field.getDisplayName();
-                            String displayPrefix = (displayName.endsWith("?") ? displayName : displayName + ":") + " ";
-                            Map<String, String> filterValue = search.getFieldFilters().get(fieldName);
-                            String fieldValue = filterValue != null ? filterValue.get("") : null;
-                            String fieldInternalItemType = field.getInternalItemType();
+                            fieldTypeIds.setLength(fieldTypeIds.length() - 1);
+                        }
 
-                            writer.start("div", "class", "searchFilter searchFilter-" + fieldInternalItemType);
-                                if (ObjectField.BOOLEAN_TYPE.equals(fieldInternalItemType)) {
-                                    writer.writeStart("select", "name", inputName);
-                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
-                                        writer.writeStart("option",
-                                                "selected", "true".equals(fieldValue) ? "selected" : null,
-                                                "value", "true");
-                                            writer.writeHtml(displayPrefix);
-                                            writer.writeHtml("Yes");
-                                        writer.writeEnd();
+                        String inputName = "f." + fieldName;
+                        String displayName = field.getDisplayName();
+                        String displayPrefix = (displayName.endsWith("?") ? displayName : displayName + ":") + " ";
+                        Map<String, String> filterValue = search.getFieldFilters().get(fieldName);
+                        String fieldValue = filterValue != null ? filterValue.get("") : null;
+                        String fieldInternalItemType = field.getInternalItemType();
 
-                                        writer.writeStart("option",
-                                                "selected", "false".equals(fieldValue) ? "selected" : null,
-                                                "value", "false");
-                                            writer.writeHtml(displayPrefix);
-                                            writer.writeHtml("No");
-                                        writer.writeEnd();
+                        writer.start("div", "class", "searchFilter searchFilter-" + fieldInternalItemType);
+                            if (ObjectField.BOOLEAN_TYPE.equals(fieldInternalItemType)) {
+                                writer.writeStart("select", "name", inputName);
+                                    writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
+                                    writer.writeStart("option",
+                                            "selected", "true".equals(fieldValue) ? "selected" : null,
+                                            "value", "true");
+                                        writer.writeHtml(displayPrefix);
+                                        writer.writeHtml("Yes");
                                     writer.writeEnd();
 
-                                } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
+                                    writer.writeStart("option",
+                                            "selected", "false".equals(fieldValue) ? "selected" : null,
+                                            "value", "false");
+                                        writer.writeHtml(displayPrefix);
+                                        writer.writeHtml("No");
+                                    writer.writeEnd();
+                                writer.writeEnd();
+
+                            } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
+                                writer.writeTag("input",
+                                        "type", "text",
+                                        "class", "date",
+                                        "name", inputName,
+                                        "placeholder", displayName,
+                                        "value", fieldValue);
+
+                                writer.writeTag("input",
+                                        "type", "text",
+                                        "class", "date",
+                                        "name", inputName + ".x",
+                                        "placeholder", "(End)",
+                                        "value", filterValue != null ? filterValue.get("x") : null);
+
+                                writer.writeTag("input",
+                                        "type", "hidden",
+                                        "name", inputName + ".t",
+                                        "value", "d");
+
+                                writer.writeTag("input",
+                                        "type", "checkbox",
+                                        "name", inputName + ".m",
+                                        "value", true,
+                                        "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+
+                            } else if (ObjectField.NUMBER_TYPE.equals(fieldInternalItemType)) {
+                                writer.writeTag("input",
+                                        "type", "text",
+                                        "name", inputName,
+                                        "placeholder", displayName,
+                                        "value", fieldValue);
+
+                                writer.writeTag("input",
+                                        "type", "text",
+                                        "name", inputName + ".x",
+                                        "placeholder", "(Maximum)",
+                                        "value", filterValue != null ? filterValue.get("x") : null);
+
+                                writer.writeTag("input",
+                                        "type", "hidden",
+                                        "name", inputName + ".t",
+                                        "value", "n");
+
+                            } else if (ObjectField.TEXT_TYPE.equals(fieldInternalItemType)) {
+                                if (field.getValues() == null || field.getValues().isEmpty()) {
                                     writer.writeTag("input",
                                             "type", "text",
-                                            "class", "date",
                                             "name", inputName,
                                             "placeholder", displayName,
                                             "value", fieldValue);
 
                                     writer.writeTag("input",
-                                            "type", "text",
-                                            "class", "date",
-                                            "name", inputName + ".x",
-                                            "placeholder", "(End)",
-                                            "value", filterValue != null ? filterValue.get("x") : null);
-
-                                    writer.writeTag("input",
                                             "type", "hidden",
                                             "name", inputName + ".t",
-                                            "value", "d");
-
-                                    writer.writeTag("input",
-                                            "type", "checkbox",
-                                            "name", inputName + ".m",
-                                            "value", true,
-                                            "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
-
-                                } else if (ObjectField.NUMBER_TYPE.equals(fieldInternalItemType)) {
-                                    writer.writeTag("input",
-                                            "type", "text",
-                                            "name", inputName,
-                                            "placeholder", displayName,
-                                            "value", fieldValue);
-
-                                    writer.writeTag("input",
-                                            "type", "text",
-                                            "name", inputName + ".x",
-                                            "placeholder", "(Maximum)",
-                                            "value", filterValue != null ? filterValue.get("x") : null);
-
-                                    writer.writeTag("input",
-                                            "type", "hidden",
-                                            "name", inputName + ".t",
-                                            "value", "n");
-
-                                } else if (ObjectField.TEXT_TYPE.equals(fieldInternalItemType)) {
-                                    if (field.getValues() == null || field.getValues().isEmpty()) {
-                                        writer.writeTag("input",
-                                                "type", "text",
-                                                "name", inputName,
-                                                "placeholder", displayName,
-                                                "value", fieldValue);
-
-                                        writer.writeTag("input",
-                                                "type", "hidden",
-                                                "name", inputName + ".t",
-                                                "value", "t");
-
-                                    } else {
-                                        writer.writeStart("select", "name", inputName);
-                                            writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
-
-                                            for (ObjectField.Value v : field.getValues()) {
-                                                writer.writeStart("option",
-                                                        "selected", v.getValue().equals(fieldValue) ? "selected" : null,
-                                                        "value", v.getValue());
-                                                    writer.writeHtml(v.getLabel());
-                                                writer.writeEnd();
-                                            }
-                                        writer.end();
-                                    }
-
-                                    writer.writeTag("input",
-                                            "type", "checkbox",
-                                            "name", inputName + ".m",
-                                            "value", true,
-                                            "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+                                            "value", "t");
 
                                 } else {
-                                    State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
+                                    writer.writeStart("select", "name", inputName);
+                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
 
-                                    writer.writeTag("input",
-                                            "type", "text",
-                                            "class", "objectId",
-                                            "name", inputName,
-                                            "placeholder", displayName,
-                                            "data-additional-query", field.getPredicate(),
-                                            "data-editable", false,
-                                            "data-label", fieldState != null ? fieldState.getLabel() : null,
-                                            "data-pathed", ToolUi.isOnlyPathed(field),
-                                            "data-restorable", false,
-                                            "data-searcher-path", fieldUi.getInputSearcherPath(),
-                                            "data-typeIds", fieldTypeIds,
-                                            "value", fieldValue);
-                                    writer.writeTag("input",
-                                            "type", "checkbox",
-                                            "name", inputName + ".m",
-                                            "value", true,
-                                            "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+                                        for (ObjectField.Value v : field.getValues()) {
+                                            writer.writeStart("option",
+                                                    "selected", v.getValue().equals(fieldValue) ? "selected" : null,
+                                                    "value", v.getValue());
+                                                writer.writeHtml(v.getLabel());
+                                            writer.writeEnd();
+                                        }
+                                    writer.end();
                                 }
-                            writer.end();
-                        }
-                    writer.end();
-                }
+
+                                writer.writeTag("input",
+                                        "type", "checkbox",
+                                        "name", inputName + ".m",
+                                        "value", true,
+                                        "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+
+                            } else {
+                                State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
+
+                                writer.writeTag("input",
+                                        "type", "text",
+                                        "class", "objectId",
+                                        "name", inputName,
+                                        "placeholder", displayName,
+                                        "data-additional-query", field.getPredicate(),
+                                        "data-editable", false,
+                                        "data-label", fieldState != null ? fieldState.getLabel() : null,
+                                        "data-pathed", ToolUi.isOnlyPathed(field),
+                                        "data-restorable", false,
+                                        "data-searcher-path", fieldUi.getInputSearcherPath(),
+                                        "data-typeIds", fieldTypeIds,
+                                        "value", fieldValue);
+                                writer.writeTag("input",
+                                        "type", "checkbox",
+                                        "name", inputName + ".m",
+                                        "value", true,
+                                        "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
+                            }
+                        writer.end();
+                    }
+                writer.end();
 
                 writer.writeStart("div", "class", "searchFilter");
                     writer.writeTag("input",
@@ -499,8 +505,8 @@ writer.end();
 private static void addFieldFilters(
         Map<String, ObjectField> fieldFilters,
         String prefix,
-        ObjectType type) {
-    for (ObjectField field : type.getIndexedFields()) {
+        ObjectStruct struct) {
+    for (ObjectField field : ObjectStruct.Static.findIndexedFields(struct)) {
         ToolUi fieldUi = field.as(ToolUi.class);
 
         if (!fieldUi.isEffectivelyFilterable()) {

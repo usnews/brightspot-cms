@@ -588,58 +588,58 @@ public class Search extends Record {
             }
         }
 
-        if (selectedType != null) {
-            for (Map.Entry<String, Map<String, String>> entry : getFieldFilters().entrySet()) {
-                Map<String, String> value = entry.getValue();
+        for (Map.Entry<String, Map<String, String>> entry : getFieldFilters().entrySet()) {
+            Map<String, String> value = entry.getValue();
 
-                if (value == null) {
-                    continue;
-                }
+            if (value == null) {
+                continue;
+            }
 
-                String fieldName = selectedType.getInternalName() + "/" + entry.getKey();
+            String fieldName = selectedType != null ?
+                    selectedType.getInternalName() + "/" + entry.getKey() :
+                    entry.getKey();
 
-                if (ObjectUtils.to(boolean.class, value.get("m"))) {
-                    query.and(fieldName + " = missing");
+            if (ObjectUtils.to(boolean.class, value.get("m"))) {
+                query.and(fieldName + " = missing");
+
+            } else {
+                String fieldValue = value.get("");
+                String queryType = value.get("t");
+
+                if ("d".equals(queryType)) {
+                    Date start = ObjectUtils.to(Date.class, fieldValue);
+                    Date end = ObjectUtils.to(Date.class, value.get("x"));
+
+                    if (start != null) {
+                        query.and(fieldName + " >= ?", start);
+                    }
+
+                    if (end != null) {
+                        query.and(fieldName + " <= ?", end);
+                    }
+
+                } else if ("n".equals(queryType)) {
+                    Double minimum = ObjectUtils.to(Double.class, fieldValue);
+                    Double maximum = ObjectUtils.to(Double.class, value.get("x"));
+
+                    if (minimum != null) {
+                        query.and(fieldName + " >= ?", fieldValue);
+                    }
+
+                    if (maximum != null) {
+                        query.and(fieldName + " <= ?", maximum);
+                    }
 
                 } else {
-                    String fieldValue = value.get("");
-                    String queryType = value.get("t");
+                    if (fieldValue == null) {
+                        continue;
+                    }
 
-                    if ("d".equals(queryType)) {
-                        Date start = ObjectUtils.to(Date.class, fieldValue);
-                        Date end = ObjectUtils.to(Date.class, value.get("x"));
-
-                        if (start != null) {
-                            query.and(fieldName + " >= ?", start);
-                        }
-
-                        if (end != null) {
-                            query.and(fieldName + " <= ?", end);
-                        }
-
-                    } else if ("n".equals(queryType)) {
-                        Double minimum = ObjectUtils.to(Double.class, fieldValue);
-                        Double maximum = ObjectUtils.to(Double.class, value.get("x"));
-
-                        if (minimum != null) {
-                            query.and(fieldName + " >= ?", fieldValue);
-                        }
-
-                        if (maximum != null) {
-                            query.and(fieldName + " <= ?", maximum);
-                        }
+                    if ("t".equals(queryType)) {
+                        query.and(fieldName + " matches ?", fieldValue);
 
                     } else {
-                        if (fieldValue == null) {
-                            continue;
-                        }
-
-                        if ("t".equals(queryType)) {
-                            query.and(fieldName + " matches ?", fieldValue);
-
-                        } else {
-                            query.and(fieldName + " = ?", fieldValue);
-                        }
+                        query.and(fieldName + " = ?", fieldValue);
                     }
                 }
             }

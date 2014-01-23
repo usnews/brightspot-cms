@@ -91,10 +91,24 @@ public abstract class Content extends Record {
         @InternalName("cms.content.trashed")
         private Boolean trash;
 
-        private @Indexed @InternalName(PUBLISH_DATE_FIELD) Date publishDate;
-        private @Indexed @InternalName(PUBLISH_USER_FIELD) ToolUser publishUser;
-        private @Indexed @InternalName(UPDATE_DATE_FIELD) Date updateDate;
-        private @Indexed @InternalName(UPDATE_USER_FIELD) ToolUser updateUser;
+        @Indexed
+        @InternalName(PUBLISH_DATE_FIELD)
+        @ToolUi.Filterable
+        private Date publishDate;
+
+        @Indexed
+        @InternalName(PUBLISH_USER_FIELD)
+        @ToolUi.Filterable(false)
+        private ToolUser publishUser;
+
+        @Indexed
+        @InternalName(UPDATE_DATE_FIELD)
+        private Date updateDate;
+
+        @Indexed
+        @InternalName(UPDATE_USER_FIELD)
+        @ToolUi.Filterable(false)
+        private ToolUser updateUser;
 
         /**
          * Returns {@code true} if this content is a draft.
