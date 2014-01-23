@@ -840,7 +840,7 @@ public class SearchAdvancedQuery extends PageServlet {
                 return CompoundPredicate.combine(
                         "AND",
                         from == null ? null : createPredicateWithOperatorAndValue(pathedField, ">=", from),
-                        to == null ? null : createPredicateWithOperatorAndValue(pathedField, ">=", to));
+                        to == null ? null : createPredicateWithOperatorAndValue(pathedField, "<=", to));
             }
         };
 
