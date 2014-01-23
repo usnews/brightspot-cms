@@ -897,7 +897,7 @@ public class SearchAdvancedQuery extends PageServlet {
                         operator,
                         false,
                         key.toString(),
-                        Arrays.asList(value));
+                        value instanceof Iterable ? (Iterable<?>) value : Arrays.asList(value));
             }
         }
     }
