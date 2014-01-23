@@ -116,7 +116,7 @@ public class Search extends Record {
 
             } else if (name.startsWith(FIELD_FILTER_PARAMETER_PREFIX)) {
                 String filterName = name.substring(FIELD_FILTER_PARAMETER_PREFIX.length());
-                int dotAt = filterName.indexOf('.');
+                int dotAt = filterName.lastIndexOf('.');
                 String filterValueKey;
 
                 if (dotAt < 0) {
@@ -124,7 +124,13 @@ public class Search extends Record {
 
                 } else {
                     filterValueKey = filterName.substring(dotAt + 1);
-                    filterName = filterName.substring(0, dotAt);
+
+                    if (filterValueKey.length() > 1) {
+                        filterValueKey = "";
+
+                    } else {
+                        filterName = filterName.substring(0, dotAt);
+                    }
                 }
 
                 Map<String, String> filterValue = getFieldFilters().get(filterName);
@@ -597,11 +603,6 @@ public class Search extends Record {
 
                 } else {
                     String fieldValue = value.get("");
-
-                    if (fieldValue == null) {
-                        continue;
-                    }
-
                     String queryType = value.get("t");
 
                     if ("d".equals(queryType)) {
@@ -628,11 +629,17 @@ public class Search extends Record {
                             query.and(fieldName + " <= ?", maximum);
                         }
 
-                    } else if ("t".equals(queryType)) {
-                        query.and(fieldName + " matches ?", fieldValue);
-
                     } else {
-                        query.and(fieldName + " = ?", fieldValue);
+                        if (fieldValue == null) {
+                            continue;
+                        }
+
+                        if ("t".equals(queryType)) {
+                            query.and(fieldName + " matches ?", fieldValue);
+
+                        } else {
+                            query.and(fieldName + " = ?", fieldValue);
+                        }
                     }
                 }
             }
