@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -466,6 +467,21 @@ public class SearchAdvancedQuery extends PageServlet {
         }
     }
 
+    private enum TaxonOption {
+        C("Or Its Children"),
+        D("Or Its Descendants");
+
+        private final String label;
+
+        private TaxonOption(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+    }
+
     private enum ComparisonOperator {
 
         M("Contains Text") {
@@ -528,6 +544,37 @@ public class SearchAdvancedQuery extends PageServlet {
                             Query.fromAll().where("_id = ?", page.param(UUID.class, valueParam)).first(),
                             "name", valueParam);
 
+                    boolean taxon = false;
+
+                    for (ObjectType t : field.getTypes()) {
+                        if (t.getGroups().contains(Taxon.class.getName())) {
+                            taxon = true;
+                            break;
+                        }
+                    }
+
+                    if (taxon) {
+                        String taxonParam = valueParam + "x";
+                        TaxonOption taxonOption = page.param(TaxonOption.class, taxonParam);
+
+                        page.writeHtml(" ");
+
+                        page.writeStart("select",
+                                "name", taxonParam);
+                            page.writeStart("option");
+                                page.writeHtml("Only");
+                            page.writeEnd();
+
+                            for (TaxonOption o : TaxonOption.values()) {
+                                page.writeStart("option",
+                                        "selected", o.equals(taxonOption) ? "selected" : null,
+                                        "value", o.name());
+                                    page.writeHtml(o.getLabel());
+                                page.writeEnd();
+                            }
+                        page.writeEnd();
+                    }
+
                 } else {
                     page.writeTag("input",
                             "type", "text",
@@ -542,10 +589,43 @@ public class SearchAdvancedQuery extends PageServlet {
                     String valueParam,
                     PathedField pathedField) {
 
-                return createPredicateWithOperatorAndValue(
-                        pathedField,
-                        "=",
-                        page.param(String.class, valueParam));
+                TaxonOption taxonOption = page.param(TaxonOption.class, valueParam + "x");
+
+                if (taxonOption != null) {
+                    Taxon top = Query.from(Taxon.class).where("_id = ?", page.param(UUID.class, valueParam)).first();
+                    Set<UUID> values = new HashSet<UUID>();
+
+                    if (top != null) {
+                        values.add(top.getState().getId());
+
+                        if (taxonOption.equals(TaxonOption.D)) {
+                            addChildren(values, top);
+
+                        } else {
+                            for (Taxon c : top.getChildren()) {
+                                values.add(c.getState().getId());
+                            }
+                        }
+                    }
+
+                    return createPredicateWithOperatorAndValue(
+                            pathedField,
+                            "=",
+                            values);
+
+                } else {
+                    return createPredicateWithOperatorAndValue(
+                            pathedField,
+                            "=",
+                            page.param(String.class, valueParam));
+                }
+            }
+
+            private void addChildren(Set<UUID> values, Taxon parent) {
+                for (Taxon c : parent.getChildren()) {
+                    values.add(c.getState().getId());
+                    addChildren(values, c);
+                }
             }
         },
 
