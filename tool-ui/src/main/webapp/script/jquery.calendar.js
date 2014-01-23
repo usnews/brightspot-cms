@@ -173,7 +173,6 @@ getCalendar = function() {
         var $hour = $('<select/>', { 'class': 'hour' });
         var hourChange = function() {
             $calendar.data('selectedDate').setHours(($meridiem.val() === 'PM' ? 12 : 0) + parseInt($hour.val(), 10));
-            updateInput();
         };
 
         $meridiem.append($('<option/>', { 'text': 'AM', 'value': 'AM' }));
@@ -195,7 +194,6 @@ getCalendar = function() {
         }
         $minute.change(function() {
             $calendar.data('selectedDate').setMinutes($minute.val());
-            updateInput();
         });
 
         $time.append($hour);
@@ -203,18 +201,38 @@ getCalendar = function() {
         $time.append($meridiem);
         $calendar.append($time);
 
-        // For emptying out the input.
-        var $empty = $('<span/>', { 'class': 'empty' });
-        $empty.click(function() {
-            $calendar.data('selectedDate', new Date());
-            var $input = $calendar.data('$input');
-            $input.val('');
-            $input.change();
-            $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
-            $calendar.data('$calendarButton').text($input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');
+        // For changing the input.
+        var $actions = $('<div/>', {
+            'class': 'calendar_actions'
         });
 
-        $calendar.append($empty);
+        $actions.append($('<span/>', {
+            'class': 'calendar_set',
+            'text': 'Set',
+            'click': function() {
+                var $input = $calendar.data('$input');
+
+                updateInput();
+                $calendar.popup('close');
+            }
+        }));
+
+        $actions.append($('<span/>', {
+            'class': 'calendar_clear',
+            'text': 'Clear',
+            'click': function() {
+                var $input = $calendar.data('$input');
+
+                $calendar.data('selectedDate', new Date());
+                $input.val('');
+                $input.change();
+                $calendar.data('$calendarButton').toggleClass('calendarButton-empty', !$input.val());
+                $calendar.data('$calendarButton').text($input.val() || $input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');
+                $calendar.popup('close');
+            }
+        }));
+
+        $calendar.append($actions);
 
         $("body").append($calendar);
         $calendar.popup();
@@ -225,7 +243,6 @@ getCalendar = function() {
             var date = $(this).data('date');
             $calendar.data('selectedDate', date);
             updateCalendarView(date);
-            updateInput(date);
         });
     }
 
