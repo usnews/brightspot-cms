@@ -142,7 +142,8 @@ public class ToolUi extends Modification<Object> {
 
         ObjectField field = (ObjectField) object;
 
-        if (isHidden() ||
+        if (field.isDeprecated() ||
+                isHidden() ||
                 !ObjectField.RECORD_TYPE.equals(field.getInternalItemType()) ||
                 field.isEmbedded()) {
             return false;
