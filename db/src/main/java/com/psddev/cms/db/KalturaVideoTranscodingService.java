@@ -37,10 +37,12 @@ import com.psddev.dari.util.VideoStorageItem;
 public class KalturaVideoTranscodingService implements VideoTranscodingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(KalturaVideoTranscodingService.class);
     public static final String NAME = "kaltura";
+
     @Override
     public String getSessionId() {
         return KalturaSessionUtils.getKalturaSessionId();
     }
+
     @Override
     public boolean updateThumbnailsInCms() {
         try {
@@ -233,6 +235,19 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
         } catch (Exception e) {
             LOGGER.error("updatePlayList failed", e);
             return false;
+        }
+    }
+
+    @Override
+    public void closeSession(String sessionId) {
+        try {
+            // Step1: Start kaltura session
+            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
+            KalturaClient client = new KalturaClient(kalturaConfig);
+            client.setSessionId(sessionId);
+            KalturaSessionUtils.closeSession(client);
+        } catch (Exception e) {
+            LOGGER.error("Failed to close kaltura session", e);
         }
     }
 }
