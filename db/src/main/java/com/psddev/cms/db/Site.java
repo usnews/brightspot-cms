@@ -314,10 +314,25 @@ public class Site extends Record {
     /** Modification that adds object accessibility information per site. */
     public static class ObjectModification extends Modification<Object> {
 
-        private @Indexed @InternalName(OWNER_FIELD) Site owner;
-        private @Indexed @InternalName(IS_GLOBAL_FIELD) Boolean isGlobal;
-        private @Indexed @InternalName(BLACKLIST_FIELD) Set<Site> blacklist;
-        private @Indexed @InternalName(CONSUMERS_FIELD) Set<Site> consumers;
+        @Indexed
+        @InternalName(OWNER_FIELD)
+        @ToolUi.Hidden
+        private Site owner;
+
+        @Indexed
+        @InternalName(IS_GLOBAL_FIELD)
+        @ToolUi.Hidden
+        private Boolean isGlobal;
+
+        @Indexed
+        @InternalName(BLACKLIST_FIELD)
+        @ToolUi.Hidden
+        private Set<Site> blacklist;
+
+        @Indexed
+        @InternalName(CONSUMERS_FIELD)
+        @ToolUi.Hidden
+        private Set<Site> consumers;
 
         /** Returns the owner that controls this object. */
         public Site getOwner() {

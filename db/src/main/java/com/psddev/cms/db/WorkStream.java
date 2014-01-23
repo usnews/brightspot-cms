@@ -224,6 +224,7 @@ public class WorkStream extends Record {
     public static class Data extends Modification<Object> {
 
         @Indexed
+        @ToolUi.Hidden
         private Set<String> completeIds;
 
         /**

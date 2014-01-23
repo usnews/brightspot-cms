@@ -358,16 +358,20 @@ public class Directory extends Record {
     public static final class ObjectModification extends Modification<Object> {
 
         @InternalName(PATHS_MODE_FIELD)
+        @ToolUi.Hidden
         private PathsMode pathsMode;
 
         @InternalName(OBJECT_NAME_FIELD)
+        @ToolUi.Hidden
         private String objectName;
 
         @Indexed(unique = true)
         @InternalName(PATHS_FIELD)
+        @ToolUi.Hidden
         private List<String> paths;
 
         @InternalName(PATH_TYPES_FIELD)
+        @ToolUi.Hidden
         private Map<String, PathType> pathTypes;
 
         /** Returns the paths mode. */

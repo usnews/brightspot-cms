@@ -213,7 +213,10 @@ public class Template extends Page {
     /** Modification that adds template information. */
     public static final class ObjectModification extends Modification<Object> {
 
-        private @Indexed @InternalName(DEFAULT_FIELD) Template defaultTemplate;
+        @Deprecated
+        @Indexed
+        @InternalName(DEFAULT_FIELD)
+        private Template defaultTemplate;
 
         private ObjectModification() {
         }
