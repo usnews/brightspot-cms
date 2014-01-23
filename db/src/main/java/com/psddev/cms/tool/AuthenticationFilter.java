@@ -150,6 +150,12 @@ public class AuthenticationFilter extends AbstractFilter {
             domainlessCookie.setSecure(JspUtils.isSecure(request));
             domainlessCookie.setPath("/");
             response.addCookie(domainlessCookie);
+            // If a session with online OVP exists..close it when user logs off
+            if (VideoTranscodingServiceFactory.getDefault() != null) {
+                VideoTranscodingServiceFactory.getDefault().closeSession((String) request.getSession().getAttribute(OVP_SESSION_ID));
+            }
+            //Invalidate the session
+            request.getSession().invalidate();
         }
 
         /**
