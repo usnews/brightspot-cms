@@ -126,20 +126,27 @@ public class SearchAdvancedQuery extends PageServlet {
                 page.writeEnd();
             page.writeEnd();
 
-            if (page.param(String.class, "action-search") != null) {
-                String pageId = page.createId();
+            String pageId = page.createId();
 
-                page.writeStart("div", "id", pageId);
-                page.writeEnd();
+            page.writeStart("div", "id", pageId);
+            page.writeEnd();
 
-                page.writeStart("script", "type", "text/javascript");
-                    page.writeRaw("var $page = $('#" + pageId + "'),");
-                    page.writeRaw("$textarea = $page.popup('source').closest('.searchFilter-advancedQuery').find('textarea');");
+            page.writeStart("script", "type", "text/javascript");
+                page.writeRaw("var $page = $('#" + pageId + "'),");
+                page.writeRaw("$edit = $page.popup('source');");
+
+                page.writeRaw("$edit.attr('href', '");
+                page.writeRaw(StringUtils.escapeJavaScript(page.url("", "action-search", null)));
+                page.writeRaw("');");
+
+                if (page.param(String.class, "action-search") != null) {
+                    page.writeRaw("var $textarea = $edit.closest('.searchFilter-advancedQuery').find('textarea');");
+
                     page.writeRaw("$textarea.val('" + StringUtils.escapeJavaScript(globalPredicate != null ? globalPredicate.toString() : "") + "');");
                     page.writeRaw("$textarea.change();");
                     page.writeRaw("$page.popup('close');");
-                page.writeEnd();
-            }
+                }
+            page.writeEnd();
         page.writeFooter();
     }
 
