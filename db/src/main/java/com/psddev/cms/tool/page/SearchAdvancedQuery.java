@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -198,16 +199,23 @@ public class SearchAdvancedQuery extends PageServlet {
             String comparisonOperatorParam = paramPrefix + ".co";
             String comparisonValueParam = paramPrefix + ".cv";
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
-            ObjectType comparisonType = ObjectType.getInstance(page.param(UUID.class, comparisonTypeParam));
+            Set<UUID> comparisonTypeIds = new HashSet<UUID>();
+            Set<ObjectType> comparisonTypes = new HashSet<ObjectType>();
+
+            for (UUID id : page.params(UUID.class, comparisonTypeParam)) {
+                comparisonTypeIds.add(id);
+                comparisonTypes.add(ObjectType.getInstance(id));
+            }
+
             String comparisonPath = page.param(String.class, comparisonPathParam);
             ComparisonOperator comparisonOperator = page.param(ComparisonOperator.class, comparisonOperatorParam);
             PathedField comparisonPathedField = null;
             ObjectField comparisonField = null;
 
             page.writeHtml(" ");
-            page.writeTypeSelect(
+            page.writeMultipleTypeSelect(
                     null,
-                    comparisonType,
+                    comparisonTypes,
                     "Any Types",
                     "class", "autoSubmit",
                     "name", comparisonTypeParam,
@@ -222,31 +230,46 @@ public class SearchAdvancedQuery extends PageServlet {
                     page.writeHtml("Any Fields");
                 page.writeEnd();
 
-                if (comparisonType != null) {
-                    page.writeStart("optgroup", "label", comparisonType.getLabel());
-                        for (PathedField pf : getPathedFields(comparisonType)) {
-                            String path = pf.getPath();
+                if (!comparisonTypes.isEmpty()) {
+                    Set<PathedField> pathedFields = null;
 
-                            if (comparisonField == null &&
-                                    path.equals(comparisonPath)) {
-                                List<ObjectField> pfs = pf.getFields();
+                    for (ObjectType t : comparisonTypes) {
+                        Set<PathedField> pf = getPathedFields(t);
 
-                                if (!pfs.isEmpty()) {
-                                    comparisonPathedField = pf;
-                                    comparisonField = pfs.get(pfs.size() - 1);
-                                }
-                            }
+                        if (pathedFields == null) {
+                            pathedFields = pf;
 
-                            page.writeStart("option",
-                                    "selected", path.equals(comparisonPath) ? "selected" : null,
-                                    "value", path);
-                                page.writeHtml(pf.getDisplayName());
-                            page.writeEnd();
+                        } else {
+                            pathedFields.retainAll(pf);
                         }
-                    page.writeEnd();
+                    }
+
+                    if (!pathedFields.isEmpty()) {
+                        page.writeStart("optgroup", "label", "Type-Specific Fields");
+                            for (PathedField pf : pathedFields) {
+                                String path = pf.getPath();
+
+                                if (comparisonField == null &&
+                                        path.equals(comparisonPath)) {
+                                    List<ObjectField> pfs = pf.getFields();
+
+                                    if (!pfs.isEmpty()) {
+                                        comparisonPathedField = pf;
+                                        comparisonField = pfs.get(pfs.size() - 1);
+                                    }
+                                }
+
+                                page.writeStart("option",
+                                        "selected", path.equals(comparisonPath) ? "selected" : null,
+                                        "value", path);
+                                    page.writeHtml(pf.getDisplayName());
+                                page.writeEnd();
+                            }
+                        page.writeEnd();
+                    }
                 }
 
-                page.writeStart("optgroup", "label", "Global");
+                page.writeStart("optgroup", "label", "Global Fields");
                     for (PathedField pf : getPathedFields(environment)) {
                         String path = pf.getPath();
 
@@ -311,7 +334,7 @@ public class SearchAdvancedQuery extends PageServlet {
 
             return CompoundPredicate.combine(
                     "AND",
-                    comparisonType == null ? null : new ComparisonPredicate("=", false, "_type", Arrays.asList(comparisonType.getId())),
+                    comparisonTypeIds.isEmpty() ? null : new ComparisonPredicate("=", false, "_type", comparisonTypeIds),
                     comparisonOperator.createPredicate(page, comparisonValueParam, comparisonPathedField));
 
         } else if (predicateType.getCompoundOperator() != null) {
@@ -355,15 +378,14 @@ public class SearchAdvancedQuery extends PageServlet {
         }
     }
 
-    private List<PathedField> getPathedFields(ObjectStruct struct) {
-        List<PathedField> pathedFields = new ArrayList<PathedField>();
+    private Set<PathedField> getPathedFields(ObjectStruct struct) {
+        Set<PathedField> pathedFields = new TreeSet<PathedField>();
 
         addPathedFields(pathedFields, null, struct);
-        Collections.sort(pathedFields);
         return pathedFields;
     }
 
-    private void addPathedFields(List<PathedField> pathedFields, List<ObjectField> prefix, ObjectStruct struct) {
+    private void addPathedFields(Set<PathedField> pathedFields, List<ObjectField> prefix, ObjectStruct struct) {
         List<ObjectField> fields = struct.getFields();
         Set<String> indexedFields = new HashSet<String>();
 
@@ -462,6 +484,24 @@ public class SearchAdvancedQuery extends PageServlet {
         @Override
         public int compareTo(PathedField other) {
             return getDisplayName().compareTo(other.getDisplayName());
+        }
+
+        @Override
+        public int hashCode() {
+            return getPath().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+
+            } else if (other instanceof PathedField) {
+                return getPath().equals(((PathedField) other).getPath());
+
+            } else {
+                return false;
+            }
         }
     }
 
