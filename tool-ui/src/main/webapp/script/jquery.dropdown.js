@@ -155,6 +155,10 @@ $.plugin2('dropDown', {
             $openList = null;
             $markerContainer.hide();
             $listContainer.hide();
+
+            if (isMultiple) {
+                $original.change();
+            }
         });
 
         $list.bind('dropDown-hover', function(event, $item) {
@@ -228,7 +232,6 @@ $.plugin2('dropDown', {
                 }
 
                 $label.trigger('dropDown-update');
-                $original.change();
 
                 return false;
 
