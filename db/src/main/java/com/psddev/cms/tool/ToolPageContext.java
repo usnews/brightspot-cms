@@ -1477,6 +1477,31 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes a {@code <select>} tag that allows the user to pick multiple
+     * content types.
+     *
+     * @param types Types that the user is allowed to select from.
+     * If {@code null}, all content types will be available.
+     * @param selectedTypes Types that should be initially selected.
+     * @param allLabel Label for the option that selects all types.
+     * If {@code null}, the option won't be available.
+     * @param attributes Attributes for the {@code <select>} tag.
+     */
+    public void writeMultipleTypeSelect(
+            Iterable<ObjectType> types,
+            Collection<ObjectType> selectedTypes,
+            String allLabel,
+            Object... attributes) throws IOException {
+
+        writeTypeSelectReally(
+                true,
+                types,
+                selectedTypes != null ? selectedTypes : Collections.<ObjectType>emptySet(),
+                allLabel,
+                attributes);
+    }
+
+    /**
      * Writes a {@code <select>} tag that allows the user to pick a content
      * type.
      *
@@ -1490,6 +1515,21 @@ public class ToolPageContext extends WebPageContext {
     public void writeTypeSelect(
             Iterable<ObjectType> types,
             ObjectType selectedType,
+            String allLabel,
+            Object... attributes) throws IOException {
+
+        writeTypeSelectReally(
+                false,
+                types,
+                selectedType != null ? Arrays.asList(selectedType) : Collections.<ObjectType>emptySet(),
+                allLabel,
+                attributes);
+    }
+
+    private void writeTypeSelectReally(
+            boolean multiple,
+            Iterable<ObjectType> types,
+            Collection<ObjectType> selectedTypes,
             String allLabel,
             Object... attributes) throws IOException {
 
@@ -1531,19 +1571,21 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        writeStart("select", attributes);
+        writeStart("select",
+                "multiple", multiple ? "multiple" : null,
+                attributes);
 
             if (allLabel != null) {
                 writeStart("option", "value", "").writeHtml(allLabel).writeEnd();
             }
 
             if (typeGroups.size() == 1) {
-                writeTypeSelectGroup(selectedType, typeGroups.values().iterator().next());
+                writeTypeSelectGroup(selectedTypes, typeGroups.values().iterator().next());
 
             } else {
                 for (Map.Entry<String, List<ObjectType>> entry : typeGroups.entrySet()) {
                     writeStart("optgroup", "label", entry.getKey());
-                        writeTypeSelectGroup(selectedType, entry.getValue());
+                        writeTypeSelectGroup(selectedTypes, entry.getValue());
                     writeEnd();
                 }
             }
@@ -1551,14 +1593,14 @@ public class ToolPageContext extends WebPageContext {
         writeEnd();
     }
 
-    private void writeTypeSelectGroup(ObjectType selectedType, List<ObjectType> types) throws IOException {
+    private void writeTypeSelectGroup(Collection<ObjectType> selectedTypes, List<ObjectType> types) throws IOException {
         String previousLabel = null;
 
         for (ObjectType type : types) {
             String label = Static.getObjectLabel(type);
 
             writeStart("option",
-                    "selected", type.equals(selectedType) ? "selected" : null,
+                    "selected", selectedTypes.contains(type) ? "selected" : null,
                     "value", type.getId());
                 writeHtml(label);
                 if (label.equals(previousLabel)) {
