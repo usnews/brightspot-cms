@@ -51,7 +51,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         authPolicy = new ToolAuthenticationPolicy();
                     }
                     try {
-                        authPolicy.authenticate(user.getEmail(), currentPassword);
+                        authPolicy.authenticate(user.getEmail() == null ? user.getUsername() : user.getEmail(), currentPassword);
                     } catch (AuthenticationException authError) {
                         state.addError(field, "Invalid current password!");
                     }
