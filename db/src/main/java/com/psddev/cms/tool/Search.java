@@ -412,25 +412,9 @@ public class Search extends Record {
         boolean metricSort = false;
 
         if (RELEVANT_SORT_VALUE.equals(sort)) {
-            if (isAllSearchable && selectedType != null) {
-                List<String> labelFields = selectedType.getLabelFields();
-
-                if (labelFields != null && !labelFields.isEmpty()) {
-                    Set<String> indexedFields = new HashSet<String>();
-
-                    for (ObjectIndex index : selectedType.getIndexes()) {
-                        indexedFields.addAll(index.getFields());
-                    }
-
-                    for (ObjectField field : selectedType.getFields()) {
-                        String fieldName = field.getInternalName();
-
-                        if (indexedFields.contains(fieldName) &&
-                                labelFields.contains(fieldName)) {
-                            query.sortRelevant(RELEVANT_SORT_LABEL_BOOST, field.getUniqueName() + " ~= ?", queryString);
-                        }
-                    }
-                }
+            if (isAllSearchable) {
+                query.sortRelevant(100.0, "_label = ?", queryString);
+                query.sortRelevant(10.0, "_label matches ?", queryString);
             }
 
         } else if (sort != null) {
