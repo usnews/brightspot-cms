@@ -1,6 +1,7 @@
 package com.psddev.cms.tool;
 
 import java.io.StringWriter;
+import java.util.UUID;
 
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlWriter;
@@ -32,7 +33,8 @@ public class PageWidget extends Widget {
         writer.writeStart("div", "class", "frame");
             writer.writeStart("a",
                     "href", page.toolUrl(getTool(), path,
-                            "id", state != null ? state.getId() : null));
+                            "id", state != null ? state.getId() : null,
+                            "historyId", page.param(UUID.class, "historyId")));
             writer.writeEnd();
         writer.writeEnd();
 
