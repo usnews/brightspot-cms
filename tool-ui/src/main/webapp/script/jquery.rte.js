@@ -846,31 +846,6 @@ var Rte = wysihtml5.Editor.extend({
                 openLinkDialog($(event.target).closest('a'));
             });
 
-            // Keyboard navigation into comments should skip over them.
-            (function() {
-                var lastRange,
-                        inComment;
-
-                $(composer.element).keydown(function() {
-                    lastRange = composer.selection.getRange().cloneRange();
-                    inComment = $(lastRange.commonAncestorContainer).closest('.rte-comment').length > 0;
-                });
-
-                $(composer.element).keyup(function() {
-                    var range,
-                            $comment;
-
-                    if (!inComment) {
-                        range = composer.selection.getRange();
-                        $comment = $(range.commonAncestorContainer).closest('.rte-comment');
-
-                        if ($comment.length > 0) {
-                            composer.selection[lastRange && lastRange.compareBoundaryPoints(range.START_TO_START, range) > 0 ? 'setBefore' : 'setAfter']($comment[0]);
-                        }
-                    }
-                });
-            })();
-
             // Track changes.
             (function() {
                 var down = false,
