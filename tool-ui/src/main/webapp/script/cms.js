@@ -969,6 +969,11 @@ $doc.ready(function() {
                 }
             }
         }));
+
+        $('.toolSearch button').bind('click', function() {
+            $('.toolSearch :text').focus();
+            return false;
+        });
     }());
 
     // Create tabs if the publishing widget contains both the workflow
