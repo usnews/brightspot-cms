@@ -18,6 +18,10 @@ public class RichTextDatabase extends ForwardingDatabase {
     // --- ForwardingDatabase support ---
 
     public <T> T clean(T object) {
+        if (object == null) {
+            return null;
+        }
+
         State state = State.getInstance(object);
         ObjectType type = state.getType();
 
