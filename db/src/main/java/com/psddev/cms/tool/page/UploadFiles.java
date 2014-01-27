@@ -20,6 +20,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
@@ -50,6 +51,7 @@ import com.psddev.dari.util.StringUtils;
 @SuppressWarnings("serial")
 public class UploadFiles extends PageServlet {
 
+    private static final String CONTAINER_ID_PARAMETER = "containerId";
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFiles.class);
 
     @Override
@@ -62,6 +64,7 @@ public class UploadFiles extends PageServlet {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
         Exception postError = null;
         ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
+        String containerId = page.param(String.class, "containerId");
 
         if (page.isFormPost()) {
             try {
@@ -234,6 +237,7 @@ public class UploadFiles extends PageServlet {
                         }
 
                         state.put(previewField.getInternalName(), item);
+                        state.as(BulkUploadDraft.class).setContainerId(containerId);
                         page.publish(state);
 
                         String previewUrl = null;
@@ -309,6 +313,11 @@ public class UploadFiles extends PageServlet {
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", page.url(null));
+
+            page.writeTag("input",
+                    "type", "hidden",
+                    "name", CONTAINER_ID_PARAMETER,
+                    "value", containerId);
 
             for (ObjectType type : types) {
                 page.writeTag("input", "type", "hidden", "name", "typeId", "value", type.getId());

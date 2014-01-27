@@ -1,5 +1,6 @@
 <%@ page import="
 
+com.psddev.cms.db.BulkUploadDraft,
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Renderer,
 com.psddev.cms.db.ToolUi,
@@ -120,11 +121,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
     }
 
+    state.as(BulkUploadDraft.class).setContainer(true);
     state.putValue(fieldName, fieldValue);
     return;
 }
 
 // --- Presentation ---
+
+UUID containerObjectId = State.getInstance(request.getAttribute("containerObject")).getId();
 
 if (!isValueExternal) {
     Set<ObjectType> bulkUploadTypes = new HashSet<ObjectType>();
@@ -192,7 +196,7 @@ if (!isValueExternal) {
 
             wp.writeStart("a",
                     "class", "action-upload",
-                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery),
+                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery, "containerId", containerObjectId),
                     "target", "uploadFiles");
                 wp.writeHtml("Upload Files");
             wp.writeEnd();
@@ -451,7 +455,7 @@ if (!isValueExternal) {
         if (previewable) {
             writer.start("a",
                     "class", "action-upload",
-                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery),
+                    "href", wp.url("/content/uploadFiles?" + typeIdsQuery, "containerId", containerObjectId),
                     "target", "uploadFiles");
                 writer.html("Upload Files");
             writer.end();
