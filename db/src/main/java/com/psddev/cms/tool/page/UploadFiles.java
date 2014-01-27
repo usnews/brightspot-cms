@@ -3,6 +3,7 @@ package com.psddev.cms.tool.page;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -13,12 +14,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
@@ -70,16 +71,7 @@ public class UploadFiles extends PageServlet {
 
                 ErrorUtils.errorIfNull(selectedType, "type");
 
-                ObjectField previewField = selectedType.getField(selectedType.getPreviewField());
-
-                if (previewField == null) {
-                    for (ObjectField field : selectedType.getFields()) {
-                        if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
-                            previewField = field;
-                            break;
-                        }
-                    }
-                }
+                ObjectField previewField = getPreviewField(selectedType);
 
                 if (previewField == null) {
                     throw new IllegalStateException("No file field!");
@@ -369,7 +361,20 @@ public class UploadFiles extends PageServlet {
                             "name", name,
                             "value", State.getInstance(common).getId());
 
-                    page.writeFormFields(common);
+                    ObjectField previewField = getPreviewField(type);
+                    HttpServletRequest request = page.getRequest();
+                    Object oldExcludes = request.getAttribute("excludeFields");
+
+                    try {
+                        if (previewField != null) {
+                            request.setAttribute("excludeFields", Arrays.asList(previewField.getInternalName()));
+                        }
+
+                        page.writeFormFields(common);
+
+                    } finally {
+                        request.setAttribute("excludeFields", oldExcludes);
+                    }
                 page.writeEnd();
             }
 
@@ -378,5 +383,20 @@ public class UploadFiles extends PageServlet {
             page.writeEnd();
 
         page.writeEnd();
+    }
+
+    private ObjectField getPreviewField(ObjectType type) {
+        ObjectField previewField = type.getField(type.getPreviewField());
+
+        if (previewField == null) {
+            for (ObjectField field : type.getFields()) {
+                if (ObjectField.FILE_TYPE.equals(field.getInternalItemType())) {
+                    previewField = field;
+                    break;
+                }
+            }
+        }
+
+        return previewField;
     }
 }
