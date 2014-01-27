@@ -1483,21 +1483,18 @@ public class ToolPageContext extends WebPageContext {
      * @param types Types that the user is allowed to select from.
      * If {@code null}, all content types will be available.
      * @param selectedTypes Types that should be initially selected.
-     * @param allLabel Label for the option that selects all types.
-     * If {@code null}, the option won't be available.
      * @param attributes Attributes for the {@code <select>} tag.
      */
     public void writeMultipleTypeSelect(
             Iterable<ObjectType> types,
             Collection<ObjectType> selectedTypes,
-            String allLabel,
             Object... attributes) throws IOException {
 
         writeTypeSelectReally(
                 true,
                 types,
                 selectedTypes != null ? selectedTypes : Collections.<ObjectType>emptySet(),
-                allLabel,
+                null,
                 attributes);
     }
 

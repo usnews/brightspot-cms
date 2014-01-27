@@ -216,9 +216,9 @@ public class SearchAdvancedQuery extends PageServlet {
             page.writeMultipleTypeSelect(
                     null,
                     comparisonTypes,
-                    "Any Types",
                     "class", "autoSubmit",
                     "name", comparisonTypeParam,
+                    "placeholder", "Any Types",
                     "data-searchable", true);
 
             page.writeHtml(" ");
