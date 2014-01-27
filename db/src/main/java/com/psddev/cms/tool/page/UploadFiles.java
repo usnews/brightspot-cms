@@ -248,7 +248,7 @@ public class UploadFiles extends PageServlet {
 
                         js.append("$addButton.repeatable('add', function() {");
                             js.append("var $added = $(this);");
-                            js.append("$input = $added.find(':input.objectId').eq(-1);");
+                            js.append("$input = $added.find(':input.objectId').eq(0);");
                             js.append("$input.attr('data-label', '").append(StringUtils.escapeJavaScript(state.getLabel())).append("');");
                             js.append("$input.attr('data-preview', '").append(StringUtils.escapeJavaScript(previewUrl)).append("');");
                             js.append("$input.val('").append(StringUtils.escapeJavaScript(state.getId().toString())).append("');");
