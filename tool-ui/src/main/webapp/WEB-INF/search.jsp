@@ -7,6 +7,7 @@ com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.PageWriter,
 com.psddev.cms.tool.Search,
+com.psddev.cms.tool.Tool,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ColorImage,
@@ -424,6 +425,10 @@ writer.start("div", "class", "searchForm");
                         writer.writeHtml(" Show Drafts");
                     writer.writeEnd();
                 writer.writeEnd();
+
+                for (Tool tool : Query.from(Tool.class).selectAll()) {
+                    tool.writeSearchFilters(search, wp);
+                }
 
                 writer.writeStart("div", "class", "searchFilter searchFilter-advancedQuery");
                     writer.writeStart("input",

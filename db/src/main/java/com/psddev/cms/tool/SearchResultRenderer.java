@@ -24,6 +24,7 @@ import com.psddev.dari.db.MetricInterval;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
@@ -264,8 +265,15 @@ public class SearchResultRenderer {
         List<Object> items = new ArrayList<Object>(listItems);
         Map<Object, StorageItem> previews = new LinkedHashMap<Object, StorageItem>();
 
-        for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
+        ITEM: for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
             Object item = i.next();
+
+            for (Tool tool : Query.from(Tool.class).selectAll()) {
+                if (!tool.isDisplaySearchResultItem(search, item)) {
+                    continue ITEM;
+                }
+            }
+
             State itemState = State.getInstance(item);
             StorageItem preview = itemState.getPreview();
 

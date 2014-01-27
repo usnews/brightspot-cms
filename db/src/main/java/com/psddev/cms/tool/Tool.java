@@ -64,6 +64,47 @@ public abstract class Tool extends Application {
     }
 
     /**
+     * Initializes the given {@code search} instance based on the information
+     * from the given {@code page}.
+     *
+     * @param search Can't be {@code null}.
+     * @param page Can't be {@code null}.
+     */
+    public void initializeSearch(Search search, ToolPageContext page) {
+    }
+
+    /**
+     * Writes additional search filters UI using the given {@code search}
+     * and {@code page}.
+     *
+     * @param search Can't be {@code null}.
+     * @param page Can't be {@code null}.
+     */
+    public void writeSearchFilters(Search search, ToolPageContext page) throws IOException {
+    }
+
+    /**
+     * Updates the given {@code query} using the information from the given
+     * {@code search}.
+     *
+     * @param search Can't be {@code null}.
+     * @param query Can't be {@code null}.
+     */
+    public void updateSearchQuery(Search search, Query<?> query) {
+    }
+
+    /**
+     * Returns {@code true} if the given {@code item} should be displayed
+     * in the given {@code search} result.
+     *
+     * @param search Can't be {@code null}.
+     * @param item Can't be {@code null}.
+     */
+    public boolean isDisplaySearchResultItem(Search search, Object item) {
+        return true;
+    }
+
+    /**
      * Returns the full URL to the given {@code path} with the given
      * {@code parameters}.
      *

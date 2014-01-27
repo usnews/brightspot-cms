@@ -157,6 +157,10 @@ public class Search extends Record {
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
+
+        for (Tool tool : Query.from(Tool.class).selectAll()) {
+            tool.initializeSearch(this, page);
+        }
     }
 
     public Search(ToolPageContext page) {
@@ -711,6 +715,10 @@ public class Search extends Record {
             List<Sorter> sorters = query.getSorters();
 
             sorters.add(0, sorters.get(sorters.size() - 1));
+        }
+
+        for (Tool tool : Query.from(Tool.class).selectAll()) {
+            tool.updateSearchQuery(this, query);
         }
 
         return query;
