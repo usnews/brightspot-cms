@@ -961,7 +961,9 @@ var Rte = wysihtml5.Editor.extend({
                     }
 
                     function doDelete(direction) {
-                        var rangySelection = selection.getSelection();
+                        var rangySelection = selection.getSelection(),
+                                range,
+                                container;
 
                         if (selection.getRange().collapsed) {
                             rangySelection.nativeSelection.modify('extend', direction, 'character');
@@ -972,8 +974,26 @@ var Rte = wysihtml5.Editor.extend({
                         if (direction === 'forward') {
                             rangySelection.collapseToEnd();
 
+                            range = selection.getRange();
+                            container = range.endContainer;
+
+                            if (!container.nextSibling &&
+                                    container.nodeType === Node.TEXT_NODE &&
+                                    range.endOffset === container.data.length) {
+                                selection.setAfter($(container).closest('del')[0]);
+                            }
+
                         } else {
                             rangySelection.collapseToStart();
+
+                            range = selection.getRange();
+                            container = range.startContainer;
+
+                            if (!container.previousSibling &&
+                                    container.nodeType === Node.TEXT_NODE &&
+                                    range.startOffset === 0) {
+                                selection.setBefore($(container).closest('del')[0]);
+                            }
                         }
 
                         cleanUp();
