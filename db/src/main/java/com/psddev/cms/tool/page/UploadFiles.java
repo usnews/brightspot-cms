@@ -20,6 +20,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
@@ -33,6 +34,7 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.MultipartRequest;
@@ -234,11 +236,21 @@ public class UploadFiles extends PageServlet {
                         state.put(previewField.getInternalName(), item);
                         page.publish(state);
 
+                        String previewUrl = null;
+
+                        if (ImageEditor.Static.getDefault() != null) {
+                            previewUrl = new ImageTag.Builder(item).setHeight(100).toUrl();
+                        }
+
+                        if (previewUrl == null) {
+                            previewUrl = item.getPublicUrl();
+                        }
+
                         js.append("$addButton.repeatable('add', function() {");
                             js.append("var $added = $(this);");
                             js.append("$input = $added.find(':input.objectId').eq(-1);");
                             js.append("$input.attr('data-label', '").append(StringUtils.escapeJavaScript(state.getLabel())).append("');");
-                            js.append("$input.attr('data-preview', '").append(StringUtils.escapeJavaScript(item.getPublicUrl())).append("');");
+                            js.append("$input.attr('data-preview', '").append(StringUtils.escapeJavaScript(previewUrl)).append("');");
                             js.append("$input.val('").append(StringUtils.escapeJavaScript(state.getId().toString())).append("');");
                             js.append("$input.change();");
                         js.append("});");
