@@ -2094,12 +2094,15 @@ public class ToolPageContext extends WebPageContext {
                     state.as(Content.ObjectModification.class).isDraft()) {
                 state.as(Content.ObjectModification.class).setDraft(true);
                 publish(state);
-                redirect("", "id", state.getId());
+                redirect("",
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                        "id", state.getId());
                 return true;
 
             } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
                 publish(state);
-                redirect("");
+                redirect("",
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null);
                 return true;
             }
 
@@ -2114,6 +2117,7 @@ public class ToolPageContext extends WebPageContext {
 
             publish(draft);
             redirect("",
+                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                     ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
                     ToolPageContext.HISTORY_ID_PARAMETER, null);
             return true;
@@ -2344,7 +2348,9 @@ public class ToolPageContext extends WebPageContext {
         try {
             updateUsingParameters(object);
             state.save();
-            redirect("", "id", state.getId());
+            redirect("",
+                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                    "id", state.getId());
             return true;
 
         } catch (Exception error) {
