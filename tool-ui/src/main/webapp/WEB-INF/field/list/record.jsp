@@ -121,7 +121,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
     }
 
-    state.as(BulkUploadDraft.class).setContainer(true);
+    State.getInstance(request.getAttribute("containerObject")).as(BulkUploadDraft.class).setContainer(true);
     state.putValue(fieldName, fieldValue);
     return;
 }

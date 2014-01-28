@@ -23,9 +23,14 @@ ObjectType type = state.getType();
 List<ObjectField> fields = type != null ? type.getFields() : null;
 
 if (fields != null) {
+    Object oldContainer = request.getAttribute("containerObject");
     boolean draftCheck = false;
 
     try {
+        if (oldContainer == null) {
+            request.setAttribute("containerObject", object);
+        }
+
         if (request.getAttribute("firstDraft") == null) {
             draftCheck = true;
             request.setAttribute("firstDraft", state.isNew());
@@ -44,6 +49,10 @@ if (fields != null) {
         }
 
     } finally {
+        if (oldContainer == null) {
+            request.setAttribute("containerObject", null);
+        }
+
         if (draftCheck) {
             request.setAttribute("firstDraft", null);
             request.setAttribute("finalDraft", null);
