@@ -11,6 +11,6 @@ if (wp.requireUser()) {
 
 wp.include(
         "/WEB-INF/search.jsp",
-        "newJsp", "/content/objectIdEdit.jsp",
+        "newJsp", "/content/edit.jsp",
         "resultJsp", "/content/objectIdResult.jsp");
 %>

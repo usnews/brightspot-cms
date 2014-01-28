@@ -246,4 +246,21 @@ $.plugin2('objectId', {
     }
 });
 
+$(win.document).onCreate('[data-object-id]', function() {
+    var $element = $(this),
+            $source = $element.popup('source'),
+            $input;
+
+    if ($source &&
+            ($source.is('.objectId-select') ||
+            $source.is('.objectId-edit'))) {
+        $input = $source.parent().find(':input.objectId');
+
+        $input.attr('data-label', $element.attr('data-object-label'));
+        $input.attr('data-preview', $element.attr('data-object-preview'));
+        $input.val($element.attr('data-object-id'));
+        $input.change();
+    }
+});
+
 }(jQuery, window));
