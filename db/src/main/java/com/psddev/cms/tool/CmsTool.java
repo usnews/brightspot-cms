@@ -110,6 +110,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean disableToolChecks;
 
+    @ToolUi.Tab("Debug")
+    private boolean allowInsecureAuthenticationCookie;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -521,6 +524,15 @@ public class CmsTool extends Tool {
 
     public void setDisableToolChecks(boolean disableToolChecks) {
         this.disableToolChecks = disableToolChecks;
+    }
+
+    public boolean isAllowInsecureAuthenticationCookie() {
+        return allowInsecureAuthenticationCookie;
+    }
+
+    public void setAllowInsecureAuthenticationCookie(
+            boolean allowInsecureAuthenticationCookie) {
+        this.allowInsecureAuthenticationCookie = allowInsecureAuthenticationCookie;
     }
 
     /** Returns the preview URL. */

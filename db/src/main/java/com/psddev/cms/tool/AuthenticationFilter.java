@@ -102,15 +102,23 @@ public class AuthenticationFilter extends AbstractFilter {
          * @param user Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
+            boolean allowInsecure = Query.from(CmsTool.class).first().isAllowInsecureAuthenticationCookie();
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
 
-            cookie.setSecure(JspUtils.isSecure(request));
+            if (!allowInsecure) {
+                cookie.setSecure(JspUtils.isSecure(request));
+            }
+
             setCookieDomain(cookie);
             cookie.setPath("/");
             JspUtils.setSignedCookie(response, cookie);
 
             Cookie domainlessCookie = new Cookie(USER_COOKIE, user.getId().toString());
-            domainlessCookie.setSecure(JspUtils.isSecure(request));
+
+            if (!allowInsecure) {
+                domainlessCookie.setSecure(JspUtils.isSecure(request));
+            }
+
             domainlessCookie.setPath("/");
             JspUtils.setSignedCookie(response, domainlessCookie);
 
