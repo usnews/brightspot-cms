@@ -82,6 +82,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
     }
 
+    for (String permissionId : wp.params(inputName)) {
+        String excludeFields = wp.param(inputName + "." + permissionId + "/excludeFields");
+
+        if (!ObjectUtils.isBlank(excludeFields)) {
+            for (String fn : excludeFields.trim().split("\\s+")) {
+                permissions.remove(permissionId + "/field/" + fn);
+                permissions.remove(permissionId + "/field/" + fn + "/");
+            }
+        }
+    }
+
     state.putValue(fieldName, permissions.toString());
     return;
 }
@@ -234,20 +245,28 @@ wp.writeStart("div", "class", "inputSmall permissions");
                                 }
                             }
 
-                            /*<li>writeParent(wp, permissions, "All Fields", fieldPermissionIdPrefix);
-                                <ul>
-                                    for (ObjectField typeField : type.getFields()) {
-                                        String fieldPermissionId = fieldPermissionIdPrefix + "/" + typeField.getInternalName();
-                                        <li>
-                                        writeParent(wp, permissions, typeField, fieldPermissionId);
-                                            <ul>
-                                                <li> writeChild(wp, permissions, "Read", fieldPermissionId + "/read");
-                                                <li> writeChild(wp, permissions, "Write", fieldPermissionId + "/write");
-                                            </ul>
-                                        </li>
+                            wp.writeStart("li");
+                                wp.writeStart("label", "for", wp.createId());
+                                    wp.writeHtml("Exclude Fields: " );
+                                wp.writeEnd();
+
+                                StringBuilder excludeFields = new StringBuilder();
+
+                                for (ObjectField typeField : type.getFields()) {
+                                    String fn = typeField.getInternalName();
+
+                                    if (!permissions.contains(typePermissionId + "/field/" + fn)) {
+                                        excludeFields.append(fn);
+                                        excludeFields.append(" ");
                                     }
-                                </ul>
-                            </li>*/
+                                }
+
+                                wp.writeTag("input",
+                                        "type", "text",
+                                        "id", wp.getId(),
+                                        "name", inputName + "." + typePermissionId + "/excludeFields",
+                                        "value", excludeFields);
+                            wp.writeEnd();
                         wp.writeEnd();
                     wp.writeEnd();
                 }
