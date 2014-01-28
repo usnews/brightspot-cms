@@ -848,6 +848,31 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Returns the URL to the preview thumbnail of the given {@code object}.
+     *
+     * @return May be {@code null}.
+     */
+    public String getPreviewThumbnailUrl(Object object) {
+        if (object != null) {
+            StorageItem preview = State.getInstance(object).getPreview();
+
+            if (preview != null) {
+                if (ImageEditor.Static.getDefault() != null) {
+                    return new ImageTag.Builder(preview).
+                            setHeight(300).
+                            setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                            toUrl();
+
+                } else {
+                    return preview.getPublicUrl();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Writes a descriptive label HTML for the given {@code object}.
      *
      * @param object If {@code null}, writes {@code N/A}.
@@ -1652,21 +1677,7 @@ public class ToolPageContext extends WebPageContext {
 
         } else {
             State state = State.getInstance(value);
-            StorageItem preview = value != null ? state.getPreview() : null;
-            String previewUrl = null;
             StringBuilder typeIds = new StringBuilder();
-
-            if (preview != null) {
-                if (ImageEditor.Static.getDefault() != null) {
-                    previewUrl = new ImageTag.Builder(preview).
-                            setWidth(1000).
-                            setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
-                            toUrl();
-
-                } else {
-                    previewUrl = preview.getPublicUrl();
-                }
-            }
 
             for (ObjectType type : field.getTypes()) {
                 typeIds.append(type.getId());
@@ -1683,7 +1694,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-additional-query", field.getPredicate(),
                     "data-label", value != null ? getObjectLabel(value) : null,
                     "data-pathed", ToolUi.isOnlyPathed(field),
-                    "data-preview", previewUrl,
+                    "data-preview", getPreviewThumbnailUrl(value),
                     "data-searcher-path", ui.getInputSearcherPath(),
                     "data-suggestions", ui.isEffectivelySuggestions(),
                     "data-typeIds", typeIds,

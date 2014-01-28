@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.joda.time.DateTime;
 
 import com.psddev.cms.db.Directory;
-import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
@@ -27,7 +26,6 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
@@ -313,22 +311,12 @@ public class SearchResultRenderer {
     }
 
     public void renderImage(Object item, StorageItem image) throws IOException {
-        String url = null;
-
-        if (ImageEditor.Static.getDefault() != null) {
-            url = new ImageTag.Builder(image).setHeight(100).toUrl();
-        }
-
-        if (url == null) {
-            url = image.getPublicUrl();
-        }
-
         renderBeforeItem(item);
 
         page.writeStart("figure");
             page.writeTag("img",
                     "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
-                    "src", page.url(url));
+                    "src", page.getPreviewThumbnailUrl(item));
 
             page.writeStart("figcaption");
                 if (showTypeLabel) {
