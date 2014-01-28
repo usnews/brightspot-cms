@@ -64,11 +64,17 @@ public class SearchResultRenderer {
             if (!ObjectUtils.isBlank(search.getQueryString())) {
                 search.setSort(Search.RELEVANT_SORT_VALUE);
 
-            } else if (search.getFieldFilters().get("cms.content.publishDate") != null) {
-                search.setSort("cms.content.publishDate");
-
             } else {
-                search.setSort("cms.content.updateDate");
+                Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
+
+                if (f != null &&
+                        (f.get("") != null ||
+                        f.get("x") != null)) {
+                    search.setSort("cms.content.publishDate");
+
+                } else {
+                    search.setSort("cms.content.updateDate");
+                }
             }
         }
 
