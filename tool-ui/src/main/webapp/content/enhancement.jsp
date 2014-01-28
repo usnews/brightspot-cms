@@ -218,26 +218,26 @@ if (object == null) {
         })(jQuery);
 
         if (typeof jQuery !== 'undefined') (function($) {
+            var $source = $('#<%= pageId %>').popup('source'),
+                    $group = $source.closest('.rte-group'),
+                    $select = $group.find('.rte-button-enhancementSelect a'),
+                    $edit = $group.find('.rte-button-enhancementEdit a');
 
-            var $source = $('#<%= pageId %>').popup('source');
-            var href = $source.attr('href');
-
-            <%-- replace the id param --%>
-            href = (href+'&').replace(/([?&])id=[^&]*[&]/, '$1');
-            href += 'id=<%= state.getId() %>';
-
-            <%-- replace the reference param --%>
-            href = (href+'&').replace(/([?&])reference=[^&]*[&]/, '$1');
-            href += 'reference=<%= wp.js(StringUtils.encodeUri(ObjectUtils.toJson(ref.getState().getSimpleValues()))) %>';
-
-            $source.attr('href', href);
-            $source.rte('enhancement', {
-                'reference': '<%= wp.js(ObjectUtils.toJson(ref.getState().getSimpleValues())) %>',
+            $group.addClass('rte-group-enhancementSet');
+            $select.text('Change');
+            $select.rte('enhancement', {
                 'id': '<%= state.getId() %>',
-                <%-- backward compatibility + rte css attribute selector support --%>
                 'label': '<%= wp.js(state.getLabel()) %>',
-                'preview': '<%= wp.js(state.getPreview() != null ? state.getPreview().getPublicUrl() : null) %>'
+                'preview': '<%= wp.js(state.getPreview() != null ? state.getPreview().getPublicUrl() : null) %>',
+                'reference': '<%= wp.js(ObjectUtils.toJson(ref.getState().getSimpleValues())) %>'
             });
+
+            if ($edit.length > 0) {
+                $edit.attr('href', $.addQueryParameters(
+                        $edit.attr('href'),
+                        'id', '<%= state.getId() %>',
+                        'reference', '<%= wp.js(ObjectUtils.toJson(ref.getState().getSimpleValues())) %>'));
+            }
         })(jQuery);
     </script>
 <% } %>
