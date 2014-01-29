@@ -10,8 +10,8 @@ import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
-import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
@@ -148,7 +148,7 @@ public class UnpublishedDrafts extends PageServlet {
 
                     page.writeStart("li");
                         page.writeTypeSelect(
-                                Template.Static.findUsedTypes(page.getSite()),
+                                ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes(),
                                 type,
                                 "Any Types",
                                 "class", "autoSubmit",
