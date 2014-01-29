@@ -34,7 +34,13 @@ public class AbDatabase extends ForwardingDatabase {
 
             for (Map.Entry<String, AbVariationField> entry : state.as(AbVariationObject.class).getFields().entrySet()) {
                 String fieldName = entry.getKey();
-                List<AbVariation> variations = entry.getValue().getVariations();
+                AbVariationField variationField = entry.getValue();
+
+                if (variationField == null) {
+                    continue;
+                }
+
+                List<AbVariation> variations = variationField.getVariations();
                 double total = 0.0;
 
                 for (AbVariation variation : variations) {
