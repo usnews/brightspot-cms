@@ -1423,23 +1423,7 @@ wysihtml5.commands.allComments = {
         'commentRemove': {
             'exec': function(composer) {
                 iterateElements(composer, '.rte-comment', function() {
-                    var $selected = $(this),
-                            text,
-                            textLength;
-
-                    if ($selected.length > 0) {
-                        text = $selected.text();
-                        textLength = text.length;
-
-                        if (textLength === 0 ||
-                                (textLength === 1 &&
-                                text.charCodeAt(0) === 65279)) {
-                            $selected.remove();
-
-                        } else {
-                            $selected.toggleClass('rte-comment-removed');
-                        }
-                    }
+                    $(this).remove();
                 });
             },
 
