@@ -162,14 +162,10 @@ public class Directory extends Record {
 
                 if (rawPathMatcher.matches()) {
                     UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
-                    Directory directory = INSTANCES.get().get(directoryId);
-
-                    if (directory == null) {
-                        directory = Query.
-                                from(Directory.class).
-                                where("_id = ?", directoryId).
-                                first();
-                    }
+                    Directory directory = Query.
+                            from(Directory.class).
+                            where("_id = ?", directoryId).
+                            first();
 
                     if (directory != null) {
                         String path = directory.getPath() + rawPathMatcher.group(3);
@@ -307,53 +303,6 @@ public class Directory extends Record {
         public String createPermalink(Site site);
     }
 
-    /** Cache of all directory instances. */
-    private static final PullThroughValue<Map<Object, Directory>>
-            INSTANCES = new PullThroughValue<Map<Object, Directory>>() {
-
-        @Override
-        protected Map<Object, Directory> produce() {
-            return new PeriodicCache<Object, Directory>() {
-
-                @Override
-                protected Map<Object, Directory> update() {
-
-                    Query<Directory> query = Query.from(Directory.class);
-                    Date cacheUpdate = getUpdateDate();
-                    Date databaseUpdate = query.lastUpdate();
-                    if (databaseUpdate == null || (cacheUpdate != null && !databaseUpdate.after(cacheUpdate))) {
-                        return null;
-                    }
-
-                    LOGGER.info("Loading directories");
-                    if (query.count() > 200) {
-                        return new PullThroughCache<Object, Directory>() {
-                            @Override
-                            protected Directory produce(Object key) {
-                                if (key instanceof UUID) {
-                                    return Query.from(Directory.class).where("_id = ?", key).first();
-                                } else if (key instanceof String) {
-                                    return Query.from(Directory.class).where("path = ?", key).first();
-                                } else {
-                                    return null;
-                                }
-                            }
-                        };
-
-                    } else {
-                        List<Directory> directories = query.selectAll();
-                        Map<Object, Directory> directoriesMap = new LinkedHashMap<Object, Directory>(directories.size() * 4);
-                        for (Directory directory : directories) {
-                            directoriesMap.put(directory.getId(), directory);
-                            directoriesMap.put(directory.getPath(), directory);
-                        }
-                        return directoriesMap;
-                    }
-                }
-            };
-        }
-    };
-
     /** Modification that adds directory information. */
     public static final class ObjectModification extends Modification<Object> {
 
@@ -474,10 +423,10 @@ public class Directory extends Record {
                         UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
                         if (directoryId != null) {
 
-                            Directory directory = INSTANCES.get().get(directoryId);
-                            if (directory == null) {
-                                directory = Query.findById(Directory.class, directoryId);
-                            }
+                            Directory directory = Query.
+                                    from(Directory.class).
+                                    where("_id = ?", directoryId).
+                                    first();
 
                             if (directory != null) {
                                 String path = directory.getPath() + rawPathMatcher.group(3);
@@ -721,7 +670,10 @@ public class Directory extends Record {
             if (slashAt > -1) {
                 String name = path.substring(slashAt + 1);
                 path = path.substring(0, slashAt + 1);
-                Directory directory = INSTANCES.get().get(path);
+                Directory directory = Query.
+                        from(Directory.class).
+                        where("path = ?", path).
+                        first();
 
                 if (directory != null) {
                     String rawPath = directory.getRawPath() + name;
@@ -783,7 +735,11 @@ public class Directory extends Record {
                 return null;
             }
 
-            Directory directory = INSTANCES.get().get(path);
+            Directory directory = Query.
+                    from(Directory.class).
+                    where("path = ?", path).
+                    first();
+
             if (directory != null) {
                 return directory;
             }
@@ -793,7 +749,11 @@ public class Directory extends Record {
             if (slashAt > -1) {
                 String name = path.substring(slashAt + 1);
                 path = path.substring(0, slashAt + 1);
-                directory = INSTANCES.get().get(path);
+                directory = Query.
+                        from(Directory.class).
+                        where("path = ?", path).
+                        first();
+
                 if (directory != null) {
                     String rawPath = directory.getRawPath() + name;
                     Object item = null;
