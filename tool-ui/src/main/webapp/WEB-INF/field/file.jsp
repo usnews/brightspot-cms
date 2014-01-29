@@ -648,7 +648,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         // This method is called when the player loads with the ID of the player
                         // We can use that ID to get a reference to the player, and then the modules
                         // The name of this method can vary but should match the value you specified
-                        // in the player publishing code for ÒtemplateLoadHandlerÓ.
+                        // in the player publishing code for templateLoadHandler.
 
                         var myTemplateLoaded = function(experienceID) {
                             // Get a reference to the player itself
@@ -711,7 +711,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             %>
 
             <% } else { %>
-                <a href="<%= wp.h(fieldValue.getUrl()) %>" target="_blank"><%= wp.h(contentType) %>: <%= wp.h(fieldValue.getPath()) %></a>
+                <a href="<%= wp.h(fieldValue.getPublicUrl()) %>" target="_blank"><%= wp.h(contentType) %>: <%= wp.h(fieldValue.getPath()) %></a>
             <% } %>
         </div>
     <% } %>
