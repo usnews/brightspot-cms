@@ -1887,7 +1887,8 @@ public class ToolPageContext extends WebPageContext {
 
                     if (!state.isNew() &&
                             (type == null ||
-                            !type.getGroups().contains(Singleton.class.getName()))) {
+                            (!type.getGroups().contains(Singleton.class.getName()) &&
+                            !type.getGroups().contains(Tool.class.getName())))) {
                         if (displayTrashAction) {
                             writeStart("button",
                                     "class", "icon icon-action-trash action-pullRight link",
