@@ -5530,7 +5530,7 @@ wysihtml5.dom.replaceWithChildNodes = function(node) {
       // Create the basic dom tree including proper DOCTYPE and charset
       if (!usingSrc) {
         iframeDocument.open("text/html", "replace");
-        iframeDocument.write(this._getHtml({
+        iframeDocument.write(this.config.iframeHtml || this._getHtml({
           charset:      doc.characterSet || doc.charset || "utf-8",
           stylesheets:  this.config.stylesheets
         }));
@@ -8017,6 +8017,7 @@ wysihtml5.views.View = Base.extend(
         that._create();
       }, {
         iframeSrc  :  this.config.iframeSrc,
+        iframeHtml :  this.config.iframeHtml,
         stylesheets:  this.config.stylesheets
       });
       this.iframe  = this.sandbox.getIframe();

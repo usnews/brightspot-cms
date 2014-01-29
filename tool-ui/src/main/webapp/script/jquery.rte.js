@@ -1466,11 +1466,26 @@ wysihtml5.commands.fullscreen = {
     }
 };
 
+var iframeHtml;
+
+(function() {
+    $.ajax({
+        'url': CONTEXT_PATH + '/style/rte-content.jsp',
+        'cache': false,
+        'async': false,
+
+        'success': function(html) {
+            iframeHtml = html;
+            console.log(iframeHtml);
+        }
+    });
+})();
+
 // Expose as a jQuery plugin.
 $.plugin2('rte', {
     '_defaultOptions': {
         'enhancement': createEnhancement,
-        'iframeSrc': CONTEXT_PATH + '/style/rte-content.jsp',
+        'iframeHtml': iframeHtml,
         'marker': createMarker,
         'style': false,
         'toolbar': createToolbar,
