@@ -53,11 +53,11 @@ body.rte-fullscreen {
     border-bottom: 1px solid @color-note;
     .border-top-left-radius(5px);
     .border-top-right-radius(5px);
-    padding: 3px 60px 0 3px;
+    padding: 3px 3px 0 3px;
     position: relative;
     vertical-align: top;
 
-    &.wordCount:after {
+    &[data-wc-message]:after {
         .border-top-left-radius(3px);
         bottom: -1px;
         position: absolute;
@@ -81,6 +81,10 @@ body.rte-fullscreen {
     margin: 3px;
     margin: 0 3px 3px 0;
     padding-right: 3px;
+
+    &:last-child {
+        margin-right: 60px;
+    }
 }
 
 .rte-group-label {

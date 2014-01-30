@@ -687,18 +687,23 @@
 }
 
 // Soft validation based on suggested sizes.
-.wordCount:after {
-    background-color: @color-note-darker;
-    color: @color-background;
-    content: attr(data-count-message);
-    font-size: 11px;
-    height: 18px;
-    line-height: 18px;
-    padding: 0 3px;
-}
+.inputContainer.state-focus {
+    &[data-wc-message],
+    [data-wc-message] {
+        &:after {
+            background-color: @color-note-darker;
+            color: @color-background;
+            content: attr(data-wc-message);
+            font-size: 11px;
+            height: 18px;
+            line-height: 18px;
+            padding: 0 3px;
+        }
 
-.wordCount[data-count-message^='Too']:after {
-    background-color: #e90;
+        &[data-wc-message ^= 'Too']:after {
+            background-color: #e90;
+        }
+    }
 }
 
 .fieldPreview-enabled {
