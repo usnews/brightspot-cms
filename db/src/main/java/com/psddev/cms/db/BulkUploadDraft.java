@@ -7,18 +7,10 @@ import com.psddev.dari.db.State;
 @BulkUploadDraft.FieldInternalNamePrefix("cms.bulkUpload.")
 public class BulkUploadDraft extends Modification<Object> {
 
-    private Boolean container;
-
     @Indexed(visibility = true)
     private String containerId;
 
-    public boolean isContainer() {
-        return Boolean.TRUE.equals(container);
-    }
-
-    public void setContainer(boolean container) {
-        this.container = container ? Boolean.TRUE : null;
-    }
+    private transient boolean runAfterSave;
 
     public String getContainerId() {
         return containerId;
@@ -28,27 +20,30 @@ public class BulkUploadDraft extends Modification<Object> {
         this.containerId = containerId;
     }
 
+    public boolean isRunAfterSave() {
+        return runAfterSave;
+    }
+
+    public void setRunAfterSave(boolean runAfterSave) {
+        this.runAfterSave = runAfterSave;
+    }
+
     @Override
     protected void afterSave() {
-        State state = getState();
-
-        if (!state.isVisible() ||
-                !isContainer()) {
+        if (!isRunAfterSave() ||
+                !getState().isVisible()) {
             return;
         }
 
         for (Object item : Query.
                 fromAll().
-                where("cms.bulkUpload.containerId = ?", state.getId().toString()).
+                where("cms.bulkUpload.containerId = ?", getId().toString()).
                 selectAll()) {
             State itemState = State.getInstance(item);
 
             itemState.as(BulkUploadDraft.class).setContainerId(null);
             itemState.saveImmediately();
         }
-
-        setContainer(false);
-        saveImmediately();
     }
 
     @Override
