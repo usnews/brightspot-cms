@@ -1460,7 +1460,6 @@ var iframeHtml;
 
         'success': function(html) {
             iframeHtml = html;
-            console.log(iframeHtml);
         }
     });
 })();
