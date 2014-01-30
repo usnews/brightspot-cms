@@ -202,7 +202,7 @@ public final class Seo {
         public String findTitle() {
             String title = getTitle();
 
-            return ObjectUtils.isBlank(title) ? getLabel() : title;
+            return ObjectUtils.isBlank(title) ? getState().getLabel() : title;
         }
 
         // Converts the given object into a plain string that's usable
