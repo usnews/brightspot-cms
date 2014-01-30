@@ -246,7 +246,7 @@ $.plugin2('objectId', {
     }
 });
 
-$(win.document).onCreate('[data-object-id]', function() {
+$(win.document).onCreate('[data-o-id]', function() {
     var $element = $(this),
             $source = $element.popup('source'),
             $input;
@@ -256,9 +256,9 @@ $(win.document).onCreate('[data-object-id]', function() {
             $source.is('.objectId-edit'))) {
         $input = $source.parent().find(':input.objectId');
 
-        $input.attr('data-label', $element.attr('data-object-label'));
-        $input.attr('data-preview', $element.attr('data-object-preview'));
-        $input.val($element.attr('data-object-id'));
+        $input.attr('data-label', $element.attr('data-o-label'));
+        $input.attr('data-preview', $element.attr('data-o-preview'));
+        $input.val($element.attr('data-o-id'));
         $input.change();
     }
 });

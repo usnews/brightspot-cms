@@ -164,9 +164,9 @@ boolean lockedOut = !user.equals(contentLockOwner);
             enctype="multipart/form-data"
             action="<%= wp.objectUrl("", selected, "published", null) %>"
             autocomplete="off"
-            data-object-id="<%= State.getInstance(selected).getId() %>"
-            data-object-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
-            data-object-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
+            data-o-id="<%= State.getInstance(selected).getId() %>"
+            data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
+            data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
             data-content-id="<%= State.getInstance(editing).getId() %>"
             data-content-lock-owner-id="<%= contentLockOwner.getId() %>"
             data-content-locked-out="<%= lockedOut %>">
