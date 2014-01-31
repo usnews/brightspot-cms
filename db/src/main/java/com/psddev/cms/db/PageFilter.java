@@ -444,6 +444,12 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
+            // If showing an invisible item, make sure all nested invisible
+            // items show up too.
+            if (!mainState.isVisible()) {
+                mainState.setResolveInvisible(true);
+            }
+
             ObjectType mainType = mainState.getType();
             Page page = Static.getPage(request);
 
