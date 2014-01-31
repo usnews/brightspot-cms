@@ -1,7 +1,8 @@
 /** Inputs that can be repeated. */
 (function($, win, undef) {
 
-var $win = $(win);
+var $win = $(win),
+        cacheNonce = 0;
 
 $.plugin2('repeatable', {
     '_defaultOptions': {
@@ -161,9 +162,12 @@ $.plugin2('repeatable', {
                     // Load an external form if the template consists of a single link without any other inputs.
                     var $templateLink;
                     if ($addedItem.find(':input').length === 0 && ($templateLink = $addedItem.find('a')).length > 0) {
+                        ++ cacheNonce;
+
                         $.ajax({
                             'cache': false,
                             'url': $templateLink.attr('href'),
+                            'data': { '_nonce': cacheNonce },
                             'complete': function(response) {
                                 $addedItem.html(response.responseText);
                                 callback();
