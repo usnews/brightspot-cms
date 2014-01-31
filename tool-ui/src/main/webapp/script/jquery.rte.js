@@ -375,10 +375,10 @@ var Rte = wysihtml5.Editor.extend({
 
                 if (imageSize) {
                     $enhancement.attr('data-image-size', imageSize);
-                    refData['data-image-size'] = imageSize;
+                    refData['imageSize'] = imageSize;
                 } else {
                     $enhancement.removeAttr('data-image-size');
-                    delete refData['data-image-size'];
+                    delete refData['imageSize'];
                 }
 
                 refDataString = JSON.stringify(refData);

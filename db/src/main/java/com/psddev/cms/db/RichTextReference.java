@@ -16,6 +16,9 @@ public class RichTextReference extends Modification<Reference> {
     @ToolUi.Hidden
     private String label;
 
+    @ToolUi.Hidden
+    private String imageSize;
+
     public String getAlignment() {
         return alignment;
     }
@@ -30,6 +33,14 @@ public class RichTextReference extends Modification<Reference> {
 
     public void setPreview(String preview) {
         this.preview = preview;
+    }
+
+    public String getImageSize() {
+        return imageSize;
+    }
+
+    public void setImageSize(String imageSize) {
+        this.imageSize = imageSize;
     }
 
     @Override
