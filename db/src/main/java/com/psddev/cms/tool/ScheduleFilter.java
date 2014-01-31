@@ -13,6 +13,8 @@ import java.io.StringWriter;
 /** Triggers scheduled events for publishing. */
 public class ScheduleFilter extends AbstractFilter {
 
+    public static final String SCHEDULE_THREAD_NAME = "ScheduleFilter";
+
     public final Task scheduler = new Task() {
 
         @Override
@@ -20,6 +22,8 @@ public class ScheduleFilter extends AbstractFilter {
             if (ObjectType.getInstance(Schedule.class.getName()) == null) {
                 return;
             }
+
+            Thread.currentThread().setName(SCHEDULE_THREAD_NAME);
 
             for (Schedule schedule : Query.
                     from(Schedule.class).
