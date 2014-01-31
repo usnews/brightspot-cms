@@ -371,14 +371,18 @@ var Rte = wysihtml5.Editor.extend({
             if (action.indexOf('imageSize-') === 0) {
                 var imageSize = action.substring(10);
 
-                if (imageSize) {
-                    $enhancement.attr('data-image-size', $button.text());
-                    $placeholder.attr('data-image-size', imageSize);
+                refData = $.parseJSON($placeholder.attr('data-reference') || '{}');
 
+                if (imageSize) {
+                    $enhancement.attr('data-image-size', imageSize);
+                    refData['imageSize'] = imageSize;
                 } else {
                     $enhancement.removeAttr('data-image-size');
-                    $placeholder.removeAttr('data-image-size');
+                    delete refData['imageSize'];
                 }
+
+                refDataString = JSON.stringify(refData);
+                $placeholder.attr('data-reference', refDataString);
 
             } else if (action == 'remove') {
                 $enhancement.addClass('state-removing');
