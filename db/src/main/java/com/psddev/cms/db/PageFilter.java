@@ -277,6 +277,17 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
+        if (request.getMethod().equalsIgnoreCase("HEAD") &&
+                ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
+            Object mainObject = Static.getMainObject(request);
+
+            if (mainObject != null) {
+                response.setHeader("Brightspot-Main-Object-Id", State.getInstance(mainObject).getId().toString());
+            }
+
+            return;
+        }
+
         if (Static.isInlineEditingAllContents(request)) {
             try {
                 JspBufferFilter.Static.overrideBuffer(0);

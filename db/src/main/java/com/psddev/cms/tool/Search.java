@@ -1,6 +1,11 @@
 package com.psddev.cms.tool;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -379,6 +384,45 @@ public class Search extends Record {
     }
 
     public Query<?> toQuery(Site site) {
+
+        // If the query string is an URL, hit it to find the ID.
+        String queryString = getQueryString();
+
+        if (!ObjectUtils.isBlank(queryString)) {
+            try {
+                URL qsUrl = new URL(queryString.trim());
+                URLConnection qsConnection = qsUrl.openConnection();
+
+                if (qsConnection instanceof HttpURLConnection) {
+                    HttpURLConnection qsHttp = (HttpURLConnection) qsConnection;
+
+                    qsHttp.setConnectTimeout(1000);
+                    qsHttp.setReadTimeout(1000);
+                    qsHttp.setRequestMethod("HEAD");
+                    qsHttp.setRequestProperty("Brightspot-Main-Object-Id-Query", "true");
+
+                    InputStream qsInput = qsHttp.getInputStream();
+
+                    try {
+                        UUID mainObjectId = ObjectUtils.to(UUID.class, qsHttp.getHeaderField("Brightspot-Main-Object-Id"));
+
+                        if (mainObjectId != null) {
+                            return Query.
+                                    fromAll().
+                                    or("_id = ?", mainObjectId).
+                                    or("* matches ?", mainObjectId).
+                                    sortRelevant(100.0, "_id = ?", mainObjectId);
+                        }
+
+                    } finally {
+                        qsInput.close();
+                    }
+                }
+
+            } catch (IOException error) {
+            }
+        }
+
         Query<?> query = null;
         Set<ObjectType> types = getTypes();
         ObjectType selectedType = getSelectedType();
@@ -411,7 +455,6 @@ public class Search extends Record {
             }
         }
 
-        String queryString = getQueryString();
         String sort = getSort();
         boolean metricSort = false;
 
