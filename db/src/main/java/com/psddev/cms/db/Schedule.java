@@ -12,6 +12,8 @@ import com.psddev.dari.util.ObjectUtils;
 
 public class Schedule extends Record {
 
+    public static final String FIRST_TRIGGER_EXTRA = "cms.schedule.firstTrigger";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Schedule.class);
 
     @Indexed(unique = true)
@@ -103,7 +105,12 @@ public class Schedule extends Record {
                         }
                     }
 
-                    Content.ObjectModification contentData = State.getInstance(object).as(Content.ObjectModification.class);
+                    State state = State.getInstance(object);
+                    Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+
+                    if (contentData.isDraft()) {
+                        state.getExtras().put(FIRST_TRIGGER_EXTRA, Boolean.TRUE);
+                    }
 
                     contentData.setDraft(false);
                     contentData.setPublishDate(triggerDate);
