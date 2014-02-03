@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
@@ -44,6 +45,7 @@ public class SearchResultRenderer {
 
     protected final Search search;
     protected final ObjectField sortField;
+    protected final boolean showSiteLabel;
     protected final boolean showTypeLabel;
     protected final PaginatedResult<?> result;
 
@@ -75,6 +77,9 @@ public class SearchResultRenderer {
                 }
             }
         }
+
+        showSiteLabel = page.getSite() == null &&
+                Query.from(Site.class).hasMoreThan(0);
 
         if (selectedType != null) {
             this.sortField = selectedType.getFieldGlobally(search.getSort());
@@ -315,14 +320,23 @@ public class SearchResultRenderer {
 
         page.writeStart("figure");
             page.writeTag("img",
-                    "alt", (showTypeLabel ? page.getTypeLabel(item) + ": " : "") + page.getObjectLabel(item),
-                    "src", page.getPreviewThumbnailUrl(item));
+                    "src", page.getPreviewThumbnailUrl(item),
+                    "alt",
+                            (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +
+                            (showTypeLabel ? page.getTypeLabel(item) + ": " : "") +
+                            page.getObjectLabel(item));
 
             page.writeStart("figcaption");
+                if (showSiteLabel) {
+                    page.writeObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner());
+                    page.writeHtml(": " );
+                }
+
                 if (showTypeLabel) {
                     page.writeTypeLabel(item);
                     page.writeHtml(": ");
                 }
+
                 page.writeObjectLabel(item);
             page.writeEnd();
         page.writeEnd();
@@ -379,6 +393,12 @@ public class SearchResultRenderer {
                         page.writeHtml(page.formatUserTime(dateTime));
                     page.writeEnd();
                 }
+            }
+
+            if (showSiteLabel) {
+                page.writeStart("td");
+                    page.writeObjectLabel(itemState.as(Site.ObjectModification.class).getOwner());
+                page.writeEnd();
             }
 
             if (showTypeLabel) {
