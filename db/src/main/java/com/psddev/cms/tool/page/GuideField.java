@@ -44,7 +44,12 @@ public class GuideField extends PageServlet {
         }
 
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("style", "type", "text/css");
+                page.writeCss(".cms-guideField th",
+                        "width", "25%;");
+            page.writeEnd();
+
+            page.writeStart("div", "class", "widget cms-guideField");
                 page.writeStart("h1", "class", "icon icon-object-guide");
                     page.writeHtml(field.getLabel());
                 page.writeEnd();
@@ -132,25 +137,40 @@ public class GuideField extends PageServlet {
                         if (fieldDeclaringClass != null) {
                             Field javaField = field.getJavaField(fieldDeclaringClass);
 
-                            page.writeStart("ul");
-                                page.writeStart("li");
-                                    page.writeHtml("Declared In: ");
-                                    page.writeJavaClassLink(fieldDeclaringClass);
-                                page.writeEnd();
+                            page.writeStart("table", "class", "table-striped");
+                                page.writeStart("tbody");
+                                    page.writeStart("tr");
+                                        page.writeStart("th");
+                                            page.writeHtml("Declared In");
+                                        page.writeEnd();
 
-                                page.writeStart("li");
-                                    page.writeHtml("Field Type: ");
-
-                                    page.writeStart("code");
-                                        page.writeHtml(javaField.getGenericType());
+                                        page.writeStart("td");
+                                            page.writeJavaClassLink(fieldDeclaringClass);
+                                        page.writeEnd();
                                     page.writeEnd();
-                                page.writeEnd();
 
-                                page.writeStart("li");
-                                    page.writeHtml("Field Name: ");
+                                    page.writeStart("tr");
+                                        page.writeStart("th");
+                                            page.writeHtml("Field Type");
+                                        page.writeEnd();
 
-                                    page.writeStart("code");
-                                        page.writeHtml(field.getJavaFieldName());
+                                        page.writeStart("td");
+                                            page.writeStart("code");
+                                                page.writeHtml(javaField.getGenericType());
+                                            page.writeEnd();
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("tr");
+                                        page.writeStart("th");
+                                            page.writeHtml("Field Name");
+                                        page.writeEnd();
+
+                                        page.writeStart("td");
+                                            page.writeStart("code");
+                                                page.writeHtml(field.getJavaFieldName());
+                                            page.writeEnd();
+                                        page.writeEnd();
                                     page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();

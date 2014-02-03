@@ -33,6 +33,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.DebugFilter;
+import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
@@ -53,7 +54,12 @@ public class ContentTools extends PageServlet {
         String returnUrl = page.param(String.class, "returnUrl");
 
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("style", "type", "text/css");
+                page.writeCss(".cms-contentTools th",
+                        "width", "25%;");
+            page.writeEnd();
+
+            page.writeStart("div", "class", "widget cms-contentTools");
                 page.writeStart("h1", "class", "icon icon-wrench");
                     page.writeHtml("Tools");
                 page.writeEnd();
@@ -69,36 +75,48 @@ public class ContentTools extends PageServlet {
                             Date updateDate = contentData.getUpdateDate();
                             ToolUser updateUser = contentData.getUpdateUser();
 
-                            page.writeStart("ul");
-                                if (publishDate != null || publishUser != null) {
-                                    page.writeStart("li");
-                                        page.writeHtml("Published: ");
+                            page.writeStart("table", "class", "table-striped");
+                                page.writeStart("tbody");
+                                    if (publishDate != null || publishUser != null) {
+                                        page.writeStart("tr");
+                                            page.writeStart("th");
+                                                page.writeHtml("Published");
+                                            page.writeEnd();
 
-                                        if (publishDate != null) {
-                                            page.writeHtml(page.formatUserDateTime(publishDate));
-                                        }
+                                            page.writeStart("td");
+                                                if (publishDate != null) {
+                                                    page.writeHtml(page.formatUserDateTime(publishDate));
+                                                }
+                                            page.writeEnd();
 
-                                        if (publishUser != null) {
-                                            page.writeHtml(publishDate != null ? " by " : "By ");
-                                            page.writeObjectLabel(updateUser);
-                                        }
-                                    page.writeEnd();
-                                }
+                                            page.writeStart("td");
+                                                if (publishUser != null) {
+                                                    page.writeObjectLabel(updateUser);
+                                                }
+                                            page.writeEnd();
+                                        page.writeEnd();
+                                    }
 
-                                if (updateDate != null || updateUser != null) {
-                                    page.writeStart("li");
-                                        page.writeHtml("Last Updated: ");
+                                    if (updateDate != null || updateUser != null) {
+                                        page.writeStart("tr");
+                                            page.writeStart("th");
+                                                page.writeHtml("Last Updated");
+                                            page.writeEnd();
 
-                                        if (updateDate != null) {
-                                            page.writeHtml(page.formatUserDateTime(updateDate));
-                                        }
+                                            page.writeStart("td");
+                                                if (updateDate != null) {
+                                                    page.writeHtml(page.formatUserDateTime(updateDate));
+                                                }
+                                            page.writeEnd();
 
-                                        if (updateUser != null) {
-                                            page.writeHtml(updateDate != null ? " by " : "By ");
-                                            page.writeObjectLabel(updateUser);
-                                        }
-                                    page.writeEnd();
-                                }
+                                            page.writeStart("td");
+                                                if (updateUser != null) {
+                                                    page.writeObjectLabel(updateUser);
+                                                }
+                                            page.writeEnd();
+                                        page.writeEnd();
+                                    }
+                                page.writeEnd();
                             page.writeEnd();
                         }
                     page.writeEnd();
@@ -137,34 +155,70 @@ public class ContentTools extends PageServlet {
                                     }
                                 page.writeEnd();
                             }
+                        page.writeEnd();
 
-                            if (object != null) {
-                                ObjectType type = state.getType();
+                        if (object != null) {
+                            ObjectType type = state.getType();
 
-                                if (type != null) {
-                                    Class<?> objectClass = type.getObjectClass();
+                            page.writeStart("table", "class", "table-striped");
+                                page.writeStart("tbody");
+                                    if (type != null) {
+                                        Class<?> objectClass = type.getObjectClass();
 
-                                    page.writeStart("li");
-                                        page.writeHtml("Class: ");
-                                        page.writeJavaClassLink(objectClass);
+                                        if (objectClass != null) {
+                                            page.writeStart("tr");
+                                                page.writeStart("th");
+                                                    page.writeStart("label", "for", page.createId());
+                                                        page.writeHtml("Class");
+                                                    page.writeEnd();
+                                                page.writeEnd();
+
+                                                page.writeStart("td");
+                                                    page.writeJavaClassLink(objectClass);
+                                                page.writeEnd();
+                                            page.writeEnd();
+                                        }
+                                    }
+
+                                    page.writeStart("tr");
+                                        page.writeStart("th");
+                                            page.writeStart("label", "for", page.createId());
+                                                page.writeHtml("ID");
+                                            page.writeEnd();
+                                        page.writeEnd();
+
+                                        page.writeStart("td");
+                                            page.writeTag("input",
+                                                    "type", "text",
+                                                    "id", page.getId(),
+                                                    "class", "code",
+                                                    "value", state.getId(),
+                                                    "readonly", "readonly",
+                                                    "style", "width:100%;",
+                                                    "onclick", "this.select();");
+                                        page.writeEnd();
                                     page.writeEnd();
-                                }
 
-                                page.writeStart("li");
-                                    page.writeStart("label");
-                                        page.writeHtml("ID: ");
+                                    page.writeStart("tr");
+                                        page.writeStart("th");
+                                            page.writeStart("label", "for", page.createId());
+                                                page.writeHtml("URL");
+                                            page.writeEnd();
+                                        page.writeEnd();
 
-                                        page.writeTag("input",
-                                                "type", "text",
-                                                "class", "code",
-                                                "value", state.getId(),
-                                                "readonly", "readonly",
-                                                "style", "width:290px;",
-                                                "onclick", "this.select();");
+                                        page.writeStart("td");
+                                            page.writeTag("input",
+                                                    "type", "text",
+                                                    "id", page.getId(),
+                                                    "value", JspUtils.getAbsoluteUrl(page.getRequest(), page.cmsUrl("/content/edit.jsp", "id", state.getId())),
+                                                    "readonly", "readonly",
+                                                    "style", "width:100%;",
+                                                    "onclick", "this.select();");
+                                        page.writeEnd();
                                     page.writeEnd();
                                 page.writeEnd();
-                            }
-                        page.writeEnd();
+                            page.writeEnd();
+                        }
 
                         if (object != null) {
                             ObjectType type = state.getType();
@@ -204,41 +258,54 @@ public class ContentTools extends PageServlet {
                                         page.writeHtml("Renderers");
                                     page.writeEnd();
 
-                                    page.writeStart("ul");
-                                        if (!ObjectUtils.isBlank(defaultPath)) {
-                                            page.writeStart("li");
-                                                page.writeStart("code");
-                                                    page.writeHtml("Default: ");
+                                    page.writeStart("table", "class", "table-striped");
+                                        page.writeStart("tbody");
+                                            if (!ObjectUtils.isBlank(defaultPath)) {
+                                                page.writeStart("tr");
+                                                    page.writeStart("th");
+                                                        page.writeStart("code");
+                                                            page.writeHtml("Default");
+                                                        page.writeEnd();
+                                                    page.writeEnd();
 
-                                                    page.writeStart("a",
-                                                            "target", "_blank",
-                                                            "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
-                                                                    "action", "edit",
-                                                                    "type", "JSP",
-                                                                    "servletPath", defaultPath));
-                                                        page.writeHtml(defaultPath);
+                                                    page.writeStart("td");
+                                                        page.writeStart("code");
+                                                            page.writeStart("a",
+                                                                    "target", "_blank",
+                                                                    "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                                            "action", "edit",
+                                                                            "type", "JSP",
+                                                                            "servletPath", defaultPath));
+                                                                page.writeHtml(defaultPath);
+                                                            page.writeEnd();
+                                                        page.writeEnd();
                                                     page.writeEnd();
                                                 page.writeEnd();
-                                            page.writeEnd();
-                                        }
+                                            }
 
-                                        for (Map.Entry<String, String> entry : paths.entrySet()) {
-                                            page.writeStart("li");
-                                                page.writeStart("code");
-                                                    page.writeHtml(entry.getKey());
-                                                    page.writeHtml(": ");
+                                            for (Map.Entry<String, String> entry : paths.entrySet()) {
+                                                page.writeStart("tr");
+                                                    page.writeStart("th");
+                                                        page.writeStart("code");
+                                                            page.writeHtml(entry.getKey());
+                                                        page.writeEnd();
+                                                    page.writeEnd();
 
-                                                    page.writeStart("a",
-                                                            "target", "_blank",
-                                                            "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
-                                                                    "action", "edit",
-                                                                    "type", "JSP",
-                                                                    "servletPath", entry.getValue()));
-                                                        page.writeHtml(entry.getValue());
+                                                    page.writeStart("td");
+                                                        page.writeStart("code");
+                                                            page.writeStart("a",
+                                                                    "target", "_blank",
+                                                                    "href", DebugFilter.Static.getServletPath(page.getRequest(), "code",
+                                                                            "action", "edit",
+                                                                            "type", "JSP",
+                                                                            "servletPath", entry.getValue()));
+                                                                page.writeHtml(entry.getValue());
+                                                            page.writeEnd();
+                                                        page.writeEnd();
                                                     page.writeEnd();
                                                 page.writeEnd();
-                                            page.writeEnd();
-                                        }
+                                            }
+                                        page.writeEnd();
                                     page.writeEnd();
                                 }
 
@@ -331,23 +398,28 @@ public class ContentTools extends PageServlet {
             }
 
             if (!aMethods.isEmpty()) {
-                page.writeStart("ul");
-                    for (Method m : aMethods) {
-                        if (m.getDeclaringClass().equals(aClass)) {
-                            page.writeStart("li");
-                                page.writeStart("code");
-                                    page.writeHtml(m.getName());
-                                    page.writeHtml(": ");
+                page.writeStart("table", "class", "table-striped");
+                    page.writeStart("tbody");
+                        for (Method m : aMethods) {
+                            if (m.getDeclaringClass().equals(aClass)) {
+                                page.writeStart("tr");
+                                    page.writeStart("th");
+                                        page.writeStart("code");
+                                            page.writeHtml(m.getName());
+                                        page.writeEnd();
+                                    page.writeEnd();
 
-                                    try {
-                                        writeJavaAnnotationValue(page, m.invoke(annotation));
-                                    } catch (IllegalAccessException error) {
-                                    } catch (InvocationTargetException error) {
-                                    }
+                                    page.writeStart("td");
+                                        try {
+                                            writeJavaAnnotationValue(page, m.invoke(annotation));
+                                        } catch (IllegalAccessException error) {
+                                        } catch (InvocationTargetException error) {
+                                        }
+                                    page.writeEnd();
                                 page.writeEnd();
-                            page.writeEnd();
+                            }
                         }
-                    }
+                    page.writeEnd();
                 page.writeEnd();
             }
         }
@@ -358,9 +430,11 @@ public class ContentTools extends PageServlet {
                 throws IOException {
 
             if (value instanceof String) {
-                page.writeHtml('"');
-                page.writeHtml(value);
-                page.writeHtml('"');
+                page.writeStart("code");
+                    page.writeHtml('"');
+                    page.writeHtml(value);
+                    page.writeHtml('"');
+                page.writeEnd();
 
             } else if (value instanceof Class) {
                 page.writeJavaClassLink((Class<?>) value);
@@ -371,11 +445,8 @@ public class ContentTools extends PageServlet {
             } else if (value.getClass().isArray()) {
                 int length = Array.getLength(value);
 
-                if (length == 0) {
-                    page.writeHtml("[]");
-
-                } else {
-                    page.writeStart("ul");
+                if (length > 0) {
+                    page.writeStart("ol");
                         for (int i = 0; i < length; ++ i) {
                             page.writeStart("li");
                                 writeJavaAnnotationValue(page, Array.get(value, i));
@@ -385,7 +456,9 @@ public class ContentTools extends PageServlet {
                 }
 
             } else {
-                page.writeHtml(value);
+                page.writeStart("code");
+                    page.writeHtml(value);
+                page.writeEnd();
             }
         }
     }
