@@ -422,7 +422,7 @@ writer.start("div", "class", "searchForm");
 
                     writer.writeStart("label",
                             "for", wp.getId());
-                        writer.writeHtml(" Show Drafts");
+                        writer.writeHtml(" Show Drafts/Trashed");
                     writer.writeEnd();
                 writer.writeEnd();
 
