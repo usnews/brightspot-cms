@@ -463,28 +463,53 @@ $doc.delegate('.exception > *', 'click', function() {
 
 // Soft validation based on suggested sizes.
 (function() {
-    var TAG_RE = /<[^>]*>/g,
-            TRIM_RE = /^\s+|\s+$/g,
+    var TRIM_RE = /^\s+|\s+$/g,
             WHITESPACE_RE = /\s+/;
 
-    $doc.delegate('.inputSmall-text :text, .inputSmall-text textarea', 'change.wordCount focus.wordCount input.wordCount', function() {
-        var $input = $(this),
-                minimum = +$input.attr('data-suggested-minimum'),
+    function updateWordCount($container, $input, value) {
+        var minimum = +$input.attr('data-suggested-minimum'),
                 maximum = +$input.attr('data-suggested-maximum'),
-                $container = $input.closest('.inputContainer'),
-                $toolbar = $container.find('.rte-toolbar-container .rte-toolbar').eq(0),
-                value = ($input.val() || '').replace(TAG_RE, '').replace(TRIM_RE, ''),
-                cc = value.length,
-                wc = value ? value.split(WHITESPACE_RE).length : 0;
+                cc,
+                wc;
 
-        if ($toolbar.length > 0) {
-            $container = $toolbar;
-        }
+        value = (value || '').replace(TRIM_RE, '');
+        cc = value.length;
+        wc = value ? value.split(WHITESPACE_RE).length : 0;
 
         $container.attr('data-wc-message',
                 cc < minimum ? 'Too Short' :
                 cc > maximum ? 'Too Long' :
                 wc + 'w ' + cc + 'c');
+    }
+
+    $doc.delegate(
+            '.inputSmall-text :text, .inputSmall-text textarea:not(.richtext)',
+            'change.wordCount focus.wordCount input.wordCount',
+            $.throttle(100, function() {
+
+        var $input = $(this);
+
+        updateWordCount(
+                $input.closest('.inputContainer'),
+                $input,
+                $input.val());
+    }));
+
+    $doc.onCreate('.wysihtml5-sandbox', function() {
+        var iframe = this,
+                $iframe = $(iframe),
+                $container = $iframe.closest('.rte-container'),
+                $textarea = $container.find('textarea.richtext'),
+                $toolbar = $container.find('.rte-toolbar');
+
+        $(iframe.contentDocument).on('input', $.throttle(100, function() {
+            if ($textarea.length > 0) {
+                updateWordCount(
+                        $toolbar,
+                        $textarea,
+                        $(iframe.contentDocument.body).text());
+            }
+        }));
     });
 })();
 
