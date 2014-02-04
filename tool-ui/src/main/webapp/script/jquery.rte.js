@@ -1558,20 +1558,22 @@ $.plugin2('rte', {
 $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function() {
     $.each(rtes, function() {
         var $toolbar = $(this.config.toolbar),
-                $header,
-                headerBottom,
                 $container = $(this.container),
                 $overlay = $(this.overlay),
+                $header,
+                headerBottom,
                 containerTop,
                 windowTop;
 
-        if (!$toolbar.is(':visible')) {
+        function completelyInView() {
+            $toolbar.removeClass('rte-toolbar-fixed');
             $container.css('padding-top', 0);
-            $overlay.css('top', 0);
-            return;
+            $overlay.css('top', $toolbar.outerHeight());
         }
 
-        if ($toolbar.closest('.rte-container').length === 0) {
+        // Only move the toolbar if it's in focus.
+        if ($toolbar.closest('.inputContainer.state-focus').length === 0) {
+            completelyInView();
             return;
         }
 
@@ -1582,20 +1584,20 @@ $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function(
 
         // Completely in view.
         if (windowTop < containerTop) {
-            $container.css('padding-top', 0);
-            $overlay.css('top', $toolbar.outerHeight());
-            $toolbar.removeClass('rte-toolbar-fixed');
+            completelyInView();
             $toolbar.attr('style', this._toolbarOldStyle);
+
             this._toolbarOldStyle = null;
 
         } else {
             this._toolbarOldStyle = this._toolbarOldStyle || $toolbar.attr('style') || ' ';
 
+            $toolbar.addClass('rte-toolbarContainer-fixed');
+            $container.css('padding-top', $toolbar.outerHeight());
+            $overlay.css('top', 0);
+
             // Partially in view.
             if (windowTop < containerTop + $container.height()) {
-                $container.css('padding-top', $toolbar.outerHeight());
-                $overlay.css('top', 0);
-                $toolbar.addClass('rte-toolbarContainer-fixed');
                 $toolbar.css({
                     'left': $toolbar.offset().left,
                     'position': 'fixed',
@@ -1605,7 +1607,6 @@ $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function(
 
             // Completely out of view.
             } else {
-                $toolbar.addClass('rte-toolbarContainer-fixed');
                 $toolbar.css({
                     'top': -10000,
                     'position': 'fixed'
