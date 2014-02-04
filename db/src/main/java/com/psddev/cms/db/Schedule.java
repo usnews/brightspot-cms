@@ -108,7 +108,7 @@ public class Schedule extends Record {
                     State state = State.getInstance(object);
                     Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
 
-                    if (contentData.isDraft()) {
+                    if (!state.isVisible()) {
                         state.getExtras().put(FIRST_TRIGGER_EXTRA, Boolean.TRUE);
                     }
 
