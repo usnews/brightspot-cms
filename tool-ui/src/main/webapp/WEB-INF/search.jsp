@@ -431,13 +431,12 @@ writer.start("div", "class", "searchForm");
                 }
 
                 writer.writeStart("div", "class", "searchFilter searchFilter-advancedQuery");
-                    writer.writeStart("input",
+                    writer.writeTag("input",
                             "type", "text",
                             "class", "code",
                             "name", Search.ADVANCED_QUERY_PARAMETER,
-                            "placeholder", "Advanced Query");
-                        writer.writeHtml(search.getAdvancedQuery());
-                    writer.writeEnd();
+                            "placeholder", "Advanced Query",
+                            "value", search.getAdvancedQuery());
 
                     writer.writeStart("a",
                             "class", "icon icon-action-edit icon-only",

@@ -9,6 +9,7 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
@@ -49,8 +50,8 @@ public class ContentReferences extends PageServlet {
                     page.writeStart("a",
                             "class", "icon icon-action-search",
                             "target", "_top",
-                            "href", page.cmsUrl("/content/searchAdvanced",
-                                    ContentSearchAdvanced.PREDICATE_PARAMETER, query.getPredicate().toString()));
+                            "href", page.cmsUrl("/searchAdvancedFull",
+                                    Search.ADVANCED_QUERY_PARAMETER, query.getPredicate().toString()));
                         page.writeHtml("View All ");
                         page.writeHtml(result.getCount());
                         page.writeHtml(" References");

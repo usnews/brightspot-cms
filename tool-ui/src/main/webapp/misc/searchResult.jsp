@@ -12,6 +12,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
+com.psddev.dari.util.UrlBuilder,
 
 java.util.Iterator,
 java.util.Map,
@@ -57,12 +58,13 @@ if (!wp.param(boolean.class, "widget")) {
         wp.writeEnd();
 
         wp.writeStart("a",
-                "class", "button action action-search",
+                "class", "button icon icon-fullscreen",
                 "target", "_top",
-                "href", wp.cmsUrl("/content/searchAdvanced",
-                        ContentSearchAdvanced.TYPE_PARAMETER, search.getSelectedType() != null ? search.getSelectedType().getId() : null,
-                        ContentSearchAdvanced.PREDICATE_PARAMETER, search.getQuery().getPredicate()));
-            wp.writeHtml("Advanced Search");
+                "href", new UrlBuilder(request).
+                        absolutePath(wp.cmsUrl("/searchAdvancedFull")).
+                        currentParameters().
+                        parameter(Search.NAME_PARAMETER, null));
+            wp.writeHtml("Fullscreen");
         wp.writeEnd();
     wp.writeEnd();
 
