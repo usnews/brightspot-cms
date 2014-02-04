@@ -111,18 +111,23 @@ if (!paths.isEmpty() &&
     wp.writeStart("ul");
         for (Directory.Path path : paths) {
             Site pathSite = path.getSite();
-            String href = pathSite != null ? pathSite.getPrimaryUrl() + path.getPath() : path.getPath();
+            String pathPath = path.getPath();
+            String href = pathSite != null ? pathSite.getPrimaryUrl() + pathPath : pathPath;
+
+            while (href.endsWith("*")) {
+                href = href.substring(0, href.length() - 1);
+            }
 
             wp.writeStart("li", "class", "widget-urlsItem");
                 wp.writeTag("input",
                         "type", "hidden",
                         "id", wp.createId(),
                         "name", pathName,
-                        "value", path.getPath());
+                        "value", pathPath);
 
                 wp.writeStart("div", "class", "widget-urlsItemLabel");
                     wp.writeStart("a", "href", href, "target", "_blank");
-                        wp.writeHtml(path.getPath());
+                        wp.writeHtml(pathPath);
                     wp.writeEnd();
 
                     wp.writeStart("label",
