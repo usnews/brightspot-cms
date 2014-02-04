@@ -37,6 +37,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.UrlBuilder;
 
 @RoutingFilter.Path(application = "cms", value = "searchAdvancedFullResult")
 public class SearchAdvancedFullResult extends PageServlet {
@@ -321,7 +322,12 @@ public class SearchAdvancedFullResult extends PageServlet {
                     "action", page.url(""),
                     "target", "_top");
 
-                page.writeTag("input", "type", "hidden", "name", "returnUrl", "value", page.url(""));
+                page.writeTag("input",
+                        "type", "hidden",
+                        "name", "returnUrl",
+                        "value", new UrlBuilder(page.getRequest()).
+                                absolutePath(page.cmsUrl("/searchAdvancedFull")).
+                                currentParameters());
 
                 for (ObjectField field : fields) {
                     page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
