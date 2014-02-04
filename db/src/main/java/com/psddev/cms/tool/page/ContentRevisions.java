@@ -13,6 +13,7 @@ import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.Widget;
 import com.psddev.dari.db.ObjectType;
@@ -199,9 +200,9 @@ public class ContentRevisions extends Widget {
                         page.writeStart("a",
                                 "class", "icon icon-action-search",
                                 "target", "_top",
-                                "href", page.cmsUrl("/content/searchAdvanced",
-                                        ContentSearchAdvanced.TYPE_PARAMETER, ObjectType.getInstance(History.class).getId(),
-                                        ContentSearchAdvanced.PREDICATE_PARAMETER, "objectId = " + state.getId()));
+                                "href", page.cmsUrl("/searchAdvancedFull",
+                                        Search.SELECTED_TYPE_PARAMETER, ObjectType.getInstance(History.class).getId(),
+                                        Search.ADVANCED_QUERY_PARAMETER, "objectId = " + state.getId()));
                             page.writeHtml("View All ");
                             page.writeHtml(historiesResult.getCount());
                             page.writeHtml(" Past Revisions");
