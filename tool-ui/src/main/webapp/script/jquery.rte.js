@@ -1560,31 +1560,16 @@ $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function(
         var $toolbar = $(this.config.toolbar),
                 $container = $(this.container),
                 $overlay = $(this.overlay),
-                $header,
-                headerBottom,
-                containerTop,
-                windowTop;
-
-        function completelyInView() {
-            $toolbar.removeClass('rte-toolbar-fixed');
-            $container.css('padding-top', 0);
-            $overlay.css('top', $toolbar.outerHeight());
-        }
-
-        // Only move the toolbar if it's in focus.
-        if ($toolbar.closest('.inputContainer.state-focus').length === 0) {
-            completelyInView();
-            return;
-        }
-
-        $header = $('.toolHeader');
-        headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0);
-        containerTop = $container.offset().top;
-        windowTop = $win.scrollTop() + headerBottom;
+                $header = $('.toolHeader'),
+                headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0),
+                containerTop = $container.offset().top,
+                windowTop = $win.scrollTop() + headerBottom;
 
         // Completely in view.
         if (windowTop < containerTop) {
-            completelyInView();
+            $toolbar.removeClass('rte-toolbar-fixed');
+            $container.css('padding-top', 0);
+            $overlay.css('top', $toolbar.outerHeight());
             $toolbar.attr('style', this._toolbarOldStyle);
 
             this._toolbarOldStyle = null;
