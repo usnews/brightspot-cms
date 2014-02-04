@@ -420,7 +420,31 @@ $doc.onCreate('.contentDiff', function() {
 });
 
 $doc.onCreate('.searchAdvancedResult', function() {
-    var $result = $(this);
+    var $result = $(this),
+            checked;
+
+    $result.find('thead tr:first th:first').append($('<div/>', {
+        'html': $('<span/>', {
+            'class': 'icon icon-check icon-only'
+        }),
+
+        'css': {
+            'cursor': 'pointer',
+            'text-align': 'center',
+            'user-select': 'none',
+            'vertical-align': 'middle'
+        },
+
+        'click': function() {
+            var $div = $(this);
+
+            checked = !checked;
+
+            $div.closest('table').find(':checkbox').prop('checked', checked);
+            $div.find('.icon').removeClass('icon-check icon-check-empty').addClass(checked ? 'icon-check-empty' : 'icon-check');
+            return false;
+        }
+    }));
 
     $result.on('change', ':checkbox', function() {
         $result.find('.actions .action').each(function() {
