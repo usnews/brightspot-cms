@@ -78,7 +78,8 @@ public class SearchResultRenderer {
             }
         }
 
-        showSiteLabel = page.getSite() == null &&
+        showSiteLabel = Query.from(CmsTool.class).first().isDisplaySiteInSearchResult() &&
+                page.getSite() == null &&
                 Query.from(Site.class).hasMoreThan(0);
 
         if (selectedType != null) {

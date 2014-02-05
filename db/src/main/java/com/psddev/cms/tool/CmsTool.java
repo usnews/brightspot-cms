@@ -113,6 +113,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean allowInsecureAuthenticationCookie;
 
+    @ToolUi.Tab("Debug")
+    private boolean displaySiteInSearchResult;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -533,6 +536,14 @@ public class CmsTool extends Tool {
     public void setAllowInsecureAuthenticationCookie(
             boolean allowInsecureAuthenticationCookie) {
         this.allowInsecureAuthenticationCookie = allowInsecureAuthenticationCookie;
+    }
+
+    public boolean isDisplaySiteInSearchResult() {
+        return displaySiteInSearchResult;
+    }
+
+    public void setDisplaySiteInSearchResult(boolean displaySiteInSearchResult) {
+        this.displaySiteInSearchResult = displaySiteInSearchResult;
     }
 
     /** Returns the preview URL. */
