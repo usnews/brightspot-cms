@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
 
     private static final String ATTRIBUTE_PREFIX = LayoutTag.class.getName() + ".";
     private static final String GRID_CSS_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssWritten";
+    private static final String GRID_CSS_CLASS_WRITTEN_ATTRIBUTE_PREFIX = ATTRIBUTE_PREFIX + "gridCssClassWritten.";
+    private static final String GRID_CSS_COMMON_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridCssCommonWritten";
     private static final String GRID_JAVASCRIPT_WRITTEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "gridJavaScriptWritten";
     private static final String GRIDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "grids";
 
@@ -159,7 +162,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
-                LayoutTag.Static.writeGridCss(writer, context, request);
+                LayoutTag.Static.writeGridCssByClasses(writer, context, request, cssClasses);
                 LayoutTag.Static.writeGridJavaScript(writer, context, request);
             }
 
@@ -241,6 +244,58 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
                     writer.writeAllGridCss(context, request);
                 writer.writeEnd();
                 request.setAttribute(GRID_CSS_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+            }
+        }
+
+        /**
+         * Writes all grid CSS related to the given {@code cssClasses found
+         * in the given {@code context} to the given {@code writer} unless
+         * it's already been written within the given {@code request}.
+         *
+         * @param writer Can't be {@code null}.
+         * @param context Can't be {@code null}.
+         * @param request Can't be {@code null}.
+         * @param cssClasses May be {@code null}.
+         */
+        public static void writeGridCssByClasses(
+                HtmlWriter writer,
+                ServletContext context,
+                HttpServletRequest request,
+                Collection<String> cssClasses)
+                throws IOException {
+
+            if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) != null) {
+                return;
+            }
+
+            if (request.getAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE) == null) {
+                request.setAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE, Boolean.TRUE);
+
+                writer.writeStart("style", "type", "text/css");
+                    writer.writeCommonGridCss();
+                writer.writeEnd();
+            }
+
+            if (cssClasses != null) {
+                Map<String, HtmlGrid> grids = HtmlGrid.Static.findAll(context, request);
+
+                for (String cssClass : cssClasses) {
+                    for (Map.Entry<String, HtmlGrid> entry : grids.entrySet()) {
+                        String selector = entry.getKey();
+
+                        if (selector.contains(cssClass)) {
+                            String attr = GRID_CSS_CLASS_WRITTEN_ATTRIBUTE_PREFIX + selector;
+
+                            if (request.getAttribute(attr) == null) {
+                                request.setAttribute(attr, Boolean.TRUE);
+
+                                writer.writeStart("style", "type", "text/css");
+                                    writer.writeGridCss(selector, entry.getValue());
+                                writer.writeEnd();
+                            }
+                        }
+                    }
+                }
             }
         }
 
