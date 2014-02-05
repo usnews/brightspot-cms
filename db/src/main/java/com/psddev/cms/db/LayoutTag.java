@@ -264,6 +264,10 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
                 Collection<String> cssClasses)
                 throws IOException {
 
+            if (request.getAttribute(GRID_CSS_WRITTEN_ATTRIBUTE) != null) {
+                return;
+            }
+
             if (request.getAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE) == null) {
                 request.setAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE, Boolean.TRUE);
 
