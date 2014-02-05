@@ -476,7 +476,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         ObjectField field)
                         throws IOException {
 
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "type", "text",
                             "name", valueParam,
                             "value", page.param(String.class, valueParam));
@@ -551,7 +551,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         }
 
                     } else {
-                        page.writeTag("input",
+                        page.writeElement("input",
                                 "type", "text",
                                 "name", valueParam,
                                 "value", page.param(String.class, valueParam));
@@ -765,14 +765,14 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                     boolean date = ObjectField.DATE_TYPE.equals(field.getInternalItemType());
                     String valueToParam = valueParam + "t";
 
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "type", "text",
                             "class", date ? "date" : null,
                             "name", valueParam,
                             "value", page.param(String.class, valueParam));
 
                     page.writeHtml(" ");
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "type", "text",
                             "class", date ? "date" : null,
                             "name", valueToParam,

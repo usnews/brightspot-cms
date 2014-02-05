@@ -84,7 +84,7 @@ if (validValues != null) {
     wp.write("</select>");
 
 } else if (ui.isSecret()) {
-    wp.writeTag("input",
+    wp.writeElement("input",
             "type", "password",
             "id", wp.getId(),
             "name", inputName,

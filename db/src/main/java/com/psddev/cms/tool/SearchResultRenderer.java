@@ -163,7 +163,7 @@ public class SearchResultRenderer {
                     "method", "post",
                     "action", page.url("/content/suggestions.jsp"),
                     "target", frameName);
-                page.writeTag("input",
+                page.writeElement("input",
                         "type", "hidden",
                         "name", "search",
                         "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
@@ -202,7 +202,7 @@ public class SearchResultRenderer {
                 String name = entry.getKey();
 
                 for (String value : entry.getValue()) {
-                    page.writeTag("input", "type", "hidden", "name", name, "value", value);
+                    page.writeElement("input", "type", "hidden", "name", name, "value", value);
                 }
             }
 
@@ -222,7 +222,7 @@ public class SearchResultRenderer {
             if (sortField != null) {
                 page.writeHtml(" ");
 
-                page.writeTag("input",
+                page.writeElement("input",
                         "id", page.createId(),
                         "type", "checkbox",
                         "name", Search.SHOW_MISSING_PARAMETER,
@@ -320,7 +320,7 @@ public class SearchResultRenderer {
         renderBeforeItem(item);
 
         page.writeStart("figure");
-            page.writeTag("img",
+            page.writeElement("img",
                     "src", page.getPreviewThumbnailUrl(item),
                     "alt",
                             (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +

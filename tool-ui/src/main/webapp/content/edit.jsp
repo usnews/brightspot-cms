@@ -579,7 +579,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                             }
 
                                             wp.writeStart("div", "class", "widget-publishingWorkflowLog");
-                                                wp.writeTag("input",
+                                                wp.writeElement("input",
                                                         "type", "hidden",
                                                         "name", "workflowLogId",
                                                         "value", newLog.getId());
@@ -624,7 +624,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                                         wp.writeEnd();
                                     }
 
-                                    wp.writeTag("input",
+                                    wp.writeElement("input",
                                             "type", "text",
                                             "class", "date dateInput",
                                             "data-emptylabel", "Now",
@@ -713,12 +713,12 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             "id", previewFormId,
                             "target", previewTarget,
                             "action", JspUtils.getAbsolutePath(request, "/_preview"));
-                        wp.writeTag("input", "type", "hidden", "name", "_fields", "value", true);
-                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_ID_PARAMETER, "value", state.getId());
-                        wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_OBJECT_PARAMETER);
+                        wp.writeElement("input", "type", "hidden", "name", "_fields", "value", true);
+                        wp.writeElement("input", "type", "hidden", "name", PageFilter.PREVIEW_ID_PARAMETER, "value", state.getId());
+                        wp.writeElement("input", "type", "hidden", "name", PageFilter.PREVIEW_OBJECT_PARAMETER);
 
                         if (site != null) {
-                            wp.writeTag("input", "type", "hidden", "name", PageFilter.PREVIEW_SITE_ID_PARAMETER, "value", site.getId());
+                            wp.writeElement("input", "type", "hidden", "name", PageFilter.PREVIEW_SITE_ID_PARAMETER, "value", site.getId());
                         }
 
                         wp.writeStart("select", "onchange",

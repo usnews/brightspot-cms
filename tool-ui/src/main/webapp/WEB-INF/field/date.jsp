@@ -36,7 +36,7 @@ if (Boolean.TRUE.equals(request.getAttribute("isFormPost"))) {
 }
 
 wp.writeStart("div", "class", "inputSmall");
-    wp.writeTag("input",
+    wp.writeElement("input",
             "type", "text",
             "class", "date",
             "name", inputName,

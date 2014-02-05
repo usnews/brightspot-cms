@@ -51,7 +51,7 @@ public class InlineEditor extends PageServlet {
                     page.writeStart("a",
                             "target", "_blank",
                             "href", page.cmsUrl("/"));
-                        page.writeTag("img",
+                        page.writeElement("img",
                                 "src", page.cmsUrl("/style/brightspot.png"),
                                 "alt", "Brightspot",
                                 "width", 104,

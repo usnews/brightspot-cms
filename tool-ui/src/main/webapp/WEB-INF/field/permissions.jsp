@@ -185,12 +185,12 @@ wp.writeStart("div", "class", "inputSmall permissions");
                     !groups.contains(Content.SEARCHABLE_GROUP)) {
                 i.remove();
 
-                wp.writeTag("input",
+                wp.writeElement("input",
                         "type", "hidden",
                         "name", inputName,
                         "value", "type/" + t.getId().toString());
 
-                wp.writeTag("input",
+                wp.writeElement("input",
                         "type", "hidden",
                         "name", inputName,
                         "value", "type/" + t.getId().toString() + "/");
@@ -212,12 +212,12 @@ wp.writeStart("div", "class", "inputSmall permissions");
                     wp.writeStart("li");
                         writeParent(wp, permissions, type, typePermissionId);
 
-                        wp.writeTag("input",
+                        wp.writeElement("input",
                                 "type", "hidden",
                                 "name", inputName,
                                 "value", typePermissionId + "/field");
 
-                        wp.writeTag("input",
+                        wp.writeElement("input",
                                 "type", "hidden",
                                 "name", inputName,
                                 "value", typePermissionId + "/field/");
@@ -261,7 +261,7 @@ wp.writeStart("div", "class", "inputSmall permissions");
                                     }
                                 }
 
-                                wp.writeTag("input",
+                                wp.writeElement("input",
                                         "type", "text",
                                         "id", wp.getId(),
                                         "name", inputName + "." + typePermissionId + "/excludeFields",
@@ -294,7 +294,7 @@ private static void writeParent(ToolPageContext wp, Set<String> permissions, Obj
     boolean hasSelf = permissions.contains(permissionId);
     boolean hasChildren = permissions.contains(permissionId + "/");
 
-    wp.writeTag("input",
+    wp.writeElement("input",
             "type", "hidden",
             "name", inputName,
             "value", permissionId);

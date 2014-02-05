@@ -85,7 +85,7 @@ if (!ObjectUtils.isBlank(errors)) {
 
 wp.writeStart("div", "class", "widget-urlsAutomatic");
     wp.writeStart("label");
-        wp.writeTag("input",
+        wp.writeElement("input",
                 "type", "checkbox",
                 "name", automaticName,
                 "value", "true",
@@ -119,7 +119,7 @@ if (!paths.isEmpty() &&
             }
 
             wp.writeStart("li", "class", "widget-urlsItem");
-                wp.writeTag("input",
+                wp.writeElement("input",
                         "type", "hidden",
                         "id", wp.createId(),
                         "name", pathName,
@@ -134,7 +134,7 @@ if (!paths.isEmpty() &&
                             "class", "widget-urlsItemRemove");
                         wp.writeHtml(" ");
 
-                        wp.writeTag("input",
+                        wp.writeElement("input",
                                 "type", "checkbox",
                                 "name", removeName + "." + index,
                                 "value", "true");

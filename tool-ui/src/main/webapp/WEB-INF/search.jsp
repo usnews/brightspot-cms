@@ -166,20 +166,20 @@ writer.start("div", "class", "searchForm");
                     "method", "get",
                     "action", wp.url(null));
 
-                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
-                writer.tag("input", "type", "hidden", "name", "reset", "value", "true");
-                writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
+                writer.writeElement("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
+                writer.writeElement("input", "type", "hidden", "name", "reset", "value", "true");
+                writer.writeElement("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
 
                 for (ObjectType type : search.getTypes()) {
-                    writer.tag("input", "type", "hidden", "name", Search.TYPES_PARAMETER, "value", type.getId());
+                    writer.writeElement("input", "type", "hidden", "name", Search.TYPES_PARAMETER, "value", type.getId());
                 }
 
-                writer.tag("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
-                writer.tag("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
-                writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
-                writer.tag("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
+                writer.writeElement("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
+                writer.writeElement("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
+                writer.writeElement("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
+                writer.writeElement("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
 
-                writer.tag("input",
+                writer.writeElement("input",
                         "type", "hidden",
                         "name", Search.QUERY_STRING_PARAMETER,
                         "value", search.getQueryString());
@@ -202,25 +202,25 @@ writer.start("div", "class", "searchForm");
                     "action", wp.url(request.getAttribute("resultJsp")),
                     "target", resultTarget);
 
-                writer.tag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
-                writer.tag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
-                writer.tag("input", "type", "hidden", "name", Search.SORT_PARAMETER, "value", search.getSort());
+                writer.writeElement("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
+                writer.writeElement("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", search.getName());
+                writer.writeElement("input", "type", "hidden", "name", Search.SORT_PARAMETER, "value", search.getSort());
 
                 for (ObjectType type : search.getTypes()) {
-                    writer.tag("input", "type", "hidden", "name", Search.TYPES_PARAMETER, "value", type.getId());
+                    writer.writeElement("input", "type", "hidden", "name", Search.TYPES_PARAMETER, "value", type.getId());
                 }
 
-                writer.tag("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
-                writer.tag("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
-                writer.tag("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
-                writer.tag("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
-                writer.tag("input", "type", "hidden", "name", Search.OFFSET_PARAMETER, "value", search.getOffset());
-                writer.tag("input", "type", "hidden", "name", Search.LIMIT_PARAMETER, "value", search.getLimit());
-                writer.tag("input", "type", "hidden", "name", Search.SELECTED_TYPE_PARAMETER, "value", selectedType != null ? selectedType.getId() : null);
+                writer.writeElement("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
+                writer.writeElement("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
+                writer.writeElement("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
+                writer.writeElement("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
+                writer.writeElement("input", "type", "hidden", "name", Search.OFFSET_PARAMETER, "value", search.getOffset());
+                writer.writeElement("input", "type", "hidden", "name", Search.LIMIT_PARAMETER, "value", search.getLimit());
+                writer.writeElement("input", "type", "hidden", "name", Search.SELECTED_TYPE_PARAMETER, "value", selectedType != null ? selectedType.getId() : null);
 
                 writer.start("div", "class", "searchInput");
                     writer.start("label", "for", wp.createId()).html("Search").end();
-                    writer.tag("input",
+                    writer.writeElement("input",
                             "type", "text",
                             "class", "autoFocus",
                             "id", wp.getId(),
@@ -236,7 +236,7 @@ writer.start("div", "class", "searchForm");
                             State filterState = State.getInstance(Query.from(Object.class).where("_id = ?", search.getGlobalFilters().get(filterId)).first());
 
                             writer.start("div", "class", "searchFilter");
-                                writer.tag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "class", "objectId",
                                         "name", "gf." + filterId,
@@ -253,7 +253,7 @@ writer.start("div", "class", "searchForm");
 
                 if (selectedType != null) {
                     if (selectedType.getGroups().contains(ColorImage.class.getName())) {
-                        writer.writeTag("input",
+                        writer.writeElement("input",
                                 "type", "text",
                                 "class", "color",
                                 "name", Search.COLOR_PARAMETER,
@@ -310,58 +310,58 @@ writer.start("div", "class", "searchForm");
                                 writer.writeEnd();
 
                             } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "class", "date",
                                         "name", inputName,
                                         "placeholder", displayName,
                                         "value", fieldValue);
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "class", "date",
                                         "name", inputName + ".x",
                                         "placeholder", "(End)",
                                         "value", filterValue != null ? filterValue.get("x") : null);
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "hidden",
                                         "name", inputName + ".t",
                                         "value", "d");
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
                                         "value", true,
                                         "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
 
                             } else if (ObjectField.NUMBER_TYPE.equals(fieldInternalItemType)) {
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "name", inputName,
                                         "placeholder", displayName,
                                         "value", fieldValue);
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "name", inputName + ".x",
                                         "placeholder", "(Maximum)",
                                         "value", filterValue != null ? filterValue.get("x") : null);
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "hidden",
                                         "name", inputName + ".t",
                                         "value", "n");
 
                             } else if (ObjectField.TEXT_TYPE.equals(fieldInternalItemType)) {
                                 if (field.getValues() == null || field.getValues().isEmpty()) {
-                                    writer.writeTag("input",
+                                    writer.writeElement("input",
                                             "type", "text",
                                             "name", inputName,
                                             "placeholder", displayName,
                                             "value", fieldValue);
 
-                                    writer.writeTag("input",
+                                    writer.writeElement("input",
                                             "type", "hidden",
                                             "name", inputName + ".t",
                                             "value", "t");
@@ -380,7 +380,7 @@ writer.start("div", "class", "searchForm");
                                     writer.end();
                                 }
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
                                         "value", true,
@@ -389,7 +389,7 @@ writer.start("div", "class", "searchForm");
                             } else {
                                 State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "text",
                                         "class", "objectId",
                                         "name", inputName,
@@ -402,7 +402,7 @@ writer.start("div", "class", "searchForm");
                                         "data-searcher-path", fieldUi.getInputSearcherPath(),
                                         "data-typeIds", fieldTypeIds,
                                         "value", fieldValue);
-                                writer.writeTag("input",
+                                writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
                                         "value", true,
@@ -413,7 +413,7 @@ writer.start("div", "class", "searchForm");
                 writer.end();
 
                 writer.writeStart("div", "class", "searchFilter");
-                    writer.writeTag("input",
+                    writer.writeElement("input",
                             "type", "checkbox",
                             "id", wp.createId(),
                             "name", Search.SHOW_DRAFTS_PARAMETER,
@@ -431,7 +431,7 @@ writer.start("div", "class", "searchForm");
                 }
 
                 writer.writeStart("div", "class", "searchFilter searchFilter-advancedQuery");
-                    writer.writeTag("input",
+                    writer.writeElement("input",
                             "type", "text",
                             "class", "code",
                             "name", Search.ADVANCED_QUERY_PARAMETER,
@@ -468,7 +468,7 @@ writer.start("div", "class", "searchForm");
 
                     if (singleType) {
                         if (!selectedType.getGroups().contains(Singleton.class.getName())) {
-                            writer.tag("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
+                            writer.writeElement("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
                             writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
                                 writer.writeHtml("New " + wp.getObjectLabel(selectedType));
                             writer.writeEnd();

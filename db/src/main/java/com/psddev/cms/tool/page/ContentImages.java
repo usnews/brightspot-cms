@@ -53,12 +53,12 @@ public class ContentImages extends PageServlet {
                     String url = new ImageTag.Builder(image).setStandardImageSize(size).toUrl();
 
                     page.writeStart("div", "class", "resizedImage resizedImage-" + size.getInternalName());
-                        page.writeTag("img",
+                        page.writeElement("img",
                                 "src", url,
                                 "style", page.cssString(
                                         "max-width", "100%"));
 
-                        page.writeTag("br");
+                        page.writeElement("br");
                         page.writeStart("textarea",
                                 "class", "code",
                                 "data-expandable-class", "code",

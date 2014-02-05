@@ -188,7 +188,7 @@ public class ContentTools extends PageServlet {
                                         page.writeEnd();
 
                                         page.writeStart("td");
-                                            page.writeTag("input",
+                                            page.writeElement("input",
                                                     "type", "text",
                                                     "id", page.getId(),
                                                     "class", "code",
@@ -207,7 +207,7 @@ public class ContentTools extends PageServlet {
                                         page.writeEnd();
 
                                         page.writeStart("td");
-                                            page.writeTag("input",
+                                            page.writeElement("input",
                                                     "type", "text",
                                                     "id", page.getId(),
                                                     "value", JspUtils.getAbsoluteUrl(page.getRequest(), page.cmsUrl("/content/edit.jsp", "id", state.getId())),
@@ -239,7 +239,7 @@ public class ContentTools extends PageServlet {
                                         embedCode.append("\"></script>");
 
                                         page.writeHtml("Embed Code:");
-                                        page.writeTag("br");
+                                        page.writeElement("br");
                                         page.writeStart("textarea",
                                                 "class", "code",
                                                 "data-expandable-class", "code",

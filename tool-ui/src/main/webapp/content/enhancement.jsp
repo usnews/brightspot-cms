@@ -136,7 +136,7 @@ if (object == null) {
         <%
         if (refFieldCount > 0) {
             request.setAttribute("excludeFields", Arrays.asList("record"));
-            wp.writeTag("input", "type", "hidden", "name", "refId", "value", ref.getId());
+            wp.writeElement("input", "type", "hidden", "name", "refId", "value", ref.getId());
             wp.writeFormFields(ref);
         }
         %>

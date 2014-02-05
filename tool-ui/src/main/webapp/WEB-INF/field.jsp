@@ -254,12 +254,12 @@ try {
                 wp.writeStart("div", "class", "inputVariationLabel");
                     wp.writeHtml((char) ('A' + i));
 
-                    wp.writeTag("input",
+                    wp.writeElement("input",
                             "type", "hidden",
                             "name", variantIdParam,
                             "value", variantId);
 
-                    wp.writeTag("input",
+                    wp.writeElement("input",
                             "type", "range",
                             "id", wp.createId(),
                             "name", weightName,

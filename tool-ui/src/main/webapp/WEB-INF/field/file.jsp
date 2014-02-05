@@ -704,7 +704,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 wp.writeStart("video",
                         "controls", "controls",
                         "preload", "auto");
-                    wp.writeTag("source",
+                    wp.writeElement("source",
                             "type", contentType,
                             "src", fieldValue.getPublicUrl());
                 wp.writeEnd();

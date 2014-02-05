@@ -255,7 +255,7 @@ public class SearchAdvancedFullResult extends PageServlet {
             public void format(HtmlWriter writer, StorageItem item) throws IOException {
                 ToolPageContext page = (ToolPageContext) writer;
 
-                page.writeTag("img",
+                page.writeElement("img",
                         "height", 100,
                         "src", ImageEditor.Static.getDefault() != null ?
                                 new ImageTag.Builder(item).setHeight(100).toUrl() :
@@ -322,7 +322,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                     "action", page.url(""),
                     "target", "_top");
 
-                page.writeTag("input",
+                page.writeElement("input",
                         "type", "hidden",
                         "name", "returnUrl",
                         "value", new UrlBuilder(page.getRequest()).
@@ -330,7 +330,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                                 currentParameters());
 
                 for (ObjectField field : fields) {
-                    page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
+                    page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
                 }
 
                 page.writeStart("table", "class", "table-bordered table-striped pageThumbnails");
@@ -403,7 +403,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
             page.writeStart("tr", "data-preview-url", permalink);
                 page.writeStart("td", "style", "width: 20px;");
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "type", "checkbox",
                             "name", ITEMS_PARAMETER,
                             "value", itemState.getId());

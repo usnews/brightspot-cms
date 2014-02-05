@@ -302,13 +302,13 @@ public class UploadFiles extends PageServlet {
                 "enctype", "multipart/form-data",
                 "action", page.url(null));
 
-            page.writeTag("input",
+            page.writeElement("input",
                     "type", "hidden",
                     "name", CONTAINER_ID_PARAMETER,
                     "value", containerId);
 
             for (ObjectType type : types) {
-                page.writeTag("input", "type", "hidden", "name", "typeId", "value", type.getId());
+                page.writeElement("input", "type", "hidden", "name", "typeId", "value", type.getId());
             }
 
             if (postError != null) {
@@ -329,7 +329,7 @@ public class UploadFiles extends PageServlet {
                     page.writeStart("label", "for", page.createId()).writeHtml("Files").writeEnd();
                 page.writeEnd();
                 page.writeStart("div", "class", "inputSmall");
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "id", page.getId(),
                             "type", "file",
                             "name", "file",
@@ -365,7 +365,7 @@ public class UploadFiles extends PageServlet {
                 Object common = type.createObject(null);
 
                 page.writeStart("div", "class", "typeForm " + name);
-                    page.writeTag("input",
+                    page.writeElement("input",
                             "type", "hidden",
                             "name", name,
                             "value", State.getInstance(common).getId());

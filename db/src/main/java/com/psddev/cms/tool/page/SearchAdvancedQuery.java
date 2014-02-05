@@ -170,7 +170,7 @@ public class SearchAdvancedQuery extends PageServlet {
             String paramPrefix)
             throws IOException {
 
-        page.writeTag("input",
+        page.writeElement("input",
                 "type", "hidden",
                 "name", predicateParam,
                 "value", 1);

@@ -199,7 +199,7 @@ public class ExternalContent extends Content implements Renderer {
         Object type = response.get("type");
 
         if ("photo".equals(type)) {
-            writer.writeTag("img",
+            writer.writeElement("img",
                     "src", response.get("url"),
                     "width", response.get("width"),
                     "height", response.get("height"),

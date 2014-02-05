@@ -168,7 +168,7 @@ public class CreateNew extends PageServlet {
                                     page.writeStart("td").writeHtml(getTypeTemplateLabel(typeCounts, typeTemplate)).writeEnd();
 
                                     page.writeStart("td", "class", "checkboxContainer");
-                                        page.writeTag("input",
+                                        page.writeElement("input",
                                                 "type", "checkbox",
                                                 "id", page.getId(),
                                                 "name", typeTemplate.getParameterName(),

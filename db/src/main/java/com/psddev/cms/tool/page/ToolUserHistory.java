@@ -113,9 +113,9 @@ public class ToolUserHistory extends PageServlet {
                                     page.writeHtml("Looking Glass");
                                 page.writeEnd();
 
-                                page.writeTag("br");
+                                page.writeElement("br");
 
-                                page.writeTag("img",
+                                page.writeElement("img",
                                         "width", 150,
                                         "height", 150,
                                         "src", page.cmsUrl("qrCode",

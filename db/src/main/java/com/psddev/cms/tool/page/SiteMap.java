@@ -160,7 +160,7 @@ public class SiteMap extends PageServlet {
                     page.writeEnd();
 
                     if (types.isEmpty()) {
-                        page.writeTag("input",
+                        page.writeElement("input",
                                 "type", "hidden",
                                 "name", "type",
                                 "value", URL_TYPE);
@@ -217,7 +217,7 @@ public class SiteMap extends PageServlet {
                         }
 
                         if (valueQuery.hasMoreThan(250)) {
-                            page.writeTag("input",
+                            page.writeElement("input",
                                     "type", "text",
                                     "class", "autoSubmit objectId",
                                     "data-editable", false,

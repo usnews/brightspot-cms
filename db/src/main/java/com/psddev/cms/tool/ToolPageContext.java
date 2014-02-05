@@ -1104,7 +1104,7 @@ public class ToolPageContext extends WebPageContext {
                     writeHtml(companyName);
                 writeEnd();
 
-                writeTag("meta", "name", "robots", "content", "noindex");
+                writeElement("meta", "name", "robots", "content", "noindex");
                 writeStylesAndScripts();
             writeEnd();
 
@@ -1154,7 +1154,7 @@ public class ToolPageContext extends WebPageContext {
                     writeStart("h1", "class", "toolTitle");
                         writeStart("a", "href", cmsUrl("/"));
                             if (companyLogo != null) {
-                                writeTag("img", "src", companyLogo.getPublicUrl(), "alt", companyName);
+                                writeElement("img", "src", companyLogo.getPublicUrl(), "alt", companyName);
                             } else {
                                 writeHtml(companyName);
                             }
@@ -1224,12 +1224,12 @@ public class ToolPageContext extends WebPageContext {
                                 "action", cmsUrl("/misc/search.jsp"),
                                 "target", "miscSearch");
 
-                            writeTag("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
-                            writeTag("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
+                            writeElement("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
+                            writeElement("input", "type", "hidden", "name", Search.NAME_PARAMETER, "value", "global");
 
                             writeStart("span", "class", "searchInput");
                                 writeStart("label", "for", createId()).writeHtml("Search").writeEnd();
-                                writeTag("input", "type", "text", "id", getId(), "name", "q");
+                                writeElement("input", "type", "text", "id", getId(), "name", "q");
                                 writeStart("button").writeHtml("Go").writeEnd();
                             writeEnd();
 
@@ -1309,14 +1309,14 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeTag("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
 
         } else {
-            writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
+            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
         }
 
-        writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
-        writeTag("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
+        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
+        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
@@ -1490,7 +1490,7 @@ public class ToolPageContext extends WebPageContext {
                     writeStart("a",
                             "target", "_blank",
                             "href", "http://www.brightspot.com/");
-                        writeTag("img",
+                        writeElement("img",
                                 "src", cmsUrl("/style/brightspot.png"),
                                 "alt", "Brightspot",
                                 "width", 104,
@@ -1688,7 +1688,7 @@ public class ToolPageContext extends WebPageContext {
                 typeIds.setLength(typeIds.length() - 1);
             }
 
-            writeTag("input",
+            writeElement("input",
                     "type", "text",
                     "class", "objectId",
                     "data-additional-query", field.getPredicate(),

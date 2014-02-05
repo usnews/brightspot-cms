@@ -59,7 +59,7 @@ wp.writeStart("div", "class", "widget");
     wp.writeStart("form",
             "method", "post",
             "action", wp.objectUrl("", object));
-        wp.writeTag("input",
+        wp.writeElement("input",
                 "type", "hidden",
                 "name", "incompleteIfMatching",
                 wp.param(boolean.class, "incompleteIfMatching"));

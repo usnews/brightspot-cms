@@ -3,7 +3,6 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,11 +25,12 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ImageResizeStorageItemListener;
 import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
@@ -242,9 +242,16 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     builder.append("\"");
                 }
             }
-            builder.append(">");
-            if (!"img".equalsIgnoreCase(tagName)) {
-                builder.append("</");
+
+            if ("img".equalsIgnoreCase(tagName)) {
+                if (Settings.get(boolean.class, "dari/selfClosingElements")) {
+                    builder.append('/');
+                }
+
+                builder.append('>');
+
+            } else {
+                builder.append("></");
                 builder.append(tagName);
                 builder.append(">");
             }

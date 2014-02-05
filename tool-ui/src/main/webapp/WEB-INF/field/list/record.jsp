@@ -153,17 +153,17 @@ if (!isValueExternal) {
                 wp.writeStart("li",
                         "data-type", wp.getObjectLabel(itemType),
                         "data-label", wp.getObjectLabel(item));
-                    wp.writeTag("input",
+                    wp.writeElement("input",
                             "type", "hidden",
                             "name", idName,
                             "value", itemState.getId());
 
-                    wp.writeTag("input",
+                    wp.writeElement("input",
                             "type", "hidden",
                             "name", typeIdName,
                             "value", itemType.getId());
 
-                    wp.writeTag("input",
+                    wp.writeElement("input",
                             "type", "hidden",
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
@@ -339,7 +339,7 @@ if (!isValueExternal) {
 
                                                 writer.start("div", "class", "inputContainer-listLayoutItemContainer");
                                                     writer.start("div", "class", "inputContainer-listLayoutItem");
-                                                        writer.tag("input",
+                                                        writer.writeElement("input",
                                                                 "type", "text",
                                                                 "class", "objectId",
                                                                 "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
@@ -411,7 +411,7 @@ if (!isValueExternal) {
                                     public void format(HtmlWriter writer) throws IOException {
                                         writer.start("div", "class", "inputContainer-listLayoutItemContainer");
                                             writer.start("div", "class", "inputContainer-listLayoutItem");
-                                                writer.tag("input",
+                                                writer.writeElement("input",
                                                         "type", "text",
                                                         "class", "objectId",
                                                         "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),

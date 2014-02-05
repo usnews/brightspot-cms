@@ -190,7 +190,7 @@ public class UnpublishedDrafts extends PageServlet {
                             if (userQuery.hasMoreThan(250)) {
                                 State userState = State.getInstance(user);
 
-                                page.writeTag("input",
+                                page.writeElement("input",
                                         "type", "text",
                                         "class", "autoSubmit objectId",
                                         "data-editable", false,

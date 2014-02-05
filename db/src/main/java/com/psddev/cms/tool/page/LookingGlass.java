@@ -126,7 +126,7 @@ public class LookingGlass extends PageServlet {
             page.writeStart("form",
                     "method", "get",
                     "action", page.cmsUrl("/lookingGlass"));
-                page.writeTag("input", "type", "hidden", "name", "id", "value", id);
+                page.writeElement("input", "type", "hidden", "name", "id", "value", id);
 
                 page.writeStart("select",
                         "class", "autoSubmit",

@@ -60,7 +60,7 @@ public class HistoryEdit extends PageServlet {
                         page.writeEnd();
 
                         page.writeStart("div", "class", "inputSmall");
-                            page.writeTag("input",
+                            page.writeElement("input",
                                     "type", "text",
                                     "id", page.getId(),
                                     "name", "name",

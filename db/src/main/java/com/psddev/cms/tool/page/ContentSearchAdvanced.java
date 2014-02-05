@@ -249,7 +249,7 @@ public class ContentSearchAdvanced extends PageServlet {
             @Override
             public void format(HtmlWriter writer, StorageItem item) throws IOException {
                 ToolPageContext page = (ToolPageContext) writer;
-                page.writeTag("img",
+                page.writeElement("img",
                         "height", 100,
                         "src", ImageEditor.Static.getDefault() != null ?
                                 new ImageTag.Builder(item).setHeight(100).toUrl() :
@@ -359,12 +359,12 @@ public class ContentSearchAdvanced extends PageServlet {
                             "class", "searchAdvancedResult",
                             "method", "post",
                             "action", page.url(null));
-                        page.writeTag("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
-                        page.writeTag("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
-                        page.writeTag("input", "type", "hidden", "name", "returnUrl", "value", page.url(""));
+                        page.writeElement("input", "type", "hidden", "name", TYPE_PARAMETER, "value", type != null ? type.getId() : null);
+                        page.writeElement("input", "type", "hidden", "name", PREDICATE_PARAMETER, "value", predicate);
+                        page.writeElement("input", "type", "hidden", "name", "returnUrl", "value", page.url(""));
 
                         for (ObjectField field : fields) {
-                            page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
+                            page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
                         }
 
                         page.writeStart("ul", "class", "pagination");
@@ -383,7 +383,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                     result.getItems().size() > LIMITS[0]) {
                                 page.writeStart("li");
                                     for (String fieldName : fieldNames) {
-                                        page.writeTag("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", fieldName);
+                                        page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", fieldName);
                                     }
 
                                     page.writeStart("select",
@@ -451,7 +451,7 @@ public class ContentSearchAdvanced extends PageServlet {
 
                                     page.writeStart("tr", "data-preview-url", permalink);
                                         page.writeStart("td", "style", "width: 20px;");
-                                            page.writeTag("input",
+                                            page.writeElement("input",
                                                     "type", "checkbox",
                                                     "name", ITEMS_PARAMETER,
                                                     "value", itemState.getId());

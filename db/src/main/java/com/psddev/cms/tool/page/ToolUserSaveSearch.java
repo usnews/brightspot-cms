@@ -65,7 +65,7 @@ public class ToolUserSaveSearch extends PageServlet {
                         page.writeEnd();
 
                         page.writeStart("div", "class", "inputSmall");
-                            page.writeTag("input",
+                            page.writeElement("input",
                                     "type", "text",
                                     "name", "name",
                                     "placeholder", "(Required)");

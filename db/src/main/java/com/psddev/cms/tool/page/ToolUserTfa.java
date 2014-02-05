@@ -73,7 +73,7 @@ public class ToolUserTfa extends PageServlet {
                 keyUri.append("?secret=");
                 keyUri.append(user.getTotpSecret());
 
-                page.writeTag("img",
+                page.writeElement("img",
                         "width", 200,
                         "height", 200,
                         "src", page.cmsUrl("/qrCode", "data", keyUri),
@@ -108,7 +108,7 @@ public class ToolUserTfa extends PageServlet {
                         page.writeEnd();
 
                         page.writeStart("div", "class", "inputSmall");
-                            page.writeTag("input",
+                            page.writeElement("input",
                                     "type", "text",
                                     "id", page.getId(),
                                     "name", "totpCode");

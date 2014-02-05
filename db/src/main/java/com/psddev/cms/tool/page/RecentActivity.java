@@ -129,7 +129,7 @@ public class RecentActivity extends PageServlet {
                             if (valueQuery.hasMoreThan(250)) {
                                 State valueState = State.getInstance(valueObject);
 
-                                page.writeTag("input",
+                                page.writeElement("input",
                                         "type", "text",
                                         "class", "autoSubmit objectId",
                                         "data-editable", false,
