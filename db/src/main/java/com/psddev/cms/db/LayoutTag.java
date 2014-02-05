@@ -3,9 +3,11 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -125,6 +127,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
             writer = new HtmlWriter(pageContext.getOut());
             cssGrids = new ArrayList<CssClassHtmlGrid>();
             cssClasses = ObjectUtils.to(new TypeReference<List<String>>() { }, attributes.remove("class"));
+            Set<String> gridCssClasses = new HashSet<String>();
             extraCss = ObjectUtils.to(String.class, attributes.remove("extraClass"));
 
             if (cssClasses != null) {
@@ -146,6 +149,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
 
                             if (grid != null) {
                                 cssGrids.add(new CssClassHtmlGrid(cssClassString, grid));
+                                gridCssClasses.add(cssClass);
                             }
                         }
                     }
@@ -162,7 +166,7 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
 
             } else {
                 areas = new LinkedHashMap<String, Object>();
-                LayoutTag.Static.writeGridCssByClasses(writer, context, request, cssClasses);
+                LayoutTag.Static.writeGridCssByClasses(writer, context, request, gridCssClasses);
                 LayoutTag.Static.writeGridJavaScript(writer, context, request);
             }
 
