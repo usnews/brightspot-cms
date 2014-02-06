@@ -14,12 +14,14 @@ import java.util.UUID;
 
 import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ComparisonPredicate;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectIndex;
 import com.psddev.dari.db.ObjectStruct;
 import com.psddev.dari.db.ObjectType;
@@ -27,6 +29,7 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Singleton;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 
 @ToolUi.Hidden
@@ -301,14 +304,6 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             page.writeHtml(" ");
             comparisonOperator.writeValueInputs(page, comparisonValueParam, comparisonField);
 
-            page.writeHtml(" ");
-            page.writeStart("button",
-                    "class", "icon icon-action-remove icon-only link",
-                    "name", "action-remove-" + paramPrefix,
-                    "value", true);
-                page.writeHtml("Remove");
-            page.writeEnd();
-
             return CompoundPredicate.combine(
                     "AND",
                     comparisonTypeIds.isEmpty() ? null : new ComparisonPredicate("=", false, "_type", comparisonTypeIds),
@@ -514,39 +509,107 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         throws IOException {
 
                     if (ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
-                        page.writeObjectSelect(
-                                field,
-                                Query.fromAll().where("_id = ?", page.param(UUID.class, valueParam)).first(),
-                                "name", valueParam);
+                        List<Object> selected = Query.
+                                fromAll().
+                                where("_id = ?", page.params(UUID.class, valueParam)).
+                                selectAll();
 
-                        boolean taxon = false;
+                        if (page.isObjectSelectDropDown(field)) {
+                            List<?> items = new Search(field).toQuery(page.getSite()).selectAll();
 
-                        for (ObjectType t : field.getTypes()) {
-                            if (t.getGroups().contains(Taxon.class.getName())) {
-                                taxon = true;
-                                break;
-                            }
-                        }
-
-                        if (taxon) {
-                            String taxonParam = valueParam + "x";
-                            TaxonOption taxonOption = page.param(TaxonOption.class, taxonParam);
-
-                            page.writeHtml(" ");
+                            Collections.sort(items, new ObjectFieldComparator("_label", false));
 
                             page.writeStart("select",
-                                    "name", taxonParam);
-                                page.writeStart("option");
-                                    page.writeHtml("Only");
-                                page.writeEnd();
+                                    "name", valueParam,
+                                    "multiple", "multiple",
+                                    "data-searchable", "true");
 
-                                for (TaxonOption o : TaxonOption.values()) {
+                                for (Object item : items) {
+                                    State itemState = State.getInstance(item);
+
                                     page.writeStart("option",
-                                            "selected", o.equals(taxonOption) ? "selected" : null,
-                                            "value", o.name());
-                                        page.writeHtml(o.getLabel());
+                                            "selected", selected.contains(item) ? "selected" : null,
+                                            "value", itemState.getId());
+                                        page.writeObjectLabel(item);
                                     page.writeEnd();
                                 }
+                            page.writeEnd();
+
+                        } else {
+                            if (selected.isEmpty()) {
+                                selected.add(null);
+                            }
+
+                            String taxonParam = valueParam + "x";
+                            List<TaxonOption> taxonOptions = page.params(TaxonOption.class, taxonParam);
+                            boolean taxon = false;
+
+                            for (ObjectType t : field.getTypes()) {
+                                if (t.getGroups().contains(Taxon.class.getName())) {
+                                    taxon = true;
+                                    break;
+                                }
+                            }
+
+                            page.writeStart("div",
+                                    "class", "repeatableObjectId",
+                                    "style", "overflow:hidden;");
+
+                                page.writeStart("ul");
+                                    for (int i = 0, size = selected.size(); i < size; ++ i) {
+                                        Object item = selected.get(i);
+
+                                        page.writeStart("li");
+                                            page.writeObjectSelect(
+                                                    field,
+                                                    item,
+                                                    "name", valueParam);
+
+                                            if (taxon) {
+                                                TaxonOption taxonOption = i < taxonOptions.size() ? taxonOptions.get(i) : null;
+
+                                                page.writeHtml(" ");
+                                                page.writeStart("select",
+                                                        "name", taxonParam);
+                                                    page.writeStart("option");
+                                                        page.writeHtml("Only");
+                                                    page.writeEnd();
+
+                                                    for (TaxonOption o : TaxonOption.values()) {
+                                                        page.writeStart("option",
+                                                                "selected", o.equals(taxonOption) ? "selected" : null,
+                                                                "value", o.name());
+                                                            page.writeHtml(o.getLabel());
+                                                        page.writeEnd();
+                                                    }
+                                                page.writeEnd();
+                                            }
+                                        page.writeEnd();
+                                    }
+
+                                    page.writeStart("li", "class", "template");
+                                        page.writeObjectSelect(
+                                                field,
+                                                null,
+                                                "name", valueParam);
+
+                                        if (taxon) {
+                                            page.writeHtml(" ");
+                                            page.writeStart("select",
+                                                    "name", taxonParam);
+                                                page.writeStart("option");
+                                                    page.writeHtml("Only");
+                                                page.writeEnd();
+
+                                                for (TaxonOption o : TaxonOption.values()) {
+                                                    page.writeStart("option", "value", o.name());
+                                                        page.writeHtml(o.getLabel());
+                                                    page.writeEnd();
+                                                }
+                                            page.writeEnd();
+                                        }
+                                    page.writeEnd();
+                                page.writeEnd();
                             page.writeEnd();
                         }
 
@@ -592,7 +655,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                         return createPredicateWithOperatorAndValue(
                                 pathedField,
                                 "=",
-                                page.param(String.class, valueParam));
+                                page.params(String.class, valueParam));
                     }
                 }
 

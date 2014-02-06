@@ -182,6 +182,14 @@ public class SearchAdvancedQuery extends PageServlet {
             predicateType = findSearchAdvancedPredicate(SearchAdvancedPredicate.class, "C");
         }
 
+        page.writeStart("button",
+                "class", "icon icon-action-remove icon-only link",
+                "name", "action-remove-" + paramPrefix,
+                "value", true);
+            page.writeHtml("Remove");
+        page.writeEnd();
+
+        page.writeHtml(" ");
         page.writeStart("select",
                 "class", "autoSubmit",
                 "name", predicateTypeParam);
