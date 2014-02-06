@@ -2,6 +2,7 @@ package com.psddev.cms.tool.page;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,32 +59,37 @@ public class SearchAdvancedFullResult extends PageServlet {
         Query<?> query = search.toQuery(page.getSite());
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
         ObjectType type = search.getSelectedType();
-        List<ObjectField> allFields = new ArrayList<ObjectField>();
+        List<Display> allDisplays = new ArrayList<Display>();
 
-        for (String fieldName : new String[] {
+        allDisplays.add(new ReferencesDisplay());
+        allDisplays.add(new PathsDisplay());
+
+        for (String name : new String[] {
                 "cms.content.publishDate",
                 "cms.content.publishUser",
                 "cms.content.updateDate",
-                "cms.content.updateUser",
-                "cms.directory.paths" }) {
-            allFields.add(environment.getField(fieldName));
+                "cms.content.updateUser" }) {
+
+            allDisplays.add(new ObjectFieldDisplay(environment.getField(name)));
         }
 
         if (type != null) {
-            allFields.addAll(type.getFields());
-        }
-
-        List<String> fieldNames = page.params(String.class, FIELDS_PARAMETER);
-        List<ObjectField> fields = new ArrayList<ObjectField>();
-
-        for (ObjectField field : allFields) {
-            if (fieldNames.contains(field.getInternalName())) {
-                fields.add(field);
+            for (ObjectField field : type.getFields()) {
+                allDisplays.add(new ObjectFieldDisplay(field));
             }
         }
 
-        Collections.sort(allFields);
-        Collections.sort(fields);
+        List<String> displayNames = page.params(String.class, FIELDS_PARAMETER);
+        List<Display> displays = new ArrayList<Display>();
+
+        for (Display display : allDisplays) {
+            if (displayNames.contains(display.getInternalName())) {
+                displays.add(display);
+            }
+        }
+
+        Collections.sort(allDisplays);
+        Collections.sort(displays);
 
         List<UUID> ids = page.params(UUID.class, ITEMS_PARAMETER);
 
@@ -92,33 +98,6 @@ public class SearchAdvancedFullResult extends PageServlet {
 
             response.setContentType("text/csv");
             response.setHeader("Content-Disposition", "attachment; filename=search-result-" + new DateTime(null, page.getUserDateTimeZone()).toString("yyyy-MM-dd-hh-mm-ss") + ".csv");
-
-            page.putOverride(Recordable.class, new HtmlFormatter<Recordable>() {
-
-                @Override
-                public void format(HtmlWriter writer, Recordable object) throws IOException {
-                    ToolPageContext page = (ToolPageContext) writer;
-
-                    page.write(page.getObjectLabel(object));
-                }
-            });
-
-            page.putOverride(Metric.class, new HtmlFormatter<Metric>() {
-
-                @Override
-                public void format(HtmlWriter writer, Metric object) throws IOException {
-                    writer.write(new Double(object.getSum()).toString());
-                }
-            });
-
-            page.putOverride(StorageItem.class, new HtmlFormatter<StorageItem>() {
-
-                @Override
-                public void format(HtmlWriter writer, StorageItem item) throws IOException {
-                    writer.write(item.getPublicUrl());
-                }
-            });
-
             page.write('\ufeff');
 
             page.write("\"");
@@ -127,9 +106,9 @@ public class SearchAdvancedFullResult extends PageServlet {
             writeCsvItem(page, "Label");
             page.write("\"");
 
-            for (ObjectField field : fields) {
+            for (Display display : displays) {
                 page.write(",\"");
-                writeCsvItem(page, field.getDisplayName());
+                writeCsvItem(page, display.getDisplayName());
                 page.write("\"");
             }
 
@@ -150,34 +129,9 @@ public class SearchAdvancedFullResult extends PageServlet {
                     writeCsvItem(page, page.getObjectLabel(item));
                     page.write("\"");
 
-                    for (ObjectField field : fields) {
+                    for (Display display : displays) {
                         page.write(",\"");
-
-                        if ("cms.directory.paths".equals(field.getInternalName())) {
-                            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
-                                Directory.Path p = i.next();
-                                String path = p.getPath();
-
-                                page.writeHtml(path);
-                                page.writeHtml(" (");
-                                page.writeHtml(p.getType());
-                                page.writeHtml(")");
-
-                                if (i.hasNext()) {
-                                    page.write(", ");
-                                }
-                            }
-
-                        } else {
-                            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                                Object value = i.next();
-                                page.writeObject(value);
-                                if (i.hasNext()) {
-                                    page.write(", ");
-                                }
-                            }
-                        }
-
+                        writeCsvItem(page, display.getCsvItem(itemState));
                         page.write("\"");
                     }
 
@@ -215,7 +169,7 @@ public class SearchAdvancedFullResult extends PageServlet {
         search.setLimit(20);
         search.setSuggestions(false);
 
-        Renderer renderer = new Renderer(page, search, allFields, fields);
+        Renderer renderer = new Renderer(page, search, allDisplays, displays);
 
         page.putOverride(Recordable.class, new HtmlFormatter<Recordable>() {
 
@@ -273,21 +227,21 @@ public class SearchAdvancedFullResult extends PageServlet {
     private static class Renderer extends SearchResultRenderer {
 
         private final ObjectType type;
-        private final List<ObjectField> allFields;
-        private final List<ObjectField> fields;
+        private final List<Display> allDisplays;
+        private final List<Display> displays;
 
         public Renderer(
                 ToolPageContext page,
                 Search search,
-                List<ObjectField> allFields,
-                List<ObjectField> fields)
+                List<Display> allDisplays,
+                List<Display> displays)
                 throws IOException {
 
             super(page, search);
 
             this.type = search.getSelectedType();
-            this.allFields = allFields;
-            this.fields = fields;
+            this.allDisplays = allDisplays;
+            this.displays = displays;
         }
 
         @Override
@@ -295,18 +249,21 @@ public class SearchAdvancedFullResult extends PageServlet {
             page.writeStart("form",
                     "method", "post",
                     "action", page.url(""));
+
                 page.writeStart("select",
                         "name", FIELDS_PARAMETER,
                         "multiple", "multiple");
-                    for (ObjectField field : allFields) {
-                        if (field.as(ToolUi.class).isHidden()) {
+
+                    for (Display display: allDisplays) {
+                        if (display instanceof ObjectFieldDisplay &&
+                                ((ObjectFieldDisplay) display).getField().as(ToolUi.class).isHidden()) {
                             continue;
                         }
 
                         page.writeStart("option",
-                                "selected", fields.contains(field) ? "selected" : null,
-                                "value", field.getInternalName());
-                            page.writeHtml(field.getDisplayName());
+                                "selected", displays.contains(display) ? "selected" : null,
+                                "value", display.getInternalName());
+                            page.writeHtml(display.getDisplayName());
                         page.writeEnd();
                     }
                 page.writeEnd();
@@ -329,8 +286,8 @@ public class SearchAdvancedFullResult extends PageServlet {
                                 absolutePath(page.cmsUrl("/searchAdvancedFull")).
                                 currentParameters());
 
-                for (ObjectField field : fields) {
-                    page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", field.getInternalName());
+                for (Display display : displays) {
+                    page.writeElement("input", "type", "hidden", "name", FIELDS_PARAMETER, "value", display.getInternalName());
                 }
 
                 page.writeStart("table", "class", "table-bordered table-striped pageThumbnails");
@@ -347,9 +304,9 @@ public class SearchAdvancedFullResult extends PageServlet {
                                 page.writeHtml("Label");
                             page.writeEnd();
 
-                            for (ObjectField field : fields) {
+                            for (Display display : displays) {
                                 page.writeStart("th");
-                                    page.writeHtml(field.getDisplayName());
+                                    page.writeHtml(display.getDisplayName());
                                 page.writeEnd();
                             }
                         page.writeEnd();
@@ -367,6 +324,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "class", "action icon icon-action-download",
                             "name", "action-download",
                             "value", true);
+
                         page.writeHtml("Export All");
                     page.writeEnd();
 
@@ -377,6 +335,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                                         absolutePath(page.cmsUrl("/contentEditBulk")).
                                         currentParameters().
                                         parameter("typeId", type.getId()));
+
                             page.writeHtml("Bulk Edit All");
                         page.writeEnd();
                     }
@@ -386,6 +345,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "target", "workStreamCreate",
                             "href", page.cmsUrl("/content/newWorkStream.jsp",
                                     "search", ObjectUtils.toJson(search.getState().getSimpleValues())));
+
                         page.writeHtml("New Work Stream");
                     page.writeEnd();
 
@@ -393,6 +353,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "class", "action action-pullRight link icon icon-action-trash",
                             "name", "action-trash",
                             "value", "true");
+
                         page.writeHtml("Bulk Trash All");
                     page.writeEnd();
                 page.writeEnd();
@@ -410,6 +371,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "type", "checkbox",
                             "name", ITEMS_PARAMETER,
                             "value", itemState.getId());
+
                 page.writeEnd();
 
                 page.writeStart("td");
@@ -420,41 +382,211 @@ public class SearchAdvancedFullResult extends PageServlet {
                     page.writeStart("a",
                             "href", page.objectUrl("/content/edit.jsp", item),
                             "target", "_top");
+
                         page.writeObjectLabel(item);
                     page.writeEnd();
                 page.writeEnd();
 
-                for (ObjectField field : fields) {
+                for (Display display : displays) {
                     page.writeStart("td");
-                        if ("cms.directory.paths".equals(field.getInternalName())) {
-                            for (Directory.Path p : itemState.as(Directory.ObjectModification.class).getPaths()) {
-                                String path = p.getPath();
-
-                                page.writeStart("div");
-                                    page.writeStart("a", "href", path, "target", "_blank");
-                                        page.writeHtml(path);
-                                    page.writeEnd();
-
-                                    page.writeHtml(" (");
-                                    page.writeHtml(p.getType());
-                                    page.writeHtml(")");
-                                page.writeEnd();
-                            }
-
-                        } else {
-                            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
-                                Object value = i.next();
-
-                                page.writeObject(value);
-
-                                if (i.hasNext()) {
-                                    page.writeHtml(", ");
-                                }
-                            }
-                        }
+                        display.writeCell(itemState, page);
                     page.writeEnd();
                 }
             page.writeEnd();
+        }
+    }
+
+    private static abstract class Display implements Comparable<Display> {
+
+        public abstract String getInternalName();
+
+        public abstract String getDisplayName();
+
+        public abstract String getCsvItem(State itemState);
+
+        public abstract void writeCell(State itemState, HtmlWriter writer) throws IOException;
+
+        @Override
+        public int compareTo(Display other) {
+            return getDisplayName().compareTo(other.getDisplayName());
+        }
+
+        @Override
+        public int hashCode() {
+            return getInternalName().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+
+            } else if (other instanceof Display) {
+                return getInternalName().equals(((Display) other).getInternalName());
+
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private static class ObjectFieldDisplay extends Display {
+
+        private final ObjectField field;
+
+        public ObjectFieldDisplay(ObjectField field) {
+            this.field = field;
+        }
+
+        public ObjectField getField() {
+            return field;
+        }
+
+        @Override
+        public String getInternalName() {
+            return field.getInternalName();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return field.getDisplayName();
+        }
+
+        @Override
+        public String getCsvItem(State itemState) {
+            StringWriter string = new StringWriter();
+            @SuppressWarnings("resource")
+            HtmlWriter html = new HtmlWriter(string);
+
+            html.putOverride(Recordable.class, new HtmlFormatter<Recordable>() {
+
+                @Override
+                public void format(HtmlWriter writer, Recordable object) throws IOException {
+                    ToolPageContext page = (ToolPageContext) writer;
+
+                    page.write(page.getObjectLabel(object));
+                }
+            });
+
+            html.putOverride(Metric.class, new HtmlFormatter<Metric>() {
+
+                @Override
+                public void format(HtmlWriter writer, Metric object) throws IOException {
+                    writer.write(new Double(object.getSum()).toString());
+                }
+            });
+
+            html.putOverride(StorageItem.class, new HtmlFormatter<StorageItem>() {
+
+                @Override
+                public void format(HtmlWriter writer, StorageItem item) throws IOException {
+                    writer.write(item.getPublicUrl());
+                }
+            });
+
+            try {
+                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+                    Object value = i.next();
+
+                    html.writeObject(value);
+
+                    if (i.hasNext()) {
+                        html.write(", ");
+                    }
+                }
+
+            } catch (IOException error) {
+            }
+
+            return string.toString();
+        }
+
+        @Override
+        public void writeCell(State itemState, HtmlWriter writer) throws IOException {
+            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+                Object value = i.next();
+
+                writer.writeObject(value);
+
+                if (i.hasNext()) {
+                    writer.writeHtml(", ");
+                }
+            }
+        }
+    }
+
+    private static class PathsDisplay extends ObjectFieldDisplay {
+
+        public PathsDisplay() {
+            super(Database.Static.getDefault().getEnvironment().getField("cms.directory.paths"));
+        }
+
+        @Override
+        public String getCsvItem(State itemState) {
+            StringBuilder csvItem = new StringBuilder();
+
+            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+                Directory.Path p = i.next();
+                String path = p.getPath();
+
+                csvItem.append(path);
+                csvItem.append(" (");
+                csvItem.append(p.getType());
+                csvItem.append(")");
+
+                if (i.hasNext()) {
+                    csvItem.append(", ");
+                }
+            }
+
+            return csvItem.toString();
+        }
+
+        @Override
+        public void writeCell(State itemState, HtmlWriter writer) throws IOException {
+            for (Directory.Path p : itemState.as(Directory.ObjectModification.class).getPaths()) {
+                String path = p.getPath();
+
+                writer.writeStart("div");
+                    writer.writeStart("a", "href", path, "target", "_blank");
+                        writer.writeHtml(path);
+                    writer.writeEnd();
+
+                    writer.writeHtml(" (");
+                    writer.writeHtml(p.getType());
+                    writer.writeHtml(")");
+                writer.writeEnd();
+            }
+        }
+    }
+
+    private static class ReferencesDisplay extends Display {
+
+        @Override
+        public String getInternalName() {
+            return "_numRefs";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "# Of References";
+        }
+
+        private long getReferencesCount(State itemState) {
+            return Query.
+                    fromAll().
+                    where("* matches ?", itemState.getId()).
+                    count();
+        }
+
+        @Override
+        public String getCsvItem(State itemState) {
+            return String.valueOf(getReferencesCount(itemState));
+        }
+
+        @Override
+        public void writeCell(State itemState, HtmlWriter writer) throws IOException {
+            writer.writeHtml(String.format("%,d", getReferencesCount(itemState)));
         }
     }
 }
