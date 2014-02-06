@@ -94,7 +94,8 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private boolean external;
 
-    @ToolUi.Hidden
+    @ToolUi.FieldDisplayType("toolUserSavedSearches")
+    @ToolUi.Tab("Search")
     private Map<String, String> savedSearches;
 
     @ToolUi.Placeholder("All Contents")
