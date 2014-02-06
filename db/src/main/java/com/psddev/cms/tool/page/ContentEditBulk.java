@@ -81,7 +81,7 @@ public class ContentEditBulk extends PageServlet {
                         if (!ObjectUtils.isBlank(returnUrl)) {
                             page.writeStart("a",
                                     "href", returnUrl);
-                                page.writeHtml("Go back to search.");
+                                page.writeHtml("Return to search.");
                             page.writeEnd();
                         }
                     page.writeEnd();
