@@ -373,7 +373,10 @@ public class SearchAdvancedFullResult extends PageServlet {
                     if (type != null) {
                         page.writeStart("button",
                                 "class", "action icon icon-action-edit",
-                                "formaction", page.cmsUrl("/contentEditBulk"));
+                                "formaction", new UrlBuilder(page.getRequest()).
+                                        absolutePath(page.cmsUrl("/contentEditBulk")).
+                                        currentParameters().
+                                        parameter("typeId", type.getId()));
                             page.writeHtml("Bulk Edit All");
                         page.writeEnd();
                     }
