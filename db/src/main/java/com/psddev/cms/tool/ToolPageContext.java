@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ import com.psddev.cms.db.Variation;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowLog;
+import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.db.WorkflowTransition;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.CompoundPredicate;
@@ -1703,6 +1705,65 @@ public class ToolPageContext extends WebPageContext {
                     "placeholder", placeholder,
                     attributes);
         }
+    }
+
+    /**
+     * Writes a {@code <select>} tag that allows the user to pick a
+     * visibility status.
+     *
+     * @param type May be {@code null}.
+     * @param value Initial value. May be {@code null}.
+     * @param attributes May be {@code null}.
+     */
+    public void writeVisibilitySelect(
+            ObjectType type,
+            String value,
+            Object... attributes) throws IOException {
+
+        Map<String, String> statuses = new HashMap<String, String>();
+
+        statuses.put("d", "Draft");
+        statuses.put("t", "Trashed");
+        statuses.put("w", "In Workflow");
+
+        for (Workflow w : (type == null ?
+                Query.from(Workflow.class) :
+                Query.from(Workflow.class).where("contentTypes = ?", type)).
+                selectAll()) {
+
+            for (WorkflowState s : w.getStates()) {
+                String n = s.getName();
+
+                statuses.put("w." + n, n);
+            }
+        }
+
+        List<Map.Entry<String, String>> sortedStatuses = new ArrayList<Map.Entry<String, String>>(statuses.entrySet());
+
+        Collections.sort(sortedStatuses, new Comparator<Map.Entry<String, String>>() {
+
+            @Override
+            public int compare(Map.Entry<String, String> x, Map.Entry<String, String> y) {
+                return x.getValue().compareTo(y.getValue());
+            }
+        });
+
+        writeStart("select", attributes);
+            writeStart("option", "value", "");
+                writeHtml("Status: Published");
+            writeEnd();
+
+            for (Map.Entry<String, String> entry : sortedStatuses) {
+                String key = entry.getKey();
+
+                writeStart("option",
+                        "selected", key.equals(value) ? "selected" : null,
+                        "value", key);
+                    writeHtml("Status: ");
+                    writeHtml(entry.getValue());
+                writeEnd();
+            }
+        writeEnd();
     }
 
     /**

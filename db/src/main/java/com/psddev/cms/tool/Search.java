@@ -27,6 +27,8 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.Workflow;
+import com.psddev.cms.db.WorkflowState;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
@@ -61,6 +63,7 @@ public class Search extends Record {
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SHOW_DRAFTS_PARAMETER = "d";
+    public static final String VISIBILITY_PARAMETER = "v";
     public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
     public static final String SUGGESTIONS_PARAMETER = "sg";
@@ -86,6 +89,7 @@ public class Search extends Record {
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
     private boolean showDrafts;
+    private String visibility;
     private boolean showMissing;
     private boolean suggestions;
     private long offset;
@@ -158,6 +162,7 @@ public class Search extends Record {
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
+        setVisibility(page.param(String.class, VISIBILITY_PARAMETER));
         setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
@@ -283,6 +288,14 @@ public class Search extends Record {
 
     public void setShowDrafts(boolean showDrafts) {
         this.showDrafts = showDrafts;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public boolean isShowMissing() {
@@ -695,7 +708,34 @@ public class Search extends Record {
                     PredicateParser.Static.parse("_type = ?", globalTypes)));
         }
 
-        if (selectedType == null &&
+        String visibility = getVisibility();
+
+        if (!ObjectUtils.isBlank(visibility)) {
+            if ("d".equals(visibility)) {
+                query.and("cms.content.draft = true");
+
+            } else if ("t".equals(visibility)) {
+                query.and("cms.content.trashed = true");
+
+            } else if ("w".equals(visibility)) {
+                Set<String> ss = new HashSet<String>();
+
+                for (Workflow w : (selectedType == null ?
+                        Query.from(Workflow.class) :
+                        Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
+                        selectAll()) {
+                    for (WorkflowState s : w.getStates()) {
+                        ss.add(s.getName());
+                    }
+                }
+
+                query.and("cms.workflow.currentState = ?", ss);
+
+            } else if (visibility.startsWith("w.")) {
+                query.and("cms.workflow.currentState = ?", visibility.substring(2));
+            }
+
+        } else if (selectedType == null &&
                 isAllSearchable) {
             Set<String> comparisonKeys = new HashSet<String>();
             DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();

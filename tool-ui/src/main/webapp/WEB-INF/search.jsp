@@ -413,17 +413,10 @@ writer.start("div", "class", "searchForm");
                 writer.end();
 
                 writer.writeStart("div", "class", "searchFilter");
-                    writer.writeElement("input",
-                            "type", "checkbox",
-                            "id", wp.createId(),
-                            "name", Search.SHOW_DRAFTS_PARAMETER,
-                            "value", true,
-                            "checked", wp.getUser().getCurrentSchedule() != null ? "checked" : null);
-
-                    writer.writeStart("label",
-                            "for", wp.getId());
-                        writer.writeHtml(" Show Drafts/Trashed");
-                    writer.writeEnd();
+                    wp.writeVisibilitySelect(
+                            selectedType,
+                            search.getVisibility(),
+                            "name", Search.VISIBILITY_PARAMETER);
                 writer.writeEnd();
 
                 for (Tool tool : Query.from(Tool.class).selectAll()) {
