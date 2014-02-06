@@ -60,6 +60,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private String defaultToolUrl;
 
+    @ToolUi.Tab("Defaults")
+    private List<CommonTime> commonTimes;
+
     @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
@@ -115,6 +118,49 @@ public class CmsTool extends Tool {
 
     @ToolUi.Tab("Debug")
     private boolean displaySiteInSearchResult;
+
+    @Embedded
+    public static class CommonTime extends Record {
+
+        @Required
+        private String displayName;
+
+        @Maximum(23)
+        @Minimum(0)
+        @Required
+        @ToolUi.Note("0 to 23")
+        private int hour;
+
+        @Maximum(59)
+        @Minimum(0)
+        @Required
+        @ToolUi.Note("0 to 59")
+        private int minute;
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public int getHour() {
+            return hour;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public int getMinute() {
+            return minute;
+        }
+
+        public void setMinute(int minute) {
+            this.minute = minute;
+        }
+    }
 
     @Embedded
     public static class CssClassGroup extends Record {
@@ -368,6 +414,17 @@ public class CmsTool extends Tool {
 
     public void setDefaultToolUrl(String defaultToolUrl) {
         this.defaultToolUrl = defaultToolUrl;
+    }
+
+    public List<CommonTime> getCommonTimes() {
+        if (commonTimes == null) {
+            commonTimes = new ArrayList<CommonTime>();
+        }
+        return commonTimes;
+    }
+
+    public void setCommonTimes(List<CommonTime> commonTimes) {
+        this.commonTimes = commonTimes;
     }
 
     public String getDefaultTextOverlayCss() {

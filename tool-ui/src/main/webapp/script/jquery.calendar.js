@@ -169,6 +169,40 @@ getCalendar = function() {
         // Time.
         var $time = $('<div/>', { 'class': 'time' });
 
+        if (COMMON_TIMES.length > 0) {
+            var $timeSelect = $('<select/>', {
+                'class': 'timeSelect',
+
+                'change': function() {
+                    var $selected = $(this).find(':selected'),
+                            custom = $selected.prop('value') === '_custom',
+                            selectedDate;
+
+                    $hour.add($minute).add($meridiem).toggle(custom);
+
+                    if (!custom) {
+                        selectedDate = $calendar.data('selectedDate');
+
+                        selectedDate.setHours(parseInt($selected.attr('data-hour'), 10));
+                        selectedDate.setMinutes(parseInt($selected.attr('data-minute'), 10));
+                    }
+                }
+            });
+
+            $.each(COMMON_TIMES, function() {
+                $timeSelect.append($('<option/>', {
+                    'text': this.displayName,
+                    'data-hour': this.hour,
+                    'data-minute': this.minute
+                }));
+            });
+
+            $timeSelect.append($('<option/>', {
+                'text': 'Custom:',
+                'value': '_custom'
+            }));
+        }
+
         var $meridiem = $('<select/>', { 'class': 'meridiem' });
         var $hour = $('<select/>', { 'class': 'hour' });
         var hourChange = function() {
@@ -196,6 +230,7 @@ getCalendar = function() {
             $calendar.data('selectedDate').setMinutes($minute.val());
         });
 
+        $time.append($timeSelect);
         $time.append($hour);
         $time.append($minute);
         $time.append($meridiem);
@@ -299,6 +334,7 @@ $.plugin2('calendar', {
             $calendar.find('select.hour').val(hour);
             $calendar.find('select.minute').val(inputDate.getMinutes());
             $calendar.find('select.meridiem').val(meridiem);
+            $calendar.find('select.timeSelect').change();
 
             // Update empty label.
             $calendar.find('.empty').text($input.attr('placeholder') || $input.attr('data-emptylabel') || 'N/A');

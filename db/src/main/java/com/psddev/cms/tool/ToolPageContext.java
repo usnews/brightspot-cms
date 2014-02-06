@@ -1372,6 +1372,17 @@ public class ToolPageContext extends WebPageContext {
             standardImageSizes.add(sizeMap);
         }
 
+        List<Map<String, Object>> commonTimes = new ArrayList<Map<String, Object>>();
+
+        for (CmsTool.CommonTime commonTime : getCmsTool().getCommonTimes()) {
+            Map<String, Object> commonTimeMap = new CompactMap<String, Object>();
+
+            commonTimeMap.put("displayName", commonTime.getDisplayName());
+            commonTimeMap.put("hour", commonTime.getHour());
+            commonTimeMap.put("minute", commonTime.getMinute());
+            commonTimes.add(commonTimeMap);
+        }
+
         writeStart("script", "type", "text/javascript");
             write("var CONTEXT_PATH = '", cmsUrl("/"), "';");
             write("var CSS_CLASS_GROUPS = ", ObjectUtils.toJson(cssClassGroups), ";");
@@ -1379,6 +1390,7 @@ public class ToolPageContext extends WebPageContext {
             write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
             write("var RTE_ENABLE_ANNOTATIONS = ", getCmsTool().isEnableAnnotations(), ';');
             write("var DISABLE_TOOL_CHECKS = ", getCmsTool().isDisableToolChecks(), ';');
+            write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes));
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
