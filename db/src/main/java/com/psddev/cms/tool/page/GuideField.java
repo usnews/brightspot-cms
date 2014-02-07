@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.GuideType;
+import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Reference;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -69,8 +72,21 @@ public class GuideField extends PageServlet {
                             StringBuilder cleaned = new StringBuilder();
 
                             for (Object item : fieldDescription) {
-                                if (item instanceof String) {
-                                    cleaned.append(item);
+                                if (item != null) {
+                                    if (item instanceof Reference) {
+                                        StringWriter writer = new StringWriter();
+
+                                        PageFilter.renderObject(
+                                                page.getRequest(),
+                                                page.getResponse(),
+                                                writer,
+                                                ((Reference) item).getObject());
+
+                                        cleaned.append(writer.toString());
+
+                                    } else {
+                                        cleaned.append(item.toString());
+                                    }
                                 }
                             }
 
