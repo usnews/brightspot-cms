@@ -2093,6 +2093,15 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    private void redirectOnSave(String url, Object... parameters) throws IOException {
+        if (getUser().isReturnToDashboardOnSave()) {
+            getResponse().sendRedirect(cmsUrl("/"));
+
+        } else {
+            redirect(url, parameters);
+        }
+    }
+
     /**
      * Tries to delete the given {@code object} if the user has asked for it
      * in the current request.
@@ -2128,7 +2137,7 @@ public class ToolPageContext extends WebPageContext {
                 state.delete();
             }
 
-            redirect("");
+            redirectOnSave("");
             return true;
 
         } catch (Exception error) {
@@ -2168,14 +2177,14 @@ public class ToolPageContext extends WebPageContext {
                     state.as(Content.ObjectModification.class).isDraft()) {
                 state.as(Content.ObjectModification.class).setDraft(true);
                 publish(state);
-                redirect("",
+                redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         "id", state.getId());
                 return true;
 
             } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
                 publish(state);
-                redirect("",
+                redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null);
                 return true;
             }
@@ -2190,7 +2199,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
             publish(draft);
-            redirect("",
+            redirectOnSave("",
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                     ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
                     ToolPageContext.HISTORY_ID_PARAMETER, null);
@@ -2338,7 +2347,7 @@ public class ToolPageContext extends WebPageContext {
                 draft.setSchedule(schedule);
                 publish(draft);
                 state.commitWrites();
-                redirect("",
+                redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         ToolPageContext.DRAFT_ID_PARAMETER, draft.getId());
 
@@ -2355,7 +2364,7 @@ public class ToolPageContext extends WebPageContext {
 
                 publish(object);
                 state.commitWrites();
-                redirect("",
+                redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                         "typeId", state.getTypeId(),
                         "id", state.getId(),
@@ -2395,7 +2404,7 @@ public class ToolPageContext extends WebPageContext {
 
             state.as(Content.ObjectModification.class).setTrash(false);
             publish(state);
-            redirect("");
+            redirectOnSave("");
             return true;
 
         } catch (Exception error) {
@@ -2422,7 +2431,7 @@ public class ToolPageContext extends WebPageContext {
         try {
             updateUsingParameters(object);
             state.save();
-            redirect("",
+            redirectOnSave("",
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                     "id", state.getId());
             return true;
@@ -2473,7 +2482,7 @@ public class ToolPageContext extends WebPageContext {
             Draft draft = getOverlaidDraft(object);
 
             trash(draft != null ? draft : object);
-            redirect("");
+            redirectOnSave("");
             return true;
 
         } catch (Exception error) {
@@ -2526,7 +2535,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            redirect("", "id", state.getId());
+            redirectOnSave("", "id", state.getId());
             return true;
 
         } catch (Exception error) {

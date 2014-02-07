@@ -102,6 +102,9 @@ public class ToolUser extends Record implements ToolEntity {
     private InlineEditing inlineEditing;
 
     @ToolUi.Tab("Advanced")
+    private boolean returnToDashboardOnSave;
+
+    @ToolUi.Tab("Advanced")
     private boolean disableNavigateAwayAlert;
 
     /** Returns the role. */
@@ -539,6 +542,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setInlineEditing(InlineEditing inlineEditing) {
         this.inlineEditing = inlineEditing;
+    }
+
+    public boolean isReturnToDashboardOnSave() {
+        return returnToDashboardOnSave;
+    }
+
+    public void setReturnToDashboardOnSave(boolean returnToDashboardOnSave) {
+        this.returnToDashboardOnSave = returnToDashboardOnSave;
     }
 
     /**

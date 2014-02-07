@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -49,6 +50,19 @@ public class ContentTools extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        ToolUser user = page.getUser();
+        Collection<String> includeFields = Arrays.asList("returnToDashboardOnSave");
+
+        if (page.isFormPost()) {
+            try {
+                page.include("/WEB-INF/objectPost.jsp", "object", user, "includeFields", includeFields);
+                user.save();
+
+            } catch (Exception error) {
+                page.getErrors().add(error);
+            }
+        }
+
         Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
         State state = State.getInstance(object);
         String returnUrl = page.param(String.class, "returnUrl");
@@ -119,6 +133,34 @@ public class ContentTools extends PageServlet {
                                 page.writeEnd();
                             page.writeEnd();
                         }
+
+                        page.writeStart("h2");
+                            page.writeHtml("Settings");
+                        page.writeEnd();
+
+                        if (page.isFormPost()) {
+                            if (page.getErrors().isEmpty()) {
+                                page.writeStart("div", "class", "message message-success");
+                                    page.writeHtml("Settings successfully saved.");
+                                page.writeEnd();
+
+                            } else {
+                                page.include("/WEB-INF/errors.jsp");
+                            }
+                        }
+
+                        page.writeStart("form",
+                                "method", "post",
+                                "action", page.url(""),
+                                "style", "margin-bottom:0;");
+                            page.include("/WEB-INF/objectForm.jsp", "object", user, "includeFields", includeFields);
+
+                            page.writeStart("div", "class", "actions");
+                                page.writeStart("button", "class", "icon icon-action-save");
+                                    page.writeHtml("Save");
+                                page.writeEnd();
+                            page.writeEnd();
+                        page.writeEnd();
                     page.writeEnd();
 
                     page.writeStart("div",
