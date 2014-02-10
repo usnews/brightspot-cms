@@ -329,7 +329,9 @@ public abstract class Content extends Record {
             State state = State.getInstance(object);
             Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
 
-            if (site == null || ObjectUtils.equals(siteData.getOwner(), site)) {
+            if (object instanceof ToolEntity ||
+                    site == null ||
+                    ObjectUtils.equals(siteData.getOwner(), site)) {
                 ObjectModification contentData = state.as(ObjectModification.class);
 
                 contentData.setTrash(true);
