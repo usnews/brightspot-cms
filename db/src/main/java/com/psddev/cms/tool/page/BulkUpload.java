@@ -5,7 +5,9 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
@@ -34,7 +36,18 @@ public class BulkUpload extends PageServlet {
             }
         }
 
-        ObjectType defaultType = page.getCmsTool().getBulkUploadSettings().getDefaultType();
+        CmsTool.BulkUploadSettings settings = null;
+        Site site = page.getSite();
+
+        if (site != null) {
+            settings = site.getBulkUploadSettings();
+        }
+
+        if (settings == null) {
+            settings = page.getCmsTool().getBulkUploadSettings();
+        }
+
+        ObjectType defaultType = settings != null ? settings.getDefaultType() : null;
 
         page.writeStart("div", "class", "widget uploadable");
             page.writeStart("h1", "class", "icon icon-action-upload").writeHtml("Bulk Upload").writeEnd();

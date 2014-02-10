@@ -17,6 +17,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -44,6 +45,15 @@ public class Site extends Record {
     @Indexed(unique = true)
     @Required
     private String name;
+
+    @ToolUi.Tab("Dashboard")
+    private List<CmsTool.ResourceItem> resources;
+
+    @ToolUi.Tab("Dashboard")
+    private CmsTool.CommonContentSettings commonContentSettings;
+
+    @ToolUi.Tab("Dashboard")
+    private CmsTool.BulkUploadSettings bulkUploadSettings;
 
     @ToolUi.Tab("Advanced")
     private String cmsCssClass;
@@ -83,6 +93,33 @@ public class Site extends Record {
     /** Sets the display name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<CmsTool.ResourceItem> getResources() {
+        if (resources == null) {
+            resources = new ArrayList<CmsTool.ResourceItem>();
+        }
+        return resources;
+    }
+
+    public void setResources(List<CmsTool.ResourceItem> resources) {
+        this.resources = resources;
+    }
+
+    public CmsTool.CommonContentSettings getCommonContentSettings() {
+        return commonContentSettings;
+    }
+
+    public void setCommonContentSettings(CmsTool.CommonContentSettings commonContentSettings) {
+        this.commonContentSettings = commonContentSettings;
+    }
+
+    public CmsTool.BulkUploadSettings getBulkUploadSettings() {
+        return bulkUploadSettings;
+    }
+
+    public void setBulkUploadSettings(CmsTool.BulkUploadSettings bulkUploadSettings) {
+        this.bulkUploadSettings = bulkUploadSettings;
     }
 
     public String getCmsCssClass() {

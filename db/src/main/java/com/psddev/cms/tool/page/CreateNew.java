@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
@@ -43,7 +44,17 @@ public class CreateNew extends PageServlet {
     @SuppressWarnings("unchecked")
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
         String redirect = page.param(String.class, "redirect");
-        CmsTool.CommonContentSettings settings = page.getCmsTool().getCommonContentSettings();
+        CmsTool.CommonContentSettings settings = null;
+        Site site = page.getSite();
+
+        if (site != null) {
+            settings = site.getCommonContentSettings();
+        }
+
+        if (settings == null) {
+            settings = page.getCmsTool().getCommonContentSettings();
+        }
+
         Set<ObjectType> createNewTypes = settings.getCreateNewTypes();
         Set<Content> editExistingContents = new TreeSet<Content>(settings.getEditExistingContents());
         List<TypeTemplate> typeTemplates = new ArrayList<TypeTemplate>();

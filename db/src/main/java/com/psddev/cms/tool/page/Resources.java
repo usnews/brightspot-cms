@@ -1,10 +1,12 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -22,13 +24,29 @@ public class Resources extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        CmsTool cms = page.getCmsTool();
-        List<CmsTool.ResourceItem> resources = cms.getResources();
+        List<CmsTool.ResourceItem> resources = null;
+        Site site = page.getSite();
+
+        if (site != null) {
+            resources = site.getResources();
+        }
+
+        if (resources == null || resources.isEmpty()) {
+            resources = page.getCmsTool().getResources();
+        }
+
+        if (resources != null) {
+            for (Iterator<CmsTool.ResourceItem> i = resources.iterator(); i.hasNext(); ) {
+                if (ObjectUtils.isBlank(i.next().getUrl())) {
+                    i.remove();
+                }
+            }
+        }
 
         page.writeStart("div", "class", "widget");
             page.writeStart("h1", "class", "icon icon-globe").writeHtml("Resources").writeEnd();
 
-            if (resources.isEmpty()) {
+            if (resources == null || resources.isEmpty()) {
                 page.writeStart("div", "class", "message message-info");
                     page.writeHtml("There aren't any resources.");
                 page.writeEnd();
