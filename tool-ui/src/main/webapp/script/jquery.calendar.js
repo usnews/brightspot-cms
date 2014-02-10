@@ -277,6 +277,7 @@ getCalendar = function() {
         $calendar.find('.day').click(function() {
             var date = $(this).data('date');
             $calendar.data('selectedDate', date);
+            $calendar.find('.timeSelect').change();
             updateCalendarView(date);
         });
     }
