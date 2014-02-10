@@ -2359,6 +2359,9 @@ public class ToolPageContext extends WebPageContext {
 
                 if (draft != null || contentData.isDraft()) {
                     contentData.setDraft(false);
+                }
+
+                if (!state.isVisible()) {
                     contentData.setPublishDate(null);
                     contentData.setPublishUser(null);
                 }
