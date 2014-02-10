@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.ImageCrop,
 com.psddev.cms.db.ImageTag,

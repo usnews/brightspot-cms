@@ -1,4 +1,4 @@
-<%@ page
+<%@ page session="false"
     import="com.psddev.cms.tool.ToolPageContext,
     java.util.Iterator,
     java.util.UUID,

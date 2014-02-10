@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Preview,

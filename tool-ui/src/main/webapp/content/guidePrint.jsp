@@ -1,4 +1,4 @@
-<%@ page
+<%@ page session="false"
     import="com.psddev.cms.tool.ToolPageContext,
     com.psddev.dari.db.ReferentialText,
     com.psddev.cms.db.Site,

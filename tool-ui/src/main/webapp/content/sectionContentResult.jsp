@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,

@@ -1,4 +1,4 @@
-<%@ page
+<%@ page session="false"
     import="
     com.psddev.cms.db.Guide,
     com.psddev.cms.db.Guide.GuideSettings,

@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.AbVariation,
 com.psddev.cms.db.AbVariationField,

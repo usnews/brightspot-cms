@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.Variation,
 com.psddev.cms.tool.PageWriter,

@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,

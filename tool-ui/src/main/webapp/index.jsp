@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.CmsTool,

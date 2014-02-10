@@ -1,4 +1,4 @@
-<%@ page import="
+<%@ page session="false" import="
 
 com.psddev.cms.db.Site,
 com.psddev.cms.db.ToolUi,
