@@ -492,6 +492,7 @@ var Rte = wysihtml5.Editor.extend({
                     '<h2>Link</h2>' +
                     '<div class="rte-dialogLine">' +
                         '<input type="text" class="rte-dialogLinkHref">' +
+                        '<input type="hidden" class="rte-dialogLinkId">' +
                         '<a class="rte-dialogLinkContent" target="linkById" href="' + CONTEXT_PATH + '/content/linkById.jsp?p=true">Content</a>' +
                     '</div>' +
                     '<div class="rte-dialogLine">' +
@@ -512,10 +513,21 @@ var Rte = wysihtml5.Editor.extend({
         var $lastAnchor = $();
 
         $linkDialog.on('click', '.rte-dialogLinkSave', function() {
-            var target = $linkDialog.find('.rte-dialogLinkTarget').val(),
+            var cmsId = $linkDialog.find('.rte-dialogLinkId').val(),
+                    href = $linkDialog.find('.rte-dialogLinkHref').val() || '',
+                    target = $linkDialog.find('.rte-dialogLinkTarget').val(),
                     rel = $linkDialog.find('.rte-dialogLinkRel').val();
 
-            $lastAnchor.attr('href', $linkDialog.find('.rte-dialogLinkHref').val() || '');
+            if (cmsId) {
+                $lastAnchor.attr('data-cms-id', cmsId);
+                $lastAnchor.attr('data-cms-href', href);
+
+            } else {
+                $lastAnchor.removeAttr('data-cms-id');
+                $lastAnchor.removeAttr('data-cms-href');
+            }
+
+            $lastAnchor.attr('href', href);
 
             if (target) {
                 $lastAnchor.attr('target', target);
@@ -608,6 +620,7 @@ var Rte = wysihtml5.Editor.extend({
 
             $linkDialog.popup('open');
             $href.val($anchor.attr('href') || 'http://');
+            $linkDialog.find('.rte-dialogLinkId').val($anchor.attr('data-cms-id') || '');
             $linkDialog.find('.rte-dialogLinkTarget').val($anchor.attr('target') || '');
             $linkDialog.find('.rte-dialogLinkRel').val($anchor.attr('rel') || '');
             $linkDialog.find('.rte-dialogLinkOpen').attr('href', $href.val());

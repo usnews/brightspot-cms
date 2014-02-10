@@ -31,6 +31,7 @@ String removeId = wp.createId();
         public void renderBeforeItem(Object item) throws IOException {
             writer.start("span",
                     "class", "link",
+                    "data-id", State.getInstance(item).getId(),
                     "data-permalink", item instanceof Content ?
                             ((Content) item).getPermalink() :
                             State.getInstance(item).as(Directory.ObjectModification.class).getPermalink());
@@ -49,12 +50,14 @@ String removeId = wp.createId();
                 $page = $('#<%= pageId %>');
 
         $page.delegate('[data-permalink]', 'click', function() {
-            var $source = $page.popup('source'),
-                    $input = $source.parent().find('.rte-dialogLinkHref'),
+            var $sourceParent = $page.popup('source').parent(),
+                    $idInput = $sourceParent.find('.rte-dialogLinkId'),
+                    $hrefInput = $sourceParent.find('.rte-dialogLinkHref'),
                     $link = $(this);
 
-            $input.val($link.attr('data-permalink'));
-            $input.change();
+            $idInput.val($link.attr('data-id'));
+            $hrefInput.val($link.attr('data-permalink'));
+            $hrefInput.change();
             $page.popup('close');
             return false;
         });

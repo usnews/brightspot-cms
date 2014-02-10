@@ -32,7 +32,7 @@ public class RichTextDatabase extends ForwardingDatabase {
                     Object value = state.get(fieldName);
 
                     if (value instanceof String) {
-                        List<Object> publishables = new ReferentialText((String) value, true).toPublishables();
+                        List<Object> publishables = new ReferentialText((String) value, true).toPublishables(new RichTextCleaner());
 
                         state.put(fieldName, publishables.isEmpty() ? null : publishables.get(0));
                     }

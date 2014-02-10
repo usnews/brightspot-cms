@@ -317,7 +317,7 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryC
         HttpServletResponse response = (HttpServletResponse) pageContext.getResponse();
 
         if (value instanceof ReferentialText) {
-            List<Object> items = ((ReferentialText) value).toPublishables();
+            List<Object> items = ((ReferentialText) value).toPublishables(new RichTextCleaner());
 
             // Slice items based on markers.
             if (!(items.isEmpty() || (ObjectUtils.isBlank(beginMarker) && ObjectUtils.isBlank(endMarker)))) {
