@@ -2179,7 +2179,8 @@ public class ToolPageContext extends WebPageContext {
                 publish(state);
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
-                        "id", state.getId());
+                        "id", state.getId(),
+                        "copyId", null);
                 return true;
 
             } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
