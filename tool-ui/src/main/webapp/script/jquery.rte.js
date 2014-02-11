@@ -1095,7 +1095,8 @@ var Rte = wysihtml5.Editor.extend({
                 composerWindow = composerIframe.contentWindow,
                 $composerBody;
 
-        if (!composerWindow) {
+        if (!composerWindow ||
+                !$(composerIframe).is(':visible')) {
             return;
         }
 
@@ -1574,13 +1575,22 @@ $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(150, function(
             raf = window.requestAnimationFrame;
 
     $.each(rtes, function() {
-        var $toolbar = $(this.config.toolbar),
-                $container = $(this.container),
-                $overlay = $(this.overlay),
-                containerTop = $container.offset().top,
-                toolbarHeight = $toolbar.outerHeight(),
+        var $container = $(this.container),
+                $overlay,
+                $toolbar,
+                containerTop,
+                toolbarHeight,
                 toolbarLeft,
                 toolbarWidth;
+
+        if (!$container.is(':visible')) {
+            return;
+        }
+
+        $overlay = $(this.overlay);
+        $toolbar = $(this.config.toolbar);
+        containerTop = $container.offset().top;
+        toolbarHeight = $toolbar.outerHeight();
 
         // Completely in view.
         if (windowTop < containerTop) {
