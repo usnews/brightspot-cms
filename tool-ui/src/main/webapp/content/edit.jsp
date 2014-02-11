@@ -1019,7 +1019,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     $previewHeading.click(function() {
                         var editLeft = $edit.offset().left;
 
-                        $edit.find('.inputContainer').trigger('fieldPreview-disable');
+                        // $edit.find('.inputContainer').trigger('fieldPreview-disable');
 
                         if ($previewWidget.is('.widget-expanded')) {
                             $previewWidget.removeClass('widget-expanded');
@@ -1037,7 +1037,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                             $preview.animate({ 'left': editLeft + PEEK_WIDTH }, 300, 'easeOutBack');
                             $preview.css('width', $win.width() - PEEK_WIDTH - 30);
 
-                            $edit.find('.inputContainer').trigger('fieldPreview-enable');
+                            // $edit.find('.inputContainer').trigger('fieldPreview-enable');
                         }
                     });
 
@@ -1133,7 +1133,7 @@ boolean lockedOut = !user.equals(contentLockOwner);
                     $previewHeading.click();
                 }
 
-                $edit.find('.inputContainer').trigger('fieldPreview-hide');
+                // $edit.find('.inputContainer').trigger('fieldPreview-hide');
                 $edit.attr('style', oldEditStyle);
                 appendPreviewAction();
                 $preview.hide();
