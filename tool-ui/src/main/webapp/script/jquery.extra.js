@@ -435,4 +435,14 @@ $.addQueryParameters = function() {
             uri;
 };
 
+// window.requestAnimationFrame polyfill.
+window.requestAnimationFrame =
+        window.requestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+
 }(jQuery, window));
