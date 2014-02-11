@@ -1482,6 +1482,8 @@ var iframeHtml;
 })();
 
 // Expose as a jQuery plugin.
+var $inputs = $();
+
 $.plugin2('rte', {
     '_defaultOptions': {
         'enhancement': createEnhancement,
@@ -1509,21 +1511,10 @@ $.plugin2('rte', {
         }
     },
 
-    '_create': function(element) {
-        var $element = $(element),
-                options = $.extend(true, { }, this.option()),
-                rte;
+    '_create': function(input) {
+        $.data(input, 'rte-options', $.extend(true, { }, this.option()));
 
-        if ($element.attr('data-inline') === 'true') {
-            options.inline = true;
-        }
-
-        rte = new Rte(element, options);
-
-        $element.bind('input-disable', function(event, disable) {
-            $element.closest('.rte-container').toggleClass('state-disabled', disable);
-            rte[disable ? 'disable' : 'enable']();
-        });
+        $inputs = $inputs.add($(input));
     },
 
     'enable': function() {
@@ -1566,6 +1557,29 @@ $.plugin2('rte', {
         return this;
     }
 });
+
+setInterval(function() {
+    $inputs.each(function() {
+        var $input = $(this),
+                options = $.data(this, 'rte-options'),
+                rte;
+
+        if ($input.is(':visible')) {
+            $inputs = $inputs.not($input);
+
+            if ($input.attr('data-inline') === 'true') {
+                options.inline = true;
+            }
+
+            rte = new Rte(this, options);
+
+            $input.bind('input-disable', function(event, disable) {
+                $input.closest('.rte-container').toggleClass('state-disabled', disable);
+                rte[disable ? 'disable' : 'enable']();
+            });
+        }
+    });
+}, 100);
 
 // Make sure that the editorial toolbar is visible as long as possible.
 $win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(150, function() {
