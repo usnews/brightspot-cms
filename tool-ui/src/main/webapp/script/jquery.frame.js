@@ -170,7 +170,7 @@ $.plugin2('frame', {
 
                 $form.attr('action', action + (action.indexOf('?') < 0 ? '?' : '&') + extraFormData);
 
-                if ($form.find(':hidden[name="_frame"]').length === 0) {
+                if ($form.find('input[type="hidden"][name="_frame"]').length === 0) {
                     $form.prepend($('<input/>', {
                         'name': '_frame',
                         'type': 'hidden',
