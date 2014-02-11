@@ -838,7 +838,6 @@ var Rte = wysihtml5.Editor.extend({
                     var rte = rtes[i];
 
                     $(rte.container).css('padding-top', 0);
-                    $(rte.config.toolbar).removeClass('rte-toolbar-fixed');
                     $(rte.config.toolbar).attr('style', rte._toolbarOldStyle);
                     $(rte.overlay).css('top', 0);
                     rte._toolbarOldStyle = null;
@@ -1568,46 +1567,60 @@ $.plugin2('rte', {
 });
 
 // Make sure that the editorial toolbar is visible as long as possible.
-$win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(100, function() {
+$win.bind('resize.rte scroll.rte', keepToolbarInView = $.throttle(150, function() {
+    var $header = $('.toolHeader'),
+            headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0),
+            windowTop = $win.scrollTop() + headerBottom,
+            raf = window.requestAnimationFrame;
+
     $.each(rtes, function() {
         var $toolbar = $(this.config.toolbar),
                 $container = $(this.container),
                 $overlay = $(this.overlay),
-                $header = $('.toolHeader'),
-                headerBottom = $header.offset().top + $header.outerHeight() - ($header.css('position') === 'fixed' ? $win.scrollTop() : 0),
                 containerTop = $container.offset().top,
-                windowTop = $win.scrollTop() + headerBottom;
+                toolbarHeight = $toolbar.outerHeight(),
+                toolbarLeft,
+                toolbarWidth;
 
         // Completely in view.
         if (windowTop < containerTop) {
-            $toolbar.removeClass('rte-toolbar-fixed');
-            $container.css('padding-top', 0);
-            $overlay.css('top', $toolbar.outerHeight());
-            $toolbar.attr('style', this._toolbarOldStyle);
+            raf(function() {
+                $container.css('padding-top', 0);
+                $overlay.css('top', toolbarHeight);
+                $toolbar.attr('style', this._toolbarOldStyle);
 
-            this._toolbarOldStyle = null;
+                this._toolbarOldStyle = null;
+            });
 
         } else {
             this._toolbarOldStyle = this._toolbarOldStyle || $toolbar.attr('style') || ' ';
 
-            $toolbar.addClass('rte-toolbarContainer-fixed');
-            $container.css('padding-top', $toolbar.outerHeight());
-            $overlay.css('top', 0);
+            raf(function() {
+                $container.css('padding-top', toolbarHeight);
+                $overlay.css('top', 0);
+            });
 
             // Partially in view.
             if (windowTop < containerTop + $container.height()) {
-                $toolbar.css({
-                    'left': $toolbar.offset().left,
-                    'position': 'fixed',
-                    'top': headerBottom,
-                    'width': $toolbar.width()
+                toolbarLeft = $toolbar.offset().left;
+                toolbarWidth = $toolbar.width();
+
+                raf(function() {
+                    $toolbar.css({
+                        'left': toolbarLeft,
+                        'position': 'fixed',
+                        'top': headerBottom,
+                        'width': toolbarWidth
+                    });
                 });
 
             // Completely out of view.
             } else {
-                $toolbar.css({
-                    'top': -10000,
-                    'position': 'fixed'
+                raf(function() {
+                    $toolbar.css({
+                        'top': -10000,
+                        'position': 'fixed'
+                    });
                 });
             }
         }
