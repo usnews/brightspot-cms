@@ -14,11 +14,11 @@ expand = function($inputs) {
 
     // Read the input width if it's a block element.
     $inputs.each(function() {
-        var shadow = $.data(this, SHADOW_DATA);
+        var shadow = $.data(this, SHADOW_DATA),
+                bounds = this.getBoundingClientRect();
 
-        if (shadow.display === 'block') {
-            shadow.width = this.getBoundingClientRect().width;
-        }
+        shadow.width = bounds.width;
+        shadow.height = bounds.height;
     });
 
     // Write the input text into the shadow.
@@ -81,7 +81,6 @@ $.plugin2('expandable', {
     '_create': function(input, options) {
         var $input,
                 display,
-                bounds,
                 boxSizing;
 
         // Read the input data into the shadow.
@@ -91,13 +90,10 @@ $.plugin2('expandable', {
 
         $input = $(input);
         display = $input.css('display');
-        bounds = input.getBoundingClientRect();
         boxSizing = $input.css('box-sizing');
 
         $.data(input, SHADOW_DATA, {
             'display': display,
-            'width': bounds.width,
-            'height': bounds.height,
             '$element': $('<div/>', {
                 'class': options.shadowClass + ' ' + $input.attr('data-expandable-class'),
                 'css': {
