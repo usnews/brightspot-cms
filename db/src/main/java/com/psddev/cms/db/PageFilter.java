@@ -386,10 +386,15 @@ public class PageFilter extends AbstractFilter {
             String path = Static.getPath(request);
             Directory.Path redirectPath = null;
             boolean isRedirect = false;
-            for (Directory.Path p : State.getInstance(mainObject).as(Directory.ObjectModification.class).getPaths()) {
-                if (p.getType() == Directory.PathType.REDIRECT && path.equalsIgnoreCase(p.getPath())) {
+
+            for (Directory.Path p : State.getInstance(mainObject).as(Directory.Data.class).getPaths()) {
+                if (p.getType() == Directory.PathType.REDIRECT &&
+                        ObjectUtils.equals(p.getSite(), site) &&
+                        path.equalsIgnoreCase(p.getPath())) {
                     isRedirect = true;
-                } else if (p.getType() == Directory.PathType.PERMALINK) {
+
+                } else if (p.getType() == Directory.PathType.PERMALINK &&
+                        ObjectUtils.equals(p.getSite(), site)) {
                     redirectPath = p;
                 }
             }
