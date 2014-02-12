@@ -119,6 +119,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean displaySiteInSearchResult;
 
+    @ToolUi.Tab("Debug")
+    private boolean enableAbTesting;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -601,6 +604,14 @@ public class CmsTool extends Tool {
 
     public void setDisplaySiteInSearchResult(boolean displaySiteInSearchResult) {
         this.displaySiteInSearchResult = displaySiteInSearchResult;
+    }
+
+    public boolean isEnableAbTesting() {
+        return enableAbTesting;
+    }
+
+    public void setEnableAbTesting(boolean enableAbTesting) {
+        this.enableAbTesting = enableAbTesting;
     }
 
     /** Returns the preview URL. */

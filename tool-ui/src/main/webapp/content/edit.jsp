@@ -231,7 +231,9 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                 <div class="widgetControls">
                     <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
-                    <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
+                    <% if (Query.from(CmsTool.class).first().isEnableAbTesting()) { %>
+                        <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
+                    <% } %>
                     <%
                     GuidePage guide = Guide.Static.getPageProductionGuide(template);
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
