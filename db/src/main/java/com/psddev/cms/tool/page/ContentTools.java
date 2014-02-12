@@ -20,6 +20,10 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
@@ -52,19 +56,37 @@ public class ContentTools extends PageServlet {
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         ToolUser user = page.getUser();
         Collection<String> includeFields = Arrays.asList("returnToDashboardOnSave");
+        Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
+        State state = State.getInstance(object);
 
         if (page.isFormPost()) {
-            try {
-                page.include("/WEB-INF/objectPost.jsp", "object", user, "includeFields", includeFields);
-                user.save();
+            if (page.param(String.class, "action-edits") != null) {
+                if (state != null) {
+                    Date newPublishDate = page.param(Date.class, "publishDate");
 
-            } catch (Exception error) {
-                page.getErrors().add(error);
+                    if (newPublishDate != null) {
+                        DateTimeZone timeZone = page.getUserDateTimeZone();
+                        newPublishDate = new Date(DateTimeFormat.
+                                forPattern("yyyy-MM-dd HH:mm:ss").
+                                withZone(timeZone).
+                                parseMillis(new DateTime(newPublishDate).toString("yyyy-MM-dd HH:mm:ss")));
+                    }
+
+                    state.as(Content.ObjectModification.class).setPublishDate(newPublishDate);
+                    state.save();
+                }
+
+            } else if (page.param(String.class, "action-settings") != null) {
+                try {
+                    page.include("/WEB-INF/objectPost.jsp", "object", user, "includeFields", includeFields);
+                    user.save();
+
+                } catch (Exception error) {
+                    page.getErrors().add(error);
+                }
             }
         }
 
-        Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
-        State state = State.getInstance(object);
         String returnUrl = page.param(String.class, "returnUrl");
 
         page.writeHeader();
@@ -132,13 +154,60 @@ public class ContentTools extends PageServlet {
                                     }
                                 page.writeEnd();
                             page.writeEnd();
+
+                            page.writeStart("h2");
+                                page.writeHtml("Advanced Edits");
+                            page.writeEnd();
+
+                            if (page.isFormPost() &&
+                                    page.param(String.class, "action-edits") != null) {
+                                if (page.getErrors().isEmpty()) {
+                                    page.writeStart("div", "class", "message message-success");
+                                        page.writeHtml("Advanced edits successfully saved.");
+                                    page.writeEnd();
+
+                                } else {
+                                    page.include("/WEB-INF/errors.jsp");
+                                }
+                            }
+
+                            page.writeStart("form",
+                                    "method", "post",
+                                    "action", page.url(""));
+
+                                page.writeStart("div", "class", "inputContainer");
+                                    page.writeStart("div", "class", "inputLabel");
+                                        page.writeStart("label", "for", page.createId());
+                                            page.writeHtml("New Publish Date");
+                                        page.writeEnd();
+                                    page.writeEnd();
+
+                                    page.writeStart("div", "class", "inputSmall");
+                                        page.writeElement("input",
+                                                "type", "text",
+                                                "class", "date",
+                                                "name", "publishDate",
+                                                "value", page.formatUserDateTime(publishDate));
+                                    page.writeEnd();
+                                page.writeEnd();
+
+                                page.writeStart("div", "class", "actions");
+                                    page.writeStart("button",
+                                            "class", "icon icon-action-save",
+                                            "name", "action-edits",
+                                            "value", true);
+                                        page.writeHtml("Save");
+                                    page.writeEnd();
+                                page.writeEnd();
+                            page.writeEnd();
                         }
 
                         page.writeStart("h2");
                             page.writeHtml("Settings");
                         page.writeEnd();
 
-                        if (page.isFormPost()) {
+                        if (page.isFormPost() &&
+                                page.param(String.class, "action-settings") != null) {
                             if (page.getErrors().isEmpty()) {
                                 page.writeStart("div", "class", "message message-success");
                                     page.writeHtml("Settings successfully saved.");
@@ -156,7 +225,10 @@ public class ContentTools extends PageServlet {
                             page.include("/WEB-INF/objectForm.jsp", "object", user, "includeFields", includeFields);
 
                             page.writeStart("div", "class", "actions");
-                                page.writeStart("button", "class", "icon icon-action-save");
+                                page.writeStart("button",
+                                        "class", "icon icon-action-save",
+                                        "name", "action-settings",
+                                        "value", true);
                                     page.writeHtml("Save");
                                 page.writeEnd();
                             page.writeEnd();

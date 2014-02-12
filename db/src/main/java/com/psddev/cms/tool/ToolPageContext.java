@@ -2299,7 +2299,6 @@ public class ToolPageContext extends WebPageContext {
                             parseMillis(new DateTime(publishDate).toString("yyyy-MM-dd HH:mm:ss")));
 
                     if (publishDate.before(new Date(new DateTime(timeZone).getMillis()))) {
-                        state.as(Content.ObjectModification.class).setPublishDate(publishDate);
                         publishDate = null;
                     }
                 }
