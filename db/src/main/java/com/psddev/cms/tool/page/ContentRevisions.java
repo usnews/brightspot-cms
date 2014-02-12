@@ -224,6 +224,10 @@ public class ContentRevisions extends Widget {
                                 page.writeHtml(" by ");
                                 page.writeObjectLabel(h.getUpdateUser());
                             page.writeEnd();
+
+                            if (h.isLockIgnored()) {
+                                page.writeHtml(" (Lock Ignored)");
+                            }
                         page.writeEnd();
                     }
                 page.writeEnd();

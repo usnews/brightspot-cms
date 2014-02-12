@@ -467,17 +467,6 @@ $doc.onCreate('.contentLock', function() {
         $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
         $win.resize();
     }
-
-    $.addToolCheck({
-        'check': 'contentLock',
-        'contentId': $container.attr('data-content-id'),
-        'ownerId': $container.attr('data-content-lock-owner-id'),
-        'actions': {
-            'newOwner': function() {
-                win.location.reload(true);
-            }
-        }
-    });
 });
 
 // Show stack trace when clicking on the exception message.
@@ -1118,5 +1107,45 @@ $doc.ready(function() {
         })();
     }
 });
+
+// Content locking functions.
+(function() {
+    var KEY_PREFIX = "cms.contentLock.",
+            STORAGE = window.localStorage;
+
+    window.bspContentLock = function(contentId) {
+        STORAGE.setItem(KEY_PREFIX + contentId, +new Date());
+    };
+
+    window.bspContentUnlock = function(contentId) {
+        STORAGE.removeItem(KEY_PREFIX + contentId);
+
+        $.ajax({
+            'url': CONTEXT_PATH + '/contentUnlock',
+            'data': { 'id': contentId },
+            'async': false,
+            'cache': false
+        });
+    };
+
+    window.setInterval(function() {
+        var itemIndex,
+                itemLength = STORAGE.length,
+                key,
+                now = +new Date(),
+                contentId;
+
+        for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
+            key = STORAGE.key(itemIndex);
+
+            if (key.indexOf(KEY_PREFIX, 0) === 0 &&
+                    parseInt(STORAGE.getItem(key), 10) + 5000 < now) {
+                contentId = key.substring(KEY_PREFIX.length);
+
+                window.bspContentUnlock(contentId);
+            }
+        }
+    }, 1000);
+})();
 
 }(jQuery, window));

@@ -2098,7 +2098,7 @@ public class ToolPageContext extends WebPageContext {
             getResponse().sendRedirect(cmsUrl("/"));
 
         } else {
-            redirect(url, parameters);
+            getResponse().sendRedirect(StringUtils.addQueryParameters(url(url, parameters), "editAnyway", null));
         }
     }
 
@@ -2660,7 +2660,14 @@ public class ToolPageContext extends WebPageContext {
 
     /** @see Content.Static#publish */
     public History publish(Object object) {
-        return Content.Static.publish(object, getSite(), getUser());
+        History history = Content.Static.publish(object, getSite(), getUser());
+
+        if (param(boolean.class, "editAnyway")) {
+            history.setLockIgnored(true);
+            history.save();
+        }
+
+        return history;
     }
 
     /**

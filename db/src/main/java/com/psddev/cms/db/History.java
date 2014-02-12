@@ -21,6 +21,7 @@ public class History extends Record {
     private @Indexed ObjectType objectType;
     private @Indexed UUID objectId;
     private Map<String, Object> objectOriginals;
+    private boolean lockIgnored;
 
     /** Creates a blank instance. */
     protected History() {
@@ -80,6 +81,14 @@ public class History extends Record {
         return objectOriginals == null ?
                 Collections.<String, Object>emptyMap() :
                 Collections.unmodifiableMap(objectOriginals);
+    }
+
+    public boolean isLockIgnored() {
+        return lockIgnored;
+    }
+
+    public void setLockIgnored(boolean lockIgnored) {
+        this.lockIgnored = lockIgnored;
     }
 
     /** Returns the object. */

@@ -1,6 +1,7 @@
 <%@ page session="false" import="
 
 com.psddev.cms.db.Content,
+com.psddev.cms.db.ContentLock,
 com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Draft,
@@ -151,8 +152,13 @@ Draft draft = wp.getOverlaidDraft(editing);
 Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(editing).getType());
 State editingState = State.getInstance(editing);
 ToolUser user = wp.getUser();
-ToolUser contentLockOwner = user.lockContent(editingState.getId());
-boolean lockedOut = !user.equals(contentLockOwner);
+Object contentLockOwner = null;
+boolean lockedOut = false;
+
+if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
+    contentLockOwner = ContentLock.Static.lock(editing, null, user);
+    lockedOut = !wp.param(boolean.class, "editAnyway") && !user.equals(contentLockOwner);
+}
 
 // --- Presentation ---
 
@@ -168,7 +174,6 @@ boolean lockedOut = !user.equals(contentLockOwner);
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
             data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
             data-content-id="<%= State.getInstance(editing).getId() %>"
-            data-content-lock-owner-id="<%= contentLockOwner.getId() %>"
             data-content-locked-out="<%= lockedOut %>">
         <div class="contentForm-main">
             <div class="widget widget-content">
@@ -326,15 +331,31 @@ boolean lockedOut = !user.equals(contentLockOwner);
                         wp.writeStart("div", "class", "actions");
                             wp.writeStart("a",
                                     "class", "icon icon-unlock",
-                                    "href", wp.cmsUrl("/contentUnlock",
-                                            "id", editingState.getId(),
-                                            "returnUrl", wp.url("")));
-                                wp.writeHtml("Unlock Forcefully");
+                                    "href", wp.url("", "editAnyway", true));
+                                wp.writeHtml("Edit Anyway");
                             wp.writeEnd();
                         wp.writeEnd();
                     wp.writeEnd();
 
                 } else {
+                    %><script type="text/javascript">
+                        (function() {
+                            var unlocked;
+
+                            window.setInterval(function() {
+                                if (!unlocked) {
+                                    window.bspContentLock('<%= editingState.getId() %>');
+                                }
+                            }, 1000);
+
+                            $(window).bind('beforeunload', function() {
+                                unlocked = true;
+
+                                window.bspContentUnlock('<%= editingState.getId() %>');
+                            });
+                        })();
+                    </script><%
+
                     wp.writeStart("a",
                             "class", "icon icon-wrench icon-only",
                             "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
