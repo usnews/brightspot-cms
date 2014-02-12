@@ -48,13 +48,17 @@ try {
             "data-id", state.getId(),
             "data-object-id", state.getId());
 
-        Date updateDate = state.as(Content.ObjectModification.class).getUpdateDate();
+        Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
 
-        if (updateDate != null) {
-            wp.writeElement("input",
-                    "type", "hidden",
-                    "name", state.getId() + "/_updateDate",
-                    "value", updateDate.getTime());
+        if (original != null) {
+            Date updateDate = State.getInstance(original).as(Content.ObjectModification.class).getUpdateDate();
+
+            if (updateDate != null) {
+                wp.writeElement("input",
+                        "type", "hidden",
+                        "name", state.getId() + "/_updateDate",
+                        "value", updateDate.getTime());
+            }
         }
 
         if (type != null) {
