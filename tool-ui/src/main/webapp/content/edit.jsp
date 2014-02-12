@@ -242,7 +242,8 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                     %>
                 </div>
 
-                <% if (!State.getInstance(editing).isNew()) { %>
+                <% if (!State.getInstance(editing).isNew() &&
+                        !(editing instanceof com.psddev.dari.db.Singleton)) { %>
                     <div class="widget-contentCreate">
                         <div class="action action-create">New</div>
                         <ul>
