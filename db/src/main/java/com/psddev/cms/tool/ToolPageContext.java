@@ -2661,7 +2661,8 @@ public class ToolPageContext extends WebPageContext {
     public History publish(Object object) {
         History history = Content.Static.publish(object, getSite(), getUser());
 
-        if (param(boolean.class, "editAnyway")) {
+        if (history != null &&
+                param(boolean.class, "editAnyway")) {
             history.setLockIgnored(true);
             history.save();
         }
