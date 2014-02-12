@@ -8,7 +8,9 @@ com.psddev.dari.util.ObjectUtils,
 
 java.util.ArrayList,
 java.util.Collections,
-java.util.List
+java.util.List,
+
+javax.servlet.ServletException
 " %><%
 
 // --- Presentation ---
@@ -21,6 +23,14 @@ if (ObjectUtils.isBlank(errors)) {
 
 wp.write("<div class=\"message message-error\"><ul>");
 for (Throwable error : errors) {
+    if (error instanceof ServletException) {
+        Throwable cause = error.getCause();
+
+        if (cause != null) {
+            error = cause;
+        }
+    }
+
     wp.write("<li>");
 
     if (error instanceof ValidationException) {
