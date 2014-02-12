@@ -1,5 +1,7 @@
 <%@ page session="false" import="
 
+com.psddev.cms.db.Content,
+com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
@@ -9,6 +11,7 @@ com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
 
 java.util.Collection,
+java.util.Date,
 java.util.List
 " %><%
 
@@ -51,6 +54,23 @@ if (fields != null) {
     } finally {
         if (oldContainer == null) {
             request.setAttribute("containerObject", null);
+
+            Date oldUpdateDate = wp.param(Date.class, state.getId() + "/_updateDate");
+
+            if (oldUpdateDate != null) {
+                Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+                Date newUpdateDate = contentData.getUpdateDate();
+
+                if (!oldUpdateDate.equals(newUpdateDate)) {
+                    ToolUser updateUser = contentData.getUpdateUser();
+
+                    throw new IllegalArgumentException(
+                            (updateUser != null ? updateUser.getLabel() : "Unknown user") +
+                            " has updated this content at " +
+                            newUpdateDate +
+                            " since you've seen it last. Click on publish button again to override the changes with your own.");
+                }
+            }
         }
 
         if (draftCheck) {

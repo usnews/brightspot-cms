@@ -17,6 +17,7 @@ com.psddev.dari.util.TypeReference,
 
 java.util.ArrayList,
 java.util.Collection,
+java.util.Date,
 java.util.Iterator,
 java.util.HashSet,
 java.util.List
@@ -46,6 +47,16 @@ try {
             "data-type", type != null ? type.getInternalName() : null,
             "data-id", state.getId(),
             "data-object-id", state.getId());
+
+        Date updateDate = state.as(Content.ObjectModification.class).getUpdateDate();
+
+        if (updateDate != null) {
+            wp.writeElement("input",
+                    "type", "hidden",
+                    "name", state.getId() + "/_updateDate",
+                    "value", updateDate.getTime());
+        }
+
         if (type != null) {
             String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 
