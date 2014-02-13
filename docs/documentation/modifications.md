@@ -9,46 +9,37 @@ section: documentation
 
 The `Modification` class, found within [Dari](http://www.dariframework.org/javadocs/com/psddev/dari/db/Modification.html) can be used to provide inheritance to multiple object types from one singular class. It is typically used when a property, not common among a group of objects, needs to be added after they have already been created.
 
-Normal inheritance can be achieved as would be expected with Java. Here is an example of an abstract Link class, with an internal link object extending from it.
+Normal inheritance can be achieved as would be expected with Java. Here is an example of an abstract class, with several fields on it, which are inherited by anything extending it.
 
-<div class="highlight">{% highlight java %}public abstract class Link extends Content {
+<div class="highlight">{% highlight java %}public abstract class AbstractArticle extends Content {
 
-    private String name;
+    private String headline;
+    private ReferentialText body;
 
     // Getters Setters
 
 }
 {% endhighlight %}</div>
 
-The User interface that is created in Brightspot when extending a parent class is automatically generated.
+The User interface that is created in Brightspot when extending a parent class is automatically generated. The inherited fields appear at the top, and additional fields are added below. The `newsTags` property will only appear when NewsArticles are created.
 
 <div class="highlight">{% highlight java %}
-public class InternalLink extends Link {
+public class NewsArticle extends AbstractArticle {
 
-    @ToolUi.OnlyPathed
-    private Record pageContent;
-
-    public Record getPageContent() {
-	    return pageContent;
-    }
-
-    public void setPageContent(Record pageContent) {
-	    this.pageContent = pageContent;
-    }
-
+    private List<Tag> newsTags;
 }
 {% endhighlight %}</div>
 
 
 **Example of a Modification, using a common Interface**
 
-A good example use case of implementing a modification would be in the case of a global property, `FacebookLikes` which needs to be recorded on each object, such as `Blog`, `Article`, `Image`, `Author` and `News`. They do not inherit from one global class, therefore there is no quick means to apply the property to them all. In this case, a modification can be used to add the field to all the objects.
+A good example use case of implementing a modification would be in the case of a global property, `promoTitle` or `promoImage` which needs to be added on a group of  objects, such as `Blog`, `Article`, `Image`, `Slideshow`. They do not inherit from one global class, therefore there is no quick means to apply the property to them all. In this case, a modification can be used to add the fields to all the objects.
 
 **Step 1. Create Common Interface**
 
 <div class="highlight">{% highlight java %}import com.psddev.dari.db.Recordable;
 
-public interface FacebookLikesInterface extends Recordable {
+public interface Promotable extends Recordable {
 
 }
 {% endhighlight %}</div>
@@ -57,10 +48,11 @@ public interface FacebookLikesInterface extends Recordable {
 
 <div class="highlight">{% highlight java %}import com.psddev.dari.db.Modification;
 
-public class FacebookLikes extends Modification<FacebookLikesInterface> {
+public class DefaultPromotable extends Modification<Promotable> {
 
-    @FieldIndexed
-    private String new;
+    @Indexed
+    private String promoTitle;
+    private Image promoImage;
 
     // Getters Setters
 
@@ -69,13 +61,51 @@ public class FacebookLikes extends Modification<FacebookLikesInterface> {
 
 **Step 3. Implement Modification** 
 
-<div class="highlight">{% highlight java %}public class Author extends Content implements FacebookLikesInterface {
+<div class="highlight">{% highlight java %}public class Blog extends Content implements Promotable {
 
-    private String firstName;
-    private String lastName;
+    private String title;
+    
+    // Getters Setters
     
 }
 {% endhighlight %}</div>
+
+**Accessing Modification Fields**
+
+In the example above, a new `promoTitle` and `promoImage` can be added to the objects implementing the interface. To access these fields when rendering the content, you don't have direct access:
+
+The following will not work:
+
+<div class="highlight">{% highlight jsp %}<cms:render value="${content.promoTitle}"/>
+
+<cms:img src="${content.promoImage}"/>
+
+{% endhighlight %}</div>
+
+In order to access those field, you must annotate the modification class, to give it a `@BeanProperty`:
+
+<div class="highlight">{% highlight java %}import com.psddev.dari.db.Modification;
+
+@BeanProperty("promotable")
+public class DefaultPromotable extends Modification<Promotable> {
+
+    @Indexed
+    private String promoTitle;
+    private Image promoImage;
+
+    // Getters Setters
+
+}
+{% endhighlight %}</div>
+
+This allows direct access when rendering your content:
+
+<div class="highlight">{% highlight jsp %}<cms:render value="${content.promotable.promoTitle}"/>
+
+<cms:img src="${content.promotable.promoImage}"/>
+
+{% endhighlight %}</div>
+
 
 **No Common Interface**
 
@@ -83,10 +113,14 @@ With Dari there is another method by which you can implement multiple inheritanc
 
 **Step 1. Implement Modification** 
 
-<div class="highlight">{% highlight java %}@Modification.Classes({Person.class, Author.class})
-public class ExampleModification extends Modification<Object> {
+<div class="highlight">{% highlight java %}@Modification.Classes({Blog.class, Article.class})
+public class DefaultPromotable extends Modification<Object> {
 
-    private String newField;
+    @Indexed
+    private String promoTitle;
+    private Image promoImage;
+
+    // Getters Setters
 
 }
 {% endhighlight %}</div>
