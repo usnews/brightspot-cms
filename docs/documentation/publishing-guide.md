@@ -129,6 +129,13 @@ Brightspot automatically tracks changes between past revisions, upcoming schedul
 
 ![](http://docs.brightspot.s3.amazonaws.com/tracking-changes-2.1.png)
 
+There is also a tracking changes feature available within the rich text editor. This allows editors to track any added or removed text that they work on, persisting each change and highlighting it, so that another editor (potentially in a workflow) can see changes made, and approve or reverse them.
+
+To start tracking - click `Track` in the rich text editor toolbar. This will track all changes now made in the rich text editor. Added text will show as green, removed as red. You can approve a change by highlighting it with your mouse and clicking the tick, or canceling the change by clicking the cross.
+
+You can leave a comment or note inline by clicking on the comment symbol. You can hide or expand the notes by clicking on the ellipsis.
+
+![](http://docs.brightspot.s3.amazonaws.com/track-changes-rte-2.3.png)
 
 ## References
 
