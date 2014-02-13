@@ -1089,6 +1089,7 @@ var Rte = wysihtml5.Editor.extend({
     'updateOverlay': function() {
         var rte = this,
                 textarea = rte.textarea,
+                isCurrentViewTextarea = rte.currentView === textarea,
                 $overlay = $(rte.overlay),
                 composer = rte.composer,
                 composerIframe = composer.iframe,
@@ -1096,14 +1097,19 @@ var Rte = wysihtml5.Editor.extend({
                 $composerBody;
 
         if (!composerWindow ||
-                !$(composerIframe).is(':visible')) {
+                !$(isCurrentViewTextarea ? textarea : composerIframe).is(':visible')) {
             return;
         }
 
-        $composerBody = $(composerWindow.document.body);
-
         // Hide if viewing source HTML.
-        $overlay.toggle(rte.currentView !== textarea);
+        if (isCurrentViewTextarea) {
+            $overlay.hide();
+            return;
+        }
+
+        $overlay.show();
+
+        $composerBody = $(composerWindow.document.body);
 
         // Automatically size the iframe height to match the content.
         $(composerIframe).css('min-height', Math.max(28, $composerBody.outerHeight(true)));
