@@ -25,9 +25,13 @@ public class RichTextCleaner implements ReferentialText.Cleaner {
                     Object item = Query.fromAll().where("_id = ?", id).first();
 
                     if (item != null) {
-                        a.attr("href",
-                                item instanceof Content ? ((Content) item).getPermalink() :
-                                State.getInstance(item).as(Directory.ObjectModification.class).getPermalink());
+                        String href = item instanceof Content ?
+                                ((Content) item).getPermalink() :
+                                State.getInstance(item).as(Directory.ObjectModification.class).getPermalink();
+
+                        if (href != null) {
+                            a.attr("href", href);
+                        }
                     }
                 }
             }
