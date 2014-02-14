@@ -75,10 +75,10 @@ String access = siteData.isGlobal() ? "all" :
 
 %>
 <label for="<%= wp.createId() %>">Owner:</label><br>
-<select class="toggleable" name="<%= ownerName %>" style="width: 100%;">
+<select class="toggleable" data-root=".widget" name="<%= ownerName %>" style="width: 100%;">
     <option<%= owner == null ? " selected" : "" %> value="" data-show=".siteItem">None</option>
     <% for (Site site : allSites) { %>
-        <option<%= site.equals(owner) ? " selected" : "" %> value="<%= site.getId() %>" data-hide=".siteItem-<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
+        <option<%= site.equals(owner) ? " selected" : "" %> value="<%= site.getId() %>" data-show=".siteItem:not(.siteItem-<%= site.getId() %>)" data-hide=".siteItem-<%= site.getId() %>"><%= wp.objectLabel(site) %></option>
     <% } %>
 </select>
 
