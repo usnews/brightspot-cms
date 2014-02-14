@@ -21,6 +21,7 @@ com.psddev.dari.util.SparseSet,
 
 java.io.IOException,
 java.util.ArrayList,
+java.util.Collections,
 java.util.HashMap,
 java.util.HashSet,
 java.util.Iterator,
@@ -198,6 +199,9 @@ wp.writeStart("div", "class", "inputSmall permissions");
         }
 
         Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
+
+        Collections.sort(mainTypes);
+        Collections.sort(typesList);
 
         typeGroups.put("Main Content Types", mainTypes);
         typeGroups.put("Misc Content Types", typesList);
