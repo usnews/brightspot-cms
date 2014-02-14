@@ -63,7 +63,7 @@ public class Search extends Record {
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SHOW_DRAFTS_PARAMETER = "d";
-    public static final String VISIBILITY_PARAMETER = "v";
+    public static final String VISIBILITIES_PARAMETER = "v";
     public static final String SHOW_MISSING_PARAMETER = "m";
     public static final String SORT_PARAMETER = "s";
     public static final String SUGGESTIONS_PARAMETER = "sg";
@@ -89,7 +89,7 @@ public class Search extends Record {
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
     private boolean showDrafts;
-    private String visibility;
+    private Collection<String> visibilities;
     private boolean showMissing;
     private boolean suggestions;
     private long offset;
@@ -162,7 +162,7 @@ public class Search extends Record {
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
-        setVisibility(page.param(String.class, VISIBILITY_PARAMETER));
+        setVisibilities(page.params(String.class, VISIBILITIES_PARAMETER));
         setShowMissing(page.param(boolean.class, SHOW_MISSING_PARAMETER));
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
@@ -290,12 +290,15 @@ public class Search extends Record {
         this.showDrafts = showDrafts;
     }
 
-    public String getVisibility() {
-        return visibility;
+    public Collection<String> getVisibilities() {
+        if (visibilities == null) {
+            visibilities = new HashSet<String>();
+        }
+        return visibilities;
     }
 
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
+    public void setVisibilities(Collection<String> visibilities) {
+        this.visibilities = visibilities;
     }
 
     public boolean isShowMissing() {
@@ -708,32 +711,50 @@ public class Search extends Record {
                     PredicateParser.Static.parse("_type = ?", globalTypes)));
         }
 
-        String visibility = getVisibility();
+        Collection<String> visibilities = getVisibilities();
 
-        if (!ObjectUtils.isBlank(visibility)) {
-            if ("d".equals(visibility)) {
-                query.and("cms.content.draft = true");
+        if (!visibilities.isEmpty()) {
+            Predicate visibilitiesPredicate = null;
 
-            } else if ("t".equals(visibility)) {
-                query.and("cms.content.trashed = true");
+            for (String visibility : visibilities) {
+                if ("d".equals(visibility)) {
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse("cms.content.draft = true"));
 
-            } else if ("w".equals(visibility)) {
-                Set<String> ss = new HashSet<String>();
+                } else if ("t".equals(visibility)) {
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse("cms.content.trashed = true"));
 
-                for (Workflow w : (selectedType == null ?
-                        Query.from(Workflow.class) :
-                        Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
-                        selectAll()) {
-                    for (WorkflowState s : w.getStates()) {
-                        ss.add(s.getName());
+                } else if ("w".equals(visibility)) {
+                    Set<String> ss = new HashSet<String>();
+
+                    for (Workflow w : (selectedType == null ?
+                            Query.from(Workflow.class) :
+                            Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
+                            selectAll()) {
+                        for (WorkflowState s : w.getStates()) {
+                            ss.add(s.getName());
+                        }
                     }
+
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse("cms.workflow.currentState = ?", ss));
+
+                } else if (visibility.startsWith("w.")) {
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse("cms.workflow.currentState = ?", visibility.substring(2)));
                 }
-
-                query.and("cms.workflow.currentState = ?", ss);
-
-            } else if (visibility.startsWith("w.")) {
-                query.and("cms.workflow.currentState = ?", visibility.substring(2));
             }
+
+            query.and(visibilitiesPredicate);
 
         } else if (selectedType == null &&
                 isAllSearchable) {

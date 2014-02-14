@@ -413,10 +413,10 @@ writer.start("div", "class", "searchForm");
                 writer.end();
 
                 writer.writeStart("div", "class", "searchFilter");
-                    wp.writeVisibilitySelect(
+                    wp.writeMultipleVisibilitySelect(
                             selectedType,
-                            search.getVisibility(),
-                            "name", Search.VISIBILITY_PARAMETER);
+                            search.getVisibilities(),
+                            "name", Search.VISIBILITIES_PARAMETER);
                 writer.writeEnd();
 
                 for (Tool tool : Query.from(Tool.class).selectAll()) {

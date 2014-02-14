@@ -1724,13 +1724,17 @@ public class ToolPageContext extends WebPageContext {
      * visibility status.
      *
      * @param type May be {@code null}.
-     * @param value Initial value. May be {@code null}.
+     * @param values Initial values. May be {@code null}.
      * @param attributes May be {@code null}.
      */
-    public void writeVisibilitySelect(
+    public void writeMultipleVisibilitySelect(
             ObjectType type,
-            String value,
+            Collection<String> values,
             Object... attributes) throws IOException {
+
+        if (values == null) {
+            values = Collections.emptySet();
+        }
 
         Map<String, String> statuses = new HashMap<String, String>();
 
@@ -1760,18 +1764,17 @@ public class ToolPageContext extends WebPageContext {
             }
         });
 
-        writeStart("select", attributes);
-            writeStart("option", "value", "");
-                writeHtml("Status: Published");
-            writeEnd();
+        writeStart("select",
+                "multiple", "multiple",
+                "placeholder", "Status (Published)",
+                attributes);
 
             for (Map.Entry<String, String> entry : sortedStatuses) {
                 String key = entry.getKey();
 
                 writeStart("option",
-                        "selected", key.equals(value) ? "selected" : null,
+                        "selected", values.contains(key) ? "selected" : null,
                         "value", key);
-                    writeHtml("Status: ");
                     writeHtml(entry.getValue());
                 writeEnd();
             }
