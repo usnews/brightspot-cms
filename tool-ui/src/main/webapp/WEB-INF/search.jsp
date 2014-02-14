@@ -128,7 +128,7 @@ ToolUser user = wp.getUser();
 Map<String, String> savedSearches = user.getSavedSearches();
 
 if (!savedSearches.isEmpty()) {
-    wp.writeStart("div", "class", "widget-contentCreate");
+    wp.writeStart("div", "class", "widget-contentCreate searchSaved");
         List<String> savedSearchNames = new ArrayList<String>(savedSearches.keySet());
 
         Collections.sort(savedSearchNames, String.CASE_INSENSITIVE_ORDER);
