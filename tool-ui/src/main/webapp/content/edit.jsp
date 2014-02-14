@@ -47,7 +47,9 @@ java.util.List,
 java.util.ListIterator,
 java.util.Map,
 java.util.Set,
-java.util.UUID
+java.util.UUID,
+
+org.joda.time.DateTime
 " %><%
 
 // --- Logic ---
@@ -648,15 +650,32 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                         wp.writeEnd();
                                     }
 
+                                    DateTime publishDate;
+
+                                    if (schedule != null) {
+                                        publishDate = wp.toUserDateTime(schedule.getTriggerDate());
+
+                                    } else {
+                                        publishDate = wp.param(DateTime.class, "publishDate");
+
+                                        if (publishDate == null &&
+                                                (isDraft ||
+                                                editingState.as(Workflow.Data.class).getCurrentState() != null)) {
+                                            Date pd = editingState.as(Content.ObjectModification.class).getScheduleDate();
+
+                                            if (pd != null) {
+                                                publishDate = new DateTime(pd);
+                                            }
+                                        }
+                                    }
+
                                     wp.writeElement("input",
                                             "type", "text",
                                             "class", "date dateInput",
                                             "data-emptylabel", "Now",
                                             "name", "publishDate",
                                             "size", 9,
-                                            "value", schedule != null ?
-                                                    wp.formatUserDateTimeWith(schedule.getTriggerDate(), "yyyy-MM-dd HH:mm:ss") :
-                                                    wp.dateParam("publishDate") != null ? DateUtils.toString(wp.dateParam("publishDate"), "yyyy-MM-dd HH:mm:ss") : "");
+                                            "value", publishDate != null ? publishDate.toString("yyyy-MM-dd HH:mm:ss") : "");
                                 }
 
                                 wp.writeStart("button",

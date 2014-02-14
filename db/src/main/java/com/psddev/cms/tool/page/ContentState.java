@@ -19,6 +19,7 @@ import javax.servlet.jsp.PageContext;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
@@ -53,6 +54,8 @@ public class ContentState extends PageServlet {
         if (object == null) {
             return;
         }
+
+        page.setContentFormScheduleDate(object);
 
         // Pretend to update the object.
         State state = State.getInstance(object);

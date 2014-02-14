@@ -2147,6 +2147,50 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Returns the publish date set on the content form.
+     *
+     * @return May be {@code null}.
+     */
+    public Date getContentFormPublishDate() {
+        Date publishDate = param(Date.class, "publishDate");
+
+        if (publishDate != null) {
+            DateTimeZone timeZone = getUserDateTimeZone();
+            publishDate = new Date(DateTimeFormat.
+                    forPattern("yyyy-MM-dd HH:mm:ss").
+                    withZone(timeZone).
+                    parseMillis(new DateTime(publishDate).toString("yyyy-MM-dd HH:mm:ss")));
+
+            if (publishDate.before(new Date(new DateTime(timeZone).getMillis()))) {
+                publishDate = null;
+            }
+        }
+
+        return publishDate;
+    }
+
+    /**
+     * Sets the schedule date on the given {@code object} if it's a draft
+     * or in workflow.
+     *
+     * @param object Can't be {@code null}.
+     */
+    public void setContentFormScheduleDate(Object object) {
+        State state = State.getInstance(object);
+        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+
+        if (object instanceof Draft ||
+                contentData.isDraft() ||
+                state.as(Workflow.Data.class).getCurrentState() != null) {
+
+            Date publishDate = getContentFormPublishDate();
+
+            contentData.setPublishDate(publishDate);
+            contentData.setScheduleDate(publishDate);
+        }
+    }
+
+    /**
      * Tries to save the given {@code object} as a draft if the user has
      * asked for it in the current request.
      *
@@ -2158,6 +2202,8 @@ public class ToolPageContext extends WebPageContext {
                 param(String.class, "action-draft") == null) {
             return false;
         }
+
+        setContentFormScheduleDate(object);
 
         State state = State.getInstance(object);
         Draft draft = getOverlaidDraft(object);
@@ -2289,19 +2335,7 @@ public class ToolPageContext extends WebPageContext {
             Date publishDate = null;
 
             if (schedule == null) {
-                publishDate = param(Date.class, "publishDate");
-
-                if (publishDate != null) {
-                    DateTimeZone timeZone = getUserDateTimeZone();
-                    publishDate = new Date(DateTimeFormat.
-                            forPattern("yyyy-MM-dd HH:mm:ss").
-                            withZone(timeZone).
-                            parseMillis(new DateTime(publishDate).toString("yyyy-MM-dd HH:mm:ss")));
-
-                    if (publishDate.before(new Date(new DateTime(timeZone).getMillis()))) {
-                        publishDate = null;
-                    }
-                }
+                publishDate = getContentFormPublishDate();
 
             } else if (draft == null) {
                 draft = Query.

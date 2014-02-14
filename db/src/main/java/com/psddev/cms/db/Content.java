@@ -110,6 +110,9 @@ public abstract class Content extends Record {
         @ToolUi.Filterable(false)
         private ToolUser updateUser;
 
+        @InternalName("cms.content.scheduleDate")
+        private Date scheduleDate;
+
         /**
          * Returns {@code true} if this content is a draft.
          */
@@ -172,6 +175,14 @@ public abstract class Content extends Record {
         /** Sets the tool user that last updated the given {@code object}. */
         public void setUpdateUser(ToolUser updateUser) {
             this.updateUser = updateUser;
+        }
+
+        public Date getScheduleDate() {
+            return scheduleDate;
+        }
+
+        public void setScheduleDate(Date scheduleDate) {
+            this.scheduleDate = scheduleDate;
         }
 
         /**
