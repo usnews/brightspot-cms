@@ -442,9 +442,17 @@ writer.start("div", "class", "searchForm");
 
             writer.start("a",
                     "class", "action action-cancel",
-                    "href", wp.url(null,
-                            Search.NAME_PARAMETER, search.getName(),
-                            "reset", true));
+                    "onclick",
+                            "var $source = $(this).popup('source');" +
+                            "if ($source) {" +
+                                "if ($source.is('a')) {" +
+                                    "$source.click();" +
+                                "} else if ($source.is('form')) {" +
+                                    "$source[0].reset();" +
+                                    "$source.submit();" +
+                                "}" +
+                            "}" +
+                            "return false;");
                 writer.html("Reset");
             writer.end();
 
