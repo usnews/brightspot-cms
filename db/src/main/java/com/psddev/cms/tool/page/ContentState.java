@@ -23,6 +23,7 @@ import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.db.Workflow;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
@@ -55,10 +56,15 @@ public class ContentState extends PageServlet {
             return;
         }
 
-        page.setContentFormScheduleDate(object);
-
         // Pretend to update the object.
         State state = State.getInstance(object);
+
+        if (state.isNew() ||
+                object instanceof Draft ||
+                state.as(Content.ObjectModification.class).isDraft() ||
+                state.as(Workflow.Data.class).getCurrentState() != null) {
+            page.setContentFormScheduleDate(object);
+        }
 
         try {
             state.beginWrites();

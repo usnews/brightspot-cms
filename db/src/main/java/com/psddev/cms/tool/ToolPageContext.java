@@ -2150,7 +2150,7 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Returns the publish date set on the content form.
+     * Returns the publish date from the content form.
      *
      * @return May be {@code null}.
      */
@@ -2173,24 +2173,18 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Sets the schedule date on the given {@code object} if it's a draft
-     * or in workflow.
+     * Sets the publish date from the content form as the schedule date
+     * on the given {@code object}.
      *
      * @param object Can't be {@code null}.
      */
     public void setContentFormScheduleDate(Object object) {
         State state = State.getInstance(object);
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        Date publishDate = getContentFormPublishDate();
 
-        if (object instanceof Draft ||
-                contentData.isDraft() ||
-                state.as(Workflow.Data.class).getCurrentState() != null) {
-
-            Date publishDate = getContentFormPublishDate();
-
-            contentData.setPublishDate(publishDate);
-            contentData.setScheduleDate(publishDate);
-        }
+        contentData.setPublishDate(publishDate);
+        contentData.setScheduleDate(publishDate);
     }
 
     /**
@@ -2548,6 +2542,8 @@ public class ToolPageContext extends WebPageContext {
         if (ObjectUtils.isBlank(action)) {
             return false;
         }
+
+        setContentFormScheduleDate(object);
 
         State state = State.getInstance(object);
         Workflow.Data workflowData = state.as(Workflow.Data.class);
