@@ -154,12 +154,12 @@ Draft draft = wp.getOverlaidDraft(editing);
 Set<ObjectType> compatibleTypes = ToolUi.getCompatibleTypes(State.getInstance(editing).getType());
 State editingState = State.getInstance(editing);
 ToolUser user = wp.getUser();
-Object contentLockOwner = null;
+ContentLock contentLock = null;
 boolean lockedOut = false;
 
 if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
-    contentLockOwner = ContentLock.Static.lock(editing, null, user);
-    lockedOut = !wp.param(boolean.class, "editAnyway") && !user.equals(contentLockOwner);
+    contentLock = ContentLock.Static.lock(editing, null, user);
+    lockedOut = !wp.param(boolean.class, "editAnyway") && !user.equals(contentLock.getOwner());
 }
 
 // --- Presentation ---
@@ -328,8 +328,10 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                 if (lockedOut) {
                     wp.writeStart("div", "class", "message message-warning");
                         wp.writeStart("p");
-                            wp.writeHtml("You can't edit this content, because it's currently locked by ");
-                            wp.writeObjectLabel(contentLockOwner);
+                            wp.writeHtml("You can't edit this content, because it's been locked by ");
+                            wp.writeObjectLabel(contentLock.getOwner());
+                            wp.writeHtml(" since ");
+                            wp.writeHtml(wp.formatUserDateTime(contentLock.getCreateDate()));
                             wp.writeHtml(".");
                         wp.writeEnd();
 

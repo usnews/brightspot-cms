@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import java.util.Date;
 import java.util.UUID;
 
 import com.psddev.dari.db.Query;
@@ -11,8 +12,17 @@ import com.psddev.dari.util.UuidUtils;
 
 public class ContentLock extends Record {
 
+    private Date createDate;
     private UUID contentId;
     private Recordable owner;
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
 
     public UUID getContentId() {
         return contentId;
@@ -51,7 +61,7 @@ public class ContentLock extends Record {
          * @param newOwner Can't be {@code null}.
          * @return Never {@code null}.
          */
-        public static Object lock(Object content, String aspect, Object newOwner) {
+        public static ContentLock lock(Object content, String aspect, Object newOwner) {
             UUID lockId = createLockId(content, aspect);
 
             while (true) {
@@ -63,12 +73,13 @@ public class ContentLock extends Record {
                         first();
 
                 if (lock != null) {
-                    return lock.getOwner();
+                    return lock;
 
                 } else {
                     lock = new ContentLock();
 
                     lock.getState().setId(lockId);
+                    lock.setCreateDate(new Date());
                     lock.setContentId(State.getInstance(content).getId());
                     lock.setOwner(newOwner);
                     lock.saveImmediately();
