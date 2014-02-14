@@ -122,6 +122,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean enableAbTesting;
 
+    @ToolUi.Tab("Debug")
+    private boolean alwaysGeneratePermalinks;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -614,6 +617,14 @@ public class CmsTool extends Tool {
         this.enableAbTesting = enableAbTesting;
     }
 
+    public boolean isAlwaysGeneratePermalinks() {
+        return alwaysGeneratePermalinks;
+    }
+
+    public void setAlwaysGeneratePermalinks(boolean alwaysGeneratePermalinks) {
+        this.alwaysGeneratePermalinks = alwaysGeneratePermalinks;
+    }
+
     /** Returns the preview URL. */
     public String getPreviewUrl() {
         String url = getDefaultSiteUrl();
@@ -708,7 +719,13 @@ public class CmsTool extends Tool {
         double rightRow = 0.0;
         JspWidget template, urls;
 
-        plugins.add(urls = createJspWidget("URLs", "urls", "/WEB-INF/widget/urls.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
+        if (isAlwaysGeneratePermalinks()) {
+            plugins.add(urls = createJspWidget("URLs", "urls", "/WEB-INF/widget/urls.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
+
+        } else {
+            plugins.add(urls = createJspWidget("URLs", "urls", "/WEB-INF/widget/urlsNew.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
+        }
+
         plugins.add(template = createJspWidget("Template", "template", "/WEB-INF/widget/template.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(createJspWidget("Sites", "sites", "/WEB-INF/widget/sites.jsp", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
         plugins.add(new ContentRevisions());

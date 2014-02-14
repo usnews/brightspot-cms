@@ -1,8 +1,8 @@
 package com.psddev.cms.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -14,9 +14,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Modification;
@@ -26,9 +23,6 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.PeriodicCache;
-import com.psddev.dari.util.PullThroughCache;
-import com.psddev.dari.util.PullThroughValue;
 import com.psddev.dari.util.StringUtils;
 
 @Record.BootstrapTypeMappable(groups = Directory.Item.class, uniqueKey = "path")
@@ -39,8 +33,6 @@ public class Directory extends Record {
     public static final String OBJECT_NAME_FIELD = FIELD_PREFIX + "objectName";
     public static final String PATHS_FIELD = FIELD_PREFIX + "paths";
     public static final String PATH_TYPES_FIELD = FIELD_PREFIX + "pathTypes";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Directory.class);
 
     @Indexed(unique = true)
     @Required
@@ -110,9 +102,13 @@ public class Directory extends Record {
         return itemsPredicate(null);
     }
 
+    @FieldInternalNamePrefix("cms.directory.")
     public static class Data extends Modification<Object> {
 
         private static final Pattern RAW_PATH_PATTERN = Pattern.compile("^(?:([^/]+):)?([^/]+)/([^/]+)$");
+
+        @ToolUi.Hidden
+        private Set<String> automaticRawPaths;
 
         public PathsMode getPathsMode() {
             return as(Directory.ObjectModification.class).getPathsMode();
@@ -120,6 +116,25 @@ public class Directory extends Record {
 
         public void setPathsMode(PathsMode pathsMode) {
             as(Directory.ObjectModification.class).setPathsMode(pathsMode);
+        }
+
+        public List<String> getRawPaths() {
+            return as(Directory.ObjectModification.class).getRawPaths();
+        }
+
+        public void setRawPaths(List<String> rawPaths) {
+            as(Directory.ObjectModification.class).setRawPaths(rawPaths);
+        }
+
+        public Set<String> getAutomaticRawPaths() {
+            if (automaticRawPaths == null) {
+                automaticRawPaths = new LinkedHashSet<String>();
+            }
+            return automaticRawPaths;
+        }
+
+        public void setAutomaticRawPaths(Set<String> automaticRawPaths) {
+            this.automaticRawPaths = automaticRawPaths;
         }
 
         /**
@@ -138,22 +153,18 @@ public class Directory extends Record {
          * Clears all paths associated with this object.
          */
         public void clearPaths() {
-            as(Directory.ObjectModification.class).getRawPaths().clear();
+            Directory.ObjectModification dirData = as(Directory.ObjectModification.class);
+
+            dirData.getRawPaths().clear();
+            dirData.getPathTypes().clear();
         }
 
-        /**
-         * Returns a set of all paths associated with this object.
-         *
-         * @return Never {@code null}.
-         */
-        public Set<Path> getPaths() {
-            Directory.ObjectModification dirData = as(Directory.ObjectModification.class);
-            List<String> rawPaths = dirData.getRawPaths();
-
+        private Set<Path> convertRawPaths(Collection<String> rawPaths) {
             if (ObjectUtils.isBlank(rawPaths)) {
                 return Collections.emptySet();
             }
 
+            Directory.ObjectModification dirData = as(Directory.ObjectModification.class);
             Map<String, PathType> pathTypes = dirData.getPathTypes();
             Set<Path> paths = new LinkedHashSet<Path>();
 
@@ -184,6 +195,26 @@ public class Directory extends Record {
             }
 
             return paths;
+        }
+
+        /**
+         * Returns a set of all paths associated with this object.
+         *
+         * @return Never {@code null}.
+         */
+        public Set<Path> getPaths() {
+            return convertRawPaths(as(Directory.ObjectModification.class).getRawPaths());
+        }
+
+        public Set<Path> getAutomaticPaths() {
+            return convertRawPaths(getAutomaticRawPaths());
+        }
+
+        public Set<Path> getManualPaths() {
+            List<String> rawPaths = as(Directory.ObjectModification.class).getRawPaths();
+
+            rawPaths.removeAll(getAutomaticRawPaths());
+            return convertRawPaths(rawPaths);
         }
     }
 
@@ -626,6 +657,7 @@ public class Directory extends Record {
         }
 
         /** Creates paths appropriate for the given {@code site}. */
+        @SuppressWarnings("deprecation")
         public Set<Path> createPaths(Site site) {
             Object object = getOriginalObject();
             Set<Path> paths = new LinkedHashSet<Path>();
