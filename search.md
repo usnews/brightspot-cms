@@ -12,11 +12,9 @@ Once content has been published, you can instantly use the search tool to find i
 
 There are many ways in which you can narrow down your content in Brightspot. Typing automatically filters based on a full text search, and using the filters on the left, you can specify the exact type of content you wish to search within. You can also search for content which is missing using the filters.
 
-**Brightspot 2.3 - Drafts in Search**
+You can also search by content status, whether it is within a workflow, drafted or published.
 
-New in Brightspot 2.3, you can now view Drafts in search. Toggle the `Show Drafts` flag to hide and show them in the search tool.
-
-![](http://docs.brightspot.s3.amazonaws.com/search-tool-close.png)
+![](http://docs.brightspot.s3.amazonaws.com/search-2.3-close.png)
 
 The search is also persistent, and can be reset using the reset link.
 
@@ -51,7 +49,7 @@ Work Steams allow editors to group together content for editing, and then work t
 
 ![](http://docs.brightspot.s3.amazonaws.com/create-workstream-2.2.png)
 
-## Advanced Search
+## Advanced Search (2.1 / 2.2)
 
 Click the Advanced Search button within the Global Search Tool to start an advanced search. Note, you must narrow the search to a single content type.  Click into the fields field to choose exactly which fields to return in the report data. Use the check boxes to pick and choose which content is to be included in your report export.
 
@@ -59,11 +57,27 @@ Export to CSV as default.
 
 ![](http://docs.brightspot.s3.amazonaws.com/search-guides-shot.png)
 
+## Advanced Search (2.3)
+
+Advanced search is built into the global search in Brightspot 2.3. Click into the Advanced Query Builder to perform advanced searches.
+
+Using Advanced Search you can build complex queries based on AND, OR or NOT matches. Below are some examples:
+
+Search for all Articles within the News section of the site, that were published between specific dates:
+
+![](http://docs.brightspot.s3.amazonaws.com/advanced-query-2.3.png)
+
+Search for all Articles where the author is missing, or the headline contains 'Breaking News':
+
+![](http://docs.brightspot.s3.amazonaws.com/advanced-query-2.3-or.png)
+
+You can also click 'FullScreen' to enter the full-screen view of search. In here you can build out a table of fields, adding fields you would like to display in the Display Fields section.
+
 ## Bulk Editing
 
 Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save.
 
-Content can also be deleted in bulk.
+Content can also be deleted / trashed in bulk.
 
 ![](http://docs.brightspot.s3.amazonaws.com/bulk-editing-2.1.png)
 </div>

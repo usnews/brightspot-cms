@@ -121,7 +121,7 @@ The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options f
 
 > Specifies the note, in raw HTML, displayed along with the target in the UI.
 
-The note can also display dynamic content. In the example below the editor can be alerted to the content that will be used if the field is left blank. See the `@ToolUi.Placeholde` annotatino for more options here also:
+The note can also display dynamic content. In the example below the editor can be alerted to the content that will be used if the field is left blank. See the `@ToolUi.Placeholder` annotation for more options here also:
 {% highlight java %}
 public class Image extends Content {
 
