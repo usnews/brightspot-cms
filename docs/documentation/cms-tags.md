@@ -13,71 +13,71 @@ There are several unique CMS tags that can be used when building the JSP files f
 
 Used to display an image file added within the CMS. Objects or a URL can be passed in to the src attribute provided the image class contains `getUrl()`.
 
-`<cms:img src="${content.photo}" size="internalCropName" overlay="true"/>`
-
-<div class="highlight">{% highlight jsp %}<tag>
-       <tag>
-    <name>img</name>
-    <tag-class>com.psddev.cms.db.ImageTag</tag-class>
-    <body-content>empty</body-content>
-    <dynamic-attributes>true</dynamic-attributes>
-    <attribute>
-        <name>src</name>
-        <rtexprvalue>true</rtexprvalue>
-        <required>true</required>
-    </attribute>
-    <attribute>
-        <name>field</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>editor</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>size</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>width</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>height</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>cropOption</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>resizeOption</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>tagName</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>srcAttr</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>hideDimensions</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-        <name>overlay</name>
-        <rtexprvalue>true</rtexprvalue>
-    </attribute>
-</tag>
+<div class="highlight">{% highlight java %}
+<cms:img src="${content.photo}" size="internalCropName" overlay="true"/>
 {% endhighlight %}</div>
+
+<div class="highlight">{% highlight jsp %}    <tag>
+        <name>img</name>
+        <tag-class>com.psddev.cms.db.ImageTag</tag-class>
+        <body-content>empty</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>src</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>field</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>editor</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>size</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cropOption</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>resizeOption</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tagName</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>srcAttr</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>hideDimensions</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>overlay</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>{% endhighlight %}</div>
 
 ## cms:a
 
 A tag for creating links, much like a normal `a href`. If the object has a defined URL, passing the object itself will be all that is required.
 
-`<cms:a href="${objectName}"></cms:a>`
+`<cms:a href="${content.link}"></cms:a>`
 
 <div class="highlight">{% highlight java %}<tag>
     <name>a</name>
@@ -94,13 +94,53 @@ A tag for creating links, much like a normal `a href`. If the object has a defin
 
 ## cms:render
 
-Used to render areas of ReferentialText, it can be implemented in the following way:
+Used to render Strings, ReferentialText, Objects and Areas, it can be implemented in the following way:
 
-	<cms:render value="${content.bodyText}" />
+#### Rich Text Rendering
+
+<div class="highlight">{% highlight java %}
+<cms:render value="${content.bodyText}" />
+{% endhighlight %}</div>
 
 This will render any images contained within a `ReferentialText` area, provided a JSP is attached to the Image class as a renderer engine `@Renderer.Path`. This can also render any `Referencable` modules added to the RTE.
 
-Context can also be added as an attribute within the tag: `<cms:render context="module" value="${content.bodyText}" />`
+#### Rendering objects (Modules / Widgets)
+
+If you have a module (Related Content), with it's own JSP to render it, you can pass that content into a `<cms:render/>` tag, and it will render it:
+
+<div class="highlight">{% highlight java %}
+
+// Example Java Class
+
+public class Article extends Content {
+
+	private String headline;
+	private Author author;
+	private ReferentialText body;
+	private RelatedContent relatedContentModule;
+	
+	// Getters Setters
+}
+{% endhighlight %}</div>
+
+
+<div class="highlight">{% highlight jsp %}
+
+<cms:render value="${content.headline}"/>
+<cms:render value="${content.author.name}"/>
+<cms:render value="${content.body}"/>
+<cms:render value="${content.relatedContentModule}"/>
+
+{% endhighlight %}</div>
+
+Context can also be added as an attribute within the render tag:
+
+<div class="highlight">{% highlight jsp %}
+<cms:render context="slideshow" value="${content.image}" />
+{% endhighlight %}</div>
+
+This will drive the choice of jsp made on the Java class. See [Contextual Rendering](/contextual-rendering.html) for full documentation on rendering based on context.
+
 
 #### Text Markers
 
@@ -267,7 +307,7 @@ In the jsp rendering the article, get the current page count, and determine the 
 
 ## cms:context
 
-Use this tag to set the context across an area:
+Use this tag to set the context across an area. See the documentation on [Contextual Rendering](/contextual-rendering.html) for more.
 
 `<cms:context name="module">
 <cms:render value="${content.article}"/>
@@ -347,3 +387,77 @@ To add https to the resource, simply update your context.xml file:
 `https://s3.amazonaws.com/cdn.yoursite.com`
 
 Non http pages can use https but https pages should only use https.
+
+## cms:frame
+
+The `cms:frame` tag allows you to designate an area of a page to be rendered and refreshed independently, without reloading the entire page. Use cases include 'load more' functionality, tabbed content or paginated result sets.
+
+<div class="highlight">{% highlight jsp %}
+    <tag>
+        <name>frame</name>
+        <tag-class>com.psddev.dari.util.FrameTag</tag-class>
+        <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>tagName</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <rtexprvalue>true</rtexprvalue>
+            <required>true</required>
+        </attribute>
+        <attribute>
+            <name>lazy</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>mode</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>com.psddev.dari.util.FrameTag$InsertionMode</type>
+        </attribute>
+    </tag>
+    {% endhighlight %}</div>
+    
+In the example below, page 2 of the results set will be rendered in the `<cms:frame>` area.
+
+<div class="highlight">{% highlight jsp %}
+
+<a target="results" href="${mainContent.permalink}?page=2">See more results</a>
+
+<cms:frame name="results">
+
+// Logic to return results
+
+</cms:frame>
+
+{% endhighlight %}</div>
+
+Placement of new content, in relation to content already loaded in the frame, is controlled using the `mode` attribute. Options include: `replace, append, prepend`
+
+<div class="highlight">{% highlight jsp %}
+
+<cms:frame mode="append" name="results">
+ // New content appears after existing content
+</cms:frame>
+
+<cms:frame mode="replace" name="results">
+ // New content replaces existing content
+</cms:frame>
+
+<cms:frame mode="prepend" name="results">
+ // New content appears before existing content
+</cms:frame>
+
+{% endhighlight %}</div>
+
+Control of the loading of in frame content can be done through the `lazy` attribute. When true, the ajax request for the in frame content is sent once the page has loaded:
+
+<div class="highlight">{% highlight jsp %}
+
+<cms:frame lazy="true" name="link-module">
+ // Content loaded in frame when page has loaded
+</cms:frame>
+
+
+{% endhighlight %}</div>
