@@ -769,7 +769,7 @@ public class Search extends Record {
 
             for (String key : comparisonKeys) {
                 if (isShowDrafts()) {
-                    query.and(key + " = missing or " + key + " = true");
+                    query.and(key + " = missing or " + key + " != missing");
 
                 } else {
                     query.and(key + " = missing");
@@ -784,7 +784,7 @@ public class Search extends Record {
             addVisibilityFields(comparisonKeys, selectedType);
 
             for (String key : comparisonKeys) {
-                query.and(key + " = missing or " + key + " = true");
+                query.and(key + " = missing or " + key + " != missing");
             }
         }
 
