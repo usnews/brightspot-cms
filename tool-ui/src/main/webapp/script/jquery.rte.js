@@ -1502,17 +1502,7 @@ $.plugin2('rte', {
         'parserRules': RTE_LEGACY_HTML ? { } : {
             'tags': {
                 'font': { 'rename_tag': 'span' },
-                'script': { 'remove': true },
-                'style': { 'remove': true },
-                'p': {
-                    'rename_tag': 'span',
-                    'callback': function(node) {
-                        var $node = $(node);
-
-                        $node.append($('<br>'));
-                        $node.append($('<br>'));
-                    }
-                }
+                'style': { 'remove': true }
             }
         }
     },
