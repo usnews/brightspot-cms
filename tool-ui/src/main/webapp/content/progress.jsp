@@ -1,24 +1,20 @@
-<%@ page import="com.psddev.dari.util.UploadProgressListener" %>
-<%@ page import="com.psddev.dari.util.MultipartRequest" %>
 <%@ page import="com.psddev.dari.util.JsonProcessor" %>
-<%@ page import="com.psddev.dari.util.UploadInfo" %>
+<%@ page import="com.psddev.dari.util.MultipartRequest" %>
+<%@ page import="com.psddev.dari.db.UploadProgress" %>
 <%
-//response.setContentType("text/html");
-UploadInfo ui= new UploadInfo();
 JsonProcessor jsonProcessor=new JsonProcessor();
-if (session == null) {
-    ui.setMessage("Sorry, session is null");
-    out.println(jsonProcessor.generate(ui));
-    return;
+String uploadProgressKey = MultipartRequest.Static.getUploadProgressUniqueKey(request);
+//If action parameter is passed as delete..delete upload progress data..else retrieve and return it
+if (request.getParameter("action") != null  && request.getParameter("action").equals("delete") ) {
+   if (uploadProgressKey != null) 
+   UploadProgress.Static.delete(uploadProgressKey);
+   return;
 }
-
-UploadProgressListener listener= MultipartRequest.Static.getListenerFromSession(request);
-if (listener == null) {
-    ui.setMessage("Progress listener is null");
-    out.println(jsonProcessor.generate(ui));
-    return;
+UploadProgress uploadProgress=null;
+if (uploadProgressKey != null ) {
+uploadProgress=UploadProgress.Static.find(uploadProgressKey);
 }
-UploadInfo ui2= new UploadInfo(listener);
-out.println(jsonProcessor.generate(ui2));
+if (uploadProgress == null ) uploadProgress= new UploadProgress();
+out.println(jsonProcessor.generate(uploadProgress));
 %>
 
