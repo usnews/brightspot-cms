@@ -180,8 +180,8 @@ boolean lockedOut = !user.equals(contentLockOwner);
         <p>Uploading...</p>
         <div class="uploadprogress uploadprogress-striped active">
             <div id="uploadprogress-bar" class="uploadprogress-bar"  role="progressbar"
-             aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%">
-                <span id="upload-percentage-status" class="sr-only">1% Complete</span>
+             aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                <span id="upload-percentage-status" class="sr-only">0% Complete</span>
             </div>
         </div>
 </div>
