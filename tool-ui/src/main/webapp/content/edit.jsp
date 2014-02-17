@@ -176,13 +176,15 @@ boolean lockedOut = !user.equals(contentLockOwner);
             <!--specify width on this uploadProgressBar, otherwise the progress indicator wont move -->
             <% if (ObjectType.Static.hasFieldsOfType(state.getType(),StorageItem.class)) { %>
                     <script src="/cms/script/progressbar.js"></script>
-                    <div id="uploadStatus">
-                    <div id="uploadProgressMessage"></div>
-                    <div id="uploadProgressBar" style="width:800px;">
-                          <div id="uploadIndicator"></div>
-                    </div>
-                    <div id="uploadPercentage"></div>
-                    </div>
+<div id="cms-upload-progress" class="cms-upload-progress">
+        <p>Uploading...</p>
+        <div class="uploadprogress uploadprogress-striped active">
+            <div id="uploadprogress-bar" class="uploadprogress-bar"  role="progressbar"
+             aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%">
+                <span id="upload-percentage-status" class="sr-only">1% Complete</span>
+            </div>
+        </div>
+</div>
             <% } %>
             <!-- End related to upload progress bar --> 
         <div class="contentForm-main">
