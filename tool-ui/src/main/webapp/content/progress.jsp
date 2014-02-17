@@ -1,9 +1,9 @@
 <%@ page import="com.psddev.dari.util.JsonProcessor" %>
-<%@ page import="com.psddev.dari.util.MultipartRequest" %>
 <%@ page import="com.psddev.dari.db.UploadProgress" %>
+<%@ page import="com.psddev.dari.util.UploadProgressListener" %>
 <%
 JsonProcessor jsonProcessor=new JsonProcessor();
-String uploadProgressKey = MultipartRequest.Static.getUploadProgressUniqueKey(request);
+String uploadProgressKey = UploadProgressListener.Static.getUploadProgressUniqueKey(request);
 //If action parameter is passed as delete..delete upload progress data..else retrieve and return it
 if (request.getParameter("action") != null  && request.getParameter("action").equals("delete") ) {
    if (uploadProgressKey != null) 
