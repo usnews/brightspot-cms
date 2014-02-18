@@ -2,6 +2,10 @@ package com.psddev.cms.db;
 
 import java.util.Map;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Rule.DisplayName("Device")
 public class DeviceRule extends Rule {
 

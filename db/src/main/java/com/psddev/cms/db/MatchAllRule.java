@@ -3,6 +3,10 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Rule.DisplayName("Match All")
 public class MatchAllRule extends Rule {
 

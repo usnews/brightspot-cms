@@ -1,5 +1,9 @@
 package com.psddev.cms.db;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Rule.DisplayName("Match Always")
 public class MatchAlwaysRule extends Rule {
 

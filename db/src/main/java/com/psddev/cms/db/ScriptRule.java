@@ -4,6 +4,10 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Rule.DisplayName("Script")
 public class ScriptRule extends Rule {
 
