@@ -30,7 +30,6 @@ public class AuthenticationFilter extends AbstractFilter {
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
-    public static final String OVP_SESSION_ID = ATTRIBUTE_PREFIX + "ovpSessionId";
 
     public static final String LOG_IN_PATH = "/logIn.jsp";
     public static final String RETURN_PATH_PARAMETER = "returnPath";
@@ -39,11 +38,7 @@ public class AuthenticationFilter extends AbstractFilter {
     // --- AbstractFilter support ---
 
     @Override
-    protected void doRequest(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
-            throws Exception {
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
 
         try {
             chain.doFilter(request, response);
@@ -98,10 +93,13 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Logs in the given tool {@code user}.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
-         * @param user Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
+         * @param user
+         *            Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
             Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
@@ -118,22 +116,15 @@ public class AuthenticationFilter extends AbstractFilter {
 
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
-            // Create a online video platform session when a user logs in. OVP's
-            // such as Kaltura needs
-            // admin session token to view player updates without caching as
-            // well as to create thumbnails using their player.
-            if (VideoTranscodingServiceFactory.getDefault() != null) {
-                if (request.getSession(false) != null && request.getSession().getAttribute(OVP_SESSION_ID) == null) {
-                    request.getSession().setAttribute(OVP_SESSION_ID, VideoTranscodingServiceFactory.getDefault().getSessionId());
-                }
-            }
         }
 
         /**
          * Logs out the current tool user.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
          */
         public static void logOut(HttpServletRequest request, HttpServletResponse response) {
             Cookie cookie = new Cookie(USER_COOKIE, null);
@@ -150,20 +141,18 @@ public class AuthenticationFilter extends AbstractFilter {
             domainlessCookie.setSecure(JspUtils.isSecure(request));
             domainlessCookie.setPath("/");
             response.addCookie(domainlessCookie);
-            // If a session with online OVP exists..close it when user logs off
-            if (VideoTranscodingServiceFactory.getDefault() != null) {
-                VideoTranscodingServiceFactory.getDefault().closeSession((String) request.getSession().getAttribute(OVP_SESSION_ID));
-            }
-            //Invalidate the session
-            request.getSession().invalidate();
         }
 
         /**
          * Logs out the current tool user.
-         *
-         * @param request Can't be {@code null}.
-         * @param response Can't be {@code null}.
-         * @deprecated Use {@link #logOut(HttpServletRequest, HttpServletResponse)} instead.
+         * 
+         * @param request
+         *            Can't be {@code null}.
+         * @param response
+         *            Can't be {@code null}.
+         * @deprecated Use
+         *             {@link #logOut(HttpServletRequest, HttpServletResponse)}
+         *             instead.
          */
         @Deprecated
         public static void logOut(HttpServletResponse response) {
@@ -173,8 +162,9 @@ public class AuthenticationFilter extends AbstractFilter {
         /**
          * Returns {@code true} if a tool user is authenticated in the given
          * {@code request}.
-         *
-         * @param request Can't be {@code null}.
+         * 
+         * @param request
+         *            Can't be {@code null}.
          */
         public static boolean isAuthenticated(HttpServletRequest request) {
             return Boolean.TRUE.equals(request.getAttribute(AUTHENTICATED_ATTRIBUTE));
@@ -233,8 +223,7 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         /**
-         * Returns the user setting value associated with the given
-         * {@code key}.
+         * Returns the user setting value associated with the given {@code key}.
          */
         public static Object getUserSetting(HttpServletRequest request, String key) {
             ToolUser user = getUser(request);
@@ -244,8 +233,8 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /**
          * Puts the given user setting {@code value} at the given {@code key}.
-         * The user, along with the setting values, are saved once at the end
-         * of the given {@code request}.
+         * The user, along with the setting values, are saved once at the end of
+         * the given {@code request}.
          */
         public static void putUserSetting(HttpServletRequest request, String key, Object value) {
             ToolUser user = getUser(request);
