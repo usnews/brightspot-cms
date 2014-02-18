@@ -566,6 +566,11 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
+            if (ObjectUtils.isBlank(layoutPath) &&
+                    Static.isPreview(request)) {
+                layoutPath = findLayoutPath(mainObject, true);
+            }
+
             String typePath = mainType.as(Renderer.TypeModification.class).getPath();
             boolean rendered = false;
 
