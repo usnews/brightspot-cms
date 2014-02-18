@@ -629,7 +629,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <% String externalId = ((KalturaStorageItem) fieldValue).getExternalId(); %>
                         <% String  kalturaPlayerCacheKey =new Long ((System.currentTimeMillis()/1000) + 10).toString(); %>
                         <% Integer  kalturaPlayerId = ((KalturaStorageItem) fieldValue).getPlayerId(); %>
-                        <% String kalturaSession=KalturaSessionUtils.getSesionId(); %>
+                        <% String kalturaSession=KalturaSessionUtils.getSessionId(); %>
                         <div>
                         <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>"></script>
                         <div id="kaltura_player_<%=kalturaPlayerCacheKey%>"  style="width: 400px; height: 330px;"  itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
