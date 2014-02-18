@@ -89,7 +89,7 @@ public class Search extends Record {
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
     private boolean showDrafts;
-    private Collection<String> visibilities;
+    private List<String> visibilities;
     private boolean showMissing;
     private boolean suggestions;
     private long offset;
@@ -290,14 +290,14 @@ public class Search extends Record {
         this.showDrafts = showDrafts;
     }
 
-    public Collection<String> getVisibilities() {
+    public List<String> getVisibilities() {
         if (visibilities == null) {
-            visibilities = new HashSet<String>();
+            visibilities = new ArrayList<String>();
         }
         return visibilities;
     }
 
-    public void setVisibilities(Collection<String> visibilities) {
+    public void setVisibilities(List<String> visibilities) {
         this.visibilities = visibilities;
     }
 
