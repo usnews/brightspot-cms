@@ -59,6 +59,8 @@ import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectFieldComparator;
+import com.psddev.dari.db.ObjectIndex;
+import com.psddev.dari.db.ObjectStruct;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -1739,9 +1741,6 @@ public class ToolPageContext extends WebPageContext {
         Map<String, String> statuses = new HashMap<String, String>();
         boolean hasWorkflow = false;
 
-        statuses.put("d", "Draft");
-        statuses.put("t", "Trashed");
-
         for (Workflow w : (type == null ?
                 Query.from(Workflow.class) :
                 Query.from(Workflow.class).where("contentTypes = ?", type)).
@@ -1758,6 +1757,9 @@ public class ToolPageContext extends WebPageContext {
         if (hasWorkflow) {
             statuses.put("w", "In Workflow");
         }
+
+        addVisibilityStatuses(statuses, Database.Static.getDefault().getEnvironment());
+        addVisibilityStatuses(statuses, type);
 
         List<Map.Entry<String, String>> sortedStatuses = new ArrayList<Map.Entry<String, String>>(statuses.entrySet());
 
@@ -1784,6 +1786,43 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
             }
         writeEnd();
+    }
+
+    private void addVisibilityStatuses(Map<String, String> statuses, ObjectStruct struct) {
+        if (struct == null) {
+            return;
+        }
+
+        for (ObjectIndex index : struct.getIndexes()) {
+            if (index.isVisibility()) {
+                for (String fieldName : index.getFields()) {
+                    ObjectField field = struct.getField(fieldName);
+
+                    if (field != null) {
+                        String type = field.getInternalItemType();
+
+                        if (ObjectField.BOOLEAN_TYPE.equals(type)) {
+                            String displayName = field.getDisplayName();
+
+                            if (displayName.endsWith("?")) {
+                                displayName = displayName.substring(0, displayName.length() - 1);
+                            }
+
+                            statuses.put("b." + field.getUniqueName(), displayName);
+
+                        } else if (ObjectField.TEXT_TYPE.equals(type)) {
+                            Set<ObjectField.Value> values = field.getValues();
+
+                            if (values != null && !values.isEmpty()) {
+                                for (ObjectField.Value value : values) {
+                                    statuses.put("t." + field.getUniqueName() + "=" + value.getValue(), field.getDisplayName() + ": " + value.getLabel());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

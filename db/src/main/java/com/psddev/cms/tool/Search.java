@@ -717,19 +717,7 @@ public class Search extends Record {
             Predicate visibilitiesPredicate = null;
 
             for (String visibility : visibilities) {
-                if ("d".equals(visibility)) {
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse("cms.content.draft = true"));
-
-                } else if ("t".equals(visibility)) {
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse("cms.content.trashed = true"));
-
-                } else if ("w".equals(visibility)) {
+                if ("w".equals(visibility)) {
                     Set<String> ss = new HashSet<String>();
 
                     for (Workflow w : (selectedType == null ?
@@ -751,6 +739,25 @@ public class Search extends Record {
                             PredicateParser.OR_OPERATOR,
                             visibilitiesPredicate,
                             PredicateParser.Static.parse("cms.workflow.currentState = ?", visibility.substring(2)));
+
+                } else if (visibility.startsWith("b.")) {
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse(visibility.substring(2) + " = true"));
+
+                } else if (visibility.startsWith("t.")) {
+                    visibility = visibility.substring(2);
+                    int equalAt = visibility.indexOf('=');
+
+                    if (equalAt > -1) {
+                        visibilitiesPredicate = CompoundPredicate.combine(
+                                PredicateParser.OR_OPERATOR,
+                                visibilitiesPredicate,
+                                PredicateParser.Static.parse(
+                                    visibility.substring(0, equalAt) + " = ?",
+                                    visibility.substring(equalAt + 1)));
+                    }
                 }
             }
 
