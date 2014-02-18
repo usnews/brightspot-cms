@@ -1737,10 +1737,10 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Map<String, String> statuses = new HashMap<String, String>();
+        boolean hasWorkflow = false;
 
         statuses.put("d", "Draft");
         statuses.put("t", "Trashed");
-        statuses.put("w", "In Workflow");
 
         for (Workflow w : (type == null ?
                 Query.from(Workflow.class) :
@@ -1748,10 +1748,15 @@ public class ToolPageContext extends WebPageContext {
                 selectAll()) {
 
             for (WorkflowState s : w.getStates()) {
+                hasWorkflow = true;
                 String n = s.getName();
 
                 statuses.put("w." + n, n);
             }
+        }
+
+        if (hasWorkflow) {
+            statuses.put("w", "In Workflow");
         }
 
         List<Map.Entry<String, String>> sortedStatuses = new ArrayList<Map.Entry<String, String>>(statuses.entrySet());
