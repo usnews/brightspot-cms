@@ -6,7 +6,6 @@ com.psddev.cms.db.ImageTextOverlay,
 com.psddev.cms.db.ResizeOption,
 com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.tool.ToolPageContext,
-com.psddev.cms.tool.AuthenticationFilter,
 
 com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
@@ -15,6 +14,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
 com.psddev.dari.util.BrightcoveStorageItem,
 com.psddev.dari.util.KalturaStorageItem,
+com.psddev.dari.util.KalturaSessionUtils,
 com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
@@ -629,7 +629,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <% String externalId = ((KalturaStorageItem) fieldValue).getExternalId(); %>
                         <% String  kalturaPlayerCacheKey =new Long ((System.currentTimeMillis()/1000) + 10).toString(); %>
                         <% Integer  kalturaPlayerId = ((KalturaStorageItem) fieldValue).getPlayerId(); %>
-                        <% String kalturaSession=(String) session.getAttribute(AuthenticationFilter.OVP_SESSION_ID); %>
+                        <% String kalturaSession=KalturaSessionUtils.getSesionId(); %>
                         <div>
                         <script src="http://cdnapi.kaltura.com/p/<%=partnerId%>/sp/<%=partnerId%>00/embedIframeJs/uiconf_id/<%=kalturaPlayerId%>/partner_id/<%=partnerId%>"></script>
                         <div id="kaltura_player_<%=kalturaPlayerCacheKey%>"  style="width: 400px; height: 330px;"  itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
