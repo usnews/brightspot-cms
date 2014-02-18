@@ -3,9 +3,7 @@ package com.psddev.cms.db;
 import java.util.List;
 
 public interface VideoTranscodingService {
-    public String getSessionId();
-    public void closeSession(String sessionId);
-
+ 
     public boolean updateThumbnailsInCms();
 
     // public void updateEventData(VideoContainer.Data videoData);

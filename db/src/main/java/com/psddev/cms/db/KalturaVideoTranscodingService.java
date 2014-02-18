@@ -39,18 +39,11 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     public static final String NAME = "kaltura";
 
     @Override
-    public String getSessionId() {
-        return KalturaSessionUtils.getKalturaSessionId();
-    }
-
-    @Override
     public boolean updateThumbnailsInCms() {
         try {
             KalturaMediaEntryFilter kmef = new KalturaMediaEntryFilter();
             kmef.updatedAtGreaterThanOrEqual = (int) (System.currentTimeMillis() / 1000 - 180);
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+            KalturaClient client = KalturaSessionUtils.getSession();
             KalturaMediaListResponse updatedMedia = client.getMediaService().list(kmef);
             for (KalturaMediaEntry mediaEntry : updatedMedia.objects) {
                 LOGGER.info("updating thumbnail for video whose external id is:" + mediaEntry.id);
@@ -63,7 +56,6 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
                     videoData.save();
                 }
             }
-            KalturaSessionUtils.closeSession(client);
             return true;
         } catch (Exception e) {
             LOGGER.error("updateThumbnailsInCms failed", e);
@@ -72,26 +64,20 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     }
 
     public List<KalturaCuePoint> getKalturaCuePoints(String entryId) throws KalturaApiException {
-        KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-        KalturaClient client = new KalturaClient(kalturaConfig);
-        KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+        KalturaClient client = KalturaSessionUtils.getSession();
         KalturaCuePointService cuePointService = client.getCuePointService();
         KalturaCuePointFilter cuePointFilter = new KalturaCuePointFilter();
         cuePointFilter.entryIdEqual = entryId;
         KalturaCuePointListResponse response = cuePointService.list(cuePointFilter);
-        KalturaSessionUtils.closeSession(client);
         return response.objects;
     }
 
     @Override
     public void deleteEvent(String externalId) {
         try {
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+            KalturaClient client = KalturaSessionUtils.getSession();
             KalturaCuePointService cuePointService = client.getCuePointService();
             cuePointService.delete(externalId);
-            KalturaSessionUtils.closeSession(client);
         } catch (Exception e) {
             LOGGER.error("Video Metadata/CuePoint delete failed", e);
         }
@@ -114,26 +100,20 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     private KalturaCuePoint addCuePoint(VideoEvent videoEvent) throws KalturaApiException {
         KalturaAnnotation kalturaAnnotation = new KalturaAnnotation();
         updateCuePointDataFromEvent(kalturaAnnotation, videoEvent);
-        KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-        KalturaClient client = new KalturaClient(kalturaConfig);
-        KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+        KalturaClient client = KalturaSessionUtils.getSession();
         KalturaCuePointService cuePointService = client.getCuePointService();
         KalturaCuePoint kcp = cuePointService.add(kalturaAnnotation);
         videoEvent.setExternalId(kcp.id);
         videoEvent.save();
-        KalturaSessionUtils.closeSession(client);
         return kcp;
     }
 
     private KalturaCuePoint updateCuePoint(VideoEvent videoEvent) throws KalturaApiException {
         KalturaAnnotation kalturaAnnotation = new KalturaAnnotation();
         updateCuePointDataFromEvent(kalturaAnnotation, videoEvent);
-        KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-        KalturaClient client = new KalturaClient(kalturaConfig);
-        KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+        KalturaClient client = KalturaSessionUtils.getSession();
         KalturaCuePointService cuePointService = client.getCuePointService();
         KalturaCuePoint kcp = cuePointService.update(videoEvent.getExternalId().toString(), kalturaAnnotation);
-        KalturaSessionUtils.closeSession(client);
         return kcp;
     }
 
@@ -152,9 +132,7 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     public String createPlayList(String name, List<VideoContainer> items) {
         try {
             // Step1: Start kaltura session
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+            KalturaClient client = KalturaSessionUtils.getSession();
 
             // Step2: Create a playlist
             KalturaPlaylist playlist = new KalturaPlaylist();
@@ -171,8 +149,7 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
             }
             playlist.playlistContent = playListContentIds.toString();
             KalturaPlaylist pl = client.getPlaylistService().add(playlist);
-            // Step3: Close kaltura session
-            KalturaSessionUtils.closeSession(client);
+
             return pl.id;
         } catch (Exception e) {
             LOGGER.error("createPlayList failed", e);
@@ -184,9 +161,7 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     public boolean updatePlayList(String externalId, List<VideoContainer> items) {
         try {
             // Step1: Start kaltura session
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+            KalturaClient client = KalturaSessionUtils.getSession();
             // Step2: Get the playlist and update the order of items
             KalturaPlaylistService playListService = client.getPlaylistService();
             KalturaPlaylist playList = playListService.get(externalId);
@@ -210,8 +185,7 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
                 playlist.playlistContent = playListContentIds.toString();
                 client.getPlaylistService().update(externalId, playlist);
             }
-            // Step3: Close kaltura session
-            KalturaSessionUtils.closeSession(client);
+     
             return true;
         } catch (Exception e) {
             LOGGER.error("updatePlayList failed", e);
@@ -223,14 +197,10 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
     public boolean deletePlayList(String externalId) {
         try {
             // Step1: Start kaltura session
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            KalturaSessionUtils.startAdminSession(client, kalturaConfig);
+            KalturaClient client = KalturaSessionUtils.getSession();
             // Step2: Get the playlist and update the order of items
             KalturaPlaylistService playListService = client.getPlaylistService();
             playListService.delete(externalId);
-            // Step3: Close kaltura session
-            KalturaSessionUtils.closeSession(client);
             return true;
         } catch (Exception e) {
             LOGGER.error("updatePlayList failed", e);
@@ -238,16 +208,5 @@ public class KalturaVideoTranscodingService implements VideoTranscodingService {
         }
     }
 
-    @Override
-    public void closeSession(String sessionId) {
-        try {
-            // Step1: Start kaltura session
-            KalturaConfiguration kalturaConfig = KalturaSessionUtils.getKalturaConfig();
-            KalturaClient client = new KalturaClient(kalturaConfig);
-            client.setSessionId(sessionId);
-            KalturaSessionUtils.closeSession(client);
-        } catch (Exception e) {
-            LOGGER.error("Failed to close kaltura session", e);
-        }
-    }
+   
 }
