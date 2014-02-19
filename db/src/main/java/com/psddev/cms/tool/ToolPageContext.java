@@ -208,6 +208,9 @@ public class ToolPageContext extends WebPageContext {
                     !(object instanceof Template)) {
                 return true;
 
+            } else if (object instanceof Renderer) {
+                return true;
+
             } else {
                 State state = State.getInstance(object);
                 ObjectType type = state.getType();
