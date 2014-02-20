@@ -8,8 +8,7 @@ section: documentation
 
 ## Overview
 
-Often an object will be used in multiple places throughout a website, with different rules around how it is displayed for each location. Brightspot provides the ability to render an object differently, based on context. This is available for Brightspot 2.2.
-
+Often an object will be used in multiple places throughout a website, with different rules around how it is displayed for each location. Brightspot provides the ability to render an object differently, based on context. This is available for Brightspot 2.2 onward.
 
 ## Rendering Paths
 
@@ -81,5 +80,12 @@ public class Article extends Content {
 	
 }
 {% endhighlight %}
+
+## Context through URL
+
+Given a URL for an object, you can specify the context in which it is returned, by adding the context to the URL. 
+
+For example, `http://yoursite.com/about-us-article` will return the standard jsp for rendering, however if you wanted to access that content in another available context, you can use that context name, for example `module` on the URL: `http://yoursite.com/about-us-article?_context=module`
+
 
 </div>
