@@ -5,6 +5,7 @@ com.psddev.cms.db.ImageTag,
 com.psddev.cms.db.ImageTextOverlay,
 com.psddev.cms.db.ResizeOption,
 com.psddev.cms.db.StandardImageSize,
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ColorDistribution,
@@ -17,7 +18,9 @@ com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
+com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.RoutingFilter,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.SparseSet,
 com.psddev.dari.util.StorageItem,
@@ -336,7 +339,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     pathBuilder.append(StringUtils.toNormalized(label));
                     pathBuilder.append(extension);
 
-                    newItem = StorageItem.Static.create();
+                    String storageSetting = field.as(ToolUi.class).getStorageSetting();
+
+                    newItem = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
                     newItem.setPath(pathBuilder.toString());
                     newItem.setContentType(fileContentType);
 
@@ -511,7 +516,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             <input name="<%= wp.h(pathName) %>" type="hidden" value="<%= wp.h(fieldValue.getPath()) %>">
             <input name="<%= wp.h(contentTypeName) %>" type="hidden" value="<%= wp.h(contentType) %>">
 
-            <% if (contentType != null && contentType.startsWith("image/")) { %>
+            <% if (field.as(ToolUi.class).getStoragePreviewProcessorPath() != null) {
+
+                ToolUi ui = field.as(ToolUi.class);
+                String processorPath = ui.getInputProcessorPath();
+                if (processorPath != null) {
+                    JspUtils.include(request, response, out,
+                            RoutingFilter.Static.getApplicationPath(ui.getInputProcessorApplication()) +
+                            StringUtils.ensureStart(processorPath, "/"));
+                }
+
+               } else if (contentType != null && contentType.startsWith("image/")) { %>
                 <div class="imageEditor">
 
                     <div class="imageEditor-aside">

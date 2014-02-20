@@ -47,6 +47,8 @@ public class ToolUi extends Modification<Object> {
     private String inputProcessorApplication;
     private String inputProcessorPath;
     private String inputSearcherPath;
+    private String storagePreviewProcessorApplication;
+    private String storagePreviewProcessorPath;
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
@@ -63,6 +65,7 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMaximum;
     private Number suggestedMinimum;
     private String tab;
+    private String storageSetting;
 
     public boolean isBulkUpload() {
         return Boolean.TRUE.equals(bulkUpload);
@@ -231,6 +234,22 @@ public class ToolUi extends Modification<Object> {
 
     public void setInputSearcherPath(String inputSearcherPath) {
         this.inputSearcherPath = inputSearcherPath;
+    }
+
+    public String getStoragePreviewProcessorPath() {
+        return storagePreviewProcessorPath;
+    }
+
+    public void setStoragePreviewProcessorPath(String storagePreviewProcessorPath) {
+        this.storagePreviewProcessorPath = storagePreviewProcessorPath;
+    }
+
+    public String getStoragePreviewProcessorApplication() {
+        return storagePreviewProcessorApplication;
+    }
+
+    public void setStoragePreviewProcessorApplication(String storagePreviewProcessorApplication) {
+        this.storagePreviewProcessorApplication = storagePreviewProcessorApplication;
     }
 
     public String getNoteHtml() {
@@ -418,6 +437,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setTab(String tab) {
         this.tab = tab;
+    }
+
+    public String getStorageSetting() {
+        return storageSetting;
+    }
+
+    public void setStorageSetting(String storageSetting) {
+        this.storageSetting = storageSetting;
     }
 
     /**
@@ -734,6 +761,27 @@ public class ToolUi extends Modification<Object> {
         public void process(ObjectType type, ObjectField field, InputProcessorPath annotation) {
             field.as(ToolUi.class).setInputProcessorApplication(annotation.application());
             field.as(ToolUi.class).setInputProcessorPath(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies the path to the processor used to render previews of StorageItems fields.
+     */
+    @Documented
+    @Inherited
+    @ObjectField.AnnotationProcessorClass(StoragePreviewProcessorPathProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface StoragePreviewProcessorPath {
+        String application() default "";
+        String value();
+    }
+
+    private static class StoragePreviewProcessorPathProcessor implements ObjectField.AnnotationProcessor<StoragePreviewProcessorPath> {
+        @Override
+        public void process(ObjectType type, ObjectField field, StoragePreviewProcessorPath annotation) {
+            field.as(ToolUi.class).setStoragePreviewProcessorApplication(annotation.application());
+            field.as(ToolUi.class).setStoragePreviewProcessorPath(annotation.value());
         }
     }
 
@@ -1283,6 +1331,20 @@ public class ToolUi extends Modification<Object> {
             options.put(IS_ONLY_PATHED_OPTION, Boolean.TRUE);
         } else {
             options.remove(IS_ONLY_PATHED_OPTION);
+        }
+    }
+
+    @ObjectField.AnnotationProcessorClass(StorageSettingProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface StorageSetting {
+        String value();
+    }
+
+    private static class StorageSettingProcessor implements ObjectField.AnnotationProcessor<StorageSetting> {
+        @Override
+        public void process(ObjectType type, ObjectField field, StorageSetting annotation) {
+            field.as(ToolUi.class).setStorageSetting(annotation.value());
         }
     }
 

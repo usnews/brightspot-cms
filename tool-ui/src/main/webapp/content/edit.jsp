@@ -170,7 +170,14 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
     <form class="contentForm contentLock"
             method="post"
             enctype="multipart/form-data"
-            action="<%= wp.objectUrl("", selected, "published", null) %>"
+            action="<%= wp.objectUrl("", selected,
+                    "action-delete", null,
+                    "action-draft", null,
+                    "action-publish", null,
+                    "action-restore", null,
+                    "action-save", null,
+                    "action-trash", null,
+                    "published", null) %>"
             autocomplete="off"
             data-o-id="<%= State.getInstance(selected).getId() %>"
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
