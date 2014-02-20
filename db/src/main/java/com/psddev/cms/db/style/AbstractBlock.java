@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.psddev.cms.db.Content;
-import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.StringUtils;
 
@@ -17,12 +16,8 @@ public abstract class AbstractBlock extends Content implements Styleable {
 
     private BlockData data;
 
-    @ToolUi.Placeholder("Automatic")
+    @Required
     private Position position;
-
-    private Integer width;
-    private Integer height;
-    private Sides spacing;
 
     private Text text;
 
@@ -52,30 +47,6 @@ public abstract class AbstractBlock extends Content implements Styleable {
 
     public void setPosition(Position position) {
         this.position = position;
-    }
-
-    public Integer getWidth() {
-        return width;
-    }
-
-    public void setWidth(Integer width) {
-        this.width = width;
-    }
-
-    public Integer getHeight() {
-        return height;
-    }
-
-    public void setHeight(Integer height) {
-        this.height = height;
-    }
-
-    public Sides getSpacing() {
-        return spacing;
-    }
-
-    public void setSpacing(Sides spacing) {
-        this.spacing = spacing;
     }
 
     public Text getText() {
@@ -127,44 +98,14 @@ public abstract class AbstractBlock extends Content implements Styleable {
                     writer.writeEnd();
                 }
 
-                writer.writeStart("div", "class", "bsp-block_c");
-                    data.writeHtml(writer, content);
-                writer.writeEnd();
+                data.writeHtml(writer, content);
             writer.writeEnd();
         }
     }
 
     @Override
     public void writeCss(HtmlWriter writer, String selector) throws IOException {
-        Integer width = getWidth();
-        Integer height = getHeight();
-
-        writer.writeCss(selector,
-                "height", height != null ? height + "%" : "auto",
-                "width", width != null ? width + "%" : "auto");
-
-        Position position = getPosition();
-
-        if (position != null) {
-            position.writeCss(writer, selector);
-
-        } else {
-            writer.writeCss(selector,
-                    "position", "relative");
-        }
-
-        String contentSelector = selector + " > .bsp-block_c";
-
-        writer.writeCss(contentSelector, "position", "absolute");
-
-        Sides spacing = getSpacing();
-
-        if (spacing != null) {
-            spacing.writeCss(writer, contentSelector, "margin");
-
-        } else {
-            writer.writeCss(contentSelector, "margin", 0);
-        }
+        getPosition().writeCss(writer, selector);
 
         Text text = getText();
 
@@ -221,7 +162,7 @@ public abstract class AbstractBlock extends Content implements Styleable {
 
         if (data instanceof BlockData.Container) {
             for (Block child : ((BlockData.Container) data).getChildren()) {
-                child.writeCss(writer, selector + " > bsp-block_c > .bsp-block-" + child.getInternalName());
+                child.writeCss(writer, selector + " > .bsp-block-" + child.getInternalName());
             }
         }
     }

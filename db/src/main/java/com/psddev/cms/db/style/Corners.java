@@ -10,17 +10,18 @@ public class Corners extends Record {
 
     private int topLeft;
     private int topRight;
-    private int bottomRight;
+
     private int bottomLeft;
+    private int bottomRight;
 
     public Corners() {
     }
 
-    public Corners(int topLeft, int topRight, int bottomRight, int bottomLeft) {
+    public Corners(int topLeft, int topRight, int bottomLeft, int bottomRight) {
         this.topLeft = topLeft;
         this.topRight = topRight;
-        this.bottomRight = bottomRight;
         this.bottomLeft = bottomLeft;
+        this.bottomRight = bottomRight;
     }
 
     public int getTopLeft() {
@@ -39,20 +40,20 @@ public class Corners extends Record {
         this.topRight = topRight;
     }
 
-    public int getBottomRight() {
-        return bottomRight;
-    }
-
-    public void setBottomRight(int bottomRight) {
-        this.bottomRight = bottomRight;
-    }
-
     public int getBottomLeft() {
         return bottomLeft;
     }
 
     public void setBottomLeft(int bottomLeft) {
         this.bottomLeft = bottomLeft;
+    }
+
+    public int getBottomRight() {
+        return bottomRight;
+    }
+
+    public void setBottomRight(int bottomRight) {
+        this.bottomRight = bottomRight;
     }
 
     public void writeCss(HtmlWriter writer, String selector, String property) throws IOException {

@@ -8,27 +8,28 @@ import com.psddev.dari.util.HtmlWriter;
 @Sides.Embedded
 public class Sides extends Record {
 
-    private int top;
-    private int right;
-    private int bottom;
     private int left;
+    private int right;
+
+    private int top;
+    private int bottom;
 
     public Sides() {
     }
 
-    public Sides(int top, int right, int bottom, int left) {
-        this.top = top;
-        this.right = right;
-        this.bottom = bottom;
+    public Sides(int left, int right, int top, int bottom) {
         this.left = left;
-    }
-
-    public int getTop() {
-        return top;
-    }
-
-    public void setTop(int top) {
+        this.right = right;
         this.top = top;
+        this.bottom = bottom;
+    }
+
+    public int getLeft() {
+        return left;
+    }
+
+    public void setLeft(int left) {
+        this.left = left;
     }
 
     public int getRight() {
@@ -39,20 +40,20 @@ public class Sides extends Record {
         this.right = right;
     }
 
+    public int getTop() {
+        return top;
+    }
+
+    public void setTop(int top) {
+        this.top = top;
+    }
+
     public int getBottom() {
         return bottom;
     }
 
     public void setBottom(int bottom) {
         this.bottom = bottom;
-    }
-
-    public int getLeft() {
-        return left;
-    }
-
-    public void setLeft(int left) {
-        this.left = left;
     }
 
     public void writeCss(HtmlWriter writer, String selector, String property) throws IOException {

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.psddev.cms.db.style.AbstractBlock;
+import com.psddev.cms.db.style.Position;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
@@ -49,6 +50,21 @@ public class ContentStyle extends AbstractBlock implements Renderer {
 
     public void writeCss(HtmlWriter writer) throws IOException {
         writeCss(writer, ".bsp-block-" + getInternalName());
+    }
+
+    @Override
+    public void writeHtml(HtmlWriter writer, Object content) throws IOException {
+        if (getPosition() instanceof Position.Fit) {
+            writer.writeStart("div", "style", writer.cssString(
+                    "height", "100%",
+                    "position", "relative",
+                    "width", "100%"));
+                super.writeHtml(writer, content);
+            writer.writeEnd();
+
+        } else {
+            super.writeHtml(writer, content);
+        }
     }
 
     @Override
