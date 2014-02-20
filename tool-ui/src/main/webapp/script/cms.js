@@ -65,9 +65,12 @@ $doc.workflow('live', '.workflow');
 
 $doc.onCreate(':text.color', function() {
     $(this).spectrum({
+        'allowEmpty': true,
         'cancelText': 'Cancel',
         'chooseText': 'OK',
         'preferredFormat': 'hex6',
+        'showAlpha': true,
+        'showInitial': true,
         'showInput': true
     });
 });
