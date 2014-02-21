@@ -19,6 +19,8 @@ import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.UrlBuilder;
 
 public class AuthenticationFilter extends AbstractFilter {
 
@@ -195,6 +197,25 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         public static boolean requireUser(ServletContext context, HttpServletRequest request, HttpServletResponse response) throws IOException {
+            String toolUrlPrefix = Settings.get(String.class, ToolPageContext.TOOL_URL_PREFIX_SETTING);
+
+            if (!ObjectUtils.isBlank(toolUrlPrefix) &&
+                    !new UrlBuilder(request).
+                            currentScheme().
+                            currentHost().
+                            currentPath().
+                            toString().startsWith(toolUrlPrefix)) {
+
+                response.sendRedirect(
+                        StringUtils.removeEnd(toolUrlPrefix, "/") +
+                        new UrlBuilder(request).
+                                currentPath().
+                                currentParameters().
+                                toString());
+
+                return true;
+            }
+
             ToolUser user = getUser(request);
 
             if (user != null) {
