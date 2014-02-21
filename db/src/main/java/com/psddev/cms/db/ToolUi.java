@@ -493,39 +493,6 @@ public class ToolUi extends Modification<Object> {
     }
 
     /**
-     * Finds a list of all concrete types that can be displayed in the
-     * context of this type or field.
-     *
-     * @return Never {@code null}.
-     */
-    public List<ObjectType> findDisplayTypes() {
-        Object object = getOriginalObject();
-        List<ObjectType> displayTypes = new ArrayList<ObjectType>();
-        Set<ObjectType> concreteTypes;
-
-        if (object instanceof ObjectType) {
-            concreteTypes = ((ObjectType) object).findConcreteTypes();
-
-        } else if (object instanceof ObjectField) {
-            concreteTypes = ((ObjectField) object).findConcreteTypes();
-
-        } else {
-            concreteTypes = null;
-        }
-
-        if (concreteTypes != null) {
-            for (ObjectType t : concreteTypes) {
-                if (t.getObjectClass() != null &&
-                        !t.as(ToolUi.class).isHidden()) {
-                    displayTypes.add(t);
-                }
-            }
-        }
-
-        return displayTypes;
-    }
-
-    /**
      * Specifies that the target field should be displayed as code of the
      * given type {@code value}.
      */
