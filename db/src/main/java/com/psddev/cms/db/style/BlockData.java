@@ -11,7 +11,9 @@ import java.util.List;
 
 import com.google.common.base.Throwables;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.ObjectUtils;
 
 @BlockData.Embedded
 public abstract class BlockData extends Record {
@@ -136,6 +138,33 @@ public abstract class BlockData extends Record {
 
             } catch (InvocationTargetException error) {
                 throw Throwables.propagate(error.getCause());
+            }
+
+            return false;
+        }
+    }
+
+    public static class StatePath extends BlockData {
+
+        private String path;
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
+            if (content instanceof Recordable) {
+                Object value = ((Recordable) content).getState().getByPath(getPath());
+
+                if (!ObjectUtils.isBlank(value)) {
+                    writer.writeHtml(value);
+                    return true;
+                }
             }
 
             return false;
