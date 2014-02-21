@@ -30,7 +30,7 @@
         $edit = $('<a/>', {
             'class': 'icon icon-action-edit',
             'href': CONTEXT_PATH + '/content/edit.jsp?id=' + objectData.id,
-            'target': 'contentEdit',
+            'target': '_blank',
             'text': objectData.typeLabel,
 
             'mouseenter': function() {
