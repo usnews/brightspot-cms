@@ -22,17 +22,46 @@ import com.psddev.dari.util.Settings;
 
 public class AuthenticationFilter extends AbstractFilter {
 
+    /**
+     * Settings key for tool user session timeout (in milliseconds).
+     */
+    public static final String TOOL_USER_SESSION_TIMEOUT_SETTING = "brightspot/toolUserSessionTimeout";
+
     private static final String ATTRIBUTE_PREFIX = AuthenticationFilter.class.getName() + ".";
 
     public static final String AUTHENTICATED_ATTRIBUTE = ATTRIBUTE_PREFIX + "authenticated";
     public static final String DATABASE_OVERRIDDEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "databaseOverridden";
+
+    /**
+     * @deprecated Don't use this directly.
+     */
+    @Deprecated
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
+
+    /**
+     * @deprecated Don't use this directly.
+     */
+    @Deprecated
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
+
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
+
+    private static final String INSECURE_TOOL_USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "insecureToolUser";
+    private static final String INSECURE_TOOL_USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "insecureToolUserChecked";
+    private static final String TOOL_USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolUser";
+    private static final String TOOL_USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolUserChecked";
 
     public static final String LOG_IN_PATH = "/logIn.jsp";
     public static final String RETURN_PATH_PARAMETER = "returnPath";
+
+    /**
+     * @deprecated Don't use this directly.
+     */
+    @Deprecated
     public static final String USER_COOKIE = "cmsToolUser";
+
+    private static final String INSECURE_TOOL_USER_COOKIE = "bsp.itu";
+    private static final String TOOL_USER_COOKIE = "bsp.tu";
 
     // --- AbstractFilter support ---
 
@@ -73,11 +102,23 @@ public class AuthenticationFilter extends AbstractFilter {
      */
     public static final class Static {
 
-        private static void setCookieDomain(Cookie cookie) {
+        private static void setSignedCookie(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                String name,
+                String value,
+                int maxAge,
+                boolean secure) {
+
+            Cookie c = new Cookie(name, value);
+
+            c.setMaxAge(maxAge);
+            c.setSecure(secure && JspUtils.isSecure(request));
+
             String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
 
             if (!ObjectUtils.isBlank(siteUrl)) {
-                siteUrl = siteUrl.replaceFirst("^(?i)(?:https?://)?(?:www)?", "");
+                siteUrl = siteUrl.replaceFirst("^(?i)(?:https?://)?(?:www\\.)?", "");
                 int slashAt = siteUrl.indexOf('/');
 
                 if (slashAt > -1) {
@@ -90,8 +131,18 @@ public class AuthenticationFilter extends AbstractFilter {
                     siteUrl = siteUrl.substring(0, colonAt);
                 }
 
-                cookie.setDomain(siteUrl);
+                c.setDomain(siteUrl);
             }
+
+            c.setPath("/");
+            JspUtils.setSignedCookie(response, c);
+
+            Cookie dc = new Cookie(name, name + value);
+
+            dc.setMaxAge(maxAge);
+            dc.setSecure(secure && JspUtils.isSecure(request));
+            dc.setPath("/");
+            JspUtils.setSignedCookie(response, dc);
         }
 
         /**
@@ -102,26 +153,10 @@ public class AuthenticationFilter extends AbstractFilter {
          * @param user Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
-            boolean allowInsecure = Query.from(CmsTool.class).first().isAllowInsecureAuthenticationCookie();
-            Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
+            String userId = user.getId().toString();
 
-            if (!allowInsecure) {
-                cookie.setSecure(JspUtils.isSecure(request));
-            }
-
-            setCookieDomain(cookie);
-            cookie.setPath("/");
-            JspUtils.setSignedCookie(response, cookie);
-
-            Cookie domainlessCookie = new Cookie(USER_COOKIE, user.getId().toString());
-
-            if (!allowInsecure) {
-                domainlessCookie.setSecure(JspUtils.isSecure(request));
-            }
-
-            domainlessCookie.setPath("/");
-            JspUtils.setSignedCookie(response, domainlessCookie);
-
+            setSignedCookie(request, response, TOOL_USER_COOKIE, userId, -1, true);
+            setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, userId, -1, false);
             request.setAttribute(USER_ATTRIBUTE, user);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
@@ -133,20 +168,8 @@ public class AuthenticationFilter extends AbstractFilter {
          * @param response Can't be {@code null}.
          */
         public static void logOut(HttpServletRequest request, HttpServletResponse response) {
-            Cookie cookie = new Cookie(USER_COOKIE, null);
-
-            cookie.setMaxAge(0);
-            cookie.setSecure(JspUtils.isSecure(request));
-            setCookieDomain(cookie);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-
-            Cookie domainlessCookie = new Cookie(USER_COOKIE, null);
-
-            domainlessCookie.setMaxAge(0);
-            domainlessCookie.setSecure(JspUtils.isSecure(request));
-            domainlessCookie.setPath("/");
-            response.addCookie(domainlessCookie);
+            setSignedCookie(request, response, TOOL_USER_COOKIE, "", 0, true);
+            setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, "", 0, false);
         }
 
         /**
@@ -204,23 +227,67 @@ public class AuthenticationFilter extends AbstractFilter {
             return false;
         }
 
-        /** Returns the tool user associated with the given {@code request}. */
-        public static ToolUser getUser(HttpServletRequest request) {
-            ToolUser user;
+        private static ToolUser getToolUserByCookieName(
+                HttpServletRequest request,
+                String cookieName,
+                String toolUserAttribute,
+                String toolUserCheckedAttribute) {
 
-            if (Boolean.TRUE.equals(request.getAttribute(USER_CHECKED_ATTRIBUTE))) {
-                user = (ToolUser) request.getAttribute(USER_ATTRIBUTE);
+            ToolUser toolUser;
+
+            if (Boolean.TRUE.equals(request.getAttribute(toolUserCheckedAttribute))) {
+                toolUser = (ToolUser) request.getAttribute(toolUserAttribute);
 
             } else {
-                long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
-                UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, USER_COOKIE, sessionTimeout));
-                user = Query.findById(ToolUser.class, userId);
+                long sessionTimeout = ObjectUtils.firstNonNull(
+                        Settings.get(Long.class, TOOL_USER_SESSION_TIMEOUT_SETTING),
+                        Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L));
 
-                request.setAttribute(USER_ATTRIBUTE, user);
-                request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
+                String cookieValue = JspUtils.getSignedCookieWithExpiry(request, cookieName, sessionTimeout);
+
+                if (cookieValue == null || cookieValue.length() < cookieName.length()) {
+                    toolUser = null;
+
+                } else {
+                    toolUser = Query.
+                            from(ToolUser.class).
+                            where("_id = ?", ObjectUtils.to(UUID.class, cookieValue.substring(cookieName.length()))).
+                            first();
+
+                    request.setAttribute(toolUserAttribute, toolUser);
+                }
+
+                request.setAttribute(toolUserCheckedAttribute, Boolean.TRUE);
             }
 
-            return user;
+            return toolUser;
+        }
+
+        /**
+         * Returns the tool user associated with the given {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static ToolUser getUser(HttpServletRequest request) {
+            return getToolUserByCookieName(
+                    request,
+                    TOOL_USER_COOKIE,
+                    TOOL_USER_ATTRIBUTE,
+                    TOOL_USER_CHECKED_ATTRIBUTE);
+        }
+
+        /**
+         * Returns the possible and probably insecure tool user associated
+         * with the given {@code request}.
+         *
+         * @param request Can't be {@code null}.
+         */
+        public static ToolUser getInsecureToolUser(HttpServletRequest request) {
+            return getToolUserByCookieName(
+                    request,
+                    INSECURE_TOOL_USER_COOKIE,
+                    INSECURE_TOOL_USER_ATTRIBUTE,
+                    INSECURE_TOOL_USER_CHECKED_ATTRIBUTE);
         }
 
         /**
