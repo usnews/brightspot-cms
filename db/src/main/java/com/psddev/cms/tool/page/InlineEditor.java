@@ -4,26 +4,35 @@ import java.io.IOException;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.psddev.cms.db.PageFilter;
 import com.psddev.cms.db.Schedule;
-import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.AuthenticationFilter;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "inlineEditor")
-@SuppressWarnings("serial")
-public class InlineEditor extends PageServlet {
+public class InlineEditor extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
-    protected String getPermissionId() {
-        return null;
-    }
+    public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
 
-    @Override
-    protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        if (user == null) {
+            throw new IllegalStateException();
+        }
+
+        @SuppressWarnings("resource")
+        ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
         UUID mainId = page.param(UUID.class, "id");
         Object mainObject = Query.
                 fromAll().
@@ -36,9 +45,15 @@ public class InlineEditor extends PageServlet {
                     mainId));
         }
 
-        Schedule currentSchedule = page.getUser().getCurrentSchedule();
+        Schedule currentSchedule = user.getCurrentSchedule();
 
-        page.writeHeader();
+        page.writeHeader(null, false);
+            page.writeStart("script", "type", "text/javascript");
+                page.writeRaw("var CONTEXT_PATH = '");
+                page.writeRaw(page.js(page.fullyQualifiedToolUrl(CmsTool.class, "/")));
+                page.writeRaw("';");
+            page.writeEnd();
+
             page.writeStart("style", "type", "text/css");
                 page.writeCss(".toolBroadcast, .toolHeader, .toolFooter", "display", "none");
                 page.writeCss("body, .toolContent", "background", "transparent");
@@ -50,7 +65,7 @@ public class InlineEditor extends PageServlet {
                 page.writeStart("li", "class", "inlineEditorLogo");
                     page.writeStart("a",
                             "target", "_blank",
-                            "href", page.cmsUrl("/"));
+                            "href", page.fullyQualifiedToolUrl(CmsTool.class, "/"));
                         page.writeElement("img",
                                 "src", page.cmsUrl("/style/brightspot.png"),
                                 "alt", "Brightspot",
@@ -63,8 +78,8 @@ public class InlineEditor extends PageServlet {
                     page.writeStart("li");
                         page.writeStart("a",
                                 "class", "icon icon-action-schedule",
-                                "target", "scheduleEdit",
-                                "href", page.cmsUrl("/scheduleEdit", "id", currentSchedule.getId()));
+                                "target", "_blank",
+                                "href", page.fullyQualifiedToolUrl(CmsTool.class, "/scheduleEdit", "id", currentSchedule.getId()));
                             page.writeHtml("Current Schedule: ");
                             page.writeObjectLabel(currentSchedule);
                         page.writeEnd();
@@ -74,8 +89,8 @@ public class InlineEditor extends PageServlet {
                 page.writeStart("li");
                     page.writeStart("a",
                             "class", "icon icon-action-edit",
-                            "target", "contentEdit",
-                            "href", page.cmsUrl("/content/edit.jsp", "id", State.getInstance(mainObject).getId()));
+                            "target", "_blank",
+                            "href", page.fullyQualifiedToolUrl(CmsTool.class, "/content/edit.jsp", "id", State.getInstance(mainObject).getId()));
                         page.writeTypeObjectLabel(mainObject);
                     page.writeEnd();
                 page.writeEnd();

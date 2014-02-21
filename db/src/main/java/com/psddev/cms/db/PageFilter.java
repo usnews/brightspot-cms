@@ -316,7 +316,7 @@ public class PageFilter extends AbstractFilter {
             return;
         }
 
-        ToolUser user = AuthenticationFilter.Static.getUser(request);
+        ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
         request.setAttribute("toolUser", user);
 
         VaryingDatabase varying = new VaryingDatabase();
@@ -1467,7 +1467,7 @@ public class PageFilter extends AbstractFilter {
                 return false;
 
             } else {
-                ToolUser user = AuthenticationFilter.Static.getUser(request);
+                ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
 
                 return user != null && user.getInlineEditing() == null;
             }

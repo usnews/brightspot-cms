@@ -12,6 +12,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Settings,
+com.psddev.dari.util.UrlBuilder,
 
 java.net.MalformedURLException,
 java.net.URL,
@@ -21,6 +22,16 @@ java.util.UUID
 // --- Logic ---
 
 ToolPageContext wp = new ToolPageContext(pageContext);
+
+if (wp.getUser() != null) {
+    AuthenticationFilter.Static.logOut(response);
+    response.sendRedirect(new UrlBuilder(request).
+            currentPath().
+            currentParameters().
+            toString());
+    return;
+}
+
 AuthenticationException authError = null;
 String username = wp.param("username");
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));

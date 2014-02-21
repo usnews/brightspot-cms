@@ -91,6 +91,12 @@ import com.psddev.dari.util.WebPageContext;
  */
 public class ToolPageContext extends WebPageContext {
 
+    /**
+     * Settings key for tool URL prefix when creating a fully qualified
+     * version of a path.
+     */
+    public static final String TOOL_URL_PREFIX_SETTING = "brightspot/toolUrlPrefix";
+
     public static final String TYPE_ID_PARAMETER = "typeId";
     public static final String OBJECT_ID_PARAMETER = "id";
     public static final String DRAFT_ID_PARAMETER = "draftId";
@@ -443,6 +449,26 @@ public class ToolPageContext extends WebPageContext {
      */
     public String toolUrl(Class<? extends Tool> toolClass, String path, Object... parameters) {
         return toolUrl(getToolByClass(toolClass), path, parameters);
+    }
+
+    /**
+     * Returns a fully qualified, absolute version of the given {@code path}
+     * in context of the instance of the given {@code toolClass}, modified by
+     * the given {@code parameters}.
+     *
+     * @param toolClass Can't be {@code null}.
+     * @param path May be {@code null}.
+     * @param parameters May be {@code null}.
+     */
+    public String fullyQualifiedToolUrl(Class<? extends Tool> toolClass, String path, Object... parameters) {
+        String toolUrl = toolUrl(toolClass, path, parameters);
+        String prefix = Settings.get(String.class, TOOL_URL_PREFIX_SETTING);
+
+        if (!ObjectUtils.isBlank(prefix)) {
+            toolUrl = StringUtils.removeEnd(prefix , "/") + toolUrl;
+        }
+
+        return toolUrl;
     }
 
     /**
@@ -1067,9 +1093,10 @@ public class ToolPageContext extends WebPageContext {
      * Writes the tool header with the given {@code title}.
      *
      * @param title If {@code null}, uses the default title.
+     * @param requireToolUser If {@code true}, calls {@link #requireUser}.
      */
-    public void writeHeader(String title) throws IOException {
-        if (requireUser()) {
+    public void writeHeader(String title, boolean requireToolUser) throws IOException {
+        if (requireToolUser && requireUser()) {
             throw new IllegalStateException();
         }
 
@@ -1491,10 +1518,19 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes the tool header with the given {@code title}.
+     *
+     * @param title If {@code null}, uses the default title.
+     */
+    public void writeHeader(String title) throws IOException {
+        writeHeader(title, true);
+    }
+
+    /**
      * Writes the tool header with the default title.
      */
     public void writeHeader() throws IOException {
-        writeHeader(null);
+        writeHeader(null, true);
     }
 
     /** Writes the tool footer. */
