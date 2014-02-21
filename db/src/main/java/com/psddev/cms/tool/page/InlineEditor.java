@@ -47,6 +47,8 @@ public class InlineEditor extends HttpServlet {
 
         Schedule currentSchedule = user.getCurrentSchedule();
 
+        page.getResponse().setContentType("text/html");
+
         page.writeHeader(null, false);
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("var CONTEXT_PATH = '");
