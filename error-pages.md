@@ -33,7 +33,6 @@ Create an object that renders your visual error page. Add the URL that matches t
 ![](http://docs.brightspot.s3.amazonaws.com/error-page.png)
 
 {% highlight java %}
-
 @Renderer.Path("/render/common/error.jsp")
 @Renderer.LayoutPath("/render/common/page-container.jsp")
 public class ErrorPage extends Content {
