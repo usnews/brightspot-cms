@@ -7,10 +7,12 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -358,6 +360,39 @@ public class ToolUi extends Modification<Object> {
 
     public void setTab(String tab) {
         this.tab = tab;
+    }
+
+    /**
+     * Finds a list of all concrete types that can be displayed in the
+     * context of this type or field.
+     *
+     * @return Never {@code null}.
+     */
+    public List<ObjectType> findDisplayTypes() {
+        Object object = getOriginalObject();
+        List<ObjectType> displayTypes = new ArrayList<ObjectType>();
+        Set<ObjectType> concreteTypes;
+
+        if (object instanceof ObjectType) {
+            concreteTypes = ((ObjectType) object).findConcreteTypes();
+
+        } else if (object instanceof ObjectField) {
+            concreteTypes = ((ObjectField) object).findConcreteTypes();
+
+        } else {
+            concreteTypes = null;
+        }
+
+        if (concreteTypes != null) {
+            for (ObjectType t : concreteTypes) {
+                if (t.getObjectClass() != null &&
+                        !t.as(ToolUi.class).isHidden()) {
+                    displayTypes.add(t);
+                }
+            }
+        }
+
+        return displayTypes;
     }
 
     /**
