@@ -82,11 +82,6 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
 
         List<String> displayNames = page.params(String.class, FIELDS_PARAMETER);
-
-        if (ObjectUtils.isBlank(displayNames)) {
-        } else {
-        }
-
         List<Display> displays = new ArrayList<Display>();
 
         for (Display display : allDisplays) {
