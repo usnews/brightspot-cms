@@ -314,7 +314,17 @@ public class UploadFiles extends PageServlet {
         Collections.sort(types, new ObjectFieldComparator("name", false));
 
         page.writeStart("h1").writeHtml("Upload Files").writeEnd();
-
+        //Start of code related to upload progress bar 
+        page.writeRaw("<script src=\"/cms/script/progressbar.js\"></script>");
+        page.writeStart("div", "id", "cms-upload-progress", "class", "cms-upload-progress");
+        page.writeTag("p").writeHtml("Uploading...");
+        page.writeStart("div", "class", "uploadprogress uploadprogress-striped active");
+        page.writeStart("div","id","uploadprogress-bar","class","uploadprogress-bar","role", "progressbar","aria-valuenow", "0", "aria-valuemin", "0", "aria-valuemax", "100", "style", "width: 0%");
+        page.writeTag("span", "id", "upload-percentage-status", "class", "sr-only", "0% Complete");
+        page.writeEnd();
+        page.writeEnd();
+        page.writeEnd();
+        //End  of code related to upload progress bar
         page.writeStart("form",
                 "method", "post",
                 "enctype", "multipart/form-data",
