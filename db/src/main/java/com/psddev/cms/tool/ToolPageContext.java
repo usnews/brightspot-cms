@@ -1458,6 +1458,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.tabbed.js",
                     "/script/jquery.taxonomy.js",
                     "/script/jquery.toggleable.js",
+                    "/script/jquery.widthaware.js",
                     "/script/jquery.workflow.js",
                     "/script/diff.js",
                     "/script/json2.js",
