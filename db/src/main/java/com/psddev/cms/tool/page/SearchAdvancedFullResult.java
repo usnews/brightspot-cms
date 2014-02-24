@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -38,6 +39,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.UrlBuilder;
 
 @RoutingFilter.Path(application = "cms", value = "searchAdvancedFullResult")
@@ -80,6 +82,11 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
 
         List<String> displayNames = page.params(String.class, FIELDS_PARAMETER);
+
+        if (ObjectUtils.isBlank(displayNames)) {
+        } else {
+        }
+
         List<Display> displays = new ArrayList<Display>();
 
         for (Display display : allDisplays) {
@@ -245,14 +252,31 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
 
         @Override
-        public void renderList(Collection<?> items) throws IOException {
+        public void renderSorter() throws IOException {
+            super.renderSorter();
+
             page.writeStart("form",
-                    "method", "post",
-                    "action", page.url(""));
+                    "class", "autoSubmit",
+                    "method", "get",
+                    "action", page.url(null),
+                    "style", page.cssString(
+                            "margin-left", "20px",
+                            "width", "40%"));
+
+                for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(page.url("",
+                        FIELDS_PARAMETER, null)).entrySet()) {
+                    String name = entry.getKey();
+
+                    for (String value : entry.getValue()) {
+                        page.writeElement("input", "type", "hidden", "name", name, "value", value);
+                    }
+                }
 
                 page.writeStart("select",
+                        "class", "autoSubmit",
                         "name", FIELDS_PARAMETER,
-                        "multiple", "multiple");
+                        "multiple", "multiple",
+                        "placeholder", "Fields");
 
                     for (Display display: allDisplays) {
                         if (display instanceof ObjectFieldDisplay &&
@@ -268,11 +292,11 @@ public class SearchAdvancedFullResult extends PageServlet {
                     }
                 page.writeEnd();
 
-                page.writeStart("button", "style", "margin-top:5px;");
-                    page.writeHtml("Display Fields");
-                page.writeEnd();
             page.writeEnd();
+        }
 
+        @Override
+        public void renderList(Collection<?> items) throws IOException {
             page.writeStart("form",
                     "class", "searchAdvancedResult",
                     "method", "post",
