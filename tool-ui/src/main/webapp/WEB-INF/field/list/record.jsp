@@ -238,7 +238,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                     for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
                                         String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                         final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                        Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+                                        final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
 
                                         if (itemTypes == null || itemTypes.isEmpty()) {
                                             itemTypeIdsCsv.append(typeIdsCsv);
@@ -271,7 +271,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                         if (embedded) {
                                                             List<Object> validObjects = new ArrayList<Object>();
 
-                                                            for (ObjectType type : validTypes) {
+                                                            for (ObjectType type : itemTypes) {
                                                                 if (itemState != null && type.equals(itemState.getType())) {
                                                                     validObjects.add(itemState.getOriginalObject());
 
@@ -342,7 +342,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                                 "href", wp.cmsUrl("/contentFormFields",
                                                                                         "typeId", validState.getTypeId(),
                                                                                         "id", validState.getId()));
-                                                                            wp.writeHtml("Edit");
+                                                                            wp.writeHtml("Loading...");
                                                                         wp.writeEnd();
                                                                     }
                                                                 wp.writeEnd();
@@ -406,7 +406,8 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                             for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
                                 String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                 final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+                                final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+                                System.out.println(itemClass);
 
                                 if (itemTypes == null || itemTypes.isEmpty()) {
                                     itemTypeIdsCsv.append(typeIdsCsv);
@@ -427,7 +428,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                 if (embedded) {
                                                     List<Object> validObjects = new ArrayList<Object>();
 
-                                                    for (ObjectType type : validTypes) {
+                                                    for (ObjectType type : itemTypes) {
                                                         validObjects.add(type.createObject(null));
                                                     }
 
@@ -483,7 +484,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "href", wp.cmsUrl("/contentFormFields",
                                                                             "typeId", validState.getTypeId(),
                                                                             "id", validState.getId()));
-                                                                wp.writeHtml("Edit");
+                                                                wp.writeHtml("Loading...");
                                                             wp.writeEnd();
                                                         wp.writeEnd();
                                                     }
