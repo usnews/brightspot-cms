@@ -1,5 +1,4 @@
 function startProgress() {
-    document.getElementById('cms-upload-progress').style.display = 'inline';
     window.setTimeout("refreshProgress()", 50);
     return true;
 }
@@ -12,6 +11,8 @@ function refreshProgress() {
 
 function updateProgress(uploadInfo) {
     var percentage = uploadInfo.percentDone;
+    if (percentage > 0 ) 
+    document.getElementById('cms-upload-progress').style.display = 'inline';
     var progress = document.getElementById("uploadprogress-bar");
     progress.style.width = percentage + "%";
     var percentProgress = document.getElementById("upload-percentage-status");
