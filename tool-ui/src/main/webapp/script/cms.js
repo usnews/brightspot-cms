@@ -601,7 +601,7 @@ $doc.delegate(':input', 'focus', function() {
 
     $parents.addClass('state-focus');
 
-    $win.bind('scroll.focus', $.run($.throttle(50, function() {
+    $win.bind('scroll.focusLabel', $.run($.throttle(50, function() {
         var focusLabelHeight,
                 index,
                 $parent,
@@ -669,7 +669,7 @@ $doc.delegate(':input', 'blur', function() {
     });
 
     $('.focusLabel').hide();
-    $win.unbind('.state-focus');
+    $win.unbind('.focusLabel');
 });
 
 // Handle file uploads from drag-and-drop.
