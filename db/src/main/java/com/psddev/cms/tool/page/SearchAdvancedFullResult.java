@@ -481,9 +481,9 @@ public class SearchAdvancedFullResult extends PageServlet {
 
                 @Override
                 public void format(HtmlWriter writer, Recordable object) throws IOException {
-                    ToolPageContext page = (ToolPageContext) writer;
-
-                    page.write(page.getObjectLabel(object));
+                    if (object != null) {
+                        writer.writeRaw(object.getState().getLabel());
+                    }
                 }
             });
 
