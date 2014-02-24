@@ -134,6 +134,7 @@
                                 <include>jquery.fixedscrollable.js</include>
                                 <include>jquery.frame.js</include>
                                 <include>jquery.imageeditor.js</include>
+                                <include>jquery.lazyload.js</include>
                                 <include>jquery.locationmap.js</include>
                                 <include>jquery.objectid.js</include>
                                 <include>jquery.pagelayout.js</include>

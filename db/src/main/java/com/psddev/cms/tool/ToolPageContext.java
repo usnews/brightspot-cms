@@ -1447,6 +1447,7 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.fixedscrollable.js",
                     "/script/jquery.frame.js",
                     "/script/jquery.imageeditor.js",
+                    "/script/jquery.lazyload.js",
                     "/script/jquery.locationmap.js",
                     "/script/jquery.objectid.js",
                     "/script/jquery.pagelayout.js",

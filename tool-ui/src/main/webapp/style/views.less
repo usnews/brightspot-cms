@@ -667,12 +667,27 @@ figure,
 .inputContainer-listLayoutItemContainer {
     height: 100%;
     overflow: hidden;
+
+    &.inputContainer-listLayoutItemContainer-embedded {
+        position: relative;
+
+        .inputLarge {
+            bottom: 5px;
+            overflow: auto;
+            position: absolute;
+            top: 36px;
+        }
+    }
 }
 
 .inputContainer-listLayoutItem {
     background-color: @color-note-lighter;
     margin-bottom: -30000px;
     padding: 5px 5px 30005px 5px;
+
+    &.state-focus {
+        background-color: @color-link-lighter;
+    }
 
     .objectId,
     .objectId-select {

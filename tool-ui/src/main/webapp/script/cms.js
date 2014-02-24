@@ -51,6 +51,7 @@ $doc.frame({
 });
 
 $doc.imageEditor('live', '.imageEditor');
+$doc.lazyLoad('live', '.lazyLoad');
 $doc.locationMap('live', '.locationMap');
 $doc.regionMap('live', '.regionMap');
 $doc.objectId('live', ':input.objectId');

@@ -266,7 +266,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                             public void format(HtmlWriter writer) throws IOException {
                                                 StorageItem preview = itemState != null ? itemState.getPreview() : null;
 
-                                                writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                                writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
                                                     writer.start("div", "class", "inputContainer-listLayoutItem");
                                                         if (embedded) {
                                                             List<Object> validObjects = new ArrayList<Object>();
@@ -328,11 +328,22 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                             "type", "hidden",
                                                                             "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
 
-                                                                    try {
-                                                                        wp.writeFormFields(validObject);
+                                                                    if (validState.equals(itemState)) {
+                                                                        try {
+                                                                            wp.writeFormFields(validObject);
 
-                                                                    } catch (ServletException error) {
-                                                                        throw new IOException(error);
+                                                                        } catch (ServletException error) {
+                                                                            throw new IOException(error);
+                                                                        }
+
+                                                                    } else {
+                                                                        wp.writeStart("a",
+                                                                                "class", "lazyLoad",
+                                                                                "href", wp.cmsUrl("/contentFormFields",
+                                                                                        "typeId", validState.getTypeId(),
+                                                                                        "id", validState.getId()));
+                                                                            wp.writeHtml("Edit");
+                                                                        wp.writeEnd();
                                                                     }
                                                                 wp.writeEnd();
                                                             }
@@ -467,12 +478,13 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "type", "hidden",
                                                                     "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
 
-                                                            try {
-                                                                wp.writeFormFields(validObject);
-
-                                                            } catch (ServletException error) {
-                                                                throw new IOException(error);
-                                                            }
+                                                            wp.writeStart("a",
+                                                                    "class", "lazyLoad",
+                                                                    "href", wp.cmsUrl("/contentFormFields",
+                                                                            "typeId", validState.getTypeId(),
+                                                                            "id", validState.getId()));
+                                                                wp.writeHtml("Edit");
+                                                            wp.writeEnd();
                                                         wp.writeEnd();
                                                     }
 
