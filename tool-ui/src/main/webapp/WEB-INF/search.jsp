@@ -163,6 +163,7 @@ writer.start("div", "class", "searchForm");
             }
 
             writer.start("form",
+                    "class", "searchFiltersType",
                     "method", "get",
                     "action", wp.url(null));
 
@@ -197,7 +198,7 @@ writer.start("div", "class", "searchForm");
             writer.end();
 
             writer.start("form",
-                    "class", "autoSubmit",
+                    "class", "autoSubmit searchFiltersRest",
                     "method", "get",
                     "action", wp.url(request.getAttribute("resultJsp")),
                     "target", resultTarget);

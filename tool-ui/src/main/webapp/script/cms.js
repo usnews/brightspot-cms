@@ -42,7 +42,7 @@ $doc.expandable('live', ':text.expandable, textarea', {
     'shadowClass': 'input'
 });
 
-$doc.fixedScrollable('live', '.fixedScrollable, .searchResultList');
+$doc.fixedScrollable('live', '.fixedScrollable, .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
 
 $doc.frame({
     'frameClassName': 'frame',
