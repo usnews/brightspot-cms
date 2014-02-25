@@ -42,7 +42,7 @@ $doc.expandable('live', ':text.expandable, textarea', {
     'shadowClass': 'input'
 });
 
-$doc.fixedScrollable('live', '.fixedScrollable, .searchResultList');
+$doc.fixedScrollable('live', '.fixedScrollable, .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
 
 $doc.frame({
     'frameClassName': 'frame',
@@ -51,6 +51,7 @@ $doc.frame({
 });
 
 $doc.imageEditor('live', '.imageEditor');
+$doc.lazyLoad('live', '.lazyLoad');
 $doc.locationMap('live', '.locationMap');
 $doc.regionMap('live', '.regionMap');
 $doc.objectId('live', ':input.objectId');
@@ -61,6 +62,7 @@ $doc.spreadsheet('live', '.spreadsheet');
 $doc.tabbed('live', '.tabbed, .objectInputs');
 $doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
+$doc.widthAware('live', '[data-widths]');
 $doc.workflow('live', '.workflow');
 
 $doc.onCreate(':text.color', function() {
@@ -604,7 +606,7 @@ $doc.delegate(':input', 'focus', function() {
 
     $parents.addClass('state-focus');
 
-    $win.bind('scroll.focus', $.run($.throttle(50, function() {
+    $win.bind('scroll.focusLabel', $.run($.throttle(50, function() {
         var focusLabelHeight,
                 index,
                 $parent,
@@ -672,7 +674,7 @@ $doc.delegate(':input', 'blur', function() {
     });
 
     $('.focusLabel').hide();
-    $win.unbind('.state-focus');
+    $win.unbind('.focusLabel');
 });
 
 // Handle file uploads from drag-and-drop.

@@ -238,7 +238,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                     for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
                                         String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                         final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                        Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+                                        final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
 
                                         if (itemTypes == null || itemTypes.isEmpty()) {
                                             itemTypeIdsCsv.append(typeIdsCsv);
@@ -266,12 +266,12 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                             public void format(HtmlWriter writer) throws IOException {
                                                 StorageItem preview = itemState != null ? itemState.getPreview() : null;
 
-                                                writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                                writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
                                                     writer.start("div", "class", "inputContainer-listLayoutItem");
                                                         if (embedded) {
                                                             List<Object> validObjects = new ArrayList<Object>();
 
-                                                            for (ObjectType type : validTypes) {
+                                                            for (ObjectType type : itemTypes) {
                                                                 if (itemState != null && type.equals(itemState.getType())) {
                                                                     validObjects.add(itemState.getOriginalObject());
 
@@ -288,6 +288,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                             wp.writeStart("div", "class", "inputSmall");
                                                                 wp.writeStart("select",
                                                                         "class", "toggleable",
+                                                                        "data-root", ".inputContainer-listLayoutItem",
                                                                         "name", idName);
                                                                     wp.writeStart("option",
                                                                             "data-hide", "." + validObjectClass,
@@ -328,11 +329,22 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                             "type", "hidden",
                                                                             "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
 
-                                                                    try {
-                                                                        wp.writeFormFields(validObject);
+                                                                    if (validState.equals(itemState)) {
+                                                                        try {
+                                                                            wp.writeFormFields(validObject);
 
-                                                                    } catch (ServletException error) {
-                                                                        throw new IOException(error);
+                                                                        } catch (ServletException error) {
+                                                                            throw new IOException(error);
+                                                                        }
+
+                                                                    } else {
+                                                                        wp.writeStart("a",
+                                                                                "class", "lazyLoad",
+                                                                                "href", wp.cmsUrl("/contentFormFields",
+                                                                                        "typeId", validState.getTypeId(),
+                                                                                        "id", validState.getId()));
+                                                                            wp.writeHtml("Loading...");
+                                                                        wp.writeEnd();
                                                                     }
                                                                 wp.writeEnd();
                                                             }
@@ -395,7 +407,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                             for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
                                 String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                 final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+                                final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
 
                                 if (itemTypes == null || itemTypes.isEmpty()) {
                                     itemTypeIdsCsv.append(typeIdsCsv);
@@ -411,12 +423,12 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
 
                                 values.add(new HtmlObject() {
                                     public void format(HtmlWriter writer) throws IOException {
-                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
                                             writer.start("div", "class", "inputContainer-listLayoutItem");
                                                 if (embedded) {
                                                     List<Object> validObjects = new ArrayList<Object>();
 
-                                                    for (ObjectType type : validTypes) {
+                                                    for (ObjectType type : itemTypes) {
                                                         validObjects.add(type.createObject(null));
                                                     }
 
@@ -428,6 +440,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                     wp.writeStart("div", "class", "inputSmall");
                                                         wp.writeStart("select",
                                                                 "class", "toggleable",
+                                                                "data-root", ".inputContainer-listLayoutItem",
                                                                 "name", idName);
                                                             wp.writeStart("option",
                                                                     "data-hide", "." + validObjectClass,
@@ -467,12 +480,13 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "type", "hidden",
                                                                     "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
 
-                                                            try {
-                                                                wp.writeFormFields(validObject);
-
-                                                            } catch (ServletException error) {
-                                                                throw new IOException(error);
-                                                            }
+                                                            wp.writeStart("a",
+                                                                    "class", "lazyLoad",
+                                                                    "href", wp.cmsUrl("/contentFormFields",
+                                                                            "typeId", validState.getTypeId(),
+                                                                            "id", validState.getId()));
+                                                                wp.writeHtml("Loading...");
+                                                            wp.writeEnd();
                                                         wp.writeEnd();
                                                     }
 

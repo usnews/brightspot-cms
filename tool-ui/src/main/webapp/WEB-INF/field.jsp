@@ -9,6 +9,7 @@ com.psddev.cms.db.ContentType,
 com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.tool.page.ContentEditBulk,
 
 com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
@@ -148,6 +149,34 @@ try {
         wp.write("<label for=\"", wp.createId(), "\">");
         wp.write(wp.h(label));
         wp.write("</label></div>");
+
+        if (state.getId().equals(request.getAttribute("bsp.contentEditBulk.id"))) {
+            String contentEditBulkOpName = ContentEditBulk.OPERATION_PARAMETER_PREFIX + fieldName;
+
+            wp.writeStart("div", "class", "inputContentEditBulkOperation");
+                wp.writeStart("select",
+                        "class", "toggleable",
+                        "data-root", ".inputContainer",
+                        "name", contentEditBulkOpName);
+
+                    wp.writeStart("option",
+                            "data-hide", "> .inputNote, > .inputSmall, > .inputLarge",
+                            "value", "");
+                        wp.writeHtml("Keep ");
+                    wp.writeEnd();
+
+                    for (ContentEditBulk.Operation op : (field.isInternalCollectionType() ?
+                            ContentEditBulk.COLLECTION_OPERATIONS :
+                            ContentEditBulk.NON_COLLECTION_OPERATIONS)) {
+                        wp.writeStart("option",
+                                (ContentEditBulk.Operation.CLEAR.equals(op) ? "data-hide" : "data-show"), "> .inputNote, > .inputSmall, > .inputLarge",
+                                "value", op.name());
+                            wp.writeHtml(op.toString());
+                        wp.writeEnd();
+                    }
+                wp.writeEnd();
+            wp.writeEnd();
+        }
 
         // Field-specific error messages.
         List<String> errors = state.getErrors(field);

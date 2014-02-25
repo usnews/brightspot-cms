@@ -510,7 +510,7 @@ figure,
     .message-error {
         margin-left: 145px;
 
-        @media @media-tablet {
+        .objectInputs-small & {
             margin-left: 0;
         }
     }
@@ -552,7 +552,7 @@ figure,
         width: 100%;
     }
 
-    @media @media-tablet {
+    .objectInputs-small & {
         display: block;
         float: none;
         margin: 0 0 5px 0;
@@ -563,6 +563,17 @@ figure,
 
 .inputContainer-error {
     margin-left: 145px;
+}
+
+.inputContentEditBulkOperation {
+    margin-left: 140px;
+    padding: 2px 2px 2px 6px;
+
+    .objectInputs-small & {
+        margin-bottom: 5px;
+        margin-left: 0;
+        padding-left: 2px;
+    }
 }
 
 .inputSmall {
@@ -577,7 +588,7 @@ figure,
         width: 100%;
     }
 
-    @media @media-tablet {
+    .objectInputs-small & {
         margin-bottom: 5px;
         margin-left: 0;
         padding-left: 2px;
@@ -596,7 +607,7 @@ figure,
     display: block;
     margin-left: 146px;
 
-    @media @media-tablet {
+    .objectInputs-small & {
         margin-left: 2px;
     }
 }
@@ -667,6 +678,19 @@ figure,
 .inputContainer-listLayoutItemContainer {
     height: 100%;
     overflow: hidden;
+
+    &.inputContainer-listLayoutItemContainer-embedded {
+        position: relative;
+
+        .inputLarge {
+            bottom: 5px;
+            left: 5px;
+            overflow: auto;
+            position: absolute;
+            right: 5px;
+            top: 36px;
+        }
+    }
 }
 
 .inputContainer-listLayoutItem {

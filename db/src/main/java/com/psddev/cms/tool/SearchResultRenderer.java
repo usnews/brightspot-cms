@@ -115,7 +115,8 @@ public class SearchResultRenderer {
 
         if (ObjectUtils.isBlank(search.getQueryString()) &&
                 search.getSelectedType() != null &&
-                search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
+                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
+                search.getVisibilities().isEmpty()) {
 
             List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
 

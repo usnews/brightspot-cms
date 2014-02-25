@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -38,6 +39,7 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.UrlBuilder;
 
 @RoutingFilter.Path(application = "cms", value = "searchAdvancedFullResult")
@@ -47,6 +49,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
     private static final String FIELDS_PARAMETER = "f";
     private static final String ITEMS_PARAMETER = "i";
+    private static final int[] LIMITS = { 20, 50, 100 };
 
     @Override
     protected String getPermissionId() {
@@ -166,7 +169,10 @@ public class SearchAdvancedFullResult extends PageServlet {
             return;
         }
 
-        search.setLimit(20);
+        if (search.getLimit() < 20) {
+            search.setLimit(20);
+        }
+
         search.setSuggestions(false);
 
         Renderer renderer = new Renderer(page, search, allDisplays, displays);
@@ -245,14 +251,32 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
 
         @Override
-        public void renderList(Collection<?> items) throws IOException {
+        public void renderSorter() throws IOException {
+            super.renderSorter();
+
             page.writeStart("form",
-                    "method", "post",
-                    "action", page.url(""));
+                    "class", "autoSubmit",
+                    "method", "get",
+                    "action", page.url(null),
+                    "style", page.cssString(
+                            "display", "inline-block",
+                            "margin-left", "20px",
+                            "width", "200px"));
+
+                for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(page.url("",
+                        FIELDS_PARAMETER, null)).entrySet()) {
+                    String name = entry.getKey();
+
+                    for (String value : entry.getValue()) {
+                        page.writeElement("input", "type", "hidden", "name", name, "value", value);
+                    }
+                }
 
                 page.writeStart("select",
+                        "class", "autoSubmit",
                         "name", FIELDS_PARAMETER,
-                        "multiple", "multiple");
+                        "multiple", "multiple",
+                        "placeholder", "Fields");
 
                     for (Display display: allDisplays) {
                         if (display instanceof ObjectFieldDisplay &&
@@ -268,11 +292,71 @@ public class SearchAdvancedFullResult extends PageServlet {
                     }
                 page.writeEnd();
 
-                page.writeStart("button", "style", "margin-top:5px;");
-                    page.writeHtml("Display Fields");
-                page.writeEnd();
             page.writeEnd();
+        }
 
+        @Override
+        public void renderPagination() throws IOException {
+            page.writeStart("ul", "class", "pagination");
+
+                if (result.hasPrevious()) {
+                    page.writeStart("li", "class", "previous");
+                        page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
+                            page.writeHtml("Previous ");
+                            page.writeHtml(result.getLimit());
+                        page.writeEnd();
+                    page.writeEnd();
+                }
+
+                page.writeStart("li");
+                    page.writeHtml(result.getFirstItemIndex());
+                    page.writeHtml(" to ");
+                    page.writeHtml(result.getLastItemIndex());
+                    page.writeHtml(" of ");
+                    page.writeStart("strong").writeHtml(result.getCount()).writeEnd();
+                page.writeEnd();
+
+                if (result.getOffset() > 0 ||
+                        result.hasNext() ||
+                        result.getItems().size() > LIMITS[0]) {
+                    page.writeStart("li");
+                        page.writeHtml("Show: ");
+
+                        for (int i = 0, length = LIMITS.length; i < length; ++ i) {
+                            int l = LIMITS[i];
+
+                            if (i > 0) {
+                                page.writeHtml(" | ");
+                            }
+
+                            page.writeStart("a", "href", page.url("", Search.LIMIT_PARAMETER, l));
+                                if (result.getLimit() == l) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(l);
+                                    page.writeEnd();
+
+                                } else {
+                                    page.writeHtml(l);
+                                }
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
+
+                if (result.hasNext()) {
+                    page.writeStart("li", "class", "next");
+                        page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
+                            page.writeHtml("Next ");
+                            page.writeHtml(result.getLimit());
+                        page.writeEnd();
+                    page.writeEnd();
+                }
+
+            page.writeEnd();
+        }
+
+        @Override
+        public void renderList(Collection<?> items) throws IOException {
             page.writeStart("form",
                     "class", "searchAdvancedResult",
                     "method", "post",
@@ -462,9 +546,9 @@ public class SearchAdvancedFullResult extends PageServlet {
 
                 @Override
                 public void format(HtmlWriter writer, Recordable object) throws IOException {
-                    ToolPageContext page = (ToolPageContext) writer;
-
-                    page.write(page.getObjectLabel(object));
+                    if (object != null) {
+                        writer.writeRaw(object.getState().getLabel());
+                    }
                 }
             });
 

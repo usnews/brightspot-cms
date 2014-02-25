@@ -134,6 +134,7 @@
                                 <include>jquery.fixedscrollable.js</include>
                                 <include>jquery.frame.js</include>
                                 <include>jquery.imageeditor.js</include>
+                                <include>jquery.lazyload.js</include>
                                 <include>jquery.locationmap.js</include>
                                 <include>jquery.objectid.js</include>
                                 <include>jquery.pagelayout.js</include>
@@ -145,6 +146,7 @@
                                 <include>jquery.tabbed.js</include>
                                 <include>jquery.taxonomy.js</include>
                                 <include>jquery.toggleable.js</include>
+                                <include>jquery.widthaware.js</include>
                                 <include>jquery.workflow.js</include>
                                 <include>diff.js</include>
                                 <include>json2.js</include>

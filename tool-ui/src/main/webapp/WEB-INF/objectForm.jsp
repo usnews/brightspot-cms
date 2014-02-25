@@ -46,7 +46,8 @@ try {
             "class", "objectInputs",
             "data-type", type != null ? type.getInternalName() : null,
             "data-id", state.getId(),
-            "data-object-id", state.getId());
+            "data-object-id", state.getId(),
+            "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }");
 
         Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
 
