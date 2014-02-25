@@ -6,6 +6,7 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
+com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.TypeReference,
@@ -58,17 +59,21 @@ if (fields != null) {
             Date oldUpdateDate = wp.param(Date.class, state.getId() + "/_updateDate");
 
             if (oldUpdateDate != null) {
-                Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
-                Date newUpdateDate = contentData.getUpdateDate();
+                Object newObject = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
 
-                if (!oldUpdateDate.equals(newUpdateDate)) {
-                    ToolUser updateUser = contentData.getUpdateUser();
+                if (newObject != null) {
+                    Content.ObjectModification newContentData = State.getInstance(newObject).as(Content.ObjectModification.class);
+                    Date newUpdateDate = newContentData.getUpdateDate();
 
-                    throw new IllegalArgumentException(
-                            (updateUser != null ? updateUser.getLabel() : "Unknown user") +
-                            " has updated this content at " +
-                            newUpdateDate +
-                            " since you've seen it last. Click on publish button again to override the changes with your own.");
+                    if (!oldUpdateDate.equals(newUpdateDate)) {
+                        ToolUser newUpdateUser = newContentData.getUpdateUser();
+
+                        throw new IllegalArgumentException(
+                                (newUpdateUser != null ? newUpdateUser.getLabel() : "Unknown user") +
+                                " has updated this content at " +
+                                newUpdateDate +
+                                " since you've seen it last. Click on publish button again to override the changes with your own.");
+                    }
                 }
             }
         }
