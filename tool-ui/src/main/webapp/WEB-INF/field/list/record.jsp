@@ -407,7 +407,6 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                 String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
                                 final StringBuilder itemTypeIdsCsv = new StringBuilder();
                                 final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
-                                System.out.println(itemClass);
 
                                 if (itemTypes == null || itemTypes.isEmpty()) {
                                     itemTypeIdsCsv.append(typeIdsCsv);
