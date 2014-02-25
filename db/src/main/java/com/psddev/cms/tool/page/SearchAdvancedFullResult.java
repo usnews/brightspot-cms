@@ -49,6 +49,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
     private static final String FIELDS_PARAMETER = "f";
     private static final String ITEMS_PARAMETER = "i";
+    private static final int[] LIMITS = { 20, 50, 100 };
 
     @Override
     protected String getPermissionId() {
@@ -168,7 +169,10 @@ public class SearchAdvancedFullResult extends PageServlet {
             return;
         }
 
-        search.setLimit(20);
+        if (search.getLimit() < 20) {
+            search.setLimit(20);
+        }
+
         search.setSuggestions(false);
 
         Renderer renderer = new Renderer(page, search, allDisplays, displays);
@@ -287,6 +291,66 @@ public class SearchAdvancedFullResult extends PageServlet {
                         page.writeEnd();
                     }
                 page.writeEnd();
+
+            page.writeEnd();
+        }
+
+        @Override
+        public void renderPagination() throws IOException {
+            page.writeStart("ul", "class", "pagination");
+
+                if (result.hasPrevious()) {
+                    page.writeStart("li", "class", "previous");
+                        page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
+                            page.writeHtml("Previous ");
+                            page.writeHtml(result.getLimit());
+                        page.writeEnd();
+                    page.writeEnd();
+                }
+
+                page.writeStart("li");
+                    page.writeHtml(result.getFirstItemIndex());
+                    page.writeHtml(" to ");
+                    page.writeHtml(result.getLastItemIndex());
+                    page.writeHtml(" of ");
+                    page.writeStart("strong").writeHtml(result.getCount()).writeEnd();
+                page.writeEnd();
+
+                if (result.getOffset() > 0 ||
+                        result.hasNext() ||
+                        result.getItems().size() > LIMITS[0]) {
+                    page.writeStart("li");
+                        page.writeHtml("Show: ");
+
+                        for (int i = 0, length = LIMITS.length; i < length; ++ i) {
+                            int l = LIMITS[i];
+
+                            if (i > 0) {
+                                page.writeHtml(" | ");
+                            }
+
+                            page.writeStart("a", "href", page.url("", Search.LIMIT_PARAMETER, l));
+                                if (result.getLimit() == l) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(l);
+                                    page.writeEnd();
+
+                                } else {
+                                    page.writeHtml(l);
+                                }
+                            page.writeEnd();
+                        }
+                    page.writeEnd();
+                }
+
+                if (result.hasNext()) {
+                    page.writeStart("li", "class", "next");
+                        page.writeStart("a", "href", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()));
+                            page.writeHtml("Next ");
+                            page.writeHtml(result.getLimit());
+                        page.writeEnd();
+                    page.writeEnd();
+                }
 
             page.writeEnd();
         }
