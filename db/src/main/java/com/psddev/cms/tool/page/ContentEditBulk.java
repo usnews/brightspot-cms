@@ -184,10 +184,6 @@ public class ContentEditBulk extends PageServlet {
                     page.writeHtml(" Items");
                 page.writeEnd();
 
-                page.writeStart("div", "class", "message", "message-info");
-                    page.writeHtml("Any of the fields that you fill out here will replace the corresponding fields in all items.");
-                page.writeEnd();
-
                 String formId = page.createId();
 
                 page.writeStart("form",
