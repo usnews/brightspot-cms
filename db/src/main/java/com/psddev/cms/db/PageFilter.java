@@ -1308,6 +1308,22 @@ public class PageFilter extends AbstractFilter {
                     }
                 }
 
+                if (mainObject != null) {
+                    ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
+
+                    if (user != null) {
+                        Preview preview = Query.from(Preview.class).where("_id = ?", user.getCurrentPreviewId()).first();
+
+                        if (preview != null) {
+                            State mainState = State.getInstance(mainObject);
+
+                            if (mainState.getId().equals(preview.getObjectId())) {
+                                mainState.putAll(preview.getObjectValues());
+                            }
+                        }
+                    }
+                }
+
                 setMainObject(request, mainObject);
                 return mainObject;
 
