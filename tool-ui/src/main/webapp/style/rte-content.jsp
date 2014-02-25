@@ -54,18 +54,20 @@ writer.start("html");
                     "-rte-loaded", "true",
                     "*zoom", 1);
 
-            writer.css("body:before, body:after",
+            writer.css("body:after",
+                    "clear", "both",
                     "content", "' '",
                     "display", "table");
 
-            writer.css("body:after",
-                    "clear", "both");
+            writer.css("body:before",
+                    "color", "#888",
+                    "content", "attr(data-placeholder)",
+                    "left", "4px",
+                    "position", "absolute",
+                    "top", "4px");
 
             writer.css("body.imageEditor-textOverlayInput",
                     "word-wrap", "normal");
-
-            writer.css("body.placeholder",
-                    "color", "#888");
 
             writer.css("body.rte-fullscreen",
                     "margin", "20px",

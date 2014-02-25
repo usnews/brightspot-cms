@@ -1089,6 +1089,8 @@ var Rte = wysihtml5.Editor.extend({
     'updateOverlay': function() {
         var rte = this,
                 textarea = rte.textarea,
+                $textareaElement,
+                textareaValue,
                 isCurrentViewTextarea = rte.currentView === textarea,
                 $overlay = $(rte.overlay),
                 composer = rte.composer,
@@ -1105,6 +1107,16 @@ var Rte = wysihtml5.Editor.extend({
         if (isCurrentViewTextarea) {
             $overlay.hide();
             return;
+        }
+
+        $textareaElement = $(textarea.element);
+        textareaValue = $textareaElement.val();
+
+        if (!textareaValue || textareaValue === '' || textareaValue.trim().toLowerCase() === '<br>') {
+            $(composer.element).attr('data-placeholder', $textareaElement.attr('placeholder'));
+
+        } else {
+            $(composer.element).removeAttr('data-placeholder');
         }
 
         $overlay.show();
@@ -1495,6 +1507,7 @@ $.plugin2('rte', {
         'enhancement': createEnhancement,
         'iframeHtml': iframeHtml,
         'marker': createMarker,
+        'placeholder': '',
         'style': false,
         'toolbar': createToolbar,
         'useLineBreaks': !RTE_LEGACY_HTML,
