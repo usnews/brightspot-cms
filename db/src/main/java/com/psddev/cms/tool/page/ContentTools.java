@@ -127,7 +127,7 @@ public class ContentTools extends PageServlet {
 
                                             page.writeStart("td");
                                                 if (publishUser != null) {
-                                                    page.writeObjectLabel(updateUser);
+                                                    page.writeObjectLabel(publishUser);
                                                 }
                                             page.writeEnd();
                                         page.writeEnd();
