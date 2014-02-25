@@ -147,7 +147,7 @@ public class WorkStream extends Record {
         ErrorUtils.errorIfNull(user, "user");
 
         return currentItems != null ?
-                currentItems.containsKey(user.getId().toString()) :
+                currentItems.get(user.getId().toString()) != null :
                 false;
     }
 
