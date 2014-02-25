@@ -1318,6 +1318,7 @@ public class PageFilter extends AbstractFilter {
                             State mainState = State.getInstance(mainObject);
 
                             if (mainState.getId().equals(preview.getObjectId())) {
+                                request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
                                 mainState.putAll(preview.getObjectValues());
                             }
                         }
