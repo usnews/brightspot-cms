@@ -16,13 +16,11 @@ $.plugin2('widthAware', {
 });
 
 $window.bind('create resize', $.throttle(100, function() {
-    console.log($elements.length);
     $elements.filter('[data-widths]:visible').each(function() {
         var $element = $(this),
                 elementWidth = $element.width(),
                 classNames = { 'add': '', 'remove': '' };
 
-        console.log(this, elementWidth);
         $.each($.parseJSON($element.attr('data-widths')), function(className, rule) {
             $.each(rule, function(operator, width) {
                 switch (operator) {
