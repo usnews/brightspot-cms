@@ -1,13 +1,17 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.ImmutableList;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
@@ -15,6 +19,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -24,12 +29,17 @@ public class ContentEditBulk extends PageServlet {
 
     private static final long serialVersionUID = 1L;
 
+    public static final List<Operation> COLLECTION_OPERATIONS = ImmutableList.of(Operation.REPLACE, Operation.ADD, Operation.REMOVE, Operation.CLEAR);
+    public static final List<Operation> NON_COLLECTION_OPERATIONS = ImmutableList.of(Operation.REPLACE, Operation.CLEAR);
+    public static final String OPERATION_PARAMETER_PREFIX = "contentEditBulk.op/";
+
     @Override
     protected String getPermissionId() {
         return null;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         List<UUID> ids = page.params(UUID.class, ContentSearchAdvanced.ITEMS_PARAMETER);
         Query<?> query = ids.isEmpty() ? new Search(page).toQuery(page.getSite()) : Query.fromAll().where("_id = ?", ids);
@@ -50,22 +60,98 @@ public class ContentEditBulk extends PageServlet {
                             page.cmsUrl("/WEB-INF/objectPost.jsp"),
                             "object", state.getOriginalObject());
 
-                    Map<String, Object> values = state.getSimpleValues();
-                    Map<String, Object> newValues = new LinkedHashMap<String, Object>();
+                    Map<String, Object> values = state.getValues();
+                    Map<String, Object> replaces = new CompactMap<String, Object>();
+                    Map<String, Object> adds = new CompactMap<String, Object>();
+                    Map<String, Object> removes = new CompactMap<String, Object>();
+                    Set<String> clears = new HashSet<String>();
 
                     for (ObjectField field : type.getFields()) {
                         String name = field.getInternalName();
                         Object value = values.get(name);
 
-                        if (!ObjectUtils.isBlank(value)) {
-                            newValues.put(name, value);
+                        Operation op = page.param(Operation.class, OPERATION_PARAMETER_PREFIX + name);
+
+                        if (op != null) {
+                            if (Operation.REPLACE.equals(op)) {
+                                replaces.put(name, value);
+
+                            } else if (Operation.ADD.equals(op)) {
+                                adds.put(name, value);
+
+                            } else if (Operation.REMOVE.equals(op)) {
+                                removes.put(name, value);
+
+                            } else if (Operation.CLEAR.equals(op)) {
+                                clears.add(name);
+                            }
                         }
                     }
 
                     for (Object item : query.selectAll()) {
                         State itemState = State.getInstance(item);
 
-                        itemState.putAll(newValues);
+                        itemState.putAll(replaces);
+
+                        for (Map.Entry<String, Object> entry : adds.entrySet()) {
+                            String fieldName = entry.getKey();
+                            Object newValue = entry.getValue();
+                            Object oldValue = itemState.get(fieldName);
+
+                            if (oldValue instanceof Map) {
+                                if (newValue instanceof Map) {
+                                    ((Map<Object, Object>) oldValue).putAll((Map<Object, Object>) newValue);
+
+                                } else if (newValue instanceof Collection) {
+                                    ((Map<Object, Object>) oldValue).keySet().addAll((Collection<Object>) newValue);
+                                }
+
+                            } else if (oldValue instanceof Collection) {
+                                if (newValue instanceof Map) {
+                                    ((Collection<Object>) oldValue).addAll(((Map<Object, Object>) newValue).values());
+
+                                } else if (newValue instanceof Collection) {
+                                    ((Collection<Object>) oldValue).addAll((Collection<Object>) newValue);
+
+                                } else {
+                                    ((Collection<Object>) oldValue).add(newValue);
+                                }
+
+                            } else {
+                                itemState.put(fieldName, newValue);
+                            }
+                        }
+
+                        for (Map.Entry<String, Object> entry : removes.entrySet()) {
+                            String fieldName = entry.getKey();
+                            Object newValue = entry.getValue();
+                            Object oldValue = itemState.get(fieldName);
+
+                            if (oldValue instanceof Map) {
+                                if (newValue instanceof Map) {
+                                    ((Map<Object, Object>) oldValue).keySet().removeAll(((Map<Object, Object>) newValue).keySet());
+
+                                } else if (newValue instanceof Collection) {
+                                    ((Map<Object, Object>) oldValue).keySet().removeAll((Collection<Object>) newValue);
+                                }
+
+                            } else if (oldValue instanceof Collection) {
+                                if (newValue instanceof Map) {
+                                    ((Collection<Object>) oldValue).removeAll(((Map<Object, Object>) newValue).values());
+
+                                } else if (newValue instanceof Collection) {
+                                    ((Collection<Object>) oldValue).removeAll((Collection<Object>) newValue);
+
+                                } else {
+                                    ((Collection<Object>) oldValue).remove(newValue);
+                                }
+                            }
+                        }
+
+                        for (String clear : clears) {
+                            itemState.remove(clear);
+                        }
+
                         itemState.save();
                     }
 
@@ -102,11 +188,21 @@ public class ContentEditBulk extends PageServlet {
                     page.writeHtml("Any of the fields that you fill out here will replace the corresponding fields in all items.");
                 page.writeEnd();
 
+                String formId = page.createId();
+
                 page.writeStart("form",
+                        "id", formId,
                         "method", "post",
                         "action", page.url(null, "id", state.getId()));
 
                     for (String paramName : page.paramNamesList()) {
+                        if ("id".equals(paramName) ||
+                                paramName.startsWith(OPERATION_PARAMETER_PREFIX) ||
+                                paramName.startsWith(state.getId() + "/") ||
+                                paramName.startsWith("action-")) {
+                            continue;
+                        }
+
                         for (String value : page.params(String.class, paramName)) {
                             page.writeElement("input",
                                     "type", "hidden",
@@ -115,12 +211,21 @@ public class ContentEditBulk extends PageServlet {
                         }
                     }
 
-                    JspUtils.include(
-                            page.getRequest(),
-                            page.getResponse(),
-                            page,
-                            page.cmsUrl("/WEB-INF/objectForm.jsp"),
-                            "object", state.getOriginalObject());
+                    HttpServletRequest request = page.getRequest();
+                    Object oldId = request.getAttribute("bsp.contentEditBulk.id");
+
+                    try {
+                        request.setAttribute("bsp.contentEditBulk.id", state.getId());
+                        JspUtils.include(
+                                request,
+                                page.getResponse(),
+                                page,
+                                page.cmsUrl("/WEB-INF/objectForm.jsp"),
+                                "object", state.getOriginalObject());
+
+                    } finally {
+                        request.setAttribute("bsp.contentEditBulk.id", oldId);
+                    }
 
                     page.writeStart("div", "class", "actions");
                         page.writeStart("button",
@@ -133,5 +238,24 @@ public class ContentEditBulk extends PageServlet {
                 page.writeEnd();
             page.writeEnd();
         page.writeFooter();
+    }
+
+    public enum Operation {
+
+        REPLACE("Replace"),
+        ADD("Add"),
+        REMOVE("Remove"),
+        CLEAR("Clear");
+
+        private final String label;
+
+        private Operation(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 }
