@@ -422,7 +422,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
 
                                 values.add(new HtmlObject() {
                                     public void format(HtmlWriter writer) throws IOException {
-                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer");
+                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
                                             writer.start("div", "class", "inputContainer-listLayoutItem");
                                                 if (embedded) {
                                                     List<Object> validObjects = new ArrayList<Object>();
