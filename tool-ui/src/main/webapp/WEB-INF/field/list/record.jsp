@@ -288,6 +288,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                             wp.writeStart("div", "class", "inputSmall");
                                                                 wp.writeStart("select",
                                                                         "class", "toggleable",
+                                                                        "data-root", ".inputContainer-listLayoutItem",
                                                                         "name", idName);
                                                                     wp.writeStart("option",
                                                                             "data-hide", "." + validObjectClass,
@@ -439,6 +440,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                     wp.writeStart("div", "class", "inputSmall");
                                                         wp.writeStart("select",
                                                                 "class", "toggleable",
+                                                                "data-root", ".inputContainer-listLayoutItem",
                                                                 "name", idName);
                                                             wp.writeStart("option",
                                                                     "data-hide", "." + validObjectClass,
