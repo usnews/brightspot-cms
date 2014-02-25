@@ -255,8 +255,9 @@ public class SearchAdvancedFullResult extends PageServlet {
                     "method", "get",
                     "action", page.url(null),
                     "style", page.cssString(
+                            "display", "inline-block",
                             "margin-left", "20px",
-                            "width", "40%"));
+                            "width", "200px"));
 
                 for (Map.Entry<String, List<String>> entry : StringUtils.getQueryParameterMap(page.url("",
                         FIELDS_PARAMETER, null)).entrySet()) {
