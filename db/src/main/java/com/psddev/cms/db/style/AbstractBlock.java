@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.StringUtils;
 
@@ -17,12 +18,19 @@ public abstract class AbstractBlock extends Content implements Styleable {
     private BlockData data;
 
     @Required
+    @ToolUi.Tab("Position")
     private Position position;
 
+    @ToolUi.Tab("Text")
     private Text text;
 
+    @ToolUi.Tab("Effects")
     private Integer opacity;
+
+    @ToolUi.Tab("Effects")
     private Integer rotate;
+
+    @ToolUi.Tab("Effects")
     private List<Decoration> decorations;
 
     public String getName() {
