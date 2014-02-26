@@ -1308,7 +1308,8 @@ public class PageFilter extends AbstractFilter {
                     }
                 }
 
-                if (mainObject != null) {
+                if (!Static.isPreview(request) && mainObject != null) {
+                    System.out.println("overlaying saved preview");
                     ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
 
                     if (user != null) {
