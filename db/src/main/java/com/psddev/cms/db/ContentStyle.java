@@ -12,6 +12,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
 
+@ContentStyle.BootstrapPackages("Content Styles")
 public class ContentStyle extends AbstractBlock implements Renderer {
 
     @ToolUi.Tab("Preview")
