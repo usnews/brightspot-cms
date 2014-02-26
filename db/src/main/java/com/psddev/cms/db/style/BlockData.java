@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Throwables;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
@@ -72,7 +71,7 @@ public abstract class BlockData extends Record {
         }
     }
 
-    public static class Text extends BlockData {
+    public static class Text extends ValueBlockData {
 
         private String text;
 
@@ -92,13 +91,12 @@ public abstract class BlockData extends Record {
         }
 
         @Override
-        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
-            writer.writeHtml(getText());
-            return true;
+        public Object findValue(Object content) {
+            return getText();
         }
     }
 
-    public static class JavaBeanProperty extends BlockData {
+    public static class JavaBeanProperty extends ValueBlockData {
 
         private String property;
 
@@ -111,40 +109,28 @@ public abstract class BlockData extends Record {
         }
 
         @Override
-        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
-            try {
-                PropertyDescriptor[] descs = Introspector.getBeanInfo(content.getClass()).getPropertyDescriptors();
+        public Object findValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
+            PropertyDescriptor[] descs = Introspector.getBeanInfo(content.getClass()).getPropertyDescriptors();
 
-                if (descs != null) {
-                    String property = getProperty();
+            if (descs != null) {
+                String property = getProperty();
 
-                    for (PropertyDescriptor desc : descs) {
-                        if (desc.getName().equals(property)) {
-                            Method reader = desc.getReadMethod();
+                for (PropertyDescriptor desc : descs) {
+                    if (desc.getName().equals(property)) {
+                        Method reader = desc.getReadMethod();
 
-                            if (reader != null) {
-                                writer.writeHtml(reader.invoke(content));
-                                return true;
-                            }
+                        if (reader != null) {
+                            return reader.invoke(content);
                         }
                     }
                 }
-
-            } catch (IntrospectionException error) {
-                // Ignore if the content class can't be introspected.
-
-            } catch (IllegalAccessException error) {
-                throw new IllegalStateException(error);
-
-            } catch (InvocationTargetException error) {
-                throw Throwables.propagate(error.getCause());
             }
 
-            return false;
+            return null;
         }
     }
 
-    public static class StatePath extends BlockData {
+    public static class StatePath extends ValueBlockData {
 
         private String path;
 
@@ -157,17 +143,16 @@ public abstract class BlockData extends Record {
         }
 
         @Override
-        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
+        public Object findValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
             if (content instanceof Recordable) {
                 Object value = ((Recordable) content).getState().getByPath(getPath());
 
                 if (!ObjectUtils.isBlank(value)) {
-                    writer.writeHtml(value);
-                    return true;
+                    return value;
                 }
             }
 
-            return false;
+            return null;
         }
     }
 }
