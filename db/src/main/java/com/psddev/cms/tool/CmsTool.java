@@ -54,6 +54,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean useNonMinified;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableToolUserPing;
+
     @Embedded
     public static class CssClassGroup extends Record {
 
@@ -356,6 +359,14 @@ public class CmsTool extends Tool {
 
     public void setUseNonMinified(boolean useNonMinified) {
         this.useNonMinified = useNonMinified;
+    }
+
+    public boolean isDisableToolUserPing() {
+        return disableToolUserPing;
+    }
+
+    public void setDisableToolUserPing(boolean disableToolUserPing) {
+        this.disableToolUserPing = disableToolUserPing;
     }
 
     /** Returns the preview URL. */

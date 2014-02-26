@@ -1120,7 +1120,7 @@ public class ToolPageContext extends WebPageContext {
                     writeEnd();
                 }
 
-                if (Settings.isProduction()) {
+                if (!getCmsTool().isDisableToolUserPing() && Settings.isProduction()) {
                     writeStart("script", "type", "text/javascript");
                         writeRaw("window.cms.startToolUserPing();");
                     writeEnd();
