@@ -1308,7 +1308,7 @@ public class PageFilter extends AbstractFilter {
                     }
                 }
 
-                if (mainObject != null) {
+                if (!Static.isPreview(request) && mainObject != null) {
                     ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
 
                     if (user != null) {
