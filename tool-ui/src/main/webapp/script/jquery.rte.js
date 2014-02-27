@@ -1564,6 +1564,22 @@ $.plugin2('rte', {
         }
 
         return this;
+    },
+
+    'wysihtml5': function() {
+        var caller = this.$caller[0],
+                found;
+
+        $.each(rtes, function() {
+            if (caller === this.textareaElement ||
+                    caller === this.composer.iframe ||
+                    caller.ownerDocument === this.composer.element.ownerDocument) {
+                found = this;
+                return;
+            }
+        });
+
+        return found;
     }
 });
 
