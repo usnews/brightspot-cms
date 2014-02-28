@@ -2,7 +2,9 @@ package com.psddev.cms.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,9 @@ public class Grid extends Content implements Renderer {
     @Required
     private List<GridLayout> layouts;
 
+    private String defaultContext;
+    private List<GridContext> contexts;
+
     private List<GridStyle> styles;
 
     public ContentStream getContents() {
@@ -42,6 +47,25 @@ public class Grid extends Content implements Renderer {
 
     public void setLayouts(List<GridLayout> layouts) {
         this.layouts = layouts;
+    }
+
+    public String getDefaultContext() {
+        return defaultContext;
+    }
+
+    public void setDefaultContext(String defaultContext) {
+        this.defaultContext = defaultContext;
+    }
+
+    public List<GridContext> getContexts() {
+        if (contexts == null) {
+            contexts = new ArrayList<GridContext>();
+        }
+        return contexts;
+    }
+
+    public void setContexts(List<GridContext> contexts) {
+        this.contexts = contexts;
     }
 
     public List<GridStyle> getStyles() {
@@ -93,9 +117,21 @@ public class Grid extends Content implements Renderer {
         writer.writeEnd();
 
         List<HtmlObject> contentRenderers = new ArrayList<HtmlObject>();
+        String defaultContext = getDefaultContext();
+        Map<Integer, String> contextsMap = new HashMap<Integer, String>();
 
-        for (Object content : getContents().findContents(0, maxSize)) {
-            contentRenderers.add(new ContentRenderer(request, response, content));
+        for (GridContext c : getContexts()) {
+            contextsMap.put(c.getArea(), c.getContext());
+        }
+
+        List<?> contents = getContents().findContents(0, maxSize);
+
+        for (int i = 0, size = contents.size(); i < size; ++ i) {
+            contentRenderers.add(new ContentRenderer(
+                    request,
+                    response,
+                    contents.get(i),
+                    ObjectUtils.firstNonNull(contextsMap.get(i), defaultContext)));
         }
 
         writer.writeStart("div", "class", cssClass);
@@ -108,11 +144,13 @@ public class Grid extends Content implements Renderer {
         private final HttpServletRequest request;
         private final HttpServletResponse response;
         private final Object content;
+        private final String context;
 
-        public ContentRenderer(HttpServletRequest request, HttpServletResponse response, Object content) {
+        public ContentRenderer(HttpServletRequest request, HttpServletResponse response, Object content, String context) {
             this.request = request;
             this.response = response;
             this.content = content;
+            this.context = context;
         }
 
         @Override
@@ -122,27 +160,42 @@ public class Grid extends Content implements Renderer {
 
                 for (GridStyle s : getStyles()) {
                     if (State.getInstance(content).getType().equals(s.getType())) {
-                        style = s.getStyle();
-                        break;
+                        String sc = s.getContext();
+
+                        if (ObjectUtils.isBlank(sc) || sc.equals(context)) {
+                            style = s.getStyle();
+                            break;
+                        }
                     }
                 }
 
-                if (style != null) {
-                    writer.writeStart("style", "type", "text/css");
-                        writer.writeCss("._da, ._dj",
-                                "-moz-transition", "all 0.4s ease",
-                                "-ms-transition", "all 0.4s ease",
-                                "-o-transition", "all 0.4s ease",
-                                "-webkit-transition", "all 0.4s ease",
-                                "transition", "all 0.4s ease");
+                if (!ObjectUtils.isBlank(context)) {
+                    ContextTag.Static.pushContext(request, context);
+                }
 
-                        style.writeCss(writer);
-                    writer.writeEnd();
+                try {
+                    if (style != null) {
+                        writer.writeStart("style", "type", "text/css");
+                            writer.writeCss("._da, ._dj",
+                                    "-moz-transition", "all 0.4s ease",
+                                    "-ms-transition", "all 0.4s ease",
+                                    "-o-transition", "all 0.4s ease",
+                                    "-webkit-transition", "all 0.4s ease",
+                                    "transition", "all 0.4s ease");
 
-                    style.writeHtml(writer, content);
+                            style.writeCss(writer);
+                        writer.writeEnd();
 
-                } else {
-                    PageFilter.renderObject(request, response, writer, content);
+                        style.writeHtml(writer, content);
+
+                    } else {
+                        PageFilter.renderObject(request, response, writer, content);
+                    }
+
+                } finally {
+                    if (!ObjectUtils.isBlank(context)) {
+                        ContextTag.Static.popContext(request);
+                    }
                 }
 
             } catch (ServletException error) {
