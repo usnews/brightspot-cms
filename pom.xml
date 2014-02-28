@@ -12,9 +12,13 @@
         <version>2.3-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <dari.version>2.3-SNAPSHOT</dari.version>
+    </properties>
+
     <groupId>com.psddev</groupId>
     <artifactId>cms</artifactId>
-    <version>2.3-SNAPSHOT</version>
+    <version>2.3-2117</version>
     <packaging>pom</packaging>
 
     <name>BrightSpot CMS</name>
@@ -48,13 +52,13 @@
             <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>dari-db</artifactId>
-                <version>2.3-SNAPSHOT</version>
+                <version>${dari.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.psddev</groupId>
                 <artifactId>dari-util</artifactId>
-                <version>2.3-SNAPSHOT</version>
+                <version>${dari.version}</version>
             </dependency>
 
             <dependency>
