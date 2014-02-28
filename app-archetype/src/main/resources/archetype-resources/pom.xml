@@ -12,43 +12,43 @@
         <version>2.3-SNAPSHOT</version>
     </parent>
 
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <version>${version}</version>
+    <groupId>\${groupId}</groupId>
+    <artifactId>\${artifactId}</artifactId>
+    <version>\${version}</version>
     <packaging>war</packaging>
 
-    <name>${groupId}: ${artifactId}</name>
+    <name>\${groupId}: \${artifactId}</name>
 
     <dependencies>
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>cms-db</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>cms-tool-ui</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-db</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-util</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-reloader-tomcat6</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
 
@@ -143,33 +143,33 @@
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>
                             <url>http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.zip</url>
-                            <downloadDir>${user.home}/.dari/cargo-downloads</downloadDir>
+                            <downloadDir>\${user.home}/.dari/cargo-downloads</downloadDir>
                         </zipUrlInstaller>
                     </container>
                     <configuration>
                         <configfiles>
                             <configfile>
-                                <file>${project.basedir}/etc/tomcat-context.xml</file>
+                                <file>\${project.basedir}/etc/tomcat-context.xml</file>
                                 <todir>conf</todir>
                                 <tofile>context.xml</tofile>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/etc/tomcat-logging.properties</file>
+                                <file>\${project.basedir}/etc/tomcat-logging.properties</file>
                                 <todir>conf</todir>
                                 <tofile>logging.properties</tofile>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/etc/tomcat-storage.xml</file>
+                                <file>\${project.basedir}/etc/tomcat-storage.xml</file>
                                 <todir>conf/Catalina/localhost</todir>
                                 <tofile>storage.xml</tofile>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/etc/solr-schema.xml</file>
+                                <file>\${project.basedir}/etc/solr-schema.xml</file>
                                 <todir>solr/conf</todir>
                                 <tofile>schema.xml</tofile>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/etc/solr-config.xml</file>
+                                <file>\${project.basedir}/etc/solr-config.xml</file>
                                 <todir>solr/conf</todir>
                                 <tofile>solrconfig.xml</tofile>
                             </configfile>
