@@ -94,7 +94,7 @@ public class Grid extends Content implements Renderer {
 
         List<HtmlObject> contentRenderers = new ArrayList<HtmlObject>();
 
-        for (Object content : getContents().findContents(maxSize)) {
+        for (Object content : getContents().findContents(0, maxSize)) {
             contentRenderers.add(new ContentRenderer(request, response, content));
         }
 

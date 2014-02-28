@@ -9,10 +9,10 @@ import com.psddev.dari.db.Record;
 @ContentStream.Embedded
 public abstract class ContentStream extends Record {
 
-    public abstract List<?> findContents(int count);
+    public abstract List<?> findContents(int offset, int limit);
 
     @SuppressWarnings("rawtypes")
-    public static class Search extends ContentStream {
+    public static class Search extends PinContentStream {
 
         @Embedded
         @Required
@@ -27,8 +27,8 @@ public abstract class ContentStream extends Record {
         }
 
         @Override
-        public List<?> findContents(int count) {
-            return getQuery().select(0, count).getItems();
+        protected List<?> doFindContents(int offset, int limit) {
+            return getQuery().select(offset, limit).getItems();
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class ContentStream extends Record {
         }
 
         @Override
-        public List<Content> findContents(int count) {
+        public List<Content> findContents(int offset, int limit) {
             return getContents();
         }
     }
