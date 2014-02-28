@@ -522,7 +522,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 String processorPath = ui.getStoragePreviewProcessorPath();
                 if (processorPath != null) {
                     JspUtils.include(request, response, out,
-                            RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorPath()) +
+                            RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication()) +
                             StringUtils.ensureStart(processorPath, "/"));
                 }
 
