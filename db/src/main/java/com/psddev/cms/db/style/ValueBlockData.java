@@ -48,7 +48,7 @@ public abstract class ValueBlockData extends BlockData {
                 for (ValueFilter filter : getFilters()) {
                     content = filter.filter(content);
 
-                    if (!ObjectUtils.isBlank(content)) {
+                    if (ObjectUtils.isBlank(content)) {
                         break;
                     }
                 }
