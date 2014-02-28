@@ -519,10 +519,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             <% if (field.as(ToolUi.class).getStoragePreviewProcessorPath() != null) {
 
                 ToolUi ui = field.as(ToolUi.class);
-                String processorPath = ui.getInputProcessorPath();
+                String processorPath = ui.getStoragePreviewProcessorPath();
                 if (processorPath != null) {
                     JspUtils.include(request, response, out,
-                            RoutingFilter.Static.getApplicationPath(ui.getInputProcessorApplication()) +
+                            RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication()) +
                             StringUtils.ensureStart(processorPath, "/"));
                 }
 

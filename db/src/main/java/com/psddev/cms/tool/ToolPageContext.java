@@ -1425,7 +1425,7 @@ public class ToolPageContext extends WebPageContext {
             write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", "http://www.google.com/jsapi");
+        writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
         writeEnd();
 
         if (getCmsTool().isUseNonMinifiedJavaScript()) {
