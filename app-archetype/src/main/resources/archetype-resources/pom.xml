@@ -36,19 +36,19 @@
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-db</artifactId>
-            <version>${project.version}</version>
+            <version>${dari.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-util</artifactId>
-            <version>${project.version}</version>
+            <version>${dari.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.psddev</groupId>
             <artifactId>dari-reloader-tomcat6</artifactId>
-            <version>${project.version}</version>
+            <version>${dari.version}</version>
             <type>war</type>
         </dependency>
 
