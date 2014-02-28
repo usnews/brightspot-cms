@@ -9,11 +9,11 @@
     <parent>
         <groupId>com.psddev</groupId>
         <artifactId>dari-parent</artifactId>
-        <version>2.3-SNAPSHOT</version>
+        <version>2.3-1191</version>
     </parent>
 
     <properties>
-        <dari.version>2.3-SNAPSHOT</dari.version>
+        <dari.version>2.3-1191</dari.version>
     </properties>
 
     <groupId>com.psddev</groupId>
