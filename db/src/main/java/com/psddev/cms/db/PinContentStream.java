@@ -33,7 +33,11 @@ public abstract class PinContentStream extends ContentStream {
             int position = pin.getPosition() - offset;
 
             if (0 <= position && position < contents.size()) {
-                contents.add(position, pin.getContent());
+                Object content = pin.getContent();
+
+                if (content != null) {
+                    contents.add(position, content);
+                }
             }
         }
 
@@ -49,6 +53,7 @@ public abstract class PinContentStream extends ContentStream {
 
         private int position;
 
+        @Required
         @Types({ Record.class })
         private Recordable content;
 
