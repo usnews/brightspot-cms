@@ -1,4 +1,4 @@
-package com.psddev.cms.db.style;
+package com.psddev.cms.db;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -7,14 +7,12 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 
-@Deprecated
-@ValueFilter.Embedded
-public abstract class ValueFilter extends Record {
+@ContentValueFilter.Embedded
+public abstract class ContentValueFilter extends Record {
 
     public abstract Object filter(Object input) throws Exception;
 
-    @Deprecated
-    public static class Prepend extends ValueFilter {
+    public static class Prepend extends ContentValueFilter {
 
         private String text;
 
@@ -34,8 +32,7 @@ public abstract class ValueFilter extends Record {
         }
     }
 
-    @Deprecated
-    public static class Append extends ValueFilter {
+    public static class Append extends ContentValueFilter {
 
         private String text;
 
@@ -55,8 +52,7 @@ public abstract class ValueFilter extends Record {
         }
     }
 
-    @Deprecated
-    public static class Date extends ValueFilter {
+    public static class Date extends ContentValueFilter {
 
         @ToolUi.NoteHtml("See <a href=\"http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html\">Joda-Time <code>DateTimeFormat</code> documention</a> for more information on how to write the pattern.")
         private String inputPattern;

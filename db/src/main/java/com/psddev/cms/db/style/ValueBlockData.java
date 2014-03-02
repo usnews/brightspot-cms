@@ -9,6 +9,7 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
+@Deprecated
 public abstract class ValueBlockData extends BlockData {
 
     @ToolUi.DisplayLast

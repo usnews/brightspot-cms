@@ -9,6 +9,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Throwables;
+import com.psddev.cms.db.ContentValue;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
@@ -71,16 +74,9 @@ public abstract class BlockData extends Record {
         }
     }
 
-    public static class Text extends ValueBlockData {
+    public static class Text extends BlockData {
 
         private String text;
-
-        public Text() {
-        }
-
-        public Text(String text) {
-            this.text = text;
-        }
 
         public String getText() {
             return text;
@@ -91,11 +87,83 @@ public abstract class BlockData extends Record {
         }
 
         @Override
-        public Object findValue(Object content) {
-            return getText();
+        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
+            String text = getText();
+
+            if (ObjectUtils.isBlank(text)) {
+                writer.writeHtml(text);
+            }
+
+            return true;
         }
     }
 
+    @DisplayName("Raw HTML")
+    public static class Html extends BlockData {
+
+        private String html;
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        @Override
+        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
+            String html = getHtml();
+
+            if (!ObjectUtils.isBlank(html)) {
+                writer.writeRaw(html);
+            }
+
+            return true;
+        }
+    }
+
+    public static class Value extends BlockData {
+
+        @Required
+        private ContentValue value;
+
+        @ToolUi.Placeholder("Text")
+        private ValueOutput output;
+
+        public ContentValue getValue() {
+            return value;
+        }
+
+        public void setValue(ContentValue value) {
+            this.value = value;
+        }
+
+        public ValueOutput getOutput() {
+            return output;
+        }
+
+        public void setOutput(ValueOutput output) {
+            this.output = output;
+        }
+
+        @Override
+        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
+            ContentValue value = getValue();
+
+            if (value != null) {
+                content = value.findValue(content);
+
+                if (!ObjectUtils.isBlank(content)) {
+                    writer.writeHtml(content);
+                }
+            }
+
+            return false;
+        }
+    }
+
+    @Deprecated
     public static class JavaBeanProperty extends ValueBlockData {
 
         private String property;
@@ -130,6 +198,7 @@ public abstract class BlockData extends Record {
         }
     }
 
+    @Deprecated
     public static class StatePath extends ValueBlockData {
 
         private String path;

@@ -10,6 +10,7 @@ public abstract class ValueOutput extends Record {
 
     public abstract void writeHtml(HtmlWriter writer, Object value) throws IOException;
 
+    @DisplayName("Raw HTML")
     public static class Html extends ValueOutput {
 
         @Override
