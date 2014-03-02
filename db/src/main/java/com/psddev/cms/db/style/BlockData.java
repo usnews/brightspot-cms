@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Throwables;
 import com.psddev.cms.db.ContentValue;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
@@ -76,7 +75,10 @@ public abstract class BlockData extends Record {
 
     public static class Text extends BlockData {
 
+        @Required
         private String text;
+
+        private Action action;
 
         public String getText() {
             return text;
@@ -86,12 +88,28 @@ public abstract class BlockData extends Record {
             this.text = text;
         }
 
+        public Action getAction() {
+            return action;
+        }
+
+        public void setAction(Action action) {
+            this.action = action;
+        }
+
         @Override
         public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
             String text = getText();
 
             if (ObjectUtils.isBlank(text)) {
-                writer.writeHtml(text);
+                Action action = getAction();
+
+                if (action != null && action.writeStart(writer, content)) {
+                    writer.writeHtml(text);
+                    writer.writeEnd();
+
+                } else {
+                    writer.writeHtml(text);
+                }
             }
 
             return true;
@@ -131,6 +149,8 @@ public abstract class BlockData extends Record {
         @ToolUi.Placeholder("Text")
         private ValueOutput output;
 
+        private Action action;
+
         public ContentValue getValue() {
             return value;
         }
@@ -147,15 +167,31 @@ public abstract class BlockData extends Record {
             this.output = output;
         }
 
+        public Action getAction() {
+            return action;
+        }
+
+        public void setAction(Action action) {
+            this.action = action;
+        }
+
         @Override
         public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
             ContentValue value = getValue();
 
             if (value != null) {
-                content = value.findValue(content);
+                Object valueValue = value.findValue(content);
 
-                if (!ObjectUtils.isBlank(content)) {
-                    writer.writeHtml(content);
+                if (!ObjectUtils.isBlank(valueValue)) {
+                    Action action = getAction();
+
+                    if (action != null && action.writeStart(writer, content)) {
+                        writer.writeHtml(valueValue);
+                        writer.writeEnd();
+
+                    } else {
+                        writer.writeHtml(valueValue);
+                    }
                 }
             }
 
