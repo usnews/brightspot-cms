@@ -1,21 +1,19 @@
 package com.psddev.cms.db;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 
 @GridContext.Embedded
 public class GridContext extends Record {
 
-    private int area;
+    @Required
     private String context;
 
-    public int getArea() {
-        return area;
-    }
-
-    public void setArea(int area) {
-        this.area = area;
-    }
+    @Required
+    private Set<Integer> areas;
 
     public String getContext() {
         return context;
@@ -25,18 +23,32 @@ public class GridContext extends Record {
         this.context = context;
     }
 
+    public Set<Integer> getAreas() {
+        if (areas == null) {
+            areas = new LinkedHashSet<Integer>();
+        }
+        return areas;
+    }
+
+    public void setAreas(Set<Integer> areas) {
+        this.areas = areas;
+    }
+
     @Override
     public String getLabel() {
         StringBuilder label = new StringBuilder();
-        int area = getArea();
         String context = getContext();
 
-        label.append("Area: ");
-        label.append(area);
-
         if (!ObjectUtils.isBlank(context)) {
-            label.append(" \u2192 Context: ");
+            label.append("Context: ");
             label.append(context);
+
+            Set<Integer> areas = getAreas();
+
+            if (!ObjectUtils.isBlank(areas)) {
+                label.append(" \u2192 Areas: ");
+                label.append(areas);
+            }
         }
 
         return label.toString();

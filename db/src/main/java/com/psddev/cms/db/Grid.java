@@ -121,7 +121,11 @@ public class Grid extends Content implements Renderer {
         Map<Integer, String> contextsMap = new HashMap<Integer, String>();
 
         for (GridContext c : getContexts()) {
-            contextsMap.put(c.getArea(), c.getContext());
+            String context = c.getContext();
+
+            for (Integer area : c.getAreas()) {
+                contextsMap.put(area, context);
+            }
         }
 
         List<?> contents = getContents().findContents(0, maxSize);
