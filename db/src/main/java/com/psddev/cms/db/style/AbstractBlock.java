@@ -15,12 +15,14 @@ public abstract class AbstractBlock extends Content implements Styleable {
     @Required
     private String name;
 
+    @Required
     private BlockData data;
 
     @Required
     @ToolUi.Tab("Position")
     private Position position;
 
+    @ToolUi.Placeholder("Inherit")
     @ToolUi.Tab("Text")
     private Text text;
 
