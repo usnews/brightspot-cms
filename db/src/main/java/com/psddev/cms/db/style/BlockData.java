@@ -1,18 +1,12 @@
 package com.psddev.cms.db.style;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.psddev.cms.db.ContentValue;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -67,75 +61,6 @@ public abstract class BlockData extends Record {
         public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
             for (Block child : getChildren()) {
                 child.writeHtml(writer, content);
-            }
-
-            return true;
-        }
-    }
-
-    @Deprecated
-    public static class Text extends BlockData {
-
-        @Required
-        private String text;
-
-        private Action action;
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public Action getAction() {
-            return action;
-        }
-
-        public void setAction(Action action) {
-            this.action = action;
-        }
-
-        @Override
-        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
-            String text = getText();
-
-            if (ObjectUtils.isBlank(text)) {
-                Action action = getAction();
-
-                if (action != null && action.writeStart(writer, content)) {
-                    writer.writeHtml(text);
-                    writer.writeEnd();
-
-                } else {
-                    writer.writeHtml(text);
-                }
-            }
-
-            return true;
-        }
-    }
-
-    @Deprecated
-    public static class Html extends BlockData {
-
-        private String html;
-
-        public String getHtml() {
-            return html;
-        }
-
-        public void setHtml(String html) {
-            this.html = html;
-        }
-
-        @Override
-        public boolean writeHtml(HtmlWriter writer, Object content) throws IOException {
-            String html = getHtml();
-
-            if (!ObjectUtils.isBlank(html)) {
-                writer.writeRaw(html);
             }
 
             return true;
@@ -197,68 +122,6 @@ public abstract class BlockData extends Record {
             }
 
             return false;
-        }
-    }
-
-    @Deprecated
-    public static class JavaBeanProperty extends ValueBlockData {
-
-        private String property;
-
-        public String getProperty() {
-            return property;
-        }
-
-        public void setProperty(String property) {
-            this.property = property;
-        }
-
-        @Override
-        public Object findValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
-            PropertyDescriptor[] descs = Introspector.getBeanInfo(content.getClass()).getPropertyDescriptors();
-
-            if (descs != null) {
-                String property = getProperty();
-
-                for (PropertyDescriptor desc : descs) {
-                    if (desc.getName().equals(property)) {
-                        Method reader = desc.getReadMethod();
-
-                        if (reader != null) {
-                            return reader.invoke(content);
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
-
-    @Deprecated
-    public static class StatePath extends ValueBlockData {
-
-        private String path;
-
-        public String getPath() {
-            return path;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        @Override
-        public Object findValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
-            if (content instanceof Recordable) {
-                Object value = ((Recordable) content).getState().getByPath(getPath());
-
-                if (!ObjectUtils.isBlank(value)) {
-                    return value;
-                }
-            }
-
-            return null;
         }
     }
 }
