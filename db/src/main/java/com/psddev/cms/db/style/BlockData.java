@@ -73,6 +73,7 @@ public abstract class BlockData extends Record {
         }
     }
 
+    @Deprecated
     public static class Text extends BlockData {
 
         @Required
@@ -116,7 +117,7 @@ public abstract class BlockData extends Record {
         }
     }
 
-    @DisplayName("Raw HTML")
+    @Deprecated
     public static class Html extends BlockData {
 
         private String html;

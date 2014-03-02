@@ -53,6 +53,42 @@ public abstract class ContentValue extends Record {
         }
     }
 
+    public static class StaticText extends ContentValue {
+
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        @Override
+        protected Object doFindValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
+            return getText();
+        }
+    }
+
+    public static class RawHtml extends ContentValue {
+
+        private String html;
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        @Override
+        protected Object doFindValue(Object content) throws IllegalAccessException, IntrospectionException, InvocationTargetException {
+            return getHtml();
+        }
+    }
+
     public static class JavaBeanProperty extends ContentValue {
 
         private String property;
