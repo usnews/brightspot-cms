@@ -53,7 +53,7 @@ public abstract class ContentValue extends Record {
         }
     }
 
-    public static class StaticText extends ContentValue {
+    public static class Text extends ContentValue {
 
         private String text;
 
