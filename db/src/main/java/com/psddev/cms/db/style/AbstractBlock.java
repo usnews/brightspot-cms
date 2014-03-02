@@ -108,9 +108,7 @@ public abstract class AbstractBlock extends Content implements Styleable {
                     writer.writeEnd();
                 }
 
-                writer.writeStart("div", "class", "bsp-block_c");
-                    data.writeHtml(writer, content);
-                writer.writeEnd();
+                data.writeHtml(writer, content);
             writer.writeEnd();
         }
     }
@@ -164,9 +162,6 @@ public abstract class AbstractBlock extends Content implements Styleable {
                     "transform", "none");
         }
 
-        writer.writeCss(selector + " > .bsp-block_c",
-                "position", "relative");
-
         List<Decoration> decorations = getDecorations();
 
         for (int i = 0, size = decorations.size(); i < size; ++ i) {
@@ -177,7 +172,7 @@ public abstract class AbstractBlock extends Content implements Styleable {
 
         if (data instanceof BlockData.Container) {
             for (Block child : ((BlockData.Container) data).getChildren()) {
-                child.writeCss(writer, selector + " > .bsp-block_c > .bsp-block-" + child.getInternalName());
+                child.writeCss(writer, selector + " > .bsp-block-" + child.getInternalName());
             }
         }
     }
