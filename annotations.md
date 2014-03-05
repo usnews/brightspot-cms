@@ -69,9 +69,9 @@ should behave. The most commonly used annotations, and examples of their impleme
 
 > Specifies whether the target field value is required.
 	
-#### @FieldTypes(Class<Recordable>[])
+#### @Types(Class<Recordable>[])
 
-> Specifies the valid types for the target field value.
+> Specifies the valid types for the target field value. `@Types({Image.class, Video.class, Widget.class})` Deprecated @FieldTypes(Class<Recordable>[])
 
 #### @FieldUnique
 
@@ -106,6 +106,14 @@ should behave. The most commonly used annotations, and examples of their impleme
 #### @Recordable.PreviewField
 
 > Specifies the field name used to retrieve the previews of the objects represented by the target type.
+
+#### @Recordable.JunctionField
+
+> Specifies the name of the field in the junction query that should be used to populate the target field.
+
+#### @Recordable.JunctionPositionField
+
+> Specifies the name of the position field in the junction query that should be used to order the collection in the target field.
 
 
 ### Tool UI Annotations
