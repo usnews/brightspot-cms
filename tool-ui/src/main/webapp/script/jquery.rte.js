@@ -1688,7 +1688,7 @@ $doc.on('click', '[data-enhancement]', function(event) {
     $group.addClass('rte-group-enhancementSet');
     $select.text('Change');
     $select.rte('enhancement', {
-        'id': enhancementJson.record._id,
+        'id': enhancementJson.record._ref,
         'label': enhancementJson.label,
         'preview': enhancementJson.preview,
         'reference': enhancement
