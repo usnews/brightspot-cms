@@ -23,6 +23,7 @@ setInterval(function() {
             mirror = CodeMirror.fromTextArea(this, {
                 'indentUnit': 4,
                 'lineNumbers': true,
+                'lineWrapping': true,
                 'mode': $input.attr('data-code-type')
             });
 
