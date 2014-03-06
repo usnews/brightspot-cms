@@ -30,6 +30,7 @@ public class ScheduleFilter extends AbstractFilter {
                     sortAscending("triggerDate").
                     master().
                     noCache().
+                    resolveInvisible().
                     iterable(0)) {
 
                 try {
@@ -39,7 +40,7 @@ public class ScheduleFilter extends AbstractFilter {
                     try {
                         StringWriter writer = new StringWriter();
                         ex1.printStackTrace(new PrintWriter(writer));
-                        schedule.getState().putValue("cms.lastException", writer.toString());
+                        schedule.getState().put("cms.lastException", writer.toString());
                         schedule.save();
                     } catch (Exception ex2) {
                     }
@@ -52,7 +53,7 @@ public class ScheduleFilter extends AbstractFilter {
 
     @Override
     protected void doInit() {
-        scheduler.schedule(60.0, 60.0);
+        scheduler.scheduleWithFixedDelay(60.0, 60.0);
     }
 
     @Override

@@ -89,6 +89,9 @@ public class Schedule extends Record {
             for (Draft draft : Query.
                     from(Draft.class).
                     where("schedule = ?", this).
+                    master().
+                    noCache().
+                    resolveInvisible().
                     selectAll()) {
                 LOGGER.debug("Processing [{}] draft in [{}] schedule", draft.getLabel(), getLabel());
 
