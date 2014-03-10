@@ -81,6 +81,7 @@ public class PageFilter extends AbstractFilter {
     private static final String PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + ".path";
     private static final String PATH_MATCHES_ATTRIBUTE = ATTRIBUTE_PREFIX + ".matches";
     private static final String PREVIEW_ATTRIBUTE = ".preview";
+    private static final String PERSISTENT_PREVIEW_ATTRIBUTE = ".persistentPreview";
 
     public static final String ABORTED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".aborted";
     public static final String CURRENT_SECTION_ATTRIBUTE = ATTRIBUTE_PREFIX + ".currentSection";
@@ -666,7 +667,9 @@ public class PageFilter extends AbstractFilter {
             }
         }
 
-        if (Settings.isDebug() || Static.isPreview(request)) {
+        if (Settings.isDebug() ||
+                (Static.isPreview(request) &&
+                !Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE)))) {
             return;
         }
 
@@ -708,7 +711,11 @@ public class PageFilter extends AbstractFilter {
                         "color", "#54d1f0 !important",
                         "display", "block !important",
                         "float", "left !important",
-                        "padding", "5px !important");
+                        "max-width", "250px",
+                        "overflow", "hidden",
+                        "padding", "5px !important",
+                        "text-overflow", "ellipsis",
+                        "white-space", "nowrap");
 
                 page.writeCss(".bsp-inlineEditorMain a:hover",
                         "background", "#54d1f0 !important",
@@ -754,9 +761,17 @@ public class PageFilter extends AbstractFilter {
                 page.writeStart("a",
                         "target", "_blank",
                         "href", page.fullyQualifiedToolUrl(CmsTool.class, "/content/edit.jsp", "id", State.getInstance(mainObject).getId()));
-                    page.writeHtml("Edit - ");
+                    page.writeHtml("Edit ");
                     page.writeTypeObjectLabel(mainObject);
                 page.writeEnd();
+
+                if (Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE))) {
+                    page.writeStart("a",
+                            "target", "_blank",
+                            "href", page.url("", "_clearPreview", true));
+                        page.writeHtml("(Previewing - View Live Instead)");
+                    page.writeEnd();
+                }
 
                 page.writeStart("a",
                         "class", "bsp-inlineEditorMain_remove",
@@ -1274,6 +1289,7 @@ public class PageFilter extends AbstractFilter {
                             mainObject = previewPreview.getObject();
                             site = previewPreview.getSite();
                             setSite(request, site);
+                            AuthenticationFilter.Static.setCurrentPreview(request, PageContextFilter.Static.getResponse(), previewPreview);
 
                         } else {
                             mainObject = substitutions.get(previewId);
@@ -1396,18 +1412,15 @@ public class PageFilter extends AbstractFilter {
                 }
 
                 if (!Static.isPreview(request) && mainObject != null) {
-                    ToolUser user = AuthenticationFilter.Static.getInsecureToolUser(request);
+                    Preview preview = AuthenticationFilter.Static.getCurrentPreview(request);
 
-                    if (user != null) {
-                        Preview preview = Query.from(Preview.class).where("_id = ?", user.getCurrentPreviewId()).first();
+                    if (preview != null) {
+                        State mainState = State.getInstance(mainObject);
 
-                        if (preview != null) {
-                            State mainState = State.getInstance(mainObject);
-
-                            if (mainState.getId().equals(preview.getObjectId())) {
-                                request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
-                                mainState.putAll(preview.getObjectValues());
-                            }
+                        if (mainState.getId().equals(preview.getObjectId())) {
+                            request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
+                            request.setAttribute(PERSISTENT_PREVIEW_ATTRIBUTE, Boolean.TRUE);
+                            mainState.putAll(preview.getObjectValues());
                         }
                     }
                 }
