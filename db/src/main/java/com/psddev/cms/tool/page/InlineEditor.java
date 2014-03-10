@@ -9,13 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.psddev.cms.db.PageFilter;
-import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.State;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "inlineEditor")
@@ -45,8 +43,6 @@ public class InlineEditor extends HttpServlet {
                     mainId));
         }
 
-        Schedule currentSchedule = user.getCurrentSchedule();
-
         page.getResponse().setContentType("text/html");
 
         page.writeHeader(null, false);
@@ -61,50 +57,6 @@ public class InlineEditor extends HttpServlet {
                 page.writeCss("body, .toolContent", "background", "transparent");
                 page.writeCss("body", "margin-top", "75px !important");
                 page.writeCss(".toolContent", "position", "static");
-            page.writeEnd();
-
-            page.writeStart("ul", "class", "inlineEditorControls inlineEditorControls-main");
-                page.writeStart("li", "class", "inlineEditorLogo");
-                    page.writeStart("a",
-                            "target", "_blank",
-                            "href", page.fullyQualifiedToolUrl(CmsTool.class, "/"));
-                        page.writeElement("img",
-                                "src", page.cmsUrl("/style/brightspot.png"),
-                                "alt", "Brightspot",
-                                "width", 104,
-                                "height", 14);
-                    page.writeEnd();
-                page.writeEnd();
-
-                if (currentSchedule != null) {
-                    page.writeStart("li");
-                        page.writeStart("a",
-                                "class", "icon icon-action-schedule",
-                                "target", "_blank",
-                                "href", page.fullyQualifiedToolUrl(CmsTool.class, "/scheduleEdit", "id", currentSchedule.getId()));
-                            page.writeHtml("Current Schedule: ");
-                            page.writeObjectLabel(currentSchedule);
-                        page.writeEnd();
-                    page.writeEnd();
-                }
-
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "icon icon-action-edit",
-                            "target", "_blank",
-                            "href", page.fullyQualifiedToolUrl(CmsTool.class, "/content/edit.jsp", "id", State.getInstance(mainObject).getId()));
-                        page.writeTypeObjectLabel(mainObject);
-                    page.writeEnd();
-                page.writeEnd();
-
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "icon icon-action-delete icon-only",
-                            "style", page.cssString("color", "#ff0e40"),
-                            "onclick", "$(window.parent.document.body).find('.cms-inlineEditor').remove(); return false;");
-                        page.writeHtml("Remove");
-                    page.writeEnd();
-                page.writeEnd();
             page.writeEnd();
 
             if (PageFilter.Static.isInlineEditingAllContents(page.getRequest())) {

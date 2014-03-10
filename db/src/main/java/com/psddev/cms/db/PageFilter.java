@@ -686,17 +686,104 @@ public class PageFilter extends AbstractFilter {
 
             @SuppressWarnings("all")
             ToolPageContext page = new ToolPageContext(getServletContext(), request, response);
-            @SuppressWarnings("resource")
-            HtmlWriter htmlWriter = writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer);
             State mainState = State.getInstance(mainObject);
 
+            page.setDelegate(writer instanceof HtmlWriter ? (HtmlWriter) writer : new HtmlWriter(writer));
+
+            page.writeStart("style", "type", "text/css");
+                page.writeCss(".bsp-inlineEditorMain",
+                        "background", "rgba(32, 52, 63, 0.8) !important",
+                        "color", "white !important",
+                        "font-size", "13px !important",
+                        "left", "0 !important",
+                        "line-height", "21px !important",
+                        "list-style", "none !important",
+                        "margin", "0 !important",
+                        "padding", "0 !important",
+                        "position", "fixed !important",
+                        "top", "0 !important",
+                        "z-index", "1000001 !important");
+
+                page.writeCss(".bsp-inlineEditorMain a",
+                        "color", "#54d1f0 !important",
+                        "display", "block !important",
+                        "float", "left !important",
+                        "padding", "5px !important");
+
+                page.writeCss(".bsp-inlineEditorMain a:hover",
+                        "background", "#54d1f0 !important",
+                        "color", "black !important");
+
+                page.writeCss(".bsp-inlineEditorMain .bsp-inlineEditorMain_logo",
+                        "padding", "8px 10px !important");
+
+                page.writeCss(".bsp-inlineEditorMain .bsp-inlineEditorMain_logo:hover",
+                        "background", "transparent !important");
+
+                page.writeCss(".bsp-inlineEditorMain .bsp-inlineEditorMain_logo img",
+                        "display", "block !important");
+
+                page.writeCss(".bsp-inlineEditorMain .bsp-inlineEditorMain_remove",
+                        "color", "#ff0e40 !important",
+                        "font-size", "21px");
+            page.writeEnd();
+
+            page.writeStart("div", "class", "bsp-inlineEditorMain");
+                page.writeStart("a",
+                        "class", "bsp-inlineEditorMain_logo",
+                        "target", "_blank",
+                        "href", page.fullyQualifiedToolUrl(CmsTool.class, "/"));
+                    page.writeElement("img",
+                            "src", page.cmsUrl("/style/brightspot.png"),
+                            "alt", "Brightspot",
+                            "width", 104,
+                            "height", 14);
+                page.writeEnd();
+
+                Schedule currentSchedule = user.getCurrentSchedule();
+
+                if (currentSchedule != null) {
+                    page.writeStart("a",
+                            "target", "_blank",
+                            "href", page.fullyQualifiedToolUrl(CmsTool.class, "/scheduleEdit", "id", currentSchedule.getId()));
+                        page.writeHtml("Current Schedule: ");
+                        page.writeObjectLabel(currentSchedule);
+                    page.writeEnd();
+                }
+
+                page.writeStart("a",
+                        "target", "_blank",
+                        "href", page.fullyQualifiedToolUrl(CmsTool.class, "/content/edit.jsp", "id", State.getInstance(mainObject).getId()));
+                    page.writeHtml("Edit - ");
+                    page.writeTypeObjectLabel(mainObject);
+                page.writeEnd();
+
+                page.writeStart("a",
+                        "class", "bsp-inlineEditorMain_remove",
+                        "href", "#",
+                        "onclick",
+                                "var main = this.parentNode," +
+                                        "contents = this.ownerDocument.getElementById('bsp-inlineEditorContents');" +
+
+                                "main.parentNode.removeChild(main);" +
+
+                                "if (contents) {" +
+                                    "contents.parentNode.removeChild(contents);" +
+                                "}" +
+
+                                "return false;");
+                    page.writeHtml("\u00d7");
+                page.writeEnd();
+            page.writeEnd();
+
             if (user.getInlineEditing() != ToolUser.InlineEditing.DISABLED) {
-                htmlWriter.writeStart("iframe",
+                page.writeStart("iframe",
                         "class", "cms-inlineEditor",
+                        "id", "bsp-inlineEditorContents",
                         "onload", "this.style.visibility = 'visible';",
                         "scrolling", "no",
                         "src", page.cmsUrl("/inlineEditor", "id", mainState.getId()),
-                        "style", htmlWriter.cssString(
+                        "style", page.cssString(
                                 "border", "none",
                                 "height", 0,
                                 "left", 0,
@@ -707,7 +794,7 @@ public class PageFilter extends AbstractFilter {
                                 "visibility", "hidden",
                                 "width", "100%",
                                 "z-index", 1000000));
-                htmlWriter.writeEnd();
+                page.writeEnd();
             }
         }
 
