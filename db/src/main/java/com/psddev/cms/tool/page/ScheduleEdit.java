@@ -96,16 +96,18 @@ public class ScheduleEdit extends PageServlet {
             if (!drafts.isEmpty()) {
                 page.writeStart("h2").writeHtml("Items").writeEnd();
 
-                page.writeStart("ul", "class", "links");
-                    for (Draft draft : drafts) {
-                        page.writeStart("li");
-                            page.writeStart("a",
-                                    "href", page.objectUrl("/content/edit.jsp", draft),
-                                    "target", "_top");
-                                page.writeObjectLabel(draft);
+                page.writeStart("div", "class", "fixedScrollable");
+                    page.writeStart("ul", "class", "links");
+                        for (Draft draft : drafts) {
+                            page.writeStart("li");
+                                page.writeStart("a",
+                                        "href", page.objectUrl("/content/edit.jsp", draft),
+                                        "target", "_top");
+                                    page.writeObjectLabel(draft);
+                                page.writeEnd();
                             page.writeEnd();
-                        page.writeEnd();
-                    }
+                        }
+                    page.writeEnd();
                 page.writeEnd();
             }
         page.writeEnd();

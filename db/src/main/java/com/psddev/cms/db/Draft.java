@@ -118,7 +118,13 @@ public class Draft extends Content {
         }
 
         UUID id = getObjectId();
-        Object object = Query.from(Object.class).where("_id = ?", id).using(getState().getDatabase()).noCache().first();
+        Object object = Query.fromAll().
+                where("_id = ?", id).
+                using(getState().getDatabase()).
+                master().
+                noCache().
+                resolveInvisible().
+                first();
 
         if (object == null) {
             object = type.createObject(id);

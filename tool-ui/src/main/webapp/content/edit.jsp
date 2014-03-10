@@ -332,6 +332,13 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                 <h1 class="icon icon-action-publish">Publishing</h1>
 
                 <%
+                wp.writeStart("a",
+                        "class", "icon icon-wrench icon-only",
+                        "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
+                        "target", "contentTools");
+                    wp.writeHtml("Tools");
+                wp.writeEnd();
+
                 if (lockedOut) {
                     wp.writeStart("div", "class", "message message-warning");
                         wp.writeStart("p");
@@ -369,13 +376,6 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                             });
                         })();
                     </script><%
-
-                    wp.writeStart("a",
-                            "class", "icon icon-wrench icon-only",
-                            "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
-                            "target", "contentTools");
-                        wp.writeHtml("Tools");
-                    wp.writeEnd();
 
                     if (workStream != null) {
                         long incomplete = workStream.countIncomplete();
