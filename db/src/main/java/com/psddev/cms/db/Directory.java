@@ -751,7 +751,7 @@ public class Directory extends Record {
                 if (item != null) {
                     return item;
 
-                } else if (!invisibles.isEmpty()) {
+                } else if (invisibles != null && !invisibles.isEmpty()) {
                     return invisibles.iterator().next();
 
                 } else {
