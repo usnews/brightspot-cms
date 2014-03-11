@@ -463,7 +463,7 @@ public class PageFilter extends AbstractFilter {
 
             // If showing an invisible item, make sure all nested invisible
             // items show up too.
-            if (!mainState.isVisible()) {
+            if (!mainState.isVisible() || Static.isPreview(request)) {
                 mainState.setResolveInvisible(true);
             }
 
