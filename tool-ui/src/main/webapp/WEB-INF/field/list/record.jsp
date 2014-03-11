@@ -28,6 +28,7 @@ java.util.Collections,
 java.util.Date,
 java.util.HashMap,
 java.util.HashSet,
+java.util.Iterator,
 java.util.List,
 java.util.Map,
 java.util.Set,
@@ -244,8 +245,15 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                             itemTypeIdsCsv.append(typeIdsCsv);
 
                                         } else {
-                                            for (ObjectType type : itemTypes) {
-                                                itemTypeIdsCsv.append(type.getId()).append(",");
+                                            for (Iterator<ObjectType> j = itemTypes.iterator(); j.hasNext(); ) {
+                                                ObjectType type = j.next();
+
+                                                if (type.isAbstract() || type.as(ToolUi.class).isHidden()) {
+                                                    j.remove();
+
+                                                } else {
+                                                    itemTypeIdsCsv.append(type.getId()).append(",");
+                                                }
                                             }
                                             itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
                                         }
@@ -413,8 +421,15 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                     itemTypeIdsCsv.append(typeIdsCsv);
 
                                 } else {
-                                    for (ObjectType type : itemTypes) {
-                                        itemTypeIdsCsv.append(type.getId()).append(",");
+                                    for (Iterator<ObjectType> j = itemTypes.iterator(); j.hasNext(); ) {
+                                        ObjectType type = j.next();
+
+                                        if (type.isAbstract() || type.as(ToolUi.class).isHidden()) {
+                                            j.remove();
+
+                                        } else {
+                                            itemTypeIdsCsv.append(type.getId()).append(",");
+                                        }
                                     }
                                     itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
                                 }
