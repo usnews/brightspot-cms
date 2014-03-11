@@ -682,7 +682,7 @@ figure,
     &.inputContainer-listLayoutItemContainer-embedded {
         position: relative;
 
-        .inputLarge {
+        > .inputContainer-listLayoutItem > .inputLarge {
             bottom: 5px;
             left: 5px;
             overflow: auto;
@@ -690,6 +690,30 @@ figure,
             right: 5px;
             top: 36px;
         }
+    }
+
+    &.inputContainer-listLayoutItemContainer-embedded-expanded {
+        .box-shadow(0 0 20px fade(@color-text, 50%));
+        position: absolute;
+    }
+}
+
+.inputContainer-listLayoutItemContainer_expand {
+    .icon;
+    .icon-resize-full;
+
+    color: @color-note;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    top: 8px;
+
+    &:hover {
+        color: @color-text;
+    }
+
+    .inputContainer-listLayoutItemContainer-embedded-expanded & {
+        .icon-resize-small;
     }
 }
 

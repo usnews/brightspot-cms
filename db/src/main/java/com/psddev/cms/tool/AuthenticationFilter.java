@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ForwardingDatabase;
@@ -50,6 +51,8 @@ public class AuthenticationFilter extends AbstractFilter {
 
     private static final String INSECURE_TOOL_USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "insecureToolUser";
     private static final String INSECURE_TOOL_USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "insecureToolUserChecked";
+    private static final String PREVIEW_ATTRIBUTE = ATTRIBUTE_PREFIX + "preview";
+    private static final String PREVIEW_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "previewChecked";
     private static final String TOOL_USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolUser";
     private static final String TOOL_USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolUserChecked";
 
@@ -63,6 +66,7 @@ public class AuthenticationFilter extends AbstractFilter {
     public static final String USER_COOKIE = "cmsToolUser";
 
     private static final String INSECURE_TOOL_USER_COOKIE = "bsp.itu";
+    private static final String PREVIEW_COOKIE = "bsp.p";
     private static final String TOOL_USER_COOKIE = "bsp.tu";
 
     // --- AbstractFilter support ---
@@ -73,6 +77,16 @@ public class AuthenticationFilter extends AbstractFilter {
             HttpServletResponse response,
             FilterChain chain)
             throws Exception {
+
+        if (ObjectUtils.to(boolean.class, request.getParameter("_clearPreview"))) {
+            Static.removeCurrentPreview(request, response);
+            response.sendRedirect(new UrlBuilder(request).
+                    currentPath().
+                    currentParameters().
+                    parameter("_clearPreview", null).
+                    toString());
+            return;
+        }
 
         try {
             chain.doFilter(request, response);
@@ -309,6 +323,45 @@ public class AuthenticationFilter extends AbstractFilter {
                     INSECURE_TOOL_USER_COOKIE,
                     INSECURE_TOOL_USER_ATTRIBUTE,
                     INSECURE_TOOL_USER_CHECKED_ATTRIBUTE);
+        }
+
+        public static Preview getCurrentPreview(HttpServletRequest request) {
+            Preview preview;
+
+            if (Boolean.TRUE.equals(request.getAttribute(PREVIEW_CHECKED_ATTRIBUTE))) {
+                preview = (Preview) request.getAttribute(PREVIEW_ATTRIBUTE);
+
+            } else {
+                String cookieValue = JspUtils.getSignedCookie(request, PREVIEW_COOKIE);
+
+                if (cookieValue == null || cookieValue.length() < PREVIEW_COOKIE.length()) {
+                    preview = null;
+
+                } else {
+                    preview = Query.
+                            from(Preview.class).
+                            where("_id = ?", ObjectUtils.to(UUID.class, cookieValue.substring(PREVIEW_COOKIE.length()))).
+                            first();
+
+                    request.setAttribute(PREVIEW_ATTRIBUTE, preview);
+                }
+
+                request.setAttribute(PREVIEW_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            }
+
+            return preview;
+        }
+
+        public static void setCurrentPreview(HttpServletRequest request, HttpServletResponse response, Preview preview) {
+            setSignedCookie(request, response, PREVIEW_COOKIE, preview.getId().toString(), -1, true);
+            request.setAttribute(PREVIEW_ATTRIBUTE, preview);
+            request.setAttribute(PREVIEW_CHECKED_ATTRIBUTE, Boolean.TRUE);
+        }
+
+        public static void removeCurrentPreview(HttpServletRequest request, HttpServletResponse response) {
+            setSignedCookie(request, response, PREVIEW_COOKIE, "", 0, true);
+            request.removeAttribute(PREVIEW_ATTRIBUTE);
+            request.removeAttribute(PREVIEW_CHECKED_ATTRIBUTE);
         }
 
         /**

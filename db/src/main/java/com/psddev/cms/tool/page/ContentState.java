@@ -24,6 +24,7 @@ import com.psddev.cms.db.Preview;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
@@ -136,6 +137,7 @@ public class ContentState extends PageServlet {
             preview.setObjectValues(values);
             preview.setSite(page.getSite());
             preview.save();
+            AuthenticationFilter.Static.setCurrentPreview(page.getRequest(), page.getResponse(), preview);
             user.saveAction(page.getRequest(), object);
 
             if (saveUser) {

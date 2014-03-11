@@ -3,7 +3,6 @@ package com.psddev.cms.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -742,14 +741,22 @@ public class Directory extends Record {
 
                 if (item != null && !State.getInstance(item).isVisible()) {
                     if (invisibles == null) {
-                        invisibles = new HashSet<Object>();
+                        invisibles = new LinkedHashSet<Object>();
                     }
 
                     invisibles.add(item);
                     continue;
                 }
 
-                return item;
+                if (item != null) {
+                    return item;
+
+                } else if (invisibles != null && !invisibles.isEmpty()) {
+                    return invisibles.iterator().next();
+
+                } else {
+                    return null;
+                }
             }
         }
 

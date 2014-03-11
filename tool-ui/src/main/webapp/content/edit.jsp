@@ -156,10 +156,11 @@ State editingState = State.getInstance(editing);
 ToolUser user = wp.getUser();
 ContentLock contentLock = null;
 boolean lockedOut = false;
+boolean editAnyway = wp.param(boolean.class, "editAnyway");
 
 if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
     contentLock = ContentLock.Static.lock(editing, null, user);
-    lockedOut = !wp.param(boolean.class, "editAnyway") && !user.equals(contentLock.getOwner());
+    lockedOut = !user.equals(contentLock.getOwner());
 }
 
 // --- Presentation ---
@@ -182,8 +183,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
             data-o-id="<%= State.getInstance(selected).getId() %>"
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
             data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
-            data-content-id="<%= State.getInstance(editing).getId() %>"
-            data-content-locked-out="<%= lockedOut %>">
+            data-content-id="<%= State.getInstance(editing).getId() %>">
         <div class="contentForm-main">
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
@@ -339,210 +339,215 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                     wp.writeHtml("Tools");
                 wp.writeEnd();
 
-                if (lockedOut) {
-                    wp.writeStart("div", "class", "message message-warning");
-                        wp.writeStart("p");
-                            wp.writeHtml("You can't edit this content, because it's been locked by ");
-                            wp.writeObjectLabel(contentLock.getOwner());
-                            wp.writeHtml(" since ");
-                            wp.writeHtml(wp.formatUserDateTime(contentLock.getCreateDate()));
-                            wp.writeHtml(".");
+                if (workStream != null) {
+                    long incomplete = workStream.countIncomplete();
+                    long total = workStream.getQuery().count();
+
+                    wp.writeStart("div",
+                            "class", "block",
+                            "style", wp.cssString(
+                                    "border-bottom", "1px solid #bbb",
+                                    "padding-bottom", "5px"));
+                        wp.writeStart("a",
+                                "href", wp.url("/workStreamUsers", "id", workStream.getId()),
+                                "target", "workStream");
+                            wp.writeHtml(workStream.getUsers().size() - 1);
+                            wp.writeHtml(" others");
                         wp.writeEnd();
 
-                        wp.writeStart("div", "class", "actions");
-                            wp.writeStart("a",
-                                    "class", "icon icon-unlock",
-                                    "href", wp.url("", "editAnyway", true));
-                                wp.writeHtml("Edit Anyway");
+                        wp.writeHtml(" working on ");
+
+                        wp.writeStart("a",
+                                "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
+                                "target", "workStream");
+                            wp.writeObjectLabel(workStream);
+                        wp.writeEnd();
+
+                        wp.writeHtml(" with you");
+
+                        wp.writeStart("div", "class", "progress", "style", "margin: 5px 0;");
+                            wp.writeStart("div", "class", "progressBar", "style", "width:" + ((total - incomplete) * 100.0 / total) + "%");
+                            wp.writeEnd();
+
+                            wp.writeStart("strong");
+                                wp.writeHtml(incomplete);
+                            wp.writeEnd();
+
+                            wp.writeHtml(" of ");
+
+                            wp.writeStart("strong");
+                                wp.writeHtml(total);
+                            wp.writeEnd();
+
+                            wp.writeHtml(" left");
+                        wp.writeEnd();
+
+                        wp.writeStart("ul", "class", "piped");
+                            wp.writeStart("li");
+                                wp.writeStart("a",
+                                        "class", "icon icon-step-forward",
+                                        "href", wp.url("", "action-skipWorkStream", "true"));
+                                    wp.writeHtml("Skip");
+                                wp.writeEnd();
+                            wp.writeEnd();
+
+                            wp.writeStart("li");
+                                wp.writeStart("a",
+                                        "class", "icon icon-stop",
+                                        "href", wp.url("", "action-stopWorkStream", "true"));
+                                    wp.writeHtml("Stop");
+                                wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
                     wp.writeEnd();
+                }
 
-                } else {
-                    %><script type="text/javascript">
-                        (function() {
-                            var unlocked;
+                boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
+                Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
+                boolean isDraft = contentData.isDraft() || draft != null;
+                boolean isHistory = history != null;
+                boolean isTrash = contentData.isTrash();
+                Schedule schedule = draft != null ? draft.getSchedule() : null;
 
-                            window.setInterval(function() {
-                                if (!unlocked) {
-                                    window.bspContentLock('<%= editingState.getId() %>');
+                if (isWritable) {
+
+                    // Message and actions if the content is a draft.
+                    if (isDraft) {
+                        Content.ObjectModification draftContentData = State.
+                                getInstance(draft != null ? draft : editing).
+                                as(Content.ObjectModification.class);
+
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml("Draft last saved ");
+                                wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(draftContentData.getUpdateUser());
+                                wp.writeHtml(".");
+
+                                if (schedule != null) {
+                                    Date triggerDate = schedule.getTriggerDate();
+                                    ToolUser triggerUser = schedule.getTriggerUser();
+
+                                    if (triggerDate != null || triggerUser != null) {
+                                        wp.writeHtml(" Scheduled to be published");
+
+                                        if (triggerDate != null) {
+                                            wp.writeHtml(" ");
+                                            wp.writeHtml(wp.formatUserDateTime(triggerDate));
+                                        }
+
+                                        if (triggerUser != null) {
+                                            wp.writeHtml(" by ");
+                                            wp.writeObjectLabel(triggerUser);
+                                        }
+
+                                        wp.writeHtml(".");
+                                    }
                                 }
-                            }, 1000);
-
-                            $(window).bind('beforeunload', function() {
-                                unlocked = true;
-
-                                window.bspContentUnlock('<%= editingState.getId() %>');
-                            });
-                        })();
-                    </script><%
-
-                    if (workStream != null) {
-                        long incomplete = workStream.countIncomplete();
-                        long total = workStream.getQuery().count();
-
-                        wp.writeStart("div",
-                                "class", "block",
-                                "style", wp.cssString(
-                                        "border-bottom", "1px solid #bbb",
-                                        "padding-bottom", "5px"));
-                            wp.writeStart("a",
-                                    "href", wp.url("/workStreamUsers", "id", workStream.getId()),
-                                    "target", "workStream");
-                                wp.writeHtml(workStream.getUsers().size() - 1);
-                                wp.writeHtml(" others");
                             wp.writeEnd();
 
-                            wp.writeHtml(" working on ");
-
-                            wp.writeStart("a",
-                                    "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
-                                    "target", "workStream");
-                                wp.writeObjectLabel(workStream);
-                            wp.writeEnd();
-
-                            wp.writeHtml(" with you");
-
-                            wp.writeStart("div", "class", "progress", "style", "margin: 5px 0;");
-                                wp.writeStart("div", "class", "progressBar", "style", "width:" + ((total - incomplete) * 100.0 / total) + "%");
-                                wp.writeEnd();
-
-                                wp.writeStart("strong");
-                                    wp.writeHtml(incomplete);
-                                wp.writeEnd();
-
-                                wp.writeHtml(" of ");
-
-                                wp.writeStart("strong");
-                                    wp.writeHtml(total);
-                                wp.writeEnd();
-
-                                wp.writeHtml(" left");
-                            wp.writeEnd();
-
-                            wp.writeStart("ul", "class", "piped");
-                                wp.writeStart("li");
+                            wp.writeStart("div", "class", "actions");
+                                if (!contentData.isDraft()) {
                                     wp.writeStart("a",
-                                            "class", "icon icon-step-forward",
-                                            "href", wp.url("", "action-skipWorkStream", "true"));
-                                        wp.writeHtml("Skip");
+                                            "class", "icon icon-action-edit",
+                                            "href", wp.url("", "draftId", null));
+                                        wp.writeHtml("Current");
                                     wp.writeEnd();
+                                }
+
+                                wp.writeStart("button",
+                                        "class", "link icon icon-action-save",
+                                        "name", "action-draft",
+                                        "value", "true");
+                                    wp.writeHtml("Save");
                                 wp.writeEnd();
 
-                                wp.writeStart("li");
-                                    wp.writeStart("a",
-                                            "class", "icon icon-stop",
-                                            "href", wp.url("", "action-stopWorkStream", "true"));
-                                        wp.writeHtml("Stop");
-                                    wp.writeEnd();
+                                wp.writeStart("button",
+                                        "class", "link icon icon-action-delete",
+                                        "name", "action-delete",
+                                        "value", "true");
+                                    wp.writeHtml("Delete");
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
+
+                    // Message and actions if the content is a past revision.
+                    } else if (isHistory) {
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml("Past revision saved ");
+                                wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
+                                wp.writeHtml(" by ");
+                                wp.writeObjectLabel(history.getUpdateUser());
+                                wp.writeHtml(".");
+                            wp.writeEnd();
+
+                            wp.writeStart("div", "class", "actions");
+                                wp.writeStart("a",
+                                        "class", "icon icon-action-edit",
+                                        "href", wp.url("", "historyId", null));
+                                    wp.writeHtml("Current");
+                                wp.writeEnd();
+
+                                wp.writeHtml(" ");
+
+                                wp.writeStart("a",
+                                        "class", "icon icon-object-history",
+                                        "href", wp.url("/historyEdit", "id", history.getId()),
+                                        "target", "historyEdit");
+                                    wp.writeHtml("Name Revision");
+                                wp.writeEnd();
+                            wp.writeEnd();
+                        wp.writeEnd();
+
+                    // Message and actions if the content is a trash.
+                    } else if (isTrash) {
+                        wp.writeTrashMessage(editing);
                     }
 
-                    boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
-                    Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
-                    boolean isDraft = contentData.isDraft() || draft != null;
-                    boolean isHistory = history != null;
-                    boolean isTrash = contentData.isTrash();
-                    Schedule schedule = draft != null ? draft.getSchedule() : null;
-
-                    if (isWritable) {
-
-                        // Message and actions if the content is a draft.
-                        if (isDraft) {
-                            Content.ObjectModification draftContentData = State.
-                                    getInstance(draft != null ? draft : editing).
-                                    as(Content.ObjectModification.class);
-
-                            wp.writeStart("div", "class", "message message-warning");
-                                wp.writeStart("p");
-                                    wp.writeHtml("Draft last saved ");
-                                    wp.writeHtml(wp.formatUserDateTime(draftContentData.getUpdateDate()));
-                                    wp.writeHtml(" by ");
-                                    wp.writeObjectLabel(draftContentData.getUpdateUser());
-                                    wp.writeHtml(".");
-
-                                    if (schedule != null) {
-                                        Date triggerDate = schedule.getTriggerDate();
-                                        ToolUser triggerUser = schedule.getTriggerUser();
-
-                                        if (triggerDate != null || triggerUser != null) {
-                                            wp.writeHtml(" Scheduled to be published");
-
-                                            if (triggerDate != null) {
-                                                wp.writeHtml(" ");
-                                                wp.writeHtml(wp.formatUserDateTime(triggerDate));
-                                            }
-
-                                            if (triggerUser != null) {
-                                                wp.writeHtml(" by ");
-                                                wp.writeObjectLabel(triggerUser);
-                                            }
-
-                                            wp.writeHtml(".");
-                                        }
-                                    }
-                                wp.writeEnd();
-
-                                wp.writeStart("div", "class", "actions");
-                                    if (!contentData.isDraft()) {
-                                        wp.writeStart("a",
-                                                "class", "icon icon-action-edit",
-                                                "href", wp.url("", "draftId", null));
-                                            wp.writeHtml("Current");
-                                        wp.writeEnd();
-                                    }
-
-                                    wp.writeStart("button",
-                                            "class", "link icon icon-action-save",
-                                            "name", "action-draft",
-                                            "value", "true");
-                                        wp.writeHtml("Save");
-                                    wp.writeEnd();
-
-                                    wp.writeStart("button",
-                                            "class", "link icon icon-action-delete",
-                                            "name", "action-delete",
-                                            "value", "true");
-                                        wp.writeHtml("Delete");
-                                    wp.writeEnd();
-                                wp.writeEnd();
+                    if (lockedOut) {
+                        wp.writeStart("div", "class", "message message-warning");
+                            wp.writeStart("p");
+                                wp.writeHtml(editAnyway ? "Ignoring lock by " : "Locked by ");
+                                wp.writeObjectLabel(contentLock.getOwner());
+                                wp.writeHtml(" since ");
+                                wp.writeHtml(wp.formatUserDateTime(contentLock.getCreateDate()));
+                                wp.writeHtml(".");
                             wp.writeEnd();
 
-                        // Message and actions if the content is a past revision.
-                        } else if (isHistory) {
-                            wp.writeStart("div", "class", "message message-warning");
-                                wp.writeStart("p");
-                                    wp.writeHtml("Past revision saved ");
-                                    wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
-                                    wp.writeHtml(" by ");
-                                    wp.writeObjectLabel(history.getUpdateUser());
-                                    wp.writeHtml(".");
-                                wp.writeEnd();
-
+                            if (!editAnyway) {
                                 wp.writeStart("div", "class", "actions");
                                     wp.writeStart("a",
-                                            "class", "icon icon-action-edit",
-                                            "href", wp.url("", "historyId", null));
-                                        wp.writeHtml("Current");
-                                    wp.writeEnd();
-
-                                    wp.writeHtml(" ");
-
-                                    wp.writeStart("a",
-                                            "class", "icon icon-object-history",
-                                            "href", wp.url("/historyEdit", "id", history.getId()),
-                                            "target", "historyEdit");
-                                        wp.writeHtml("Name Revision");
+                                            "class", "icon icon-unlock",
+                                            "href", wp.url("", "editAnyway", true));
+                                        wp.writeHtml("Ignore Lock");
                                     wp.writeEnd();
                                 wp.writeEnd();
-                            wp.writeEnd();
+                            }
+                        wp.writeEnd();
 
-                        // Message and actions if the content is a trash.
-                        } else if (isTrash) {
-                            wp.writeTrashMessage(editing);
-                        }
+                    } else {
+                        %><script type="text/javascript">
+                            (function() {
+                                var unlocked;
+
+                                window.setInterval(function() {
+                                    if (!unlocked) {
+                                        window.bspContentLock('<%= editingState.getId() %>');
+                                    }
+                                }, 1000);
+
+                                $(window).bind('beforeunload', function() {
+                                    unlocked = true;
+
+                                    window.bspContentUnlock('<%= editingState.getId() %>');
+                                });
+                            })();
+                        </script><%
+                    }
+
+                    if (!lockedOut || editAnyway) {
 
                         // Workflow actions.
                         if (editingState.isNew() ||
@@ -637,6 +642,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                         // Publish and trash buttons.
                         if (!isTrash && wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
+
                             wp.writeStart("div", "class", "widget-publishingPublish");
                                 if (wp.getUser().getCurrentSchedule() == null) {
                                     if (!contentData.isDraft() && schedule != null) {
@@ -706,27 +712,27 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                     wp.writeEnd();
                                 }
                             wp.writeEnd();
-                        }
 
-                    } else {
-                        wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
-                        wp.write(wp.typeLabel(state));
-                        wp.write("!</p></div>");
+                        } else {
+                            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
+                            wp.write(wp.typeLabel(state));
+                            wp.write("!</p></div>");
+                        }
                     }
-
-                    wp.writeStart("ul", "class", "widget-publishingExtra");
-                        if (isWritable && !isDraft && !isTrash) {
-                            wp.writeStart("li");
-                                wp.writeStart("button",
-                                        "class", "link icon icon-object-draft",
-                                        "name", "action-draft",
-                                        "value", "true");
-                                    wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
-                                wp.writeEnd();
-                            wp.writeEnd();
-                        }
-                    wp.writeEnd();
                 }
+
+                wp.writeStart("ul", "class", "widget-publishingExtra");
+                    if (isWritable && !isDraft && !isTrash) {
+                        wp.writeStart("li");
+                            wp.writeStart("button",
+                                    "class", "link icon icon-object-draft",
+                                    "name", "action-draft",
+                                    "value", "true");
+                                wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
+                            wp.writeEnd();
+                        wp.writeEnd();
+                    }
+                wp.writeEnd();
                 %>
             </div>
 
