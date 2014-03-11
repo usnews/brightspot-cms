@@ -471,6 +471,39 @@ $doc.onCreate('.contentLock', function() {
     }
 });
 
+$doc.onCreate('.inputContainer-listLayoutItemContainer-embedded', function() {
+    var $item = $(this),
+            expanded;
+
+    $item.append($('<span/>', {
+        'class': 'inputContainer-listLayoutItemContainer_expand',
+        'click': function() {
+            var $container = $item.offsetParent();
+
+            expanded = !expanded;
+
+            if (expanded) {
+                $item.css({
+                    'left': 10,
+                    'position': 'absolute',
+                    'top': 10,
+                    'z-index': 1
+                });
+
+                $item.outerWidth($container.outerWidth() - 20);
+                $item.outerHeight($container.outerHeight() - 20);
+                $item.addClass('inputContainer-listLayoutItemContainer-embedded-expanded');
+
+            } else {
+                $item.attr('style', '');
+                $item.removeClass('inputContainer-listLayoutItemContainer-embedded-expanded');
+            }
+
+            $item.trigger('resize');
+        }
+    }));
+});
+
 // Show stack trace when clicking on the exception message.
 $doc.delegate('.exception > *', 'click', function() {
     $(this).find('> .stackTrace').toggle();
