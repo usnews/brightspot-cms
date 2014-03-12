@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlObject;
 import com.psddev.dari.util.HtmlWriter;
@@ -27,8 +26,6 @@ public class Grid extends Content implements Renderer {
 
     private String defaultContext;
     private List<GridContext> contexts;
-
-    private List<GridStyle> styles;
 
     public ContentStream getContents() {
         return contents;
@@ -66,17 +63,6 @@ public class Grid extends Content implements Renderer {
 
     public void setContexts(List<GridContext> contexts) {
         this.contexts = contexts;
-    }
-
-    public List<GridStyle> getStyles() {
-        if (styles == null) {
-            styles = new ArrayList<GridStyle>();
-        }
-        return styles;
-    }
-
-    public void setStyles(List<GridStyle> styles) {
-        this.styles = styles;
     }
 
     @Override
@@ -160,41 +146,12 @@ public class Grid extends Content implements Renderer {
         @Override
         public void format(HtmlWriter writer) throws IOException {
             try {
-                ContentStyle style = null;
-
-                for (GridStyle s : getStyles()) {
-                    if (State.getInstance(content).getType().equals(s.getType())) {
-                        String sc = s.getContext();
-
-                        if (ObjectUtils.isBlank(sc) || sc.equals(context)) {
-                            style = s.getStyle();
-                            break;
-                        }
-                    }
-                }
-
                 if (!ObjectUtils.isBlank(context)) {
                     ContextTag.Static.pushContext(request, context);
                 }
 
                 try {
-                    if (style != null) {
-                        writer.writeStart("style", "type", "text/css");
-                            writer.writeCss("._da, ._dj",
-                                    "-moz-transition", "all 0.4s ease",
-                                    "-ms-transition", "all 0.4s ease",
-                                    "-o-transition", "all 0.4s ease",
-                                    "-webkit-transition", "all 0.4s ease",
-                                    "transition", "all 0.4s ease");
-
-                            style.writeCss(writer);
-                        writer.writeEnd();
-
-                        style.writeHtml(writer, content);
-
-                    } else {
-                        PageFilter.renderObject(request, response, writer, content);
-                    }
+                    PageFilter.renderObject(request, response, writer, content);
 
                 } finally {
                     if (!ObjectUtils.isBlank(context)) {
