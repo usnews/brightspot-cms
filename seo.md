@@ -12,7 +12,7 @@ All content that is assigned a URL appears within the CMS above a global SEO wid
 
 Within the respective .jsp files these fields must be chosen specifically, so as to appear on the front end.
 
-By clicking on `Raw Content` found to the right of `Save Draft` in the content edit screen, and shown as a wrench icon, a view of the SEO fields can be seen in code.
+By clicking on Content Tools link (Wrench) found to the right of the Publish Widget, a view of the SEO fields can be seen in code.
 
 <div class="highlight">{% highlight java %}
 "cms.seo.title" : "Our New Title",
@@ -30,6 +30,6 @@ A typical implementation would be to test to see if an SEO Title has been added.
 <title>Perfect Sense Digital<c:if test="${!empty seo.title}" >: <c:out value="${seo.title}" /></c:if></title>
 {% endhighlight %}</div>
 
-Using the wireframe tool on a particular page, you can see the JSTL expression needed and available within the header section, to render the SEO content.
+The SEO Widget in the CMS provides lots of added robots.txt tools to hide and noindex your content.
 
-![Screenshot of UI](http://docs.brightspot.s3.amazonaws.com/seo_wireframe.png)
+![](http://docs.brightspot.s3.amazonaws.com/seo-widget-2.3.png)

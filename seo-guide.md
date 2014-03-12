@@ -14,7 +14,7 @@ Custom SEO can be added to any page through an SEO widget found at the bottom of
 
 Brightspot adheres to, and encourages SEO best practices. Where an editor has not specified metatags, Brightspot defaults to fill in the information with text from the object itself.
 
-![](http://cdn.psddev.com/dims4/PSD/e3cbdab/2147483647/resize/700x%3E/quality/90/?url=http%3A%2F%2Fcdn.psddev.com%2F24%2Fd2%2Fc58cb78f4b03b2b6d7fdd3ee0650%2Fseo.png)
+![](http://docs.brightspot.s3.amazonaws.com/seo-widget-2.3.png)
 
 </div>
 
