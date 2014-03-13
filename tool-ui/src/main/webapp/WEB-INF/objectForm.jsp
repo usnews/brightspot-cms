@@ -72,7 +72,15 @@ try {
             }
         }
 
-        if (fields != null) {
+        if (object instanceof Query) {
+            wp.writeStart("div", "class", "queryField");
+                wp.writeElement("input",
+                        "type", "text",
+                        "name", state.getId() + "/_query",
+                        "value", ObjectUtils.toJson(state.getSimpleValues()));
+            wp.writeEnd();
+
+        } else if (fields != null) {
             ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
 
             if (ct != null) {

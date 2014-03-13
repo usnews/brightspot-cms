@@ -92,18 +92,17 @@ public abstract class ContentStream extends Record {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public static class Search extends ContentStream {
 
         @Embedded
         @Required
-        private Query query;
+        private Query<?> query;
 
-        public Query getQuery() {
+        public Query<?> getQuery() {
             return query;
         }
 
-        public void setQuery(Query query) {
+        public void setQuery(Query<?> query) {
             this.query = query;
         }
 
