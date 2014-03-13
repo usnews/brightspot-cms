@@ -697,6 +697,7 @@ public class PageFilter extends AbstractFilter {
                 page.writeCss(".bsp-inlineEditorMain",
                         "background", "rgba(32, 52, 63, 0.8) !important",
                         "color", "white !important",
+                        "font-family", "'Helvetica Neue', sans-serif !important",
                         "font-size", "13px !important",
                         "left", "0 !important",
                         "line-height", "21px !important",
