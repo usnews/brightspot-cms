@@ -1277,7 +1277,18 @@ public class PageFilter extends AbstractFilter {
                             }
                         }
 
-                        Object preview = Query.findById(Object.class, previewId);
+                        UUID mainObjectId = ObjectUtils.to(UUID.class, request.getParameter("_mainObjectId"));
+                        Object preview = Query.
+                                fromAll().
+                                where("_id = ?", mainObjectId).
+                                first();
+
+                        if (preview == null) {
+                            preview = Query.
+                                    fromAll().
+                                    where("_id = ?", previewId).
+                                    first();
+                        }
 
                         if (preview instanceof Draft) {
                             mainObject = ((Draft) preview).getObject();
@@ -1291,6 +1302,9 @@ public class PageFilter extends AbstractFilter {
                             site = previewPreview.getSite();
                             setSite(request, site);
                             AuthenticationFilter.Static.setCurrentPreview(request, PageContextFilter.Static.getResponse(), previewPreview);
+
+                        } else if (mainObjectId != null) {
+                            mainObject = preview;
 
                         } else {
                             mainObject = substitutions.get(previewId);
