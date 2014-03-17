@@ -25,7 +25,14 @@ public class Grid extends Content implements Renderer {
     private List<GridLayout> layouts;
 
     private String defaultContext;
+
     private List<GridContext> contexts;
+
+    // --- transient values for handling 'load more' functionality. ---
+    private transient boolean hasNext;
+
+    private transient int page = 0;
+
 
     public ContentStream getContents() {
         return contents;
@@ -63,6 +70,22 @@ public class Grid extends Content implements Renderer {
 
     public void setContexts(List<GridContext> contexts) {
         this.contexts = contexts;
+    }
+
+    public boolean isHasNext() {
+        return hasNext;
+    }
+
+    public void setHasNext(boolean hasNext) {
+        this.hasNext = hasNext;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     @Override
@@ -114,7 +137,19 @@ public class Grid extends Content implements Renderer {
             }
         }
 
-        List<?> contents = getContents().findContents(0, maxSize);
+        List<?> contents = getContents().findContents(page > 0 ? page * maxSize - 1 : 0, maxSize);
+
+        // To take care of the case {@link getContents} is instance of {@link ContentStream.Mix}
+        hasNext = false;
+        for (Object content : contents) {
+            if (content != null) {
+                hasNext = true;
+                break;
+            }
+        }
+
+        // Set the next page value
+        page++;
 
         for (int i = 0, size = contents.size(); i < size; ++ i) {
             contentRenderers.add(new ContentRenderer(
