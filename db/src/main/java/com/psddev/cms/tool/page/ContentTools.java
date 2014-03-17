@@ -65,15 +65,17 @@ public class ContentTools extends PageServlet {
                     Date newPublishDate = page.param(Date.class, "publishDate");
 
                     if (newPublishDate != null) {
+                        Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
                         DateTimeZone timeZone = page.getUserDateTimeZone();
                         newPublishDate = new Date(DateTimeFormat.
                                 forPattern("yyyy-MM-dd HH:mm:ss").
                                 withZone(timeZone).
                                 parseMillis(new DateTime(newPublishDate).toString("yyyy-MM-dd HH:mm:ss")));
-                    }
 
-                    state.as(Content.ObjectModification.class).setPublishDate(newPublishDate);
-                    state.save();
+                        contentData.setPublishUser(page.getUser());
+                        contentData.setPublishDate(newPublishDate);
+                        state.save();
+                    }
                 }
 
             } else if (page.param(String.class, "action-settings") != null) {
