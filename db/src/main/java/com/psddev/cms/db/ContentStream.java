@@ -27,8 +27,11 @@ public abstract class ContentStream extends Record {
             this.streams = streams;
         }
 
+        @Override
         public List<?> findContents(int offset, int limit) {
             List<Object> contents = new ArrayList<Object>();
+
+            int page = (offset + 1) / limit;
 
             for (int i = 0; i < limit; ++ i) {
                 contents.add(null);
@@ -37,7 +40,7 @@ public abstract class ContentStream extends Record {
             for (AreasStream as : getStreams()) {
                 List<Integer> areas = new ArrayList<Integer>(as.getAreas());
                 int areasSize = areas.size();
-                List<?> streamContents = as.getStream().findContents(0, areas.size());
+                List<?> streamContents = as.getStream().findContents(page * areasSize, areasSize);
                 int streamContentsSize = streamContents.size();
 
                 Collections.sort(areas);
