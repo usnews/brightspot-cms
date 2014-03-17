@@ -414,6 +414,9 @@ public class PageFilter extends AbstractFilter {
             // Fake the request path in preview mode in case the servlets
             // depend on it.
             if (Static.isPreview(request)) {
+                response.setHeader("Cache-Control", "private, no-cache");
+                response.setHeader("Brightspot-Preview", "true");
+
                 final String previewPath = request.getParameter("_previewPath");
 
                 if (!ObjectUtils.isBlank(previewPath)) {
