@@ -1,6 +1,7 @@
 package com.psddev.cms.db;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -13,6 +14,7 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.ObjectUtils;
 
 public class PreviewDatabaseFilter extends AbstractFilter implements AbstractFilter.Auto {
 
@@ -31,17 +33,26 @@ public class PreviewDatabaseFilter extends AbstractFilter implements AbstractFil
             HttpServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
+
         ToolUser user = AuthenticationFilter.Static.getUser(request);
 
         if (user != null) {
             Schedule currentSchedule = user.getCurrentSchedule();
+            Date date = ObjectUtils.to(Date.class, request.getParameter("_date"));
 
-            if (currentSchedule != null) {
+            if (currentSchedule != null || date != null) {
                 try {
                     PreviewDatabase pd = new PreviewDatabase();
 
                     pd.setDelegate(Database.Static.getDefault());
-                    pd.addChanges(currentSchedule);
+
+                    if (currentSchedule != null) {
+                        pd.addChanges(currentSchedule);
+
+                    } else if (date != null) {
+                        pd.setDate(date);
+                    }
+
                     Database.Static.overrideDefault(pd);
                     chain.doFilter(request, response);
 

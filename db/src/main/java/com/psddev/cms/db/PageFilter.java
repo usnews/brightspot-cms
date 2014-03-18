@@ -409,14 +409,16 @@ public class PageFilter extends AbstractFilter {
 
             Static.pushObject(request, mainObject);
 
+            if (Static.isPreview(request) || user != null) {
+                response.setHeader("Cache-Control", "private, no-cache");
+                response.setHeader("Brightspot-Cache", "none");
+            }
+
             final State mainState = State.getInstance(mainObject);
 
             // Fake the request path in preview mode in case the servlets
             // depend on it.
             if (Static.isPreview(request)) {
-                response.setHeader("Cache-Control", "private, no-cache");
-                response.setHeader("Brightspot-Preview", "true");
-
                 final String previewPath = request.getParameter("_previewPath");
 
                 if (!ObjectUtils.isBlank(previewPath)) {
@@ -1261,20 +1263,25 @@ public class PageFilter extends AbstractFilter {
 
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
                     if (previewId != null) {
-
-                        String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
                         Map<UUID, Object> substitutions = getSubstitutions(request);
-                        if (objectStrings != null) {
-                            for (String objectString : objectStrings) {
-                                if (!ObjectUtils.isBlank(objectString)) {
-                                    @SuppressWarnings("unchecked")
-                                    Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
-                                    ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
-                                    if (type != null) {
-                                        Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
-                                        State objectState = State.getInstance(object);
-                                        objectState.setValues(objectMap);
-                                        substitutions.put(objectState.getId(), object);
+
+                        if (ObjectUtils.to(Date.class, request.getParameter("_date")) == null) {
+                            String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
+
+                            if (objectStrings != null) {
+                                for (String objectString : objectStrings) {
+                                    if (!ObjectUtils.isBlank(objectString)) {
+                                        @SuppressWarnings("unchecked")
+                                        Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
+                                        ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
+
+                                        if (type != null) {
+                                            Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
+                                            State objectState = State.getInstance(object);
+
+                                            objectState.setValues(objectMap);
+                                            substitutions.put(objectState.getId(), object);
+                                        }
                                     }
                                 }
                             }

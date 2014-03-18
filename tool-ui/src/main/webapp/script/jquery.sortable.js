@@ -27,6 +27,11 @@ $.plugin2('sortable', {
                 return;
             }
 
+            // Hack to ignore mousedown firing on a scrollbar in Firefox.
+            if (event.pageX > ($target.offset().left + $target.outerWidth() - 20)) {
+                return;
+            }
+
             $.drag(this, event, function(event, data) {
                 var $selected = $(this),
                         selectedOffset = $selected.offset();

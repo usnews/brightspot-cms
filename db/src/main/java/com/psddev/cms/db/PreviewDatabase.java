@@ -2,6 +2,7 @@ package com.psddev.cms.db;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +16,16 @@ import com.psddev.dari.util.PaginatedResult;
 
 public class PreviewDatabase extends ForwardingDatabase {
 
+    private Date date;
     private final Map<UUID, Map<String, Object>> changesById = new HashMap<UUID, Map<String, Object>>();
+
+    private Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public void addChanges(Schedule schedule) {
         for (Draft draft : Query.
@@ -31,10 +41,40 @@ public class PreviewDatabase extends ForwardingDatabase {
     private <T> T applyChanges(T object) {
         if (object != null) {
             State state = State.getInstance(object);
-            Map<String, Object> changes = changesById.get(state.getId());
+            Date date = getDate();
 
-            if (changes != null) {
-                state.putAll(changes);
+            if (date != null) {
+                Draft draft = null;
+                Date draftDate = null;
+
+                for (Draft d : Query.
+                        from(Draft.class).
+                        and("schedule != missing").
+                        and("objectId = ?", object).
+                        iterable(0)) {
+
+                    Date triggerDate = d.getSchedule().getTriggerDate();
+
+                    if (triggerDate != null &&
+                            triggerDate.before(date) &&
+                            (draftDate == null ||
+                            triggerDate.after(draftDate))) {
+
+                        draft = d;
+                        draftDate = triggerDate;
+                    }
+                }
+
+                if (draft != null) {
+                    state.putAll(draft.getObjectChanges());
+                }
+
+            } else {
+                Map<String, Object> changes = changesById.get(state.getId());
+
+                if (changes != null) {
+                    state.putAll(changes);
+                }
             }
         }
 

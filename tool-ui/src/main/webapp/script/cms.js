@@ -1111,6 +1111,16 @@ $doc.onCreate('.widget-publishing', function() {
     }
 });
 
+// Synchronizes main search input with the hidden one in the type select form.
+$doc.on('input', '.searchFiltersRest > .searchInput > :text', function() {
+    var $input = $(this),
+            $otherInput = $input.closest('.searchFilters').find('.searchFiltersType > input[name="' + $input.attr('name') + '"]');
+
+    if ($otherInput.length > 0) {
+        $otherInput.val($input.val());
+    }
+});
+
 $doc.ready(function() {
     $(doc.activeElement).focus();
 });

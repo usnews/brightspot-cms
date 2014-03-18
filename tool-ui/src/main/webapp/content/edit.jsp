@@ -779,6 +779,13 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                             wp.writeElement("input", "type", "hidden", "name", PageFilter.PREVIEW_SITE_ID_PARAMETER, "value", site.getId());
                         }
 
+                        wp.writeElement("input",
+                                "type", "text",
+                                "class", "autoSubmit date",
+                                "name", "_date",
+                                "placeholder", "Now");
+
+                        wp.writeHtml(" ");
                         wp.writeStart("select", "onchange",
                                 "var $input = $(this)," +
                                         "$form = $input.closest('form');" +
