@@ -1263,20 +1263,25 @@ public class PageFilter extends AbstractFilter {
 
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
                     if (previewId != null) {
-
-                        String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
                         Map<UUID, Object> substitutions = getSubstitutions(request);
-                        if (objectStrings != null) {
-                            for (String objectString : objectStrings) {
-                                if (!ObjectUtils.isBlank(objectString)) {
-                                    @SuppressWarnings("unchecked")
-                                    Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
-                                    ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
-                                    if (type != null) {
-                                        Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
-                                        State objectState = State.getInstance(object);
-                                        objectState.setValues(objectMap);
-                                        substitutions.put(objectState.getId(), object);
+
+                        if (ObjectUtils.to(Date.class, request.getParameter("_date")) == null) {
+                            String[] objectStrings = request.getParameterValues(PREVIEW_OBJECT_PARAMETER);
+
+                            if (objectStrings != null) {
+                                for (String objectString : objectStrings) {
+                                    if (!ObjectUtils.isBlank(objectString)) {
+                                        @SuppressWarnings("unchecked")
+                                        Map<String, Object> objectMap = (Map<String, Object>) ObjectUtils.fromJson(objectString.trim());
+                                        ObjectType type = ObjectType.getInstance(ObjectUtils.to(UUID.class, objectMap.remove("_typeId")));
+
+                                        if (type != null) {
+                                            Object object = type.createObject(ObjectUtils.to(UUID.class, objectMap.remove("_id")));
+                                            State objectState = State.getInstance(object);
+
+                                            objectState.setValues(objectMap);
+                                            substitutions.put(objectState.getId(), object);
+                                        }
                                     }
                                 }
                             }
