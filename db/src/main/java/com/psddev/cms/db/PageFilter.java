@@ -409,14 +409,16 @@ public class PageFilter extends AbstractFilter {
 
             Static.pushObject(request, mainObject);
 
+            if (Static.isPreview(request) || user != null) {
+                response.setHeader("Cache-Control", "private, no-cache");
+                response.setHeader("Brightspot-Cache", "none");
+            }
+
             final State mainState = State.getInstance(mainObject);
 
             // Fake the request path in preview mode in case the servlets
             // depend on it.
             if (Static.isPreview(request)) {
-                response.setHeader("Cache-Control", "private, no-cache");
-                response.setHeader("Brightspot-Preview", "true");
-
                 final String previewPath = request.getParameter("_previewPath");
 
                 if (!ObjectUtils.isBlank(previewPath)) {
