@@ -2265,7 +2265,10 @@ public class ToolPageContext extends WebPageContext {
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
         Date publishDate = getContentFormPublishDate();
 
-        contentData.setPublishDate(publishDate);
+        if (publishDate != null) {
+            contentData.setPublishDate(publishDate);
+        }
+
         contentData.setScheduleDate(publishDate);
     }
 
