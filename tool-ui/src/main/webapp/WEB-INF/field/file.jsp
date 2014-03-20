@@ -486,7 +486,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 <option data-hide=".fileSelectorItem" data-show=".fileSelectorExisting" value="keep">Keep Existing</option>
             <% } %>
             <option data-hide=".fileSelectorItem" value="none">None</option>
-            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload"<%= fieldValue == null && state.isNew() ? " selected" : "" %>>New Upload</option>
+            <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUpload" value="newUpload"<%= fieldValue == null && field.isRequired() ? " selected" : "" %>>New Upload</option>
             <option data-hide=".fileSelectorItem" data-show=".fileSelectorNewUrl" value="newUrl">New URL</option>
             <% if (!ObjectUtils.isBlank(wp.getCmsTool().getDropboxApplicationKey())) { %>
                 <option data-hide=".fileSelectorItem" data-show=".fileSelectorDropbox" value="dropbox">Dropbox</option>
