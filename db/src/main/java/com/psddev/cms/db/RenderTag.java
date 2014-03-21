@@ -27,6 +27,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.HtmlNode;
 import com.psddev.dari.util.HtmlWriter;
+import com.psddev.dari.util.LazyWriter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 
@@ -520,6 +521,10 @@ public class RenderTag extends BodyTagSupport implements DynamicAttributes, TryC
 
         @Override
         public void beforeFieldGet(State state, String name) {
+            if (!FieldAccessFilter.Static.getDisplayIds((HttpServletRequest) pageContext.getRequest()).contains(state.getId())) {
+                return;
+            }
+
             BodyContent bodyContent = getBodyContent();
 
             try {
