@@ -441,7 +441,7 @@ var Rte = wysihtml5.Editor.extend({
                 var $parent, $prev, $next;
 
                 if (action === 'moveDown') {
-                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                         if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_FOLLOWING) {
                             $(this).after($placeholder);
                             return false;
@@ -454,7 +454,7 @@ var Rte = wysihtml5.Editor.extend({
                     var precedings = [ ],
                             precedingsLength;
 
-                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                         if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
                             precedings.push(this);
                         }
@@ -1280,8 +1280,8 @@ wysihtml5.commands.textAlign = {
     }
 };
 
-// Remove support for insertImage so that it can't be used accidentantly,
-// since insertEnhancement supercedes its functionality.
+// Remove support for insertImage so that it can't be used accidentally,
+// since insertEnhancement supersedes its functionality.
 delete wysihtml5.commands.insertImage;
 
 var insertButton = function(composer, button) {
@@ -1295,7 +1295,7 @@ var insertButton = function(composer, button) {
     } else {
         precedings = [ ];
 
-        $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+        $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
             if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
                 precedings.push(this);
             }
