@@ -404,7 +404,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                 boolean isWritable = wp.hasPermission("type/" + editingState.getTypeId() + "/write");
                 Content.ObjectModification contentData = State.getInstance(editing).as(Content.ObjectModification.class);
-                boolean isDraft = contentData.isDraft() || draft != null;
+                boolean isDraft = !editingState.isNew() && (contentData.isDraft() || draft != null);
                 boolean isHistory = history != null;
                 boolean isTrash = contentData.isTrash();
                 Schedule schedule = draft != null ? draft.getSchedule() : null;
