@@ -1602,6 +1602,8 @@ setInterval(function() {
                 $input.closest('.rte-container').toggleClass('state-disabled', disable);
                 rte[disable ? 'disable' : 'enable']();
             });
+
+            $input.parent().trigger('create');
         }
     });
 }, 100);
