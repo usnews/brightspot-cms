@@ -744,6 +744,12 @@ var Rte = wysihtml5.Editor.extend({
 
         this.observe('load', function() {
 
+            // Restore track changes state.
+            if (window.sessionStorage.getItem('bsp.rte.changesTracking.' + $(rte.textarea.element).closest('.inputContainer').attr('data-name'))) {
+                wysihtml5.commands.changesTrack.exec(rte.composer);
+                rte.toolbar._updateLinkStates();
+            }
+
             // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
             var convertNodes = function(parent, oldTagName, newTagName, callback) {
                 var childNodes = parent.childNodes;
@@ -1735,6 +1741,29 @@ $doc.on('close', '.popup[name ^= "contentEnhancement-"]', function() {
             $placeholder.remove();
         }
     }
+});
+
+// Remember track changes state.
+$doc.on('submit', 'form', function() {
+    var $form = $(this),
+            storage = window.sessionStorage,
+            storageIndex = 0,
+            storageLength = storage.length,
+            storageKey;
+
+    for (; storageIndex < storageLength; ++ storageIndex) {
+        storageKey = storage.key(storageIndex);
+
+        if (storageKey.indexOf('bsp.rte.changesTracking.') === 0) {
+            storage.removeItem(storageKey);
+        }
+    }
+
+    $form.find('.wysihtml5-sandbox').each(function() {
+        if ($(this.contentDocument.body).hasClass('rte-changesTracking')) {
+            storage.setItem('bsp.rte.changesTracking.' + $(this).closest('.inputContainer').attr('data-name'), '1');
+        }
+    });
 });
 
 }(jQuery, window));
