@@ -167,6 +167,7 @@ var createToolbar = function(rte, inline, firstDraft, finalDraft) {
     $changes.append($createToolbarCommand('Track', 'changesTrack'));
     $changes.append($createToolbarCommand('Accept', 'changesAccept'));
     $changes.append($createToolbarCommand('Reject', 'changesReject'));
+    $changes.append($createToolbarCommand('Preview', 'changesPreview'));
 
     var $comment = $createToolbarGroup('Comments');
     $toolbar.append($comment);
@@ -1412,6 +1413,16 @@ wysihtml5.commands.allComments = {
 
         'changesAccept': acceptOrReject('del', 'ins'),
         'changesReject': acceptOrReject('ins', 'del'),
+
+        'changesPreview': {
+            'exec': function(composer) {
+                $(composer.element).toggleClass('rte-changesPreview');
+            },
+
+            'state': function(composer) {
+                return $(composer.element).hasClass('rte-changesPreview');
+            }
+        },
 
         'commentAdd': {
             'exec': function(composer) {
