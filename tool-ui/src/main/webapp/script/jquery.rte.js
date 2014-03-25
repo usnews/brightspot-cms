@@ -893,6 +893,8 @@ var Rte = wysihtml5.Editor.extend({
                             $element.removeClass(tempClass);
                         }
                     }
+
+                    return $element;
                 }
 
                 function cleanUp() {
@@ -1046,7 +1048,8 @@ var Rte = wysihtml5.Editor.extend({
                 $(composer.element).bind('keyup', function(event) {
                     var selection,
                             range,
-                            $del;
+                            $del,
+                            $ins;
 
                     if (!down ||
                             event.metaKey ||
@@ -1072,8 +1075,17 @@ var Rte = wysihtml5.Editor.extend({
                         selection.executeAndRestore(function() {
                             range.setStart(downRange.startContainer, downRange.startOffset);
                             selection.setSelection(range);
-                            wrapCurrentSelectionRange('ins');
+                            $ins = wrapCurrentSelectionRange('ins');
                         });
+
+                        if ($ins) {
+                            $del = $ins.closest('del');
+
+                            if ($del.length > 0) {
+                                $del.after($ins);
+                                selection.setAfter($ins[0]);
+                            }
+                        }
                     }
 
                     down = false;
