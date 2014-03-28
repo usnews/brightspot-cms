@@ -167,6 +167,7 @@ var createToolbar = function(rte, inline, firstDraft, finalDraft) {
     $changes.append($createToolbarCommand('Track', 'changesTrack'));
     $changes.append($createToolbarCommand('Accept', 'changesAccept'));
     $changes.append($createToolbarCommand('Reject', 'changesReject'));
+    $changes.append($createToolbarCommand('Preview', 'changesPreview'));
 
     var $comment = $createToolbarGroup('Comments');
     $toolbar.append($comment);
@@ -440,7 +441,7 @@ var Rte = wysihtml5.Editor.extend({
                 var $parent, $prev, $next;
 
                 if (action === 'moveDown') {
-                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                         if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_FOLLOWING) {
                             $(this).after($placeholder);
                             return false;
@@ -453,7 +454,7 @@ var Rte = wysihtml5.Editor.extend({
                     var precedings = [ ],
                             precedingsLength;
 
-                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+                    $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                         if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
                             precedings.push(this);
                         }
@@ -743,6 +744,12 @@ var Rte = wysihtml5.Editor.extend({
 
         this.observe('load', function() {
 
+            // Restore track changes state.
+            if (window.sessionStorage.getItem('bsp.rte.changesTracking.' + $(rte.textarea.element).closest('.inputContainer').attr('data-name'))) {
+                wysihtml5.commands.changesTrack.exec(rte.composer);
+                rte.toolbar._updateLinkStates();
+            }
+
             // Make sure placeholder BUTTONs are replaced with enhancement SPANs.
             var convertNodes = function(parent, oldTagName, newTagName, callback) {
                 var childNodes = parent.childNodes;
@@ -886,6 +893,8 @@ var Rte = wysihtml5.Editor.extend({
                             $element.removeClass(tempClass);
                         }
                     }
+
+                    return $element;
                 }
 
                 function cleanUp() {
@@ -1039,7 +1048,8 @@ var Rte = wysihtml5.Editor.extend({
                 $(composer.element).bind('keyup', function(event) {
                     var selection,
                             range,
-                            $del;
+                            $del,
+                            $ins;
 
                     if (!down ||
                             event.metaKey ||
@@ -1065,8 +1075,17 @@ var Rte = wysihtml5.Editor.extend({
                         selection.executeAndRestore(function() {
                             range.setStart(downRange.startContainer, downRange.startOffset);
                             selection.setSelection(range);
-                            wrapCurrentSelectionRange('ins');
+                            $ins = wrapCurrentSelectionRange('ins');
                         });
+
+                        if ($ins) {
+                            $del = $ins.closest('del');
+
+                            if ($del.length > 0) {
+                                $del.after($ins);
+                                selection.setAfter($ins[0]);
+                            }
+                        }
                     }
 
                     down = false;
@@ -1261,8 +1280,8 @@ wysihtml5.commands.textAlign = {
     }
 };
 
-// Remove support for insertImage so that it can't be used accidentantly,
-// since insertEnhancement supercedes its functionality.
+// Remove support for insertImage so that it can't be used accidentally,
+// since insertEnhancement supersedes its functionality.
 delete wysihtml5.commands.insertImage;
 
 var insertButton = function(composer, button) {
@@ -1276,7 +1295,7 @@ var insertButton = function(composer, button) {
     } else {
         precedings = [ ];
 
-        $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p').each(function() {
+        $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
             if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
                 precedings.push(this);
             }
@@ -1412,6 +1431,16 @@ wysihtml5.commands.allComments = {
 
         'changesAccept': acceptOrReject('del', 'ins'),
         'changesReject': acceptOrReject('ins', 'del'),
+
+        'changesPreview': {
+            'exec': function(composer) {
+                $(composer.element).toggleClass('rte-changesPreview');
+            },
+
+            'state': function(composer) {
+                return $(composer.element).hasClass('rte-changesPreview');
+            }
+        },
 
         'commentAdd': {
             'exec': function(composer) {
@@ -1602,6 +1631,8 @@ setInterval(function() {
                 $input.closest('.rte-container').toggleClass('state-disabled', disable);
                 rte[disable ? 'disable' : 'enable']();
             });
+
+            $input.parent().trigger('create');
         }
     });
 }, 100);
@@ -1722,6 +1753,29 @@ $doc.on('close', '.popup[name ^= "contentEnhancement-"]', function() {
             $placeholder.remove();
         }
     }
+});
+
+// Remember track changes state.
+$doc.on('submit', 'form', function() {
+    var $form = $(this),
+            storage = window.sessionStorage,
+            storageIndex = 0,
+            storageLength = storage.length,
+            storageKey;
+
+    for (; storageIndex < storageLength; ++ storageIndex) {
+        storageKey = storage.key(storageIndex);
+
+        if (storageKey.indexOf('bsp.rte.changesTracking.') === 0) {
+            storage.removeItem(storageKey);
+        }
+    }
+
+    $form.find('.wysihtml5-sandbox').each(function() {
+        if ($(this.contentDocument.body).hasClass('rte-changesTracking')) {
+            storage.setItem('bsp.rte.changesTracking.' + $(this).closest('.inputContainer').attr('data-name'), '1');
+        }
+    });
 });
 
 }(jQuery, window));

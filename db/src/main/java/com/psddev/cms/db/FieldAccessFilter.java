@@ -1,6 +1,11 @@
 package com.psddev.cms.db;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -12,6 +17,7 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.JspBufferFilter;
+import com.psddev.dari.util.LazyWriterResponse;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 
@@ -69,6 +75,16 @@ public class FieldAccessFilter extends AbstractFilter {
         try {
             JspBufferFilter.Static.overrideBuffer(0);
 
+            Object mainObject = PageFilter.Static.getMainObject(request);
+            Set<UUID> displayIds = Static.getDisplayIds(request);
+
+            if (mainObject != null) {
+                State mainState = State.getInstance(mainObject);
+
+                displayIds.add(mainState.getId());
+                addDisplayIds(displayIds, mainState.getSimpleValues());
+            }
+
             FieldAccessListener listener = new FieldAccessListener(request);
 
             try {
@@ -84,6 +100,27 @@ public class FieldAccessFilter extends AbstractFilter {
         }
     }
 
+    private void addDisplayIds(Set<UUID> displayIds, Object value) {
+        if (value instanceof Iterable) {
+            for (Object item : (Collection<?>) value) {
+                addDisplayIds(displayIds, item);
+            }
+
+        } else if (value instanceof Map) {
+            Map<?, ?> valueMap = (Map<?, ?>) value;
+            UUID id = ObjectUtils.to(UUID.class, valueMap.get("_id"));
+
+            if (id != null) {
+                displayIds.add(id);
+
+            } else {
+                for (Object item : valueMap.values()) {
+                    addDisplayIds(displayIds, item);
+                }
+            }
+        }
+    }
+
     /**
      * Creates the marker HTML that identifies access to a field with the
      * given {@code name} in the given {@code state}.
@@ -91,41 +128,86 @@ public class FieldAccessFilter extends AbstractFilter {
      * @param state Can't be {@code null}.
      * @param name Can't be {@code null}.
      * @return Never blank.
+     *
+     * @deprecated Use {@link Static#createMarkerHtml} instead.
      */
+    @Deprecated
     public static String createMarkerHtml(State state, String name) {
-        StringBuilder marker = new StringBuilder();
+        return Static.createMarkerHtml(state, name);
+    }
 
-        marker.append("<span style=\"display: none;\"");
 
-        ObjectType type = state.getType();
+    /**
+     * {@link FieldAccessFilter} utility methods.
+     */
+    public static class Static {
 
-        if (type != null) {
-            ObjectField field = type.getField(name);
+        private static final String ATTRIBUTE_PREFIX = Static.class.getName() + ".";
+        private static final String DISPLAY_IDS_ATTRIBUTE = ATTRIBUTE_PREFIX + "displayIds";
 
-            if (field != null) {
-                String fieldType = field.getInternalType();
+        /**
+         * Creates the marker HTML that identifies access to a field with the
+         * given {@code name} in the given {@code state}.
+         *
+         * @param state Can't be {@code null}.
+         * @param name Can't be {@code null}.
+         * @return Never blank.
+         */
+        public static String createMarkerHtml(State state, String name) {
+            StringBuilder marker = new StringBuilder();
 
-                if (ObjectField.TEXT_TYPE.equals(fieldType)) {
-                    Object value = state.get(name);
+            marker.append("<span style=\"display: none;\"");
 
-                    marker.append(" data-cms-field-text=\"");
+            ObjectType type = state.getType();
 
-                    if (value != null) {
-                        marker.append(StringUtils.escapeHtml(value.toString()));
+            if (type != null) {
+                ObjectField field = type.getField(name);
+
+                if (field != null) {
+                    String fieldType = field.getInternalType();
+
+                    if (ObjectField.TEXT_TYPE.equals(fieldType)) {
+                        Object value = state.get(name);
+
+                        marker.append(" data-cms-field-text=\"");
+
+                        if (value != null) {
+                            marker.append(StringUtils.escapeHtml(value.toString()));
+                        }
+
+                        marker.append("\"");
                     }
-
-                    marker.append("\"");
                 }
             }
+
+            marker.append(" data-name=\"");
+            marker.append(StringUtils.escapeHtml(state.getId().toString()));
+            marker.append("/");
+            marker.append(StringUtils.escapeHtml(name));
+            marker.append("\">");
+            marker.append("</span>");
+            return marker.toString();
         }
 
-        marker.append(" data-name=\"");
-        marker.append(StringUtils.escapeHtml(state.getId().toString()));
-        marker.append("/");
-        marker.append(StringUtils.escapeHtml(name));
-        marker.append("\">");
-        marker.append("</span>");
-        return marker.toString();
+        /**
+         * Returns IDs of of all objects whose field accesses should be
+         * displayed.
+         *
+         * @param request Can't be {@code null}.
+         * @return Never {@code null}.
+         */
+        public static Set<UUID> getDisplayIds(HttpServletRequest request) {
+            @SuppressWarnings("unchecked")
+            Set<UUID> displayIds = (Set<UUID>) request.getAttribute(DISPLAY_IDS_ATTRIBUTE);
+
+            if (displayIds == null) {
+                displayIds = new HashSet<UUID>();
+
+                request.setAttribute(DISPLAY_IDS_ATTRIBUTE, displayIds);
+            }
+
+            return displayIds;
+        }
     }
 
     private static class FieldAccessListener extends State.Listener {
@@ -138,6 +220,10 @@ public class FieldAccessFilter extends AbstractFilter {
 
         @Override
         public void beforeFieldGet(State state, String name) {
+            if (!Static.getDisplayIds(request).contains(state.getId())) {
+                return;
+            }
+
             LazyWriterResponse response = (LazyWriterResponse) request.getAttribute(CURRENT_RESPONSE_ATTRIBUTE);
 
             if (response != null) {

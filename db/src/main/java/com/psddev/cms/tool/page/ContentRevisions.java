@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
@@ -216,9 +217,27 @@ public class ContentRevisions extends Widget {
 
                 page.writeStart("ul", "class", "links pageThumbnails");
                     for (History h : histories) {
+                        Map<String, Object> originals = h.getObjectOriginals();
+
                         page.writeStart("li",
                                 "class", h.equals(selected) ? "selected" : null,
                                 "data-preview-url", "/_preview?_cms.db.previewId=" + h.getId());
+
+                            if (ObjectUtils.to(boolean.class, originals.get("cms.content.draft"))) {
+                                page.writeStart("span", "class", "visibilityLabel");
+                                    page.writeHtml("Draft");
+                                page.writeEnd();
+
+                            } else {
+                                String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
+
+                                if (!ObjectUtils.isBlank(workflowState)) {
+                                    page.writeStart("span", "class", "visibilityLabel");
+                                        page.writeHtml(workflowState);
+                                    page.writeEnd();
+                                }
+                            }
+
                             page.writeStart("a", "href", page.objectUrl(null, h));
                                 page.writeHtml(page.formatUserDateTime(h.getUpdateDate()));
                                 page.writeHtml(" by ");

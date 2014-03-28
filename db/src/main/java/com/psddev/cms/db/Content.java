@@ -311,8 +311,7 @@ public abstract class Content extends Record {
             contentData.setUpdateDate(now);
             contentData.setUpdateUser(user);
 
-            if (!state.isVisible() ||
-                    object instanceof Draft) {
+            if (object instanceof Draft) {
                 state.save();
                 return null;
 

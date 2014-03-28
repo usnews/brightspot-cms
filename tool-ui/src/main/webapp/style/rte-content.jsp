@@ -78,6 +78,9 @@ writer.start("html");
                     "background", "#ffaaaa",
                     "text-decoration", "line-through");
 
+            writer.css(".rte-changesPreview del",
+                    "display", "none");
+
             writer.css("em, i",
                     "font-style", "italic");
 
@@ -96,6 +99,9 @@ writer.start("html");
 
             writer.css("ins",
                     "background-color", "#afa");
+
+            writer.css(".rte-changesPreview ins",
+                    "background-color", "transparent");
 
             writer.css("ol, ul",
                     "margin", "0 0 16px 25px",
@@ -193,6 +199,9 @@ writer.start("html");
                     "border-color", "#cc2200",
                     "color", "#cc2200",
                     "text-decoration", "line-through");
+
+            writer.css(".rte-changesPreview .rte-comment",
+                    "display", "none");
 
             CmsTool cms = wp.getCmsTool();
             String defaultCss = cms.getDefaultTextOverlayCss();
