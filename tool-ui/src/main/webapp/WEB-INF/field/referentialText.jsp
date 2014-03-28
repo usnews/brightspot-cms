@@ -2,6 +2,7 @@
 
 com.psddev.cms.db.ReferentialTextMarker,
 com.psddev.cms.db.RichTextReference,
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.ObjectField,
@@ -44,12 +45,18 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
 // --- Presentation ---
 
+ToolUi ui = field.as(ToolUi.class);
+Number suggestedMinimum = ui.getSuggestedMinimum();
+Number suggestedMaximum = ui.getSuggestedMaximum();
+
 wp.writeStart("div", "class", "inputSmall inputSmall-text");
 wp.writeStart("textarea",
         "class", "richtext",
         "data-expandable-class", "code",
         "id", wp.getId(),
         "name", inputName,
+        "data-suggested-maximum", suggestedMaximum != null ? suggestedMaximum.intValue() : null,
+        "data-suggested-minimum", suggestedMinimum != null ? suggestedMinimum.intValue() : null,
         "data-user", wp.getObjectLabel(wp.getUser()),
         "data-user-id", wp.getUser() != null ? wp.getUser().getId() : null,
         "data-first-draft", Boolean.TRUE.equals(request.getAttribute("firstDraft")),
