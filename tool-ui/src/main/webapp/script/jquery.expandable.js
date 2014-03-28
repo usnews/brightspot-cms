@@ -15,27 +15,36 @@ expand = function($inputs) {
     // Read the input width if it's a block element.
     $inputs.each(function() {
         var shadow = $.data(this, SHADOW_DATA),
-                bounds = this.getBoundingClientRect();
+                bounds;
 
-        shadow.width = bounds.width;
-        shadow.height = bounds.height;
+        if (shadow) {
+            bounds = this.getBoundingClientRect();
+            shadow.width = bounds.width;
+            shadow.height = bounds.height;
+        }
     });
 
     // Write the input text into the shadow.
     $inputs.each(function() {
-        var $input = $(this),
-                shadow = $.data(this, SHADOW_DATA),
-                value = $input.val(),
-                extra = shadow.display === 'block' ? ' foo foo foo' : ' foo';
+        var shadow = $.data(this, SHADOW_DATA),
+                $input,
+                value,
+                extra;
 
-        shadow.$element.text(value ? value + extra : ($input.prop('placeholder') || extra));
+        if (shadow) {
+            $input = $(this);
+            value = $input.val();
+            extra = shadow.display === 'block' ? ' foo foo foo' : ' foo';
+
+            shadow.$element.text(value ? value + extra : ($input.prop('placeholder') || extra));
+        }
     });
 
     // Write the shadow width if the input's a block element.
     $inputs.each(function() {
         var shadow = $.data(this, SHADOW_DATA);
 
-        if (shadow.display === 'block') {
+        if (shadow && shadow.display === 'block') {
             shadow.$element.css('width', shadow.width);
         }
     });
@@ -43,28 +52,36 @@ expand = function($inputs) {
     // Read the shadow size.
     $inputs.each(function() {
         var shadow = $.data(this, SHADOW_DATA),
-                shadowBounds = shadow.$element[0].getBoundingClientRect();
+                shadowBounds;
 
-        if (shadow.display === 'block') {
-            shadow.height = shadowBounds.height;
+        if (shadow) {
+            shadowBounds = shadow.$element[0].getBoundingClientRect();
 
-        } else {
-            shadow.width = shadowBounds.width;
+            if (shadow.display === 'block') {
+                shadow.height = shadowBounds.height;
+
+            } else {
+                shadow.width = shadowBounds.width;
+            }
         }
     });
 
     // Write the input size using the shadow size.
     $inputs.each(function() {
         var shadow = $.data(this, SHADOW_DATA),
-                $input = $(this);
+                $input;
 
-        $input.css('overflow', 'hidden');
+        if (shadow) {
+            $input = $(this);
 
-        if (shadow.display === 'block') {
-            $input.css('height', shadow.height);
+            $input.css('overflow', 'hidden');
 
-        } else {
-            $input.css('width', shadow.width);
+            if (shadow.display === 'block') {
+                $input.css('height', shadow.height);
+
+            } else {
+                $input.css('width', shadow.width);
+            }
         }
     });
 };
