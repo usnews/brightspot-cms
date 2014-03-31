@@ -4,7 +4,8 @@
 var $win = $(win),
         doc = win.document,
         $doc = $(doc),
-        targetIndex = 0;
+        targetIndex = 0,
+        ZERO_WIDTH_SPACE = '\u200b';
 
 function getContentEnhancementTarget() {
     ++ targetIndex;
@@ -800,13 +801,13 @@ var Rte = wysihtml5.Editor.extend({
                         dom;
 
                 if (lastTextareaValue === value) {
-                    return value;
+                    return value.replace(ZERO_WIDTH_SPACE, '');
 
                 } else {
                     lastTextareaValue = value;
                     dom = wysihtml5.dom.getAsDom(value, this.element.ownerDocument);
                     convertNodes(dom, 'SPAN', 'BUTTON');
-                    return dom.innerHTML;
+                    return dom.innerHTML.replace(ZERO_WIDTH_SPACE, '');
                 }
             };
 
@@ -960,7 +961,12 @@ var Rte = wysihtml5.Editor.extend({
                     var which,
                             selection,
                             $comment,
-                            spacer;
+                            spacer,
+                            isBackspace,
+                            isDelete,
+                            range,
+                            text,
+                            comment;
 
                     if (event.metaKey) {
                         return true;
@@ -979,6 +985,42 @@ var Rte = wysihtml5.Editor.extend({
                         }
 
                         return true;
+                    }
+
+                    isBackspace = which === 8;
+                    isDelete = which === 46;
+
+                    if (isBackspace || isDelete) {
+                        range = selection.getRange();
+
+                        if (range.collapsed) {
+                            text = range.startContainer;
+                            comment = null;
+
+                            if (isBackspace) {
+                                if (text.nodeType === Node.TEXT_NODE &&
+                                        (range.startOffset === 0 ||
+                                        (range.startOffset === 1 &&
+                                        text.nodeValue.substring(0, 1) === ZERO_WIDTH_SPACE))) {
+                                    comment = text.previousSibling;
+                                }
+
+                            } else {
+                                if (text.nodeType === Node.TEXT_NODE &&
+                                        text.nodeValue.length === range.startOffset) {
+                                    comment = text.nextSibling;
+                                }
+                            }
+
+                            if (comment && comment.nodeType === Node.ELEMENT_NODE) {
+                                $comment = $(comment);
+
+                                if ($comment.hasClass('rte-comment')) {
+                                    $comment.remove();
+                                    return false;
+                                }
+                            }
+                        }
                     }
 
                     if (!$(composer.element).hasClass('rte-changesTracking')) {
@@ -1024,13 +1066,11 @@ var Rte = wysihtml5.Editor.extend({
                         cleanUp();
                     }
 
-                    // BACKSPACE.
-                    if (which === 8) {
+                    if (isBackspace) {
                         doDelete('backward');
                         return false;
 
-                    // DELETE.
-                    } else if (which === 46) {
+                    } else if (isDelete) {
                         doDelete('forward');
                         return false;
 
@@ -1099,6 +1139,28 @@ var Rte = wysihtml5.Editor.extend({
 
             setInterval(function() {
                 rte.updateOverlay();
+            }, 100);
+
+            setInterval(function() {
+                $(rte.composer.element).find('.rte-comment').each(function() {
+                    var $comment = $(this),
+                            next = this.nextSibling,
+                            nextValue;
+
+                    if (next) {
+                        if (next.nodeType === Node.TEXT_NODE) {
+                            nextValue = next.nodeValue;
+
+                            if (nextValue.length > 0 &&
+                                    nextValue.substring(0, 1) !== ZERO_WIDTH_SPACE) {
+                                $comment.after(ZERO_WIDTH_SPACE);
+                            }
+                        }
+
+                    } else {
+                        $comment.after(ZERO_WIDTH_SPACE);
+                    }
+                });
             }, 100);
         });
     },
