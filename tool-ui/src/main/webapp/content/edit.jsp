@@ -754,7 +754,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
             <ul class="widget-preview_controls">
                 <li>
-                    <form action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
+                    <form enctype="multipart/form-data" action="<%= wp.url("/content/sharePreview.jsp") %>" method="post" target="_blank">
                         <input name="<%= PageFilter.PREVIEW_ID_PARAMETER %>" type="hidden" value="<%= state.getId() %>">
                         <% if (site != null) { %>
                             <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
