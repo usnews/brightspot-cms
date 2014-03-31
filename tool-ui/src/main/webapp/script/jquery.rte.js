@@ -966,7 +966,9 @@ var Rte = wysihtml5.Editor.extend({
                             isDelete,
                             range,
                             text,
-                            comment;
+                            comment,
+                            $delOrIns,
+                            cursorHack;
 
                     if (event.metaKey) {
                         return true;
@@ -1024,6 +1026,15 @@ var Rte = wysihtml5.Editor.extend({
                     }
 
                     if (!$(composer.element).hasClass('rte-changesTracking')) {
+                        $delOrIns = $(selection.getSelectedNode()).closest('del, ins');
+
+                        if ($delOrIns.length > 0) {
+                            cursorHack = $delOrIns[0].ownerDocument.createTextNode(ZERO_WIDTH_SPACE);
+
+                            $delOrIns.after(cursorHack);
+                            selection.setAfter(cursorHack);
+                        }
+
                         return true;
                     }
 
