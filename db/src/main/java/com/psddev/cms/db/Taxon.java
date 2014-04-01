@@ -8,13 +8,13 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.PaginatedResult;
 
-@ToolUi.SearchResultRenderer(TaxonSearchResultRenderer.class)
 public interface Taxon extends Recordable {
 
     public boolean isRoot();
 
     public Collection<? extends Taxon> getChildren();
 
+    @ToolUi.SearchResultRenderer(TaxonSearchResultRenderer.class)
     public static final class TaxonModification extends Modification<Taxon> {
 
         private TaxonModification(){

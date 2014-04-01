@@ -1324,6 +1324,7 @@ public class ToolUi extends Modification<Object> {
         }
     }
 
+    @Inherited
     @ObjectType.AnnotationProcessorClass(SearchResultRendererProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
