@@ -505,10 +505,6 @@ public class PageFilter extends AbstractFilter {
             PageStage stage = new PageStage(getServletContext(), request);
 
             request.setAttribute("stage", stage);
-            stage.setTitle(seoTitle);
-            stage.setDescription(seoDescription);
-            stage.setMetaName("robots", seoRobots);
-            stage.setMetaName("keywords", seoKeywordsString);
             stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
 
             if (mainType != null &&
@@ -523,6 +519,10 @@ public class PageFilter extends AbstractFilter {
             }
 
             stage.update(mainObject);
+            stage.setTitle(seoTitle);
+            stage.setDescription(seoDescription);
+            stage.setMetaName("robots", seoRobots);
+            stage.setMetaName("keywords", seoKeywordsString);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
