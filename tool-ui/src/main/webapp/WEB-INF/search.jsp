@@ -202,7 +202,7 @@ writer.start("div", "class", "searchForm");
             writer.start("form",
                     "class", "autoSubmit searchFiltersRest",
                     "method", "get",
-                    "action", wp.url(request.getAttribute("resultJsp")),
+                    "action", ObjectUtils.firstNonNull(request.getAttribute("resultPath"), wp.url(request.getAttribute("resultJsp"))),
                     "target", resultTarget);
 
                 writer.writeElement("input", "type", "hidden", "name", Utf8Filter.CHECK_PARAMETER, "value", Utf8Filter.CHECK_VALUE);
