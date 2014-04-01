@@ -1,23 +1,19 @@
 <%@ page session="false" import="
 
-com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
+com.psddev.cms.tool.TaxonSearchResultRenderer,
 com.psddev.cms.tool.ToolPageContext,
-com.psddev.cms.tool.page.ContentSearchAdvanced,
-
 com.psddev.dari.db.ObjectType,
-com.psddev.dari.db.State,
+
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.ObjectUtils,
-com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.UrlBuilder,
-
-java.util.Iterator,
-java.util.Map,
-java.util.UUID
-" %><%
+java.lang.reflect.Constructor,
+java.util.Map
+, com.psddev.cms.db.ToolUi" %>
+<%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -28,7 +24,20 @@ if (wp.requireUser()) {
 Search search = new Search(wp);
 
 if (!wp.param(boolean.class, "widget")) {
-    new SearchResultRenderer(wp, search).render();
+    ObjectType selectedType = search.getSelectedType();
+    SearchResultRenderer searchResultRenderer = null;
+    if(selectedType != null){
+        Class<? extends SearchResultRenderer> searchResultRendererClass = selectedType.as(ToolUi.class).getSearchResultRendererClass();
+        if(searchResultRendererClass != null){
+            Constructor<? extends SearchResultRenderer> constructor = searchResultRendererClass.getConstructor(ToolPageContext.class, Search.class);
+            searchResultRenderer = constructor.newInstance(wp, search);
+        }
+    }
+
+    if(searchResultRenderer == null){
+        searchResultRenderer = new SearchResultRenderer(wp, search);
+    }
+    searchResultRenderer.render();
 
     boolean hasMissing = false;
 

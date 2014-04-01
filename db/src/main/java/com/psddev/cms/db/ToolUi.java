@@ -65,6 +65,7 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMinimum;
     private String tab;
     private String storageSetting;
+    private Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass;
 
     public boolean isBulkUpload() {
         return Boolean.TRUE.equals(bulkUpload);
@@ -437,6 +438,10 @@ public class ToolUi extends Modification<Object> {
     public void setStorageSetting(String storageSetting) {
         this.storageSetting = storageSetting;
     }
+
+    public Class<? extends com.psddev.cms.tool.SearchResultRenderer> getSearchResultRendererClass() { return searchResultRendererClass; }
+
+    public void setSearchResultRendererClass(Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass) { this.searchResultRendererClass = searchResultRendererClass; }
 
     /**
      * Finds a list of all concrete types that can be displayed in the
@@ -1316,6 +1321,20 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, StorageSetting annotation) {
             field.as(ToolUi.class).setStorageSetting(annotation.value());
+        }
+    }
+
+    @ObjectType.AnnotationProcessorClass(SearchResultRendererProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface SearchResultRenderer {
+        Class<? extends com.psddev.cms.tool.SearchResultRenderer> value();
+    }
+
+    private static class SearchResultRendererProcessor implements ObjectType.AnnotationProcessor<SearchResultRenderer> {
+        @Override
+        public void process(ObjectType type, SearchResultRenderer annotation) {
+            type.as(ToolUi.class).setSearchResultRendererClass(annotation.value());
         }
     }
 

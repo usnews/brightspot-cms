@@ -113,26 +113,6 @@ public class SearchResultRenderer {
 
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
-        if (ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getSelectedType() != null &&
-                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
-                search.getVisibilities().isEmpty()) {
-
-            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
-
-            if (!roots.isEmpty()) {
-                resultsDisplayed = true;
-
-                page.writeStart("div", "class", "searchTaxonomy");
-                    page.writeStart("ul", "class", "taxonomy");
-                        for (Taxon root : roots) {
-                            writeTaxon(root);
-                        }
-                    page.writeEnd();
-                page.writeEnd();
-            }
-        }
-
         if (!resultsDisplayed) {
             if (search.findSorts().size() > 1) {
                 page.writeStart("div", "class", "searchSorter");
