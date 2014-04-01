@@ -30,16 +30,21 @@ public class ScheduleEdit extends PageServlet {
         if (page.isFormPost()) {
             try {
                 if (page.param(String.class, "action-save") != null) {
+                    ToolUser toolUser = page.getUser();
+
                     page.include("/WEB-INF/objectPost.jsp", "object", schedule);
 
                     if (newSchedule) {
-                        ToolUser toolUser = page.getUser();
                         schedule.setTriggerUser(toolUser);
                         schedule.setTriggerSite(page.getSite());
+                    }
+
+                    schedule.save();
+
+                    if (newSchedule) {
                         toolUser.setCurrentSchedule(schedule);
                         toolUser.save();
                     }
-                    schedule.save();
 
                 } else if (page.param(String.class, "action-delete") != null) {
                     try {
