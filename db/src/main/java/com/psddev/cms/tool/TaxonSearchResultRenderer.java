@@ -2,7 +2,6 @@ package com.psddev.cms.tool;
 
 import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
 
 import java.io.IOException;
