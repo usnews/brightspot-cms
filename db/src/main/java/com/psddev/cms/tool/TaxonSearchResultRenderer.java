@@ -36,6 +36,60 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
         }
     }
 
+    @Override
+    public void render() throws IOException {
+        level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
+        nextLevel = level+1;
+
+        if(level ==1){
+            page.writeStart("h2").writeHtml("Result").writeEnd();
+
+            if (search.findSorts().size() > 1) {
+                page.writeStart("div", "class", "searchSorter");
+                renderSorter();
+                page.writeEnd();
+            }
+
+            page.writeStart("div", "class", "searchPagination");
+            renderPagination();
+            page.writeEnd();
+        }
+
+        page.writeStart("div", "class", "searchResultList");
+        if(level == 1){
+            page.writeStart("div", "class", "taxonomyContainer");
+            page.writeStart("div", "class", "searchTaxonomy");
+        }
+        if (!ObjectUtils.isBlank(taxonResults)) {
+            renderList(taxonResults);
+        } else {
+            renderEmpty();
+        }
+        page.writeEnd();
+
+        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
+            String frameName = page.createId();
+
+            page.writeStart("div", "class", "frame", "name", frameName);
+            page.writeEnd();
+
+            page.writeStart("form",
+                    "class", "searchSuggestionsForm",
+                    "method", "post",
+                    "action", page.url("/content/suggestions.jsp"),
+                    "target", frameName);
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", "search",
+                    "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
+            page.writeEnd();
+        }
+        if(level == 1){
+            page.writeEnd();
+            page.writeEnd();
+        }
+    }
+
     private void writeTaxon(Taxon taxon) throws IOException {
         page.writeStart("li");
         renderBeforeItem(taxon);
@@ -55,30 +109,15 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
 
     @Override
     public void renderList(Collection<?> listItems) throws IOException {
-        level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
-        nextLevel = level+1;
-        if (!ObjectUtils.isBlank(taxonResults)) {
-            if(level == 1){
-                page.writeStart("div", "class", "taxonomyContainer");
-                page.writeStart("div", "class", "searchTaxonomy");
-            }
-
-                page.writeStart("ul", "class", "taxonomy");
-                for (Taxon root : taxonResults) {
-                    writeTaxon(root);
-                }
-                page.writeEnd();
-                page.writeStart("div",
-                        "class", "frame taxonChildren",
-                        "name", "d"+nextLevel);
-                page.writeEnd();
-            if(level == 1){
-                page.writeEnd();
-                page.writeEnd();
-            }
-        } else {
-            renderEmpty();
+        page.writeStart("ul", "class", "taxonomy");
+        for (Taxon root : (Collection<Taxon>)listItems) {
+            writeTaxon(root);
         }
+        page.writeEnd();
+        page.writeStart("div",
+                "class", "frame taxonChildren",
+                "name", "d"+nextLevel);
+        page.writeEnd();
     }
 
     public void renderPagination() throws IOException {
