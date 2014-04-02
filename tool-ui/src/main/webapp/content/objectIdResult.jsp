@@ -3,10 +3,13 @@
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.db.ToolUi,
 
 com.psddev.dari.db.State,
+com.psddev.dari.db.ObjectType,
 
-java.io.IOException
+java.io.IOException,
+java.lang.reflect.Constructor
 " %><%
 
 // --- Logic ---
@@ -23,20 +26,35 @@ String removeId = wp.createId();
 // --- Presentation ---
 
 %><div id="<%= pageId %>">
-    <% new SearchResultRenderer(wp, search) {
+    <%  SearchResultRenderer searchResultRenderer = null;
+        ObjectType selectedType = search.getSelectedType();
 
-        @Override
-        public void renderBeforeItem(Object item) throws IOException {
-            writer.start("span",
-                    "class", "link",
-                    "data-objectId", State.getInstance(item).getId());
+        if(selectedType != null){
+            Class<? extends SearchResultRenderer> searchResultRendererClass = selectedType.as(ToolUi.class).getSearchResultRendererClass();
+
+            if(searchResultRendererClass != null){
+                Constructor<? extends SearchResultRenderer> constructor = searchResultRendererClass.getConstructor(ToolPageContext.class, Search.class);
+                searchResultRenderer = constructor.newInstance(wp, search);
+            }
         }
 
-        @Override
-        public void renderAfterItem(Object item) throws IOException {
-            writer.end();
+        if(searchResultRenderer == null){
+            searchResultRenderer = new SearchResultRenderer(wp, search) {
+
+                @Override
+                public void renderBeforeItem(Object item) throws IOException {
+                    writer.start("span",
+                            "class", "link",
+                            "data-objectId", State.getInstance(item).getId());
+                }
+
+                @Override
+                public void renderAfterItem(Object item) throws IOException {
+                    writer.end();
+                }
+            };
         }
-    }.render(); %>
+        searchResultRenderer.render(); %>
 </div>
 
 <script type="text/javascript">
