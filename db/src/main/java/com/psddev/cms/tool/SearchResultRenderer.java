@@ -109,29 +109,26 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
-        boolean resultsDisplayed = false;
 
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
-        if (!resultsDisplayed) {
-            if (search.findSorts().size() > 1) {
-                page.writeStart("div", "class", "searchSorter");
-                    renderSorter();
-                page.writeEnd();
-            }
-
-            page.writeStart("div", "class", "searchPagination");
-                renderPagination();
-            page.writeEnd();
-
-            page.writeStart("div", "class", "searchResultList");
-                if (result.hasPages()) {
-                    renderList(result.getItems());
-                } else {
-                    renderEmpty();
-                }
+        if (search.findSorts().size() > 1) {
+            page.writeStart("div", "class", "searchSorter");
+                renderSorter();
             page.writeEnd();
         }
+
+        page.writeStart("div", "class", "searchPagination");
+            renderPagination();
+        page.writeEnd();
+
+        page.writeStart("div", "class", "searchResultList");
+            if (result.hasPages()) {
+                renderList(result.getItems());
+            } else {
+                renderEmpty();
+            }
+        page.writeEnd();
 
         if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
@@ -150,24 +147,6 @@ public class SearchResultRenderer {
                         "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
             page.writeEnd();
         }
-    }
-
-    private void writeTaxon(Taxon taxon) throws IOException {
-        page.writeStart("li");
-            renderBeforeItem(taxon);
-            page.writeObjectLabel(taxon);
-            renderAfterItem(taxon);
-
-            Collection<? extends Taxon> children = taxon.getChildren();
-
-            if (children != null && !children.isEmpty()) {
-                page.writeStart("ul");
-                    for (Taxon c : children) {
-                        writeTaxon(c);
-                    }
-                page.writeEnd();
-            }
-        page.writeEnd();
     }
 
     public void renderSorter() throws IOException {
