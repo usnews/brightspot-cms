@@ -16,7 +16,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
     private int level = 1;
     private int nextLevel = 2;
 
-    public TaxonSearchResultRenderer(ToolPageContext page, com.psddev.cms.tool.Search search) throws IOException {
+    public TaxonSearchResultRenderer(ToolPageContext page, Search search) throws IOException {
 
         super(page, search);
 
