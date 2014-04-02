@@ -1,6 +1,7 @@
 package com.psddev.cms.db;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.psddev.cms.tool.TaxonSearchResultRenderer;
 import com.psddev.dari.db.Modification;
@@ -40,7 +41,11 @@ public interface Taxon extends Recordable {
     /** {@link Taxon} utility methods. */
     public static final class Static {
 
-        public static <T extends Taxon> PaginatedResult<T> getRoots(Class<T> taxonClass, long offset, int limit) {
+        public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass) {
+            return Query.from(taxonClass).where("root = true").selectAll();
+        }
+
+        public static <T extends Taxon> PaginatedResult<T> getPaginatedRoots(Class<T> taxonClass, long offset, int limit) {
             return Query.from(taxonClass).where("root = true").select(offset, limit);
         }
     }
