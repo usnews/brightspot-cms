@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.ObjectField;
@@ -12,7 +11,6 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 
 public class RichTextDatabase extends ForwardingDatabase {
@@ -37,39 +35,6 @@ public class RichTextDatabase extends ForwardingDatabase {
                         List<Object> publishables = new ReferentialText((String) value, true).toPublishables(new RichTextCleaner());
 
                         state.put(fieldName, publishables.isEmpty() ? null : publishables.get(0));
-                    }
-
-                } else if (ObjectField.RECORD_TYPE.equals(field.getInternalItemType())) {
-                    boolean embedded = field.isEmbedded();
-                    Set<ObjectType> fieldTypes = field.getTypes();
-
-                    if (!embedded && !fieldTypes.isEmpty()) {
-                        embedded = true;
-
-                        for (ObjectType t : fieldTypes) {
-                            if (!t.isEmbedded()) {
-                                embedded = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (embedded) {
-                        T: for (ObjectType t : fieldTypes) {
-                            for (ObjectField f : t.getFields()) {
-                                if (f.as(ToolUi.class).isRichText()) {
-                                    Iterable<?> values = ObjectUtils.to(Iterable.class, state.get(field.getInternalName()));
-
-                                    if (values != null) {
-                                        for (Object value : values) {
-                                            clean(value);
-                                        }
-                                    }
-
-                                    break T;
-                                }
-                            }
-                        }
                     }
                 }
             }
