@@ -85,6 +85,10 @@ if (fieldValue == null && isEmbedded) {
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     if (isEmbedded) {
+        if (fieldValue != null && id == null) {
+            fieldValue = null;
+        }
+
         if (fieldValue != null) {
             State fieldValueState = State.getInstance(fieldValue);
             fieldValueState.setId(id);
