@@ -3,9 +3,12 @@ package com.psddev.cms.tool;
 import com.psddev.cms.db.Taxon;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class TaxonSearchResultRenderer extends SearchResultRenderer {
@@ -84,6 +87,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
                     "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
             page.writeEnd();
         }
+        
         if(level == 1){
             page.writeEnd();
             page.writeEnd();
@@ -121,12 +125,9 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
     }
 
     public void renderPagination() throws IOException {
-        page.writeStart("ul", "class", "pagination");
+    }
 
-            page.writeStart("li");
-                page.writeHtml("All Results");
-            page.writeEnd();
-
-        page.writeEnd();
+    @Override
+    public void renderSorter() throws IOException {
     }
 }
