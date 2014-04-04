@@ -16,7 +16,6 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
-import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
@@ -109,49 +108,26 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
-        boolean resultsDisplayed = false;
 
         page.writeStart("h2").writeHtml("Result").writeEnd();
 
-        if (ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getSelectedType() != null &&
-                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
-                search.getVisibilities().isEmpty()) {
-
-            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
-
-            if (!roots.isEmpty()) {
-                resultsDisplayed = true;
-
-                page.writeStart("div", "class", "searchTaxonomy");
-                    page.writeStart("ul", "class", "taxonomy");
-                        for (Taxon root : roots) {
-                            writeTaxon(root);
-                        }
-                    page.writeEnd();
-                page.writeEnd();
-            }
-        }
-
-        if (!resultsDisplayed) {
-            if (search.findSorts().size() > 1) {
-                page.writeStart("div", "class", "searchSorter");
-                    renderSorter();
-                page.writeEnd();
-            }
-
-            page.writeStart("div", "class", "searchPagination");
-                renderPagination();
-            page.writeEnd();
-
-            page.writeStart("div", "class", "searchResultList");
-                if (result.hasPages()) {
-                    renderList(result.getItems());
-                } else {
-                    renderEmpty();
-                }
+        if (search.findSorts().size() > 1) {
+            page.writeStart("div", "class", "searchSorter");
+                renderSorter();
             page.writeEnd();
         }
+
+        page.writeStart("div", "class", "searchPagination");
+            renderPagination();
+        page.writeEnd();
+
+        page.writeStart("div", "class", "searchResultList");
+            if (result.hasPages()) {
+                renderList(result.getItems());
+            } else {
+                renderEmpty();
+            }
+        page.writeEnd();
 
         if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
@@ -170,24 +146,6 @@ public class SearchResultRenderer {
                         "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
             page.writeEnd();
         }
-    }
-
-    private void writeTaxon(Taxon taxon) throws IOException {
-        page.writeStart("li");
-            renderBeforeItem(taxon);
-            page.writeObjectLabel(taxon);
-            renderAfterItem(taxon);
-
-            Collection<? extends Taxon> children = taxon.getChildren();
-
-            if (children != null && !children.isEmpty()) {
-                page.writeStart("ul");
-                    for (Taxon c : children) {
-                        writeTaxon(c);
-                    }
-                page.writeEnd();
-            }
-        page.writeEnd();
     }
 
     public void renderSorter() throws IOException {

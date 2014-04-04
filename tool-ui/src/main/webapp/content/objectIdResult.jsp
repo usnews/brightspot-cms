@@ -6,8 +6,7 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.State,
 
-java.io.IOException
-" %><%
+java.io.IOException, com.psddev.dari.db.ObjectType, com.psddev.cms.db.Taxon, com.psddev.cms.tool.TaxonSearchResultRenderer" %><%
 
 // --- Logic ---
 
@@ -23,20 +22,34 @@ String removeId = wp.createId();
 // --- Presentation ---
 
 %><div id="<%= pageId %>">
-    <% new SearchResultRenderer(wp, search) {
+    <%  SearchResultRenderer searchResultRenderer = null;
+        ObjectType selectedType = search.getSelectedType();
 
-        @Override
-        public void renderBeforeItem(Object item) throws IOException {
-            writer.start("span",
-                    "class", "link",
-                    "data-objectId", State.getInstance(item).getId());
+        if (selectedType != null
+                && Taxon.class.isAssignableFrom(selectedType.getObjectClass())) {
+
+            searchResultRenderer = new TaxonSearchResultRenderer(wp, search);
         }
 
-        @Override
-        public void renderAfterItem(Object item) throws IOException {
-            writer.end();
+        if (searchResultRenderer == null) {
+            searchResultRenderer = new SearchResultRenderer(wp, search) {
+
+                @Override
+                public void renderBeforeItem(Object item) throws IOException {
+                    writer.start("span",
+                            "class", "link",
+                            "data-objectId", State.getInstance(item).getId());
+                }
+
+                @Override
+                public void renderAfterItem(Object item) throws IOException {
+                    writer.end();
+                }
+            };
         }
-    }.render(); %>
+
+        searchResultRenderer.render();
+    %>
 </div>
 
 <script type="text/javascript">
