@@ -3,10 +3,13 @@
 com.psddev.cms.tool.Search,
 com.psddev.cms.tool.SearchResultRenderer,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.dari.db.ObjectType,
+com.psddev.cms.db.Taxon,
+com.psddev.cms.tool.TaxonSearchResultRenderer,
 
 com.psddev.dari.db.State,
 
-java.io.IOException, com.psddev.dari.db.ObjectType, com.psddev.cms.db.Taxon, com.psddev.cms.tool.TaxonSearchResultRenderer" %><%
+java.io.IOException" %><%
 
 // --- Logic ---
 
