@@ -1,27 +1,13 @@
 package com.psddev.cms.db;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.psddev.dari.db.*;
+import com.psddev.dari.util.CollectionUtils;
+import com.psddev.dari.util.ObjectUtils;
 import org.apache.commons.codec.language.Metaphone;
 
-import com.psddev.dari.db.ComparisonPredicate;
-import com.psddev.dari.db.CompoundPredicate;
-import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Predicate;
-import com.psddev.dari.db.PredicateParser;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable;
-import com.psddev.dari.util.CollectionUtils;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Search extends Record {
 
@@ -36,6 +22,7 @@ public class Search extends Record {
 
     private Set<ObjectType> types;
     private List<Rule> rules = new ArrayList<Rule>(Arrays.asList(new StopWords()));
+
 
     public String getDisplayName() {
         return displayName;
@@ -78,7 +65,7 @@ public class Search extends Record {
     // --- Fluent methods ---
 
     public static Search named(String name) {
-        return Query.from(Search.class).where("internalName = ?").first();
+        return Query.from(Search.class).where("internalName = ?",name).first();
     }
 
     public Search addTypes(ObjectType... types) {
@@ -202,6 +189,15 @@ public class Search extends Record {
         return addTypeKeywords(boost, ObjectType.getInstance(objectClass), keywords);
     }
 
+    public Search boostDirectoryItems(final double boost) {
+        return addRule(new Rule() {
+            @Override
+            public void apply(Search search, SearchQuery query, List<String> queryTerms) {
+                query.sortRelevant(boost, Directory.Static.hasPathPredicate());
+            }
+        });
+    }
+
     private List<String> normalizeTerms(Object... terms) {
         List<String> normalized = new ArrayList<String>();
 
@@ -253,8 +249,9 @@ public class Search extends Record {
             for (Rule rule : getRules()) {
                 rule.apply(this, query, queryTerms);
             }
+
             if (!queryTerms.isEmpty()) {
-                query.and("_any matchesAll ?", queryTerms);
+                query.or("_any matchesAll ?", queryTerms);
             }
         }
 
@@ -262,8 +259,8 @@ public class Search extends Record {
         for (ObjectType type : getTypes()) {
             allTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
         }
-
         query.and("_type = ?", allTypes);
+
         return query;
     }
 
@@ -378,7 +375,7 @@ public class Search extends Record {
             }
             return fields;
         }
-        
+
         public void setFields(Set<String> fields) {
             this.fields = fields;
         }
@@ -388,7 +385,31 @@ public class Search extends Record {
             double boost = getBoost();
             String prefix = getType().getInternalName() + "/";
             for (String field : getFields()) {
-                query.sortRelevant(boost, prefix + field + " matchesAll ?", queryTerms);
+
+                List<UUID> uuids = new ArrayList<UUID>();
+                List<String> texts = new ArrayList<String>();
+
+                if (queryTerms != null) {
+                    for (String queryTerm : queryTerms) {
+                        UUID uuid = ObjectUtils.to(UUID.class, queryTerm);
+                        if (uuid != null) {
+                            uuids.add(uuid);
+                        } else {
+                            texts.add(queryTerm);
+                        }
+                    }
+                }
+
+                if (ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
+                    if (!uuids.isEmpty()) {
+                        query.sortRelevant(boost, prefix + field + " matchesAll ?", uuids);
+                    }
+
+                } else {
+                    if (!texts.isEmpty()) {
+                        query.sortRelevant(boost, prefix + field + " matchesAll ?", texts);
+                    }
+                }
             }
         }
     }
@@ -562,8 +583,8 @@ public class Search extends Record {
                 }
             }
 
-            query.and("_any matchesAny ?", terms);
-            query.sortRelevant(getBoost(), "_any matchesAll ?", queryTerms);
+            query.or("_any matchesAny ?", terms);
+            query.sortRelevant(getBoost(), "_any matchesAny ?", terms);
         }
     }
 }
