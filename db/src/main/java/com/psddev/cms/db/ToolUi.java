@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.psddev.cms.tool.SearchResultRenderer;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
@@ -66,7 +67,7 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMinimum;
     private String tab;
     private String storageSetting;
-    private Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass;
+    private String searchResultRendererClassName;
 
     public boolean isBulkUpload() {
         return Boolean.TRUE.equals(bulkUpload);
@@ -448,12 +449,13 @@ public class ToolUi extends Modification<Object> {
         this.storageSetting = storageSetting;
     }
 
-    public Class<? extends com.psddev.cms.tool.SearchResultRenderer> getSearchResultRendererClass() {
-        return searchResultRendererClass;
+    public Class<? extends SearchResultRenderer> getSearchResultRendererClass() {
+        Class<?> c = ObjectUtils.getClassByName(searchResultRendererClassName);
+        return c != null && SearchResultRenderer.class.isAssignableFrom(c) ? (Class<? extends SearchResultRenderer>) c : null;
     }
 
-    public void setSearchResultRendererClass(Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass) {
-        this.searchResultRendererClass = searchResultRendererClass;
+    public void setSearchResultRendererClass(Class<? extends SearchResultRenderer> searchResultRendererClass) {
+        this.noteRendererClassName = searchResultRendererClass != null ? searchResultRendererClass.getName() : null;
     }
 
     /**
@@ -1358,17 +1360,25 @@ public class ToolUi extends Modification<Object> {
     }
 
     @Inherited
-    @ObjectType.AnnotationProcessorClass(SearchResultRendererProcessor.class)
+    @ObjectType.AnnotationProcessorClass(SearchResultRendererClassProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    public @interface SearchResultRenderer {
-        Class<? extends com.psddev.cms.tool.SearchResultRenderer> value();
+    @Target({ElementType.TYPE, ElementType.FIELD})
+    public @interface SearchResultRendererClass {
+        Class<? extends SearchResultRenderer> value();
     }
 
-    private static class SearchResultRendererProcessor implements ObjectType.AnnotationProcessor<SearchResultRenderer> {
+    private static class SearchResultRendererClassProcessor implements
+            ObjectType.AnnotationProcessor<SearchResultRendererClass>,
+            ObjectField.AnnotationProcessor<SearchResultRendererClass> {
+
         @Override
-        public void process(ObjectType type, SearchResultRenderer annotation) {
+        public void process(ObjectType type, SearchResultRendererClass annotation) {
             type.as(ToolUi.class).setSearchResultRendererClass(annotation.value());
+        }
+
+        @Override
+        public void process(ObjectType type, ObjectField field, SearchResultRendererClass annotation) {
+            field.as(ToolUi.class).setSearchResultRendererClass(annotation.value());
         }
     }
 

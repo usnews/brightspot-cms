@@ -104,7 +104,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
 
         if (children != null && !children.isEmpty()) {
             page.writeElement("a",
-                    "href", page.url("", PARENT_ID_PARAMETER, taxon.as(Taxon.TaxonModification.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
+                    "href", page.url("", PARENT_ID_PARAMETER, taxon.as(Taxon.Data.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
                     "class", "taxonomyExpand",
                     "target", "d"+nextLevel);
         }

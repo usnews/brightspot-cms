@@ -15,10 +15,10 @@ public interface Taxon extends Recordable {
 
     public Collection<? extends Taxon> getChildren();
 
-    @ToolUi.SearchResultRenderer(TaxonSearchResultRenderer.class)
-    public static final class TaxonModification extends Modification<Taxon> {
+    @ToolUi.SearchResultRendererClass(TaxonSearchResultRenderer.class)
+    public static final class Data extends Modification<Taxon> {
 
-        private TaxonModification(){
+        private Data(){
         }
 
         @Indexed
