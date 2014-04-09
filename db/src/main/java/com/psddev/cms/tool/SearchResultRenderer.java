@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.Taxon;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
@@ -30,12 +31,17 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SearchResultRenderer {
 
     private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
+
+    private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
+    private static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
 
     protected final ToolPageContext page;
 
@@ -108,26 +114,73 @@ public class SearchResultRenderer {
 
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
+        boolean resultsDisplayed = false;
+        int level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
 
-        page.writeStart("h2").writeHtml("Result").writeEnd();
-
-        if (search.findSorts().size() > 1) {
-            page.writeStart("div", "class", "searchSorter");
-                renderSorter();
-            page.writeEnd();
+        if(level == 1) {
+            page.writeStart("h2").writeHtml("Result").writeEnd();
         }
 
-        page.writeStart("div", "class", "searchPagination");
-            renderPagination();
-        page.writeEnd();
+        if (ObjectUtils.isBlank(search.getQueryString()) &&
+                search.getSelectedType() != null &&
+                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
+                search.getVisibilities().isEmpty()) {
 
-        page.writeStart("div", "class", "searchResultList");
-            if (result.hasPages()) {
-                renderList(result.getItems());
+            search.setSuggestions(false);
+
+            int nextLevel = level+1;
+
+            Collection<Taxon> taxonResults  = null;
+
+            UUID taxonParentUuid = page.paramOrDefault(UUID.class, TAXON_PARENT_ID_PARAMETER, null);
+            if (!ObjectUtils.isBlank(taxonParentUuid)) {
+                Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
+                taxonResults = (Collection<Taxon>)parent.getChildren();
+            } else {
+                taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+            }
+            page.writeStart("div", "class", "searchResultList");
+
+            if (level == 1) {
+                page.writeStart("div", "class", "taxonomyContainer");
+                page.writeStart("div", "class", "searchTaxonomy");
+            }
+
+            if (!ObjectUtils.isBlank(taxonResults)) {
+                resultsDisplayed = true;
+                renderTaxonList(taxonResults, nextLevel);
             } else {
                 renderEmpty();
             }
-        page.writeEnd();
+
+            if (level == 1) {
+                page.writeEnd();
+                page.writeEnd();
+            }
+
+
+            page.writeEnd();
+        }
+
+        if (!resultsDisplayed) {
+            if (search.findSorts().size() > 1) {
+                page.writeStart("div", "class", "searchSorter");
+                    renderSorter();
+                page.writeEnd();
+            }
+
+            page.writeStart("div", "class", "searchPagination");
+                renderPagination();
+            page.writeEnd();
+
+            page.writeStart("div", "class", "searchResultList");
+                if (result.hasPages()) {
+                    renderList(result.getItems());
+                } else {
+                    renderEmpty();
+                }
+            page.writeEnd();
+        }
 
         if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
             String frameName = page.createId();
@@ -146,6 +199,24 @@ public class SearchResultRenderer {
                         "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
             page.writeEnd();
         }
+    }
+
+    private void writeTaxon(Taxon taxon, int nextLevel) throws IOException {
+        page.writeStart("li");
+            renderBeforeItem(taxon);
+            page.writeObjectLabel(taxon);
+            renderAfterItem(taxon);
+
+            Collection<? extends Taxon> children = taxon.getChildren();
+
+            if (children != null && !children.isEmpty()) {
+                page.writeStart("a",
+                        "href", page.url("", TAXON_PARENT_ID_PARAMETER, taxon.as(Taxon.TaxonModification.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
+                        "class", "taxonomyExpand",
+                        "target", "d" + nextLevel);
+                page.writeEnd();
+            }
+        page.writeEnd();
     }
 
     public void renderSorter() throws IOException {
@@ -273,6 +344,18 @@ public class SearchResultRenderer {
                 page.writeEnd();
             page.writeEnd();
         }
+    }
+
+    public void renderTaxonList(Collection<?> listItems, int nextLevel) throws IOException {
+        page.writeStart("ul", "class", "taxonomy");
+        for (Taxon taxon : (Collection<Taxon>)listItems) {
+            writeTaxon(taxon, nextLevel);
+        }
+        page.writeEnd();
+        page.writeStart("div",
+                "class", "frame taxonChildren",
+                "name", "d"+nextLevel);
+        page.writeEnd();
     }
 
     public void renderImage(Object item, StorageItem image) throws IOException {

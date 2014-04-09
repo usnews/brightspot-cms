@@ -3,7 +3,6 @@ package com.psddev.cms.db;
 import java.util.Collection;
 import java.util.List;
 
-import com.psddev.cms.tool.TaxonSearchResultRenderer;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
