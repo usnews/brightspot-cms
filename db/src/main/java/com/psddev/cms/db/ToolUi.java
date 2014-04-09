@@ -455,7 +455,7 @@ public class ToolUi extends Modification<Object> {
     }
 
     public void setSearchResultRendererClass(Class<? extends SearchResultRenderer> searchResultRendererClass) {
-        this.noteRendererClassName = searchResultRendererClass != null ? searchResultRendererClass.getName() : null;
+        this.searchResultRendererClassName = searchResultRendererClass != null ? searchResultRendererClass.getName() : null;
     }
 
     /**
