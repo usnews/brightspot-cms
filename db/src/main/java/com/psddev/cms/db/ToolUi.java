@@ -439,9 +439,13 @@ public class ToolUi extends Modification<Object> {
         this.storageSetting = storageSetting;
     }
 
-    public Class<? extends com.psddev.cms.tool.SearchResultRenderer> getSearchResultRendererClass() { return searchResultRendererClass; }
+    public Class<? extends com.psddev.cms.tool.SearchResultRenderer> getSearchResultRendererClass() {
+        return searchResultRendererClass;
+    }
 
-    public void setSearchResultRendererClass(Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass) { this.searchResultRendererClass = searchResultRendererClass; }
+    public void setSearchResultRendererClass(Class<? extends com.psddev.cms.tool.SearchResultRenderer> searchResultRendererClass) {
+        this.searchResultRendererClass = searchResultRendererClass;
+    }
 
     /**
      * Finds a list of all concrete types that can be displayed in the
