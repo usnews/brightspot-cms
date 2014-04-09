@@ -69,24 +69,6 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
             renderEmpty();
         }
         page.writeEnd();
-
-        if (search.isSuggestions() && ObjectUtils.isBlank(search.getQueryString())) {
-            String frameName = page.createId();
-
-            page.writeStart("div", "class", "frame", "name", frameName);
-            page.writeEnd();
-
-            page.writeStart("form",
-                    "class", "searchSuggestionsForm",
-                    "method", "post",
-                    "action", page.url("/content/suggestions.jsp"),
-                    "target", frameName);
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", "search",
-                    "value", ObjectUtils.toJson(search.getState().getSimpleValues()));
-            page.writeEnd();
-        }
         
         if(level == 1){
             page.writeEnd();
