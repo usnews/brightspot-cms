@@ -4,6 +4,10 @@ import com.psddev.dari.db.State;
 
 import java.util.Map;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Operation.DisplayName("Use Embedded Variation Data")
 public class EmbeddedDataOperation extends Operation {
 

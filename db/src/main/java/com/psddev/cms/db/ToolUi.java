@@ -33,6 +33,7 @@ public class ToolUi extends Modification<Object> {
 
     private Boolean bulkUpload;
     private String codeType;
+    private Boolean colorPicker;
     private String cssClass;
     private boolean displayFirst;
     private boolean displayLast;
@@ -81,6 +82,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setCodeType(String codeType) {
         this.codeType = codeType;
+    }
+
+    public boolean isColorPicker() {
+        return Boolean.TRUE.equals(colorPicker);
+    }
+
+    public void setColorPicker(boolean colorPicker) {
+        this.colorPicker = colorPicker ? Boolean.TRUE : null;
     }
 
     public String getCssClass() {
@@ -518,6 +527,26 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CodeType annotation) {
             field.as(ToolUi.class).setCodeType(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies whether the target field should display the color picker.
+     */
+    @Documented
+    @ObjectField.AnnotationProcessorClass(ColorPickerProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ColorPicker {
+
+        boolean value() default true;
+    }
+
+    private static class ColorPickerProcessor implements ObjectField.AnnotationProcessor<ColorPicker> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, ColorPicker annotation) {
+            field.as(ToolUi.class).setColorPicker(annotation.value());
         }
     }
 

@@ -65,9 +65,7 @@ public class ToolFormWriter extends FormWriter {
                     html.string("] field!");
                 html.end();
 
-                if (!Settings.isProduction()) {
-                    html.object(ex);
-                }
+                html.object(ex);
             }
 
             write(string.toString());

@@ -8,6 +8,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 public abstract class ScriptUtils {
 
     private static final ScriptEngineManager MANAGER = new ScriptEngineManager();

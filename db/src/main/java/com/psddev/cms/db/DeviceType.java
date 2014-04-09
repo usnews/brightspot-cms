@@ -1,5 +1,9 @@
 package com.psddev.cms.db;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 public enum DeviceType {
 
     ANDROID("Android", new Evaluator() {

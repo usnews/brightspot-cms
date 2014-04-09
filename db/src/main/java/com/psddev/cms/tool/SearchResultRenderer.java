@@ -471,7 +471,9 @@ public class SearchResultRenderer {
 
     public void renderBeforeItem(Object item) throws IOException {
         page.writeStart("a",
-                "href", page.objectUrl("/content/edit.jsp", item, "search", page.url("", Search.NAME_PARAMETER, null)),
+                "href", page.toolUrl(CmsTool.class, "/content/edit.jsp",
+                        "id", State.getInstance(item).getId(),
+                        "search", page.url("", Search.NAME_PARAMETER, null)),
                 "data-objectId", State.getInstance(item).getId(),
                 "target", "_top");
     }

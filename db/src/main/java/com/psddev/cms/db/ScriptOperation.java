@@ -4,6 +4,10 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 @Operation.DisplayName("Script")
 public class ScriptOperation extends Operation {
 

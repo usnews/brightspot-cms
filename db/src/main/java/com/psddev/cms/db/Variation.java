@@ -27,7 +27,10 @@ import com.psddev.dari.util.PullThroughValue;
  *
  * <p>Some of the uses of this class are: A/B testing, internationalization,
  * and delivery of a different layout for mobile.
+ *
+ * @deprecated No replacement.
  */
+@Deprecated
 public class Variation extends Record {
 
     public static final String APPLIED_EXTRA = "cms.variation.applied";
@@ -103,6 +106,10 @@ public class Variation extends Record {
         this.operation = operation;
     }
 
+    /**
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public static class Data extends Modification<Object> {
 
         private Map<String, Object> variations;
@@ -130,7 +137,12 @@ public class Variation extends Record {
         }
     }
 
-    /** {@link Variation} utility methods. */
+    /**
+     * {@link Variation} utility methods.
+     *
+     * @deprecated No replacement.
+     */
+    @Deprecated
     public static final class Static {
 
         private Static() {

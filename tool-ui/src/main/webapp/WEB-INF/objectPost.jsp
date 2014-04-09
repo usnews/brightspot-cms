@@ -13,7 +13,8 @@ com.psddev.dari.util.TypeReference,
 
 java.util.Collection,
 java.util.Date,
-java.util.List
+java.util.List,
+java.util.Map
 " %><%
 
 // --- Logic ---
@@ -26,7 +27,11 @@ State state = State.getInstance(object);
 ObjectType type = state.getType();
 List<ObjectField> fields = type != null ? type.getFields() : null;
 
-if (fields != null) {
+if (object instanceof Query) {
+    state.clear();
+    state.putAll((Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, state.getId() + "/_query")));
+
+} else if (fields != null) {
     Object oldContainer = request.getAttribute("containerObject");
     boolean draftCheck = false;
 

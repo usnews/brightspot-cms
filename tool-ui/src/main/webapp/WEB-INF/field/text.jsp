@@ -83,6 +83,14 @@ if (validValues != null) {
     }
     wp.write("</select>");
 
+} else if (ui.isColorPicker()) {
+    wp.writeElement("input",
+            "type", "text",
+            "class", "color",
+            "name", inputName,
+            "placeholder", placeholder,
+            "value", fieldValue);
+
 } else if (ui.isSecret()) {
     wp.writeElement("input",
             "type", "password",

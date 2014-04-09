@@ -85,6 +85,10 @@ if (fieldValue == null && isEmbedded) {
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     if (isEmbedded) {
+        if (fieldValue != null && id == null) {
+            fieldValue = null;
+        }
+
         if (fieldValue != null) {
             State fieldValueState = State.getInstance(fieldValue);
             fieldValueState.setId(id);
@@ -166,7 +170,9 @@ if (isEmbedded) {
         wp.write("<select class=\"toggleable\" name=\"", wp.h(idName), "\">");
 
         if (!field.isRequired()) {
-            wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\">None</option>");
+            wp.write("<option data-hide=\".", validObjectClass, "\" value=\"\">");
+            wp.writeHtmlOrDefault(field.as(ToolUi.class).getPlaceholder(), "None");
+            wp.write("</option>");
         }
 
         for (Object validObject : validObjects) {

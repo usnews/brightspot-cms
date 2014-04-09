@@ -15,7 +15,10 @@ import com.psddev.dari.util.PaginatedResult;
 /**
  * Database wrapper that applies all profile-specific variations
  * automatically.
+ *
+ * @deprecated No replacement.
  */
+@Deprecated
 public class VaryingDatabase extends ForwardingDatabase {
 
     private HttpServletRequest request;
