@@ -461,7 +461,7 @@ writer.start("div", "class", "searchForm");
 
         writer.end();
 
-        if (!ObjectUtils.isBlank(newJsp) && wp.hasPermission("type/" + selectedType.getId() + "/write")) {
+        if (!ObjectUtils.isBlank(newJsp)) {
             writer.start("div", "class", "searchCreate");
                 writer.start("h2").html("Create").end();
 

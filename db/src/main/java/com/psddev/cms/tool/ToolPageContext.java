@@ -1619,6 +1619,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    !hasPermission("type/" + type.getId() + "/write") ||
                     (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() &&
                     type.getObjectClass() == null) ||
                     Draft.class.equals(type.getObjectClass()) ||
