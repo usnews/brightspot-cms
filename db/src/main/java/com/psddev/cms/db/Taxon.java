@@ -20,6 +20,9 @@ public interface Taxon extends Recordable {
         @ToolUi.Hidden
         private Boolean root;
 
+        @ToolUi.Hidden
+        private String altLabel;
+
         public Boolean isRoot() {
             return Boolean.TRUE.equals(root);
         }
@@ -28,9 +31,18 @@ public interface Taxon extends Recordable {
             this.root = root ? Boolean.TRUE : null;
         }
 
+        public String getAltLabel() {
+            return altLabel;
+        }
+
+        public void setAltLabel(String altLabel) {
+            this.altLabel = altLabel;
+        }
+
         public void beforeSave() {
             this.setRoot(this.getOriginalObject().isRoot());
         }
+
     }
 
     /** {@link Taxon} utility methods. */

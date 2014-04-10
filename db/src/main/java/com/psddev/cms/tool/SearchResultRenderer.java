@@ -215,7 +215,7 @@ public class SearchResultRenderer {
     private void writeTaxon(Taxon taxon, int nextLevel) throws IOException {
         page.writeStart("li");
             renderBeforeItem(taxon);
-            page.writeObjectLabel(taxon);
+            writeTaxonLabel(taxon);
             renderAfterItem(taxon);
 
             Collection<? extends Taxon> children = taxon.getChildren();
@@ -228,6 +228,26 @@ public class SearchResultRenderer {
                 page.writeEnd();
             }
         page.writeEnd();
+    }
+
+    private void writeTaxonLabel(Taxon taxon) throws IOException {
+        if (taxon == null) {
+            page.writeHtml("N/A");
+        }
+        String altLabel = taxon.as(Taxon.Data.class).getAltLabel();
+        if (ObjectUtils.isBlank(altLabel)) {
+            page.writeObjectLabel(taxon);
+        } else {
+            String visibilityLabel = taxon.getState().getVisibilityLabel();
+            if (!ObjectUtils.isBlank(visibilityLabel)) {
+                page.writeStart("span", "class", "visibilityLabel");
+                    page.writeHtml(visibilityLabel);
+                page.writeEnd();
+
+                page.writeHtml(" ");
+            }
+            page.writeHtml(altLabel);
+        }
     }
 
     public void renderSorter() throws IOException {
