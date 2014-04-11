@@ -149,7 +149,6 @@
                                 <include>jquery.widthaware.js</include>
                                 <include>jquery.workflow.js</include>
                                 <include>diff.js</include>
-                                <include>json2.js</include>
                                 <include>pixastic/pixastic.core.js</include>
                                 <include>pixastic/actions/brightness.js</include>
                                 <include>pixastic/actions/crop.js</include>
@@ -159,7 +158,6 @@
                                 <include>pixastic/actions/invert.js</include>
                                 <include>pixastic/actions/rotate.js</include>
                                 <include>pixastic/actions/sepia.js</include>
-                                <include>html5slider.js</include>
                                 <include>wysihtml5-0.3.0.js</include>
                                 <include>jquery.rte.js</include>
                                 <include>d3.v3.js</include>
