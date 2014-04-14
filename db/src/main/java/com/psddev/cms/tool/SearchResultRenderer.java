@@ -121,10 +121,10 @@ public class SearchResultRenderer {
             page.writeStart("h2").writeHtml("Result").writeEnd();
         }
 
-        if (ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getSelectedType() != null &&
-                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
-                search.getVisibilities().isEmpty()) {
+        if (ObjectUtils.isBlank(search.getQueryString())
+                && search.getSelectedType() != null
+                && search.getSelectedType().getGroups().contains(Taxon.class.getName())
+                && search.getVisibilities().isEmpty()) {
 
             search.setSuggestions(false);
 
@@ -133,33 +133,33 @@ public class SearchResultRenderer {
             Collection<Taxon> taxonResults  = null;
 
             UUID taxonParentUuid = page.paramOrDefault(UUID.class, TAXON_PARENT_ID_PARAMETER, null);
+
             if (!ObjectUtils.isBlank(taxonParentUuid)) {
                 Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
                 taxonResults = (Collection<Taxon>)parent.getChildren();
             } else {
                 taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
             }
-            page.writeStart("div", "class", "searchResultList");
-
-            if (level == 1) {
-                page.writeStart("div", "class", "taxonomyContainer");
-                page.writeStart("div", "class", "searchTaxonomy");
-            }
 
             if (!ObjectUtils.isBlank(taxonResults)) {
+
                 resultsDisplayed = true;
+                page.writeStart("div", "class", "searchResultList");
+
+                if (level == 1) {
+                    page.writeStart("div", "class", "taxonomyContainer");
+                    page.writeStart("div", "class", "searchTaxonomy");
+                }
+
                 renderTaxonList(taxonResults, nextLevel);
-            } else {
-                renderEmpty();
-            }
 
-            if (level == 1) {
+                if (level == 1) {
+                    page.writeEnd();
+                    page.writeEnd();
+                }
+
                 page.writeEnd();
-                page.writeEnd();
             }
-
-
-            page.writeEnd();
         }
 
         if (!resultsDisplayed) {
