@@ -850,7 +850,7 @@ $doc.on('click', 'button[name="action-delete"], :submit[name="action-delete"]', 
 });
 
 $doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', function() {
-    return confirm('Are you sure you want to trash this item?');
+    return confirm('Are you sure you want to archive this item?');
 });
 
 $doc.on('input-disable', ':input', function(event, disable) {

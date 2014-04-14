@@ -529,7 +529,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                     "class", "action action-pullRight link icon icon-action-trash",
                                     "name", "action-trash",
                                     "value", "true");
-                                page.writeHtml("Bulk Trash All");
+                                page.writeHtml("Bulk Archive All");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

@@ -214,7 +214,7 @@ public abstract class Content extends Record {
             if (field.getInternalName().equals("cms.content.draft")) {
                 return isDraft() ? "Draft" : null;
             } else {
-                return isTrash() ? "Trash" : null;
+                return isTrash() ? "Archived" : null;
             }
         }
     }

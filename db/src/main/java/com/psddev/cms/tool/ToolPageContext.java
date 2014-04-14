@@ -1966,7 +1966,7 @@ public class ToolPageContext extends WebPageContext {
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("Trashed ");
+                writeHtml("Archived ");
                 writeHtml(formatUserDateTime(contentData.getUpdateDate()));
                 writeHtml(" by ");
                 writeObjectLabel(contentData.getUpdateUser());
@@ -2053,7 +2053,7 @@ public class ToolPageContext extends WebPageContext {
                                     "class", "icon icon-action-trash action-pullRight link",
                                     "name", "action-trash",
                                     "value", "true");
-                                writeHtml("Trash");
+                                writeHtml("Archive");
                             writeEnd();
 
                         } else {

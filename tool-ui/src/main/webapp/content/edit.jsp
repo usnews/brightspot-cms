@@ -717,7 +717,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
                                             "value", "true");
-                                        wp.writeHtml("Trash");
+                                        wp.writeHtml("Archive");
                                     wp.writeEnd();
                                 }
                             wp.writeEnd();
