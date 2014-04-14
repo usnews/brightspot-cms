@@ -44,8 +44,7 @@ public class UnpublishedDrafts extends PageServlet {
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
-                String n = s.getName();
-                workflowStateLabels.put("ws." + n, n);
+                workflowStateLabels.put("ws." + s.getName(), s.getDisplayName());
             }
         }
 

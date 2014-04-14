@@ -22,6 +22,8 @@ com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowLog,
+com.psddev.cms.db.WorkflowState,
+com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -42,6 +44,7 @@ com.psddev.dari.util.StringUtils,
 java.io.StringWriter,
 java.util.ArrayList,
 java.util.Date,
+java.util.LinkedHashMap,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
@@ -567,11 +570,13 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                             if (workflow != null) {
                                 Workflow.Data workflowData = editingState.as(Workflow.Data.class);
                                 String currentState = workflowData.getCurrentState();
-                                Set<String> transitionNames = new LinkedHashSet<String>();
+                                Map<String, String> transitionNames = new LinkedHashMap<String, String>();
 
-                                for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                for (Map.Entry<String, WorkflowTransition> entry : workflow.getTransitionsFrom(currentState).entrySet()) {
+                                    String transitionName = entry.getKey();
+
                                     if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                        transitionNames.add(transitionName);
+                                        transitionNames.put(transitionName, entry.getValue().getDisplayName());
                                     }
                                 }
 
@@ -584,9 +589,18 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                                     wp.writeStart("div", "class", "widget-publishingWorkflow");
                                         if (!ObjectUtils.isBlank(currentState)) {
+                                            String workflowStateDisplayName = currentState;
+
+                                            for (WorkflowState s : workflow.getStates()) {
+                                                if (ObjectUtils.equals(s.getName(), currentState)) {
+                                                    workflowStateDisplayName = s.getDisplayName();
+                                                    break;
+                                                }
+                                            }
+
                                             wp.writeStart("div", "class", "widget-publishingWorkflowComment");
                                                 wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
-                                                    wp.writeHtml(currentState);
+                                                    wp.writeHtml(workflowStateDisplayName);
                                                 wp.writeEnd();
 
                                                 if (log != null) {
@@ -636,11 +650,11 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                                 wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
-                                            for (String transitionName : transitionNames) {
+                                            for (Map.Entry<String, String> entry : transitionNames.entrySet()) {
                                                 wp.writeStart("button",
                                                         "name", "action-workflow",
-                                                        "value", transitionName);
-                                                    wp.writeHtml(transitionName);
+                                                        "value", entry.getKey());
+                                                    wp.writeHtml(entry.getValue());
                                                 wp.writeEnd();
                                             }
                                         }

@@ -137,7 +137,8 @@ $.plugin2('workflow', {
                         sourceId === 'final')) {
                     definition.states.push({
                         'id': sourceId,
-                        'name': $source.find(':input').val(),
+                        'displayName': $source.find(':input[type="text"]').val(),
+                        'name': $source.find(':input[type="hidden"]').val(),
                         'left': sourcePosition.left / width,
                         'top': sourcePosition.top / height
                     });
@@ -169,6 +170,11 @@ $.plugin2('workflow', {
                             $transition.append($('<input/>', {
                                 'type': 'text',
                                 'class': 'expandable workflowTransitionName',
+                                'value': targetData.displayName || targetData.name || ''
+                            }));
+
+                            $transition.append($('<input/>', {
+                                'type': 'hidden',
                                 'value': targetData.name || ''
                             }));
 
@@ -197,7 +203,7 @@ $.plugin2('workflow', {
                             $visual.trigger('create');
                         }
 
-                        $transitionInput = $transition.find(':input');
+                        $transitionInput = $transition.find(':input[type="text"]');
                         transitionColor = getTransitionColor($transition);
                         bound = drawArrow(context, transitionColor, $source, $target);
                         boundOffset = bound.sourceX < bound.targetX ? 0.3 : 0.7;
@@ -212,7 +218,8 @@ $.plugin2('workflow', {
                         });
 
                         definition.transitions.push({
-                            'name': $transitionInput.val(),
+                            'displayName': $transitionInput.val(),
+                            'name': $transition.find(':input[type="hidden"]').val(),
                             'source': sourceId,
                             'target': targetId
                         });
@@ -317,6 +324,11 @@ $.plugin2('workflow', {
             $state.append($('<input/>', {
                 'type': 'text',
                 'class': 'expandable workflowStateName',
+                'value': stateData.displayName || stateData.name || ''
+            }));
+
+            $state.append($('<input/>', {
+                'type': 'hidden',
                 'value': stateData.name || ''
             }));
 

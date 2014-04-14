@@ -1787,9 +1787,8 @@ public class ToolPageContext extends WebPageContext {
 
             for (WorkflowState s : w.getStates()) {
                 hasWorkflow = true;
-                String n = s.getName();
 
-                statuses.put("w." + n, n);
+                statuses.put("w." + s.getName(), s.getDisplayName());
             }
         }
 
