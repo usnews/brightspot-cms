@@ -28,8 +28,7 @@ if (wp.requireUser()) {
 Search search = new Search(wp);
 
 if (!wp.param(boolean.class, "widget")) {
-    SearchResultRenderer searchResultRenderer = new SearchResultRenderer(wp, search);
-    searchResultRenderer.render();
+    new SearchResultRenderer(wp, search).render();
 
     boolean hasMissing = false;
 
