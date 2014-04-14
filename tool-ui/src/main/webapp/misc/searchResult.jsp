@@ -28,7 +28,8 @@ if (wp.requireUser()) {
 Search search = new Search(wp);
 
 if (!wp.param(boolean.class, "widget")) {
-    new SearchResultRenderer(wp, search).render();
+    SearchResultRenderer searchResultRenderer = new SearchResultRenderer(wp, search);
+    searchResultRenderer.render();
 
     boolean hasMissing = false;
 
@@ -39,34 +40,36 @@ if (!wp.param(boolean.class, "widget")) {
         }
     }
 
-    wp.writeStart("div", "class", "buttons", "style", "margin-bottom:0;");
-        wp.writeStart("a",
-                "class", "button icon icon-action-search",
-                "target", "toolUserSaveSearch",
-                "href", wp.cmsUrl("/toolUserSaveSearch",
-                        "search", wp.url("", Search.NAME_PARAMETER, null)));
-            wp.writeHtml("Save Search");
-        wp.writeEnd();
+    if(wp.paramOrDefault(Integer.class, SearchResultRenderer.TAXON_LEVEL_PARAMETER, 1) == 1){
+        wp.writeStart("div", "class", "buttons", "style", "margin-bottom:0;");
+            wp.writeStart("a",
+                    "class", "button icon icon-action-search",
+                    "target", "toolUserSaveSearch",
+                    "href", wp.cmsUrl("/toolUserSaveSearch",
+                            "search", wp.url("", Search.NAME_PARAMETER, null)));
+                wp.writeHtml("Save Search");
+            wp.writeEnd();
 
-        wp.writeStart("a",
-                "class", "button icon icon-object-workStream",
-                "href", wp.cmsUrl("/content/newWorkStream.jsp",
-                        "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
-                        "incompleteIfMatching", hasMissing),
-                "target", "newWorkStream");
-            wp.writeHtml("New Work Stream");
-        wp.writeEnd();
+            wp.writeStart("a",
+                    "class", "button icon icon-object-workStream",
+                    "href", wp.cmsUrl("/content/newWorkStream.jsp",
+                            "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
+                            "incompleteIfMatching", hasMissing),
+                    "target", "newWorkStream");
+                wp.writeHtml("New Work Stream");
+            wp.writeEnd();
 
-        wp.writeStart("a",
-                "class", "button icon icon-fullscreen",
-                "target", "_top",
-                "href", new UrlBuilder(request).
-                        absolutePath(wp.cmsUrl("/searchAdvancedFull")).
-                        currentParameters().
-                        parameter(Search.NAME_PARAMETER, null));
-            wp.writeHtml("Fullscreen");
+            wp.writeStart("a",
+                    "class", "button icon icon-fullscreen",
+                    "target", "_top",
+                    "href", new UrlBuilder(request).
+                            absolutePath(wp.cmsUrl("/searchAdvancedFull")).
+                            currentParameters().
+                            parameter(Search.NAME_PARAMETER, null));
+                wp.writeHtml("Fullscreen");
+            wp.writeEnd();
         wp.writeEnd();
-    wp.writeEnd();
+    }
 
 } else {
     HtmlWriter writer = new HtmlWriter(wp.getWriter());

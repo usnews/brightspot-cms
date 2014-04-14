@@ -41,7 +41,7 @@ public class SearchResultRenderer {
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
 
     private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
-    private static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
+    public static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
 
     protected final ToolPageContext page;
 
@@ -570,4 +570,6 @@ public class SearchResultRenderer {
             page.writeEnd();
         page.writeEnd();
     }
+
+
 }
