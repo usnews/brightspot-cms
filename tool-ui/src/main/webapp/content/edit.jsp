@@ -474,8 +474,16 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                     // Message and actions if the content is a past revision.
                     } else if (isHistory) {
+                        String historyName = history.getName();
+                        boolean hasHistoryName = !ObjectUtils.isBlank(historyName);
+
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
+                                if (hasHistoryName) {
+                                    wp.writeHtml(historyName);
+                                    wp.writeHtml(" - ");
+                                }
+
                                 wp.writeHtml("Past revision saved ");
                                 wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
                                 wp.writeHtml(" by ");
@@ -496,7 +504,8 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                         "class", "icon icon-object-history",
                                         "href", wp.url("/historyEdit", "id", history.getId()),
                                         "target", "historyEdit");
-                                    wp.writeHtml("Name Revision");
+                                    wp.writeHtml(hasHistoryName ? "Rename" : "Name");
+                                    wp.writeHtml(" Revision");
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
