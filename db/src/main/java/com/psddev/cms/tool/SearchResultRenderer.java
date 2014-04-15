@@ -31,8 +31,6 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SearchResultRenderer {
 
