@@ -18,16 +18,19 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
     private final Collection<? extends Taxon> taxonResults;
     private int level = 1;
     private int nextLevel = 2;
+    private boolean displayTaxonView = true;
 
     public TaxonSearchResultRenderer(ToolPageContext page, Search search) throws IOException {
 
         super(page, search);
 
-        if (search.getSelectedType() != null &&
+        if (ObjectUtils.isBlank(search.getQueryString()) &&
+                search.getSelectedType() != null &&
                 search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
                 search.getVisibilities().isEmpty()) {
 
             UUID taxonParentUuid = page.paramOrDefault(UUID.class, PARENT_ID_PARAMETER, null);
+
             if (!ObjectUtils.isBlank(taxonParentUuid)) {
                 Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
                 taxonResults = parent.getChildren();
@@ -37,42 +40,51 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
         } else {
             taxonResults = null;
         }
+
+        if(ObjectUtils.isBlank(taxonResults)){
+            displayTaxonView = false;
+        }
     }
 
     @Override
     public void render() throws IOException {
-        level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
-        nextLevel = level+1;
 
-        if(level ==1){
-            page.writeStart("h2").writeHtml("Result").writeEnd();
+        if(displayTaxonView){
+            level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
+            nextLevel = level+1;
 
-            if (search.findSorts().size() > 1) {
-                page.writeStart("div", "class", "searchSorter");
-                renderSorter();
+            if(level ==1){
+                page.writeStart("h2").writeHtml("Result").writeEnd();
+
+                if (search.findSorts().size() > 1) {
+                    page.writeStart("div", "class", "searchSorter");
+                    renderSorter();
+                    page.writeEnd();
+                }
+
+                page.writeStart("div", "class", "searchPagination");
+                renderPagination();
                 page.writeEnd();
             }
 
-            page.writeStart("div", "class", "searchPagination");
-            renderPagination();
+            page.writeStart("div", "class", "searchResultList");
+            if(level == 1){
+                page.writeStart("div", "class", "taxonomyContainer");
+                page.writeStart("div", "class", "searchTaxonomy");
+            }
+            if (!ObjectUtils.isBlank(taxonResults)) {
+                renderList(taxonResults);
+            } else {
+                renderEmpty();
+            }
             page.writeEnd();
-        }
 
-        page.writeStart("div", "class", "searchResultList");
-        if(level == 1){
-            page.writeStart("div", "class", "taxonomyContainer");
-            page.writeStart("div", "class", "searchTaxonomy");
-        }
-        if (!ObjectUtils.isBlank(taxonResults)) {
-            renderList(taxonResults);
+            if(level == 1){
+                page.writeEnd();
+                page.writeEnd();
+            }
         } else {
-            renderEmpty();
-        }
-        page.writeEnd();
-        
-        if(level == 1){
-            page.writeEnd();
-            page.writeEnd();
+            super.render();
         }
     }
 
@@ -115,21 +127,31 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
 
     @Override
     public void renderList(Collection<?> listItems) throws IOException {
-        page.writeStart("ul", "class", "taxonomy");
-        for (Taxon root : (Collection<Taxon>)listItems) {
-            writeTaxon(root);
+        if(displayTaxonView){
+            page.writeStart("ul", "class", "taxonomy");
+            for (Taxon root : (Collection<Taxon>)listItems) {
+                writeTaxon(root);
+            }
+            page.writeEnd();
+            page.writeStart("div",
+                    "class", "frame taxonChildren",
+                    "name", "d"+nextLevel);
+            page.writeEnd();
+        } else {
+            super.renderList(listItems);
         }
-        page.writeEnd();
-        page.writeStart("div",
-                "class", "frame taxonChildren",
-                "name", "d"+nextLevel);
-        page.writeEnd();
     }
 
     public void renderPagination() throws IOException {
+        if(!displayTaxonView){
+            super.renderPagination();
+        }
     }
 
     @Override
     public void renderSorter() throws IOException {
+        if(!displayTaxonView){
+            super.renderSorter();
+        }
     }
 }
