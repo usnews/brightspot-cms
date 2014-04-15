@@ -192,7 +192,7 @@ public class SearchResultRenderer {
 
     public void renderSorter() throws IOException {
         page.writeStart("form",
-                "class", "autoSubmit",
+                "data-bsp-autosubmit", "",
                 "method", "get",
                 "action", page.url(null));
 

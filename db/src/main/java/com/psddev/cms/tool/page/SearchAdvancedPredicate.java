@@ -196,15 +196,15 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             page.writeMultipleTypeSelect(
                     null,
                     comparisonTypes,
-                    "class", "autoSubmit",
                     "name", comparisonTypeParam,
                     "placeholder", "Any Types",
+                    "data-bsp-autosubmit", "",
                     "data-searchable", true);
 
             page.writeHtml(" ");
             page.writeStart("select",
-                    "class", "autoSubmit",
                     "name", comparisonPathParam,
+                    "data-bsp-autosubmit", "",
                     "data-searchable", true);
                 page.writeStart("option", "value", "");
                     page.writeHtml("Any Fields");
@@ -274,7 +274,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
 
             page.writeHtml(" ");
             page.writeStart("select",
-                    "class", "autoSubmit",
+                    "data-bsp-autosubmit", "",
                     "name", comparisonOperatorParam);
                 for (ComparisonOperator op : ComparisonOperator.values()) {
                     if ((ObjectUtils.isBlank(comparisonPath) &&

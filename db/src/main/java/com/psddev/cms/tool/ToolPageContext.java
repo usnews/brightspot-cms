@@ -1430,10 +1430,14 @@ public class ToolPageContext extends WebPageContext {
 
         if (getCmsTool().isUseNonMinifiedJavaScript()) {
             for (String src : new String[] {
-                    "/script/jquery-1.8.3.js",
-                    "/script/jquery.mousewheel.js",
+                    "/bower_components/jquery/jquery.js",
+                    "/bower_components/jquery-mousewheel/jquery.mousewheel.js",
+
+                    "/bower_components/bsp-utils/bsp-utils.js",
+                    "/bower_components/bsp-autoexpand/bsp-autoexpand.js",
+                    "/bower_components/bsp-autosubmit/bsp-autosubmit.js",
+
                     "/script/jquery.extra.js",
-                    "/script/jquery.autosubmit.js",
                     "/script/jquery.calendar.js",
                     "/script/codemirror/codemirror.js",
                     "/script/codemirror/mode/clike/clike.js",
@@ -1445,7 +1449,6 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.code.js",
                     "/script/jquery.dropdown.js",
                     "/script/jquery.editableplaceholder.js",
-                    "/script/jquery.expandable.js",
                     "/script/jquery.popup.js",
                     "/script/jquery.fixedscrollable.js",
                     "/script/jquery.frame.js",

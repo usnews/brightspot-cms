@@ -38,7 +38,7 @@ if (wp.tryStandardUpdate(selected)) {
                 </li>
             </ul>
 
-            <form action="<%= wp.url("/admin/sitesResult.jsp") %>" class="autoSubmit" method="get" target="sitesResult">
+            <form action="<%= wp.url("/admin/sitesResult.jsp") %>" data-bsp-autosubmit="" method="get" target="sitesResult">
                 <input name="id" type="hidden" value="<%= selectedState.getId() %>">
                 <div class="searchInput">
                     <label for="<%= wp.createId() %>">Search</label>

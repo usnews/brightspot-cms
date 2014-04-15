@@ -33,21 +33,29 @@ $doc.repeatable('live', '.repeatableText', {
     'restoreButtonText': ''
 });
 
-$doc.autoSubmit('live', '.autoSubmit');
+bsp_autoExpand.live(document, ':text.expandable, textarea');
+
 $doc.calendar('live', ':text.date');
 $doc.code('live', 'textarea[data-code-type]');
 $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
 $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
-$doc.expandable('live', ':text.expandable, textarea', {
-    'shadowClass': 'input'
-});
-
 $doc.fixedScrollable('live', '.fixedScrollable, .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
 
 $doc.frame({
     'frameClassName': 'frame',
     'loadingClassName': 'loading',
     'loadedClassName': 'loaded'
+});
+
+bsp_utils.onDomInsert(document, '[data-bsp-autosubmit]', {
+    'insert': function(item) {
+        var $form = $(item).closest('form');
+        var $targetFrame = $('.frame[name=' + $form.attr('target') + ']:not(.loading):not(.loaded)');
+
+        if ($targetFrame.length > 0) {
+            $form.submit();
+        }
+    }
 });
 
 $doc.imageEditor('live', '.imageEditor');

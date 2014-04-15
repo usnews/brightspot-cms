@@ -154,8 +154,8 @@ public class SiteMap extends PageServlet {
                                 Template.Static.findUsedTypes(page.getSite()),
                                 itemType,
                                 "Any Types",
-                                "class", "autoSubmit",
                                 "name", "itemType",
+                                "data-bsp-autosubmit", "",
                                 "data-searchable", "true");
                     page.writeEnd();
 
@@ -170,7 +170,7 @@ public class SiteMap extends PageServlet {
                             page.writeHtml("with ");
 
                             page.writeStart("select",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "name", "type");
 
                                 page.writeStart("option",
@@ -219,7 +219,8 @@ public class SiteMap extends PageServlet {
                         if (valueQuery.hasMoreThan(250)) {
                             page.writeElement("input",
                                     "type", "text",
-                                    "class", "autoSubmit objectId",
+                                    "class", "objectId",
+                                    "data-bsp-autosubmit", "",
                                     "data-editable", false,
                                     "data-label", valueObject != null ? State.getInstance(valueObject).getLabel() : null,
                                     "data-typeIds", valueType.getId(),
@@ -228,8 +229,8 @@ public class SiteMap extends PageServlet {
 
                         } else {
                             page.writeStart("select",
-                                    "class", "autoSubmit",
                                     "name", valueParameter,
+                                    "data-bsp-autosubmit", "",
                                     "data-searchable", "true");
 
                                 if (!type.equals(URL_TYPE)) {
@@ -301,7 +302,7 @@ public class SiteMap extends PageServlet {
                             result.getItems().size() > LIMITS[0]) {
                         page.writeStart("li");
                             page.writeStart("form",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "method", "get",
                                     "action", page.url(null));
                                 page.writeStart("select", "name", "limit");

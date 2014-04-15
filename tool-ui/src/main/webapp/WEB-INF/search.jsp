@@ -192,15 +192,16 @@ writer.start("div", "class", "searchForm");
                             validTypes,
                             selectedType,
                             "Any Types",
-                            "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
+                            "data-bsp-autosubmit", "",
                             "data-searchable", true);
                 }
 
             writer.end();
 
             writer.start("form",
-                    "class", "autoSubmit searchFiltersRest",
+                    "class", "searchFiltersRest",
+                    "data-bsp-autosubmit", "",
                     "method", "get",
                     "action", ObjectUtils.firstNonNull(request.getAttribute("resultPath"), wp.url(request.getAttribute("resultJsp"))),
                     "target", resultTarget);

@@ -1,0 +1,19 @@
+{
+  "authors": [ {
+    "homepage": "http://www.perfectsensedigital.com/",
+    "name": "Perfect Sense Digital"
+  } ],
+  "dependencies": {
+    "jquery": ">=1.7.0",
+    "bsp-utils": ">=1.0.0"
+  },
+  "homepage": "https://github.com/perfectsense/brightspot-js-autoexpand",
+  "keywords": [
+    "brightspot",
+    "jquery"
+  ],
+  "license": "MIT",
+  "main": "bsp-autoexpand.js",
+  "name": "bsp-autoexpand",
+  "version": "1.0.0"
+}

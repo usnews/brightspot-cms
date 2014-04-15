@@ -781,7 +781,8 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                         wp.writeElement("input",
                                 "type", "text",
-                                "class", "autoSubmit date",
+                                "data-bsp-autosubmit", "",
+                                "class", "date",
                                 "name", "_date",
                                 "placeholder", "Now");
 
@@ -870,7 +871,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                         if (paths != null && !paths.isEmpty()) {
                             wp.writeHtml(" ");
                             wp.writeStart("select",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "name", "_previewPath");
                                 for (Directory.Path p : paths) {
                                     Site s = p.getSite();
