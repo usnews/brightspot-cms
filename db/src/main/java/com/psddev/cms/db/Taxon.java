@@ -14,10 +14,7 @@ public interface Taxon extends Recordable {
 
     public Collection<? extends Taxon> getChildren();
 
-    public static final class TaxonModification extends Modification<Taxon> {
-
-        private TaxonModification(){
-        }
+    public static final class Data extends Modification<Taxon> {
 
         @Indexed
         @ToolUi.Hidden

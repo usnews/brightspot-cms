@@ -211,7 +211,7 @@ public class SearchResultRenderer {
 
             if (children != null && !children.isEmpty()) {
                 page.writeStart("a",
-                        "href", page.url("", TAXON_PARENT_ID_PARAMETER, taxon.as(Taxon.TaxonModification.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
+                        "href", page.url("", TAXON_PARENT_ID_PARAMETER, taxon.as(Taxon.Data.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
                         "class", "taxonomyExpand",
                         "target", "d" + nextLevel);
                 page.writeEnd();
