@@ -34,12 +34,12 @@ import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
 
+    public static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
+
     private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
-
     private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
-    public static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
 
     protected final ToolPageContext page;
 
@@ -115,33 +115,32 @@ public class SearchResultRenderer {
         boolean resultsDisplayed = false;
         int level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
 
-        if(level == 1) {
+        if (level == 1) {
             page.writeStart("h2").writeHtml("Result").writeEnd();
         }
 
-        if (ObjectUtils.isBlank(search.getQueryString())
-                && search.getSelectedType() != null
-                && search.getSelectedType().getGroups().contains(Taxon.class.getName())
-                && search.getVisibilities().isEmpty()) {
+        if (ObjectUtils.isBlank(search.getQueryString()) &&
+                search.getSelectedType() != null &&
+                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
+                search.getVisibilities().isEmpty()) {
 
             search.setSuggestions(false);
 
-            int nextLevel = level+1;
-
-            Collection<Taxon> taxonResults  = null;
-
+            int nextLevel = level + 1;
+            Collection<Taxon> taxonResults = null;
             UUID taxonParentUuid = page.paramOrDefault(UUID.class, TAXON_PARENT_ID_PARAMETER, null);
 
             if (!ObjectUtils.isBlank(taxonParentUuid)) {
                 Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
-                taxonResults = (Collection<Taxon>)parent.getChildren();
+                taxonResults = (Collection<Taxon>) parent.getChildren();
+
             } else {
                 taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
             }
 
             if (!ObjectUtils.isBlank(taxonResults)) {
-
                 resultsDisplayed = true;
+
                 page.writeStart("div", "class", "searchResultList");
 
                 if (level == 1) {
@@ -346,13 +345,15 @@ public class SearchResultRenderer {
 
     public void renderTaxonList(Collection<?> listItems, int nextLevel) throws IOException {
         page.writeStart("ul", "class", "taxonomy");
-        for (Taxon taxon : (Collection<Taxon>)listItems) {
+
+        for (Taxon taxon : (Collection<Taxon>) listItems) {
             writeTaxon(taxon, nextLevel);
         }
+
         page.writeEnd();
         page.writeStart("div",
                 "class", "frame taxonChildren",
-                "name", "d"+nextLevel);
+                "name", "d" + nextLevel);
         page.writeEnd();
     }
 
@@ -568,6 +569,4 @@ public class SearchResultRenderer {
             page.writeEnd();
         page.writeEnd();
     }
-
-
 }

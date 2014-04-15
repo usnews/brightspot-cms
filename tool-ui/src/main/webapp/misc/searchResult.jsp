@@ -39,7 +39,7 @@ if (!wp.param(boolean.class, "widget")) {
         }
     }
 
-    if(wp.paramOrDefault(Integer.class, SearchResultRenderer.TAXON_LEVEL_PARAMETER, 1) == 1){
+    if (wp.paramOrDefault(Integer.class, SearchResultRenderer.TAXON_LEVEL_PARAMETER, 1) == 1) {
         wp.writeStart("div", "class", "buttons", "style", "margin-bottom:0;");
             wp.writeStart("a",
                     "class", "button icon icon-action-search",
