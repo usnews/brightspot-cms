@@ -87,6 +87,7 @@ public abstract class Content extends Record {
         @InternalName("cms.content.draft")
         private Boolean draft;
 
+        @DisplayName("Archived")
         @Indexed(visibility = true)
         @InternalName("cms.content.trashed")
         private Boolean trash;
