@@ -210,7 +210,7 @@ public class SearchResultRenderer {
                 page.writeStart("a",
                         "href", page.url("", TAXON_PARENT_ID_PARAMETER, taxon.as(Taxon.Data.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
                         "class", "taxonomyExpand",
-                        "target", "d" + nextLevel);
+                        "target", "taxonChildren-d" + nextLevel);
                 page.writeEnd();
             }
         page.writeEnd();
@@ -353,7 +353,7 @@ public class SearchResultRenderer {
         page.writeEnd();
         page.writeStart("div",
                 "class", "frame taxonChildren",
-                "name", "d" + nextLevel);
+                "name", "taxonChildren-d" + nextLevel);
         page.writeEnd();
     }
 
