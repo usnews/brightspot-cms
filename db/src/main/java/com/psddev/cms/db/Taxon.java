@@ -6,7 +6,6 @@ import java.util.List;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
-import com.psddev.dari.util.PaginatedResult;
 
 public interface Taxon extends Recordable {
 
@@ -39,10 +38,6 @@ public interface Taxon extends Recordable {
 
         public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass) {
             return Query.from(taxonClass).where("cms.taxon.root = true").selectAll();
-        }
-
-        public static <T extends Taxon> PaginatedResult<T> getPaginatedRoots(Class<T> taxonClass, long offset, int limit) {
-            return Query.from(taxonClass).where("cms.taxon.root = true").select(offset, limit);
         }
     }
 }
