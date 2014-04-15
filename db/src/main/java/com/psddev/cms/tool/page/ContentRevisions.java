@@ -13,6 +13,8 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
 import com.psddev.cms.db.Schedule;
+import com.psddev.cms.db.Workflow;
+import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
@@ -231,7 +233,21 @@ public class ContentRevisions extends Widget {
                             } else {
                                 String workflowState = ObjectUtils.to(String.class, originals.get("cms.workflow.currentState"));
 
-                                if (!ObjectUtils.isBlank(workflowState)) {
+                                if (workflowState != null) {
+                                    Workflow workflow = Query.
+                                            from(Workflow.class).
+                                            where("contentTypes = ?", h.getState().get("objectType")).
+                                            first();
+
+                                    if (workflow != null) {
+                                        for (WorkflowState s : workflow.getStates()) {
+                                            if (workflowState.equals(s.getName())) {
+                                                workflowState = s.getDisplayName();
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                     page.writeStart("span", "class", "visibilityLabel");
                                         page.writeHtml(workflowState);
                                     page.writeEnd();

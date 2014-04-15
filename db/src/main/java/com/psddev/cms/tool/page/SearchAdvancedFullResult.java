@@ -437,7 +437,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "name", "action-trash",
                             "value", "true");
 
-                        page.writeHtml("Bulk Trash All");
+                        page.writeHtml("Bulk Archive All");
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

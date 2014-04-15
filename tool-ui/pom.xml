@@ -157,7 +157,6 @@
                                 <include>jquery.sortable.js</include>
                                 <include>jquery.spectrum.js</include>
                                 <include>jquery.tabbed.js</include>
-                                <include>jquery.taxonomy.js</include>
                                 <include>jquery.toggleable.js</include>
                                 <include>jquery.widthaware.js</include>
                                 <include>jquery.workflow.js</include>

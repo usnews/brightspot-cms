@@ -1463,7 +1463,6 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.sortable.js",
                     "/script/jquery.spectrum.js",
                     "/script/jquery.tabbed.js",
-                    "/script/jquery.taxonomy.js",
                     "/script/jquery.toggleable.js",
                     "/script/jquery.widthaware.js",
                     "/script/jquery.workflow.js",
@@ -1623,6 +1622,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    !hasPermission("type/" + type.getId() + "/write") ||
                     (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() &&
                     type.getObjectClass() == null) ||
                     Draft.class.equals(type.getObjectClass()) ||
@@ -1790,9 +1790,8 @@ public class ToolPageContext extends WebPageContext {
 
             for (WorkflowState s : w.getStates()) {
                 hasWorkflow = true;
-                String n = s.getName();
 
-                statuses.put("w." + n, n);
+                statuses.put("w." + s.getName(), s.getDisplayName());
             }
         }
 
@@ -1969,7 +1968,7 @@ public class ToolPageContext extends WebPageContext {
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("Trashed ");
+                writeHtml("Archived ");
                 writeHtml(formatUserDateTime(contentData.getUpdateDate()));
                 writeHtml(" by ");
                 writeObjectLabel(contentData.getUpdateUser());
@@ -2056,7 +2055,7 @@ public class ToolPageContext extends WebPageContext {
                                     "class", "icon icon-action-trash action-pullRight link",
                                     "name", "action-trash",
                                     "value", "true");
-                                writeHtml("Trash");
+                                writeHtml("Archive");
                             writeEnd();
 
                         } else {

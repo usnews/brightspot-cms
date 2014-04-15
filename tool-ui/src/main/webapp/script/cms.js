@@ -39,7 +39,7 @@ $doc.calendar('live', ':text.date');
 $doc.code('live', 'textarea[data-code-type]');
 $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
 $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
-$doc.fixedScrollable('live', '.fixedScrollable, .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
+$doc.fixedScrollable('live', '.fixedScrollable, .searchResult > .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
 
 $doc.frame({
     'frameClassName': 'frame',
@@ -68,7 +68,6 @@ $doc.pageThumbnails('live', '.pageThumbnails');
 $doc.rte('live', '.richtext');
 $doc.spreadsheet('live', '.spreadsheet');
 $doc.tabbed('live', '.tabbed, .objectInputs');
-$doc.taxonomy('live', '.taxonomy');
 $doc.toggleable('live', '.toggleable');
 $doc.widthAware('live', '[data-widths]');
 $doc.workflow('live', '.workflow');
@@ -927,7 +926,7 @@ $doc.on('click', 'button[name="action-delete"], :submit[name="action-delete"]', 
 });
 
 $doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', function() {
-    return confirm('Are you sure you want to trash this item?');
+    return confirm('Are you sure you want to archive this item?');
 });
 
 $doc.on('input-disable', ':input', function(event, disable) {

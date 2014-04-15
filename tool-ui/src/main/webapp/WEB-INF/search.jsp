@@ -472,7 +472,8 @@ writer.start("div", "class", "searchForm");
                         "target", ObjectUtils.isBlank(newTarget) ? null : newTarget);
 
                     if (singleType) {
-                        if (!selectedType.getGroups().contains(Singleton.class.getName())) {
+                        if (wp.hasPermission("type/" + selectedType.getId() + "/write") &&
+                                !selectedType.getGroups().contains(Singleton.class.getName())) {
                             writer.writeElement("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
                             writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
                                 writer.writeHtml("New " + wp.getObjectLabel(selectedType));
