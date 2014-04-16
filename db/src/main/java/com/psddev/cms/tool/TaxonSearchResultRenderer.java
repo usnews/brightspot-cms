@@ -15,10 +15,12 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
 
     private static final String PARENT_ID_PARAMETER = "taxonParentId";
     private static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
+
     private final Collection<? extends Taxon> taxonResults;
+
+    private boolean displayTaxonView = true;
     private int level = 1;
     private int nextLevel = 2;
-    private boolean displayTaxonView = true;
 
     public TaxonSearchResultRenderer(ToolPageContext page, Search search) throws IOException {
 
