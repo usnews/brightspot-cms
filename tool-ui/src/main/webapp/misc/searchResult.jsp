@@ -26,15 +26,15 @@ Search search = new Search(wp);
 if (!wp.param(boolean.class, "widget")) {
     ObjectType selectedType = search.getSelectedType();
     SearchResultRenderer searchResultRenderer = null;
-    if(selectedType != null){
+    if (selectedType != null) {
         Class<? extends SearchResultRenderer> searchResultRendererClass = selectedType.as(ToolUi.class).getSearchResultRendererClass();
-        if(searchResultRendererClass != null){
+        if (searchResultRendererClass != null) {
             Constructor<? extends SearchResultRenderer> constructor = searchResultRendererClass.getConstructor(ToolPageContext.class, Search.class);
             searchResultRenderer = constructor.newInstance(wp, search);
         }
     }
 
-    if(searchResultRenderer == null){
+    if (searchResultRenderer == null) {
         searchResultRenderer = new SearchResultRenderer(wp, search);
     }
     searchResultRenderer.render();
