@@ -41,7 +41,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
             taxonResults = null;
         }
 
-        if(ObjectUtils.isBlank(taxonResults)){
+        if (ObjectUtils.isBlank(taxonResults)) {
             displayTaxonView = false;
         }
     }
@@ -49,11 +49,11 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
     @Override
     public void render() throws IOException {
 
-        if(displayTaxonView){
+        if (displayTaxonView) {
             level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
             nextLevel = level+1;
 
-            if(level ==1){
+            if (level ==1) {
                 page.writeStart("h2").writeHtml("Result").writeEnd();
 
                 if (search.findSorts().size() > 1) {
@@ -68,7 +68,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
             }
 
             page.writeStart("div", "class", "searchResultList");
-            if(level == 1){
+            if (level == 1) {
                 page.writeStart("div", "class", "taxonomyContainer");
                 page.writeStart("div", "class", "searchTaxonomy");
             }
@@ -79,7 +79,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
             }
             page.writeEnd();
 
-            if(level == 1){
+            if (level == 1) {
                 page.writeEnd();
                 page.writeEnd();
             }
@@ -127,7 +127,7 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
 
     @Override
     public void renderList(Collection<?> listItems) throws IOException {
-        if(displayTaxonView){
+        if (displayTaxonView) {
             page.writeStart("ul", "class", "taxonomy");
             for (Taxon root : (Collection<Taxon>)listItems) {
                 writeTaxon(root);
@@ -143,14 +143,14 @@ public class TaxonSearchResultRenderer extends SearchResultRenderer {
     }
 
     public void renderPagination() throws IOException {
-        if(!displayTaxonView){
+        if (!displayTaxonView) {
             super.renderPagination();
         }
     }
 
     @Override
     public void renderSorter() throws IOException {
-        if(!displayTaxonView){
+        if (!displayTaxonView) {
             super.renderSorter();
         }
     }
