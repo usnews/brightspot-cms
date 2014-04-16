@@ -103,16 +103,6 @@
                     <jswarn>false</jswarn>
                     <nosuffix>true</nosuffix>
 
-                    <excludes>
-                        <exclude>**/bower_components/jquery/build/**/*.js</exclude>
-                        <exclude>**/bower_components/jquery/grunt.js</exclude>
-                        <exclude>**/bower_components/jquery/jquery.min.js</exclude>
-                        <exclude>**/bower_components/jquery/speed/**/*.js</exclude>
-                        <exclude>**/bower_components/jquery/src/**/*.js</exclude>
-                        <exclude>**/bower_components/jquery/test/**/*.js</exclude>
-                        <exclude>**/bower_components/jquery-mousewheel/jquery.mousewheel.min.js</exclude>
-                    </excludes>
-
                     <aggregations>
                         <aggregation>
                             <output>${project.build.directory}/${project.build.finalName}/style/cms.min.css</output>
@@ -124,12 +114,12 @@
                         <aggregation>
                             <output>${project.build.directory}/${project.build.finalName}/script/all.min.js</output>
                             <includes>
-                                <include>../bower_components/jquery/jquery.js</include>
-                                <include>../bower_components/jquery-mousewheel/jquery.mousewheel.js</include>
+                                <include>jquery.js</include>
+                                <include>jquery.mousewheel.js</include>
 
-                                <include>../bower_components/bsp-utils/bsp-utils.js</include>
-                                <include>../bower_components/bsp-autoexpand/bsp-autoexpand.js</include>
-                                <include>../bower_components/bsp-autosubmit/bsp-autosubmit.js</include>
+                                <include>bsp-utils.js</include>
+                                <include>bsp-autoexpand.js</include>
+                                <include>bsp-autosubmit.js</include>
 
                                 <include>jquery.extra.js</include>
                                 <include>jquery.calendar.js</include>

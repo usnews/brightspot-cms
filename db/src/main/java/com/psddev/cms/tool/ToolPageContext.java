@@ -1430,12 +1430,12 @@ public class ToolPageContext extends WebPageContext {
 
         if (getCmsTool().isUseNonMinifiedJavaScript()) {
             for (String src : new String[] {
-                    "/bower_components/jquery/jquery.js",
-                    "/bower_components/jquery-mousewheel/jquery.mousewheel.js",
+                    "/script/jquery.js",
+                    "/script/jquery.mousewheel.js",
 
-                    "/bower_components/bsp-utils/bsp-utils.js",
-                    "/bower_components/bsp-autoexpand/bsp-autoexpand.js",
-                    "/bower_components/bsp-autosubmit/bsp-autosubmit.js",
+                    "/script/bsp-utils.js",
+                    "/script/bsp-autoexpand.js",
+                    "/script/bsp-autosubmit.js",
 
                     "/script/jquery.extra.js",
                     "/script/jquery.calendar.js",
