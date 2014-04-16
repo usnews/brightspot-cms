@@ -129,7 +129,7 @@ public class LookingGlass extends PageServlet {
                 page.writeElement("input", "type", "hidden", "name", "id", "value", id);
 
                 page.writeStart("select",
-                        "class", "autoSubmit",
+                        "data-bsp-autosubmit", "",
                         "name", "view");
                     for (Class<? extends LookingGlassView> c : ClassFinder.Static.findClasses(LookingGlassView.class)) {
                         if (Modifier.isAbstract(c.getModifiers())) {

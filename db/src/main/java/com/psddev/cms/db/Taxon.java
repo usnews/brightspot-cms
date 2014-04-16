@@ -16,11 +16,8 @@ public interface Taxon extends Recordable {
     public Collection<? extends Taxon> getChildren();
 
     @ToolUi.SearchResultRendererClass(TaxonSearchResultRenderer.class)
-    @FieldInternalNamePrefix("taxon.")
+    @FieldInternalNamePrefix("cms.taxon.")
     public static final class Data extends Modification<Taxon> {
-
-        private Data(){
-        }
 
         @Indexed
         @ToolUi.Hidden
@@ -43,6 +40,7 @@ public interface Taxon extends Recordable {
 
         public void setAltLabel(String altLabel) {
             this.altLabel = altLabel;
+
         }
 
         public void beforeSave(){
@@ -54,11 +52,11 @@ public interface Taxon extends Recordable {
     public static final class Static {
 
         public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass) {
-            return Query.from(taxonClass).where("taxon.root = true").selectAll();
+            return Query.from(taxonClass).where("cms.taxon.root = true").selectAll();
         }
 
         public static <T extends Taxon> PaginatedResult<T> getPaginatedRoots(Class<T> taxonClass, long offset, int limit) {
-            return Query.from(taxonClass).where("taxon.root = true").select(offset, limit);
+            return Query.from(taxonClass).where("cms.taxon.root = true").select(offset, limit);
         }
     }
 }

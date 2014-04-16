@@ -44,8 +44,7 @@ public class UnpublishedDrafts extends PageServlet {
 
         for (Workflow w : workflowQuery.iterable(0)) {
             for (WorkflowState s : w.getStates()) {
-                String n = s.getName();
-                workflowStateLabels.put("ws." + n, n);
+                workflowStateLabels.put("ws." + s.getName(), s.getDisplayName());
             }
         }
 
@@ -127,7 +126,7 @@ public class UnpublishedDrafts extends PageServlet {
                     if (workflowStateLabels.size() > 1) {
                         page.writeStart("li");
                             page.writeStart("select",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "name", "state");
                                 page.writeStart("option", "value", "");
                                     page.writeHtml("Any Statuses");
@@ -151,15 +150,15 @@ public class UnpublishedDrafts extends PageServlet {
                                 ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes(),
                                 type,
                                 "Any Types",
-                                "class", "autoSubmit",
                                 "name", "typeId",
+                                "data-bsp-autosubmit", "",
                                 "data-searchable", true);
                     page.writeEnd();
 
                     page.writeStart("li");
                         page.writeHtml("by ");
                         page.writeStart("select",
-                                "class", "autoSubmit",
+                                "data-bsp-autosubmit", "",
                                 "name", "userType");
                             for (UserType t : UserType.values()) {
                                 if (t != UserType.ROLE || Query.from(ToolRole.class).first() != null) {
@@ -192,7 +191,8 @@ public class UnpublishedDrafts extends PageServlet {
 
                                 page.writeElement("input",
                                         "type", "text",
-                                        "class", "autoSubmit objectId",
+                                        "class", "objectId",
+                                        "data-bsp-autosubmit", "",
                                         "data-editable", false,
                                         "data-label", userState != null ? userState.getLabel() : null,
                                         "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
@@ -201,8 +201,8 @@ public class UnpublishedDrafts extends PageServlet {
 
                             } else {
                                 page.writeStart("select",
-                                        "class", "autoSubmit",
                                         "name", userParameter,
+                                        "data-bsp-autosubmit", "",
                                         "data-searchable", "true");
                                     page.writeStart("option", "value", "").writeEnd();
 
@@ -250,7 +250,7 @@ public class UnpublishedDrafts extends PageServlet {
 
                     page.writeStart("li");
                         page.writeStart("form",
-                                "class", "autoSubmit",
+                                "data-bsp-autosubmit", "",
                                 "method", "get",
                                 "action", page.url(null));
                             page.writeStart("select", "name", "limit");

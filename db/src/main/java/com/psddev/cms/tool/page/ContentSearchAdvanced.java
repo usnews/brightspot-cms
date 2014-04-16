@@ -278,7 +278,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                     environment.getTypes(),
                                     type,
                                     "Any Types",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "name", TYPE_PARAMETER,
                                     "data-searchable", true);
                         page.writeEnd();
@@ -387,7 +387,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                     }
 
                                     page.writeStart("select",
-                                            "class", "autoSubmit",
+                                            "data-bsp-autosubmit", "",
                                             "name", "limit");
                                         for (int l : LIMITS) {
                                             page.writeStart("option",
@@ -529,7 +529,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                     "class", "action action-pullRight link icon icon-action-trash",
                                     "name", "action-trash",
                                     "value", "true");
-                                page.writeHtml("Bulk Trash All");
+                                page.writeHtml("Bulk Archive All");
                             page.writeEnd();
                         page.writeEnd();
                     page.writeEnd();

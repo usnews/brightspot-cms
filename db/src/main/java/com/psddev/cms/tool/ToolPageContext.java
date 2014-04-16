@@ -1430,10 +1430,14 @@ public class ToolPageContext extends WebPageContext {
 
         if (getCmsTool().isUseNonMinifiedJavaScript()) {
             for (String src : new String[] {
-                    "/script/jquery-1.8.3.js",
+                    "/script/jquery.js",
                     "/script/jquery.mousewheel.js",
+
+                    "/script/bsp-utils.js",
+                    "/script/bsp-autoexpand.js",
+                    "/script/bsp-autosubmit.js",
+
                     "/script/jquery.extra.js",
-                    "/script/jquery.autosubmit.js",
                     "/script/jquery.calendar.js",
                     "/script/codemirror/codemirror.js",
                     "/script/codemirror/mode/clike/clike.js",
@@ -1445,7 +1449,6 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.code.js",
                     "/script/jquery.dropdown.js",
                     "/script/jquery.editableplaceholder.js",
-                    "/script/jquery.expandable.js",
                     "/script/jquery.popup.js",
                     "/script/jquery.fixedscrollable.js",
                     "/script/jquery.frame.js",
@@ -1460,12 +1463,10 @@ public class ToolPageContext extends WebPageContext {
                     "/script/jquery.sortable.js",
                     "/script/jquery.spectrum.js",
                     "/script/jquery.tabbed.js",
-                    "/script/jquery.taxonomy.js",
                     "/script/jquery.toggleable.js",
                     "/script/jquery.widthaware.js",
                     "/script/jquery.workflow.js",
                     "/script/diff.js",
-                    "/script/json2.js",
                     "/script/pixastic/pixastic.core.js",
                     "/script/pixastic/actions/brightness.js",
                     "/script/pixastic/actions/crop.js",
@@ -1475,7 +1476,6 @@ public class ToolPageContext extends WebPageContext {
                     "/script/pixastic/actions/invert.js",
                     "/script/pixastic/actions/rotate.js",
                     "/script/pixastic/actions/sepia.js",
-                    "/script/html5slider.js",
                     "/script/wysihtml5-0.3.0.js",
                     "/script/jquery.rte.js",
                     "/script/d3.v3.js",
@@ -1622,6 +1622,7 @@ public class ToolPageContext extends WebPageContext {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    !hasPermission("type/" + type.getId() + "/write") ||
                     (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() &&
                     type.getObjectClass() == null) ||
                     Draft.class.equals(type.getObjectClass()) ||
@@ -1789,9 +1790,8 @@ public class ToolPageContext extends WebPageContext {
 
             for (WorkflowState s : w.getStates()) {
                 hasWorkflow = true;
-                String n = s.getName();
 
-                statuses.put("w." + n, n);
+                statuses.put("w." + s.getName(), s.getDisplayName());
             }
         }
 
@@ -1968,7 +1968,7 @@ public class ToolPageContext extends WebPageContext {
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("Trashed ");
+                writeHtml("Archived ");
                 writeHtml(formatUserDateTime(contentData.getUpdateDate()));
                 writeHtml(" by ");
                 writeObjectLabel(contentData.getUpdateUser());
@@ -2055,7 +2055,7 @@ public class ToolPageContext extends WebPageContext {
                                     "class", "icon icon-action-trash action-pullRight link",
                                     "name", "action-trash",
                                     "value", "true");
-                                writeHtml("Trash");
+                                writeHtml("Archive");
                             writeEnd();
 
                         } else {

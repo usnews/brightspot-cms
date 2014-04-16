@@ -33,9 +33,12 @@ import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
 
+    public static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
+
     private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
+    private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
 
     protected final ToolPageContext page;
 
@@ -150,7 +153,7 @@ public class SearchResultRenderer {
 
     public void renderSorter() throws IOException {
         page.writeStart("form",
-                "class", "autoSubmit",
+                "data-bsp-autosubmit", "",
                 "method", "get",
                 "action", page.url(null));
 

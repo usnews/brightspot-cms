@@ -5,6 +5,7 @@ import com.psddev.dari.util.ObjectUtils;
 public class WorkflowState {
 
     private String name;
+    private String displayName;
 
     public String getName() {
         return name;
@@ -12,6 +13,14 @@ public class WorkflowState {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDisplayName() {
+        return !ObjectUtils.isBlank(displayName) ? displayName : getName();
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Override
@@ -34,6 +43,6 @@ public class WorkflowState {
 
     @Override
     public String toString() {
-        return getName();
+        return getDisplayName();
     }
 }
