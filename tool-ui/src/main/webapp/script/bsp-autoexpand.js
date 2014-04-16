@@ -24,7 +24,7 @@
         '_init': function(roots, selector) {
             var plugin = this;
 
-            plugin._on(roots, 'input', selector, function() {
+            plugin._on(roots, 'change input', selector, function() {
                 plugin.expand(this);
             });
         },
@@ -33,11 +33,32 @@
             var $input = $(input);
             var display = $input.css('display');
             var $element = $('<div/>');
+            var inputCss;
+            var inputCssKey;
+            var inputCssValue;
 
-            $element.attr('style', window.getComputedStyle(input, null).cssText);
+            if (window.getComputedStyle) {
+                inputCss = window.getComputedStyle(input, null);
+                var inputCssIndex = 0;
+                var inputCssLength = inputCss.length;
+
+                for (; inputCssIndex < inputCssLength; ++ inputCssIndex) {
+                    inputCssKey = inputCss.item(inputCssIndex);
+                    inputCssValue = inputCss.getPropertyValue(inputCssKey);
+                    $element[0].style.setProperty(inputCssKey, inputCssValue);
+                }
+
+            } else {
+                inputCss = input.currentStyle;
+
+                for (inputCssKey in inputCss) {
+                    $element[0].style[inputCssKey] = inputCss[inputCssKey];
+                }
+            }
 
             $element.css({
                 'height': 'auto',
+                'white-space': 'pre-wrap',
                 'width': 'auto'
             });
 
@@ -94,8 +115,8 @@
             $.each(shadows, function(i, shadow) {
                 var bounds = shadow.$input[0].getBoundingClientRect();
 
-                shadow.width = bounds.width;
-                shadow.height = bounds.height;
+                shadow.width = bounds.right - bounds.left;
+                shadow.height = bounds.bottom - bounds.top;
             });
 
             // Write the input text into the shadow.
@@ -121,10 +142,10 @@
                 var shadowBounds = shadow.$element[0].getBoundingClientRect();
 
                 if (shadow.display === 'block') {
-                    shadow.height = shadowBounds.height;
+                    shadow.height = shadowBounds.bottom - shadowBounds.top;
 
                 } else {
-                    shadow.width = shadowBounds.width;
+                    shadow.width = shadowBounds.right - shadowBounds.left;
                 }
             });
 
