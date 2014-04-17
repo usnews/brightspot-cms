@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class Search extends Record {
 
     private static final Metaphone METAPHONE = new Metaphone();
@@ -22,7 +23,6 @@ public class Search extends Record {
 
     private Set<ObjectType> types;
     private List<Rule> rules = new ArrayList<Rule>(Arrays.asList(new StopWords()));
-
 
     public String getDisplayName() {
         return displayName;
@@ -273,10 +273,11 @@ public class Search extends Record {
     public static class StopWords extends Rule {
 
         private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
-                "a", "about", "an", "are", "as", "at", "be", "by", "com",
-                "for", "from", "how", "in", "is", "it", "of", "on", "or",
-                "that", "the", "this", "to", "was", "what", "when", "where",
-                "who", "will", "with", "the", "www"));
+                "a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "com",
+                "do", "for", "from", "he", "her", "him", "his", "her", "hers", "how", "I",
+                "if", "in", "is", "it", "its", "me", "my", "of", "on", "or", "our", "ours",
+                "that", "the", "they", "this", "to", "too", "us", "she", "was", "what", "when",
+                "where", "who", "will", "with", "why", "www"));
 
         public Set<String> getStopWords() {
             if (stopWords == null) {
