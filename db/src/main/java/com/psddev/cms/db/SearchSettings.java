@@ -36,12 +36,17 @@ public class SearchSettings extends Content {
     public static class StopWords extends SearchQueryBuilder.Rule {
 
         @Embedded
+        @CollectionMinimum(1)
         private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
                 "a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "com",
                 "do", "for", "from", "he", "her", "him", "his", "her", "hers", "how", "I",
                 "if", "in", "is", "it", "its", "me", "my", "of", "on", "or", "our", "ours",
                 "that", "the", "they", "this", "to", "too", "us", "she", "was", "what", "when",
                 "where", "who", "will", "with", "why", "www"));
+
+        public String getLabel() {
+            return "Common words that may be omitted from the search query to provide higher quality results";
+        }
 
         public Set<String> getStopWords() {
             if (stopWords == null) {
@@ -78,7 +83,12 @@ public class SearchSettings extends Content {
     public static class Synonyms extends SearchQueryBuilder.Rule {
 
         @Embedded
+        @CollectionMinimum(1)
         private List<Synonym> synonyms = new ArrayList<Synonym>();
+
+        public String getLabel() {
+            return "Similar words or common misspellings that should be grouped together for the purposes of search";
+        }
 
         public List<Synonym> getSynonyms() {
             return synonyms;
@@ -116,6 +126,7 @@ public class SearchSettings extends Content {
     public static class Spotlights extends SearchQueryBuilder.Rule {
 
         @Embedded
+        @CollectionMinimum(1)
         private List<Spotlight> spotlights = new ArrayList<Spotlight>();
 
         public List<Spotlight> getSpotlights() {
@@ -133,6 +144,10 @@ public class SearchSettings extends Content {
         public abstract class Spotlight<T extends Content> extends SearchQueryBuilder.Rule {
             private List<String> spotLightTerms;
             abstract List<T> getSpotlightContent();
+
+            public String getLabel() {
+                return spotLightTerms.toString();
+            }
 
             public List<String> getSpotLightTerms() {
                 return spotLightTerms;
