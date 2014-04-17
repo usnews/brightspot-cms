@@ -34,9 +34,12 @@ import com.psddev.dari.util.StringUtils;
 
 public class SearchResultRenderer {
 
+    public static final String TAXON_LEVEL_PARAMETER = "taxonLevel";
+
     private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
+    private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
 
     protected final ToolPageContext page;
 
@@ -110,25 +113,48 @@ public class SearchResultRenderer {
     @SuppressWarnings("unchecked")
     public void render() throws IOException {
         boolean resultsDisplayed = false;
+        int level = page.paramOrDefault(int.class, TAXON_LEVEL_PARAMETER, 1);
 
-        page.writeStart("h2").writeHtml("Result").writeEnd();
+        if (level == 1) {
+            page.writeStart("h2").writeHtml("Result").writeEnd();
+        }
 
         if (ObjectUtils.isBlank(search.getQueryString()) &&
                 search.getSelectedType() != null &&
                 search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
                 search.getVisibilities().isEmpty()) {
 
-            List<Taxon> roots = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+            search.setSuggestions(false);
 
-            if (!roots.isEmpty()) {
+            int nextLevel = level + 1;
+            Collection<Taxon> taxonResults = null;
+            UUID taxonParentUuid = page.paramOrDefault(UUID.class, TAXON_PARENT_ID_PARAMETER, null);
+
+            if (!ObjectUtils.isBlank(taxonParentUuid)) {
+                Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
+                taxonResults = (Collection<Taxon>) parent.getChildren();
+
+            } else {
+                taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
+            }
+
+            if (!ObjectUtils.isBlank(taxonResults)) {
                 resultsDisplayed = true;
 
-                page.writeStart("div", "class", "searchTaxonomy");
-                    page.writeStart("ul", "class", "taxonomy");
-                        for (Taxon root : roots) {
-                            writeTaxon(root);
-                        }
+                page.writeStart("div", "class", "searchResultList");
+
+                if (level == 1) {
+                    page.writeStart("div", "class", "taxonomyContainer");
+                    page.writeStart("div", "class", "searchTaxonomy");
+                }
+
+                renderTaxonList(taxonResults, nextLevel);
+
+                if (level == 1) {
                     page.writeEnd();
+                    page.writeEnd();
+                }
+
                 page.writeEnd();
             }
         }
@@ -172,7 +198,7 @@ public class SearchResultRenderer {
         }
     }
 
-    private void writeTaxon(Taxon taxon) throws IOException {
+    private void writeTaxon(Taxon taxon, int nextLevel) throws IOException {
         page.writeStart("li");
             renderBeforeItem(taxon);
             page.writeObjectLabel(taxon);
@@ -181,10 +207,10 @@ public class SearchResultRenderer {
             Collection<? extends Taxon> children = taxon.getChildren();
 
             if (children != null && !children.isEmpty()) {
-                page.writeStart("ul");
-                    for (Taxon c : children) {
-                        writeTaxon(c);
-                    }
+                page.writeStart("a",
+                        "href", page.url("", TAXON_PARENT_ID_PARAMETER, taxon.as(Taxon.Data.class).getId(), TAXON_LEVEL_PARAMETER, nextLevel),
+                        "class", "taxonomyExpand",
+                        "target", "taxonChildren-d" + nextLevel);
                 page.writeEnd();
             }
         page.writeEnd();
@@ -192,7 +218,7 @@ public class SearchResultRenderer {
 
     public void renderSorter() throws IOException {
         page.writeStart("form",
-                "class", "autoSubmit",
+                "data-bsp-autosubmit", "",
                 "method", "get",
                 "action", page.url(null));
 
@@ -315,6 +341,20 @@ public class SearchResultRenderer {
                 page.writeEnd();
             page.writeEnd();
         }
+    }
+
+    public void renderTaxonList(Collection<?> listItems, int nextLevel) throws IOException {
+        page.writeStart("ul", "class", "taxonomy");
+
+        for (Taxon taxon : (Collection<Taxon>) listItems) {
+            writeTaxon(taxon, nextLevel);
+        }
+
+        page.writeEnd();
+        page.writeStart("div",
+                "class", "frame taxonChildren",
+                "name", "taxonChildren-d" + nextLevel);
+        page.writeEnd();
     }
 
     public void renderImage(Object item, StorageItem image) throws IOException {

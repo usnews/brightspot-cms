@@ -192,15 +192,16 @@ writer.start("div", "class", "searchForm");
                             validTypes,
                             selectedType,
                             "Any Types",
-                            "class", "autoSubmit",
                             "name", Search.SELECTED_TYPE_PARAMETER,
+                            "data-bsp-autosubmit", "",
                             "data-searchable", true);
                 }
 
             writer.end();
 
             writer.start("form",
-                    "class", "autoSubmit searchFiltersRest",
+                    "class", "searchFiltersRest",
+                    "data-bsp-autosubmit", "",
                     "method", "get",
                     "action", ObjectUtils.firstNonNull(request.getAttribute("resultPath"), wp.url(request.getAttribute("resultJsp"))),
                     "target", resultTarget);
@@ -471,7 +472,8 @@ writer.start("div", "class", "searchForm");
                         "target", ObjectUtils.isBlank(newTarget) ? null : newTarget);
 
                     if (singleType) {
-                        if (!selectedType.getGroups().contains(Singleton.class.getName())) {
+                        if (wp.hasPermission("type/" + selectedType.getId() + "/write") &&
+                                !selectedType.getGroups().contains(Singleton.class.getName())) {
                             writer.writeElement("input", "type", "hidden", "name", "typeId", "value", selectedType.getId());
                             writer.writeStart("button", "class", "action action-create", "style", "width: auto;");
                                 writer.writeHtml("New " + wp.getObjectLabel(selectedType));

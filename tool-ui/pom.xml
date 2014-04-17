@@ -114,10 +114,14 @@
                         <aggregation>
                             <output>${project.build.directory}/${project.build.finalName}/script/all.min.js</output>
                             <includes>
-                                <include>jquery-1.8.3.js</include>
+                                <include>jquery.js</include>
                                 <include>jquery.mousewheel.js</include>
+
+                                <include>bsp-utils.js</include>
+                                <include>bsp-autoexpand.js</include>
+                                <include>bsp-autosubmit.js</include>
+
                                 <include>jquery.extra.js</include>
-                                <include>jquery.autosubmit.js</include>
                                 <include>jquery.calendar.js</include>
                                 <include>codemirror/codemirror.js</include>
                                 <include>codemirror/mode/clike/clike.js</include>
@@ -129,7 +133,6 @@
                                 <include>jquery.code.js</include>
                                 <include>jquery.dropdown.js</include>
                                 <include>jquery.editableplaceholder.js</include>
-                                <include>jquery.expandable.js</include>
                                 <include>jquery.popup.js</include>
                                 <include>jquery.fixedscrollable.js</include>
                                 <include>jquery.frame.js</include>
@@ -144,12 +147,10 @@
                                 <include>jquery.sortable.js</include>
                                 <include>jquery.spectrum.js</include>
                                 <include>jquery.tabbed.js</include>
-                                <include>jquery.taxonomy.js</include>
                                 <include>jquery.toggleable.js</include>
                                 <include>jquery.widthaware.js</include>
                                 <include>jquery.workflow.js</include>
                                 <include>diff.js</include>
-                                <include>json2.js</include>
                                 <include>pixastic/pixastic.core.js</include>
                                 <include>pixastic/actions/brightness.js</include>
                                 <include>pixastic/actions/crop.js</include>
@@ -159,7 +160,6 @@
                                 <include>pixastic/actions/invert.js</include>
                                 <include>pixastic/actions/rotate.js</include>
                                 <include>pixastic/actions/sepia.js</include>
-                                <include>html5slider.js</include>
                                 <include>wysihtml5-0.3.0.js</include>
                                 <include>jquery.rte.js</include>
                                 <include>d3.v3.js</include>

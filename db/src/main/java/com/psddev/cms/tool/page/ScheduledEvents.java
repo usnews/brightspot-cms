@@ -115,7 +115,7 @@ public class ScheduledEvents extends PageServlet {
             page.writeEnd();
 
             /*
-            page.writeStart("form", "method", "get", "class", "autoSubmit", "action", page.url(null));
+            page.writeStart("form", "method", "get", "data-bsp-autosubmit", "", "action", page.url(null));
                 page.writeStart("select", "name", "mode");
                     for (Mode m : Mode.values()) {
                         page.writeStart("option",

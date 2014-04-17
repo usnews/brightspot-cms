@@ -255,7 +255,6 @@ public class SearchAdvancedFullResult extends PageServlet {
             super.renderSorter();
 
             page.writeStart("form",
-                    "class", "autoSubmit",
                     "method", "get",
                     "action", page.url(null),
                     "style", page.cssString(
@@ -273,7 +272,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                 }
 
                 page.writeStart("select",
-                        "class", "autoSubmit",
+                        "data-bsp-autosubmit", "",
                         "name", FIELDS_PARAMETER,
                         "multiple", "multiple",
                         "placeholder", "Fields");
@@ -438,7 +437,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "name", "action-trash",
                             "value", "true");
 
-                        page.writeHtml("Bulk Trash All");
+                        page.writeHtml("Bulk Archive All");
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();

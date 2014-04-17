@@ -10,9 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.VisibilityLabel;
 
 @ToolUi.IconName("object-workflow")
 @Record.BootstrapPackages(value="Workflows", depends=ObjectType.class)
@@ -76,6 +79,7 @@ public class Workflow extends Record {
                 WorkflowState state = new WorkflowState();
 
                 state.setName((String) s.get("name"));
+                state.setDisplayName((String) s.get("displayName"));
                 states.add(state);
             }
         }
@@ -113,6 +117,7 @@ public class Workflow extends Record {
                 String name = (String) t.get("name");
 
                 transition.setName(name);
+                transition.setDisplayName((String) t.get("displayName"));
                 transition.setSource(states.get(t.get("source")));
                 transition.setTarget(states.get(t.get("target")));
                 transitions.put(name, transition);
@@ -157,6 +162,7 @@ public class Workflow extends Record {
                 WorkflowState source = states.get(t.get("source"));
 
                 transition.setName(name);
+                transition.setDisplayName((String) t.get("displayName"));
                 transition.setSource(source);
                 transition.setTarget(states.get(t.get("target")));
 
@@ -172,7 +178,7 @@ public class Workflow extends Record {
     }
 
     @FieldInternalNamePrefix("cms.workflow.")
-    public static class Data extends Modification<Object> {
+    public static class Data extends Modification<Object> implements VisibilityLabel {
 
         @Indexed(visibility = true)
         @ToolUi.Hidden
@@ -254,6 +260,30 @@ public class Workflow extends Record {
          */
         public void revertState(String state) {
             this.currentState = state;
+        }
+
+        // --- VisibilityLabel support ---
+
+        @Override
+        public String createVisibilityLabel(ObjectField field) {
+            String currentState = getCurrentState();
+
+            if (currentState != null) {
+                Workflow workflow = Query.
+                        from(Workflow.class).
+                        where("contentTypes = ?", getState().getType()).
+                        first();
+
+                if (workflow != null) {
+                    for (WorkflowState s : workflow.getStates()) {
+                        if (currentState.equals(s.getName())) {
+                            return s.getDisplayName();
+                        }
+                    }
+                }
+            }
+
+            return currentState;
         }
     }
 }

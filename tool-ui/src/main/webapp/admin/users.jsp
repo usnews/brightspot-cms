@@ -45,7 +45,7 @@ if (wp.tryStandardUpdate(selected)) {
                 </li>
             </ul>
 
-            <form action="<%= wp.url("/admin/usersResult.jsp") %>" class="autoSubmit" method="get" target="usersResult">
+            <form action="<%= wp.url("/admin/usersResult.jsp") %>" data-bsp-autosubmit="" method="get" target="usersResult">
                 <input name="id" type="hidden" value="<%= selectedState.getId() %>">
                 <input name="offset" type="hidden" value="<%= wp.longParam("offset", 0L) %>">
                 <div class="searchInput">
