@@ -97,17 +97,17 @@ public class SearchSettings extends Content {
             @Embedded
             @Required
             @CollectionMinimum(2)
-            private List<String> words;
+            private Set<String> words = new HashSet<String>();
 
             public String getLabel() {
-                return words.get(0);
+                return words.toString();
             }
 
-            public List<String> getWords() {
+            public Set<String> getWords() {
                 return words;
             }
 
-            public void setWords(List<String> words) {
+            public void setWords(Set<String> words) {
                 this.words = words;
             }
         }
