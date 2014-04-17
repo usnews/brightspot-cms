@@ -5,6 +5,7 @@ import com.psddev.dari.db.Query;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class SearchQuery extends Query<Object> {
 
     private Map<String, String> substitutions;
