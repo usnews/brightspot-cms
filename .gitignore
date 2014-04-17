@@ -4,7 +4,9 @@
 
 # Maven
 /target/
-/app-archetype/target/
+/archetypes/app-archetype/target/
+/archetypes/content-common-archetype/target/
+/archetypes/content-article-archetype/target/
 /db/target/
 /docs/documentation/_site/*
 /tool-ui/target/
