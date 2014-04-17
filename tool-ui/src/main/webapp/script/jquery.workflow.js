@@ -138,7 +138,7 @@ $.plugin2('workflow', {
                     definition.states.push({
                         'id': sourceId,
                         'displayName': $source.find(':input[type="text"]').val(),
-                        'name': $source.find(':input[type="hidden"]').val(),
+                        'name': $source.find(':input[type="hidden"]').val() || $source.find(':input[type="text"]').val(),
                         'left': sourcePosition.left / width,
                         'top': sourcePosition.top / height
                     });
@@ -219,7 +219,7 @@ $.plugin2('workflow', {
 
                         definition.transitions.push({
                             'displayName': $transitionInput.val(),
-                            'name': $transition.find(':input[type="hidden"]').val(),
+                            'name': $transition.find(':input[type="hidden"]').val() || $transitionInput.val(),
                             'source': sourceId,
                             'target': targetId
                         });
