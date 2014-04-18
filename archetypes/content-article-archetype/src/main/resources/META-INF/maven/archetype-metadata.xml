@@ -26,7 +26,7 @@
 	</fileSet>
 	
 	<fileSet encoding="UTF-8">
-            <directory>src/main/webapp/WEB-INF/renderer/pages</directory>
+            <directory>src/main/webapp/WEB-INF/renderer/mainContent</directory>
 	    <includes>
 	        <include>article.jsp</include>
 	    </includes>

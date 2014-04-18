@@ -62,7 +62,7 @@
 	</fileSet>
 	
 	<fileSet encoding="UTF-8" filtered="true">
-	   <directory>src/main/webapp/WEB-INF/tlds</directory>
+	   <directory>src/main/webapp/WEB-INF/tld</directory>
 	   <includes>
 		<include>*.tld</include>
            </includes>
