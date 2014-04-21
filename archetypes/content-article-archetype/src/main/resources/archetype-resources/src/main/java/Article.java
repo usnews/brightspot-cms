@@ -13,7 +13,7 @@ import java.util.Set;
 @PageStage.UpdateClass(DefaultPageStage.class)
 @Renderer.LayoutPath("/WEB-INF/common/page-container.jsp")
 @Renderer.Paths ({
-        @Renderer.Path(value="/WEB-INF/renderer/pages/article.jsp")
+        @Renderer.Path(value="/WEB-INF/renderer/mainContent/article.jsp")
 })
 public class Article extends Content implements Directory.Item, PageStage.Updatable, SequentialDirectoryItem {
 
