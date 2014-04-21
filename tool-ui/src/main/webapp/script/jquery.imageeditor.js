@@ -749,6 +749,7 @@ $.plugin2('imageEditor', {
 
                     $textOverlay.append($textOverlayInput);
                     $textOverlayInput.rte({
+                        'initImmediately': true,
                         'useLineBreaks': true
                     });
 

@@ -1623,9 +1623,30 @@ $.plugin2('rte', {
     },
 
     '_create': function(input) {
-        $.data(input, 'rte-options', $.extend(true, { }, this.option()));
+        var options = this.option();
 
-        $inputs = $inputs.add($(input));
+        $.data(input, 'rte-options', $.extend(true, { }, options));
+
+        if (options.initImmediately) {
+            var $input = $(this),
+                    rte;
+
+            if ($input.attr('data-inline') === 'true') {
+                options.inline = true;
+            }
+
+            rte = new Rte(input, options);
+
+            $input.bind('input-disable', function(event, disable) {
+                $input.closest('.rte-container').toggleClass('state-disabled', disable);
+                rte[disable ? 'disable' : 'enable']();
+            });
+
+            $input.parent().trigger('create');
+
+        } else {
+            $inputs = $inputs.add($(input));
+        }
     },
 
     'enable': function() {
