@@ -128,30 +128,6 @@ public class SearchQueryBuilder extends Record {
         return boostPhrase(boost, pattern, ObjectType.getInstance(objectClass), predicate);
     }
 
-    /*public SearchQueryBuilder addTypeKeywords(double boost, ObjectType type, String... keywords) {
-        if (keywords != null) {
-            TypeKeywords rule = new TypeKeywords();
-            rule.setBoost(boost);
-            rule.setType(type);
-            Collections.addAll(rule.getKeywords(), keywords);
-            addRule(rule);
-        }
-        return this;
-    }
-
-    public SearchQueryBuilder addTypeKeywords(double boost, Class<?> objectClass, String... keywords) {
-        return addTypeKeywords(boost, ObjectType.getInstance(objectClass), keywords);
-    }
-
-    public SearchQueryBuilder boostDirectoryItems(final double boost) {
-        return addRule(new Rule() {
-            @Override
-            public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-                query.sortRelevant(boost, Directory.Static.hasPathPredicate());
-            }
-        });
-    }*/
-
     private List<String> normalizeTerms(Object... terms) {
         List<String> normalized = new ArrayList<String>();
 

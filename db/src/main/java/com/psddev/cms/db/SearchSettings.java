@@ -8,6 +8,7 @@ public class SearchSettings extends Content {
 
     private Set<ObjectType> types;
     @Embedded
+    //TODO: maybe these embedded objects are wrapped so that the rules can be used in more than one search
     private List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>(Arrays.asList(new StopWords()));
 
     public Set<ObjectType> getTypes() {
