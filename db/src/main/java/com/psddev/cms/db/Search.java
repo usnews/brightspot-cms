@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//TODO: not sure I like that every method pretty much needs to be deprecated, leaning back toward new object and deprecating this one
 public class Search extends Record {
 
     private static final Metaphone METAPHONE = new Metaphone();

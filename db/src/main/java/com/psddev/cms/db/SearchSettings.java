@@ -8,6 +8,7 @@ import java.util.Set;
 
 public class SearchSettings extends Content {
 
+    //TODO: I'm not sure that this is correct to put in the search settings since each type will require a renderer
     @CollectionMinimum(1)
     private Set<ObjectType> types;
     @Embedded
