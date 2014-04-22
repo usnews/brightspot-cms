@@ -8,11 +8,12 @@ import java.util.Set;
 
 public class SearchSettings extends Content {
 
+    @CollectionMinimum(1)
     private Set<ObjectType> types;
     @Embedded
     //TODO: maybe these embedded objects are wrapped so that the rules can be used in more than one search
-    //private List<SearchQueryBuilder.Rule> rules = new ArrayList<>();
-    private List<Search.Rule> rules = new ArrayList<>();
+    //private List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
+    private List<Search.Rule> rules = new ArrayList<Search.Rule>();
 
     public Set<ObjectType> getTypes() {
         if (types == null) {
