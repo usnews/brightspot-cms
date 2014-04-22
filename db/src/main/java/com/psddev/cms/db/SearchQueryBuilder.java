@@ -3,7 +3,6 @@ package com.psddev.cms.db;
 import com.psddev.dari.db.*;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
-import org.apache.commons.codec.language.Metaphone;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -11,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class SearchQueryBuilder extends Record {
 
-    private static final Metaphone METAPHONE = new Metaphone();
+    //private static final Metaphone METAPHONE = new Metaphone();
 
     private Set<ObjectType> types;
     private List<Rule> rules = new ArrayList<Rule>();
@@ -36,12 +35,6 @@ public class SearchQueryBuilder extends Record {
 
     public void setRules(List<Rule> rules) {
         this.rules = rules;
-    }
-
-    // --- Fluent methods ---
-
-    public static SearchQueryBuilder named(String name) {
-        return Query.from(SearchQueryBuilder.class).where("internalName = ?",name).first();
     }
 
     public SearchQueryBuilder addTypes(ObjectType... types) {
@@ -77,31 +70,6 @@ public class SearchQueryBuilder extends Record {
     public SearchQueryBuilder boostType(double boost, Class<?> objectClass) {
         return boostType(boost, ObjectType.getInstance(objectClass));
     }
-
-    /*public SearchQueryBuilder boostLabels(double boost) {
-        if (boost != 1.0) {
-            for (Rule rule : getRules()) {
-                if (rule instanceof BoostLabels) {
-                    ((BoostLabels) rule).setBoost(boost);
-                    return this;
-                }
-            }
-
-            BoostLabels rule = new BoostLabels();
-            rule.setBoost(boost);
-            addRule(rule);
-
-        } else {
-            for (Iterator<Rule> i = getRules().iterator(); i.hasNext(); ) {
-                Rule rule = i.next();
-                if (rule instanceof BoostLabels) {
-                    i.remove();
-                }
-            }
-        }
-
-        return this;
-    } */
 
     public SearchQueryBuilder boostFields(double boost, ObjectType type, String... fields) {
         BoostFields rule = new BoostFields();
@@ -177,7 +145,7 @@ public class SearchQueryBuilder extends Record {
 
         if (!queryTerms.isEmpty()) {
             for (Rule rule : getRules()) {
-                rule.apply(this, query, queryTerms);
+                rule.applyRule(this, query, queryTerms);
             }
 
             if (!queryTerms.isEmpty()) {
@@ -196,7 +164,137 @@ public class SearchQueryBuilder extends Record {
 
     public static abstract class Rule extends Record {
 
-        public abstract void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
+        public abstract void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
+    }
+
+    public static class StopWords extends SearchQueryBuilder.Rule {
+
+        @Embedded
+        @CollectionMinimum(1)
+        private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
+                "a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "com",
+                "do", "for", "from", "he", "her", "him", "his", "her", "hers", "how", "I",
+                "if", "in", "is", "it", "its", "me", "my", "of", "on", "or", "our", "ours",
+                "that", "the", "they", "this", "to", "too", "us", "she", "was", "what", "when",
+                "where", "who", "will", "with", "why", "www"));
+
+        public String getLabel() {
+            return "Common words that may be omitted from the search query to provide higher quality results";
+        }
+
+        public Set<String> getStopWords() {
+            if (stopWords == null) {
+                setStopWords(new LinkedHashSet<String>());
+            }
+            return stopWords;
+        }
+
+        public void setStopWords(Set<String> stopWords) {
+            this.stopWords = stopWords;
+        }
+
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            Set<String> stopWords = getStopWords();
+            Set<String> removed = null;
+
+            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
+                String word = i.next();
+                if (stopWords.contains(word)) {
+                    i.remove();
+                    if (removed == null) {
+                        removed = new HashSet<String>();
+                    }
+                    removed.add(word);
+                }
+            }
+
+            if (removed != null && !removed.isEmpty()) {
+                query.sortRelevant(1.0, "_any matchesAll ?", removed);
+            }
+        }
+    }
+
+    public static class Synonyms extends SearchQueryBuilder.Rule {
+
+        @Embedded
+        @CollectionMinimum(1)
+        private List<Synonym> synonyms = new ArrayList<Synonym>();
+
+        public String getLabel() {
+            return "Similar words or common misspellings that should be grouped together for the purposes of search";
+        }
+
+        public List<Synonym> getSynonyms() {
+            return synonyms;
+        }
+
+        public void setSynonyms(List<Synonym> synonyms) {
+            this.synonyms = synonyms;
+        }
+
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            //TODO: add logic
+        }
+
+        public static class Synonym extends Record {
+
+            @Embedded
+            @Required
+            @CollectionMinimum(2)
+            private Set<String> words = new HashSet<String>();
+
+            public String getLabel() {
+                return words.toString();
+            }
+
+            public Set<String> getWords() {
+                return words;
+            }
+
+            public void setWords(Set<String> words) {
+                this.words = words;
+            }
+        }
+    }
+
+    public static class Spotlights extends SearchQueryBuilder.Rule {
+
+        @Embedded
+        @CollectionMinimum(1)
+        private List<Spotlight> spotlights = new ArrayList<Spotlight>();
+
+        public List<Spotlight> getSpotlights() {
+            return spotlights;
+        }
+
+        public void setSpotlights(List<Spotlight> spotlights) {
+            this.spotlights = spotlights;
+        }
+
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+             //TODO: add logic
+        }
+
+        public abstract class Spotlight<T extends Content> extends SearchQueryBuilder.Rule {
+            private List<String> spotLightTerms;
+            abstract List<T> getSpotlightContent();
+
+            public String getLabel() {
+                return spotLightTerms.toString();
+            }
+
+            public List<String> getSpotLightTerms() {
+                return spotLightTerms;
+            }
+
+            public void setSpotLightTerms(List<String> spotLightTerms) {
+                this.spotLightTerms = spotLightTerms;
+            }
+
+            public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+                //TODO: add logic
+            }
+        }
     }
 
     public static abstract class BoostRule extends Rule {
@@ -225,7 +323,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
         }
     }
@@ -233,7 +331,7 @@ public class SearchQueryBuilder extends Record {
     public static class BoostLabels extends BoostRule {
 
         @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             double boost = getBoost();
             for (ObjectType type : queryBuilder.getTypes()) {
                 String prefix = type.getInternalName() + "/";
@@ -269,7 +367,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             double boost = getBoost();
             String prefix = getType().getInternalName() + "/";
             for (String field : getFields()) {
@@ -333,7 +431,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
 
             for (String term : queryTerms) {
@@ -381,69 +479,6 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    /*public static class TypeKeywords extends BoostRule {
-
-        private ObjectType type;
-        private Set<String> keywords;
-
-        public ObjectType getType() {
-            return type;
-        }
-
-        public void setType(ObjectType type) {
-            this.type = type;
-        }
-
-        public Set<String> getKeywords() {
-            if (keywords == null) {
-                setKeywords(new LinkedHashSet<String>());
-            }
-            return keywords;
-        }
-
-        public void setKeywords(Set<String> keywords) {
-            this.keywords = keywords;
-        }
-
-        @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            List<ObjectType> types = getType().as(ToolUi.class).findDisplayTypes();
-
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
-                String word = i.next();
-                String similar = findSimilar(word);
-
-                if (similar != null) {
-                    i.remove();
-                    query.and("_type = ? or _any matchesAll ?", types, word);
-                    query.sortRelevant(getBoost(), "_type = ?", types);
-
-                    if (!similar.equalsIgnoreCase(word)) {
-                        query.getSubstitutions().put(word, similar);
-                    }
-                }
-            }
-        }
-
-        private String findSimilar(String term) {
-            ObjectType type = getType();
-            String encodedTerm = METAPHONE.encode(term);
-
-            String displayName = type.getDisplayName();
-            if (encodedTerm.equals(METAPHONE.encode(displayName))) {
-                return displayName;
-            }
-
-            for (String keyword : getKeywords()) {
-                if (encodedTerm.equals(METAPHONE.encode(keyword))) {
-                    return keyword;
-                }
-            }
-
-            return null;
-        }
-    } */
-
     public static class OptionalTerms extends BoostRule {
 
         private Set<String> terms;
@@ -460,7 +495,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> terms = getTerms();
 
             for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
