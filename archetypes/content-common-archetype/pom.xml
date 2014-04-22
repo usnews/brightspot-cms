@@ -9,6 +9,7 @@
 
     <build>
         <plugins>
+            <!-- archetype file copy -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -27,7 +28,6 @@
                     <include>archetype-resources/pom.xml</include>
                 </includes>
             </resource>
-
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
