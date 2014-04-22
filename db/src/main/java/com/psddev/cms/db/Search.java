@@ -267,7 +267,7 @@ public class Search extends Record {
         return query;
     }
 
-    public Query toQueryObject(Object... terms) {
+    public Query getQuery(Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         Query query = Query.from(Object.class);
 
