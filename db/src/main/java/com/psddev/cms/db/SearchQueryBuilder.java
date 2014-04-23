@@ -293,7 +293,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static class Spotlights extends Rule {
+    /*public static class Spotlights extends Rule {
 
         @Embedded
         @CollectionMinimum(1)
@@ -332,7 +332,7 @@ public class SearchQueryBuilder extends Record {
                 //TODO: add logic
             }
         }
-    }
+    } */
 
     public static abstract class BoostRule extends Rule {
 
