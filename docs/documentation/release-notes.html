@@ -117,6 +117,13 @@ section: documentation
                         </div>
                         <img width="690" src="http://docs.brightspot.s3.amazonaws.com/field-hints2.3.png"/>
                     </div></br></br><hr>
+
+                    <h3>Editorial Release Notes Cont</h3><p id='p-marker0' class=' '><strong>Disable Navigate Away Alert</strong></p><p id='p-marker1' class=' '>Under User Profile settings you have the ability disable the Navigate Away Alert.</p><p id='p-marker2' class=' '><strong>Disable Content Locking</strong> </p><p id='p-marker3' class=' '>This feature allows multiple editors to edit content without locking the content to a user.</p><p id='p-marker4' class=' '><strong>Select Multiple Types in Advanced Search Query Builder</strong></p><p id='p-marker5' class=' '>This feature provides the ability to select multiple content types when building an advanced search query. For more details on how to use this feature, click <a href="http://brightspotcms.com/search.html#advanced-search-23"/>here</a>. </p><p id='p-marker6' class=' '><strong>Search by Publish Date</strong></p><p id='p-marker7' class=' '>Publish Date is now a search filter in the Search Tool. </p><p id='p-marker8' class=' '><strong>Override Dashboard Widgets</strong></p><p id='p-marker9' class=' '>Brightspot now provides the ability to override the Common Content, Bulk Upload, and Resources dashboard widgets settings for each site.</p><p id='p-marker10' class=' '><strong>Common Times</strong></p><p id='p-marker11' class=' '>This feature adds the ability to set common times within your Brightspot application. This is used in setting a schedule time for content to be published. Once this is set in Settings, it becomes a saved time that can be select to schedule content publishing.</p><a id='section-marker2' name='developer-release-notes' ></a><h3>Developer Release Notes</h3><p id='p-marker12' class=' '>Several new Annotations have been added in Brightspot 2.3:</p><p id='p-marker13' class=' '><strong>@ToolUi.ReadOnly</strong></p><p id='p-marker14' class=' '>This specifies that the target field is read-only, and cannot be changed by editors.</p><p id='p-marker15' class=' '><strong>@ToolUi.Placeholder</strong></p><p id='p-marker16' class=' '>Placeholder content can be added to fields, either through a static string, or a dynamic label. See the documentation on how to use @ToolUi.Placeholder <a href="http://brightspotcms.com/annotations.html"/>here</a>.</p><p id='p-marker17' class=' '><strong>@ToolUi.Expanded</strong></p><p id='p-marker18' class=' '>This annotation can be used to always shows certain fields even when an embedded form is collapsed. </p><p id='p-marker19' class=' '><strong>@ToolUi.BulkUpload</strong></p><p id='p-marker20' class=' '>Add this annotation to embedded content types that can be bulk uploaded.</p><p id='p-marker21' class=' '><strong>Updated <code>&lt;cms:render&gt;</code> tag</strong></p><p id='p-marker22' class=' '>New marker and offset attributes have been added to the cms:render tag. </p><strong>New cms:markerCount Tag</strong></p><p id='p-marker26' class=' '>Newly added <code>&lt;cms:markerCount&gt;</code> helps return the number of text markers with the given internal marker name in the reference text, which helps determine page counts for paginated pages.</p><p id='p-marker27' class=' '><strong>Deprecated Items</strong></p><p id='p-marker28' class=' '>Both Templates and Pages have been deprecated in Brightspot 2.3. Existing Templates and Pages from previous versions of Brightspot will continue to work in 2.3, however going forward pages or templates should be build using <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations on the class. For information on how to build Templates or Pages using this new method see the <a href="http://brightspotcms.com/create-a-page.html"/>documentation</a>.</p><p id='p-marker29' class=' '><strong>New Raw HTML</strong></p><p id='p-marker30' class=' '>A new Raw HTML object is now available in Brightspot, and can have Status and Headers added to it. It also is capable of having a URL. It can be added as an enhancement to Rich Text areas for embedding HTML.</p><p id='p-marker31' class=' '><strong>Improved Locking</strong></p><p id='p-marker32' class=' '>The content locking feature for editors accessing content at the same time has been improved.</p>
+                <strong>CMS Object Detail</strong></p>
+                Within the CMS, developers can now access details regarding a specific piece of content. Use the wrench icon, and select `For Developers` to see the raw data in JSON format, any rendering JSP files attached to the object, as well as annotations and potential annotations. It also is a point of access for any embedded script for syndicated content.
+                <strong>CMS Tags</strong></p>
+                There have been improvements in existing CMS tags, and El Functions for Brightspot. See the <a href="cms-tags.html"/>documentation</a> for more.
+            </br></br>
         <div class="row header">
         <div class="span12">
         <h1>Brightspot 2.2 Release Notes</h1>
@@ -175,27 +182,7 @@ section: documentation
                         </div>
                         <img width="690" src="http://docs.brightspot.s3.amazonaws.com/workflow_release_notes.2.2.png"/>
                     </div></br></br><hr>
-                    <!-- <h2>Publishing: Track Changes</h2>
-                    <p>As content moves from status to status, editors can now track the changes. When adding or removing text, each edit is tracked, and can be viewed by the next editor. Notes and approvals for changes can also be used within the rich text tool. In addition, a new full-screen text editor has been added, allowing a distraction free mode for creating content.
-                    </p>
-                    <div class="highlight center span12" style="padding-top: 10px;">
-                        <div class="highlight-line right" style="top: 200px; width: 280px;">
-                            <div class="highlight-box">
-                                <div class="title">See added and removed copy</br>by color</div>
-                            </div>
-                        </div>
-                        <div class="highlight-line left" style="top: 295px; width: 353px;">
-                            <div class="highlight-box">
-                                <div class="title">Leave notes, approve or reject one or all changes.</div>
-                            </div>
-                        </div>
-                        <div class="highlight-line right" style="top: 92px; width: 290px;">
-                            <div class="highlight-box">
-                                <div class="title">Click to see</br>full screen editor</div>
-                            </div>
-                        </div>
-                        <img width="690" src="http://docs.brightspot.s3.amazonaws.com/tracking-changes-2.2.png"/>
-                    </div></br></br><hr> -->
+                    
                     <h2>Publishing: Locked Content</h2>
                     <p>Content that is being edited by another user now appears locked, and is uneditable by others who attempt to access. You can always unlock content if needed. The lock message tells you who is currently editing the content by username.
                     </p>
