@@ -13,8 +13,7 @@ public class SearchSettings extends Content {
     private Set<ObjectType> types;
     @Embedded
     //TODO: maybe these embedded objects are wrapped so that the rules can be used in more than one search
-    //private List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
-    private List<Search.Rule> rules = new ArrayList<Search.Rule>();
+    private List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
 
     public Set<ObjectType> getTypes() {
         if (types == null) {
@@ -27,7 +26,7 @@ public class SearchSettings extends Content {
         this.types = types;
     }
 
-    /*public List<SearchQueryBuilder.Rule> getRules() {
+    public List<SearchQueryBuilder.Rule> getRules() {
         if (rules == null) {
             setRules(new ArrayList<SearchQueryBuilder.Rule>());
         }
@@ -35,14 +34,6 @@ public class SearchSettings extends Content {
     }
 
     public void setRules(List<SearchQueryBuilder.Rule> rules) {
-        this.rules = rules;
-    } */
-
-    public List<Search.Rule> getRules() {
-        return rules;
-    }
-
-    public void setRules(List<Search.Rule> rules) {
         this.rules = rules;
     }
 }
