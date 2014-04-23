@@ -60,6 +60,28 @@ public class SearchQueryBuilder extends Record {
         return this;
     }
 
+    public SearchQueryBuilder addStopWords(String... stopWords) {
+        if (stopWords != null) {
+            StopWords rule = null;
+
+            for (Rule r : getRules()) {
+                if (r instanceof StopWords) {
+                    rule = (StopWords) r;
+                    break;
+                }
+            }
+
+            if (rule == null) {
+                rule = new StopWords();
+                addRule(rule);
+            }
+
+            Collections.addAll(rule.getStopWords(), stopWords);
+        }
+
+        return this;
+    }
+
     public SearchQueryBuilder boostType(double boost, ObjectType type) {
         BoostType rule = new BoostType();
         rule.setBoost(boost);
@@ -145,7 +167,7 @@ public class SearchQueryBuilder extends Record {
 
         if (!queryTerms.isEmpty()) {
             for (Rule rule : getRules()) {
-                rule.applyRule(this, query, queryTerms);
+                rule.apply(this, query, queryTerms);
             }
 
             if (!queryTerms.isEmpty()) {
@@ -164,13 +186,14 @@ public class SearchQueryBuilder extends Record {
 
     public static abstract class Rule extends Record {
 
-        public abstract void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
+        public abstract void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
     }
 
-    public static class StopWords extends SearchQueryBuilder.Rule {
+    public static class StopWords extends Rule {
 
-        @Embedded
         @CollectionMinimum(1)
+        @Embedded
+        @ToolUi.Note("Common words that may be omitted from the search query to provide higher quality results")
         private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
                 "a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "com",
                 "do", "for", "from", "he", "her", "him", "his", "her", "hers", "how", "I",
@@ -179,7 +202,7 @@ public class SearchQueryBuilder extends Record {
                 "where", "who", "will", "with", "why", "www"));
 
         public String getLabel() {
-            return "Common words that may be omitted from the search query to provide higher quality results";
+            return stopWords.size()+" Stop Words";
         }
 
         public Set<String> getStopWords() {
@@ -193,7 +216,7 @@ public class SearchQueryBuilder extends Record {
             this.stopWords = stopWords;
         }
 
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
             Set<String> removed = null;
 
@@ -212,16 +235,19 @@ public class SearchQueryBuilder extends Record {
                 query.sortRelevant(1.0, "_any matchesAll ?", removed);
             }
         }
+
+        //TODO: make sure that the stop words all live in one place even if multiple stopwords are added
     }
 
-    public static class Synonyms extends SearchQueryBuilder.Rule {
+    public static class Synonyms extends Rule {
 
-        @Embedded
         @CollectionMinimum(1)
+        @Embedded
+        @ToolUi.Note("Similar words or common misspellings that should be grouped together for the purposes of search")
         private List<Synonym> synonyms = new ArrayList<Synonym>();
 
         public String getLabel() {
-            return "Similar words or common misspellings that should be grouped together for the purposes of search";
+            return synonyms.size()+" Synonym Groups";
         }
 
         public List<Synonym> getSynonyms() {
@@ -232,7 +258,7 @@ public class SearchQueryBuilder extends Record {
             this.synonyms = synonyms;
         }
 
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             //TODO: add logic
         }
 
@@ -257,7 +283,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static class Spotlights extends SearchQueryBuilder.Rule {
+    public static class Spotlights extends Rule {
 
         @Embedded
         @CollectionMinimum(1)
@@ -271,11 +297,11 @@ public class SearchQueryBuilder extends Record {
             this.spotlights = spotlights;
         }
 
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-             //TODO: add logic
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            //TODO: add logic
         }
 
-        public abstract class Spotlight<T extends Content> extends SearchQueryBuilder.Rule {
+        public abstract class Spotlight<T extends Content> extends Rule {
             private List<String> spotLightTerms;
             abstract List<T> getSpotlightContent();
 
@@ -291,7 +317,7 @@ public class SearchQueryBuilder extends Record {
                 this.spotLightTerms = spotLightTerms;
             }
 
-            public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
                 //TODO: add logic
             }
         }
@@ -323,7 +349,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
         }
     }
@@ -331,7 +357,7 @@ public class SearchQueryBuilder extends Record {
     public static class BoostLabels extends BoostRule {
 
         @Override
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             double boost = getBoost();
             for (ObjectType type : queryBuilder.getTypes()) {
                 String prefix = type.getInternalName() + "/";
@@ -367,7 +393,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             double boost = getBoost();
             String prefix = getType().getInternalName() + "/";
             for (String field : getFields()) {
@@ -431,7 +457,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
 
             for (String term : queryTerms) {
@@ -495,7 +521,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         @Override
-        public void applyRule(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> terms = getTerms();
 
             for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
