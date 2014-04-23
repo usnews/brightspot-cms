@@ -25,7 +25,6 @@ public class Article extends Content implements Directory.Item, PageStage.Updata
     private String subheadline;
 
     @FieldDisplayName("Main Image")
-    @Required
     private Image image;
 
     @Required

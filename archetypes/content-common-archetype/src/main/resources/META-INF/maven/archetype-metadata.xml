@@ -4,6 +4,7 @@
     <requiredProperties>
         <requiredProperty key="groupId" />
         <requiredProperty key="artifactId" />
+        <requiredProperty key="classPrefix" />
         <requiredProperty key="namespaceUri" />
 
         <requiredProperty key="version">
@@ -79,6 +80,13 @@
            <directory></directory>
            <includes>
                 <include>package.json</include>
+           </includes>
+        </fileSet>
+
+        <fileSet encoding="UTF-8" filtered="false">
+           <directory></directory>
+           <includes>
+                <include>.gitignore</include>
            </includes>
         </fileSet>
  

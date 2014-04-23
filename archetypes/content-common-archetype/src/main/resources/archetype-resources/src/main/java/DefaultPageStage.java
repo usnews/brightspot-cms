@@ -20,6 +20,8 @@ public class DefaultPageStage implements PageStage.SharedUpdatable {
 
     public void updateStageBefore(Object object, PageStage stage) {
 
+        ${classPrefix}Application app = ${classPrefix}Application.getInstance();
+
         State state = State.getInstance(object);
         String title = state.as(Seo.ObjectModification.class).findTitle();
         String description = state.as(Seo.ObjectModification.class).findDescription();
@@ -42,7 +44,7 @@ public class DefaultPageStage implements PageStage.SharedUpdatable {
             stage.setMetaName("description", description);
         }
 
-        if(!StringUtils.isBlank(permalink)){
+        if (!StringUtils.isBlank(permalink)){
             stage.findOrCreateHeadElement("link",
                     "rel", "canonical",
                     "href", permalink);
@@ -51,8 +53,18 @@ public class DefaultPageStage implements PageStage.SharedUpdatable {
         stage.setMetaProperty("og:site_name","${artifactId}");
         stage.setMetaProperty("og:url",permalink);
 
-        stage.addScript("/assets/script/jquery-2.1.0.min.js");
-        stage.addScript("/assets/script/${artifactId}.js");
+        if (app.isUseNonMinifiedCss()) {
+            stage.addStyleSheet("/assets/style/less/${artifactId}.less"); 
+            stage.addScript("/assets/script/vendor/less/less-1.7.0.min.js");
+        } else {
+            stage.addStyleSheet("/assets/style/css/${artifactId}.css");
+        }
+
+        if (app.isUseNonMinifiedJs()) {
+            stage.addScript("/assets/script/vendor/jquery/jquery-2.1.0.js");
+        } else {
+            stage.addScript("/assets/script/build/${artifactId}.js");
+        }
     }
 
     public void updateStageAfter(Object object, PageStage stage) {
