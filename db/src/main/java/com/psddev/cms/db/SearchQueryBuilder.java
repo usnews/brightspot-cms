@@ -236,7 +236,8 @@ public class SearchQueryBuilder extends Record {
             }
         }
 
-        //TODO: make sure that the stop words all live in one place even if multiple stopwords are added
+        //TODO: make sure that the stop words all live in one place even if multiple
+        // stopword objects are added to the rules (addStopWords())
     }
 
     public static class Synonyms extends Rule {
@@ -259,14 +260,23 @@ public class SearchQueryBuilder extends Record {
         }
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            //TODO: add logic
+            //TODO: I don't like the query or the select all here... iterate instead?
+            List<Synonym> synonymMatches = Query.from(Synonym.class).where("words = ?",queryTerms).selectAll();
+
+            for (Synonym sm : synonymMatches) {
+                queryTerms.addAll(sm.getWords());
+            }
+
+            //TODO: these terms need to be passed all over the place
+            // do something with 'queryTerms'
         }
 
         public static class Synonym extends Record {
 
+            @CollectionMinimum(2)
             @Embedded
             @Required
-            @CollectionMinimum(2)
+            @Indexed
             private Set<String> words = new HashSet<String>();
 
             public String getLabel() {
@@ -301,6 +311,7 @@ public class SearchQueryBuilder extends Record {
             //TODO: add logic
         }
 
+        //TODO: what is going on with this abstract class?
         public abstract class Spotlight<T extends Content> extends Rule {
             private List<String> spotLightTerms;
             abstract List<T> getSpotlightContent();
