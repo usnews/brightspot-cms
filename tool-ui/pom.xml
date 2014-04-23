@@ -144,7 +144,6 @@
                                 <include>jquery.pagethumbnails.js</include>
                                 <include>jquery.regionmap.js</include>
                                 <include>jquery.repeatable.js</include>
-                                <include>jquery.taxonomy.js</include>
                                 <include>jquery.sortable.js</include>
                                 <include>jquery.spectrum.js</include>
                                 <include>jquery.tabbed.js</include>
