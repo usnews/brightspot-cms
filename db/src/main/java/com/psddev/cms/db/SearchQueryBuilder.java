@@ -183,7 +183,7 @@ public class SearchQueryBuilder extends Record {
                     query.or("_any matchesAll ?", queryTerms);
                 } else {
                     query.or("_any matchesAny ?", queryTerms);
-                    //return results based on most relevant
+                    query.sortRelevant(10.0,"_any matchesAll ?", queryTerms);
                 }
             }
         }
