@@ -235,40 +235,46 @@ public class SearchQueryBuilder extends Record {
                 query.sortRelevant(0.01, "_any matchesAll ?", removed);
             }
         }
-
-        //TODO: make sure that the stop words all live in one place even if multiple
-        // stopword objects are added to the rules (addStopWords())
     }
 
     public static class Synonyms extends Rule {
 
         @CollectionMinimum(1)
         @Embedded
-        @ToolUi.Note("Similar words or common misspellings that should be grouped together for the purposes of search")
-        private List<Synonym> synonyms = new ArrayList<Synonym>();
+        @ToolUi.Note("Similar words that should be used in the search query to enrich the experience")
+        private Set<Synonym> synonyms = new HashSet<Synonym>();
 
         public String getLabel() {
             return synonyms.size()+" Synonym Groups";
         }
 
-        public List<Synonym> getSynonyms() {
+        public Set<Synonym> getSynonyms() {
+            if(synonyms == null) {
+               setSynonyms(new HashSet<Synonym>());
+            }
             return synonyms;
         }
 
-        public void setSynonyms(List<Synonym> synonyms) {
+        public void setSynonyms(Set<Synonym> synonyms) {
             this.synonyms = synonyms;
         }
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            //TODO: I don't like the query or the select all here... iterate instead?
-            List<Synonym> synonymMatches = Query.from(Synonym.class).where("words = ?",queryTerms).selectAll();
-
-            for (Synonym sm : synonymMatches) {
-                queryTerms.addAll(sm.getWords());
+            Set<String> newTerms = new HashSet<String>();
+            for(String qt : queryTerms){
+                newTerms.add(qt.toLowerCase());
             }
 
-            //TODO: these terms need to be passed all over the place
-            // do something with 'queryTerms'
+            for(Synonym s:getSynonyms()){
+                for(String term:s.getWords()){
+                    if(newTerms.contains(term.toLowerCase())){
+                        newTerms.addAll(s.getWords());
+                        break;
+                    }
+                }
+            }
+
+            queryTerms = new ArrayList<String>(newTerms);
         }
 
         public static class Synonym extends Record {
@@ -276,7 +282,6 @@ public class SearchQueryBuilder extends Record {
             @CollectionMinimum(2)
             @Embedded
             @Required
-            @Indexed
             private Set<String> words = new HashSet<String>();
 
             public String getLabel() {
