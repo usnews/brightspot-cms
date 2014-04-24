@@ -1,14 +1,25 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.db.Query;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchSettings extends Content {
 
+    @ToolUi.Note("Do you want searches to do an exact match of the user's query? Unchecking this box will match based on any of the individual user terms")
+    private boolean exactMatchTerms;
     private List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
-    /*@Embedded
-    private List<QueryRule> rules = new ArrayList<QueryRule>();
-    */
+
+    private transient String searchString;
+
+    public boolean isExactMatchTerms() {
+        return exactMatchTerms;
+    }
+
+    public void setExactMatchTerms(boolean exactMatchTerms) {
+        this.exactMatchTerms = exactMatchTerms;
+    }
 
     public List<SearchQueryBuilder.Rule> getRules() {
         return rules;
@@ -18,46 +29,22 @@ public class SearchSettings extends Content {
         this.rules = rules;
     }
 
-    /*public List<SearchQueryBuilder.Rule> getRules() {
-        List<SearchQueryBuilder.Rule> ruleList = new ArrayList<SearchQueryBuilder.Rule>();
-        for(QueryRule queryRule:this.rules){
-            ruleList.add(queryRule.getRule());
-        }
-        return ruleList;
+    public String getSearchString() {
+        return searchString;
     }
 
-    public void setRules(List<SearchQueryBuilder.Rule> rules) {
-        if(this.rules == null) {
-            this.rules = new ArrayList<QueryRule>();
-        }
-        for(SearchQueryBuilder.Rule rule:rules){
-            this.rules.add(new QueryRule(rule));
-        }
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
     }
 
-    public static class QueryRule extends Record {
+    public Query<?> getQuery(){
+        SearchQueryBuilder searchQuery = new SearchQueryBuilder();
 
-        SearchQueryBuilder.Rule rule;
+        searchQuery.setExactMatchTerms(exactMatchTerms);
+        //set the initial rules, followed by the ones from the cms
+        searchQuery.setRules(getRules());
 
-        public QueryRule(){}
-
-        public QueryRule(SearchQueryBuilder.Rule rule){
-            this.rule = rule;
-        }
-
-        public String getLabel(){
-            if(!ObjectUtils.isBlank(rule)) {
-                return rule.getClass().getSimpleName();
-            }
-            return "";
-        }
-
-        public SearchQueryBuilder.Rule getRule() {
-            return rule;
-        }
-
-        public void setRule(SearchQueryBuilder.Rule rule) {
-            this.rule = rule;
-        }
-    }*/
+        //return the query
+        return searchQuery.toQuery(searchString);
+    }
 }

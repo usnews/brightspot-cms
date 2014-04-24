@@ -11,9 +11,17 @@ import java.util.regex.Pattern;
 public class SearchQueryBuilder extends Record {
 
     //private static final Metaphone METAPHONE = new Metaphone();
-
+    private boolean exactMatchTerms;
     private Set<ObjectType> types;
     private List<Rule> rules = new ArrayList<Rule>();
+
+    public boolean isExactMatchTerms() {
+        return exactMatchTerms;
+    }
+
+    public void setExactMatchTerms(boolean exactMatchTerms) {
+        this.exactMatchTerms = exactMatchTerms;
+    }
 
     public Set<ObjectType> getTypes() {
         if (types == null) {
@@ -171,7 +179,12 @@ public class SearchQueryBuilder extends Record {
             }
 
             if (!queryTerms.isEmpty()) {
-                query.or("_any matchesAll ?", queryTerms);
+                if(exactMatchTerms){
+                    query.or("_any matchesAll ?", queryTerms);
+                } else {
+                    query.or("_any matchesAny ?", queryTerms);
+                    //return results based on most relevant
+                }
             }
         }
 
