@@ -181,7 +181,7 @@ public class SearchQueryBuilder extends Record {
             if (!queryTerms.isEmpty()) {
                 if(exactMatchTerms){
                     query.or("_any matchesAll ?", terms);
-                    //TODO: figure out how synonyms work in this case
+                    //TODO: figure out how synonyms should work in this case
                 } else {
                     query.or("_any matchesAny ?", queryTerms);
                     query.sortRelevant(10.0,"_any matchesAll ?", queryTerms);
@@ -216,7 +216,7 @@ public class SearchQueryBuilder extends Record {
                 "where", "who", "will", "with", "why", "www"));
 
         public String getLabel() {
-            return stopWords.size()+" Stop Words";
+            return "Stop Words "+stopWords;
         }
 
         public Set<String> getStopWords() {
@@ -355,7 +355,8 @@ public class SearchQueryBuilder extends Record {
 
     public static abstract class BoostRule extends Rule {
 
-        private double boost;
+        @ToolUi.Note("Boost values should be powers of 10")
+        private double boost;  //TODO: can I use Math.pow(10,boost);
 
         public double getBoost() {
             return boost;
@@ -369,6 +370,10 @@ public class SearchQueryBuilder extends Record {
     public static class BoostType extends BoostRule {
 
         private ObjectType type;
+
+        public String getLabel(){
+            return "Boost: "+getBoost()+" Type: "+type.getDisplayName();
+        }
 
         public ObjectType getType() {
             return type;
@@ -384,24 +389,14 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static class BoostLabels extends BoostRule {
-
-        @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            double boost = getBoost();
-            for (ObjectType type : queryBuilder.getTypes()) {
-                String prefix = type.getInternalName() + "/";
-                for (String fieldName : type.getLabelFields()) {
-                    query.sortRelevant(boost, prefix + fieldName + " matchesAll ?", queryTerms);
-                }
-            }
-        }
-    }
-
     public static class BoostFields extends BoostRule {
 
         private ObjectType type;
         private Set<String> fields;
+
+        public String getLabel(){
+            return "Boost: "+getBoost()+" "+type.getDisplayName()+" Field(s): "+fields;
+        }
 
         public ObjectType getType() {
             return type;
@@ -462,6 +457,10 @@ public class SearchQueryBuilder extends Record {
         public ObjectType type;
         public String predicate;
 
+        public String getLabel() {
+            return "Boost: "+getBoost()+" Phrase: "+pattern;
+        }
+
         public String getPattern() {
             return pattern;
         }
@@ -486,6 +485,7 @@ public class SearchQueryBuilder extends Record {
             this.predicate = predicate;
         }
 
+        //TODO: I don't know how this works, it seems over my head
         @Override
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
@@ -535,9 +535,14 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
+    //TODO: these work kinda link synonyms but are always present - confused
     public static class OptionalTerms extends BoostRule {
 
         private Set<String> terms;
+
+        public String getLabel(){
+            return "Optional terms added to the search "+terms;
+        }
 
         public Set<String> getTerms() {
             if (terms == null) {
