@@ -232,7 +232,7 @@ public class SearchQueryBuilder extends Record {
             }
 
             if (removed != null && !removed.isEmpty()) {
-                query.sortRelevant(1.0, "_any matchesAll ?", removed);
+                query.sortRelevant(0.01, "_any matchesAll ?", removed);
             }
         }
 
