@@ -39,12 +39,8 @@ public class SearchSettings extends Content {
 
     public Query<?> getQuery(){
         SearchQueryBuilder searchQuery = new SearchQueryBuilder();
-
         searchQuery.setExactMatchTerms(exactMatchTerms);
-        //set the initial rules, followed by the ones from the cms
         searchQuery.setRules(getRules());
-
-        //return the query
         return searchQuery.toQuery(searchString);
     }
 }
