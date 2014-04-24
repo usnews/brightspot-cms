@@ -180,7 +180,8 @@ public class SearchQueryBuilder extends Record {
 
             if (!queryTerms.isEmpty()) {
                 if(exactMatchTerms){
-                    query.or("_any matchesAll ?", queryTerms);
+                    query.or("_any matchesAll ?", terms);
+                    //TODO: figure out how synonyms work in this case
                 } else {
                     query.or("_any matchesAny ?", queryTerms);
                     query.sortRelevant(10.0,"_any matchesAll ?", queryTerms);
@@ -263,7 +264,7 @@ public class SearchQueryBuilder extends Record {
 
         public Set<Synonym> getSynonyms() {
             if(synonyms == null) {
-               setSynonyms(new HashSet<Synonym>());
+                setSynonyms(new HashSet<Synonym>());
             }
             return synonyms;
         }
