@@ -27,4 +27,10 @@
     <Environment name="dari/storage/${artifactId}.dev/class" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
     <Environment name="dari/storage/${artifactId}.dev/baseUrl" type="java.lang.String" value="http://localhost:8080/storage" />
     <Environment name="dari/storage/${artifactId}.dev/rootPath" type="java.lang.String" value="../../../../data/storage" />
+
+    <!-- Image Editor Settings -->
+    <Environment name="dari/defaultImageEditor" override="false" type="java.lang.String" value="editor" />
+    <Environment name="dari/imageEditor/editor/class" override="false" type="java.lang.String" value="com.psddev.dari.util.PullThroughImageEditor" />
+    <Environment name="dari/imageEditor/dims/baseUrl" override="false" type="java.lang.String" value="http://localhost:8080/storage" />
+
 </Context>
