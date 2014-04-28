@@ -655,12 +655,21 @@ var Rte = wysihtml5.Editor.extend({
             var tempIndex = 0;
 
             $(config.toolbar).find('.rte-button-link').click(function() {
-                var tempClass,
+                var selection,
+                        tempClass,
                         $anchor,
                         $ins,
                         $del;
 
-                if (rte.composer.selection.getRange().collapsed) {
+                selection = rte.composer.selection;
+                $anchor = $(selection.getSelectedNode()).closest('a');
+
+                if ($anchor.length > 0) {
+                    openLinkDialog($anchor);
+                    return;
+                }
+
+                if (selection.getRange().collapsed) {
                     return;
                 }
 
@@ -866,7 +875,11 @@ var Rte = wysihtml5.Editor.extend({
                 $(textarea.element).trigger('change');
             });
 
-            $(composer.element).on('click', 'a', function(event) {
+            $(composer.element).on('click', 'a', function() {
+                return false;
+            });
+
+            $(composer.element).on('dblclick', 'a', function(event) {
                 openLinkDialog($(event.target).closest('a'));
             });
 
@@ -1391,7 +1404,10 @@ wysihtml5.commands.link = {
     },
 
     'state': function(composer) {
-        return !composer.selection.getRange().collapsed;
+        var selection = composer.selection;
+
+        return !selection.getRange().collapsed ||
+                $(selection.getSelectedNode()).closest('a').length > 0;
     }
 };
 
