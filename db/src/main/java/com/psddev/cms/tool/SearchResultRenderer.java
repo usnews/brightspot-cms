@@ -43,7 +43,6 @@ public class SearchResultRenderer {
     private static final String SORT_SETTING_PREFIX = "sort/";
 
     protected final ToolPageContext page;
-    protected final HttpServletRequest request;
 
     @Deprecated
     protected final PageWriter writer;
@@ -57,7 +56,6 @@ public class SearchResultRenderer {
     @SuppressWarnings("deprecation")
     public SearchResultRenderer(ToolPageContext page, Search search) throws IOException {
         this.page = page;
-        this.request = page.getRequest();
         this.writer = page.getWriter();
         this.search = search;
 
@@ -66,7 +64,7 @@ public class SearchResultRenderer {
 
         if (selectedType != null) {
             if (search.getSort() != null) {
-                AuthenticationFilter.Static.putUserSetting(request, SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
+                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
 
             } else {
                 Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
