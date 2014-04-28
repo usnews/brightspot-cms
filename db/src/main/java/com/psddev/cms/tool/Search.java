@@ -717,7 +717,32 @@ public class Search extends Record {
             Predicate visibilitiesPredicate = null;
 
             for (String visibility : visibilities) {
-                if ("w".equals(visibility)) {
+                if ("p".equals(visibility)) {
+                    Set<String> comparisonKeys = new HashSet<String>();
+                    DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+
+                    addVisibilityFields(comparisonKeys, environment);
+
+                    for (ObjectType type : environment.getTypes()) {
+                        addVisibilityFields(comparisonKeys, type);
+                    }
+
+                    for (String key : comparisonKeys) {
+                        if (isShowDrafts()) {
+                            visibilitiesPredicate = CompoundPredicate.combine(
+                                    PredicateParser.OR_OPERATOR,
+                                    visibilitiesPredicate,
+                                    PredicateParser.Static.parse(key + " = missing or " + key + " != missing or " + key + " = true"));
+
+                        } else {
+                            visibilitiesPredicate = CompoundPredicate.combine(
+                                    PredicateParser.OR_OPERATOR,
+                                    visibilitiesPredicate,
+                                    PredicateParser.Static.parse(key + " = missing"));
+                        }
+                    }
+
+                } else if ("w".equals(visibility)) {
                     Set<String> ss = new HashSet<String>();
 
                     for (Workflow w : (selectedType == null ?
