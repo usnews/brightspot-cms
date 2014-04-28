@@ -1262,6 +1262,11 @@ public class PageFilter extends AbstractFilter {
                     request.setAttribute(PREVIEW_ATTRIBUTE, Boolean.TRUE);
 
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
+
+                    if (previewId == null) {
+                        previewId = ObjectUtils.to(UUID.class, path.substring(10));
+                    }
+
                     if (previewId != null) {
                         Map<UUID, Object> substitutions = getSubstitutions(request);
 
@@ -1326,6 +1331,12 @@ public class PageFilter extends AbstractFilter {
                     }
 
                     if (mainObject != null) {
+                        Directory.Data dirData = State.getInstance(mainObject).as(Directory.Data.class);
+
+                        if (dirData.getRawPaths().isEmpty()) {
+                            dirData.addPath(null, "/_preview-" + previewId, Directory.PathType.PERMALINK);
+                        }
+
                         Site previewSite = Query.
                                 from(Site.class).
                                 where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).
