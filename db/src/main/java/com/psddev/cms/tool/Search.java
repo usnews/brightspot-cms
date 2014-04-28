@@ -740,12 +740,6 @@ public class Search extends Record {
                             visibilitiesPredicate,
                             PredicateParser.Static.parse("cms.workflow.currentState = ?", visibility.substring(2)));
 
-                } else if ("nw".equals(visibility)) {
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse("cms.workflow.currentState = missing"));
-
                 } else if (visibility.startsWith("b.")) {
                     visibilitiesPredicate = CompoundPredicate.combine(
                             PredicateParser.OR_OPERATOR,
