@@ -63,11 +63,14 @@ public class SearchResultRenderer {
 
         ObjectType selectedType = search.getSelectedType();
         PaginatedResult<?> result = null;
+
         if (selectedType != null) {
             if (search.getSort() != null) {
                 AuthenticationFilter.Static.putUserSetting(request, SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
+
             } else {
                 Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
+
                 if (!ObjectUtils.isBlank(sortSetting)) {
                     search.setSort(sortSetting.toString());
                 }
