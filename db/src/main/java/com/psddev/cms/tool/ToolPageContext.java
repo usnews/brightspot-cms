@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
@@ -1428,74 +1429,27 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
         writeEnd();
 
-        if (getCmsTool().isUseNonMinifiedJavaScript()) {
-            for (String src : new String[] {
-                    "/script/jquery.js",
-                    "/script/jquery.mousewheel.js",
+        String jsPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
 
-                    "/script/bsp-utils.js",
-                    "/script/bsp-autoexpand.js",
-                    "/script/bsp-autosubmit.js",
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.js"));
+        writeEnd();
 
-                    "/script/jquery.extra.js",
-                    "/script/jquery.calendar.js",
-                    "/script/codemirror/codemirror.js",
-                    "/script/codemirror/mode/clike/clike.js",
-                    "/script/codemirror/mode/xml/xml.js",
-                    "/script/codemirror/mode/javascript/javascript.js",
-                    "/script/codemirror/mode/css/css.js",
-                    "/script/codemirror/mode/htmlmixed/htmlmixed.js",
-                    "/script/codemirror/mode/htmlembedded/htmlembedded.js",
-                    "/script/jquery.code.js",
-                    "/script/jquery.dropdown.js",
-                    "/script/jquery.editableplaceholder.js",
-                    "/script/jquery.popup.js",
-                    "/script/jquery.fixedscrollable.js",
-                    "/script/jquery.frame.js",
-                    "/script/jquery.imageeditor.js",
-                    "/script/jquery.lazyload.js",
-                    "/script/jquery.locationmap.js",
-                    "/script/jquery.objectid.js",
-                    "/script/jquery.pagelayout.js",
-                    "/script/jquery.pagethumbnails.js",
-                    "/script/jquery.regionmap.js",
-                    "/script/jquery.repeatable.js",
-                    "/script/jquery.sortable.js",
-                    "/script/jquery.spectrum.js",
-                    "/script/jquery.tabbed.js",
-                    "/script/jquery.toggleable.js",
-                    "/script/jquery.widthaware.js",
-                    "/script/jquery.workflow.js",
-                    "/script/diff.js",
-                    "/script/pixastic/pixastic.core.js",
-                    "/script/pixastic/actions/brightness.js",
-                    "/script/pixastic/actions/crop.js",
-                    "/script/pixastic/actions/desaturate.js",
-                    "/script/pixastic/actions/fliph.js",
-                    "/script/pixastic/actions/flipv.js",
-                    "/script/pixastic/actions/invert.js",
-                    "/script/pixastic/actions/rotate.js",
-                    "/script/pixastic/actions/sepia.js",
-                    "/script/wysihtml5-0.3.0.js",
-                    "/script/jquery.rte.js",
-                    "/script/d3.v3.js",
-                    "/script/nv.d3.js",
-                    "/script/jquery.handsontable.full.js",
-                    "/script/jquery.spreadsheet.js",
-                    "/script/leaflet-0.6.4.js",
-                    "/script/leaflet.common.js",
-                    "/script/leaflet.draw.js",
-                    "/script/l.control.geosearch.js",
-                    "/script/l.geosearch.provider.openstreetmap.js",
-                    "/script/cms.js" }) {
-                writeStart("script", "type", "text/javascript", "src", cmsResource(src));
-                writeEnd();
-            }
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.extra.js"));
+        writeEnd();
 
-        } else {
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
-            writeEnd();
-        }
+        writeStart("script", "type", "text/javascript");
+            writeRaw("var require = ");
+            writeRaw(ObjectUtils.toJson(ImmutableMap.of(
+                    "baseUrl", cmsUrl(jsPrefix),
+                    "urlArgs", "_=" + System.currentTimeMillis())));
+            writeRaw(";");
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "require.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "cms.js"));
+        writeEnd();
 
         String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
 

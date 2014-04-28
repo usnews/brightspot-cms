@@ -7,4 +7,6 @@
 /app-archetype/target/
 /db/target/
 /docs/documentation/_site/*
+/tool-ui/node/
+/tool-ui/node_modules/
 /tool-ui/target/

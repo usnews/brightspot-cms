@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "bsp-utils": "^2",
+    "bsp-autoexpand": "^1",
+    "bsp-autosubmit": "^1",
+    "jquery": "^1.11"
+  },
+  "name": "brightspot-cms"
+}
