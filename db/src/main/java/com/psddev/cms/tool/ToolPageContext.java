@@ -1735,6 +1735,9 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Map<String, String> statuses = new HashMap<String, String>();
+
+        statuses.put("p", "Published");
+
         boolean hasWorkflow = false;
 
         for (Workflow w : (type == null ?
