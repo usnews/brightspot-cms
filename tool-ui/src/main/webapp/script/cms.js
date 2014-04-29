@@ -18,8 +18,8 @@ require([
     'bsp-autosubmit',
     'bsp-utils',
 
-    'code',
     'imageeditor',
+    'input/code',
 
     'jquery.calendar',
     'jquery.dropdown',
