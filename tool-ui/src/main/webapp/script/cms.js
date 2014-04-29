@@ -1,12 +1,5 @@
 requirejs.config({
     shim: {
-        'codemirror/mode/clike/clike': [ 'codemirror/codemirror' ],
-        'codemirror/mode/xml/xml': [ 'codemirror/codemirror' ],
-        'codemirror/mode/javascript/javascript': [ 'codemirror/codemirror' ],
-        'codemirror/mode/css/css': [ 'codemirror/codemirror' ],
-        'codemirror/mode/htmlmixed/htmlmixed': [ 'codemirror/codemirror' ],
-        'codemirror/mode/htmlembedded/htmlembedded': [ 'codemirror/codemirror' ],
-        'jquery.code': [ 'codemirror/codemirror' ],
         'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
@@ -41,15 +34,9 @@ require([
     'bsp-autosubmit',
     'bsp-utils',
 
+    'code',
+
     'jquery.calendar',
-    'codemirror/codemirror',
-    'codemirror/mode/clike/clike',
-    'codemirror/mode/xml/xml',
-    'codemirror/mode/javascript/javascript',
-    'codemirror/mode/css/css',
-    'codemirror/mode/htmlmixed/htmlmixed',
-    'codemirror/mode/htmlembedded/htmlembedded',
-    'jquery.code',
     'jquery.dropdown',
     'jquery.editableplaceholder',
     'jquery.popup',
@@ -134,7 +121,6 @@ function() {
     bsp_autoExpand.live(document, ':text.expandable, textarea');
 
     $doc.calendar('live', ':text.date');
-    $doc.code('live', 'textarea[data-code-type]');
     $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
     $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
     $doc.fixedScrollable('live', '.fixedScrollable, .searchResult > .searchResultList, .popup[name="miscSearch"] .searchFiltersRest');
