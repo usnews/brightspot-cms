@@ -562,9 +562,10 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                     if (!lockedOut || editAnyway) {
 
                         // Workflow actions.
-                        if (editingState.isNew() ||
+                        if (!isTrash &&
+                                (editingState.isNew() ||
                                 !editingState.isVisible() ||
-                                editingState.as(Workflow.Data.class).getCurrentState() != null) {
+                                editingState.as(Workflow.Data.class).getCurrentState() != null)) {
                             Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
 
                             if (workflow != null) {
@@ -664,8 +665,12 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                         }
 
                         // Publish and trash buttons.
-                        if (!isTrash && wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
+                        if (!wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
+                            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
+                            wp.write(wp.typeLabel(state));
+                            wp.write("!</p></div>");
 
+                        } else if (!isTrash) {
                             wp.writeStart("div", "class", "widget-publishingPublish");
                                 if (wp.getUser().getCurrentSchedule() == null) {
                                     if (!contentData.isDraft() && schedule != null) {
@@ -735,11 +740,6 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                     wp.writeEnd();
                                 }
                             wp.writeEnd();
-
-                        } else {
-                            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
-                            wp.write(wp.typeLabel(state));
-                            wp.write("!</p></div>");
                         }
                     }
                 }
