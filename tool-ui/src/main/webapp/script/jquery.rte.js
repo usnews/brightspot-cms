@@ -1013,7 +1013,13 @@ var Rte = wysihtml5.Editor.extend({
                             comment = null;
 
                             if (isBackspace) {
-                                if (text.nodeType === Node.TEXT_NODE &&
+                                $delOrIns = $(text).closest('del, ins');
+
+                                if ($delOrIns.length > 0 &&
+                                        range.startOffset === 0) {
+                                    comment = $delOrIns[0].previousSibling;
+
+                                } else if (text.nodeType === Node.TEXT_NODE &&
                                         (range.startOffset === 0 ||
                                         (range.startOffset === 1 &&
                                         text.nodeValue.substring(0, 1) === ZERO_WIDTH_SPACE))) {
