@@ -21,6 +21,7 @@ require([
     'imageeditor',
     'input/code',
     'input/color',
+    'input/location',
     'input/object',
     'input/workflow',
 
@@ -31,7 +32,6 @@ require([
     'jquery.fixedscrollable',
     'jquery.frame',
     'jquery.lazyload',
-    'jquery.locationmap',
     'jquery.pagelayout',
     'jquery.pagethumbnails',
     'jquery.regionmap',
@@ -119,7 +119,6 @@ function() {
     });
 
     $doc.lazyLoad('live', '.lazyLoad');
-    $doc.locationMap('live', '.locationMap');
     $doc.regionMap('live', '.regionMap');
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
