@@ -1,11 +1,7 @@
 requirejs.config({
     shim: {
         'jquery.rte': [ 'wysihtml5-0.3.0' ],
-        'nv.d3': [ 'd3.v3' ],
-        'leaflet.common': [ 'leaflet-0.6.4' ],
-        'leaflet.draw': [ 'leaflet-0.6.4' ],
-        'l.control.geosearch': [ 'leaflet-0.6.4' ],
-        'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ]
+        'nv.d3': [ 'd3.v3' ]
     }
 });
 
@@ -46,12 +42,7 @@ require([
     'd3.v3',
     'nv.d3',
     'jquery.handsontable.full',
-    'jquery.spreadsheet',
-    'leaflet-0.6.4',
-    'leaflet.common',
-    'leaflet.draw',
-    'l.control.geosearch',
-    'l.geosearch.provider.openstreetmap' ],
+    'jquery.spreadsheet' ],
 
 function() {
     var $ = arguments[0];
