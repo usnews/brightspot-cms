@@ -34,13 +34,13 @@ define('jquery.extra', [ ], function() {
 
 require([
     'jquery',
+    'jquery.extra',
     'jquery.mousewheel',
 
-    'bsp-utils',
     'bsp-autoexpand',
     'bsp-autosubmit',
+    'bsp-utils',
 
-    'jquery.extra',
     'jquery.calendar',
     'codemirror/codemirror',
     'codemirror/mode/clike/clike',
@@ -93,9 +93,9 @@ require([
 
 function() {
     var $ = arguments[0];
-    var bsp_utils = arguments[2];
     var bsp_autoExpand = arguments[3];
     var bsp_autoSubmit = arguments[4];
+    var bsp_utils = arguments[5];
     var win = window;
     var undef;
     var $win = $(win),
