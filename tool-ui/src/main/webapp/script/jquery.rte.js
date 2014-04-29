@@ -1191,6 +1191,33 @@ var Rte = wysihtml5.Editor.extend({
                         $comment.after(ZERO_WIDTH_SPACE);
                     }
                 });
+
+                $(rte.composer.element).find('a[href]').each(function() {
+                    var $a = $(this);
+                    var href = $a.prop('href');
+                    var changed = false;
+                    var text = $a.text();
+                    var next = this.nextSibling;
+                    var $next;
+
+                    while (next) {
+                        $next = $(next);
+
+                        if (href === $next.prop('href')) {
+                            changed = true;
+                            text = text + $next.text();
+                            next = next.nextSibling;
+                            $next.remove();
+
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (changed) {
+                        $a.text(text);
+                    }
+                });
             }, 100);
         });
     },
