@@ -20,6 +20,7 @@ require([
     'input/location',
     'input/object',
     'input/region',
+    'input/table',
     'input/workflow',
 
     'jquery.calendar',
@@ -40,9 +41,7 @@ require([
     'wysihtml5-0.3.0',
     'jquery.rte',
     'd3.v3',
-    'nv.d3',
-    'jquery.handsontable.full',
-    'jquery.spreadsheet' ],
+    'nv.d3' ],
 
 function() {
     var $ = arguments[0];
@@ -113,7 +112,6 @@ function() {
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
     $doc.rte('live', '.richtext');
-    $doc.spreadsheet('live', '.spreadsheet');
     $doc.tabbed('live', '.tabbed, .objectInputs');
     $doc.toggleable('live', '.toggleable');
     $doc.widthAware('live', '[data-widths]');

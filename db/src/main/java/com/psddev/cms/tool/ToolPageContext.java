@@ -1351,7 +1351,6 @@ public class ToolPageContext extends WebPageContext {
         }
 
         writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
-        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
