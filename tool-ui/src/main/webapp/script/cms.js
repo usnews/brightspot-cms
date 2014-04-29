@@ -20,6 +20,7 @@ require([
 
     'imageeditor',
     'input/code',
+    'input/color',
 
     'jquery.calendar',
     'jquery.dropdown',
@@ -35,7 +36,6 @@ require([
     'jquery.regionmap',
     'jquery.repeatable',
     'jquery.sortable',
-    'jquery.spectrum',
     'jquery.tabbed',
     'jquery.toggleable',
     'jquery.widthaware',
@@ -129,18 +129,6 @@ function() {
     $doc.toggleable('live', '.toggleable');
     $doc.widthAware('live', '[data-widths]');
     $doc.workflow('live', '.workflow');
-
-    $doc.onCreate(':text.color', function() {
-        $(this).spectrum({
-            'allowEmpty': true,
-            'cancelText': 'Cancel',
-            'chooseText': 'OK',
-            'preferredFormat': 'hex6',
-            'showAlpha': true,
-            'showInitial': true,
-            'showInput': true
-        });
-    });
 
     // Remove placeholder text over search input when there's text.
     $doc.onCreate('.searchInput', function() {

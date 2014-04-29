@@ -3,7 +3,8 @@
     "bsp-autoexpand": "~1.0.1",
     "bsp-autosubmit": "~1.0.0",
     "bsp-utils": "~2.0.1",
-    "jquery": "~1.11.0"
+    "jquery": "~1.11.0",
+    "spectrum": "~1.3.4"
   },
   "name": "brightspot-cms"
 }
