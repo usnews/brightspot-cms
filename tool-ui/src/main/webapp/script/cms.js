@@ -1017,6 +1017,15 @@ function() {
                 $body.append($fileInputContainer);
             });
         });
+
+        $doc.bind('dragend', function(event) {
+            if (docEntered) {
+                docEntered = false;
+                $('.uploadableCover').remove();
+                $('.uploadableDrop').remove();
+                $('.uploadableFile').remove();
+            }
+        });
     })();
 
     $doc.on('click', 'button[name="action-delete"], :submit[name="action-delete"]', function() {

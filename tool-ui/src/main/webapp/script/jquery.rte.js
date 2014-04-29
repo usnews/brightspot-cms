@@ -655,12 +655,21 @@ var Rte = wysihtml5.Editor.extend({
             var tempIndex = 0;
 
             $(config.toolbar).find('.rte-button-link').click(function() {
-                var tempClass,
+                var selection,
+                        tempClass,
                         $anchor,
                         $ins,
                         $del;
 
-                if (rte.composer.selection.getRange().collapsed) {
+                selection = rte.composer.selection;
+                $anchor = $(selection.getSelectedNode()).closest('a');
+
+                if ($anchor.length > 0) {
+                    openLinkDialog($anchor);
+                    return;
+                }
+
+                if (selection.getRange().collapsed) {
                     return;
                 }
 
@@ -866,7 +875,11 @@ var Rte = wysihtml5.Editor.extend({
                 $(textarea.element).trigger('change');
             });
 
-            $(composer.element).on('click', 'a', function(event) {
+            $(composer.element).on('click', 'a', function() {
+                return false;
+            });
+
+            $(composer.element).on('dblclick', 'a', function(event) {
                 openLinkDialog($(event.target).closest('a'));
             });
 
@@ -1000,7 +1013,13 @@ var Rte = wysihtml5.Editor.extend({
                             comment = null;
 
                             if (isBackspace) {
-                                if (text.nodeType === Node.TEXT_NODE &&
+                                $delOrIns = $(text).closest('del, ins');
+
+                                if ($delOrIns.length > 0 &&
+                                        range.startOffset === 0) {
+                                    comment = $delOrIns[0].previousSibling;
+
+                                } else if (text.nodeType === Node.TEXT_NODE &&
                                         (range.startOffset === 0 ||
                                         (range.startOffset === 1 &&
                                         text.nodeValue.substring(0, 1) === ZERO_WIDTH_SPACE))) {
@@ -1170,6 +1189,33 @@ var Rte = wysihtml5.Editor.extend({
 
                     } else {
                         $comment.after(ZERO_WIDTH_SPACE);
+                    }
+                });
+
+                $(rte.composer.element).find('a[href]').each(function() {
+                    var $a = $(this);
+                    var href = $a.prop('href');
+                    var changed = false;
+                    var text = $a.text();
+                    var next = this.nextSibling;
+                    var $next;
+
+                    while (next) {
+                        $next = $(next);
+
+                        if (href === $next.prop('href')) {
+                            changed = true;
+                            text = text + $next.text();
+                            next = next.nextSibling;
+                            $next.remove();
+
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (changed) {
+                        $a.text(text);
                     }
                 });
             }, 100);
@@ -1391,7 +1437,10 @@ wysihtml5.commands.link = {
     },
 
     'state': function(composer) {
-        return !composer.selection.getRange().collapsed;
+        var selection = composer.selection;
+
+        return !selection.getRange().collapsed ||
+                $(selection.getSelectedNode()).closest('a').length > 0;
     }
 };
 
@@ -1623,9 +1672,30 @@ $.plugin2('rte', {
     },
 
     '_create': function(input) {
-        $.data(input, 'rte-options', $.extend(true, { }, this.option()));
+        var options = this.option();
 
-        $inputs = $inputs.add($(input));
+        $.data(input, 'rte-options', $.extend(true, { }, options));
+
+        if (options.initImmediately) {
+            var $input = $(this),
+                    rte;
+
+            if ($input.attr('data-inline') === 'true') {
+                options.inline = true;
+            }
+
+            rte = new Rte(input, options);
+
+            $input.bind('input-disable', function(event, disable) {
+                $input.closest('.rte-container').toggleClass('state-disabled', disable);
+                rte[disable ? 'disable' : 'enable']();
+            });
+
+            $input.parent().trigger('create');
+
+        } else {
+            $inputs = $inputs.add($(input));
+        }
     },
 
     'enable': function() {

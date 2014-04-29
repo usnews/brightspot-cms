@@ -34,7 +34,7 @@ writer.start("html");
 
             writer.css("a",
                     "color", "#29c",
-                    "cursor", "pointer",
+                    "cursor", "text",
                     "text-decoration", "underline");
 
             writer.css("b, strong",

@@ -2315,18 +2315,24 @@ public class ToolPageContext extends WebPageContext {
 
         State state = State.getInstance(object);
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        ToolUser user = getUser();
 
         if (state.isNew() ||
                 object instanceof Draft ||
                 contentData.isDraft() ||
                 state.as(Workflow.Data.class).getCurrentState() != null) {
-            setContentFormScheduleDate(object);
+            if (getContentFormPublishDate() != null) {
+                setContentFormScheduleDate(object);
+
+            } else {
+                contentData.setPublishDate(new Date());
+                contentData.setPublishUser(user);
+            }
         }
 
         Draft draft = getOverlaidDraft(object);
         UUID variationId = param(UUID.class, "variationId");
         Site site = getSite();
-        ToolUser user = getUser();
 
         try {
             state.beginWrites();
