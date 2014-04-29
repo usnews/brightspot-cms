@@ -1,13 +1,5 @@
 requirejs.config({
     shim: {
-        'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/fliph': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/flipv': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/invert': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/rotate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ],
         'jquery.rte': [ 'wysihtml5-0.3.0' ],
         'nv.d3': [ 'd3.v3' ],
         'leaflet.common': [ 'leaflet-0.6.4' ],
@@ -27,6 +19,7 @@ require([
     'bsp-utils',
 
     'code',
+    'imageeditor',
 
     'jquery.calendar',
     'jquery.dropdown',
@@ -34,7 +27,6 @@ require([
     'jquery.popup',
     'jquery.fixedscrollable',
     'jquery.frame',
-    'jquery.imageeditor',
     'jquery.lazyload',
     'jquery.locationmap',
     'jquery.objectid',
@@ -49,15 +41,6 @@ require([
     'jquery.widthaware',
     'jquery.workflow',
     'diff',
-    'pixastic/pixastic.core',
-    'pixastic/actions/brightness',
-    'pixastic/actions/crop',
-    'pixastic/actions/desaturate',
-    'pixastic/actions/fliph',
-    'pixastic/actions/flipv',
-    'pixastic/actions/invert',
-    'pixastic/actions/rotate',
-    'pixastic/actions/sepia',
     'wysihtml5-0.3.0',
     'jquery.rte',
     'd3.v3',
@@ -134,7 +117,6 @@ function() {
         }
     });
 
-    $doc.imageEditor('live', '.imageEditor');
     $doc.lazyLoad('live', '.lazyLoad');
     $doc.locationMap('live', '.locationMap');
     $doc.regionMap('live', '.regionMap');
