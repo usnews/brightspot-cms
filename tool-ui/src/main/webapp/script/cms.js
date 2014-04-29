@@ -12,11 +12,11 @@ requirejs.config({
 require([
     'jquery',
     'jquery.extra',
-    'jquery.mousewheel',
 
     'bsp-autoexpand',
     'bsp-autosubmit',
     'bsp-utils',
+    'jquery.mousewheel',
 
     'imageeditor',
     'input/code',
@@ -55,9 +55,9 @@ require([
 
 function() {
     var $ = arguments[0];
-    var bsp_autoExpand = arguments[3];
-    var bsp_autoSubmit = arguments[4];
-    var bsp_utils = arguments[5];
+    var bsp_autoExpand = arguments[2];
+    var bsp_autoSubmit = arguments[3];
+    var bsp_utils = arguments[4];
     var win = window;
     var undef;
     var $win = $(win),
