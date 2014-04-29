@@ -17,14 +17,6 @@ requirejs.config({
     }
 });
 
-define('jquery', [ ], function() {
-    return $;
-});
-
-define('jquery.extra', [ ], function() {
-    return $;
-});
-
 require([
     'jquery',
     'jquery.extra',
