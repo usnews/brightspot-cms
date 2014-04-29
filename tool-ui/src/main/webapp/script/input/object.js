@@ -266,4 +266,5 @@ function($) {
     });
 
     $(document).objectId('live', ':input.objectId');
+    $(document).trigger('create');
 });
