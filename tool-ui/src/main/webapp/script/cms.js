@@ -21,6 +21,7 @@ require([
     'imageeditor',
     'input/code',
     'input/color',
+    'input/object',
     'input/workflow',
 
     'jquery.calendar',
@@ -31,7 +32,6 @@ require([
     'jquery.frame',
     'jquery.lazyload',
     'jquery.locationmap',
-    'jquery.objectid',
     'jquery.pagelayout',
     'jquery.pagethumbnails',
     'jquery.regionmap',
@@ -121,7 +121,6 @@ function() {
     $doc.lazyLoad('live', '.lazyLoad');
     $doc.locationMap('live', '.locationMap');
     $doc.regionMap('live', '.regionMap');
-    $doc.objectId('live', ':input.objectId');
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
     $doc.rte('live', '.richtext');
