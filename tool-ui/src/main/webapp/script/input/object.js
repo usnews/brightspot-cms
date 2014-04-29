@@ -1,6 +1,7 @@
 require([
     'jquery',
-    'jquery.extra' ],
+    'jquery.extra',
+    'jquery.popup' ],
 
 function($) {
     var refresh,
