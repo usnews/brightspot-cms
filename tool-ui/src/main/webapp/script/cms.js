@@ -23,6 +23,7 @@ require([
     'input/color',
     'input/location',
     'input/object',
+    'input/region',
     'input/workflow',
 
     'jquery.calendar',
@@ -34,7 +35,6 @@ require([
     'jquery.lazyload',
     'jquery.pagelayout',
     'jquery.pagethumbnails',
-    'jquery.regionmap',
     'jquery.repeatable',
     'jquery.sortable',
     'jquery.tabbed',
@@ -119,7 +119,6 @@ function() {
     });
 
     $doc.lazyLoad('live', '.lazyLoad');
-    $doc.regionMap('live', '.regionMap');
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
     $doc.rte('live', '.richtext');
