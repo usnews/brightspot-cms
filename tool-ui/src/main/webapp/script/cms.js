@@ -21,6 +21,7 @@ require([
     'imageeditor',
     'input/code',
     'input/color',
+    'input/workflow',
 
     'jquery.calendar',
     'jquery.dropdown',
@@ -39,7 +40,6 @@ require([
     'jquery.tabbed',
     'jquery.toggleable',
     'jquery.widthaware',
-    'jquery.workflow',
     'diff',
     'wysihtml5-0.3.0',
     'jquery.rte',
@@ -128,7 +128,6 @@ function() {
     $doc.tabbed('live', '.tabbed, .objectInputs');
     $doc.toggleable('live', '.toggleable');
     $doc.widthAware('live', '[data-widths]');
-    $doc.workflow('live', '.workflow');
 
     // Remove placeholder text over search input when there's text.
     $doc.onCreate('.searchInput', function() {
