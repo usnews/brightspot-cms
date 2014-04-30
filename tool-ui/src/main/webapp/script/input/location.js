@@ -1,24 +1,9 @@
-requirejs.config({
-    shim: {
-        'leaflet.common': [ 'leaflet-0.6.4' ],
-        'leaflet.draw': [ 'leaflet-0.6.4' ],
-        'l.control.geosearch': [ 'leaflet-0.6.4' ],
-        'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ]
-    }
-});
-
 require([
     'jquery',
     'jquery.extra',
-    'leaflet-0.6.4',
-    'leaflet.common',
-    'leaflet.draw',
-    'l.control.geosearch',
-    'l.geosearch.provider.openstreetmap' ],
+    'input/leaflet' ],
 
 function($) {
-    L.Icon.Default.imagePath = CONTEXT_PATH + '/style/leaflet';
-
     $.plugin2('locationMap', {
         '_create': function(locationMap) {
             var plugin = this;
