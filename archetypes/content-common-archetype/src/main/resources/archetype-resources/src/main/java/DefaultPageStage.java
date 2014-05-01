@@ -54,17 +54,24 @@ public class DefaultPageStage implements PageStage.SharedUpdatable {
         stage.setMetaProperty("og:url",permalink);
 
         if (app.isUseNonMinifiedCss()) {
-            stage.addStyleSheet("/assets/style/less/${artifactId}.less"); 
-            stage.addScript("/assets/script/vendor/less/less-1.7.0.min.js");
+            stage.addStyleSheet("/assets/style/${artifactId}.less"); 
+            stage.addScript("/assets/script/less.js");
         } else {
-            stage.addStyleSheet("/assets/style/css/${artifactId}.css");
+            stage.addStyleSheet("/assets/style/${artifactId}.min.css");
         }
 
+        String scriptDir = null;
+
         if (app.isUseNonMinifiedJs()) {
-            stage.addScript("/assets/script/vendor/jquery/jquery-2.1.0.js");
+            scriptDir = "script";
         } else {
-            stage.addScript("/assets/script/build/${artifactId}.js");
+            scriptDir = "script.min";
         }
+
+        stage.findOrCreateHeadElement("script",
+                    "type", "text/javascript",
+                    "data-main", "/assets/" + scriptDir + "/${artifactId}",
+                    "src", ElFunctionUtils.resource("/assets/" + scriptDir + "/require.js")); 
     }
 
     public void updateStageAfter(Object object, PageStage stage) {
