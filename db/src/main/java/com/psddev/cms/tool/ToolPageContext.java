@@ -1436,6 +1436,9 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.extra.js"));
         writeEnd();
 
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.handsontable.full.js"));
+        writeEnd();
+
         writeStart("script", "type", "text/javascript");
             writeRaw("var require = ");
             writeRaw(ObjectUtils.toJson(ImmutableMap.of(
@@ -1445,11 +1448,6 @@ public class ToolPageContext extends WebPageContext {
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "require.js"));
-        writeEnd();
-
-        writeStart("script", "type", "text/javascript");
-            writeRaw("define('jquery', [ ], function() { return $; });");
-            writeRaw("define('jquery.extra', [ ], function() { return $; });");
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "cms.js"));

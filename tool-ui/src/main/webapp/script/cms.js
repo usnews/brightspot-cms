@@ -5,6 +5,10 @@ requirejs.config({
     }
 });
 
+define('jquery', [ ], function() { return $; });
+define('jquery.extra', [ ], function() { return $; });
+define('jquery.handsontable.full', [ ], function() { return $; });
+
 require([
     'jquery',
     'jquery.extra',
