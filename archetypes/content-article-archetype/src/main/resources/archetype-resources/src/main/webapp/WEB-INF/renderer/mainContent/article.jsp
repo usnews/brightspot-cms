@@ -21,17 +21,17 @@
                         <div class="article_image">
                             <cms:img src="${content.image}" height="300" cropOption="none" />
                             <c:if test="${!empty content.image.title}" >
-                                <div class="cm-article_image-title">${content.image.title}</div>
+                                <div class="cm-article_image-title"><c:out value="${content.image.title}"/></div>
                             </c:if>
                             <c:if test="${!empty content.image.caption}" >
-                                <div class="cm-article_image-caption">${content.image.caption}</div>
+                                <div class="cm-article_image-caption"><c:out value="${content.image.caption}"/></div>
                             </c:if>
                         </div>
                         <div class="article_bodyText">
                             <c:if test="${!empty content.subheadline}">
-                                <h3 class="cm-article_intro">${content.subheadline}</h3>
+                                <h3 class="cm-article_intro"><c:out value="${content.subheadline}"/></h3>
                             </c:if>
-                            <cms:render value="${content.body}" />
+                            <cms:render value="${content.body}"/>
                         </div>
                     </div>
                 </article>
