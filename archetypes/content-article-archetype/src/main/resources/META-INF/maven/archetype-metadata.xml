@@ -19,7 +19,7 @@
 	</fileSet>
 	
 	<fileSet encoding="UTF-8">
-            <directory>src/main/webapp/assets/style/less</directory>
+            <directory>src/main/webapp/assets/style</directory>
 	    <includes>
 	        <include>article.less</include>
 	    </includes>

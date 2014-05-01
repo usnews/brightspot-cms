@@ -2,14 +2,6 @@
     "name": "common",
     "version": "0.1.0",
     "devDependencies": {
-        "grunt": "~0.4.2",
-        "grunt-cli": "~0.1.11",
-        "grunt-contrib-less": "~0.8.3",
-        "grunt-jslint": "~1.1.2",
-        "grunt-contrib-uglify": "~0.3.1",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-contrib-clean": "~0.5.0",
-        "dependo": "~0.1.1",
-        "grunt-shell": "~0.6.4"
+        "bsp-grunt": "~1.0.1"
     }
 }

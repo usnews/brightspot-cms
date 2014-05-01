@@ -21,7 +21,7 @@
 	</fileSet>
 	
 	<fileSet encoding="UTF-8">
-            <directory>src/main/webapp/assets/style/less</directory>
+            <directory>src/main/webapp/assets/style</directory>
 	    <includes>
 	        <include>*.less</include>
 	    </includes>
@@ -73,6 +73,7 @@
            <directory></directory>
            <includes>
                 <include>Gruntfile.js</include>
+                <include>bower.json</include>
            </includes>
         </fileSet>
  
