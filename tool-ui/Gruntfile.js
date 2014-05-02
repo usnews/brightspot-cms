@@ -4,7 +4,6 @@ module.exports = function(grunt) {
             bower: {
                 'leaflet-dist': [
                     {
-                        type: 'styles',
                         dest: 'leaflet',
                         expand: true,
                         src: [
@@ -21,7 +20,6 @@ module.exports = function(grunt) {
 
                 'leaflet.draw': [
                     {
-                        type: 'styles',
                         cwd: 'dist',
                         dest: 'leaflet',
                         expand: true,
@@ -39,7 +37,6 @@ module.exports = function(grunt) {
 
                 'L.GeoSearch': [
                     {
-                        type: 'styles',
                         cwd: 'src/css',
                         dest: 'leaflet',
                         expand: true,
