@@ -265,7 +265,4 @@ function($) {
             $input.change();
         }
     });
-
-    $(document).objectId('live', ':input.objectId');
-    $(document).trigger('create');
 });
