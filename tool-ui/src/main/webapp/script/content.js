@@ -1,0 +1,5 @@
+define([
+    'content/diff' ],
+
+function() {
+});
