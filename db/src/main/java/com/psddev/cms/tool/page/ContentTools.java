@@ -25,6 +25,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.ContentLock;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.ToolUser;
@@ -58,6 +59,11 @@ public class ContentTools extends PageServlet {
         Collection<String> includeFields = Arrays.asList("returnToDashboardOnSave");
         Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
         State state = State.getInstance(object);
+        ContentLock contentLock = null;
+
+        if (object != null) {
+            contentLock = ContentLock.Static.lock(object, null, user);
+        }
 
         if (page.isFormPost()) {
             if (page.param(String.class, "action-edits") != null) {
@@ -77,6 +83,13 @@ public class ContentTools extends PageServlet {
                         state.save();
                     }
                 }
+
+            } else if (page.param(String.class, "action-unlock") != null) {
+                contentLock.delete();
+
+                page.writeStart("script", "type", "text/javascript");
+                    page.writeRaw("window.location.reload();");
+                page.writeEnd();
 
             } else if (page.param(String.class, "action-settings") != null) {
                 try {
@@ -202,6 +215,35 @@ public class ContentTools extends PageServlet {
                                     page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();
+
+                            if (!user.equals(contentLock.getOwner())) {
+                                page.writeStart("h2");
+                                    page.writeHtml("Content Lock");
+                                page.writeEnd();
+
+                                page.writeStart("div", "class", "message message-warning");
+                                    page.writeStart("p");
+                                        page.writeHtml("Locked by ");
+                                        page.writeObjectLabel(contentLock.getOwner());
+                                        page.writeHtml(" since ");
+                                        page.writeHtml(page.formatUserDateTime(contentLock.getCreateDate()));
+                                        page.writeHtml(".");
+                                    page.writeEnd();
+                                page.writeEnd();
+
+                                page.writeStart("form",
+                                        "method", "post",
+                                        "action", page.url(""));
+                                    page.writeStart("div", "class", "actions");
+                                        page.writeStart("button",
+                                                "class", "icon icon-unlock",
+                                                "name", "action-unlock",
+                                                "value", true);
+                                            page.writeHtml("Unlock");
+                                        page.writeEnd();
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
                         }
 
                         page.writeStart("h2");

@@ -40,6 +40,7 @@ public class SearchResultRenderer {
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
     private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
+    private static final String SORT_SETTING_PREFIX = "sort/";
 
     protected final ToolPageContext page;
 
@@ -60,6 +61,19 @@ public class SearchResultRenderer {
 
         ObjectType selectedType = search.getSelectedType();
         PaginatedResult<?> result = null;
+
+        if (selectedType != null) {
+            if (search.getSort() != null) {
+                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
+
+            } else {
+                Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
+
+                if (!ObjectUtils.isBlank(sortSetting)) {
+                    search.setSort(sortSetting.toString());
+                }
+            }
+        }
 
         if (search.getSort() == null) {
             search.setShowMissing(true);
