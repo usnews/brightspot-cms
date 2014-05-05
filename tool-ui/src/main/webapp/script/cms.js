@@ -46,15 +46,7 @@ require([
     'bsp-utils',
     'jquery.mousewheel',
 
-    'imageeditor',
-    'input/code',
-    'input/color',
-    'input/location',
-    'input/object',
-    'input/region',
-    'input/richtext',
-    'input/table',
-    'input/workflow',
+    'input',
 
     'jquery.calendar',
     'jquery.dropdown',
