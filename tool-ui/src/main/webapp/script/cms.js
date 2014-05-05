@@ -1,6 +1,7 @@
 define('jquery', [ ], function() { return $; });
 define('jquery.extra', [ ], function() { return $; });
 define('jquery.handsontable.full', [ ], function() { return $; });
+define('d3', [ ], function() { return d3; });
 
 requirejs.config({
     shim: {
@@ -25,7 +26,7 @@ requirejs.config({
         'leaflet.draw': [ 'leaflet' ],
         'l.control.geosearch': [ 'leaflet' ],
         'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
-        'nv.d3': [ 'd3.v3' ],
+        'nv.d3': [ 'd3' ],
         'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
@@ -63,7 +64,6 @@ require([
     'jquery.toggleable',
     'jquery.widthaware',
     'diff',
-    'd3.v3',
     'nv.d3' ],
 
 function() {
