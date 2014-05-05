@@ -21,7 +21,6 @@ requirejs.config({
             'codemirror/mode/htmlmixed/htmlmixed'
         ],
 
-        'jquery.rte': [ 'wysihtml5-0.3.0' ],
         'leaflet.common': [ 'leaflet' ],
         'leaflet.draw': [ 'leaflet' ],
         'l.control.geosearch': [ 'leaflet' ],
@@ -53,6 +52,7 @@ require([
     'input/location',
     'input/object',
     'input/region',
+    'input/richtext',
     'input/table',
     'input/workflow',
 
@@ -71,8 +71,6 @@ require([
     'jquery.toggleable',
     'jquery.widthaware',
     'diff',
-    'wysihtml5-0.3.0',
-    'jquery.rte',
     'd3.v3',
     'nv.d3' ],
 
