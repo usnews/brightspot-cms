@@ -835,32 +835,27 @@ public class Search extends Record {
                 normalized1 = 0;
             }
 
+            Set<String> fieldNames = new HashSet<String>();
             int[] binSizes = { 24, 20, 20 };
-
             int[] normalized = new int[] {
                     (((int) Math.round(normalized0 / 24.0)) * 24) % 360,
                     ((int) Math.round(normalized1 / 20.0)) * 20,
                     ((int) Math.round(normalized2 / 20.0)) * 20 };
 
-            Set<String> fieldNames = new HashSet<String>();
-
             for (int i = -1; i <= 1; i += 1) {
                 for (int j = -1; j <= 1; j += 1) {
                     for (int k = -1; k <= 1; k += 1) {
-
                         int h = (normalized[0] + i * binSizes[0]) % 360;
                         int s = normalized[1] + j * binSizes[1];
                         int l = normalized[2] + k * binSizes[2];
 
-                        // exclude origin
-                        // enforce boundary conditions
-                        if ((i != 0 || j != 0 || k != 0)
-                                && (h >= 0 && h < 360)
-                                && (s >= 0 && s <= 100)
-                                && s != 20 // s == 20 is never allowed
-                                && (s != 0 || h == 0) // s == 0 only allowed when h == 0
-                                && (l >= 0 && l <= 100)
-                                && (l < 100 && l > 0 || s == 0)) { // l == 0 and l == 100 only when s == 0
+                        if ((i != 0 || j != 0 || k != 0) &&
+                                (h >= 0 && h < 360) &&
+                                (s >= 0 && s <= 100) &&
+                                s != 20 &&
+                                (s != 0 || h == 0) &&
+                                (l >= 0 && l <= 100) &&
+                                (l < 100 && l > 0 || s == 0)) {
 
                             fieldNames.add("color.distribution/n_" + h + "_" + s + "_" + l);
                         }
@@ -870,11 +865,10 @@ public class Search extends Record {
 
             String originFieldName =
                     "color.distribution/n_" + normalized[0] +
-                            "_" + normalized[1] +
-                            "_" + normalized[2];
+                    "_" + normalized[1] +
+                    "_" + normalized[2];
 
             fieldNames.add(originFieldName);
-
             query.and(StringUtils.join(new ArrayList<String>(fieldNames), " > 0 || ") + " > 0");
             query.sortDescending(originFieldName);
 
