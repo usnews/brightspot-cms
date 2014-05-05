@@ -142,9 +142,11 @@ function() {
     });
 
     $doc.lazyLoad('live', '.lazyLoad');
+    $doc.locationMap('live', '.locationMap');
     $doc.objectId('live', ':input.objectId');
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
+    $doc.regionMap('live', '.regionMap');
     $doc.rte('live', '.richtext');
     $doc.tabbed('live', '.tabbed, .objectInputs');
     $doc.toggleable('live', '.toggleable');

@@ -99,7 +99,4 @@ function($) {
             map.on('draw:deleted', updateFunc);
         }
     });
-
-    $(document).regionMap('live', '.regionMap');
-    $(document).trigger('create');
 });

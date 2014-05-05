@@ -71,8 +71,5 @@ function($) {
             zoomInput.val(map.getZoom());
         }
     });
-
-    $(document).locationMap('live', '.locationMap');
-    $(document).trigger('create');
 });
 
