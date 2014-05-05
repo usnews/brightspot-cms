@@ -5,6 +5,7 @@ define([
     'input/image',
     'input/location',
     'input/object',
+    'input/query',
     'input/region',
     'input/richtext',
     'input/table',
