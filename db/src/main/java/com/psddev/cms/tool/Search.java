@@ -835,18 +835,42 @@ public class Search extends Record {
                 normalized1 = 0;
             }
 
+            Set<String> fieldNames = new HashSet<String>();
+            int[] binSizes = { 24, 20, 20 };
             int[] normalized = new int[] {
                     (((int) Math.round(normalized0 / 24.0)) * 24) % 360,
                     ((int) Math.round(normalized1 / 20.0)) * 20,
                     ((int) Math.round(normalized2 / 20.0)) * 20 };
 
-            String fieldName =
+            for (int i = -1; i <= 1; i += 1) {
+                for (int j = -1; j <= 1; j += 1) {
+                    for (int k = -1; k <= 1; k += 1) {
+                        int h = (normalized[0] + i * binSizes[0]) % 360;
+                        int s = normalized[1] + j * binSizes[1];
+                        int l = normalized[2] + k * binSizes[2];
+
+                        if ((i != 0 || j != 0 || k != 0) &&
+                                (h >= 0 && h < 360) &&
+                                (s >= 0 && s <= 100) &&
+                                s != 20 &&
+                                (s != 0 || h == 0) &&
+                                (l >= 0 && l <= 100) &&
+                                (l < 100 && l > 0 || s == 0)) {
+
+                            fieldNames.add("color.distribution/n_" + h + "_" + s + "_" + l);
+                        }
+                    }
+                }
+            }
+
+            String originFieldName =
                     "color.distribution/n_" + normalized[0] +
                     "_" + normalized[1] +
                     "_" + normalized[2];
 
-            query.and(fieldName + " > 0");
-            query.sortDescending(fieldName);
+            fieldNames.add(originFieldName);
+            query.and(StringUtils.join(new ArrayList<String>(fieldNames), " > 0 || ") + " > 0");
+            query.sortDescending(originFieldName);
 
             List<Sorter> sorters = query.getSorters();
 
