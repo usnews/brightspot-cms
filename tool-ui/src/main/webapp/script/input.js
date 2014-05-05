@@ -2,6 +2,7 @@ define([
     'input/code',
     'input/color',
     'input/focus',
+    'input/grid',
     'input/image',
     'input/location',
     'input/object',
