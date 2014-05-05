@@ -409,15 +409,6 @@ function() {
         });
     });
 
-    $doc.onCreate('.contentLock', function() {
-        var $container = $(this);
-
-        if ($container.attr('data-content-locked-out') === 'true') {
-            $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
-            $win.resize();
-        }
-    });
-
     $doc.onCreate('.inputContainer-listLayoutItemContainer-embedded', function() {
         var $item = $(this),
                 expanded;
@@ -1174,44 +1165,4 @@ function() {
             })();
         }
     });
-
-    // Content locking functions.
-    (function() {
-        var KEY_PREFIX = "cms.contentLock.",
-                STORAGE = window.localStorage;
-
-        window.bspContentLock = function(contentId) {
-            STORAGE.setItem(KEY_PREFIX + contentId, +new Date());
-        };
-
-        window.bspContentUnlock = function(contentId) {
-            STORAGE.removeItem(KEY_PREFIX + contentId);
-
-            $.ajax({
-                'url': CONTEXT_PATH + '/contentUnlock',
-                'data': { 'id': contentId },
-                'async': false,
-                'cache': false
-            });
-        };
-
-        window.setInterval(function() {
-            var itemIndex,
-                    itemLength = STORAGE.length,
-                    key,
-                    now = +new Date(),
-                    contentId;
-
-            for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
-                key = STORAGE.key(itemIndex);
-
-                if (key.indexOf(KEY_PREFIX, 0) === 0 &&
-                        parseInt(STORAGE.getItem(key), 10) + 5000 < now) {
-                    contentId = key.substring(KEY_PREFIX.length);
-
-                    window.bspContentUnlock(contentId);
-                }
-            }
-        }, 1000);
-    })();
 });

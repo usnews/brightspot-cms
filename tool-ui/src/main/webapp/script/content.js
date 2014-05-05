@@ -1,5 +1,6 @@
 define([
-    'content/diff' ],
+    'content/diff',
+    'content/lock' ],
 
 function() {
 });
