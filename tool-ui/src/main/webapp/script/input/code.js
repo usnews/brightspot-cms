@@ -1,24 +1,3 @@
-requirejs.config({
-    shim: {
-        'codemirror/mode/clike/clike': [ 'codemirror/codemirror' ],
-        'codemirror/mode/xml/xml': [ 'codemirror/codemirror' ],
-        'codemirror/mode/javascript/javascript': [ 'codemirror/codemirror' ],
-        'codemirror/mode/css/css': [ 'codemirror/codemirror' ],
-
-        'codemirror/mode/htmlmixed/htmlmixed': [
-            'codemirror/codemirror',
-            'codemirror/mode/xml/xml',
-            'codemirror/mode/javascript/javascript',
-            'codemirror/mode/css/css'
-        ],
-
-        'codemirror/mode/htmlembedded/htmlembedded': [
-            'codemirror/codemirror',
-            'codemirror/mode/htmlmixed/htmlmixed'
-        ]
-    }
-});
-
 require([
     'jquery',
     'bsp-utils',

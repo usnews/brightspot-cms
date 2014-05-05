@@ -1,13 +1,42 @@
-requirejs.config({
-    shim: {
-        'jquery.rte': [ 'wysihtml5-0.3.0' ],
-        'nv.d3': [ 'd3.v3' ]
-    }
-});
-
 define('jquery', [ ], function() { return $; });
 define('jquery.extra', [ ], function() { return $; });
 define('jquery.handsontable.full', [ ], function() { return $; });
+
+requirejs.config({
+    shim: {
+        'codemirror/mode/clike/clike': [ 'codemirror/codemirror' ],
+        'codemirror/mode/xml/xml': [ 'codemirror/codemirror' ],
+        'codemirror/mode/javascript/javascript': [ 'codemirror/codemirror' ],
+        'codemirror/mode/css/css': [ 'codemirror/codemirror' ],
+
+        'codemirror/mode/htmlmixed/htmlmixed': [
+            'codemirror/codemirror',
+            'codemirror/mode/xml/xml',
+            'codemirror/mode/javascript/javascript',
+            'codemirror/mode/css/css'
+        ],
+
+        'codemirror/mode/htmlembedded/htmlembedded': [
+            'codemirror/codemirror',
+            'codemirror/mode/htmlmixed/htmlmixed'
+        ],
+
+        'jquery.rte': [ 'wysihtml5-0.3.0' ],
+        'leaflet.common': [ 'leaflet' ],
+        'leaflet.draw': [ 'leaflet' ],
+        'l.control.geosearch': [ 'leaflet' ],
+        'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
+        'nv.d3': [ 'd3.v3' ],
+        'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/fliph': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/flipv': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/invert': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/rotate': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ]
+    }
+});
 
 require([
     'jquery',

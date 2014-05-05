@@ -1,16 +1,3 @@
-requirejs.config({
-    shim: {
-        'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/fliph': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/flipv': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/invert': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/rotate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ]
-    }
-});
-
 require([
     'jquery',
     'bsp-utils',

@@ -1,12 +1,3 @@
-requirejs.config({
-    shim: {
-        'leaflet.common': [ 'leaflet' ],
-        'leaflet.draw': [ 'leaflet' ],
-        'l.control.geosearch': [ 'leaflet' ],
-        'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ]
-    }
-});
-
 define([
     'leaflet',
     'leaflet.common',
