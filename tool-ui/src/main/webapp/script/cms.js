@@ -154,15 +154,6 @@ function() {
         }));
     });
 
-    // Automatically focus on certain elements.
-    $doc.onCreate('[autofocus], .autoFocus', function() {
-        var focus = doc.activeElement;
-
-        if (!focus || focus === doc || focus === doc.body) {
-            $(this).focus();
-        }
-    });
-
     // Hide non-essential items in the permissions input.
     $doc.onCreate('.inputContainer .permissions select', function() {
         var $select = $(this);
@@ -632,85 +623,6 @@ function() {
         }));
     })();
 
-    // Make sure that the label for the focused input is visible.
-    $doc.delegate(':input', 'focus', function() {
-        var $input = $(this),
-                $firstInput = $input.closest('form').find('.inputContainer:visible').eq(0),
-                $parents = $input.parentsUntil('form');
-
-        $parents.addClass('state-focus');
-
-        $win.bind('scroll.focusLabel', $.run($.throttle(50, function() {
-            var focusLabelHeight,
-                    index,
-                    $parent,
-                    headerHeight = $('.toolHeader').outerHeight(),
-                    labelText = '',
-                    $focusLabel = $('.focusLabel'),
-                    $parentLabel,
-                    parentLabelText;
-
-            if ($focusLabel.length === 0) {
-                $focusLabel = $('<div/>', { 'class': 'focusLabel' });
-
-                $(doc.body).append($focusLabel);
-            }
-
-            focusLabelHeight = $focusLabel.outerHeight();
-
-            $parents.each(function() {
-                $(this).find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
-            });
-
-            for (index = $parents.length - 1; index >= 0; -- index) {
-                $parent = $($parents[index]);
-
-                if ($parent.offset().top > $win.scrollTop() + (focusLabelHeight * 2 / 3) + headerHeight) {
-                    if (labelText) {
-                        $focusLabel.css({
-                            'left': $firstInput.offset().left,
-                            'top': headerHeight,
-                            'width': $firstInput.outerWidth()
-                        });
-                        $focusLabel.text(labelText);
-                        $focusLabel.show();
-                        return;
-
-                    } else {
-                        break;
-                    }
-                }
-
-                $parentLabel = $parent.find('> .inputLabel label, > .repeatableLabel');
-                parentLabelText = $parentLabel.text();
-
-                if (parentLabelText) {
-                    $parentLabel.css('visibility', 'hidden');
-
-                    if (labelText) {
-                        labelText += ' \u2192 ';
-                    }
-
-                    labelText += parentLabelText;
-                }
-            }
-
-            $focusLabel.hide();
-        })));
-    });
-
-    $doc.delegate(':input', 'blur', function() {
-        $(this).parents('.state-focus').each(function() {
-            var $parent = $(this);
-
-            $parent.removeClass('state-focus');
-            $parent.find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
-        });
-
-        $('.focusLabel').hide();
-        $win.unbind('.focusLabel');
-    });
-
     // Handle file uploads from drag-and-drop.
     (function() {
         var docEntered;
@@ -1063,10 +975,6 @@ function() {
         if ($otherInput.length > 0) {
             $otherInput.val($input.val());
         }
-    });
-
-    $doc.ready(function() {
-        $(doc.activeElement).focus();
     });
 
     $doc.ready(function() {
