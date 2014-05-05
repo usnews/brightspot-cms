@@ -5,6 +5,7 @@
     "bsp-utils": "~2.0.1",
     "handsontable": "~0.10.5",
     "jquery": "~1.11.0",
+    "jsdiff": "kpdecker/jsdiff#~1.0.8",
     "leaflet-dist": "~0.6.4",
     "leaflet.draw": "0.2.2",
     "L.GeoSearch": "*",

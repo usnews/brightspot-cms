@@ -2,6 +2,10 @@ module.exports = function(grunt) {
     require('bsp-grunt')(grunt, {
         bsp: {
             bower: {
+                'jsdiff': [
+                    'diff.js'
+                ],
+
                 'leaflet-dist': [
                     {
                         dest: 'leaflet',
