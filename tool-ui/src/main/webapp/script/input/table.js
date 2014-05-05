@@ -1,4 +1,4 @@
-require([
+define([
     'jquery',
     'bsp-utils',
     'jquery.handsontable.full' ],
