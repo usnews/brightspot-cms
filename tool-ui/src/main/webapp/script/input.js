@@ -1,4 +1,5 @@
 define([
+    'input/change',
     'input/code',
     'input/color',
     'input/focus',
