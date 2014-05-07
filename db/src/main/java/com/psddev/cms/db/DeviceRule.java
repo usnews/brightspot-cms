@@ -1,7 +1,5 @@
 package com.psddev.cms.db;
 
-import java.util.Map;
-
 /**
  * @deprecated No replacement.
  */

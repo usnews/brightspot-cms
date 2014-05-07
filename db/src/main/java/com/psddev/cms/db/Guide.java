@@ -227,8 +227,8 @@ public class Guide extends Record {
             List<Template> relatedTemplates = new ArrayList<Template>();
             List<Template> usableTemplates = Template.Static.findUsable(object);
             for (Template template : usableTemplates) {
-                if (!template.getId().equals(ignoreTemplate.getId())
-                        && Guide.Static.getSamplePage(template) != null) {
+                if (!template.getId().equals(ignoreTemplate.getId()) &&
+                        Guide.Static.getSamplePage(template) != null) {
                     relatedTemplates.add(template);
                 }
             }
@@ -276,8 +276,7 @@ public class Guide extends Record {
                         }
 
                         if (!nameMap.containsKey(child.getId())) {
-                            nameMap.put(child.getId(), sectionName + " - "
-                                    + childName);
+                            nameMap.put(child.getId(), sectionName + " - " + childName);
                         }
                     }
                 }

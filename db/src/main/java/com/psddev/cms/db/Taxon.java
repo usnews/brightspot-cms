@@ -28,7 +28,7 @@ public interface Taxon extends Recordable {
             this.root = root ? Boolean.TRUE : null;
         }
 
-        public void beforeSave(){
+        public void beforeSave() {
             this.setRoot(this.getOriginalObject().isRoot());
         }
     }

@@ -21,7 +21,7 @@ public class Area extends Plugin {
         if (hierarchy == null) {
             String path = getInternalName();
 
-            for (Area parent = this; (parent = parent.getParent()) != null; ) {
+            for (Area parent = this; (parent = parent.getParent()) != null;) {
                 path = parent.getInternalName() + "/" + path;
             }
 

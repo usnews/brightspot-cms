@@ -436,6 +436,8 @@ public class Search extends Record {
                 }
 
             } catch (IOException error) {
+                // Can't connect to the URL in the query string to get the main
+                // object ID, but that's OK to ignore and move on.
             }
         }
 
@@ -508,6 +510,7 @@ public class Search extends Record {
         }
 
         if (metricSort) {
+            // Skip Solr-related operations if sorting by metrics.
 
         } else if (ObjectUtils.isBlank(queryString)) {
             if (isAllSearchable) {
@@ -517,8 +520,8 @@ public class Search extends Record {
         } else {
 
             // Strip http: or https: from the query for search by path below.
-            if (queryString.length() > 8
-                    && StringUtils.matches(queryString, "(?i)https?://.*")) {
+            if (queryString.length() > 8 &&
+                    StringUtils.matches(queryString, "(?i)https?://.*")) {
                 int slashAt = queryString.indexOf("/", 8);
 
                 if (slashAt > -1) {

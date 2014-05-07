@@ -459,7 +459,7 @@ public class ToolUser extends Record implements ToolEntity {
         Set<String> newLocks = contentLocks != null ? contentLocks : new HashSet<String>();
         Set<String> oldLocks = new HashSet<String>(newLocks);
 
-        for (Iterator<String> i = newLocks.iterator(); i.hasNext(); ) {
+        for (Iterator<String> i = newLocks.iterator(); i.hasNext();) {
             String lock = i.next();
 
             if (lock.startsWith(idPrefix) ||
@@ -496,7 +496,7 @@ public class ToolUser extends Record implements ToolEntity {
                 first();
 
         if (user != null) {
-            for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext();) {
                 if (i.next().startsWith(idPrefix)) {
                     i.remove();
                 }

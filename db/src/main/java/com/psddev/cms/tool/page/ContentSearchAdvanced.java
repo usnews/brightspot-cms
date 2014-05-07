@@ -151,7 +151,7 @@ public class ContentSearchAdvanced extends PageServlet {
                     page.write(",\"");
 
                     if ("cms.directory.paths".equals(field.getInternalName())) {
-                        for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+                        for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext();) {
                             Directory.Path p = i.next();
                             String path = p.getPath();
 
@@ -166,7 +166,7 @@ public class ContentSearchAdvanced extends PageServlet {
                         }
 
                     } else {
-                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
                             Object value = i.next();
                             page.writeObject(value);
                             if (i.hasNext()) {
@@ -486,7 +486,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                                     }
 
                                                 } else {
-                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext(); ) {
+                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
                                                         Object value = i.next();
                                                         page.writeObject(value);
                                                         if (i.hasNext()) {

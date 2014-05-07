@@ -109,9 +109,14 @@ public class Widget extends Plugin {
     @Embedded
     public static class Position extends Record {
 
-        private @Required String name;
-        private @Required double column;
-        private @Required double row;
+        @Required
+        private String name;
+
+        @Required
+        private double column;
+
+        @Required
+        private double row;
 
         /** Returns the name. */
         public String getName() {

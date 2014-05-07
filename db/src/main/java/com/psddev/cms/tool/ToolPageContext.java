@@ -631,10 +631,10 @@ public class ToolPageContext extends WebPageContext {
                     tb.setLength(tb.length() - 2);
 
                     throw new IllegalArgumentException(String.format(
-                            "Expected one of [%s] types for [%s] object"
-                            + " but it is of [%s] type", tb, objectId,
-                            objectType != null ? objectType.getLabel()
-                            : "unknown"));
+                            "Expected one of [%s] types for [%s] object but it is of [%s] type",
+                            tb,
+                            objectId,
+                            objectType != null ? objectType.getLabel() : "unknown"));
                 }
             }
 
@@ -746,7 +746,7 @@ public class ToolPageContext extends WebPageContext {
 
         if (object != null) {
             State state = State.getInstance(object);
-            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);;
+            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
 
             if (contentData.isDraft()) {
                 Draft draft = Query.from(Draft.class).where("objectId = ?", state.getId()).first();
@@ -870,6 +870,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
         } catch (IOException error) {
+            throw new IllegalStateException(error);
         }
 
         if (lastModified == 0) {
@@ -1016,6 +1017,7 @@ public class ToolPageContext extends WebPageContext {
                 try {
                     timeZone = DateTimeZone.forID(timeZoneId);
                 } catch (IllegalArgumentException error) {
+                    // Ignore unparseable time zone IDs.
                 }
             }
         }
@@ -1331,6 +1333,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
             } catch (ClassCastException error) {
+                // Ignore tool instances without backing Java classes.
             }
         }
 
@@ -1577,7 +1580,7 @@ public class ToolPageContext extends WebPageContext {
 
         List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
 
-        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
+        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext();) {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
@@ -1599,7 +1602,7 @@ public class ToolPageContext extends WebPageContext {
         typeGroups.put("Main Content Types", mainTypes);
         typeGroups.put("Misc Content Types", typesList);
 
-        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext(); ) {
+        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext();) {
             List<ObjectType> typeGroup = i.next();
 
             if (typeGroup.isEmpty()) {

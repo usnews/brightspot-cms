@@ -540,10 +540,10 @@ public class Directory extends Record {
         public void clearSitePaths(Site site) {
             String sitePrefix = site != null ? site.getRawPath() : null;
             Map<String, PathType> types = getPathTypes();
-            for (Iterator<String> i = getRawPaths().iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = getRawPaths().iterator(); i.hasNext();) {
                 String rawPath = i.next();
-                if ((sitePrefix == null && !rawPath.contains(":"))
-                        || (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
+                if ((sitePrefix == null && !rawPath.contains(":")) ||
+                        (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
                     i.remove();
                     types.remove(rawPath);
                 }

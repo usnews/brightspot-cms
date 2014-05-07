@@ -64,6 +64,10 @@ public abstract class Notification extends Record {
                                     receiver.getPhoneNumber(),
                                     createSms(object, sender, date, receiver));
                             break;
+
+                        default :
+                            throw new UnsupportedOperationException(String.format(
+                                    "Unknown notification method! [%s]", method));
                     }
                 }
 

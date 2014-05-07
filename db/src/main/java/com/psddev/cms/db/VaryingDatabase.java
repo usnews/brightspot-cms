@@ -51,7 +51,7 @@ public class VaryingDatabase extends ForwardingDatabase {
     }
 
     // --- ForwardingDatabase support ---
- 
+
     @Override
     public <T> List<T> readAll(Query<T> query) {
         List<T> all = super.readAll(query);
@@ -93,7 +93,7 @@ public class VaryingDatabase extends ForwardingDatabase {
         public FilteringIterable(Iterable<E> delegate) {
             this.delegate = delegate;
         }
-        
+
         @Override
         public Iterator<E> iterator() {
             return new FilteringIterator<E>(delegate.iterator());

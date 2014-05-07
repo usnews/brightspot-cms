@@ -134,8 +134,8 @@ public class GuidePage extends Record {
         }
         if (!sectionDescriptions.isEmpty()) {
             for (GuideSection gs : sectionDescriptions) {
-                if (gs.getSectionName() != null
-                        && gs.getSectionName().equals(section.getName())) {
+                if (gs.getSectionName() != null &&
+                        gs.getSectionName().equals(section.getName())) {
                     return gs;
                 }
             }

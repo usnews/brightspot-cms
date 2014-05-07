@@ -72,7 +72,7 @@ public class UnpublishedDrafts extends PageServlet {
         String userParameter = userType + ".value";
         final Object user = Query.from(Object.class).where("_id = ?", page.pageParam(UUID.class, userParameter, null)).first();
         QueryFilter<Object> queryFilter = null;
-        
+
         if (type != null || userType != UserType.ANYONE) {
             queryFilter = new QueryFilter<Object>() {
 

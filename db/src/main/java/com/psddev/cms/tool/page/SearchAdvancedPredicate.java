@@ -53,7 +53,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             String paramPrefix)
             throws IOException;
 
-    public static abstract class Compound extends SearchAdvancedPredicate {
+    public abstract static class Compound extends SearchAdvancedPredicate {
 
         public abstract String getOperator();
 
@@ -325,7 +325,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 indexedFields.addAll(index.getFields());
             }
 
-            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
+            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext();) {
                 ObjectField field = i.next();
                 String declaring = field.getJavaDeclaringClassName();
 

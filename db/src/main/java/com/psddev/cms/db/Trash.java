@@ -16,10 +16,18 @@ import com.psddev.dari.db.ObjectType;
 @Deprecated
 public class Trash extends Record {
 
-    private @Indexed Date deleteDate;
-    private @Indexed ToolUser deleteUser;
-    private @Indexed ObjectType objectType;
-    private @Indexed UUID objectId;
+    @Indexed
+    private Date deleteDate;
+
+    @Indexed
+    private ToolUser deleteUser;
+
+    @Indexed
+    private ObjectType objectType;
+
+    @Indexed
+    private UUID objectId;
+
     private Map<String, Object> objectValues;
 
     /** Creates a blank instance. */

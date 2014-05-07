@@ -71,7 +71,7 @@ public class RichTextDatabase extends ForwardingDatabase {
         public FilteringIterable(Iterable<E> delegate) {
             this.delegate = delegate;
         }
-        
+
         @Override
         public Iterator<E> iterator() {
             return new FilteringIterator<E>(delegate.iterator());

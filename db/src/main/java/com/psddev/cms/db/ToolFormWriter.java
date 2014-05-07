@@ -15,7 +15,6 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.JspUtils;
-import com.psddev.dari.util.Settings;
 
 public class ToolFormWriter extends FormWriter {
 

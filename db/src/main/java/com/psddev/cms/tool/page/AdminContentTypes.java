@@ -51,7 +51,7 @@ public class AdminContentTypes extends PageServlet {
                     sct = new ContentType();
                     sct.getState().setId(page.param(UUID.class, "id"));
                 }
-                
+
                 if (page.tryStandardUpdate(sct)) {
                     return;
                 }
@@ -86,7 +86,7 @@ public class AdminContentTypes extends PageServlet {
                 }
             }
 
-            for (Iterator<ContentField> i = sct.getFields().iterator(); i.hasNext(); ) {
+            for (Iterator<ContentField> i = sct.getFields().iterator(); i.hasNext();) {
                 ContentField cf = i.next();
                 boolean found = false;
 

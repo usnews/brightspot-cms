@@ -415,7 +415,7 @@ public abstract class Content extends Record {
 
     /** @deprecated Use {@link ObjectModification} or {@link Static} instead. */
     @Deprecated
-    public static abstract class Global extends Record {
+    public abstract static class Global extends Record {
 
         /** @deprecated Use {@link ObjectModification#getPublishDate} instead. */
         @Deprecated

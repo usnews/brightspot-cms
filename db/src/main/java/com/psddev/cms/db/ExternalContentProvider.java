@@ -26,7 +26,7 @@ public interface ExternalContentProvider {
      * Skeletal implementation of {@link ExternalContentProvider} optimized
      * for returning {@code rich} oEmbed type.
      */
-    public static abstract class RichExternalContentProvider implements ExternalContentProvider {
+    public abstract static class RichExternalContentProvider implements ExternalContentProvider {
 
         private ExternalContent content;
 

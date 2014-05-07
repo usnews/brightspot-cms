@@ -17,12 +17,25 @@ import com.psddev.dari.util.ObjectUtils;
 @ToolUi.Hidden
 public class Draft extends Content {
 
-    private @Indexed DraftStatus status;
-    private @Indexed Schedule schedule;
+    @Indexed
+    private DraftStatus status;
+
+    @Indexed
+    private Schedule schedule;
+
     private String name;
-    private @Indexed ToolUser owner;
-    private @Indexed @Required ObjectType objectType;
-    private @Indexed @Required UUID objectId;
+
+    @Indexed
+    private ToolUser owner;
+
+    @Indexed
+    @Required
+    private ObjectType objectType;
+
+    @Indexed
+    @Required
+    private UUID objectId;
+
     private Map<String, Object> objectChanges;
 
     /** Returns the status. */

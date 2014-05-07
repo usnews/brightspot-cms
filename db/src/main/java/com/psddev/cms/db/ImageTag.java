@@ -54,9 +54,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     public void setSrc(Object src) {
         WebPageContext wp = new WebPageContext(pageContext);
 
-        if (src instanceof String
-                || src instanceof URI
-                || src instanceof URL) {
+        if (src instanceof String ||
+                src instanceof URI ||
+                src instanceof URL) {
 
             String path = JspUtils.resolvePath(wp.getServletContext(), wp.getRequest(), src.toString());
             StorageItem pathItem;
@@ -128,7 +128,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      */
     public void setWidth(String width) {
         if (width != null && width.endsWith("px")) {
-            width = width.substring(0, width.length()-2);
+            width = width.substring(0, width.length() - 2);
         }
         tagBuilder.setWidth(ObjectUtils.to(Integer.class, width));
     }
@@ -139,7 +139,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      */
     public void setHeight(String height) {
         if (height != null && height.endsWith("px")) {
-            height = height.substring(0, height.length()-2);
+            height = height.substring(0, height.length() - 2);
         }
         tagBuilder.setHeight(ObjectUtils.to(Integer.class, height));
     }
@@ -338,9 +338,9 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         Builder tagBuilder = new Builder();
 
-        if (src instanceof String
-                || src instanceof URI
-                || src instanceof URL) {
+        if (src instanceof String ||
+                src instanceof URI ||
+                src instanceof URL) {
 
             tagBuilder.setItem(StorageItem.Static.createUrl(
                     JspUtils.getEmbeddedAbsolutePath(
@@ -1005,7 +1005,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         }
     }
 
-    public final static class Static {
+    public static final class Static {
 
         private Static() {
         }
