@@ -90,18 +90,18 @@ public class SearchQueryBuilder extends Record {
         return this;
     }
 
-    public SearchQueryBuilder boostType(double boost, ObjectType type) {
+    public SearchQueryBuilder boostType(int boost, ObjectType type) {
         BoostType rule = new BoostType();
         rule.setBoost(boost);
         rule.setType(type);
         return addRule(rule);
     }
 
-    public SearchQueryBuilder boostType(double boost, Class<?> objectClass) {
+    public SearchQueryBuilder boostType(int boost, Class<?> objectClass) {
         return boostType(boost, ObjectType.getInstance(objectClass));
     }
 
-    public SearchQueryBuilder boostFields(double boost, ObjectType type, String... fields) {
+    public SearchQueryBuilder boostFields(int boost, ObjectType type, String... fields) {
         BoostFields rule = new BoostFields();
         rule.setBoost(boost);
         rule.setType(type);
@@ -109,11 +109,11 @@ public class SearchQueryBuilder extends Record {
         return addRule(rule);
     }
 
-    public SearchQueryBuilder boostFields(double boost, Class<?> objectClass, String... fields) {
+    public SearchQueryBuilder boostFields(int boost, Class<?> objectClass, String... fields) {
         return boostFields(boost, ObjectType.getInstance(objectClass), fields);
     }
 
-    public SearchQueryBuilder boostPhrase(double boost, String pattern, ObjectType type, String predicate) {
+    public SearchQueryBuilder boostPhrase(int boost, String pattern, ObjectType type, String predicate) {
         BoostPhrase rule = new BoostPhrase();
         rule.setBoost(boost);
         rule.setPattern(pattern);
@@ -122,7 +122,7 @@ public class SearchQueryBuilder extends Record {
         return addRule(rule);
     }
 
-    public SearchQueryBuilder boostPhrase(double boost, String pattern, Class<?> objectClass, String predicate) {
+    public SearchQueryBuilder boostPhrase(int boost, String pattern, Class<?> objectClass, String predicate) {
         return boostPhrase(boost, pattern, ObjectType.getInstance(objectClass), predicate);
     }
 
@@ -162,30 +162,29 @@ public class SearchQueryBuilder extends Record {
         return normalized;
     }
 
-    public SearchQueryBuilder addOptionalTerms(double boost, Object... terms) {
+    /*public SearchQueryBuilder addOptionalTerms(int boost, Object... terms) {
         OptionalTerms rule = new OptionalTerms();
         rule.setBoost(boost);
         rule.setTerms(new HashSet<String>(normalizeTerms(terms)));
         return addRule(rule);
-    }
+    }*/
 
     public Query toQuery(Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         Query query = Query.from(Object.class);
 
-        if (!queryTerms.isEmpty()) {
-            for (Rule rule : getRules()) {
-                rule.apply(this, query, queryTerms);
-            }
+        for (Rule rule : getRules()) {
+            rule.apply(this, query, queryTerms);
+        }
 
-            if (!queryTerms.isEmpty()) {
-                if(exactMatchTerms){
-                    query.or("_any matchesAll ?", terms);
-                    //TODO: figure out how synonyms should work in this case
-                } else {
-                    query.or("_any matchesAny ?", queryTerms);
-                    query.sortRelevant(10.0,"_any matchesAll ?", queryTerms);
-                }
+        if (!queryTerms.isEmpty()) {
+            if(exactMatchTerms){
+                query.or("_any matchesAll ?", terms);
+                //TODO: figure out how synonyms should work in this case
+            } else {
+                query.or("_any matchesAny ?", queryTerms);
+                //TODO how should we do this boost?
+                query.sortRelevant(1000.0,"_any matchesAll ?", terms);
             }
         }
 
@@ -246,12 +245,12 @@ public class SearchQueryBuilder extends Record {
             }
 
             if (removed != null && !removed.isEmpty()) {
-                query.sortRelevant(0.01, "_any matchesAll ?", removed);
+                query.sortRelevant(0.0001, "_any matchesAll ?", removed);
             }
         }
     }
 
-    public static class Synonyms extends Rule {
+    public static class Synonyms extends BoostRule {
 
         @CollectionMinimum(1)
         @Embedded
@@ -355,20 +354,24 @@ public class SearchQueryBuilder extends Record {
 
     public static abstract class BoostRule extends Rule {
 
-        @ToolUi.Note("Boost values should be powers of 10")
-        private double boost;  //TODO: can I use Math.pow(10,boost);
+        @ToolUi.Note("Number between -2 and 5")
+        @Minimum(-2)
+        @Maximum(5)
+        private int boost;
 
         public double getBoost() {
-            return boost;
+            //TODO: only powers of 10 should be used for the boost
+            return Math.pow(10,boost);
         }
 
-        public void setBoost(double boost) {
+        public void setBoost(int boost) {
             this.boost = boost;
         }
     }
 
     public static class BoostType extends BoostRule {
 
+        @Required
         private ObjectType type;
 
         public String getLabel(){
@@ -385,7 +388,7 @@ public class SearchQueryBuilder extends Record {
 
         @Override
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
+            query.sortRelevant(getBoost(), "_type = ?", type);
         }
     }
 
@@ -485,7 +488,6 @@ public class SearchQueryBuilder extends Record {
             this.predicate = predicate;
         }
 
-        //TODO: I don't know how this works, it seems over my head
         @Override
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
@@ -535,7 +537,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    //TODO: these work kinda link synonyms but are always present - confused
+    //TODO: these work kinda like synonyms but are always present... still not sure about this
     public static class OptionalTerms extends BoostRule {
 
         private Set<String> terms;
