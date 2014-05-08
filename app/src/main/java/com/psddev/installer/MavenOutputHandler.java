@@ -18,4 +18,3 @@ public class MavenOutputHandler extends PrintStreamHandler {
         text.setText(text.getText() + line + "\n");
     }
 }
-
