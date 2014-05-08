@@ -376,7 +376,9 @@ public class MainController {
                     InvocationResult result = invoker.execute(request);
                     runCount += .5;
                     updateProgress(runCount, installCount);
-                } catch (MavenInvocationException e) { }
+                } catch (MavenInvocationException e) {
+                    e.printStackTrace();
+                }
 
                 // Frontend Core
                 if (frontendCore.isSelected()) {
@@ -405,7 +407,9 @@ public class MainController {
 
                         runCount += .5;
                         updateProgress(runCount, installCount);
-                    } catch (MavenInvocationException e) { }
+                    } catch (MavenInvocationException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 // Frontend Common (Article, Author...)
@@ -432,7 +436,9 @@ public class MainController {
 
                         runCount += .5;
                         updateProgress(runCount, installCount);
-                    } catch (MavenInvocationException e) { }
+                    } catch (MavenInvocationException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 /*
@@ -457,7 +463,9 @@ public class MainController {
 
                         runCount += .5;
                         updateProgress(runCount, installCount);
-                    } catch (MavenInvocationException e) { }
+                    } catch (MavenInvocationException e) {
+                        e.printStackTrace();
+                    }
                 }
                 */
 
