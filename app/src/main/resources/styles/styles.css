@@ -1,7 +1,10 @@
 
-@font-face {
-    font-family: font-awesome;
-    src: url('fontawesome-webfont.svg');
+.button {
+    -fx-font-size: 12;
+}
+
+.directoryButton {
+    -fx-font-family: Awesome;
 }
 
 #logo {
@@ -37,6 +40,10 @@
 .envList .envListPane {
     -fx-padding: 15;
     -fx-spacing: 10;
+}
+
+.mavenDirLabel {
+    -fx-font-size: 10;
 }
 
 .separator {

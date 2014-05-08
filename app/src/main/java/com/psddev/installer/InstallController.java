@@ -32,10 +32,13 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.prefs.Preferences;
 
 public class InstallController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallController.class);
+
+    private static final String MAVEN_PATH_KEY = "mavenPath";
 
     public static final String CHECK_VALID = "OK";
 
@@ -47,6 +50,12 @@ public class InstallController {
 
     @FXML
     TabPane tabs;
+
+    @FXML
+    Tab envTab;
+
+    @FXML
+    Tab projectTab;
 
     @FXML
     Label mysqlStatusLabel;
@@ -61,10 +70,10 @@ public class InstallController {
     Label mavenStatusReport;
 
     @FXML
-    Label installDirectoryLabel;
+    Label mavenDirectoryButton;
 
     @FXML
-    Tab projectTab;
+    Label installDirectoryLabel;
 
     @FXML
     TextField groupId;
@@ -89,6 +98,8 @@ public class InstallController {
     private String namespaceUri;
 
     private File installDirectory;
+
+    private File mavenDirectory;
 
     @FXML
     protected void initialize() {
@@ -209,23 +220,62 @@ public class InstallController {
         MavenCommandLineBuilder builder = new MavenCommandLineBuilder();
         InvocationRequest request = new DefaultInvocationRequest();
 
-        String result = null;
-        Properties p = null;
-        try {
-            p = CommandLineUtils.getSystemEnvVars();
+        // check if saved Maven location
+        Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+        String path = prefs.get(MAVEN_PATH_KEY, null);
 
-            result  = builder.build(request).getExecutable();
+        if (StringUtils.isBlank(path)) {
+            try {
+                // use MavenInvoker to determine a location in system prefs
+                path = builder.build(request).getExecutable();
 
-            if (!StringUtils.isBlank(result)) {
-                mavenStatusReport.setText("Found Maven at: " + result);
-                return true;
+            } catch (Exception e) {
+                mavenStatusReport.setText(e.getMessage());
             }
-        } catch (Exception e) {
-            result = e.getMessage();
         }
 
-        mavenStatusReport.setText(result);
+        // validate maven
+        if (!StringUtils.isBlank(path)) {
+            mavenDirectory = new File(path);
+
+            builder.setMavenHome(mavenDirectory);
+            try {
+                // use MavenInvoker to determine a location in system prefs
+                path = builder.build(request).getExecutable();
+
+                mavenStatusReport.setText("Maven found at: " + path);
+                mavenStatusLabel.setText(CHECK_VALID);
+
+                return true;
+            } catch (Exception e) {
+                mavenStatusReport.setText(e.getMessage());
+            }
+        }
+
+        mavenStatusLabel.setText(CHECK_INVALID);
+
         return false;
+    }
+
+    public void pickMavenDirectory() {
+        Stage stage = (Stage) root.getScene().getWindow();
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Choose Installation Directory");
+        directoryChooser.setInitialDirectory(SystemUtils.getUserHome());
+
+        mavenDirectory = directoryChooser.showDialog(stage);
+
+        if (mavenDirectory != null) {
+            Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+            prefs.put(MAVEN_PATH_KEY, mavenDirectory.getAbsolutePath());
+
+            if (hasMaven() && hasMySQL()) {
+                projectTab.setDisable(false);
+            } else {
+                projectTab.setDisable(true);
+            }
+        }
     }
 
     public void setFrontendCommon() {
@@ -296,9 +346,10 @@ public class InstallController {
                     installCount++;
                 }
 
-                Invoker invoker = new DefaultInvoker();
                 InvocationOutputHandler handler = new MavenOutputHandler(installLog);
+                Invoker invoker = new DefaultInvoker();
                 invoker.setOutputHandler(handler);
+                invoker.setMavenHome(mavenDirectory);
 
                 InvocationRequest request = new DefaultInvocationRequest();
                 request.setBaseDirectory(installDirectory);

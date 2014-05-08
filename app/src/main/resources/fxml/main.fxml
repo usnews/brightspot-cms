@@ -26,7 +26,7 @@
     <center>
 
         <TabPane fx:id="tabs" id="tabs">
-            <Tab id="envTab" text="Environment" closable="false">
+            <Tab fx:id="envTab" id="envTab" text="Environment" closable="false">
                 <VBox styleClass="envList">
 
                     <BorderPane styleClass="envListPane">
@@ -57,10 +57,15 @@
 
                     <Label fx:id="mavenStatusReport" styleClass="statusReport"/>
 
+                    <HBox styleClass="envListPane">
+                        <Label text="Maven Directory:" styleClass="mavenDirLabel"/>
+                        <Button id="mavenDirectoryButton" onAction="#pickMavenDirectory" styleClass="directoryButton" text="Choose"/>
+                    </HBox>
+
                 </VBox>
             </Tab>
 
-            <Tab id="projTab" fx:id="projectTab" text="Projects" closable="false">
+            <Tab fx:id="projectTab" id="projTab" text="Projects" closable="false">
                 <VBox styleClass="choicesBox">
 
                     <HBox styleClass="hbox">
