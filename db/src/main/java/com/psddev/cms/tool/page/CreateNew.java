@@ -98,7 +98,7 @@ public class CreateNew extends PageServlet {
             }
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
-                if (type.isConcrete() && 
+                if (type.isConcrete() &&
                         type.getGroups().contains(Directory.Item.class.getName()) &&
                         !type.getGroups().contains(Singleton.class.getName()) &&
                         !typeCounts.containsKey(type)) {
@@ -154,7 +154,7 @@ public class CreateNew extends PageServlet {
         String widgetId = page.createId();
 
         page.writeStart("style", "type", "text/css");
-            page.writeCss("#" + widgetId + " .checkboxContainer", "text-align", "center"); 
+            page.writeCss("#" + widgetId + " .checkboxContainer", "text-align", "center");
         page.writeEnd();
 
         page.writeStart("div", "class", "widget", "id", widgetId);
@@ -225,7 +225,7 @@ public class CreateNew extends PageServlet {
                 if (!automaticallySavedDrafts.isEmpty()) {
                     boolean removed = false;
 
-                    for (Iterator<Object> i = automaticallySavedDrafts.iterator(); i.hasNext(); ) {
+                    for (Iterator<Object> i = automaticallySavedDrafts.iterator(); i.hasNext();) {
                         State draft = State.getInstance(i.next());
 
                         if (!draft.as(Content.ObjectModification.class).isDraft()) {
@@ -409,6 +409,11 @@ public class CreateNew extends PageServlet {
         public int compareTo(TypeTemplate other) {
             int comparison = type.compareTo(other.type);
             return comparison == 0 ? ObjectUtils.compare(template, other.template, true) : comparison;
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectUtils.hashCode(type, template);
         }
 
         @Override

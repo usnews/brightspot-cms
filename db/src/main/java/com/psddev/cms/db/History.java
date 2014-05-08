@@ -10,16 +10,27 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.ObjectType;
 
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 
 /** Represents previous revisions of objects. */
 public class History extends Record {
 
-    private @Indexed String name;
-    private @Indexed Date updateDate;
-    private @Indexed ToolUser updateUser;
-    private @Indexed ObjectType objectType;
-    private @Indexed UUID objectId;
+    @Indexed
+    private String name;
+
+    @Indexed
+    private Date updateDate;
+
+    @Indexed
+    private ToolUser updateUser;
+
+    @Indexed
+    private ObjectType objectType;
+
+    @Indexed
+    private UUID objectId;
+
     private Map<String, Object> objectOriginals;
     private boolean lockIgnored;
 
@@ -108,8 +119,14 @@ public class History extends Record {
     @Override
     public String getLabel() {
         StringBuilder label = new StringBuilder();
+        String name = getName();
         Date updateDate = getUpdateDate();
         ToolUser updateUser = getUpdateUser();
+
+        if (!ObjectUtils.isBlank(name)) {
+            label.append(name);
+            label.append(" - ");
+        }
 
         if (updateDate != null) {
             label.append(updateDate);

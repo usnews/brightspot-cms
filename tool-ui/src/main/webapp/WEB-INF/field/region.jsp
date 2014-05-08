@@ -54,9 +54,6 @@ pageContext.setAttribute("geoJsonName", geoJsonName);
 
 // --- Presentation ---
 %>
-<script type="text/javascript">
-    L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
-</script>
 
 <div class="inputSmall">
     <div class='regionMap'>

@@ -49,14 +49,6 @@ Work Steams allow editors to group together content for editing, and then work t
 
 ![](http://docs.brightspot.s3.amazonaws.com/create-workstream-2.2.png)
 
-## Advanced Search (2.1 / 2.2)
-
-Click the Advanced Search button within the Global Search Tool to start an advanced search. Note, you must narrow the search to a single content type.  Click into the fields field to choose exactly which fields to return in the report data. Use the check boxes to pick and choose which content is to be included in your report export.
-
-Export to CSV as default.
-
-![](http://docs.brightspot.s3.amazonaws.com/search-guides-shot.png)
-
 ## Advanced Search (2.3)
 
 Advanced search is built into the global search in Brightspot 2.3. Click into the Advanced Query Builder to perform advanced searches.
@@ -71,15 +63,69 @@ Search for all Articles where the author is missing, or the headline contains 'B
 
 ![](http://docs.brightspot.s3.amazonaws.com/advanced-query-2.3-or.png)
 
+#### Full Screen Search Mode
+
+When you click the Fullscreen button from the Search tool, there are some additional functionalities that you become available to you. Such as: 
+
+
+- Adding Content Type fields
+- Exporting search results to CSV
+- Bulk Editing
+- Bulk Deleting 
+
+##### Adding Content Type fields
+1. Begin your search in the Search tool, and click Fullscreen.
+2. In the full screen view, at the top of the search results, select a field from the Fields dropdown menu. - Note: you may select more than one field value.
+                                        
+  
+   ![](http://docs.brightspot.s3.amazonaws.com/field-dropdown.png)  
+3. Click away from the dropdown. 
+4. The search results table will update with the selected fields.
+
+   ![](http://docs.brightspot.s3.amazonaws.com/search-results-field-added.png) 
+To clear the content type fields from the search results, click the Fields dropdown and uncheck the fields that are selected, then click away. The fields should no longer display.
+
+#####Exporting Search Results to CSV
+To export the search results to a CSV file, click Export All at the bottom of the search results. The CSV file will be instantly downloaded to your computer.
+
+   ![](http://docs.brightspot.s3.amazonaws.com/search-export-all.png)
+   
+To export only a portion of the search results, select the checkboxes on the items you want exported, and click Export Selected. 
+
+#####Bulk Editing
+1. Click Bulk Edit All at the bottom of the search results.
+2. In the Bulk Edit window, the fields of the content type display with a dropdown of three actions that can be performed for that field. 
+
+   ![](http://docs.brightspot.s3.amazonaws.com/search-bulk-edit.png)
+3. You can select either "Keep," "Replace," and "Clear." Either action selected will be applied to all search results. For example: if you want to modify the topic of all articles in the search results, you would select Replace in the dropdown. In the Replace field, you can select the new topic.
+4. Once you are donr selecting the actions for each field, click Bulk Save.
+
+   ![](http://docs.brightspot.s3.amazonaws.com/search-bulk-edit2.png)
+To edit only selected items from the search results, select the items you want to edit and click Bulk Edit Selected. 
+
+#####Bulk Deleting
+To delete all the items in the search results, click Bulk Trash All in the bottom right corner of the search results.
+
+To delete only selected items from the search results, select the items to be deleted and click Bulk Trash Selected.
+
 You can also click 'FullScreen' to enter the full-screen view of search. In here you can build out a table of fields, adding fields you would like to display in the Display Fields section.
 
-## Bulk Editing
+## Advanced Search (2.1 / 2.2)
+
+Click the Advanced Search button within the Global Search Tool to start an advanced search. Note, you must narrow the search to a single content type.  Click into the fields field to choose exactly which fields to return in the report data. Use the check boxes to pick and choose which content is to be included in your report export.
+
+Export to CSV as default.
+
+![](http://docs.brightspot.s3.amazonaws.com/search-guides-shot.png)
+
+## Bulk Editing 2.1 / 2.2
 
 Having selected some, or all content to edit, choosing Bulk Edit allows any fields to be overridden with new content. Simply add the new content and click Bulk Save.
 
 Content can also be deleted / trashed in bulk.
 
 ![](http://docs.brightspot.s3.amazonaws.com/bulk-editing-2.1.png)
+
 </div>
 <div class="span4 dari-docs-sidebar">
 <div markdown="1" style="position:scroll;" class="well sidebar-nav">

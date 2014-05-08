@@ -42,7 +42,7 @@ To automatically trigger the Dari Reloader, which compiles and redeploys any new
 http://yoursite.com/?_format=json
 http://yoursite.com/?_format=jsonp&_callback=""
 http://yoursite.com/?_format=js
-http://yoursite.com/?_format-json&_result=html
+http://yoursite.com/?_format=json&_result=html
 {% endhighlight %}
 
 Use the `?_format=` parameter to change the format in which the page is output. To control this, use microdata tags. Documentation available here: [Microdata](/microdata.html)

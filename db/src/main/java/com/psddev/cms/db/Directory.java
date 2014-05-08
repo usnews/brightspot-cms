@@ -13,6 +13,10 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Modification;
@@ -452,14 +456,24 @@ public class Directory extends Record {
 
                         UUID directoryId = ObjectUtils.to(UUID.class, rawPathMatcher.group(2));
                         if (directoryId != null) {
+                            String directoryPath = null;
 
-                            Directory directory = Query.
-                                    from(Directory.class).
-                                    where("_id = ?", directoryId).
-                                    first();
+                            try {
+                                directoryPath = DIRECTORY_PATHS.getUnchecked(directoryId);
 
-                            if (directory != null) {
-                                String path = directory.getPath() + rawPathMatcher.group(3);
+                            } catch (UncheckedExecutionException error) {
+                                Directory directory = Query.
+                                        from(Directory.class).
+                                        where("_id = ?", directoryId).
+                                        first();
+
+                                if (directory != null) {
+                                    directoryPath = directory.getPath();
+                                }
+                            }
+
+                            if (directoryPath != null) {
+                                String path = directoryPath + rawPathMatcher.group(3);
                                 if (path.endsWith("/index")) {
                                     path = path.substring(0, path.length() - 5);
                                 }
@@ -472,6 +486,29 @@ public class Directory extends Record {
 
             return paths;
         }
+
+        private static final RuntimeException DIRECTORY_NOT_FOUND = new RuntimeException();
+
+        private static final LoadingCache<UUID, String> DIRECTORY_PATHS = CacheBuilder.
+                newBuilder().
+                maximumSize(1000).
+                build(new CacheLoader<UUID, String>() {
+
+                    @Override
+                    public String load(UUID directoryId) {
+                        Directory directory = Query.
+                                from(Directory.class).
+                                where("_id = ?", directoryId).
+                                first();
+
+                        if (directory != null) {
+                            return directory.getPath();
+
+                        } else {
+                            throw DIRECTORY_NOT_FOUND;
+                        }
+                    }
+                });
 
         /**
          * Adds the given {@code path} in the given {@code site} with
@@ -503,10 +540,10 @@ public class Directory extends Record {
         public void clearSitePaths(Site site) {
             String sitePrefix = site != null ? site.getRawPath() : null;
             Map<String, PathType> types = getPathTypes();
-            for (Iterator<String> i = getRawPaths().iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = getRawPaths().iterator(); i.hasNext();) {
                 String rawPath = i.next();
-                if ((sitePrefix == null && !rawPath.contains(":"))
-                        || (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
+                if ((sitePrefix == null && !rawPath.contains(":")) ||
+                        (sitePrefix != null && rawPath.startsWith(sitePrefix))) {
                     i.remove();
                     types.remove(rawPath);
                 }

@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
@@ -630,10 +631,10 @@ public class ToolPageContext extends WebPageContext {
                     tb.setLength(tb.length() - 2);
 
                     throw new IllegalArgumentException(String.format(
-                            "Expected one of [%s] types for [%s] object"
-                            + " but it is of [%s] type", tb, objectId,
-                            objectType != null ? objectType.getLabel()
-                            : "unknown"));
+                            "Expected one of [%s] types for [%s] object but it is of [%s] type",
+                            tb,
+                            objectId,
+                            objectType != null ? objectType.getLabel() : "unknown"));
                 }
             }
 
@@ -745,7 +746,7 @@ public class ToolPageContext extends WebPageContext {
 
         if (object != null) {
             State state = State.getInstance(object);
-            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);;
+            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
 
             if (contentData.isDraft()) {
                 Draft draft = Query.from(Draft.class).where("objectId = ?", state.getId()).first();
@@ -869,6 +870,7 @@ public class ToolPageContext extends WebPageContext {
             }
 
         } catch (IOException error) {
+            throw new IllegalStateException(error);
         }
 
         if (lastModified == 0) {
@@ -1015,6 +1017,7 @@ public class ToolPageContext extends WebPageContext {
                 try {
                     timeZone = DateTimeZone.forID(timeZoneId);
                 } catch (IllegalArgumentException error) {
+                    // Ignore unparseable time zone IDs.
                 }
             }
         }
@@ -1330,6 +1333,7 @@ public class ToolPageContext extends WebPageContext {
                 }
 
             } catch (ClassCastException error) {
+                // Ignore tool instances without backing Java classes.
             }
         }
 
@@ -1350,7 +1354,6 @@ public class ToolPageContext extends WebPageContext {
         }
 
         writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
-        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/jquery.handsontable.full.css"));
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
@@ -1428,74 +1431,33 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
         writeEnd();
 
-        if (getCmsTool().isUseNonMinifiedJavaScript()) {
-            for (String src : new String[] {
-                    "/script/jquery-1.8.3.js",
-                    "/script/jquery.mousewheel.js",
-                    "/script/jquery.extra.js",
-                    "/script/jquery.autosubmit.js",
-                    "/script/jquery.calendar.js",
-                    "/script/codemirror/codemirror.js",
-                    "/script/codemirror/mode/clike/clike.js",
-                    "/script/codemirror/mode/xml/xml.js",
-                    "/script/codemirror/mode/javascript/javascript.js",
-                    "/script/codemirror/mode/css/css.js",
-                    "/script/codemirror/mode/htmlmixed/htmlmixed.js",
-                    "/script/codemirror/mode/htmlembedded/htmlembedded.js",
-                    "/script/jquery.code.js",
-                    "/script/jquery.dropdown.js",
-                    "/script/jquery.editableplaceholder.js",
-                    "/script/jquery.expandable.js",
-                    "/script/jquery.popup.js",
-                    "/script/jquery.fixedscrollable.js",
-                    "/script/jquery.frame.js",
-                    "/script/jquery.imageeditor.js",
-                    "/script/jquery.lazyload.js",
-                    "/script/jquery.locationmap.js",
-                    "/script/jquery.objectid.js",
-                    "/script/jquery.pagelayout.js",
-                    "/script/jquery.pagethumbnails.js",
-                    "/script/jquery.regionmap.js",
-                    "/script/jquery.repeatable.js",
-                    "/script/jquery.sortable.js",
-                    "/script/jquery.spectrum.js",
-                    "/script/jquery.tabbed.js",
-                    "/script/jquery.taxonomy.js",
-                    "/script/jquery.toggleable.js",
-                    "/script/jquery.widthaware.js",
-                    "/script/jquery.workflow.js",
-                    "/script/diff.js",
-                    "/script/json2.js",
-                    "/script/pixastic/pixastic.core.js",
-                    "/script/pixastic/actions/brightness.js",
-                    "/script/pixastic/actions/crop.js",
-                    "/script/pixastic/actions/desaturate.js",
-                    "/script/pixastic/actions/fliph.js",
-                    "/script/pixastic/actions/flipv.js",
-                    "/script/pixastic/actions/invert.js",
-                    "/script/pixastic/actions/rotate.js",
-                    "/script/pixastic/actions/sepia.js",
-                    "/script/html5slider.js",
-                    "/script/wysihtml5-0.3.0.js",
-                    "/script/jquery.rte.js",
-                    "/script/d3.v3.js",
-                    "/script/nv.d3.js",
-                    "/script/jquery.handsontable.full.js",
-                    "/script/jquery.spreadsheet.js",
-                    "/script/leaflet-0.6.4.js",
-                    "/script/leaflet.common.js",
-                    "/script/leaflet.draw.js",
-                    "/script/l.control.geosearch.js",
-                    "/script/l.geosearch.provider.openstreetmap.js",
-                    "/script/cms.js" }) {
-                writeStart("script", "type", "text/javascript", "src", cmsResource(src));
-                writeEnd();
-            }
+        String jsPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
 
-        } else {
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/all.min.js"));
-            writeEnd();
-        }
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.extra.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.handsontable.full.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "d3.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript");
+            writeRaw("var require = ");
+            writeRaw(ObjectUtils.toJson(ImmutableMap.of(
+                    "baseUrl", cmsUrl(jsPrefix),
+                    "urlArgs", "_=" + System.currentTimeMillis())));
+            writeRaw(";");
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "require.js"));
+        writeEnd();
+
+        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "cms.js"));
+        writeEnd();
 
         String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
 
@@ -1618,10 +1580,11 @@ public class ToolPageContext extends WebPageContext {
 
         List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
 
-        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext(); ) {
+        for (Iterator<ObjectType> i = typesList.iterator(); i.hasNext();) {
             ObjectType type = i.next();
 
             if (!type.isConcrete() ||
+                    !hasPermission("type/" + type.getId() + "/write") ||
                     (!getCmsTool().isDisplayTypesNotAssociatedWithJavaClasses() &&
                     type.getObjectClass() == null) ||
                     Draft.class.equals(type.getObjectClass()) ||
@@ -1639,7 +1602,7 @@ public class ToolPageContext extends WebPageContext {
         typeGroups.put("Main Content Types", mainTypes);
         typeGroups.put("Misc Content Types", typesList);
 
-        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext(); ) {
+        for (Iterator<List<ObjectType>> i = typeGroups.values().iterator(); i.hasNext();) {
             List<ObjectType> typeGroup = i.next();
 
             if (typeGroup.isEmpty()) {
@@ -1780,6 +1743,9 @@ public class ToolPageContext extends WebPageContext {
         }
 
         Map<String, String> statuses = new HashMap<String, String>();
+
+        statuses.put("p", "Published");
+
         boolean hasWorkflow = false;
 
         for (Workflow w : (type == null ?
@@ -1789,9 +1755,8 @@ public class ToolPageContext extends WebPageContext {
 
             for (WorkflowState s : w.getStates()) {
                 hasWorkflow = true;
-                String n = s.getName();
 
-                statuses.put("w." + n, n);
+                statuses.put("w." + s.getName(), s.getDisplayName());
             }
         }
 
@@ -1968,7 +1933,7 @@ public class ToolPageContext extends WebPageContext {
 
         writeStart("div", "class", "message message-warning");
             writeStart("p");
-                writeHtml("Trashed ");
+                writeHtml("Archived ");
                 writeHtml(formatUserDateTime(contentData.getUpdateDate()));
                 writeHtml(" by ");
                 writeObjectLabel(contentData.getUpdateUser());
@@ -2055,7 +2020,7 @@ public class ToolPageContext extends WebPageContext {
                                     "class", "icon icon-action-trash action-pullRight link",
                                     "name", "action-trash",
                                     "value", "true");
-                                writeHtml("Trash");
+                                writeHtml("Archive");
                             writeEnd();
 
                         } else {
@@ -2358,18 +2323,24 @@ public class ToolPageContext extends WebPageContext {
 
         State state = State.getInstance(object);
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+        ToolUser user = getUser();
 
         if (state.isNew() ||
                 object instanceof Draft ||
                 contentData.isDraft() ||
                 state.as(Workflow.Data.class).getCurrentState() != null) {
-            setContentFormScheduleDate(object);
+            if (getContentFormPublishDate() != null) {
+                setContentFormScheduleDate(object);
+
+            } else {
+                contentData.setPublishDate(new Date());
+                contentData.setPublishUser(user);
+            }
         }
 
         Draft draft = getOverlaidDraft(object);
         UUID variationId = param(UUID.class, "variationId");
         Site site = getSite();
-        ToolUser user = getUser();
 
         try {
             state.beginWrites();

@@ -120,6 +120,7 @@ public final class ElFunctionUtils {
             servletContext = PageContextFilter.Static.getServletContext();
             request = PageContextFilter.Static.getRequest();
         } catch (IllegalStateException ex) {
+            // Checked for nulls right below.
         }
 
         if (servletContext != null && request != null) {
@@ -180,6 +181,7 @@ public final class ElFunctionUtils {
             servletContext = PageContextFilter.Static.getServletContext();
             request = PageContextFilter.Static.getRequest();
         } catch (IllegalStateException ex) {
+            // Checked for nulls right below.
         }
 
         if (servletContext != null && request != null) {

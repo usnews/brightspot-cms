@@ -36,7 +36,7 @@ public class Resources extends PageServlet {
         }
 
         if (resources != null) {
-            for (Iterator<CmsTool.ResourceItem> i = resources.iterator(); i.hasNext(); ) {
+            for (Iterator<CmsTool.ResourceItem> i = resources.iterator(); i.hasNext();) {
                 if (ObjectUtils.isBlank(i.next().getUrl())) {
                     i.remove();
                 }

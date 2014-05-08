@@ -124,7 +124,7 @@ public class ContextTag extends BodyTagSupport {
          */
         public static boolean isInContext(ServletRequest request, String context) {
             if (context != null) {
-                for (Iterator<String> i = getContexts(request).descendingIterator(); i.hasNext(); ) {
+                for (Iterator<String> i = getContexts(request).descendingIterator(); i.hasNext();) {
                     if (context.equals(i.next())) {
                         return true;
                     }

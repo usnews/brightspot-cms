@@ -172,7 +172,7 @@ public interface Renderer extends Recordable {
         public String findContextualPath(ServletRequest request) {
             Map<String, String> paths = getPaths();
 
-            for (Iterator<String> i = ContextTag.Static.getContexts(request).descendingIterator(); i.hasNext(); ) {
+            for (Iterator<String> i = ContextTag.Static.getContexts(request).descendingIterator(); i.hasNext();) {
                 String context = i.next();
                 String path = paths.get(context);
 

@@ -85,7 +85,7 @@ public class Profile extends Record {
 
     private static final char USER_AGENT_CHECK_KEY_SEPARATOR = '\0';
 
-    private static Map<String, Boolean> USER_AGENT_CHECKS = new PullThroughCache<String, Boolean>() {
+    private static final Map<String, Boolean> USER_AGENT_CHECKS = new PullThroughCache<String, Boolean>() {
         @Override
         protected Boolean produce(String key) {
             int separatorAt = key.indexOf(USER_AGENT_CHECK_KEY_SEPARATOR);
@@ -144,12 +144,12 @@ public class Profile extends Record {
     public boolean isUserAgentMsie() {
         return isTrident();
     }
-    
-    /** 
+
+    /**
      * Returns {@code true} if the user agent is Microsoft Internet
      * Explorer Mobile.
      */
-    public boolean isUserAgentMsieMobile(){
+    public boolean isUserAgentMsieMobile() {
         return checkUserAgent("IEMobile/");
     }
 

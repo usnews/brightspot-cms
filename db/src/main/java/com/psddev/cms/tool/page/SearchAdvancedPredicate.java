@@ -53,7 +53,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             String paramPrefix)
             throws IOException;
 
-    public static abstract class Compound extends SearchAdvancedPredicate {
+    public abstract static class Compound extends SearchAdvancedPredicate {
 
         public abstract String getOperator();
 
@@ -196,15 +196,15 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
             page.writeMultipleTypeSelect(
                     null,
                     comparisonTypes,
-                    "class", "autoSubmit",
                     "name", comparisonTypeParam,
                     "placeholder", "Any Types",
+                    "data-bsp-autosubmit", "",
                     "data-searchable", true);
 
             page.writeHtml(" ");
             page.writeStart("select",
-                    "class", "autoSubmit",
                     "name", comparisonPathParam,
+                    "data-bsp-autosubmit", "",
                     "data-searchable", true);
                 page.writeStart("option", "value", "");
                     page.writeHtml("Any Fields");
@@ -274,7 +274,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
 
             page.writeHtml(" ");
             page.writeStart("select",
-                    "class", "autoSubmit",
+                    "data-bsp-autosubmit", "",
                     "name", comparisonOperatorParam);
                 for (ComparisonOperator op : ComparisonOperator.values()) {
                     if ((ObjectUtils.isBlank(comparisonPath) &&
@@ -325,7 +325,7 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                 indexedFields.addAll(index.getFields());
             }
 
-            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext(); ) {
+            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext();) {
                 ObjectField field = i.next();
                 String declaring = field.getJavaDeclaringClassName();
 

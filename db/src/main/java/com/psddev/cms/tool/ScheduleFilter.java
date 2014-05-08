@@ -43,6 +43,8 @@ public class ScheduleFilter extends AbstractFilter {
                         schedule.getState().put("cms.lastException", writer.toString());
                         schedule.save();
                     } catch (Exception ex2) {
+                        // Ignore any error caused by trying to save the error
+                        // information to the schedule itself.
                     }
                 }
             }

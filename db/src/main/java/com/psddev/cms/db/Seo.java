@@ -328,7 +328,7 @@ public final class Seo {
 
             StringBuilder string = new StringBuilder();
 
-            for (Iterator<Seo.RobotsValue> i = getRobots().iterator(); i.hasNext(); ) {
+            for (Iterator<Seo.RobotsValue> i = getRobots().iterator(); i.hasNext();) {
                 Seo.RobotsValue value = i.next();
 
                 string.append(value.name().toLowerCase(Locale.ENGLISH));

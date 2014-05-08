@@ -4,6 +4,7 @@ com.psddev.cms.db.Content,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.Workflow,
+com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.Area,
 com.psddev.cms.tool.Plugin,
 com.psddev.cms.tool.ToolPageContext,
@@ -242,9 +243,12 @@ wp.writeStart("div", "class", "inputSmall permissions");
                             Workflow workflow = workflows.get(type);
 
                             if (workflow != null) {
-                                for (String transition : workflow.getTransitions().keySet()) {
+                                for (Map.Entry<String, WorkflowTransition> entry2 : workflow.getTransitions().entrySet()) {
+                                    String transition = entry2.getKey();
+                                    String transitionDisplay = entry2.getValue().getDisplayName();
+
                                     wp.writeStart("li");
-                                        writeChild(wp, permissions, "Workflow: " + transition, typePermissionId + "/" + transition);
+                                        writeChild(wp, permissions, "Workflow: " + transitionDisplay, typePermissionId + "/" + transition);
                                     wp.writeEnd();
                                 }
                             }

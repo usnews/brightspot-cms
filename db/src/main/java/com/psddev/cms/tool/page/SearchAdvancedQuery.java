@@ -78,7 +78,7 @@ public class SearchAdvancedQuery extends PageServlet {
                         "action", page.url(null),
                         "onsubmit", "$(this).addClass('form-submit');return true;");
                     page.writeStart("select",
-                            "class", "autoSubmit",
+                            "data-bsp-autosubmit", "",
                             "name", "gpt");
                         for (SearchAdvancedPredicate.Compound pt : Query.
                                 from(SearchAdvancedPredicate.Compound.class).
@@ -191,7 +191,7 @@ public class SearchAdvancedQuery extends PageServlet {
 
         page.writeHtml(" ");
         page.writeStart("select",
-                "class", "autoSubmit",
+                "data-bsp-autosubmit", "",
                 "name", predicateTypeParam);
             for (SearchAdvancedPredicate pt : Query.
                     from(SearchAdvancedPredicate.class).

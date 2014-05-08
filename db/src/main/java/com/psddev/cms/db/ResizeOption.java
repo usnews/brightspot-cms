@@ -26,7 +26,7 @@ public enum ResizeOption {
         return displayName;
     }
 
-    public final static class Static {
+    public static final class Static {
 
         private Static() {
         }

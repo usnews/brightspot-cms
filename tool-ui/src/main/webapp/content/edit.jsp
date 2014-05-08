@@ -22,6 +22,8 @@ com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Variation,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowLog,
+com.psddev.cms.db.WorkflowState,
+com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.db.WorkStream,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
@@ -42,6 +44,7 @@ com.psddev.dari.util.StringUtils,
 java.io.StringWriter,
 java.util.ArrayList,
 java.util.Date,
+java.util.LinkedHashMap,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.ListIterator,
@@ -474,8 +477,16 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                     // Message and actions if the content is a past revision.
                     } else if (isHistory) {
+                        String historyName = history.getName();
+                        boolean hasHistoryName = !ObjectUtils.isBlank(historyName);
+
                         wp.writeStart("div", "class", "message message-warning");
                             wp.writeStart("p");
+                                if (hasHistoryName) {
+                                    wp.writeHtml(historyName);
+                                    wp.writeHtml(" - ");
+                                }
+
                                 wp.writeHtml("Past revision saved ");
                                 wp.writeHtml(wp.formatUserDateTime(history.getUpdateDate()));
                                 wp.writeHtml(" by ");
@@ -496,7 +507,8 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                         "class", "icon icon-object-history",
                                         "href", wp.url("/historyEdit", "id", history.getId()),
                                         "target", "historyEdit");
-                                    wp.writeHtml("Name Revision");
+                                    wp.writeHtml(hasHistoryName ? "Rename" : "Name");
+                                    wp.writeHtml(" Revision");
                                 wp.writeEnd();
                             wp.writeEnd();
                         wp.writeEnd();
@@ -529,40 +541,43 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                     } else {
                         %><script type="text/javascript">
-                            (function() {
-                                var unlocked;
+                            require([ 'content/lock' ], function(lock) {
+                                var unlocked = false;
 
-                                window.setInterval(function() {
+                                setInterval(function() {
                                     if (!unlocked) {
-                                        window.bspContentLock('<%= editingState.getId() %>');
+                                        lock.lock('<%= editingState.getId() %>');
                                     }
                                 }, 1000);
 
                                 $(window).bind('beforeunload', function() {
                                     unlocked = true;
 
-                                    window.bspContentUnlock('<%= editingState.getId() %>');
+                                    lock.unlock('<%= editingState.getId() %>');
                                 });
-                            })();
+                            });
                         </script><%
                     }
 
                     if (!lockedOut || editAnyway) {
 
                         // Workflow actions.
-                        if (editingState.isNew() ||
+                        if (!isTrash &&
+                                (editingState.isNew() ||
                                 !editingState.isVisible() ||
-                                editingState.as(Workflow.Data.class).getCurrentState() != null) {
+                                editingState.as(Workflow.Data.class).getCurrentState() != null)) {
                             Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
 
                             if (workflow != null) {
                                 Workflow.Data workflowData = editingState.as(Workflow.Data.class);
                                 String currentState = workflowData.getCurrentState();
-                                Set<String> transitionNames = new LinkedHashSet<String>();
+                                Map<String, String> transitionNames = new LinkedHashMap<String, String>();
 
-                                for (String transitionName : workflow.getTransitionsFrom(currentState).keySet()) {
+                                for (Map.Entry<String, WorkflowTransition> entry : workflow.getTransitionsFrom(currentState).entrySet()) {
+                                    String transitionName = entry.getKey();
+
                                     if (wp.hasPermission("type/" + editingState.getTypeId() + "/" + transitionName)) {
-                                        transitionNames.add(transitionName);
+                                        transitionNames.put(transitionName, entry.getValue().getDisplayName());
                                     }
                                 }
 
@@ -575,9 +590,18 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                                     wp.writeStart("div", "class", "widget-publishingWorkflow");
                                         if (!ObjectUtils.isBlank(currentState)) {
+                                            String workflowStateDisplayName = currentState;
+
+                                            for (WorkflowState s : workflow.getStates()) {
+                                                if (ObjectUtils.equals(s.getName(), currentState)) {
+                                                    workflowStateDisplayName = s.getDisplayName();
+                                                    break;
+                                                }
+                                            }
+
                                             wp.writeStart("div", "class", "widget-publishingWorkflowComment");
                                                 wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
-                                                    wp.writeHtml(currentState);
+                                                    wp.writeHtml(workflowStateDisplayName);
                                                 wp.writeEnd();
 
                                                 if (log != null) {
@@ -627,11 +651,11 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                                 wp.writeFormFields(newLog);
                                             wp.writeEnd();
 
-                                            for (String transitionName : transitionNames) {
+                                            for (Map.Entry<String, String> entry : transitionNames.entrySet()) {
                                                 wp.writeStart("button",
                                                         "name", "action-workflow",
-                                                        "value", transitionName);
-                                                    wp.writeHtml(transitionName);
+                                                        "value", entry.getKey());
+                                                    wp.writeHtml(entry.getValue());
                                                 wp.writeEnd();
                                             }
                                         }
@@ -641,8 +665,12 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                         }
 
                         // Publish and trash buttons.
-                        if (!isTrash && wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
+                        if (!wp.hasPermission("type/" + editingState.getTypeId() + "/publish")) {
+                            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
+                            wp.write(wp.typeLabel(state));
+                            wp.write("!</p></div>");
 
+                        } else if (!isTrash) {
                             wp.writeStart("div", "class", "widget-publishingPublish");
                                 if (wp.getUser().getCurrentSchedule() == null) {
                                     if (!contentData.isDraft() && schedule != null) {
@@ -708,15 +736,10 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                             "class", "link icon icon-action-trash",
                                             "name", "action-trash",
                                             "value", "true");
-                                        wp.writeHtml("Trash");
+                                        wp.writeHtml("Archive");
                                     wp.writeEnd();
                                 }
                             wp.writeEnd();
-
-                        } else {
-                            wp.write("<div class=\"message message-warning\"><p>You cannot edit this ");
-                            wp.write(wp.typeLabel(state));
-                            wp.write("!</p></div>");
                         }
                     }
                 }
@@ -781,7 +804,8 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                         wp.writeElement("input",
                                 "type", "text",
-                                "class", "autoSubmit date",
+                                "data-bsp-autosubmit", "",
+                                "class", "date",
                                 "name", "_date",
                                 "placeholder", "Now");
 
@@ -870,7 +894,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                         if (paths != null && !paths.isEmpty()) {
                             wp.writeHtml(" ");
                             wp.writeStart("select",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "name", "_previewPath");
                                 for (Directory.Path p : paths) {
                                     Site s = p.getSite();
@@ -914,107 +938,6 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
             })(jQuery, window);
         </script>
     <% } %>
-
-    <script type="text/javascript">
-        $(window.document).onCreate('.contentForm', function() {
-            var $form = $(this),
-                    updateContentState,
-                    updateContentStateThrottled,
-                    changed,
-                    idleTimeout;
-
-            updateContentState = function(idle, wait) {
-                var action,
-                        questionAt,
-                        complete,
-                        end,
-                        $dynamicTexts;
-
-                action = $form.attr('action');
-                questionAt = action.indexOf('?');
-                end = +new Date() + 1000;
-                $dynamicTexts = $form.find(
-                        '[data-dynamic-text][data-dynamic-text != ""],' +
-                        '[data-dynamic-html][data-dynamic-html != ""],' +
-                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
-
-                $.ajax({
-                    'type': 'post',
-                    'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
-                    'cache': false,
-                    'dataType': 'json',
-
-                    'data': $form.serialize() + $dynamicTexts.map(function() {
-                        var $element = $(this);
-
-                        return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
-                                '&_dtt=' + ($element.attr('data-dynamic-text') ||
-                                $element.attr('data-dynamic-html') ||
-                                $element.attr('data-dynamic-placeholder') ||
-                                '');
-                    }).get().join(''),
-
-                    'success': function(data) {
-                        $form.trigger('cms-updateContentState', [ data ]);
-
-                        $dynamicTexts.each(function(index) {
-                            var $element = $(this),
-                                    text = data._dynamicTexts[index];
-
-                            if (text === null) {
-                                return;
-                            }
-
-                            $element.closest('.message').toggle(text !== '');
-
-                            if ($element.is('[data-dynamic-text]')) {
-                                $element.text(text);
-
-                            } else if ($element.is('[data-dynamic-html]')) {
-                                $element.html(text);
-
-                            } else if ($element.is('[data-dynamic-placeholder]')) {
-                                $element.prop('placeholder', text);
-                            }
-                        });
-                    },
-
-                    'complete': function() {
-                        complete = true;
-                    }
-                });
-
-                if (wait) {
-                    while (!complete) {
-                        if (+new Date() > end) {
-                            break;
-                        }
-                    }
-                }
-            };
-
-            updateContentStateThrottled = $.throttle(100, updateContentState);
-
-            updateContentStateThrottled();
-
-            $form.bind('change input', function() {
-                updateContentStateThrottled();
-
-                clearTimeout(idleTimeout);
-
-                changed = true;
-                idleTimeout = setTimeout(function() {
-                    updateContentStateThrottled(true);
-                }, 2000);
-            });
-
-            $(window).bind('beforeunload', function() {
-                if (changed) {
-                    updateContentState(true, true);
-                }
-            });
-        });
-    </script>
 
     <script type="text/javascript">
         (function($, win, undef) {
@@ -1486,6 +1409,108 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
         })(jQuery, window);
     </script>
 <% } %>
+
+<script type="text/javascript">
+    $(window.document).onCreate('.contentForm', function() {
+
+        var $form = $(this),
+                updateContentState,
+                updateContentStateThrottled,
+                changed,
+                idleTimeout;
+
+        updateContentState = function(idle, wait) {
+            var action,
+                    questionAt,
+                    complete,
+                    end,
+                    $dynamicTexts;
+
+            action = $form.attr('action');
+            questionAt = action.indexOf('?');
+            end = +new Date() + 1000;
+            $dynamicTexts = $form.find(
+                    '[data-dynamic-text][data-dynamic-text != ""],' +
+                            '[data-dynamic-html][data-dynamic-html != ""],' +
+                            '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
+
+            $.ajax({
+                'type': 'post',
+                'url': CONTEXT_PATH + 'contentState?idle=' + (!!idle) + (questionAt > -1 ? '&' + action.substring(questionAt + 1) : ''),
+                'cache': false,
+                'dataType': 'json',
+
+                'data': $form.serialize() + $dynamicTexts.map(function() {
+                    var $element = $(this);
+
+                    return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
+                            '&_dtt=' + ($element.attr('data-dynamic-text') ||
+                            $element.attr('data-dynamic-html') ||
+                            $element.attr('data-dynamic-placeholder') ||
+                            '');
+                }).get().join(''),
+
+                'success': function(data) {
+                    $form.trigger('cms-updateContentState', [ data ]);
+
+                    $dynamicTexts.each(function(index) {
+                        var $element = $(this),
+                                text = data._dynamicTexts[index];
+
+                        if (text === null) {
+                            return;
+                        }
+
+                        $element.closest('.message').toggle(text !== '');
+
+                        if ($element.is('[data-dynamic-text]')) {
+                            $element.text(text);
+
+                        } else if ($element.is('[data-dynamic-html]')) {
+                            $element.html(text);
+
+                        } else if ($element.is('[data-dynamic-placeholder]')) {
+                            $element.prop('placeholder', text);
+                        }
+                    });
+                },
+
+                'complete': function() {
+                    complete = true;
+                }
+            });
+
+            if (wait) {
+                while (!complete) {
+                    if (+new Date() > end) {
+                        break;
+                    }
+                }
+            }
+        };
+
+        updateContentStateThrottled = $.throttle(100, updateContentState);
+
+        updateContentStateThrottled();
+
+        $form.bind('change input', function() {
+            updateContentStateThrottled();
+
+            clearTimeout(idleTimeout);
+
+            changed = true;
+            idleTimeout = setTimeout(function() {
+                updateContentStateThrottled(true);
+            }, 2000);
+        });
+
+        $(window).bind('beforeunload', function() {
+            if (changed) {
+                updateContentState(true, true);
+            }
+        });
+    });
+</script>
 
 <% wp.include("/WEB-INF/footer.jsp"); %><%!
 

@@ -255,7 +255,6 @@ public class SearchAdvancedFullResult extends PageServlet {
             super.renderSorter();
 
             page.writeStart("form",
-                    "class", "autoSubmit",
                     "method", "get",
                     "action", page.url(null),
                     "style", page.cssString(
@@ -273,7 +272,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                 }
 
                 page.writeStart("select",
-                        "class", "autoSubmit",
+                        "data-bsp-autosubmit", "",
                         "name", FIELDS_PARAMETER,
                         "multiple", "multiple",
                         "placeholder", "Fields");
@@ -438,7 +437,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                             "name", "action-trash",
                             "value", "true");
 
-                        page.writeHtml("Bulk Trash All");
+                        page.writeHtml("Bulk Archive All");
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
@@ -480,7 +479,7 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
     }
 
-    private static abstract class Display implements Comparable<Display> {
+    private abstract static class Display implements Comparable<Display> {
 
         public abstract String getInternalName();
 
@@ -569,7 +568,7 @@ public class SearchAdvancedFullResult extends PageServlet {
             });
 
             try {
-                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
                     Object value = i.next();
 
                     html.writeObject(value);
@@ -580,6 +579,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                 }
 
             } catch (IOException error) {
+                throw new IllegalStateException(error);
             }
 
             return string.toString();
@@ -587,7 +587,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
         @Override
         public void writeCell(State itemState, HtmlWriter writer) throws IOException {
-            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
                 Object value = i.next();
 
                 writer.writeObject(value);
@@ -609,7 +609,7 @@ public class SearchAdvancedFullResult extends PageServlet {
         public String getCsvItem(State itemState) {
             StringBuilder csvItem = new StringBuilder();
 
-            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext();) {
                 Directory.Path p = i.next();
                 String path = p.getPath();
 

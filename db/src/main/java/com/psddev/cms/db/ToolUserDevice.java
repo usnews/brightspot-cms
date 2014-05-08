@@ -129,7 +129,7 @@ public class ToolUserDevice extends Record {
                 sortDescending("time").
                 selectAll();
 
-        for (Iterator<ToolUserAction> i = actions.iterator(); i.hasNext(); ) {
+        for (Iterator<ToolUserAction> i = actions.iterator(); i.hasNext();) {
             ToolUserAction a = i.next();
             Map<String, Object> currentMap = a.getState().getSimpleValues();
 

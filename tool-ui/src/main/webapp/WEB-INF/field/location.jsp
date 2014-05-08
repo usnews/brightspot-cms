@@ -46,10 +46,6 @@ pageContext.setAttribute("zoomLevel", zoomLevel == null ? 16 : zoomLevel);
 // --- Presentation ---
 %>
 
-<script type="text/javascript">
-    L.Icon.Default.imagePath = "<%= wp.cmsUrl("/style/leaflet") %>";
-</script>
-
 <div class="inputSmall">
     <div class='locationMap'>
         <input class="locationMapLatitude" type="hidden" name="${xInputName}" value="${location.x}"/>

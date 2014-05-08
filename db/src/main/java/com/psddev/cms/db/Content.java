@@ -87,6 +87,7 @@ public abstract class Content extends Record {
         @InternalName("cms.content.draft")
         private Boolean draft;
 
+        @DisplayName("Archived")
         @Indexed(visibility = true)
         @InternalName("cms.content.trashed")
         private Boolean trash;
@@ -214,7 +215,7 @@ public abstract class Content extends Record {
             if (field.getInternalName().equals("cms.content.draft")) {
                 return isDraft() ? "Draft" : null;
             } else {
-                return isTrash() ? "Trash" : null;
+                return isTrash() ? "Archived" : null;
             }
         }
     }
@@ -414,7 +415,7 @@ public abstract class Content extends Record {
 
     /** @deprecated Use {@link ObjectModification} or {@link Static} instead. */
     @Deprecated
-    public static abstract class Global extends Record {
+    public abstract static class Global extends Record {
 
         /** @deprecated Use {@link ObjectModification#getPublishDate} instead. */
         @Deprecated

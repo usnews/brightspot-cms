@@ -34,6 +34,7 @@
 @import 'jquery.expandable.less';
 @import 'jquery.fixedscrollable.less';
 @import 'jquery.frame.less';
+@import 'jquery.handsontable.full.css';
 @import 'jquery.imageeditor.less';
 @import 'jquery.objectid.less';
 @import 'jquery.pagelayout.less';
@@ -41,11 +42,19 @@
 @import 'jquery.popup.less';
 @import 'jquery.repeatable.less';
 @import 'jquery.rte.less';
-@import 'jquery.spectrum.less';
+@import 'spectrum.css';
 @import 'jquery.taxonomy.less';
 @import 'jquery.workflow.less';
-@import 'leaflet.less';
-@import 'leaflet.draw.less';
+@import 'leaflet/leaflet.css';
+@import 'leaflet/leaflet.ie.css';
+@import 'leaflet/leaflet.draw.css';
+@import 'leaflet/leaflet.draw.ie.css';
+@import 'leaflet/l.geosearch.css';
+
+.locationMap, .regionMap {
+    min-width: 500px;
+    min-height: 500px;
+}
 
 // Content diff with a side by side view.
 .contentDiffCopy {

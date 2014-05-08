@@ -89,14 +89,14 @@ public class RecentActivity extends PageServlet {
                                 Template.Static.findUsedTypes(page.getSite()),
                                 itemType,
                                 "Any Types",
-                                "class", "autoSubmit",
+                                "data-bsp-autosubmit", "",
                                 "name", "itemType",
                                 "data-searchable", "true");
                     page.writeEnd();
 
                     page.writeStart("li");
                         page.writeHtml("by ");
-                        page.writeStart("select", "class", "autoSubmit", "name", "type");
+                        page.writeStart("select", "data-bsp-autosubmit", "", "name", "type");
                             for (Type t : Type.values()) {
                                 if (t != Type.ROLE || Query.from(ToolRole.class).first() != null) {
                                     page.writeStart("option",
@@ -130,8 +130,9 @@ public class RecentActivity extends PageServlet {
                                 State valueState = State.getInstance(valueObject);
 
                                 page.writeElement("input",
+                                        "data-bsp-autosubmit", "",
                                         "type", "text",
-                                        "class", "autoSubmit objectId",
+                                        "class", "objectId",
                                         "data-editable", false,
                                         "data-label", valueState != null ? valueState.getLabel() : null,
                                         "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
@@ -140,7 +141,7 @@ public class RecentActivity extends PageServlet {
 
                             } else {
                                 page.writeStart("select",
-                                        "class", "autoSubmit",
+                                        "data-bsp-autosubmit", "",
                                         "name", valueParameter,
                                         "data-searchable", "true");
 
@@ -203,7 +204,7 @@ public class RecentActivity extends PageServlet {
                             result.getItems().size() > LIMITS[0]) {
                         page.writeStart("li");
                             page.writeStart("form",
-                                    "class", "autoSubmit",
+                                    "data-bsp-autosubmit", "",
                                     "method", "get",
                                     "action", page.url(null));
                                 page.writeStart("select", "name", "limit");
