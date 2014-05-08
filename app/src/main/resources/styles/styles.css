@@ -1,0 +1,58 @@
+
+@font-face {
+    font-family: font-awesome;
+    src: url('fontawesome-webfont.svg');
+}
+
+#logo {
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-padding: 20;
+    -fx-background-color: #20343F;
+}
+
+.statusReport {
+    -fx-padding: 0 10 0 30;
+    -fx-font-size: 9;
+}
+
+.choicesBox {
+    -fx-padding: 20;
+}
+
+.artifactLabel {
+    -fx-padding: 20 0 0 0;
+}
+
+.exampleLabel {
+    -fx-font-size: 10;
+    -fx-text-fill: dodgerblue;
+    -fx-alignment: bottom-left;
+}
+
+.envList {
+    -fx-alignment: center-left;
+}
+
+.envList .envListPane {
+    -fx-padding: 15;
+    -fx-spacing: 10;
+}
+
+.separator {
+    -fx-padding: 7;
+}
+
+.status {
+    -fx-font-weight: bolder;
+}
+
+.hbox, .vbox {
+    -fx-spacing: 10;
+}
+
+#installDirectoryLabel {
+    -fx-font-style: italic;
+    -fx-text-fill: darkgrey;
+    -fx-padding: 8;
+}
