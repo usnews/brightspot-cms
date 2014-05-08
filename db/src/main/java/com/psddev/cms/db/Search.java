@@ -244,14 +244,12 @@ public class Search extends Record {
         List<String> queryTerms = normalizeTerms(terms);
         SearchQuery query = new SearchQuery();
 
-        if (!queryTerms.isEmpty()) {
-            for (Rule rule : getRules()) {
-                rule.apply(this, query, queryTerms);
-            }
+        for (Rule rule : getRules()) {
+            rule.apply(this, query, queryTerms);
+        }
 
-            if (!queryTerms.isEmpty()) {
-                query.or("_any matchesAll ?", queryTerms);
-            }
+        if (!queryTerms.isEmpty()) {
+            query.or("_any matchesAll ?", queryTerms);
         }
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
