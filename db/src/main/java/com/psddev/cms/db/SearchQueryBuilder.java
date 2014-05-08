@@ -1,10 +1,26 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.db.*;
+import com.psddev.dari.db.ComparisonPredicate;
+import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
+import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -178,13 +194,13 @@ public class SearchQueryBuilder extends Record {
         }
 
         if (!queryTerms.isEmpty()) {
-            if(exactMatchTerms){
+            if (exactMatchTerms) {
                 query.or("_any matchesAll ?", terms);
                 //TODO: figure out how synonyms should work in this case
             } else {
                 query.or("_any matchesAny ?", queryTerms);
                 //TODO how should we do this boost?
-                query.sortRelevant(1000.0,"_any matchesAll ?", terms);
+                query.sortRelevant(1000.0, "_any matchesAll ?", terms);
             }
         }
 
@@ -215,7 +231,7 @@ public class SearchQueryBuilder extends Record {
                 "where", "who", "will", "with", "why", "www"));
 
         public String getLabel() {
-            return "Stop Words "+stopWords;
+            return "Stop Words " + stopWords;
         }
 
         public Set<String> getStopWords() {
@@ -258,11 +274,11 @@ public class SearchQueryBuilder extends Record {
         private Set<Synonym> synonyms = new HashSet<Synonym>();
 
         public String getLabel() {
-            return synonyms.size()+" Synonym Groups";
+            return synonyms.size() + " Synonym Groups";
         }
 
         public Set<Synonym> getSynonyms() {
-            if(synonyms == null) {
+            if (synonyms == null) {
                 setSynonyms(new HashSet<Synonym>());
             }
             return synonyms;
@@ -274,13 +290,13 @@ public class SearchQueryBuilder extends Record {
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> newTerms = new HashSet<String>();
-            for(String qt : queryTerms){
+            for (String qt : queryTerms) {
                 newTerms.add(qt.toLowerCase());
             }
 
-            for(Synonym s:getSynonyms()){
-                for(String term:s.getWords()){
-                    if(newTerms.contains(term.toLowerCase())){
+            for (Synonym s:getSynonyms()) {
+                for (String term:s.getWords()) {
+                    if (newTerms.contains(term.toLowerCase())) {
                         newTerms.addAll(s.getWords());
                         break;
                     }
@@ -361,7 +377,7 @@ public class SearchQueryBuilder extends Record {
 
         public double getBoost() {
             //TODO: only powers of 10 should be used for the boost
-            return Math.pow(10,boost);
+            return Math.pow(10, boost);
         }
 
         public void setBoost(int boost) {
@@ -374,8 +390,8 @@ public class SearchQueryBuilder extends Record {
         @Required
         private ObjectType type;
 
-        public String getLabel(){
-            return "Boost: "+getBoost()+" Type: "+type.getDisplayName();
+        public String getLabel() {
+            return "Boost: " + getBoost() + " Type: " + type.getDisplayName();
         }
 
         public ObjectType getType() {
@@ -397,8 +413,8 @@ public class SearchQueryBuilder extends Record {
         private ObjectType type;
         private Set<String> fields;
 
-        public String getLabel(){
-            return "Boost: "+getBoost()+" "+type.getDisplayName()+" Field(s): "+fields;
+        public String getLabel() {
+            return "Boost: " + getBoost() + " " + type.getDisplayName() + " Field(s): " + fields;
         }
 
         public ObjectType getType() {
@@ -461,7 +477,7 @@ public class SearchQueryBuilder extends Record {
         public String predicate;
 
         public String getLabel() {
-            return "Boost: "+getBoost()+" Phrase: "+pattern;
+            return "Boost: " + getBoost() + " Phrase: " + pattern;
         }
 
         public String getPattern() {
@@ -542,8 +558,8 @@ public class SearchQueryBuilder extends Record {
 
         private Set<String> terms;
 
-        public String getLabel(){
-            return "Optional terms added to the search "+terms;
+        public String getLabel() {
+            return "Optional terms added to the search " + terms;
         }
 
         public Set<String> getTerms() {
