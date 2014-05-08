@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.psddev</groupId>
-    <artifactId>brightspot-installer</artifactId>
-    <name>brightspot-installer</name>
+    <artifactId>brightspot-app</artifactId>
+    <name>brightspot-app</name>
 
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
@@ -22,7 +22,7 @@
     </properties>
 
     <build>
-        <finalName>brightspot-installer</finalName>
+        <finalName>brightspot-app</finalName>
 
         <plugins>
             <plugin>
