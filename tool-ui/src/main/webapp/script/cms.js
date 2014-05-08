@@ -370,6 +370,13 @@ function() {
         $container.toggleClass('state-changed', changed);
     });
 
+    $doc.on('click', '.taxonomyExpand', function() {
+        var $this = $(this);
+        var selectedClass = 'state-selected';
+        $this.closest('ul').find('.' + selectedClass).removeClass(selectedClass);
+        $this.closest('li').addClass(selectedClass);
+    });
+
     // Content diff with a side by side view.
     $doc.onCreate('.contentDiff', function() {
         var $container = $(this),
