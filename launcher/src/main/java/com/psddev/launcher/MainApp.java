@@ -1,4 +1,4 @@
-package com.psddev.installer;
+package com.psddev.launcher;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

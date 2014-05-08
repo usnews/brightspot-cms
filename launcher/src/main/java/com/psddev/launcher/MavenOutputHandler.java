@@ -1,4 +1,4 @@
-package com.psddev.installer;
+package com.psddev.launcher;
 
 import javafx.scene.control.TextArea;
 import org.apache.maven.shared.invoker.PrintStreamHandler;

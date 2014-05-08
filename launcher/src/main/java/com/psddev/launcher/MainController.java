@@ -1,4 +1,4 @@
-package com.psddev.installer;
+package com.psddev.launcher;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,9 +34,9 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-public class InstallController {
+public class MainController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InstallController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
 
     private static final String MAVEN_PATH_KEY = "mavenPath";
 

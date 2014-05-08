@@ -31,7 +31,7 @@
                 <version>2.0</version>
                 <configuration>
 
-                    <mainClass>com.psddev.installer.MainApp</mainClass>
+                    <mainClass>com.psddev.launcher.MainApp</mainClass>
 
                     <!-- only required if signing the jar file -->
 

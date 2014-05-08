@@ -9,7 +9,7 @@
 <BorderPane styleClass="welcomePane"
             id="root"
             fx:id="root"
-            fx:controller="com.psddev.installer.InstallController"
+            fx:controller="com.psddev.launcher.MainController"
             xmlns:fx="http://javafx.com/fxml">
 
     <top>
