@@ -30,7 +30,7 @@ public class MainApp extends Application {
         Scene scene = new Scene(rootNode, 700, 500);
         scene.getStylesheets().add("/styles/styles.css");
 
-        stage.setTitle("Brightspot Installer");
+        stage.setTitle("Brightspot Launcher");
         stage.setScene(scene);
 
         stage.show();
