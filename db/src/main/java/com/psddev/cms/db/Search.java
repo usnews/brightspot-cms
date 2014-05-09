@@ -79,7 +79,6 @@ public class Search extends Record {
     }
 
     // --- Fluent methods ---
-
     public static Search named(String name) {
         return Query.from(Search.class).where("internalName = ?",name).first();
     }
