@@ -57,6 +57,14 @@ public class MainController {
     @FXML
     Tab projectTab;
 
+    Tab installTab;
+
+    ProgressBar progress;
+
+    Label progressLabel;
+
+    TextArea installLog;
+
     @FXML
     Label mysqlStatusLabel;
 
@@ -91,7 +99,7 @@ public class MainController {
     Button runButton;
 
     @FXML
-    CheckBox runCargo;
+    Button runCargo;
 
     private String classPrefix;
 
@@ -134,6 +142,41 @@ public class MainController {
                 }
             }
         });
+
+        // add new tab
+        installTab = new Tab();
+        installTab.setClosable(false);
+        installTab.setText("Logs");
+
+        tabs.getTabs().add(installTab);
+
+        // create layout
+        VBox box = new VBox();
+        box.setPadding(new Insets(20, 20, 20, 20));
+
+        ObservableList children = box.getChildren();
+
+        HBox progressBox = new HBox();
+        progressBox.setSpacing(10);
+        progressBox.setPadding(new Insets(0, 0, 23, 0));
+
+        progressLabel = new Label();
+        progressLabel.setText("Installing");
+
+        progress = new ProgressBar();
+        progress.setPrefWidth(200);
+        progressBox.getChildren().addAll(progressLabel, progress);
+
+        Label installLogLabel = new Label();
+        installLogLabel.setText("Install Log");
+
+        installLog = new TextArea();
+        installLog.setStyle("-fx-font-size: 9");
+        installLog.setMinHeight(262);
+
+        children.addAll(progressBox, installLogLabel, installLog);
+
+        installTab.setContent(box);
     }
 
     public boolean isValidToRun() {
@@ -290,41 +333,7 @@ public class MainController {
     public void runInstall() {
         SelectionModel selectionModel = tabs.getSelectionModel();
 
-        // add new tab
-        Tab installTab = new Tab();
-        installTab.setClosable(true);
-        installTab.setText("Installing...");
-
-        tabs.getTabs().add(installTab);
         selectionModel.select(installTab);
-
-        // create layout
-        VBox box = new VBox();
-        box.setPadding(new Insets(20, 20, 20, 20));
-
-        ObservableList children = box.getChildren();
-
-        HBox progressBox = new HBox();
-        progressBox.setSpacing(10);
-        progressBox.setPadding(new Insets(0, 0, 23, 0));
-
-        final Label progressLabel = new Label();
-        progressLabel.setText("Installing");
-
-        ProgressBar progress = new ProgressBar();
-        progress.setPrefWidth(200);
-        progressBox.getChildren().addAll(progressLabel, progress);
-
-        Label installLogLabel = new Label();
-        installLogLabel.setText("Install Log");
-
-        final TextArea installLog = new TextArea();
-        installLog.setStyle("-fx-font-size: 9");
-        installLog.setMinHeight(262);
-
-        children.addAll(progressBox, installLogLabel, installLog);
-
-        installTab.setContent(box);
 
         // start maven install
         Task task = new Task<Void>() {
@@ -342,13 +351,8 @@ public class MainController {
                     installCount++;
                 }
 
-                if (runCargo.isSelected()) {
-                    installCount++;
-                }
-
-                InvocationOutputHandler handler = new MavenOutputHandler(installLog);
                 Invoker invoker = new DefaultInvoker();
-                invoker.setOutputHandler(handler);
+                invoker.setOutputHandler(new MavenOutputToTextArea(installLog));
                 invoker.setMavenHome(mavenDirectory);
 
                 InvocationRequest request = new DefaultInvocationRequest();
@@ -441,33 +445,44 @@ public class MainController {
                     }
                 }
 
-                /*
-                if (runCargo.isSelected()) {
-                    runCount += .5;
-                    updateProgress(runCount, installCount);
+                return null;
+            }
+        };
 
-                    File projectDir = new File(installDirectory.getAbsolutePath() + "/" + artifactId.getText());
+        progress.progressProperty().bind(task.progressProperty());
 
-                    request.setBaseDirectory(projectDir);
-                    request.setShowErrors(true);
+        new Thread(task).start();
 
-                    String[] goals = {"package", "cargo:run"};
-                    request.setGoals(Arrays.asList(goals));
+        task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+            public void handle(WorkerStateEvent workerStateEvent) {
+                progressLabel.setText("Done");
+            }
+        });
+    }
 
-                    options.setLength(0);
+    public void runCargo() {
+        SelectionModel selectionModel = tabs.getSelectionModel();
 
-                    request.setMavenOpts(options.toString());
+        selectionModel.select(installTab);
 
-                    try {
-                        InvocationResult result = invoker.execute(request);
+        // start maven install
+        Task task = new Task<Void>() {
 
-                        runCount += .5;
-                        updateProgress(runCount, installCount);
-                    } catch (MavenInvocationException e) {
-                        e.printStackTrace();
-                    }
+            @Override public Void call() {
+                Invoker invoker = new DefaultInvoker();
+                invoker.setOutputHandler(new MavenOutputToTextArea(installLog));
+                invoker.setMavenHome(mavenDirectory);
+
+                InvocationRequest request = new DefaultInvocationRequest();
+                request.setBaseDirectory(installDirectory);
+                request.setInteractive(false);
+                request.setGoals(Arrays.asList("clean", "package", "cargo:run"));
+
+                try {
+                    InvocationResult result = invoker.execute(request);
+                } catch (MavenInvocationException e) {
+                    e.printStackTrace();
                 }
-                */
 
                 return null;
             }

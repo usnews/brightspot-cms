@@ -103,7 +103,7 @@
 
                     <Separator />
 
-                    <CheckBox fx:id="runCargo" selected="true" text="Run after install?" textAlignment="RIGHT" />
+                    <Button fx:id="runCargo" onAction="#runCargo" styleClass="runButton">Run</Button>
 
                 </VBox>
             </Tab>
