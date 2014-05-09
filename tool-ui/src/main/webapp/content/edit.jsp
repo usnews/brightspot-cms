@@ -841,7 +841,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                             "name", "_mainObjectId",
                                             "onchange", "$(this).closest('form').submit();",
                                             "style", "width:200px;");
-                                        wp.writeStart("option", "value", editingState.getId());
+                                        wp.writeStart("option", "value", "");
                                             wp.writeTypeObjectLabel(editing);
                                         wp.writeEnd();
 
