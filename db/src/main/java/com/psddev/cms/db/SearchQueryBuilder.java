@@ -26,18 +26,8 @@ import java.util.regex.Pattern;
 
 public class SearchQueryBuilder extends Record {
 
-    //private static final Metaphone METAPHONE = new Metaphone();
-    private boolean exactMatchTerms;
     private Set<ObjectType> types;
     private List<Rule> rules = new ArrayList<Rule>();
-
-    public boolean isExactMatchTerms() {
-        return exactMatchTerms;
-    }
-
-    public void setExactMatchTerms(boolean exactMatchTerms) {
-        this.exactMatchTerms = exactMatchTerms;
-    }
 
     public Set<ObjectType> getTypes() {
         if (types == null) {
@@ -61,6 +51,11 @@ public class SearchQueryBuilder extends Record {
         this.rules = rules;
     }
 
+    public SearchQueryBuilder addRule(Rule rule) {
+        getRules().add(rule);
+        return this;
+    }
+
     public SearchQueryBuilder addTypes(ObjectType... types) {
         if (types != null) {
             for (ObjectType type : types) {
@@ -76,33 +71,6 @@ public class SearchQueryBuilder extends Record {
                 getTypes().add(ObjectType.getInstance(c));
             }
         }
-        return this;
-    }
-
-    public SearchQueryBuilder addRule(Rule rule) {
-        getRules().add(rule);
-        return this;
-    }
-
-    public SearchQueryBuilder addStopWords(String... stopWords) {
-        if (stopWords != null) {
-            StopWords rule = null;
-
-            for (Rule r : getRules()) {
-                if (r instanceof StopWords) {
-                    rule = (StopWords) r;
-                    break;
-                }
-            }
-
-            if (rule == null) {
-                rule = new StopWords();
-                addRule(rule);
-            }
-
-            Collections.addAll(rule.getStopWords(), stopWords);
-        }
-
         return this;
     }
 
@@ -142,6 +110,38 @@ public class SearchQueryBuilder extends Record {
         return boostPhrase(boost, pattern, ObjectType.getInstance(objectClass), predicate);
     }
 
+    public SearchQueryBuilder addStopWords(String... stopWords) {
+        if (stopWords != null) {
+            StopWords rule = null;
+
+            for (Rule r : getRules()) {
+                if (r instanceof StopWords) {
+                    rule = (StopWords) r;
+                    break;
+                }
+            }
+
+            if (rule == null) {
+                rule = new StopWords();
+                addRule(rule);
+            }
+
+            Collections.addAll(rule.getStopWords(), stopWords);
+        }
+
+        return this;
+    }
+
+    public SearchQueryBuilder addSynonyms(){
+        //TODO: implementation
+        return this;
+    }
+
+    public SearchQueryBuilder addSpotlights(){
+        //TODO implementation
+        return this;
+    }
+
     private List<String> normalizeTerms(Object... terms) {
         List<String> normalized = new ArrayList<String>();
 
@@ -178,13 +178,6 @@ public class SearchQueryBuilder extends Record {
         return normalized;
     }
 
-    /*public SearchQueryBuilder addOptionalTerms(int boost, Object... terms) {
-        OptionalTerms rule = new OptionalTerms();
-        rule.setBoost(boost);
-        rule.setTerms(new HashSet<String>(normalizeTerms(terms)));
-        return addRule(rule);
-    }*/
-
     public Query toQuery(Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         Query query = Query.from(Object.class);
@@ -194,14 +187,8 @@ public class SearchQueryBuilder extends Record {
         }
 
         if (!queryTerms.isEmpty()) {
-            if (exactMatchTerms) {
-                query.or("_any matchesAll ?", terms);
-                //TODO: figure out how synonyms should work in this case
-            } else {
-                query.or("_any matchesAny ?", queryTerms);
-                //TODO how should we do this boost?
-                query.sortRelevant(1000.0, "_any matchesAll ?", terms);
-            }
+            query.or("_any matchesAny ?", queryTerms);
+            query.sortRelevant(100000.0, "_any matchesAll ?", terms);
         }
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
@@ -249,6 +236,10 @@ public class SearchQueryBuilder extends Record {
             Set<String> stopWords = getStopWords();
             Set<String> removed = null;
 
+            if (ObjectUtils.isBlank(queryTerms)) {
+                return;
+            }
+
             for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
                 String word = i.next();
                 if (stopWords.contains(word)) {
@@ -261,12 +252,12 @@ public class SearchQueryBuilder extends Record {
             }
 
             if (removed != null && !removed.isEmpty()) {
-                query.sortRelevant(0.0001, "_any matchesAll ?", removed);
+                query.sortRelevant(0.001, "_any matchesAll ?", removed);
             }
         }
     }
 
-    public static class Synonyms extends BoostRule {
+    public static class Synonyms extends Rule {
 
         @CollectionMinimum(1)
         @Embedded
@@ -289,6 +280,10 @@ public class SearchQueryBuilder extends Record {
         }
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            if (ObjectUtils.isBlank(queryTerms)) {
+                return;
+            }
+
             Set<String> newTerms = new HashSet<String>();
             for (String qt : queryTerms) {
                 newTerms.add(qt.toLowerCase());
@@ -327,7 +322,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    /*public static class Spotlights extends Rule {
+    public static class Spotlights extends Rule {
 
         @Embedded
         @CollectionMinimum(1)
@@ -345,8 +340,7 @@ public class SearchQueryBuilder extends Record {
             //TODO: add logic
         }
 
-        //TODO: what is going on with this abstract class?
-        public abstract class Spotlight<T extends Content> extends Rule {
+        public abstract class Spotlight<T extends Content> {
             private List<String> spotLightTerms;
             abstract List<T> getSpotlightContent();
 
@@ -361,12 +355,8 @@ public class SearchQueryBuilder extends Record {
             public void setSpotLightTerms(List<String> spotLightTerms) {
                 this.spotLightTerms = spotLightTerms;
             }
-
-            public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-                //TODO: add logic
-            }
         }
-    } */
+    }
 
     public static abstract class BoostRule extends Rule {
 
@@ -376,7 +366,6 @@ public class SearchQueryBuilder extends Record {
         private int boost;
 
         public double getBoost() {
-            //TODO: only powers of 10 should be used for the boost
             return Math.pow(10, boost);
         }
 
@@ -550,43 +539,6 @@ public class SearchQueryBuilder extends Record {
             } else {
                 return predicate;
             }
-        }
-    }
-
-    //TODO: these work kinda like synonyms but are always present... still not sure about this
-    public static class OptionalTerms extends BoostRule {
-
-        private Set<String> terms;
-
-        public String getLabel() {
-            return "Optional terms added to the search " + terms;
-        }
-
-        public Set<String> getTerms() {
-            if (terms == null) {
-                terms = new HashSet<String>();
-            }
-            return terms;
-        }
-
-        public void setTerms(Set<String> terms) {
-            this.terms = terms;
-        }
-
-        @Override
-        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            Set<String> terms = getTerms();
-
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
-                String queryTerm = i.next();
-
-                if (terms.contains(queryTerm)) {
-                    i.remove();
-                }
-            }
-
-            query.or("_any matchesAny ?", terms);
-            query.sortRelevant(getBoost(), "_any matchesAny ?", terms);
         }
     }
 }
