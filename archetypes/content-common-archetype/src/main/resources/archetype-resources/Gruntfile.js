@@ -13,6 +13,10 @@ module.exports = function(grunt) {
                         name: '${artifactId}'
                     }
                 ]
+            },
+
+            bower: {
+                less: [{src: 'dist/less-1.7.0.js', dest: 'less.js'}]
             }
         }
     });
