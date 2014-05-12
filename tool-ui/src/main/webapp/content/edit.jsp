@@ -161,7 +161,8 @@ ContentLock contentLock = null;
 boolean lockedOut = false;
 boolean editAnyway = wp.param(boolean.class, "editAnyway");
 
-if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
+if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
+        wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
     contentLock = ContentLock.Static.lock(editing, null, user);
     lockedOut = !user.equals(contentLock.getOwner());
 }
