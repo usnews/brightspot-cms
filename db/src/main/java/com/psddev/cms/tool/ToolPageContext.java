@@ -3,8 +3,6 @@ package com.psddev.cms.tool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1553,40 +1550,6 @@ public class ToolPageContext extends WebPageContext {
                                 "height", 14);
                     writeEnd();
                 writeEnd();
-
-                if (!Query.from(Site.class).hasMoreThan(100)) {
-                    Set<String> siteUrls = new HashSet<String>();
-
-                    for (Site s : Query.from(Site.class).selectAll()) {
-                        for (String url : s.getUrls()) {
-                            try {
-                                siteUrls.add(new URL(url).toURI().resolve("/").toString());
-                            } catch (MalformedURLException error) {
-                                // Ignore invalid site URL.
-                            } catch (URISyntaxException error) {
-                                // Ignore invalid site URL.
-                            }
-                        }
-                    }
-
-                    ToolUser user = getUser();
-                    String userId = user != null ? user.getId().toString() : UUID.randomUUID().toString();
-                    String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId));
-                    String cookiePath = StringUtils.addQueryParameters(
-                            cmsUrl("/inlineEditorCookie"),
-                            "userId", userId,
-                            "signature", signature).
-                            substring(1);
-
-                    for (String siteUrl : siteUrls) {
-                        writeStart("iframe", "src", siteUrl + cookiePath, "style", cssString(
-                                "border", "none",
-                                "height", "1px",
-                                "width", "1px",
-                                "visibility", "hidden"));
-                        writeEnd();
-                    }
-                }
             writeTag("/body");
         writeTag("/html");
     }
