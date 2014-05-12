@@ -1,26 +1,19 @@
 package com.psddev.cms.db;
 
+import com.psddev.dari.util.ObjectUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class EditorialSearchSettings extends Content {
 
-    @ToolUi.Note("Do you want searches to do an exact match of the user's query? Unchecking this box will match based on any of the individual user terms")
-    private boolean exactMatchSearchTerms;
     @Embedded
-    private SearchQueryBuilder.StopWords stopWords = new SearchQueryBuilder.StopWords();
+    private SearchQueryBuilder.StopWords stopWords;
     @Embedded
     private SearchQueryBuilder.Synonyms synonyms;
     @Embedded
     private SearchQueryBuilder.Spotlights spotlights;
     //TODO: how do we want to surface rules?
-
-    public boolean isExactMatchSearchTerms() {
-        return exactMatchSearchTerms;
-    }
-
-    public void setExactMatchSearchTerms(boolean exactMatchSearchTerms) {
-        this.exactMatchSearchTerms = exactMatchSearchTerms;
-    }
 
     public SearchQueryBuilder.StopWords getStopWords() {
         return stopWords;
@@ -38,8 +31,8 @@ public class EditorialSearchSettings extends Content {
         this.synonyms = synonyms;
     }
 
-    public List<SearchQueryBuilder.Rule> toQuery(){
-         return null;
+    public List<SearchQueryBuilder.Rule> toQuery() {
+        return null;
     }
 
     public SearchQueryBuilder.Spotlights getSpotlights() {
@@ -48,5 +41,19 @@ public class EditorialSearchSettings extends Content {
 
     public void setSpotlights(SearchQueryBuilder.Spotlights spotlights) {
         this.spotlights = spotlights;
+    }
+
+    public List<SearchQueryBuilder.Rule> getEditorialRules() {
+        List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
+        if (!ObjectUtils.isBlank(stopWords)) {
+            rules.add(stopWords);
+        }
+        if (!ObjectUtils.isBlank(synonyms)) {
+            rules.add(synonyms);
+        }
+        if (!ObjectUtils.isBlank(spotlights)) {
+            rules.add(spotlights);
+        }
+        return rules;
     }
 }
