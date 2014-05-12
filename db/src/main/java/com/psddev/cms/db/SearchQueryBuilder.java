@@ -56,6 +56,11 @@ public class SearchQueryBuilder extends Record {
         return this;
     }
 
+    public SearchQueryBuilder addRules(List<Rule> rules) {
+        getRules().addAll(rules);
+        return this;
+    }
+
     public SearchQueryBuilder addTypes(ObjectType... types) {
         if (types != null) {
             for (ObjectType type : types) {
@@ -132,12 +137,12 @@ public class SearchQueryBuilder extends Record {
         return this;
     }
 
-    public SearchQueryBuilder addSynonyms(){
+    public SearchQueryBuilder addSynonyms() {
         //TODO: implementation
         return this;
     }
 
-    public SearchQueryBuilder addSpotlights(){
+    public SearchQueryBuilder addSpotlights() {
         //TODO implementation
         return this;
     }
@@ -146,23 +151,21 @@ public class SearchQueryBuilder extends Record {
         List<String> normalized = new ArrayList<String>();
 
         for (Object term : CollectionUtils.recursiveIterable(terms)) {
-            if (term == null) {
-
-            } else if (term instanceof Recordable) {
+            if (term instanceof Recordable) {
                 normalized.add(((Recordable) term).getState().getId().toString());
 
-            } else {
+            } else if (term != null) {
                 String termString = term.toString();
                 char[] letters = termString.toCharArray();
                 int lastEnd = 0;
 
-                for (int i = 0, length = letters.length; i < length; ++ i) {
+                for (int i = 0, length = letters.length; i < length; ++i) {
                     char letter = letters[i];
 
                     if (Character.isWhitespace(letter)) {
                         int end = i;
-                        for (++ i; i < length && Character.isWhitespace(letters[i]); ) {
-                            ++ i;
+                        for (++i; i < length && Character.isWhitespace(letters[i]); ) {
+                            ++i;
                         }
 
                         String word = termString.substring(lastEnd, end);
@@ -289,8 +292,8 @@ public class SearchQueryBuilder extends Record {
                 newTerms.add(qt.toLowerCase());
             }
 
-            for (Synonym s:getSynonyms()) {
-                for (String term:s.getWords()) {
+            for (Synonym s : getSynonyms()) {
+                for (String term : s.getWords()) {
                     if (newTerms.contains(term.toLowerCase())) {
                         newTerms.addAll(s.getWords());
                         break;
@@ -342,6 +345,7 @@ public class SearchQueryBuilder extends Record {
 
         public abstract class Spotlight<T extends Content> {
             private List<String> spotLightTerms;
+
             abstract List<T> getSpotlightContent();
 
             public String getLabel() {
@@ -509,7 +513,7 @@ public class SearchQueryBuilder extends Record {
                 int groupCount = matcher.groupCount();
                 Object[] parameters = new Object[groupCount];
 
-                for (int i = 0; i < groupCount; ++ i) {
+                for (int i = 0; i < groupCount; ++i) {
                     parameters[i] = matcher.group(i + 1);
                 }
 
@@ -531,10 +535,10 @@ public class SearchQueryBuilder extends Record {
             } else if (predicate instanceof ComparisonPredicate) {
                 ComparisonPredicate comparison = (ComparisonPredicate) predicate;
                 return new ComparisonPredicate(
-                        comparison.getOperator(),
-                        comparison.isIgnoreCase(),
-                        prefix + comparison.getKey(),
-                        comparison.getValues());
+                                                      comparison.getOperator(),
+                                                      comparison.isIgnoreCase(),
+                                                      prefix + comparison.getKey(),
+                                                      comparison.getValues());
 
             } else {
                 return predicate;

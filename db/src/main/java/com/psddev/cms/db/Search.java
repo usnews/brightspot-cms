@@ -80,7 +80,7 @@ public class Search extends Record {
 
     // --- Fluent methods ---
     public static Search named(String name) {
-        return Query.from(Search.class).where("internalName = ?",name).first();
+        return Query.from(Search.class).where("internalName = ?", name).first();
     }
 
     public Search addTypes(ObjectType... types) {
@@ -216,23 +216,21 @@ public class Search extends Record {
         List<String> normalized = new ArrayList<String>();
 
         for (Object term : CollectionUtils.recursiveIterable(terms)) {
-            if (term == null) {
-
-            } else if (term instanceof Recordable) {
+            if (term instanceof Recordable) {
                 normalized.add(((Recordable) term).getState().getId().toString());
 
-            } else {
+            } else if (term != null) {
                 String termString = term.toString();
                 char[] letters = termString.toCharArray();
                 int lastEnd = 0;
 
-                for (int i = 0, length = letters.length; i < length; ++ i) {
+                for (int i = 0, length = letters.length; i < length; ++i) {
                     char letter = letters[i];
 
                     if (Character.isWhitespace(letter)) {
                         int end = i;
-                        for (++ i; i < length && Character.isWhitespace(letters[i]); ) {
-                            ++ i;
+                        for (++i; i < length && Character.isWhitespace(letters[i]); ) {
+                            ++i;
                         }
 
                         String word = termString.substring(lastEnd, end);
@@ -480,7 +478,7 @@ public class Search extends Record {
                 int groupCount = matcher.groupCount();
                 Object[] parameters = new Object[groupCount];
 
-                for (int i = 0; i < groupCount; ++ i) {
+                for (int i = 0; i < groupCount; ++i) {
                     parameters[i] = matcher.group(i + 1);
                 }
 
@@ -502,10 +500,10 @@ public class Search extends Record {
             } else if (predicate instanceof ComparisonPredicate) {
                 ComparisonPredicate comparison = (ComparisonPredicate) predicate;
                 return new ComparisonPredicate(
-                        comparison.getOperator(),
-                        comparison.isIgnoreCase(),
-                        prefix + comparison.getKey(),
-                        comparison.getValues());
+                                                      comparison.getOperator(),
+                                                      comparison.isIgnoreCase(),
+                                                      prefix + comparison.getKey(),
+                                                      comparison.getValues());
 
             } else {
                 return predicate;
