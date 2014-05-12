@@ -16,11 +16,21 @@ import com.psddev.dari.util.PaginatedResult;
 /** Represents previous revisions of objects. */
 public class History extends Record {
 
-    private @Indexed String name;
-    private @Indexed Date updateDate;
-    private @Indexed ToolUser updateUser;
-    private @Indexed ObjectType objectType;
-    private @Indexed UUID objectId;
+    @Indexed
+    private String name;
+
+    @Indexed
+    private Date updateDate;
+
+    @Indexed
+    private ToolUser updateUser;
+
+    @Indexed
+    private ObjectType objectType;
+
+    @Indexed
+    private UUID objectId;
+
     private Map<String, Object> objectOriginals;
     private boolean lockIgnored;
 

@@ -216,7 +216,7 @@ public abstract class Tool extends Application {
             CmsTool cms = Application.Static.getInstance(CmsTool.class);
             Set<String> disabled = cms.getDisabledPlugins();
 
-            for (Iterator<Plugin> i = plugins.iterator(); i.hasNext(); ) {
+            for (Iterator<Plugin> i = plugins.iterator(); i.hasNext();) {
                 Plugin plugin = i.next();
 
                 if (disabled.contains(plugin.getInternalName())) {
@@ -239,7 +239,7 @@ public abstract class Tool extends Application {
         public static <T extends Plugin> List<T> getPluginsByClass(Class<T> pluginClass) {
             List<Plugin> plugins = getPlugins();
 
-            for (Iterator<Plugin> i = plugins.iterator(); i.hasNext(); ) {
+            for (Iterator<Plugin> i = plugins.iterator(); i.hasNext();) {
                 Plugin plugin = i.next();
 
                 if (!pluginClass.isInstance(plugin)) {

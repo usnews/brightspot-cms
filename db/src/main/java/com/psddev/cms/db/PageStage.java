@@ -191,7 +191,7 @@ public class PageStage extends Record {
                         "text/css".equals(element.getAttributes().get("type"))) {
                     int insertIndex = 0;
 
-                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext();) {
                         HtmlNode node = i.next();
 
                         if (!(node instanceof HtmlElement)) {
@@ -216,7 +216,7 @@ public class PageStage extends Record {
                 } else {
                     int insertIndex = 0;
 
-                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext(); ) {
+                    for (ListIterator<HtmlNode> i = nodes.listIterator(); i.hasNext();) {
                         HtmlNode node = i.next();
 
                         if (!(node instanceof HtmlElement)) {
@@ -254,7 +254,7 @@ public class PageStage extends Record {
             return;
         }
 
-        for (Iterator<HtmlNode> i = getHeadNodes().iterator(); i.hasNext(); ) {
+        for (Iterator<HtmlNode> i = getHeadNodes().iterator(); i.hasNext();) {
             HtmlNode node = i.next();
 
             if (!(node instanceof HtmlElement)) {

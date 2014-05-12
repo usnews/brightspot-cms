@@ -230,6 +230,8 @@ public class FieldAccessFilter extends AbstractFilter {
                 try {
                     response.getLazyWriter().writeLazily(createMarkerHtml(state, name));
                 } catch (IOException error) {
+                    // Can't write the field access marker HTML to the response,
+                    // but that's OK, so move on.
                 }
             }
         }

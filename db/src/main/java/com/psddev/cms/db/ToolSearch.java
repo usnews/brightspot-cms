@@ -168,7 +168,7 @@ public class ToolSearch extends Record {
         String sortFieldName = getSortFieldName();
         Query<?> query = toQuery().and(sortFieldName + " <= ? and _id != ?", state.get(sortFieldName), state.getId());
 
-        for (ListIterator<Sorter> i = query.getSorters().listIterator(); i.hasNext(); ) {
+        for (ListIterator<Sorter> i = query.getSorters().listIterator(); i.hasNext();) {
             Sorter sorter = i.next();
             if (Sorter.ASCENDING_OPERATOR.equals(sorter.getOperator())) {
                 List<Object> options = sorter.getOptions();

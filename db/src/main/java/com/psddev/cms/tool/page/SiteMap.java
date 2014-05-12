@@ -391,7 +391,7 @@ public class SiteMap extends PageServlet {
         page.writeEnd();
     }
 
-    private static abstract class DirectoryQueryIterator implements Iterator<Query<?>> {
+    private abstract static class DirectoryQueryIterator implements Iterator<Query<?>> {
 
         private final Iterator<Directory> directoryIterator;
 

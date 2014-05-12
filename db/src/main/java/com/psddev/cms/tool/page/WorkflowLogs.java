@@ -33,8 +33,7 @@ public class WorkflowLogs extends PageServlet {
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1", "class", "icon icon-object-workflow").writeHtml("Workflow Logs").writeEnd();
 
-                if (logs.isEmpty()) {
-                } else {
+                if (!logs.isEmpty()) {
                     page.writeStart("table", "class", "table-striped");
                         page.writeStart("thead");
                             page.writeStart("tr");

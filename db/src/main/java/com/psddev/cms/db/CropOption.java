@@ -24,7 +24,7 @@ public enum CropOption {
         return displayName;
     }
 
-    public final static class Static {
+    public static final class Static {
 
         private Static() {
         }

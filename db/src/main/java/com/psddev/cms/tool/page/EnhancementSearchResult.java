@@ -49,7 +49,7 @@ public class EnhancementSearchResult extends PageServlet {
                 page.writeEnd();
             }
         };
-        
+
         resultRenderer.render();
     }
 }

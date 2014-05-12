@@ -1,4 +1,4 @@
-require([
+define([
     'jquery',
     'jquery.extra',
     'input/leaflet' ],
@@ -71,8 +71,5 @@ function($) {
             zoomInput.val(map.getZoom());
         }
     });
-
-    $(document).locationMap('live', '.locationMap');
-    $(document).trigger('create');
 });
 

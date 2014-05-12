@@ -138,8 +138,7 @@ public class Page extends Content {
         if (section != null) {
             sections.add(section);
             if (section instanceof ContainerSection) {
-                for (Section child
-                        : ((ContainerSection) section).getChildren()) {
+                for (Section child : ((ContainerSection) section).getChildren()) {
                     addSections(sections, child);
                 }
             }
@@ -201,8 +200,8 @@ public class Page extends Content {
 
                 UUID sectionPageId = ObjectUtils.to(UUID.class, map.get("page"));
                 Object section;
-                if (!Boolean.TRUE.equals(map.get("isShareable"))
-                        && !page.getId().equals(sectionPageId)) {
+                if (!Boolean.TRUE.equals(map.get("isShareable")) &&
+                        !page.getId().equals(sectionPageId)) {
                     section = type.createObject(null);
                 } else {
                     UUID id = ObjectUtils.to(UUID.class, map.get("_id"));
@@ -258,9 +257,9 @@ public class Page extends Content {
         boolean isHorizontal = "HORIZONTAL".equals(orientation);
         if (isHorizontal || "VERTICAL".equals(orientation)) {
 
-            ContainerSection container = isHorizontal
-                    ? new HorizontalContainerSection()
-                    : new VerticalContainerSection();
+            ContainerSection container = isHorizontal ?
+                    new HorizontalContainerSection() :
+                    new VerticalContainerSection();
 
             String beginJsp = (String) state.getValue("beginJsp");
             if (!ObjectUtils.isBlank(beginJsp)) {

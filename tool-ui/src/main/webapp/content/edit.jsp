@@ -541,21 +541,21 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
 
                     } else {
                         %><script type="text/javascript">
-                            (function() {
-                                var unlocked;
+                            require([ 'content/lock' ], function(lock) {
+                                var unlocked = false;
 
-                                window.setInterval(function() {
+                                setInterval(function() {
                                     if (!unlocked) {
-                                        window.bspContentLock('<%= editingState.getId() %>');
+                                        lock.lock('<%= editingState.getId() %>');
                                     }
                                 }, 1000);
 
                                 $(window).bind('beforeunload', function() {
                                     unlocked = true;
 
-                                    window.bspContentUnlock('<%= editingState.getId() %>');
+                                    lock.unlock('<%= editingState.getId() %>');
                                 });
-                            })();
+                            });
                         </script><%
                     }
 

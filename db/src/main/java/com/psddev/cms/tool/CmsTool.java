@@ -632,6 +632,7 @@ public class CmsTool extends Tool {
             try {
                 return new URI(url + "/").resolve("./_preview").toString();
             } catch (Exception ex) {
+                throw new IllegalStateException(ex);
             }
         }
         return "/_preview";
@@ -743,7 +744,7 @@ public class CmsTool extends Tool {
     }
 
     @Embedded
-    public static abstract class ResourceItem extends Record {
+    public abstract static class ResourceItem extends Record {
 
         private String name;
         private boolean sameWindow;

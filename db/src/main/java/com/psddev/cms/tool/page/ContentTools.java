@@ -549,7 +549,7 @@ public class ContentTools extends PageServlet {
 
             List<Method> aMethods = new ArrayList<Method>(Arrays.asList(aClass.getMethods()));
 
-            for (Iterator<Method> i = aMethods.iterator(); i.hasNext(); ) {
+            for (Iterator<Method> i = aMethods.iterator(); i.hasNext();) {
                 if (!i.next().getDeclaringClass().equals(aClass)) {
                     i.remove();
                 }
@@ -571,7 +571,9 @@ public class ContentTools extends PageServlet {
                                         try {
                                             writeJavaAnnotationValue(page, m.invoke(annotation));
                                         } catch (IllegalAccessException error) {
+                                            // Ignore reflection look-up errors.
                                         } catch (InvocationTargetException error) {
+                                            // Ignore reflection look-up errors.
                                         }
                                     page.writeEnd();
                                 page.writeEnd();

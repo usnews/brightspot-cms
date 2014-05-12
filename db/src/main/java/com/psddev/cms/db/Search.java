@@ -153,7 +153,7 @@ public class Search extends Record {
             addRule(rule);
 
         } else {
-            for (Iterator<Rule> i = getRules().iterator(); i.hasNext(); ) {
+            for (Iterator<Rule> i = getRules().iterator(); i.hasNext();) {
                 Rule rule = i.next();
                 if (rule instanceof BoostLabels) {
                     i.remove();
@@ -216,7 +216,10 @@ public class Search extends Record {
         List<String> normalized = new ArrayList<String>();
 
         for (Object term : CollectionUtils.recursiveIterable(terms)) {
-            if (term instanceof Recordable) {
+            if (term == null) {
+                continue;
+
+            } else if (term instanceof Recordable) {
                 normalized.add(((Recordable) term).getState().getId().toString());
 
             } else if (term != null) {
@@ -229,8 +232,8 @@ public class Search extends Record {
 
                     if (Character.isWhitespace(letter)) {
                         int end = i;
-                        for (++i; i < length && Character.isWhitespace(letters[i]); ) {
-                            ++i;
+                        for (++ i; i < length && Character.isWhitespace(letters[i]);) {
+                            ++ i;
                         }
 
                         String word = termString.substring(lastEnd, end);
@@ -276,7 +279,7 @@ public class Search extends Record {
 
     @Deprecated
     @Embedded
-    public static abstract class Rule extends Record {
+    public abstract static class Rule extends Record {
 
         @Deprecated
         public abstract void apply(Search search, SearchQuery query, List<String> queryTerms);
@@ -312,7 +315,7 @@ public class Search extends Record {
             Set<String> stopWords = getStopWords();
             Set<String> removed = null;
 
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = queryTerms.iterator(); i.hasNext();) {
                 String word = i.next();
                 if (stopWords.contains(word)) {
                     i.remove();
@@ -329,7 +332,7 @@ public class Search extends Record {
         }
     }
 
-    public static abstract class BoostRule extends Rule {
+    public abstract static class BoostRule extends Rule {
 
         private double boost;
 
@@ -539,7 +542,7 @@ public class Search extends Record {
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             List<ObjectType> types = getType().as(ToolUi.class).findDisplayTypes();
 
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = queryTerms.iterator(); i.hasNext();) {
                 String word = i.next();
                 String similar = findSimilar(word);
 
@@ -593,7 +596,7 @@ public class Search extends Record {
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             Set<String> terms = getTerms();
 
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = queryTerms.iterator(); i.hasNext();) {
                 String queryTerm = i.next();
 
                 if (terms.contains(queryTerm)) {

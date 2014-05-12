@@ -118,8 +118,8 @@ public class Template extends Page {
      */
     public Set<Directory.Path> makePaths(Site site, Object object) {
         String engine = getPathsEngine();
-        if (ObjectUtils.isBlank(engine)
-                && !ObjectUtils.isBlank(defaultDirectories)) {
+        if (ObjectUtils.isBlank(engine) &&
+                !ObjectUtils.isBlank(defaultDirectories)) {
 
             engine = CSV_NORMALIZE_PATHS_ENGINE;
             setPathsEngine(engine);
@@ -150,8 +150,7 @@ public class Template extends Page {
                 if (ObjectUtils.isBlank(script)) {
                     addPath(paths, site, item, null);
                 } else {
-                    for (String prefix
-                            : StringUtils.split(script.trim(), "\\s*,\\s*")) {
+                    for (String prefix : StringUtils.split(script.trim(), "\\s*,\\s*")) {
                         addPath(paths, site, prefix + item, null);
                     }
                 }
@@ -183,6 +182,7 @@ public class Template extends Page {
     // {@code paths}.
     private void addPath(Set<Directory.Path> paths, Site site, Object path, Directory.PathType pathType) {
         if (path == null) {
+            return;
 
         } else if (path instanceof Directory.Path) {
             paths.add((Directory.Path) path);
@@ -270,8 +270,8 @@ public class Template extends Page {
             List<Template> usable = new ArrayList<Template>();
 
             for (Template t : Query.from(Template.class).sortAscending("name").selectAll()) {
-                if (Site.Static.isObjectAccessible(site, t)
-                        && t.getContentTypes().contains(objectType)) {
+                if (Site.Static.isObjectAccessible(site, t) &&
+                        t.getContentTypes().contains(objectType)) {
                     usable.add(t);
                 }
             }

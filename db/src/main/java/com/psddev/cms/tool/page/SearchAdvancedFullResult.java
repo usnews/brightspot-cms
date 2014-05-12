@@ -479,7 +479,7 @@ public class SearchAdvancedFullResult extends PageServlet {
         }
     }
 
-    private static abstract class Display implements Comparable<Display> {
+    private abstract static class Display implements Comparable<Display> {
 
         public abstract String getInternalName();
 
@@ -568,7 +568,7 @@ public class SearchAdvancedFullResult extends PageServlet {
             });
 
             try {
-                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
                     Object value = i.next();
 
                     html.writeObject(value);
@@ -579,6 +579,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                 }
 
             } catch (IOException error) {
+                throw new IllegalStateException(error);
             }
 
             return string.toString();
@@ -586,7 +587,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
         @Override
         public void writeCell(State itemState, HtmlWriter writer) throws IOException {
-            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext(); ) {
+            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
                 Object value = i.next();
 
                 writer.writeObject(value);
@@ -608,7 +609,7 @@ public class SearchAdvancedFullResult extends PageServlet {
         public String getCsvItem(State itemState) {
             StringBuilder csvItem = new StringBuilder();
 
-            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext(); ) {
+            for (Iterator<Directory.Path> i = itemState.as(Directory.ObjectModification.class).getPaths().iterator(); i.hasNext();) {
                 Directory.Path p = i.next();
                 String path = p.getPath();
 

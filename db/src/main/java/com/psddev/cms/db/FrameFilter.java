@@ -49,7 +49,7 @@ public class FrameFilter extends AbstractFilter {
         }
     }
 
-    private final static class CapturingResponse extends HttpServletResponseWrapper {
+    private static final class CapturingResponse extends HttpServletResponseWrapper {
 
         private final StringWriter output;
         private final PrintWriter printWriter;

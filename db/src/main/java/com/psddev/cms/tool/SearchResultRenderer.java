@@ -316,7 +316,7 @@ public class SearchResultRenderer {
         List<Object> items = new ArrayList<Object>(listItems);
         Map<Object, StorageItem> previews = new LinkedHashMap<Object, StorageItem>();
 
-        ITEM: for (ListIterator<Object> i = items.listIterator(); i.hasNext(); ) {
+        ITEM: for (ListIterator<Object> i = items.listIterator(); i.hasNext();) {
             Object item = i.next();
 
             for (Tool tool : Query.from(Tool.class).selectAll()) {
@@ -385,7 +385,7 @@ public class SearchResultRenderer {
             page.writeStart("figcaption");
                 if (showSiteLabel) {
                     page.writeObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner());
-                    page.writeHtml(": " );
+                    page.writeHtml(": ");
                 }
 
                 if (showTypeLabel) {

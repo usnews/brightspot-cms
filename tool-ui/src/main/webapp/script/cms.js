@@ -1,6 +1,7 @@
 define('jquery', [ ], function() { return $; });
 define('jquery.extra', [ ], function() { return $; });
 define('jquery.handsontable.full', [ ], function() { return $; });
+define('d3', [ ], function() { return d3; });
 
 requirejs.config({
     shim: {
@@ -21,12 +22,11 @@ requirejs.config({
             'codemirror/mode/htmlmixed/htmlmixed'
         ],
 
-        'jquery.rte': [ 'wysihtml5-0.3.0' ],
         'leaflet.common': [ 'leaflet' ],
         'leaflet.draw': [ 'leaflet' ],
         'l.control.geosearch': [ 'leaflet' ],
         'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
-        'nv.d3': [ 'd3.v3' ],
+        'nv.d3': [ 'd3' ],
         'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
@@ -47,14 +47,7 @@ require([
     'bsp-utils',
     'jquery.mousewheel',
 
-    'imageeditor',
-    'input/code',
-    'input/color',
-    'input/location',
-    'input/object',
-    'input/region',
-    'input/table',
-    'input/workflow',
+    'input',
 
     'jquery.calendar',
     'jquery.dropdown',
@@ -70,11 +63,10 @@ require([
     'jquery.tabbed',
     'jquery.toggleable',
     'jquery.widthaware',
-    'diff',
-    'wysihtml5-0.3.0',
-    'jquery.rte',
-    'd3.v3',
-    'nv.d3' ],
+    'nv.d3',
+
+    'dashboard',
+    'content' ],
 
 function() {
     var $ = arguments[0];
@@ -142,9 +134,11 @@ function() {
     });
 
     $doc.lazyLoad('live', '.lazyLoad');
+    $doc.locationMap('live', '.locationMap');
     $doc.objectId('live', ':input.objectId');
     $doc.pageLayout('live', '.pageLayout');
     $doc.pageThumbnails('live', '.pageThumbnails');
+    $doc.regionMap('live', '.regionMap');
     $doc.rte('live', '.richtext');
     $doc.tabbed('live', '.tabbed, .objectInputs');
     $doc.toggleable('live', '.toggleable');
@@ -161,15 +155,6 @@ function() {
         }));
     });
 
-    // Automatically focus on certain elements.
-    $doc.onCreate('[autofocus], .autoFocus', function() {
-        var focus = doc.activeElement;
-
-        if (!focus || focus === doc || focus === doc.body) {
-            $(this).focus();
-        }
-    });
-
     // Hide non-essential items in the permissions input.
     $doc.onCreate('.inputContainer .permissions select', function() {
         var $select = $(this);
@@ -177,131 +162,6 @@ function() {
         $select.bind('change', $.run(function() {
             $select.parent().find('> h2, > ul').toggle($select.find(':selected').val() === 'some');
         }));
-    });
-
-    // Allow dashboard widgets to move around.
-    $doc.onCreate('.dashboardCell', function() {
-        var $cell = $(this),
-                $collapse,
-                $moveContainer,
-                saveDashboard,
-                $moveUp,
-                $moveDown,
-                $moveLeft,
-                $moveRight;
-
-        $collapse = $('<span/>', {
-            'class': 'dashboardCollapse',
-            'click': function() {
-                $cell.toggleClass('dashboardCell-collapse');
-                saveDashboard();
-            }
-        });
-
-        $moveContainer = $('<span/>', {
-            'class': 'dashboardMoveContainer',
-            'click': function() {
-                $(this).toggleClass('dashboardMoveContainer-open');
-            }
-        });
-
-        saveDashboard = function() {
-            var $dashboard = $cell.closest('.dashboard'),
-                    $columns,
-                    widgets = [ ],
-                    widgetsCollapse = [ ];
-
-            $dashboard.find('.dashboardColumn:empty').remove();
-            $columns = $dashboard.find('.dashboardColumn');
-            $dashboard.attr('data-columns', $columns.length);
-
-            $columns.each(function() {
-                var w = widgets[widgets.length] = [ ];
-
-                $(this).find('.dashboardCell').each(function() {
-                    var $cell = $(this),
-                            name = $cell.attr('data-widget');
-
-                    w[w.length] = name;
-
-                    if ($cell.hasClass('dashboardCell-collapse')) {
-                        widgetsCollapse[widgetsCollapse.length] = name;
-                    }
-                });
-            });
-
-            $.ajax({
-                'type': 'post',
-                'url': CONTEXT_PATH + '/misc/updateUserSettings',
-                'data': {
-                    'action': 'dashboardWidgets-position',
-                    'widgets': JSON.stringify(widgets),
-                    'widgetsCollapse': JSON.stringify(widgetsCollapse)
-                }
-            });
-        };
-
-        $moveUp = $('<span/>', {
-            'class': 'dashboardMoveUp',
-            'click': function() {
-                $cell.prev().before($cell);
-                saveDashboard();
-            }
-        });
-
-        $moveDown = $('<span/>', {
-            'class': 'dashboardMoveDown',
-            'click': function() {
-                $cell.next().after($cell);
-                saveDashboard();
-            }
-        });
-
-        $moveLeft = $('<span/>', {
-            'class': 'dashboardMoveLeft',
-            'click': function() {
-                var $column = $cell.closest('.dashboardColumn');
-                        $prevColumn = $column.prev();
-
-                if ($prevColumn.length === 0) {
-                    $prevColumn = $('<div/>', {
-                        'class': 'dashboardColumn'
-                    });
-
-                    $column.before($prevColumn);
-                }
-
-                $prevColumn.prepend($cell);
-                saveDashboard();
-            }
-        });
-
-        $moveRight = $('<span/>', {
-            'class': 'dashboardMoveRight',
-            'click': function() {
-                var $column = $cell.closest('.dashboardColumn');
-                        $nextColumn = $column.next();
-
-                if ($nextColumn.length === 0) {
-                    $nextColumn = $('<div/>', {
-                        'class': 'dashboardColumn'
-                    });
-
-                    $column.after($nextColumn);
-                }
-
-                $nextColumn.prepend($cell);
-                saveDashboard();
-            }
-        });
-
-        $moveContainer.append($moveUp);
-        $moveContainer.append($moveDown);
-        $moveContainer.append($moveLeft);
-        $moveContainer.append($moveRight);
-
-        $cell.append($collapse);
-        $cell.append($moveContainer);
     });
 
     $doc.onCreate('.searchSuggestionsForm', function() {
@@ -344,157 +204,11 @@ function() {
         });
     });
 
-    // Mark changed inputs.
-    $doc.on('change', '.inputContainer', function() {
-        var $container = $(this),
-                changed = false;
-
-        $container.find('input, textarea').each(function() {
-            if (this.defaultValue !== this.value) {
-                changed = true;
-                return;
-            }
-        });
-
-        if (!changed) {
-            $container.find('option').each(function() {
-                if (this.defaultSelected !== this.selected) {
-                    changed = true;
-                    return;
-                }
-            });
-        }
-
-        $container.toggleClass('state-changed', changed);
-    });
-
-    // Content diff with a side by side view.
-    $doc.onCreate('.contentDiff', function() {
-        var $container = $(this),
-                $tabs,
-                $tabEdit,
-                $tabSideBySide,
-                $left = $container.find('> .contentDiffLeft'),
-                $right = $container.find('> .contentDiffRight'),
-                getValues;
-
-        $tabs = $('<ul/>', {
-            'class': 'tabs'
-        });
-
-        $tabEdit = $('<li/>', {
-            'html': $('<a/>', {
-                'text': 'Edit',
-                'click': function() {
-                    $container.trigger('contentDiff-edit');
-                    return false;
-                }
-            })
-        });
-
-        $tabSideBySide = $('<li/>', {
-            'html': $('<a/>', {
-                'text': 'Side By Side',
-                'click': function() {
-                    $container.trigger('contentDiff-sideBySide');
-                    return false;
-                }
-            })
-        });
-
-        $container.bind('contentDiff-edit', function() {
-            $container.add($('.widget-publishing')).removeClass('contentDiff-sideBySide').addClass('contentDiff-edit');
-            $tabs.find('li').removeClass('state-selected');
-            $tabEdit.addClass('state-selected');
-
-            $left.find('> .objectInputs > .tabs').css('height', '');
-            $left.find('> .objectInputs > .inputContainer').css('height', '');
-            $right.find('> .objectInputs > .tabs').css('height', '');
-            $right.find('> .objectInputs > .inputContainer').css('height', '');
-        });
-
-        $container.bind('contentDiff-sideBySide', function() {
-            $container.add($('.widget-publishing')).removeClass('contentDiff-edit').addClass('contentDiff-sideBySide');
-            $tabs.find('li').removeClass('state-selected');
-            $tabSideBySide.addClass('state-selected');
-
-            function equalizeHeight($left, $right) {
-                setTimeout(function() {
-                    $left.add($right).height(Math.max($left.height(), $right.height()));
-                }, 100);
-            }
-
-            $left.add($right).find('.collapsed').removeClass('collapsed');
-
-            $left.find('> .objectInputs > .tabs').each(function() {
-                var $leftTabs = $(this);
-
-                equalizeHeight($leftTabs, $right.find('> .objectInputs > .tabs'));
-            });
-
-            $left.find('> .objectInputs > .inputContainer').each(function() {
-                var $leftInput = $(this);
-
-                equalizeHeight($leftInput, $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]'));
-            });
-        });
-
-        getValues = function($input) {
-            return $input.
-                    find(':input, select, textarea').
-                    serialize().
-                    replace(new RegExp('(^|&)[^%]+%2F', 'g'), '$1%2F');
-        };
-
-        $left.find('> .objectInputs > .inputContainer').each(function() {
-            var $leftInput = $(this),
-                    $rightInput = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftInput.attr('data-field') + '"]'),
-                    height = Math.max($leftInput.outerHeight(true), $rightInput.outerHeight(true));
-
-            if (getValues($leftInput) === getValues($rightInput)) {
-                $leftInput.addClass('contentDiffSame');
-                $rightInput.addClass('contentDiffSame');
-            }
-        });
-
-        $left.find('> .objectInputs > .inputContainer > .inputSmall > textarea:not(.richtext)').each(function() {
-            var $leftText = $(this),
-                    $rightText = $right.find('> .objectInputs > .inputContainer[data-field="' + $leftText.closest('.inputContainer').attr('data-field') + '"] textarea:not(.richtext)'),
-                    left = $leftText.val(),
-                    right = $rightText.val(),
-                    diffs = JsDiff.diffWords(left, right),
-                    $leftCopy = $('<div/>', { 'class': 'contentDiffCopy' }),
-                    $rightCopy = $('<div/>', { 'class': 'contentDiffCopy' });
-
-            $.each(diffs, function(i, diff) {
-                if (!diff.added) {
-                    $leftCopy.append(diff.removed ?
-                            $('<span/>', { 'class': 'contentDiffRemoved', 'text': diff.value }) :
-                            diff.value);
-                }
-            });
-
-            $.each(diffs, function(i, diff) {
-                if (!diff.removed) {
-                    $rightCopy.append(diff.added ?
-                            $('<span/>', { 'class': 'contentDiffAdded', 'text': diff.value }) :
-                            diff.value);
-                }
-            });
-
-            $leftText.addClass('contentDiffText');
-            $leftText.before($leftCopy);
-
-            $rightText.addClass('contentDiffText');
-            $rightText.before($rightCopy);
-        });
-
-        $tabs.append($tabEdit);
-        $tabs.append($tabSideBySide);
-        $container.prepend($tabs);
-        $container.trigger($right.is('.contentDiffCurrent') ?
-                'contentDiff-sideBySide' :
-                'contentDiff-edit');
+    $doc.on('click', '.taxonomyExpand', function() {
+        var $this = $(this);
+        var selectedClass = 'state-selected';
+        $this.closest('ul').find('.' + selectedClass).removeClass(selectedClass);
+        $this.closest('li').addClass(selectedClass);
     });
 
     $doc.onCreate('.searchAdvancedResult', function() {
@@ -537,114 +251,6 @@ function() {
             });
         });
     });
-
-    $doc.onCreate('.contentLock', function() {
-        var $container = $(this);
-
-        if ($container.attr('data-content-locked-out') === 'true') {
-            $container.find(':input, button, .event-input-disable').trigger('input-disable', [ true ]);
-            $win.resize();
-        }
-    });
-
-    $doc.onCreate('.inputContainer-listLayoutItemContainer-embedded', function() {
-        var $item = $(this),
-                expanded;
-
-        $item.append($('<span/>', {
-            'class': 'inputContainer-listLayoutItemContainer_expand',
-            'click': function() {
-                var $container = $item.offsetParent();
-
-                expanded = !expanded;
-
-                if (expanded) {
-                    $item.css({
-                        'left': 10,
-                        'position': 'absolute',
-                        'top': 10,
-                        'z-index': 1
-                    });
-
-                    $item.outerWidth($container.outerWidth() - 20);
-                    $item.outerHeight($container.outerHeight() - 20);
-                    $item.addClass('inputContainer-listLayoutItemContainer-embedded-expanded');
-
-                } else {
-                    $item.attr('style', '');
-                    $item.removeClass('inputContainer-listLayoutItemContainer-embedded-expanded');
-                }
-
-                $item.trigger('resize');
-            }
-        }));
-    });
-
-    (function() {
-        var $frames,
-                $fields = $();
-
-        $doc.onCreate('.queryField', function() {
-            var $field = $(this),
-                    inputValue = $field.find('input').val(),
-                    search,
-                    $body = $(window.document.body),
-                    $frame;
-
-            $fields = $fields.add($field);
-
-            if (!$frames) {
-                $frames = $('<div/>', {
-                    'class': 'queryField_frames'
-                });
-
-                $(window.document.body).append($frames);
-            }
-
-            $frame = $('<div/>', {
-                'class': 'frame',
-                'html': $('<form/>', {
-                    'method': 'post',
-                    'action': CONTEXT_PATH + '/queryField',
-                    'html': $('<input/>', {
-                        'type': 'hidden',
-                        'name': 'search',
-                        'value': inputValue ? JSON.stringify(JSON.parse(inputValue)['cms.ui.search']) : ''
-                    })
-                })
-            });
-
-            $.data($field[0], 'query-$frame', $frame);
-            $.data($frame[0], 'query-$field', $field);
-            $frames.append($frame);
-            $frames.trigger('create');
-        });
-
-        setInterval(function() {
-            $fields.filter(':visible').each(function() {
-                var $field = $(this),
-                        $frame = $.data($field[0], 'query-$frame'),
-                        fieldOffset = $field.offset();
-
-                $frame.css({
-                    'left': fieldOffset.left,
-                    'position': 'absolute',
-                    'top': fieldOffset.top
-                });
-
-                $frame.outerWidth($field.outerWidth());
-                $field.outerHeight($frame.outerHeight());
-                $frame.show();
-            });
-
-            $fields.filter(':not(:visible)').each(function() {
-                var $field = $(this),
-                        $frame = $.data($field[0], 'query-$frame');
-
-                $frame.hide();
-            });
-        }, 100);
-    })();
 
     // Show stack trace when clicking on the exception message.
     $doc.delegate('.exception > *', 'click', function() {
@@ -769,85 +375,6 @@ function() {
             lastScrollTop = scrollTop;
         }));
     })();
-
-    // Make sure that the label for the focused input is visible.
-    $doc.delegate(':input', 'focus', function() {
-        var $input = $(this),
-                $firstInput = $input.closest('form').find('.inputContainer:visible').eq(0),
-                $parents = $input.parentsUntil('form');
-
-        $parents.addClass('state-focus');
-
-        $win.bind('scroll.focusLabel', $.run($.throttle(50, function() {
-            var focusLabelHeight,
-                    index,
-                    $parent,
-                    headerHeight = $('.toolHeader').outerHeight(),
-                    labelText = '',
-                    $focusLabel = $('.focusLabel'),
-                    $parentLabel,
-                    parentLabelText;
-
-            if ($focusLabel.length === 0) {
-                $focusLabel = $('<div/>', { 'class': 'focusLabel' });
-
-                $(doc.body).append($focusLabel);
-            }
-
-            focusLabelHeight = $focusLabel.outerHeight();
-
-            $parents.each(function() {
-                $(this).find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
-            });
-
-            for (index = $parents.length - 1; index >= 0; -- index) {
-                $parent = $($parents[index]);
-
-                if ($parent.offset().top > $win.scrollTop() + (focusLabelHeight * 2 / 3) + headerHeight) {
-                    if (labelText) {
-                        $focusLabel.css({
-                            'left': $firstInput.offset().left,
-                            'top': headerHeight,
-                            'width': $firstInput.outerWidth()
-                        });
-                        $focusLabel.text(labelText);
-                        $focusLabel.show();
-                        return;
-
-                    } else {
-                        break;
-                    }
-                }
-
-                $parentLabel = $parent.find('> .inputLabel label, > .repeatableLabel');
-                parentLabelText = $parentLabel.text();
-
-                if (parentLabelText) {
-                    $parentLabel.css('visibility', 'hidden');
-
-                    if (labelText) {
-                        labelText += ' \u2192 ';
-                    }
-
-                    labelText += parentLabelText;
-                }
-            }
-
-            $focusLabel.hide();
-        })));
-    });
-
-    $doc.delegate(':input', 'blur', function() {
-        $(this).parents('.state-focus').each(function() {
-            var $parent = $(this);
-
-            $parent.removeClass('state-focus');
-            $parent.find('> .inputLabel label, > .repeatableLabel').css('visibility', '');
-        });
-
-        $('.focusLabel').hide();
-        $win.unbind('.focusLabel');
-    });
 
     // Handle file uploads from drag-and-drop.
     (function() {
@@ -1078,121 +605,6 @@ function() {
         }
     });
 
-    // Publishing widget behaviors.
-    $doc.onCreate('.widget-publishing', function() {
-        var $widget = $(this),
-                $dateInput = $widget.find('.dateInput'),
-                $newSchedule = $widget.find('select[name="newSchedule"]'),
-                $publishButton = $widget.find('[name="action-publish"]'),
-                oldPublishText = $publishButton.text(),
-                oldDate = $dateInput.val(),
-                onChange;
-
-        // Change the publish button label if scheduling.
-        if ($dateInput.length === 0) {
-            $publishButton.addClass('schedule');
-            $publishButton.text('Schedule');
-
-        } else {
-            onChange = function() {
-                if ($dateInput.val()) {
-                    $publishButton.addClass('schedule');
-                    $publishButton.text(oldDate && !$newSchedule.val() ? 'Reschedule' : 'Schedule');
-
-                } else {
-                    $publishButton.removeClass('schedule');
-                    $publishButton.text(oldPublishText);
-                }
-            };
-
-            onChange();
-
-            $dateInput.change(onChange);
-            $newSchedule.change(onChange);
-        }
-
-        // Move the widget to the top if within aside section.
-        if ($widget.closest('.popup').length > 0) {
-            return;
-        }
-
-        $widget.closest('.contentForm-aside').each(function() {
-            var $aside = $(this),
-                    asideTop = $aside.offset().top;
-
-            $win.resize($.throttle(100, $.run(function() {
-                $widget.css({
-                    'left': $aside.offset().left,
-                    'position': 'fixed',
-                    'top': asideTop,
-                    'width': $widget.width(),
-                    'z-index': 1
-                });
-
-                // Push other areas down.
-                $aside.css('padding-top', $widget.outerHeight(true));
-            })));
-        });
-    });
-
-    // Create tabs if the publishing widget contains both the workflow
-    // and the publish areas.
-    $doc.onCreate('.widget-publishing', function() {
-        var $widget = $(this),
-                $workflow = $widget.find('.widget-publishingWorkflow'),
-                $publish = $widget.find('.widget-publishingPublish'),
-                $tabs,
-                $tabWorkflow,
-                $tabPublish;
-
-        if ($workflow.length === 0 || $publish.length === 0) {
-            return;
-        }
-
-        $tabs = $('<ul/>', {
-            'class': 'tabs'
-        });
-
-        $tabWorkflow = $('<li/>', {
-            'html': $('<a/>', {
-                'text': 'Workflow',
-                'click': function() {
-                    $workflow.show();
-                    $tabWorkflow.addClass('state-selected');
-                    $publish.hide();
-                    $tabPublish.removeClass('state-selected');
-                    $win.resize();
-                    return false;
-                }
-            })
-        });
-
-        $tabPublish = $('<li/>', {
-            'html': $('<a/>', {
-                'text': 'Publish',
-                'click': function() {
-                    $workflow.hide();
-                    $tabWorkflow.removeClass('state-selected');
-                    $publish.show();
-                    $tabPublish.addClass('state-selected');
-                    $win.resize();
-                    return false;
-                }
-            })
-        });
-
-        $tabs.append($tabWorkflow);
-        $tabs.append($tabPublish);
-        $workflow.before($tabs);
-
-        if ($('.widget-publishingWorkflowState').length > 0) {
-            $tabWorkflow.find('a').click();
-
-        } else {
-            $tabPublish.find('a').click();
-        }
-    });
-
     // Synchronizes main search input with the hidden one in the type select form.
     $doc.on('input', '.searchFiltersRest > .searchInput > :text', function() {
         var $input = $(this),
@@ -1201,10 +613,6 @@ function() {
         if ($otherInput.length > 0) {
             $otherInput.val($input.val());
         }
-    });
-
-    $doc.ready(function() {
-        $(doc.activeElement).focus();
     });
 
     $doc.ready(function() {
@@ -1303,44 +711,4 @@ function() {
             })();
         }
     });
-
-    // Content locking functions.
-    (function() {
-        var KEY_PREFIX = "cms.contentLock.",
-                STORAGE = window.localStorage;
-
-        window.bspContentLock = function(contentId) {
-            STORAGE.setItem(KEY_PREFIX + contentId, +new Date());
-        };
-
-        window.bspContentUnlock = function(contentId) {
-            STORAGE.removeItem(KEY_PREFIX + contentId);
-
-            $.ajax({
-                'url': CONTEXT_PATH + '/contentUnlock',
-                'data': { 'id': contentId },
-                'async': false,
-                'cache': false
-            });
-        };
-
-        window.setInterval(function() {
-            var itemIndex,
-                    itemLength = STORAGE.length,
-                    key,
-                    now = +new Date(),
-                    contentId;
-
-            for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
-                key = STORAGE.key(itemIndex);
-
-                if (key.indexOf(KEY_PREFIX, 0) === 0 &&
-                        parseInt(STORAGE.getItem(key), 10) + 5000 < now) {
-                    contentId = key.substring(KEY_PREFIX.length);
-
-                    window.bspContentUnlock(contentId);
-                }
-            }
-        }, 1000);
-    })();
 });

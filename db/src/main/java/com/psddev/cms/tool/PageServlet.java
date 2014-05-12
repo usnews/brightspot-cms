@@ -1,7 +1,5 @@
 package com.psddev.cms.tool;
 
-import com.psddev.cms.tool.ToolPageContext;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
