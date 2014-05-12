@@ -57,7 +57,9 @@ public class SearchQueryBuilder extends Record {
     }
 
     public SearchQueryBuilder addRules(List<Rule> rules) {
-        getRules().addAll(rules);
+        if (!ObjectUtils.isBlank(rules)) {
+            getRules().addAll(rules);
+        }
         return this;
     }
 
@@ -164,7 +166,7 @@ public class SearchQueryBuilder extends Record {
 
                     if (Character.isWhitespace(letter)) {
                         int end = i;
-                        for (++i; i < length && Character.isWhitespace(letters[i]); ) {
+                        for (++i; i < length && Character.isWhitespace(letters[i]);) {
                             ++i;
                         }
 
@@ -177,7 +179,6 @@ public class SearchQueryBuilder extends Record {
                 normalized.add(termString.substring(lastEnd));
             }
         }
-
         return normalized;
     }
 
@@ -203,7 +204,7 @@ public class SearchQueryBuilder extends Record {
         return query;
     }
 
-    public static abstract class Rule extends Record {
+    public abstract static class Rule extends Record {
 
         public abstract void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
     }
@@ -243,7 +244,7 @@ public class SearchQueryBuilder extends Record {
                 return;
             }
 
-            for (Iterator<String> i = queryTerms.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = queryTerms.iterator(); i.hasNext();) {
                 String word = i.next();
                 if (stopWords.contains(word)) {
                     i.remove();
@@ -362,7 +363,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static abstract class BoostRule extends Rule {
+    public abstract static class BoostRule extends Rule {
 
         @ToolUi.Note("Number between -2 and 5")
         @Minimum(-2)
@@ -534,11 +535,10 @@ public class SearchQueryBuilder extends Record {
 
             } else if (predicate instanceof ComparisonPredicate) {
                 ComparisonPredicate comparison = (ComparisonPredicate) predicate;
-                return new ComparisonPredicate(
-                                                      comparison.getOperator(),
-                                                      comparison.isIgnoreCase(),
-                                                      prefix + comparison.getKey(),
-                                                      comparison.getValues());
+                return new ComparisonPredicate(comparison.getOperator(),
+                                              comparison.isIgnoreCase(),
+                                              prefix + comparison.getKey(),
+                                              comparison.getValues());
 
             } else {
                 return predicate;
