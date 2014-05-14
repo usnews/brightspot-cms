@@ -11,6 +11,9 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -28,6 +31,8 @@ import com.psddev.dari.util.RoutingFilter;
 public class ContentEditBulk extends PageServlet {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentEditBulk.class);
 
     public static final List<Operation> COLLECTION_OPERATIONS = ImmutableList.of(Operation.REPLACE, Operation.ADD, Operation.REMOVE, Operation.CLEAR);
     public static final List<Operation> NON_COLLECTION_OPERATIONS = ImmutableList.of(Operation.REPLACE, Operation.CLEAR);
@@ -152,7 +157,14 @@ public class ContentEditBulk extends PageServlet {
                             itemState.remove(clear);
                         }
 
-                        itemState.save();
+                        try {
+                            itemState.save();
+
+                        } catch (Exception error) {
+                            LOGGER.warn(String.format(
+                                    "Can't save [%s] as part of a bulk edit!", itemState.getId()),
+                                    error);
+                        }
                     }
 
                     state.clear();

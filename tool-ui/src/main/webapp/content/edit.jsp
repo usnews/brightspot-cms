@@ -161,7 +161,8 @@ ContentLock contentLock = null;
 boolean lockedOut = false;
 boolean editAnyway = wp.param(boolean.class, "editAnyway");
 
-if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
+if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
+        wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
     contentLock = ContentLock.Static.lock(editing, null, user);
     lockedOut = !user.equals(contentLock.getOwner());
 }
@@ -842,7 +843,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking()) {
                                             "name", "_mainObjectId",
                                             "onchange", "$(this).closest('form').submit();",
                                             "style", "width:200px;");
-                                        wp.writeStart("option", "value", editingState.getId());
+                                        wp.writeStart("option", "value", "");
                                             wp.writeTypeObjectLabel(editing);
                                         wp.writeEnd();
 

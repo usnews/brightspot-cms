@@ -300,10 +300,13 @@ function() {
 
             $(iframe.contentDocument).on('input', $.throttle(100, function() {
                 if ($textarea.length > 0) {
+                    var $bodyClone = $(iframe.contentDocument.body).clone();
+
+                    $bodyClone.find('del, .rte').remove();
                     updateWordCount(
                             $toolbar,
                             $textarea,
-                            $(iframe.contentDocument.body).text());
+                            $bodyClone.text());
                 }
             }));
         });
