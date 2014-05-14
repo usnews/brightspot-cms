@@ -204,7 +204,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 if (fileData != null) {
                     name = ObjectUtils.to(String.class, fileData.get("name"));
                     fileContentType = ObjectUtils.getContentType(name);
-                    fileSize = ObjectUtils.to(int.class, fileData.get("bytes"));
+                    fileSize = ObjectUtils.to(long.class, fileData.get("bytes"));
                     InputStream fileInput = new URL(ObjectUtils.to(String.class, fileData.get("link"))).openStream();
 
                     try {
