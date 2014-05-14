@@ -8,9 +8,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Template;
@@ -18,9 +22,14 @@ import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.page.ContentRevisions;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.util.CollectionUtils;
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.RepeatingTask;
+import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 
 /** Brightspot CMS. */
@@ -124,6 +133,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Tab("Debug")
     private boolean alwaysGeneratePermalinks;
+
+    @ToolUi.Tab("Debug")
+    private List<DariSetting> dariSettings;
 
     @Embedded
     public static class CommonTime extends Record {
@@ -625,6 +637,17 @@ public class CmsTool extends Tool {
         this.alwaysGeneratePermalinks = alwaysGeneratePermalinks;
     }
 
+    public List<DariSetting> getDariSettings() {
+        if (dariSettings == null) {
+            dariSettings = new ArrayList<DariSetting>();
+        }
+        return dariSettings;
+    }
+
+    public void setDariSettings(List<DariSetting> dariSettings) {
+        this.dariSettings = dariSettings;
+    }
+
     /** Returns the preview URL. */
     public String getPreviewUrl() {
         String url = getDefaultSiteUrl();
@@ -840,6 +863,59 @@ public class CmsTool extends Tool {
 
         public void setDefaultType(ObjectType defaultType) {
             this.defaultType = defaultType;
+        }
+    }
+
+    @Embedded
+    public static class DariSetting extends Record {
+
+        private String key;
+        private String value;
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    public static class DariSettingsUpdater extends RepeatingTask {
+
+        private Date oldLastUpdate;
+
+        @Override
+        protected DateTime calculateRunTime(DateTime currentTime) {
+            return every(currentTime, DateTimeFieldType.secondOfDay(), 0, 10);
+        }
+
+        @Override
+        protected void doRepeatingTask(DateTime runTime) {
+            Date newLastUpdate = Query.from(CmsTool.class).lastUpdate();
+
+            if (oldLastUpdate == null ||
+                    (newLastUpdate != null &&
+                    !newLastUpdate.equals(oldLastUpdate))) {
+                oldLastUpdate = newLastUpdate;
+                Map<String, Object> settings = new CompactMap<String, Object>();
+
+                for (DariSetting s : Query.from(CmsTool.class).first().getDariSettings()) {
+                    CollectionUtils.putByPath(settings, s.getKey(), s.getValue());
+                }
+
+                if (!settings.isEmpty()) {
+                    Settings.putPermanentOverrides("cms", settings);
+                }
+            }
         }
     }
 }
