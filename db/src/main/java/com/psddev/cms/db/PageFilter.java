@@ -704,6 +704,7 @@ public class PageFilter extends AbstractFilter {
                         "color", "white !important",
                         "font-family", "'Helvetica Neue', sans-serif !important",
                         "font-size", "13px !important",
+                        "font-weight", "normal !important",
                         "left", "0 !important",
                         "line-height", "21px !important",
                         "list-style", "none !important",
