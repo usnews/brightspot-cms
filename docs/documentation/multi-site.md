@@ -9,7 +9,7 @@ section: documentation
 
 ## Overview
 
-Multi-Site allows editors to manage multiple sites from one Brightspot CMS instance. This feature is critical to streamlining publishing workflows across multiple sites that share the same content. Brightspot CMS can maintain unified taxonomies and tagging strategies, conten and modules. This section will walk through how to create new sites, and use multi-site in Brightspot.
+Multi-Site allows editors to manage multiple sites from one Brightspot CMS instance. This feature is critical to streamlining publishing workflows across multiple sites that share the same content. Brightspot CMS can maintain unified taxonomies and tagging strategies, content and modules. This section will walk through how to create new sites, and use multi-site in Brightspot.
 
 To illustrate how to create new sites within Brightspot, and use Multi-site, two domains will be used as examples:
 
