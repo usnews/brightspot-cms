@@ -209,6 +209,32 @@ public class SearchQueryBuilder extends Record {
         public abstract void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms);
     }
 
+    public static class OnlyPathed extends Rule {
+
+        private boolean onlyReturnPathed;
+
+        public OnlyPathed() {
+        }
+
+        public OnlyPathed(boolean isPathed) {
+            onlyReturnPathed = isPathed;
+        }
+
+        public boolean isOnlyReturnPathed() {
+            return onlyReturnPathed;
+        }
+
+        public void setOnlyReturnPathed(boolean onlyReturnPathed) {
+            this.onlyReturnPathed = onlyReturnPathed;
+        }
+
+        public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
+            if (onlyReturnPathed) {
+                query.and(Directory.Static.hasPathPredicate());
+            }
+        }
+    }
+
     public static class StopWords extends Rule {
 
         @CollectionMinimum(1)
