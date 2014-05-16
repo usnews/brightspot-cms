@@ -11,8 +11,6 @@ public class EditorialSearchSettings extends Content {
     private SearchQueryBuilder.StopWords stopWords;
     @Embedded
     private SearchQueryBuilder.Synonyms synonyms;
-    @Embedded
-    private SearchQueryBuilder.Spotlights spotlights;
     //TODO: how do we want to surface rules?
 
     public SearchQueryBuilder.StopWords getStopWords() {
@@ -35,14 +33,6 @@ public class EditorialSearchSettings extends Content {
         return null;
     }
 
-    public SearchQueryBuilder.Spotlights getSpotlights() {
-        return spotlights;
-    }
-
-    public void setSpotlights(SearchQueryBuilder.Spotlights spotlights) {
-        this.spotlights = spotlights;
-    }
-
     public List<SearchQueryBuilder.Rule> getEditorialRules() {
         List<SearchQueryBuilder.Rule> rules = new ArrayList<SearchQueryBuilder.Rule>();
         if (!ObjectUtils.isBlank(stopWords)) {
@@ -50,9 +40,6 @@ public class EditorialSearchSettings extends Content {
         }
         if (!ObjectUtils.isBlank(synonyms)) {
             rules.add(synonyms);
-        }
-        if (!ObjectUtils.isBlank(spotlights)) {
-            rules.add(spotlights);
         }
         return rules;
     }

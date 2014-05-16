@@ -52,7 +52,9 @@ public class SearchQueryBuilder extends Record {
     }
 
     public SearchQueryBuilder addRule(Rule rule) {
-        getRules().add(rule);
+        if (rule != null) {
+            getRules().add(rule);
+        }
         return this;
     }
 
@@ -370,7 +372,7 @@ public class SearchQueryBuilder extends Record {
             //TODO: add logic
         }
 
-        public abstract class Spotlight<T extends Content> {
+        public abstract static class Spotlight<T extends Content> {
             private List<String> spotLightTerms;
 
             abstract List<T> getSpotlightContent();
