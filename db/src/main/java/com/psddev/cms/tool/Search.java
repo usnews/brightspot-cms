@@ -795,8 +795,6 @@ public class Search extends Record {
             }
         }
 
-        query.and("_type != ?", ObjectType.getInstance(Draft.class));
-
         String color = getColor();
 
         if (color != null && color.startsWith("#")) {

@@ -566,6 +566,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                         if (!isTrash &&
                                 (editingState.isNew() ||
                                 !editingState.isVisible() ||
+                                draft != null ||
                                 editingState.as(Workflow.Data.class).getCurrentState() != null)) {
                             Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
 
