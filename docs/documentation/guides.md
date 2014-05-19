@@ -8,7 +8,7 @@ section: documentation
 
 ## Overview
 
-This section provides some insight into best practices for implementing common features using Brightspot and Dari. These guides give a high-level overview of the steps for implementing these features. Brightspot places no limitations on the way to choose to implement your model, the properties you use, or the front-end code you create to design your experience.
+This section provides some insight into best practices for implementing common features using Brightspot and Dari. These guides give a high-level overview of the steps for implementing these features. Brightspot places no limitations on the way to implement the data model, the properties used, or the front-end code.
 
 <h3 id="galleries">Photo Galleries</h3>
 
@@ -19,7 +19,7 @@ The following guide walks through how to create these experiences using Brightsp
 
 **Step One: Create an Image Object**
 
-A gallery will most likely contain a collection of images. Start by creating this Image object. Extend the parent Content class and add some properties to be included on the object. It must include a Dari `StorageItem` class, to upload the image file to your default storage mechanism:
+A gallery will most likely contain a collection of images. Start by creating this Image object. Extend the parent Content class and add some properties to be included on the object. It must include a Dari `StorageItem` class, to upload the image file to the default storage mechanism:
 
 	public class Image extends Content {
 	
@@ -46,9 +46,9 @@ Next step is to create a Gallery object. The example below has a Title and a Lis
 
 Annotations are used in Brightspot to build out the control for how objects are rendered. They are also used to control the use of classes and their properties (Validation and UI Changes). Start by updating the Image class so it has a JSP attached to render it when it is accessed from within the Gallery experience. Use the `@Renderer.Path` annotation, which points to the JSP to render the Image. The example below also includes the `@Recordable.PreviewField("file")` annotation, which is used to define which field (The Image File) is used to preview within Brightspot:
 	
-		@Recordable.PreviewField("file")
-		@Renderer.Path("/path/to/image.jsp")
-		public class Image extends Content {
+	@Recordable.PreviewField("file")
+	@Renderer.Path("/path/to/image.jsp")
+	public class Image extends Content {
 	
 		private String name;
 		private StorageItem file;
