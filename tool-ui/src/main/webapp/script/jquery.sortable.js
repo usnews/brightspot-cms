@@ -99,8 +99,13 @@ $.plugin2('sortable', {
 
                 $selected.find('.richtext').each(function() {
                     var $rte = $(this);
+                    var $rteIframe = $rte.closest('.inputContainer').find('.rte-container iframe');
 
-                    $rte.val($($rte.closest('.inputContainer').find('.rte-container iframe')[0].contentDocument.body).html());
+                    if ($rteIframe.length === 0) {
+                        return;
+                    }
+
+                    $rte.val($($rteIframe[0].contentDocument.body).html());
                 });
 
                 if (data.$placeholder.next()[0] !== $selected[0]) {
@@ -110,6 +115,12 @@ $.plugin2('sortable', {
 
                 $selected.find('.richtext').each(function() {
                     var $rte = $(this);
+                    var $rteIframe = $rte.closest('.inputContainer').find('.rte-container iframe');
+
+                    if ($rteIframe.length === 0) {
+                        return;
+                    }
+
                     var rteValue = $rte.val();
                     var $inputContainer = $rte.closest('.inputContainer');
                     $rte = $rte.clone();
