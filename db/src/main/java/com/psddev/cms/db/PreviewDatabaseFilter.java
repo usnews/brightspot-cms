@@ -58,8 +58,11 @@ public class PreviewDatabaseFilter extends AbstractFilter implements AbstractFil
 
                     State mainState = State.getInstance(PageFilter.Static.getMainObject(request));
 
-                    mainState.setDatabase(null);
-                    mainState.setValues(mainState.getSimpleValues());
+                    if (mainState != null) {
+                        mainState.setDatabase(null);
+                        mainState.setValues(mainState.getSimpleValues());
+                    }
+
                     chain.doFilter(request, response);
 
                 } finally {
