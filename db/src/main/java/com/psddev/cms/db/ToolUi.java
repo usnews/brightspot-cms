@@ -66,6 +66,7 @@ public class ToolUi extends Modification<Object> {
     private Number suggestedMinimum;
     private String tab;
     private String storageSetting;
+    private String defaultSortField;
 
     public boolean isBulkUpload() {
         return Boolean.TRUE.equals(bulkUpload);
@@ -445,6 +446,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setStorageSetting(String storageSetting) {
         this.storageSetting = storageSetting;
+    }
+
+    public String getDefaultSortField() {
+        return defaultSortField;
+    }
+
+    public void setDefaultSortField(String defaultSortField) {
+        this.defaultSortField = defaultSortField;
     }
 
     /**
@@ -1345,6 +1354,23 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, StorageSetting annotation) {
             field.as(ToolUi.class).setStorageSetting(annotation.value());
+        }
+    }
+
+    /**
+     * Specifies which field should be used as the default sorter.
+     */
+    @ObjectType.AnnotationProcessorClass(DefaultSortFieldProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface DefaultSortField {
+        String value();
+    }
+
+    private static class DefaultSortFieldProcessor implements ObjectType.AnnotationProcessor<DefaultSortField> {
+        @Override
+        public void process(ObjectType type, DefaultSortField annotation) {
+            type.as(ToolUi.class).setDefaultSortField(annotation.value());
         }
     }
 

@@ -60,6 +60,7 @@ public class SearchResultRenderer {
         this.search = search;
 
         ObjectType selectedType = search.getSelectedType();
+        ToolUi ui = selectedType == null ? null : selectedType.as(ToolUi.class);
         PaginatedResult<?> result = null;
 
         if (selectedType != null) {
@@ -78,7 +79,10 @@ public class SearchResultRenderer {
         if (search.getSort() == null) {
             search.setShowMissing(true);
 
-            if (!ObjectUtils.isBlank(search.getQueryString())) {
+            if (ui != null && ui.getDefaultSortField() != null) {
+                search.setSort(ui.getDefaultSortField());
+
+            } else if (!ObjectUtils.isBlank(search.getQueryString())) {
                 search.setSort(Search.RELEVANT_SORT_VALUE);
 
             } else {
@@ -146,7 +150,7 @@ public class SearchResultRenderer {
 
             if (!ObjectUtils.isBlank(taxonParentUuid)) {
                 Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
-                taxonResults = (Collection<Taxon>) parent.getChildren();
+                taxonResults = (Collection<Taxon>) Taxon.Static.getChildren(parent);
 
             } else {
                 taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass());
