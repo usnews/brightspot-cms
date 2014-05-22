@@ -13,6 +13,22 @@
         <requiredProperty key="version">
             <defaultValue>1.0.0-SNAPSHOT</defaultValue>
         </requiredProperty>
+
+        <requiredProperty key="jdbcUrl">
+            <defaultValue>DEFAULT</defaultValue>
+        </requiredProperty>
+
+        <requiredProperty key="jdbcUser">
+            <defaultValue>root</defaultValue>
+        </requiredProperty>
+
+        <requiredProperty key="jdbcPassword">
+            <defaultValue>DEFAULT</defaultValue>
+        </requiredProperty>
+
+        <requiredProperty key="mysqlDatabase">
+            <defaultValue>DEFAULT</defaultValue>
+        </requiredProperty>
     </requiredProperties>
 
     <fileSets>

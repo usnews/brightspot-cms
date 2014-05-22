@@ -9,12 +9,16 @@
 
     <!-- SQL via H2 -->
     <Environment name="dari/database/${artifactId}.dev/delegate/sql/class" type="java.lang.String" value="com.psddev.dari.db.SqlDatabase" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUrl" type="java.lang.String" value="jdbc:h2:file:../../../../data/h2/default" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUser" type="java.lang.String" value="root" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcPassword" type="java.lang.String" value="" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/readJdbcUrl" type="java.lang.String" value="jdbc:h2:file:../../../../data/h2/default" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/readJdbcUser" type="java.lang.String" value="root" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/readJdbcPassword" type="java.lang.String" value="" />
+    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUrl" type="java.lang.String" value="##
+#{if}($jdbcUrl && $jdbcUrl != 'DEFAULT')##
+${jdbcUrl}##
+#{elseif}($mysqlDatabase && $mysqlDatabase != 'DEFAULT')##
+jdbc:mysql://localhost:3306/${mysqlDatabase}?createDatabaseIfNotExist=true&amp;useConfigs=maxPerformance&amp;enableQueryTimeouts=true&amp;clobberStreamingResults=true##
+#{else}##
+jdbc:h2:file:../../../../data/h2/default##
+#{end}" />
+    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUser" type="java.lang.String" value="${jdbcUser}" />
+    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcPassword" type="java.lang.String" value="#{if}($jdbcPassword && $jdbcPassword != 'DEFAULT')${jdbcPassword}#{end}" />
 
     <!-- Solr -->
     <Environment name="dari/database/${artifactId}.dev/delegate/solr/class" type="java.lang.String" value="com.psddev.dari.db.SolrDatabase" />
