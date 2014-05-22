@@ -902,8 +902,8 @@ public class CmsTool extends Tool {
         protected void doRepeatingTask(DateTime runTime) {
             Date newLastUpdate = Query.from(CmsTool.class).lastUpdate();
 
-            if (oldLastUpdate == null ||
-                    (newLastUpdate != null &&
+            if (newLastUpdate != null &&
+                    (oldLastUpdate == null ||
                     !newLastUpdate.equals(oldLastUpdate))) {
                 oldLastUpdate = newLastUpdate;
                 Map<String, Object> settings = new CompactMap<String, Object>();
