@@ -7,6 +7,7 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.db.VisibilityValues;
 
@@ -292,7 +293,7 @@ public class Workflow extends Record {
         public Iterable<?> findVisibilityValues(ObjectIndex index) {
             Set<Object> visibilityValues = new HashSet<Object>();
 
-            for (Workflow workflow : Query.from(Workflow.class).selectAll()) {
+            for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", State.getInstance(getOriginalObject()).getType()).selectAll()) {
                 visibilityValues.add(workflow.getStates());
             }
             return visibilityValues;
