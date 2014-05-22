@@ -3,13 +3,13 @@
     <Environment name="PRODUCTION" type="java.lang.Boolean" value="false" />
 
     <!-- Database -->
-    <Environment name="dari/defaultDatabase" type="java.lang.String" value="${artifactId}.dev" />
-    <Environment name="dari/database/${artifactId}.dev/class" type="java.lang.String" value="com.psddev.dari.db.AggregateDatabase" />
-    <Environment name="dari/database/${artifactId}.dev/defaultDelegate" type="java.lang.String" value="sql" />
+    <Environment name="dari/defaultDatabase" type="java.lang.String" value="${artifactId}.local" />
+    <Environment name="dari/database/${artifactId}.local/class" type="java.lang.String" value="com.psddev.dari.db.AggregateDatabase" />
+    <Environment name="dari/database/${artifactId}.local/defaultDelegate" type="java.lang.String" value="sql" />
 
     <!-- SQL via H2 -->
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/class" type="java.lang.String" value="com.psddev.dari.db.SqlDatabase" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUrl" type="java.lang.String" value="##
+    <Environment name="dari/database/${artifactId}.local/delegate/sql/class" type="java.lang.String" value="com.psddev.dari.db.SqlDatabase" />
+    <Environment name="dari/database/${artifactId}.local/delegate/sql/jdbcUrl" type="java.lang.String" value="##
 #{if}($jdbcUrl && $jdbcUrl != 'DEFAULT')##
 ${jdbcUrl}##
 #{elseif}($mysqlDatabase && $mysqlDatabase != 'DEFAULT')##
@@ -17,18 +17,18 @@ jdbc:mysql://localhost:3306/${mysqlDatabase}?createDatabaseIfNotExist=true&amp;u
 #{else}##
 jdbc:h2:file:../../../../data/h2/default##
 #{end}" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcUser" type="java.lang.String" value="${jdbcUser}" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/sql/jdbcPassword" type="java.lang.String" value="#{if}($jdbcPassword && $jdbcPassword != 'DEFAULT')${jdbcPassword}#{end}" />
+    <Environment name="dari/database/${artifactId}.local/delegate/sql/jdbcUser" type="java.lang.String" value="${jdbcUser}" />
+    <Environment name="dari/database/${artifactId}.local/delegate/sql/jdbcPassword" type="java.lang.String" value="#{if}($jdbcPassword && $jdbcPassword != 'DEFAULT')${jdbcPassword}#{end}" />
 
     <!-- Solr -->
-    <Environment name="dari/database/${artifactId}.dev/delegate/solr/class" type="java.lang.String" value="com.psddev.dari.db.SolrDatabase" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/solr/groups" type="java.lang.String" value="-* +cms.content.searchable" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/solr/serverUrl" type="java.lang.String" value="http://localhost:8080/solr" />
-    <Environment name="dari/database/${artifactId}.dev/delegate/solr/readServerUrl" type="java.lang.String" value="http://localhost:8080/solr" />
+    <Environment name="dari/database/${artifactId}.local/delegate/solr/class" type="java.lang.String" value="com.psddev.dari.db.SolrDatabase" />
+    <Environment name="dari/database/${artifactId}.local/delegate/solr/groups" type="java.lang.String" value="-* +cms.content.searchable" />
+    <Environment name="dari/database/${artifactId}.local/delegate/solr/serverUrl" type="java.lang.String" value="http://localhost:8080/solr" />
+    <Environment name="dari/database/${artifactId}.local/delegate/solr/readServerUrl" type="java.lang.String" value="http://localhost:8080/solr" />
 
     <!-- Storage -->
-    <Environment name="dari/defaultStorage" type="java.lang.String" value="${artifactId}.dev" />
-    <Environment name="dari/storage/${artifactId}.dev/class" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
-    <Environment name="dari/storage/${artifactId}.dev/baseUrl" type="java.lang.String" value="http://localhost:8080/storage" />
-    <Environment name="dari/storage/${artifactId}.dev/rootPath" type="java.lang.String" value="../../../../data/storage" />
+    <Environment name="dari/defaultStorage" type="java.lang.String" value="${artifactId}.local" />
+    <Environment name="dari/storage/${artifactId}.local/class" type="java.lang.String" value="com.psddev.dari.util.LocalStorageItem" />
+    <Environment name="dari/storage/${artifactId}.local/baseUrl" type="java.lang.String" value="http://localhost:8080/storage" />
+    <Environment name="dari/storage/${artifactId}.local/rootPath" type="java.lang.String" value="../../../../data/storage" />
 </Context>
