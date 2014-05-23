@@ -1,6 +1,6 @@
 define('jquery', [ ], function() { return $; });
-define('jquery.extra', [ ], function() { return $; });
-define('jquery.handsontable.full', [ ], function() { return $; });
+define('jquery.extra', [ ], function() { });
+define('jquery.handsontable.full', [ ], function() { });
 define('d3', [ ], function() { return d3; });
 
 requirejs.config({
