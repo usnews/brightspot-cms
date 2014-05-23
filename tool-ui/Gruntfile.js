@@ -23,6 +23,15 @@ module.exports = function(grunt) {
                     }
                 ],
 
+                'handsontable': [
+                    'dist/jquery.handsontable.full.css',
+                    'dist/jquery.handsontable.full.js'
+                ],
+
+                'jquery': [
+                    'jquery.js'
+                ],
+
                 'jsdiff': [
                     'diff.js'
                 ],
