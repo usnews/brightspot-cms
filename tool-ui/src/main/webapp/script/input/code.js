@@ -1,7 +1,7 @@
 define([
     'jquery',
     'bsp-utils',
-    'codemirror/codemirror',
+    'codemirror/lib/codemirror',
     'codemirror/mode/clike/clike',
     'codemirror/mode/xml/xml',
     'codemirror/mode/javascript/javascript',
@@ -9,7 +9,7 @@ define([
     'codemirror/mode/htmlmixed/htmlmixed',
     'codemirror/mode/htmlembedded/htmlembedded' ],
     
-function($, bsp_utils) {
+function($, bsp_utils, CodeMirror) {
     var $win = $(window);
     var $inputs = $();
     var mirrors = [ ];
