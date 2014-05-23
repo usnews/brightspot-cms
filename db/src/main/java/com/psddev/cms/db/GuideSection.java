@@ -1,10 +1,7 @@
 package com.psddev.cms.db;
 
-
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.ReferentialText;
-
-
 
 /**
  * Production Guide class to hold information about layout sections. Instances of this class are generally not stored
