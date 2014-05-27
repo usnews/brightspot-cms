@@ -70,16 +70,18 @@ wp.writeStart("div", "class", "inputSmall repeatableText");
             }
         }
 
-        wp.writeStart("li", "class", "template");
-            wp.writeElement("input",
-                    "type", "checkbox",
-                    "name", toggleName,
-                    "value", true);
+        wp.writeStart("script", "type", "text/template");
+            wp.writeStart("li");
+                wp.writeElement("input",
+                        "type", "checkbox",
+                        "name", toggleName,
+                        "value", true);
 
-            wp.writeElement("input",
-                    "type", "text",
-                    "class", "expandable",
-                    "name", textName);
+                wp.writeElement("input",
+                        "type", "text",
+                        "class", "expandable",
+                        "name", textName);
+            wp.writeEnd();
         wp.writeEnd();
     wp.writeEnd();
 wp.writeEnd();

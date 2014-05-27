@@ -76,10 +76,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     </li>
                 <% } %>
             <% } %>
-            <li class="template">
-                <input name="<%= wp.h(toggleName) %>" type="checkbox" value="true">
-                <input class="expandable" name="<%= wp.h(textName) %>" type="text">
-            </li>
+            <script type="text/template">
+                <li>
+                    <input name="<%= wp.h(toggleName) %>" type="checkbox" value="true">
+                    <input class="expandable" name="<%= wp.h(textName) %>" type="text">
+                </li>
+            </script>
         </ol>
     </div>
 <% } else { %>

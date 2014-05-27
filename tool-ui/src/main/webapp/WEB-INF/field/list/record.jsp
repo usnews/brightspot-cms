@@ -386,148 +386,150 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                     }
                 }
 
-                writer.start("li", "class", "template");
+                writer.writeStart("script", "type", "text/template");
+                    writer.start("li");
 
-                    List<String> layoutNames = new ArrayList<String>(layouts.keySet());
-                    Collections.sort(layoutNames);
+                        List<String> layoutNames = new ArrayList<String>(layouts.keySet());
+                        Collections.sort(layoutNames);
 
-                    writer.start("div", "class", "repeatableLabel");
-                        writer.start("select",
-                                "class", "toggleable",
-                                "data-root", "li",
-                                "name", layoutsName);
+                        writer.start("div", "class", "repeatableLabel");
+                            writer.start("select",
+                                    "class", "toggleable",
+                                    "data-root", "li",
+                                    "name", layoutsName);
+                                for (String layoutName : layoutNames) {
+                                    writer.start("option",
+                                            "data-hide", ".layout",
+                                            "data-show", "." + layoutName,
+                                            "value", layoutName);
+                                        writer.html(StringUtils.toLabel(layoutName));
+                                    writer.end();
+                                }
+                            writer.end();
+                        writer.end();
+
+                        writer.start("div", "class", "layouts");
                             for (String layoutName : layoutNames) {
-                                writer.start("option",
-                                        "data-hide", ".layout",
-                                        "data-show", "." + layoutName,
-                                        "value", layoutName);
-                                    writer.html(StringUtils.toLabel(layoutName));
+                                HtmlGrid grid = grids.get(layoutName);
+                                List<HtmlObject> values = new ArrayList<HtmlObject>();
+
+                                for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
+                                    String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
+                                    final StringBuilder itemTypeIdsCsv = new StringBuilder();
+                                    final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
+
+                                    if (itemTypes == null || itemTypes.isEmpty()) {
+                                        itemTypeIdsCsv.append(typeIdsCsv);
+
+                                    } else {
+                                        for (Iterator<ObjectType> j = itemTypes.iterator(); j.hasNext(); ) {
+                                            ObjectType type = j.next();
+
+                                            if (type.isAbstract() || type.as(ToolUi.class).isHidden()) {
+                                                j.remove();
+
+                                            } else {
+                                                itemTypeIdsCsv.append(type.getId()).append(",");
+                                            }
+                                        }
+                                        itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
+                                    }
+
+                                    final boolean embedded = !isValueExternal;
+
+                                    values.add(new HtmlObject() {
+                                        public void format(HtmlWriter writer) throws IOException {
+                                            writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
+                                                writer.start("div", "class", "inputContainer-listLayoutItem");
+                                                    if (embedded) {
+                                                        List<Object> validObjects = new ArrayList<Object>();
+
+                                                        for (ObjectType type : itemTypes) {
+                                                            validObjects.add(type.createObject(null));
+                                                        }
+
+                                                        Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
+
+                                                        String validObjectClass = wp.createId();
+                                                        Map<UUID, String> showClasses = new HashMap<UUID, String>();
+
+                                                        wp.writeStart("div", "class", "inputSmall");
+                                                            wp.writeStart("select",
+                                                                    "class", "toggleable",
+                                                                    "data-root", ".inputContainer-listLayoutItem",
+                                                                    "name", idName);
+                                                                wp.writeStart("option",
+                                                                        "data-hide", "." + validObjectClass,
+                                                                        "value", "");
+                                                                    wp.writeHtml("None");
+                                                                wp.writeEnd();
+
+                                                                for (Object validObject : validObjects) {
+                                                                    State validState = State.getInstance(validObject);
+                                                                    String showClass = wp.createId();
+
+                                                                    showClasses.put(validState.getId(), showClass);
+
+                                                                    wp.writeStart("option",
+                                                                            "data-hide", "." + validObjectClass,
+                                                                            "data-show", "." + showClass,
+                                                                            "value", validState.getId());
+                                                                        wp.writeTypeLabel(validObject);
+                                                                    wp.writeEnd();
+                                                                }
+                                                            wp.writeEnd();
+                                                        wp.writeEnd();
+
+                                                        for (Object validObject : validObjects) {
+                                                            State validState = State.getInstance(validObject);
+                                                            Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
+
+                                                            wp.writeStart("div",
+                                                                    "class", "inputLarge " + validObjectClass + " " + showClasses.get(validState.getId()));
+                                                                wp.writeElement("input",
+                                                                        "name", typeIdName,
+                                                                        "type", "hidden",
+                                                                        "value", validState.getTypeId());
+
+                                                                wp.writeElement("input",
+                                                                        "name", publishDateName,
+                                                                        "type", "hidden",
+                                                                        "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
+
+                                                                wp.writeStart("a",
+                                                                        "class", "lazyLoad",
+                                                                        "href", wp.cmsUrl("/contentFormFields",
+                                                                                "typeId", validState.getTypeId(),
+                                                                                "id", validState.getId()));
+                                                                    wp.writeHtml("Loading...");
+                                                                wp.writeEnd();
+                                                            wp.writeEnd();
+                                                        }
+
+                                                    } else {
+                                                        writer.writeElement("input",
+                                                                "type", "text",
+                                                                "class", "objectId",
+                                                                "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
+                                                                "data-typeIds", itemTypeIdsCsv,
+                                                                "data-pathed", ToolUi.isOnlyPathed(field),
+                                                                "data-additional-query", field.getPredicate(),
+                                                                "name", inputName);
+                                                    }
+                                                writer.end();
+                                            writer.end();
+                                        }
+                                    });
+                                }
+
+                                writer.start("div", "class", "layout " + layoutName);
+                                    writer.grid(values, grid, true);
                                 writer.end();
                             }
                         writer.end();
+
                     writer.end();
-
-                    writer.start("div", "class", "layouts");
-                        for (String layoutName : layoutNames) {
-                            HtmlGrid grid = grids.get(layoutName);
-                            List<HtmlObject> values = new ArrayList<HtmlObject>();
-
-                            for (int i = 0, size = grid.getAreas().size(); i < size; ++ i) {
-                                String itemClass = i < layouts.get(layoutName).size() ? layouts.get(layoutName).get(i) : null;
-                                final StringBuilder itemTypeIdsCsv = new StringBuilder();
-                                final Set<ObjectType> itemTypes = itemClass != null ? Database.Static.getDefault().getEnvironment().getTypesByGroup(itemClass) : null;
-
-                                if (itemTypes == null || itemTypes.isEmpty()) {
-                                    itemTypeIdsCsv.append(typeIdsCsv);
-
-                                } else {
-                                    for (Iterator<ObjectType> j = itemTypes.iterator(); j.hasNext(); ) {
-                                        ObjectType type = j.next();
-
-                                        if (type.isAbstract() || type.as(ToolUi.class).isHidden()) {
-                                            j.remove();
-
-                                        } else {
-                                            itemTypeIdsCsv.append(type.getId()).append(",");
-                                        }
-                                    }
-                                    itemTypeIdsCsv.setLength(itemTypeIdsCsv.length() - 1);
-                                }
-
-                                final boolean embedded = !isValueExternal;
-
-                                values.add(new HtmlObject() {
-                                    public void format(HtmlWriter writer) throws IOException {
-                                        writer.start("div", "class", "inputContainer-listLayoutItemContainer" + (embedded ? " inputContainer-listLayoutItemContainer-embedded" : ""));
-                                            writer.start("div", "class", "inputContainer-listLayoutItem");
-                                                if (embedded) {
-                                                    List<Object> validObjects = new ArrayList<Object>();
-
-                                                    for (ObjectType type : itemTypes) {
-                                                        validObjects.add(type.createObject(null));
-                                                    }
-
-                                                    Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));
-
-                                                    String validObjectClass = wp.createId();
-                                                    Map<UUID, String> showClasses = new HashMap<UUID, String>();
-
-                                                    wp.writeStart("div", "class", "inputSmall");
-                                                        wp.writeStart("select",
-                                                                "class", "toggleable",
-                                                                "data-root", ".inputContainer-listLayoutItem",
-                                                                "name", idName);
-                                                            wp.writeStart("option",
-                                                                    "data-hide", "." + validObjectClass,
-                                                                    "value", "");
-                                                                wp.writeHtml("None");
-                                                            wp.writeEnd();
-
-                                                            for (Object validObject : validObjects) {
-                                                                State validState = State.getInstance(validObject);
-                                                                String showClass = wp.createId();
-
-                                                                showClasses.put(validState.getId(), showClass);
-
-                                                                wp.writeStart("option",
-                                                                        "data-hide", "." + validObjectClass,
-                                                                        "data-show", "." + showClass,
-                                                                        "value", validState.getId());
-                                                                    wp.writeTypeLabel(validObject);
-                                                                wp.writeEnd();
-                                                            }
-                                                        wp.writeEnd();
-                                                    wp.writeEnd();
-
-                                                    for (Object validObject : validObjects) {
-                                                        State validState = State.getInstance(validObject);
-                                                        Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
-
-                                                        wp.writeStart("div",
-                                                                "class", "inputLarge " + validObjectClass + " " + showClasses.get(validState.getId()));
-                                                            wp.writeElement("input",
-                                                                    "name", typeIdName,
-                                                                    "type", "hidden",
-                                                                    "value", validState.getTypeId());
-
-                                                            wp.writeElement("input",
-                                                                    "name", publishDateName,
-                                                                    "type", "hidden",
-                                                                    "value", validObjectPublishDate != null ? validObjectPublishDate.getTime() : null);
-
-                                                            wp.writeStart("a",
-                                                                    "class", "lazyLoad",
-                                                                    "href", wp.cmsUrl("/contentFormFields",
-                                                                            "typeId", validState.getTypeId(),
-                                                                            "id", validState.getId()));
-                                                                wp.writeHtml("Loading...");
-                                                            wp.writeEnd();
-                                                        wp.writeEnd();
-                                                    }
-
-                                                } else {
-                                                    writer.writeElement("input",
-                                                            "type", "text",
-                                                            "class", "objectId",
-                                                            "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
-                                                            "data-typeIds", itemTypeIdsCsv,
-                                                            "data-pathed", ToolUi.isOnlyPathed(field),
-                                                            "data-additional-query", field.getPredicate(),
-                                                            "name", inputName);
-                                                }
-                                            writer.end();
-                                        writer.end();
-                                    }
-                                });
-                            }
-
-                            writer.start("div", "class", "layout " + layoutName);
-                                writer.grid(values, grid, true);
-                            writer.end();
-                        }
-                    writer.end();
-
-                writer.end();
+                writer.writeEnd();
             writer.end();
         writer.end();
 
@@ -578,13 +580,15 @@ if (!isValueExternal) {
             }
 
             for (ObjectType type : validTypes) {
-                wp.writeStart("li",
-                        "class", "template" + (!bulkUploadTypes.isEmpty() ? " collapsed" : ""),
-                        "data-type", wp.getObjectLabel(type));
-                    wp.writeStart("a",
-                            "href", wp.cmsUrl("/content/repeatableObject.jsp",
-                                    "inputName", inputName,
-                                    "typeId", type.getId()));
+                wp.writeStart("script", "type", "text/template");
+                    wp.writeStart("li",
+                            "class", !bulkUploadTypes.isEmpty() ? "collapsed" : null,
+                            "data-type", wp.getObjectLabel(type));
+                        wp.writeStart("a",
+                                "href", wp.cmsUrl("/content/repeatableObject.jsp",
+                                        "inputName", inputName,
+                                        "typeId", type.getId()));
+                        wp.writeEnd();
                     wp.writeEnd();
                 wp.writeEnd();
             }
@@ -639,9 +643,11 @@ if (!isValueExternal) {
                     writer.end();
                 }
             }
-            writer.start("li", "class", "template");
-                wp.writeObjectSelect(field, null, "name", inputName);
-            writer.end();
+            writer.writeStart("script", "type", "text/template");
+                writer.start("li");
+                    wp.writeObjectSelect(field, null, "name", inputName);
+                writer.end();
+            writer.writeEnd();
         writer.end();
 
         if (previewable) {

@@ -108,7 +108,16 @@ if (!ObjectUtils.isBlank(fieldValue)) {
     }
 }
 
-wp.write("<li class=\"template\"><textarea class=\"richtext\" data-expandable-class=\"code\" id=\"", wp.getId(), "\" name=\"", wp.h(inputName), "\"></textarea></li>");
+wp.writeStart("script", "type", "text/template");
+    wp.writeStart("li");
+        wp.writeStart("textarea",
+                "class", "richtext"
+                "data-expandable-class", "code",
+                "id", wp.getId(),
+                "name", wp.h(inputName));
+        wp.writeEnd();
+    wp.writeEnd();
+wp.writeEnd();
 
 wp.write("</ol></div>");
 %><%!
