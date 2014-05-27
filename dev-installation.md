@@ -144,9 +144,9 @@ The new file will need to be configured. Replace the values outlined below with 
     
 ## Maven
 
-OS X comes with Maven 3 built in. Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.3. You can, however, use the 2.4-SNAPSHOT in your archetype. This will build against the latest version of Brightspot*
+Run `mvn -version` to see your Maven Version number. If you do not have Maven, [download](http://maven.apache.org/download.html) and install. You will need to create your Brightspot project using Maven. *Note, the latest stable release of Brightspot is 2.3. You can, however, use the 2.4-SNAPSHOT in your archetype. This will build against the latest version of Brightspot*
 
-Run the following Archetype to create the project structure. Note, the GroupID and Project name must not contain spaces or hyphens. An example of a GroupID would be com.psddev.brightspot. This is your Java package.
+Run the following Archetype to create the project structure. Note, in version 2.4 just the GroupID automatically creates the package name, in earlier versions of Brightspot the `artifactId` is added to the groupId, and also added to the package.  An example of a GroupID would be com.psddev.brightspot.
 
 <div class="highlight">{% highlight java %}
 mvn archetype:generate -B \
@@ -158,7 +158,7 @@ mvn archetype:generate -B \
    -DartifactId=yourProject
 {% endhighlight %}</div> 
     	
-*Note, the GroupID and Project name must not contain spaces or hyphens. The path to the directory must also not container any spaces*
+*Note,the GroupID and Project name must not contain spaces or hyphens. The path to the directory must also not container any spaces*
 
 Once your project has been created access your new pom.xml and add the following dependency, for Solr.
 
