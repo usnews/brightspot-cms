@@ -265,6 +265,10 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 > Specifies whether the target field should be offered as a sortable field in search.
 
+#### @ToolUi.DefaultSortField("name")
+
+> Specifies which field should be used as the default sorter within the CMS search.
+
 #### @ToolUi.Where
 
 > Limits results on the returned objects. Example `@ToolUi.Where("title ^= a" )` would limit the returned objects to ones whose title starts with the letter a. A field within an object can also be used. When returning a list of Articles, each with an Author, the annotation can be used like so: `@ToolUi.Where("author/name ^= a" )` 
