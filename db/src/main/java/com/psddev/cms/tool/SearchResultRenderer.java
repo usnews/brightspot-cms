@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.QueryFilter;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.SqlDatabase;
@@ -158,7 +159,7 @@ public class SearchResultRenderer {
                     Collection<Taxon> siteTaxons = new ArrayList<Taxon>();
 
                     for (Taxon taxon : taxonResults) {
-                        if (taxon.as(Record.class).is(site.itemsPredicate())) {
+                        if (PredicateParser.Static.evaluate(taxon, site.itemsPredicate())) {
                             siteTaxons.add(taxon);
                         }
                     }
