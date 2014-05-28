@@ -18,6 +18,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
+import com.psddev.dari.db.VisibilityValues;
 
 @ToolUi.IconName("object-workflow")
 @Record.BootstrapPackages(value="Workflows", depends=ObjectType.class)
