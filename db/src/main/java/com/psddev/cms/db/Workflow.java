@@ -1,5 +1,14 @@
 package com.psddev.cms.db;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectIndex;
@@ -9,16 +18,6 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
-import com.psddev.dari.db.VisibilityValues;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @ToolUi.IconName("object-workflow")
 @Record.BootstrapPackages(value="Workflows", depends=ObjectType.class)
