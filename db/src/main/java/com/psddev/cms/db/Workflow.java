@@ -11,10 +11,12 @@ import java.util.Set;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectIndex;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
 
 @ToolUi.IconName("object-workflow")
@@ -178,7 +180,7 @@ public class Workflow extends Record {
     }
 
     @FieldInternalNamePrefix("cms.workflow.")
-    public static class Data extends Modification<Object> implements VisibilityLabel {
+    public static class Data extends Modification<Object> implements VisibilityLabel, VisibilityValues {
 
         @Indexed(visibility = true)
         @ToolUi.Hidden
@@ -284,6 +286,16 @@ public class Workflow extends Record {
             }
 
             return currentState;
+        }
+
+        @Override
+        public Iterable<?> findVisibilityValues(ObjectIndex index) {
+            Set<Object> visibilityValues = new HashSet<Object>();
+
+            for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", State.getInstance(getOriginalObject()).getType()).selectAll()) {
+                visibilityValues.add(workflow.getStates());
+            }
+            return visibilityValues;
         }
     }
 }
