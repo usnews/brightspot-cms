@@ -58,9 +58,11 @@ public class Widgets extends Tool {
 <a id="editor-widget"></a> 
 **Creating the JSP**
 
-The JSP used to render the content of a widget uses any present `h1` tag to create the widget label.
+The JSP used to render the content of a widget uses any present `h1` tag to create the widget label. It must also include `<%@ page session="false" %>`.
 
 <div class="highlight">{% highlight jsp %}
+<%@ page session="false" %>
+
 <div class="widget">
 <h1>New Dashboard Widget</h1>
 Render your widget content here.

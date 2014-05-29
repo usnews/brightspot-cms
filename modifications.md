@@ -98,7 +98,7 @@ public class DefaultPromotable extends Modification<Promotable> {
 }
 {% endhighlight %}</div>
 
-This allows direct access when rendering your content:
+This allows direct access when rendering your content. It must be unique.
 
 <div class="highlight">{% highlight jsp %}<cms:render value="${content.promotable.promoTitle}"/>
 
