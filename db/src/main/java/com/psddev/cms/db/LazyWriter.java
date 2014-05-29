@@ -4,7 +4,6 @@ import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * For writing invisible {@code <span>} blocks without disrupting the natural
  * page layout by delaying the writes until the appropriate points in the HTML.

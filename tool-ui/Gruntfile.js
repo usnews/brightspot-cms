@@ -2,6 +2,36 @@ module.exports = function(grunt) {
     require('bsp-grunt')(grunt, {
         bsp: {
             bower: {
+                'codemirror': [
+                    {
+                        dest: 'codemirror',
+                        expand: true,
+                        src: 'lib/**'
+                    },
+
+                    {
+                        dest: 'codemirror',
+                        expand: true,
+                        src: [
+                            'mode/clike/clike.js',
+                            'mode/css/css.js',
+                            'mode/htmlembedded/htmlembedded.js',
+                            'mode/htmlmixed/htmlmixed.js',
+                            'mode/javascript/javascript.js',
+                            'mode/xml/xml.js'
+                        ]
+                    }
+                ],
+
+                'handsontable': [
+                    'dist/jquery.handsontable.full.css',
+                    'dist/jquery.handsontable.full.js'
+                ],
+
+                'jquery': [
+                    'jquery.js'
+                ],
+
                 'jsdiff': [
                     'diff.js'
                 ],

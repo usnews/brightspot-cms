@@ -136,7 +136,6 @@ public class FieldAccessFilter extends AbstractFilter {
         return Static.createMarkerHtml(state, name);
     }
 
-
     /**
      * {@link FieldAccessFilter} utility methods.
      */
