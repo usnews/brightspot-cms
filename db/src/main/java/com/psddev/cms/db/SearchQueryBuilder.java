@@ -12,8 +12,8 @@ import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +61,13 @@ public class SearchQueryBuilder extends Record {
     public SearchQueryBuilder addRules(List<Rule> rules) {
         if (!ObjectUtils.isBlank(rules)) {
             getRules().addAll(rules);
+        }
+        return this;
+    }
+
+    public SearchQueryBuilder removeRule(Rule rule) {
+        if(!ObjectUtils.isBlank(rules)) {
+            rules.remove(rule);
         }
         return this;
     }
@@ -148,6 +155,19 @@ public class SearchQueryBuilder extends Record {
 
     public SearchQueryBuilder addSpotlights() {
         //TODO implementation
+        return this;
+    }
+
+    public SearchQueryBuilder onlyReturnPathedContent(boolean onlyPathed) {
+        OnlyPathed p = new OnlyPathed(onlyPathed);
+
+        for (Rule r : getRules()) {
+            if (r instanceof OnlyPathed) {
+                removeRule(r);
+                break;
+            }
+        }
+        addRule(p);
         return this;
     }
 
