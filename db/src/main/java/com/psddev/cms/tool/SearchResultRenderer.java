@@ -149,11 +149,12 @@ public class SearchResultRenderer {
             Collection<Taxon> taxonResults = null;
             UUID taxonParentUuid = page.paramOrDefault(UUID.class, TAXON_PARENT_ID_PARAMETER, null);
             Site site = page.getSite();
+            Predicate predicate = search.toQuery(page.getSite()).getPredicate();
 
             if (!ObjectUtils.isBlank(taxonParentUuid)) {
 
                 Taxon parent = Query.findById(Taxon.class, taxonParentUuid);
-                taxonResults = (Collection<Taxon>) Taxon.Static.getChildren(parent);
+                taxonResults = (Collection<Taxon>) Taxon.Static.getChildren(parent, predicate);
 
                 if (site != null && !ObjectUtils.isBlank(taxonResults)) {
 
@@ -168,7 +169,7 @@ public class SearchResultRenderer {
                 }
 
             } else {
-                taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass(), site);
+                taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass(), site, predicate);
             }
 
             if (!ObjectUtils.isBlank(taxonResults)) {
@@ -233,11 +234,16 @@ public class SearchResultRenderer {
 
     private void writeTaxon(Taxon taxon, int nextLevel) throws IOException {
         page.writeStart("li");
-            renderBeforeItem(taxon);
-            writeTaxonLabel(taxon);
-            renderAfterItem(taxon);
+            if (taxon.as(Taxon.Data.class).isSelectable()) {
+                renderBeforeItem(taxon);
+                writeTaxonLabel(taxon);
+                renderAfterItem(taxon);
+            } else {
+                writeTaxonLabel(taxon);
+            }
 
-            Collection<? extends Taxon> children = taxon.getChildren();
+            Predicate predicate = search.toQuery(page.getSite()).getPredicate();
+            Collection<? extends Taxon> children = Taxon.Static.getChildren(taxon, predicate);
 
             if (children != null && !children.isEmpty()) {
                 page.writeStart("a",

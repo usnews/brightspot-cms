@@ -8,7 +8,9 @@ import java.util.List;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -25,6 +27,8 @@ public interface Taxon extends Recordable {
         @ToolUi.Hidden
         private Boolean root;
 
+        private transient boolean selectable = true;
+
         @ToolUi.Hidden
         private String altLabel;
 
@@ -34,6 +38,14 @@ public interface Taxon extends Recordable {
 
         public void setRoot(Boolean root) {
             this.root = root ? Boolean.TRUE : null;
+        }
+
+        public boolean isSelectable() {
+            return selectable;
+        }
+
+        public void setSelectable(boolean selectable) {
+            this.selectable = selectable;
         }
 
         public String getAltLabel() {
@@ -56,21 +68,41 @@ public interface Taxon extends Recordable {
     public static final class Static {
 
         public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass) {
-            List<T> roots = Query.from(taxonClass).where("cms.taxon.root = true").selectAll();
+            return getRoots(taxonClass, null);
+        }
+
+        public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass, Site site) {
+            return getRoots(taxonClass, site, null);
+        }
+
+        public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass, Site site, Predicate predicate) {
+            Query<T> query = Query.from(taxonClass).where("cms.taxon.root = true");
+
+            if (site != null) {
+                query.and(site.itemsPredicate());
+            }
+
+            List<T> roots = query.selectAll();
+            roots = filter(roots, predicate);
             sort(roots);
+
             return roots;
         }
 
-        public static <T extends Taxon> List<? extends Taxon> getChildren(T taxon) {
+        public static <T extends Taxon> List<? extends Taxon> getChildren(T taxon, Predicate predicate) {
             List<Taxon> children = new ArrayList<Taxon>();
+
             if (taxon != null) {
                 children.addAll(taxon.getChildren());
             }
+
+            children = filter(children, predicate);
             sort(children);
+
             return children;
         }
 
-        public static <T extends Taxon> void sort(List<T> taxa) {
+        private static <T extends Taxon> void sort(List<T> taxa) {
             if (taxa != null && !taxa.isEmpty()) {
                 ObjectType taxonType = taxa.get(0).getState().getType();
                 ToolUi ui = taxonType.as(ToolUi.class);
@@ -80,15 +112,31 @@ public interface Taxon extends Recordable {
             }
         }
 
-        public static <T extends Taxon> List<T> getRoots(Class<T> taxonClass, Site site) {
-            Query query = Query.from(taxonClass).where("cms.taxon.root = true");
-
-            if (site != null) {
-                query.and(site.itemsPredicate());
+        /*
+         * This applies the given predicate (usually @Where) to the list.
+         * It completely filters out items that do not match the predicate AND do not have any children that do match the predicate.
+         * If any items in the list have children that should not be filtered out, they are included with Taxon.Data#isSelectable = false.
+         * SearchResultRenderer uses this flag to make the parent navigable but not selectable.
+         */
+        private static <T extends Taxon> List<T> filter(List<T> taxa, Predicate predicate) {
+            if (taxa != null && !taxa.isEmpty() && predicate != null) {
+                List<T> filtered = new ArrayList<T>();
+                for (T t : taxa) {
+                    if (t instanceof Record && ((Record) t).is(predicate)) {
+                        filtered.add(t);
+                    } else {
+                        if (!getChildren(t, predicate).isEmpty()) {
+                            t.as(Taxon.Data.class).setSelectable(false);
+                            filtered.add(t);
+                        }
+                    }
+                }
+                return filtered;
+            } else {
+                return taxa;
             }
-
-            return query.selectAll();
         }
+
     }
 
 }
