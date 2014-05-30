@@ -73,28 +73,28 @@ public class ImageSizeFilter extends AbstractFilter {
                                 private String newPath;
                                 private String queryString;
                                 private String url;
-                                
+
                                 @Override
                                 public String getServletPath() {
                                     return !StringUtils.isBlank(this.getNewPath()) ? this.getNewPath() : super.getServletPath();
                                 }
-                                
+
                                 @Override
                                 public String getQueryString() {
                                     if (queryString == null) {
-                                        queryString = ((String)this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[1];
+                                        queryString = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[1];
                                     }
                                     return StringUtils.isBlank(super.getQueryString()) ? queryString : super.getQueryString() + "&" + queryString;
                                 }
 
                                 @Override
                                 public String getParameter(String string) {
-                                   return string !=null && string.equals("url") ? getUrl() : super.getParameter(string);
+                                   return string != null && string.equals("url") ? getUrl() : super.getParameter(string);
                                 }
 
                                 public String getNewPath() {
                                     if (newPath == null) {
-                                        newPath = ((String)this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[0];
+                                        newPath = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[0];
                                     }
                                     return newPath;
                                 }
