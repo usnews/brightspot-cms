@@ -27,6 +27,7 @@ import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ImageResizeStorageItemListener;
+import com.psddev.dari.util.JavaImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ObjectUtils;
@@ -981,6 +982,29 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 String url = item.getPublicUrl();
                 if (url != null) {
                     attributes.put(srcAttr != null ? srcAttr : "src", url);
+                }
+
+                if (editor == null) {
+                    editor = ImageEditor.Static.getDefault();
+                }
+
+                if (!StringUtils.isBlank(url) &&
+                        standardImageSize != null &&
+                        this.state != null &&
+                        editor instanceof JavaImageEditor) {
+                    //TODO: check JavaImageEditor setting friendlyPath = true
+                    //TODO: Image modificaiton - find or create file / standardImageSize / path on Image
+
+                    String extension = url.substring(url.lastIndexOf("/")).contains(".") ? url.substring(url.lastIndexOf(".") + 1) : item.getContentType().substring(item.getContentType().lastIndexOf("/" + 1)).toLowerCase();
+
+                    StringBuilder friendlyUrl = new StringBuilder(ImageSizeFilter.JAVA_IMAGE_SERVLET_PATH);
+                    friendlyUrl.append("/")
+                               .append(standardImageSize.getInternalName())
+                               .append("/")
+                               .append(this.state.getId())
+                               .append(".")
+                               .append(extension);
+                    url = friendlyUrl.toString();
                 }
 
                 Integer newWidth = findDimension(item, "width");
