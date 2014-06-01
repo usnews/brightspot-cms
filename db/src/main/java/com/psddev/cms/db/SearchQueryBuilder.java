@@ -66,7 +66,7 @@ public class SearchQueryBuilder extends Record {
     }
 
     public SearchQueryBuilder removeRule(Rule rule) {
-        if(!ObjectUtils.isBlank(rules)) {
+        if (!ObjectUtils.isBlank(rules)) {
             rules.remove(rule);
         }
         return this;
@@ -396,41 +396,43 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static class Spotlights extends Rule {
+    public static abstract class Spotlight<T extends Recordable> extends Rule {
 
-        @Embedded
+        @Indexed
         @CollectionMinimum(1)
-        private List<Spotlight> spotlights = new ArrayList<Spotlight>();
+        private Set<String> spotLightTerms;
 
-        public List<Spotlight> getSpotlights() {
-            return spotlights;
+        public abstract T getSpotlightContent();
+
+        public String getLabel() {
+            return spotLightTerms.toString();
         }
 
-        public void setSpotlights(List<Spotlight> spotlights) {
-            this.spotlights = spotlights;
+        public Set<String> getSpotLightTerms() {
+            return spotLightTerms;
+        }
+
+        public void setSpotLightTerms(Set<String> spotLightTerms) {
+            this.spotLightTerms = spotLightTerms;
         }
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
-            //TODO: add logic
-        }
-
-        public abstract static class Spotlight<T extends Content> {
-            private List<String> spotLightTerms;
-
-            abstract List<T> getSpotlightContent();
-
-            public String getLabel() {
-                return spotLightTerms.toString();
-            }
-
-            public List<String> getSpotLightTerms() {
-                return spotLightTerms;
-            }
-
-            public void setSpotLightTerms(List<String> spotLightTerms) {
-                this.spotLightTerms = spotLightTerms;
+            if (!ObjectUtils.isBlank(queryTerms)) {
+                for (String queryTerm : queryTerms) {
+                    for (String spotLightTerm : spotLightTerms) {
+                        if (spotLightTerm.equalsIgnoreCase(queryTerm)) {
+                            query.and("id != ?", getSpotlightContent());
+                            break;
+                        }
+                    }
+                }
             }
         }
+
+        public static List<Spotlight> getMatchingSpotlights(String... queryTerms) {
+            return Query.from(Spotlight.class).where("spotLightTerms = ?", queryTerms).selectAll();
+        }
+
     }
 
     public abstract static class BoostRule extends Rule {
