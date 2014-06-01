@@ -148,13 +148,23 @@ public class SearchQueryBuilder extends Record {
         return this;
     }
 
-    public SearchQueryBuilder addSynonyms() {
-        //TODO: implementation
-        return this;
-    }
+    public SearchQueryBuilder addSynonyms(Set<String> synonymGroup) {
+        if (synonymGroup != null) {
+            Synonyms rule = null;
 
-    public SearchQueryBuilder addSpotlights() {
-        //TODO implementation
+            for (Rule r : getRules()) {
+                if (r instanceof Synonyms) {
+                    rule = (Synonyms) r;
+                    break;
+                }
+            }
+
+            if (rule == null) {
+                rule = new Synonyms();
+                addRule(rule);
+            }
+            rule.addSynonymGroup(synonymGroup);
+        }
         return this;
     }
 
@@ -321,14 +331,26 @@ public class SearchQueryBuilder extends Record {
         }
 
         public Set<Synonym> getSynonyms() {
-            if (synonyms == null) {
-                setSynonyms(new HashSet<Synonym>());
+            if (this.synonyms == null) {
+                this.synonyms = new HashSet<Synonym>();
             }
-            return synonyms;
+            return this.synonyms;
         }
 
         public void setSynonyms(Set<Synonym> synonyms) {
             this.synonyms = synonyms;
+        }
+
+        public void addSynonymGroup(Set<String> synonymGroup) {
+            if (synonymGroup != null) {
+                Synonym synonym = new Synonym();
+                synonym.setWords(synonymGroup);
+
+                if (this.synonyms == null) {
+                    this.synonyms = new HashSet<Synonym>();
+                }
+                this.synonyms.add(synonym);
+            }
         }
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
