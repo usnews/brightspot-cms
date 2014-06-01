@@ -180,35 +180,37 @@ if (!paths.isEmpty() &&
 
 <div class="repeatableInputs">
     <ul>
-        <li class="template widget-urlsItem" data-type="URL">
-            <textarea class="widget-urlsItemLabel" name="<%= wp.h(pathName) %>"></textarea>
+        <script type="text/template">
+            <li class="widget-urlsItem" data-type="URL">
+                <textarea class="widget-urlsItemLabel" name="<%= wp.h(pathName) %>"></textarea>
 
-            <%
-            if (!sites.isEmpty()) {
-                wp.writeStart("select", "name", siteIdName);
-                    wp.writeStart("option", "value", "");
-                        wp.writeHtml("Global");
+                <%
+                if (!sites.isEmpty()) {
+                    wp.writeStart("select", "name", siteIdName);
+                        wp.writeStart("option", "value", "");
+                            wp.writeHtml("Global");
+                        wp.writeEnd();
+
+                        for (Site s : sites.values()) {
+                            wp.writeStart("option", "value", s.getId());
+                                wp.writeObjectLabel(s);
+                            wp.writeEnd();
+                        }
                     wp.writeEnd();
 
-                    for (Site s : sites.values()) {
-                        wp.writeStart("option", "value", s.getId());
-                            wp.writeObjectLabel(s);
+                    wp.writeHtml(" ");
+                }
+
+                wp.writeStart("select", "name", typeName);
+                    for (Directory.PathType pathType : Directory.PathType.values()) {
+                        wp.writeStart("option", "value", pathType.name());
+                            wp.writeHtml(pathType);
                         wp.writeEnd();
                     }
                 wp.writeEnd();
-
-                wp.writeHtml(" ");
-            }
-
-            wp.writeStart("select", "name", typeName);
-                for (Directory.PathType pathType : Directory.PathType.values()) {
-                    wp.writeStart("option", "value", pathType.name());
-                        wp.writeHtml(pathType);
-                    wp.writeEnd();
-                }
-            wp.writeEnd();
-            %>
-        </li>
+                %>
+            </li>
+        </script>
     </ul>
 </div>
 

@@ -143,9 +143,11 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 </li>
             <% } %>
             <% for (ObjectType type : validTypes) { %>
-                <li class="template" data-type="<%= wp.objectLabel(type) %>">
-                    <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
-                </li>
+                <script type="text/template">
+                    <li data-type="<%= wp.objectLabel(type) %>">
+                        <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
+                    </li>
+                </script>
             <% } %>
         </ul>
     </div>
@@ -197,9 +199,11 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         writer.end();
                     }
                 }
-                writer.start("li", "class", "template");
-                    wp.writeObjectSelect(field, null, "name", inputName);
-                writer.end();
+                writer.writeStart("script", "type", "text/template");
+                    writer.start("li");
+                        wp.writeObjectSelect(field, null, "name", inputName);
+                    writer.end();
+                writer.writeEnd();
             writer.end();
         writer.end();
     }

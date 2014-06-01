@@ -587,27 +587,29 @@ public abstract class SearchAdvancedPredicate extends Record implements Singleto
                                         page.writeEnd();
                                     }
 
-                                    page.writeStart("li", "class", "template");
-                                        page.writeObjectSelect(
-                                                field,
-                                                null,
-                                                "name", valueParam);
+                                    page.writeStart("script", "type", "text/template");
+                                        page.writeStart("li");
+                                            page.writeObjectSelect(
+                                                    field,
+                                                    null,
+                                                    "name", valueParam);
 
-                                        if (taxon) {
-                                            page.writeHtml(" ");
-                                            page.writeStart("select",
-                                                    "name", taxonParam);
-                                                page.writeStart("option");
-                                                    page.writeHtml("Only");
-                                                page.writeEnd();
-
-                                                for (TaxonOption o : TaxonOption.values()) {
-                                                    page.writeStart("option", "value", o.name());
-                                                        page.writeHtml(o.getLabel());
+                                            if (taxon) {
+                                                page.writeHtml(" ");
+                                                page.writeStart("select",
+                                                        "name", taxonParam);
+                                                    page.writeStart("option");
+                                                        page.writeHtml("Only");
                                                     page.writeEnd();
-                                                }
-                                            page.writeEnd();
-                                        }
+
+                                                    for (TaxonOption o : TaxonOption.values()) {
+                                                        page.writeStart("option", "value", o.name());
+                                                            page.writeHtml(o.getLabel());
+                                                        page.writeEnd();
+                                                    }
+                                                page.writeEnd();
+                                            }
+                                        page.writeEnd();
                                     page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();

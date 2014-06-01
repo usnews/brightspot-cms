@@ -105,7 +105,7 @@ function() {
         'loadedClassName': 'loaded'
     });
 
-    bsp_utils.onDomInsert(document, '[data-bsp-autosubmit]', {
+    bsp_utils.onDomInsert(document, '[data-bsp-autosubmit], .autoSubmit', {
         'insert': function(item) {
             var $form = $(item).closest('form');
             var $targetFrame = $('.frame[name=' + $form.attr('target') + ']:not(.loading):not(.loaded)');

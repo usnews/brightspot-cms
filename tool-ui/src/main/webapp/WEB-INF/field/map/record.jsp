@@ -98,14 +98,16 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 </li>
             <% } %>
             <% for (ObjectType type : validTypes) { %>
-                <li class="template" data-type="<%= wp.objectLabel(type) %>">
-                    <div class="repeatableLabel inputSmall">
-                        <textArea name="<%= keyName %>" value=""></textArea>
-                    </div>
-                    <div class="frame">
-                        <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
-                    </div>
-                </li>
+                <script type="text/template">
+                    <li data-type="<%= wp.objectLabel(type) %>">
+                        <div class="repeatableLabel inputSmall">
+                            <textArea name="<%= keyName %>" value=""></textArea>
+                        </div>
+                        <div class="frame">
+                            <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
+                        </div>
+                    </li>
+                </script>
             <% } %>
         </ul>
     </div>

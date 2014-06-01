@@ -74,7 +74,21 @@ $.plugin2('repeatable', {
             }
         }
 
-        var $templates = $list.find('> li.template').remove();
+        var $templates = $();
+
+        $list.find('> li.template, > script[type="text/template"]').each(function() {
+            var $template = $(this);
+
+            if ($template.is('li.template')) {
+                $templates = $templates.add($template);
+
+            } else {
+                $templates = $templates.add($($template.text()));
+            }
+
+            $template.remove();
+        });
+
         $list.find('> li').each(createExtra);
 
         var $addButtonContainer = $('<div/>', { 'class': 'addButtonContainer' });
