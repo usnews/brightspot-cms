@@ -753,6 +753,56 @@ var Rte = wysihtml5.Editor.extend({
         });
 
         this.observe('load', function() {
+            function removeDelIns($container) {
+                $container.find('del, ins').each(function() {
+                    var $delOrIns = $(this);
+
+                    $delOrIns.after($delOrIns.html());
+                    $delOrIns.remove();
+                });
+            }
+
+            $(rte.composer.element).on('cut', function(event) {
+                if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                    return;
+                }
+
+                var range = composer.selection.getRange();
+                var $del = $('<del/>');
+
+                $del.append(range.nativeRange.cloneContents());
+                removeDelIns($del);
+                setTimeout(function() {
+                    rte.composer.selection.getRange().nativeRange.insertNode($del[0]);
+                }, 0);
+            });
+
+            var pasteRange;
+
+            $(rte.composer.element).on('paste', function(event) {
+                if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                    return;
+                }
+
+                pasteRange = composer.selection.getRange().nativeRange;
+            });
+
+            rte.on('paste', function() {
+                if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                    return;
+                }
+
+                if (pasteRange) {
+                    var range = composer.selection.getRange();
+                    var $ins = $('<ins/>');
+
+                    pasteRange.setEnd(range.endContainer, range.endOffset);
+                    $ins.append(pasteRange.extractContents());
+                    removeDelIns($ins);
+                    composer.selection.getRange().nativeRange.insertNode($ins[0]);
+                    pasteRange = null;
+                }
+            });
 
             // Restore track changes state.
             if (window.sessionStorage.getItem('bsp.rte.changesTracking.' + $(rte.textarea.element).closest('.inputContainer').attr('data-name'))) {
