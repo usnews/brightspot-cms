@@ -683,18 +683,9 @@ var Rte = wysihtml5.Editor.extend({
                 $anchor.removeClass(tempClass);
 
                 if ($(rte.composer.element).hasClass('rte-changesTracking')) {
-                    $ins = $anchor.parent('ins');
-
-                    if ($ins.length > 0) {
-                        $del = $ins.prev('del');
-
-                        if ($del.length > 0 && $del.text() === $anchor.text()) {
-                            $ins.after($anchor);
-                            $ins.remove();
-                            $del.remove();
-                            openLinkDialog($anchor);
-                            return;
-                        }
+                    if ($anchor.parent('ins').length > 0) {
+                        openLinkDialog($anchor);
+                        return;
                     }
 
                     $anchor.before($('<del/>', {
