@@ -785,6 +785,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                             <input name="<%= PageFilter.PREVIEW_SITE_ID_PARAMETER %>" type="hidden" value="<%= site.getId() %>">
                         <% } %>
                         <input name="<%= PageFilter.PREVIEW_OBJECT_PARAMETER %>" type="hidden">
+                        <input type="hidden" name="scheduleId" value="<%= user.getCurrentSchedule() != null ? user.getCurrentSchedule().getId() : "" %>">
                         <input name="previewDate" type="hidden">
                         <button class="action-share">Share</button>
                     </form>

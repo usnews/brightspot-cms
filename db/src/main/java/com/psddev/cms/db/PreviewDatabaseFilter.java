@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.ObjectUtils;
@@ -38,7 +39,12 @@ public class PreviewDatabaseFilter extends AbstractFilter implements AbstractFil
         ToolUser user = AuthenticationFilter.Static.getUser(request);
 
         if (user != null) {
-            Schedule currentSchedule = user.getCurrentSchedule();
+            Schedule currentSchedule = Query.from(Schedule.class).where("_id = ?", request.getParameter("_scheduleId")).first();
+
+            if (currentSchedule == null) {
+                currentSchedule = user.getCurrentSchedule();
+            }
+
             Date date = ObjectUtils.to(Date.class, request.getParameter("_date"));
 
             if (currentSchedule != null || date != null) {
