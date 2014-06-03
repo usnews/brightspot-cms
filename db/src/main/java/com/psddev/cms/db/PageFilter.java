@@ -1265,7 +1265,14 @@ public class PageFilter extends AbstractFilter {
                     UUID previewId = ObjectUtils.to(UUID.class, request.getParameter(PREVIEW_ID_PARAMETER));
 
                     if (previewId == null) {
-                        previewId = ObjectUtils.to(UUID.class, path.substring(10));
+                        String previewIdString = path.substring(10);
+                        int slashAt = previewIdString.indexOf('/');
+
+                        if (slashAt > -1) {
+                            previewIdString = previewIdString.substring(0, slashAt);
+                        }
+
+                        previewId = ObjectUtils.to(UUID.class, previewIdString);
                     }
 
                     if (previewId != null) {

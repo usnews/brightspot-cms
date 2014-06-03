@@ -41,5 +41,6 @@ if (ObjectUtils.isBlank(host)) {
 response.sendRedirect(StringUtils.addQueryParameters(
         wp.getCmsTool().getPreviewUrl(),
         PageFilter.PREVIEW_ID_PARAMETER, preview.getId(),
+        "_scheduleId", wp.param("scheduleId"),
         "_date", request.getParameter("previewDate")));
 %>
