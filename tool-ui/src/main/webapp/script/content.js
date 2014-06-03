@@ -1,7 +1,8 @@
 define([
     'content/diff',
     'content/lock',
-    'content/publish' ],
+    'content/publish',
+    'content/state' ],
 
 function() {
 });
