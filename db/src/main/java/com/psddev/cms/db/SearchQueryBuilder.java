@@ -223,7 +223,7 @@ public class SearchQueryBuilder extends Record {
         }
 
         if (!queryTerms.isEmpty()) {
-            query.or("_any matchesAny ?", queryTerms);
+            query.and("_any matchesAny ?", queryTerms);
             query.sortRelevant(100000.0, "_any matchesAll ?", terms);
         }
 
@@ -314,7 +314,7 @@ public class SearchQueryBuilder extends Record {
             }
 
             if (removed != null && !removed.isEmpty()) {
-                query.sortRelevant(0.001, "_any matchesAll ?", removed);
+                query.sortRelevant(0.001, "_any matchesAny ?", removed);
             }
         }
     }
@@ -524,12 +524,12 @@ public class SearchQueryBuilder extends Record {
 
                 if (ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
                     if (!uuids.isEmpty()) {
-                        query.sortRelevant(boost, prefix + field + " matchesAll ?", uuids);
+                        query.sortRelevant(boost, prefix + field + " matchesAny ?", uuids);
                     }
 
                 } else {
                     if (!texts.isEmpty()) {
-                        query.sortRelevant(boost, prefix + field + " matchesAll ?", texts);
+                        query.sortRelevant(boost, prefix + field + " matchesAny ?", texts);
                     }
                 }
             }
