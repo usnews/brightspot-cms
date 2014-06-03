@@ -185,7 +185,7 @@ $win.click(function(event) {
     var target = event.target,
             $target = $(target);
 
-    if ($target.closest('#context-menu-layer, .context-menu-root').length > 0) {
+    if ($target.closest('#context-menu-layer, .context-menu-root, .search-reset').length > 0) {
         return;
     }
 
