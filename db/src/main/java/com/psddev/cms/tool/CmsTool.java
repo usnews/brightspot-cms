@@ -137,6 +137,10 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private List<DariSetting> dariSettings;
 
+    @ToolUi.Placeholder("/style/")
+    @ToolUi.Tab("Debug")
+    private String styleSheetPath;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -646,6 +650,14 @@ public class CmsTool extends Tool {
 
     public void setDariSettings(List<DariSetting> dariSettings) {
         this.dariSettings = dariSettings;
+    }
+
+    public String getStyleSheetPath() {
+        return styleSheetPath;
+    }
+
+    public void setStyleSheetPath(String styleSheetPath) {
+        this.styleSheetPath = styleSheetPath;
     }
 
     /** Returns the preview URL. */

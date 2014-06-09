@@ -1349,11 +1349,15 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
+        String cssPrefix = ObjectUtils.firstNonNull(cms.getStyleSheetPath(), "/style/");
+        cssPrefix = StringUtils.ensureStart(cssPrefix, "/");
+        cssPrefix = StringUtils.ensureEnd(cssPrefix, "/");
+
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource(cssPrefix + "cms.less"));
 
         } else {
-            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
+            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource(cssPrefix + "cms.min.css"));
         }
 
         writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
