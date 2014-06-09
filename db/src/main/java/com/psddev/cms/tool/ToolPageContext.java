@@ -1363,11 +1363,16 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeStart("script", "type", "text/javascript");
-                write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-dev.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.4.1.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl-less.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less.js"));
             writeEnd();
         }
 
