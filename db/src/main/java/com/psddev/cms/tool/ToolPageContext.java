@@ -1360,8 +1360,6 @@ public class ToolPageContext extends WebPageContext {
             writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource(cssPrefix + "cms.min.css"));
         }
 
-        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
-
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
         }
