@@ -1,0 +1,102 @@
+// Base colors from design.
+@-color-gray: #666;
+@-color-purple: #bd64a5;
+@-color-green: #85bd43;
+@-color-blue: #38b5dc;
+@-color-yellow: #f5d449;
+@-color-orange: #f88631;
+@-color-red: #fb1a41;
+
+// HUSL lightness normalized colors for perceptual equality.
+@-lightness-faint: 95;
+@-lightness-state: 89;
+@-lightness-light: 79;
+@-lightness-plain: 63;
+@-lightness-dark: 37;
+
+@color-white: #fff;
+@color-black: #000;
+
+@color-gray-faint: husl-lightness-set(@-color-gray, @-lightness-faint);
+@color-purple-faint: husl-lightness-set(@-color-purple, @-lightness-faint);
+@color-green-faint: husl-lightness-set(@-color-green, @-lightness-faint);
+@color-blue-faint: husl-lightness-set(@-color-blue, @-lightness-faint);
+@color-yellow-faint: husl-lightness-set(@-color-yellow, @-lightness-faint);
+@color-orange-faint: husl-lightness-set(@-color-orange, @-lightness-faint);
+@color-red-faint: husl-lightness-set(@-color-red, @-lightness-faint);
+
+@color-gray-state: husl-lightness-set(@-color-gray, @-lightness-state);
+@color-purple-state: husl-lightness-set(@-color-purple, @-lightness-state);
+@color-green-state: husl-lightness-set(@-color-green, @-lightness-state);
+@color-blue-state: husl-lightness-set(@-color-blue, @-lightness-state);
+@color-yellow-state: husl-lightness-set(@-color-yellow, @-lightness-state);
+@color-orange-state: husl-lightness-set(@-color-orange, @-lightness-state);
+@color-red-state: husl-lightness-set(@-color-red, @-lightness-state);
+
+@color-gray-light: husl-lightness-set(@-color-gray, @-lightness-light);
+@color-purple-light: husl-lightness-set(@-color-purple, @-lightness-light);
+@color-green-light: husl-lightness-set(@-color-green, @-lightness-light);
+@color-blue-light: husl-lightness-set(@-color-blue, @-lightness-light);
+@color-yellow-light: husl-lightness-set(@-color-yellow, @-lightness-light);
+@color-orange-light: husl-lightness-set(@-color-orange, @-lightness-light);
+@color-red-light: husl-lightness-set(@-color-red, @-lightness-light);
+
+@color-gray-plain: husl-lightness-set(@-color-gray, @-lightness-plain);
+@color-purple-plain: husl-lightness-set(@-color-purple, @-lightness-plain);
+@color-green-plain: husl-lightness-set(@-color-green, @-lightness-plain);
+@color-blue-plain: husl-lightness-set(@-color-blue, @-lightness-plain);
+@color-yellow-plain: husl-lightness-set(@-color-yellow, @-lightness-plain);
+@color-orange-plain: husl-lightness-set(@-color-orange, @-lightness-plain);
+@color-red-plain: husl-lightness-set(@-color-red, @-lightness-plain);
+
+@color-gray-dark: husl-lightness-set(@-color-gray, @-lightness-dark);
+@color-purple-dark: husl-lightness-set(@-color-purple, @-lightness-dark);
+@color-green-dark: husl-lightness-set(@-color-green, @-lightness-dark);
+@color-blue-dark: husl-lightness-set(@-color-blue, @-lightness-dark);
+@color-yellow-dark: husl-lightness-set(@-color-yellow, @-lightness-dark);
+@color-orange-dark: husl-lightness-set(@-color-orange, @-lightness-dark);
+@color-red-dark: husl-lightness-set(@-color-red, @-lightness-dark);
+
+@color-alt: @color-gray-faint;
+@color-overlay: @color-gray-dark;
+@color-separator: @color-gray-light;
+
+@color-alert: @color-red-dark;
+@color-link: @color-blue-plain;
+@color-note: @color-gray-plain;
+
+@color-change: @color-yellow-state;
+@color-focus: @color-blue-light;
+@color-remove: @color-red-state;
+@color-select: @color-black;
+
+@color-background: white;
+@color-link-lighter: lighten(@color-link, 25%);
+@color-text: @color-black;
+
+@fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
+
+@size-input-border: 1px;
+@size-input-padding: 4px;
+@size-line: 21px;
+@size-text: 14px;
+
+@speed-fast: 0.4s;
+
+@media-tablet: ~'only screen and (max-width: 979px)';
+@media-phone: ~'only screen and (max-width: 767px)';
+
+.background-color(@color) {
+  background: @color;
+  color: contrast(@color, @color-black, @color-white);
+}
+
+.background-striped(@color) {
+  @from: husl-lighten(@color, 2.5);
+  @to: husl-darken(@color, 2.5);
+
+  .background-color(@color);
+
+  background: linear-gradient(-45deg, @from, @from 25%, @to 25%, @to 50%, @from 50%, @from 75%, @to 75%);
+  background-size: 50px 50px;
+}
