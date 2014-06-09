@@ -2027,6 +2027,7 @@ public class ToolPageContext extends WebPageContext {
         includeFromCms("/WEB-INF/objectMessage.jsp", "object", object);
 
         writeStart("form",
+                "class", "contentForm",
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
