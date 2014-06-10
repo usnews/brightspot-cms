@@ -141,7 +141,6 @@ public class SearchQueryBuilder extends Record {
                 rule = new StopWords();
                 addRule(rule);
             }
-
             Collections.addAll(rule.getStopWords(), stopWords);
         }
 
@@ -207,7 +206,6 @@ public class SearchQueryBuilder extends Record {
                         normalized.add(word);
                     }
                 }
-
                 normalized.add(termString.substring(lastEnd));
             }
         }
@@ -365,7 +363,6 @@ public class SearchQueryBuilder extends Record {
                     }
                 }
             }
-
             queryTerms = new ArrayList<String>(newTerms);
         }
 
@@ -390,7 +387,7 @@ public class SearchQueryBuilder extends Record {
         }
     }
 
-    public static abstract class Spotlight<T extends Recordable> extends Rule {
+    public abstract static class Spotlight<T extends Recordable> extends Rule {
 
         @Indexed
         @CollectionMinimum(1)
