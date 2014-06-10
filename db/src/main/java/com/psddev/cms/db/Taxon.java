@@ -9,8 +9,8 @@ import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
 
@@ -83,7 +83,7 @@ public interface Taxon extends Recordable {
             }
 
             List<T> roots = query.selectAll();
-            roots = filter(roots, predicate);
+            filter(roots, predicate);
             sort(roots);
 
             return roots;
@@ -96,7 +96,7 @@ public interface Taxon extends Recordable {
                 children.addAll(taxon.getChildren());
             }
 
-            children = filter(children, predicate);
+            filter(children, predicate);
             sort(children);
 
             return children;
@@ -118,22 +118,23 @@ public interface Taxon extends Recordable {
          * If any items in the list have children that should not be filtered out, they are included with Taxon.Data#isSelectable = false.
          * SearchResultRenderer uses this flag to make the parent navigable but not selectable.
          */
-        private static <T extends Taxon> List<T> filter(List<T> taxa, Predicate predicate) {
-            if (taxa != null && !taxa.isEmpty() && predicate != null) {
-                List<T> filtered = new ArrayList<T>();
-                for (T t : taxa) {
-                    if (t instanceof Record && ((Record) t).is(predicate)) {
-                        filtered.add(t);
-                    } else {
-                        if (!getChildren(t, predicate).isEmpty()) {
-                            t.as(Taxon.Data.class).setSelectable(false);
-                            filtered.add(t);
+        private static <T extends Taxon> void filter(List<T> taxa, Predicate predicate) {
+            if (taxa != null && predicate != null) {
+                for (T t : new ArrayList<T>(taxa)) {
+                    if (!PredicateParser.Static.evaluate(t, predicate)) {
+                        List<? extends Taxon> children = getChildren(t, null);
+                        if (children.isEmpty()) {
+                            taxa.remove(t);
+                        } else {
+                            filter(children, predicate);
+                            if (children.isEmpty()) {
+                                taxa.remove(t);
+                            } else {
+                                t.as(Taxon.Data.class).setSelectable(false);
+                            }
                         }
                     }
                 }
-                return filtered;
-            } else {
-                return taxa;
             }
         }
 

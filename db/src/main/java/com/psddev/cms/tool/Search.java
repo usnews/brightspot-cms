@@ -693,6 +693,9 @@ public class Search extends Record {
                     if ("t".equals(queryType)) {
                         query.and(fieldName + " matches ?", fieldValue);
 
+                    } else if ("b".equals(queryType)) {
+                        query.and(fieldName + ("true".equals(fieldValue) ? " = true" : " != true"));
+
                     } else {
                         query.and(fieldName + " = ?", fieldValue);
                     }

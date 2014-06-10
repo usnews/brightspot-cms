@@ -28,6 +28,10 @@ module.exports = function(grunt) {
                     'dist/jquery.handsontable.full.js'
                 ],
 
+                'husl': [
+                    'husl.js'
+                ],
+
                 'jquery': [
                     'jquery.js'
                 ],

@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "bsp-grunt": "1.0.4"
+    "bsp-grunt": "1.0.6"
   },
   "name": "brightspot-cms"
 }

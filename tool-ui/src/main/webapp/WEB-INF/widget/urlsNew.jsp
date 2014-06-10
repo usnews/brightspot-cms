@@ -219,7 +219,7 @@ if (!paths.isEmpty()) {
                         wp.writeEnd();
 
                         for (Site s : sites.values()) {
-                            wp.writeStart("option", "value", s.getId());
+                            wp.writeStart("option", "value", s.getId(), "selected", s.equals(site) ? "selected" : null);
                                 wp.writeObjectLabel(s);
                             wp.writeEnd();
                         }

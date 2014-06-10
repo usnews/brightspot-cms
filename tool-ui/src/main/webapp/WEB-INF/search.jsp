@@ -313,6 +313,11 @@ writer.start("div", "class", "searchForm");
                                     writer.writeEnd();
                                 writer.writeEnd();
 
+                                writer.writeElement("input",
+                                        "type", "hidden",
+                                        "name", inputName + ".t",
+                                        "value", "b");
+
                             } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
                                 writer.writeElement("input",
                                         "type", "text",
@@ -445,11 +450,12 @@ writer.start("div", "class", "searchForm");
             writer.end();
 
             writer.start("a",
-                    "class", "action action-cancel",
+                    "class", "action action-cancel search-reset",
                     "onclick",
                             "var $source = $(this).popup('source');" +
                             "if ($source) {" +
                                 "if ($source.is('a')) {" +
+                                    "console.log($source[0]);" +
                                     "$source.click();" +
                                 "} else if ($source.is('form')) {" +
                                     "$source[0].reset();" +

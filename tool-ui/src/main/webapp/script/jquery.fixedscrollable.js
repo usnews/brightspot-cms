@@ -39,25 +39,27 @@ $.plugin2('fixedScrollable', {
     '_init': function(selector) {
         var plugin = this;
 
-        plugin.$caller.on('mousewheel', selector, function(event, delta, deltaX, deltaY) {
-            var $list = $(this),
-                    maxScrollTop;
+        $(document).ready(function() {
+            plugin.$caller.on('mousewheel', selector, function(event, delta, deltaX, deltaY) {
+                var $list = $(this),
+                        maxScrollTop;
 
-            if (!isFixed($list.closest('.popup'))) {
-                return;
-            }
+                if (!isFixed($list.closest('.popup'))) {
+                    return;
+                }
 
-            maxScrollTop = $.data(this, 'dropDown-maxScrollTop');
+                maxScrollTop = $.data(this, 'dropDown-maxScrollTop');
 
-            if (typeof maxScrollTop === 'undefined') {
-                maxScrollTop = $list.prop('scrollHeight') - $list.innerHeight();
-                $.data(this, 'dropDown-maxScrollTop', maxScrollTop);
-            }
+                if (typeof maxScrollTop === 'undefined') {
+                    maxScrollTop = $list.prop('scrollHeight') - $list.innerHeight();
+                    $.data(this, 'dropDown-maxScrollTop', maxScrollTop);
+                }
 
-            if ((deltaY > 0 && $list.scrollTop() === 0) ||
-                    (deltaY < 0 && $list.scrollTop() >= maxScrollTop)) {
-                event.preventDefault();
-            }
+                if ((deltaY > 0 && $list.scrollTop() === 0) ||
+                        (deltaY < 0 && $list.scrollTop() >= maxScrollTop)) {
+                    event.preventDefault();
+                }
+            });
         });
 
         $window.resize($.throttle(100, function() {

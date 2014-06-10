@@ -1349,25 +1349,32 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
+        String cssPrefix = ObjectUtils.firstNonNull(cms.getStyleSheetPath(), "/style/");
+        cssPrefix = StringUtils.ensureStart(cssPrefix, "/");
+        cssPrefix = StringUtils.ensureEnd(cssPrefix, "/");
+
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/cms.less"));
+            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource(cssPrefix + "cms.less"));
 
         } else {
-            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/cms.min.css"));
+            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource(cssPrefix + "cms.min.css"));
         }
-
-        writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/nv.d3.css"));
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
         }
 
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeStart("script", "type", "text/javascript");
-                write("window.less = window.less || { }; window.less.env = 'development'; window.less.poll = 500;");
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-dev.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-1.4.1.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl-less.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less.js"));
             writeEnd();
         }
 
@@ -1996,6 +2003,7 @@ public class ToolPageContext extends WebPageContext {
         includeFromCms("/WEB-INF/objectMessage.jsp", "object", object);
 
         writeStart("form",
+                "class", "standardForm",
                 "method", "post",
                 "enctype", "multipart/form-data",
                 "action", url("", "id", state.getId()),
@@ -2272,24 +2280,24 @@ public class ToolPageContext extends WebPageContext {
                 state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
             }
 
-            if (state.isNew() ||
-                    state.as(Content.ObjectModification.class).isDraft()) {
-                state.as(Content.ObjectModification.class).setDraft(true);
-                publish(state);
-                redirectOnSave("",
-                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
-                        "id", state.getId(),
-                        "copyId", null);
-                return true;
-
-            } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
-                publish(state);
-                redirectOnSave("",
-                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null);
-                return true;
-            }
-
             if (draft == null) {
+                if (state.isNew() ||
+                        state.as(Content.ObjectModification.class).isDraft()) {
+                    state.as(Content.ObjectModification.class).setDraft(true);
+                    publish(state);
+                    redirectOnSave("",
+                            "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                            "id", state.getId(),
+                            "copyId", null);
+                    return true;
+
+                } else if (state.as(Workflow.Data.class).getCurrentState() != null) {
+                    publish(state);
+                    redirectOnSave("",
+                            "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null);
+                    return true;
+                }
+
                 draft = new Draft();
                 draft.setOwner(getUser());
                 draft.setObject(object);

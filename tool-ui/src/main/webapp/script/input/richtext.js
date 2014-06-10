@@ -688,18 +688,9 @@ function($) {
                     $anchor.removeClass(tempClass);
 
                     if ($(rte.composer.element).hasClass('rte-changesTracking')) {
-                        $ins = $anchor.parent('ins');
-
-                        if ($ins.length > 0) {
-                            $del = $ins.prev('del');
-
-                            if ($del.length > 0 && $del.text() === $anchor.text()) {
-                                $ins.after($anchor);
-                                $ins.remove();
-                                $del.remove();
-                                openLinkDialog($anchor);
-                                return;
-                            }
+                        if ($anchor.parent('ins').length > 0) {
+                            openLinkDialog($anchor);
+                            return;
                         }
 
                         $anchor.before($('<del/>', {
@@ -758,6 +749,56 @@ function($) {
             });
 
             this.observe('load', function() {
+                function removeDelIns($container) {
+                    $container.find('del, ins').each(function() {
+                        var $delOrIns = $(this);
+
+                        $delOrIns.after($delOrIns.html());
+                        $delOrIns.remove();
+                    });
+                }
+
+                $(rte.composer.element).on('cut', function(event) {
+                    if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                        return;
+                    }
+
+                    var range = composer.selection.getRange();
+                    var $del = $('<del/>');
+
+                    $del.append(range.nativeRange.cloneContents());
+                    removeDelIns($del);
+                    setTimeout(function() {
+                        rte.composer.selection.getRange().nativeRange.insertNode($del[0]);
+                    }, 0);
+                });
+
+                var pasteRange;
+
+                $(rte.composer.element).on('paste', function(event) {
+                    if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                        return;
+                    }
+
+                    pasteRange = composer.selection.getRange().nativeRange;
+                });
+
+                rte.on('paste', function() {
+                    if (!$(rte.composer.element).hasClass('rte-changesTracking')) {
+                        return;
+                    }
+
+                    if (pasteRange) {
+                        var range = composer.selection.getRange();
+                        var $ins = $('<ins/>');
+
+                        pasteRange.setEnd(range.endContainer, range.endOffset);
+                        $ins.append(pasteRange.extractContents());
+                        removeDelIns($ins);
+                        composer.selection.getRange().nativeRange.insertNode($ins[0]);
+                        pasteRange = null;
+                    }
+                });
 
                 // Restore track changes state.
                 if (window.sessionStorage.getItem('bsp.rte.changesTracking.' + $(rte.textarea.element).closest('.inputContainer').attr('data-name'))) {
@@ -1083,6 +1124,8 @@ function($) {
                                         container.nodeType === Node.TEXT_NODE &&
                                         range.endOffset === container.data.length) {
                                     selection.setAfter($(container).closest('del')[0]);
+                                    selection.getSelection().nativeSelection.modify('move', 'backward', 'character');
+                                    selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
                                 }
 
                             } else {
@@ -1095,6 +1138,8 @@ function($) {
                                         container.nodeType === Node.TEXT_NODE &&
                                         range.startOffset === 0) {
                                     selection.setBefore($(container).closest('del')[0]);
+                                    selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
+                                    selection.getSelection().nativeSelection.modify('move', 'backward', 'character');
                                 }
                             }
 
