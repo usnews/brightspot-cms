@@ -1119,6 +1119,8 @@ var Rte = wysihtml5.Editor.extend({
                                     container.nodeType === Node.TEXT_NODE &&
                                     range.endOffset === container.data.length) {
                                 selection.setAfter($(container).closest('del')[0]);
+                                selection.getSelection().nativeSelection.modify('move', 'backward', 'character');
+                                selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
                             }
 
                         } else {
@@ -1131,6 +1133,8 @@ var Rte = wysihtml5.Editor.extend({
                                     container.nodeType === Node.TEXT_NODE &&
                                     range.startOffset === 0) {
                                 selection.setBefore($(container).closest('del')[0]);
+                                selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
+                                selection.getSelection().nativeSelection.modify('move', 'backward', 'character');
                             }
                         }
 
