@@ -123,6 +123,7 @@ public class Schedule extends Record {
                     contentData.setDraft(false);
                     contentData.setPublishDate(triggerDate);
                     contentData.setPublishUser(triggerUser);
+                    state.as(BulkUploadDraft.class).setRunAfterSave(true);
                     Content.Static.publish(object, getTriggerSite(), triggerUser);
                 }
 

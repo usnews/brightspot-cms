@@ -5,7 +5,7 @@ define([
 function($, bsp_utils) {
     var $win = $(window);
 
-    bsp_utils.onDomInsert(document, '.contentForm, .enhancementForm', {
+    bsp_utils.onDomInsert(document, '.contentForm, .enhancementForm, .standardForm', {
         'insert': function(form) {
             var $form = $(form),
                     updateContentState,

@@ -313,6 +313,11 @@ writer.start("div", "class", "searchForm");
                                     writer.writeEnd();
                                 writer.writeEnd();
 
+                                writer.writeElement("input",
+                                        "type", "hidden",
+                                        "name", inputName + ".t",
+                                        "value", "b");
+
                             } else if (ObjectField.DATE_TYPE.equals(fieldInternalItemType)) {
                                 writer.writeElement("input",
                                         "type", "text",
