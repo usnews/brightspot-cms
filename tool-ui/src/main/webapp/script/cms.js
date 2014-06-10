@@ -1205,7 +1205,7 @@ $doc.ready(function() {
 })();
 
 // Content state.
-$(window.document).onCreate('.contentForm, .enhancementForm', function() {
+$(window.document).onCreate('.contentForm, .enhancementForm, .standardForm', function() {
     var $form = $(this),
             updateContentState,
             updateContentStateThrottled,
