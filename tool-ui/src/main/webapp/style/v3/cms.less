@@ -377,11 +377,14 @@
   .background-striped(@color-alt);
 
   margin-top: 10px;
+  transition: box-shadow @speed-fast;
 
   > h1 {
     .icon;
     .icon-eye-open;
 
+    background: transparent;
+    border: none;
     cursor: pointer;
     position: fixed;
     width: 100%;
@@ -393,13 +396,17 @@
     .link;
   }
 
-  &.widget-expanded > h1:after {
-    color: @color-note;
-    content: 'Click To Pin \00bb';
-    font-size: 90%;
-    left: 50%;
-    margin-left: -9em;
-    position: absolute;
+  &.widget-expanded {
+    box-shadow: 0 0 20px @color-gray-dark;
+
+    > h1:after {
+      color: @color-link;
+      content: 'Pin \00bb';
+      font-size: 90%;
+      left: 50%;
+      margin-left: -9em;
+      position: absolute;
+    }
   }
 
   &.widget-loading {
