@@ -125,6 +125,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private boolean alwaysGeneratePermalinks;
 
+    @ToolUi.Tab("Debug")
+    private boolean enableCrossDomainInlineEditing;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -623,6 +626,14 @@ public class CmsTool extends Tool {
 
     public void setAlwaysGeneratePermalinks(boolean alwaysGeneratePermalinks) {
         this.alwaysGeneratePermalinks = alwaysGeneratePermalinks;
+    }
+
+    public boolean isEnableCrossDomainInlineEditing() {
+        return enableCrossDomainInlineEditing;
+    }
+
+    public void setEnableCrossDomainInlineEditing(boolean enableCrossDomainInlineEditing) {
+        this.enableCrossDomainInlineEditing = enableCrossDomainInlineEditing;
     }
 
     /** Returns the preview URL. */
