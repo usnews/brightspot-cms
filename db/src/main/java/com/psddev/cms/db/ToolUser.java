@@ -25,6 +25,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
+import com.psddev.dari.util.StorageItem;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -49,6 +50,8 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.FieldDisplayType("password")
     private String password;
+
+    private StorageItem avatar;
 
     @ToolUi.FieldDisplayType("timeZone")
     private String timeZone;
@@ -153,6 +156,14 @@ public class ToolUser extends Record implements ToolEntity {
     /** Sets the password. */
     public void setPassword(Password password) {
         this.password = password.toString();
+    }
+
+    public StorageItem getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(StorageItem avatar) {
+        this.avatar = avatar;
     }
 
     /**

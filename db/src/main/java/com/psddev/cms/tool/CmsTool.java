@@ -41,6 +41,7 @@ public class CmsTool extends Tool {
 
     private String companyName;
     private StorageItem companyLogo;
+    private StorageItem backgroundImage;
     private String environment;
 
     @ToolUi.Tab("Defaults")
@@ -308,6 +309,14 @@ public class CmsTool extends Tool {
     /** Sets the company logo. */
     public void setCompanyLogo(StorageItem companyLogo) {
         this.companyLogo = companyLogo;
+    }
+
+    public StorageItem getBackgroundImage() {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(StorageItem backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     /** Returns the environment. */

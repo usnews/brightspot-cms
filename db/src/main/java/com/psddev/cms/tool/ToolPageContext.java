@@ -1210,6 +1210,18 @@ public class ToolPageContext extends WebPageContext {
                     if (user != null) {
                         int nowHour = new DateTime().getHourOfDay();
 
+                        writeStart("div", "class", "toolAvatar");
+
+                            StorageItem avatar = user.getAvatar();
+
+                            if (avatar != null) {
+                                writeStart("a", "href", cmsUrl("/misc/settings.jsp"));
+                                    writeTag("img",
+                                            "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 50, 50).getPublicUrl());
+                                writeEnd();
+                            }
+                        writeEnd();
+
                         writeStart("div", "class", "toolProfile");
                             writeHtml("Good ");
                             writeHtml(nowHour >= 2 && nowHour < 12 ? "Morning" : (nowHour >= 12 && nowHour < 18 ? "Afternoon" : "Evening"));
@@ -1317,6 +1329,32 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
 
                 writeStart("div", "class", "toolContent");
+
+                    StorageItem backgroundImage = cms.getBackgroundImage();
+
+                    if (backgroundImage != null) {
+                        writeStart("svg",
+                                "xmlns", "http://www.w3.org/2000/svg",
+                                "xmlns:xlink", "http://www.w3.org/1999/xlink",
+                                "class", "toolBackground",
+                                "width", "100%",
+                                "height", "100%");
+                            writeStart("defs");
+                                writeStart("filter", "id", "blur");
+                                    writeStart("feGaussianBlur", "stdDeviation", 40);
+                                    writeEnd();
+                                writeEnd();
+                            writeEnd();
+
+                            writeStart("image",
+                                    "xlink:href", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), backgroundImage, null, 400, 400).getPublicUrl(),
+                                    "width", "100%",
+                                    "height", "100%",
+                                    "preserveAspectRatio", "xMidYMid slice",
+                                    "filter", "url(#blur)");
+                            writeEnd();
+                        writeEnd();
+                    }
     }
 
     public void writeStylesAndScripts() throws IOException {
