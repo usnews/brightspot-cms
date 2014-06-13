@@ -93,6 +93,7 @@ if (wp.isFormPost()) {
     height: 100px;
     margin: 30px 0 0 0;
     text-align: center;
+    width: auto;
 }
 .toolFooter {
     border-style: none;

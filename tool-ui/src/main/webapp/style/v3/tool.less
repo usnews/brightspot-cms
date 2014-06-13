@@ -40,7 +40,7 @@
 }
 
 .toolHeader {
-  background-color: fade(@color-alt, 95%);
+  background-color: fade(white, 93%);
   border-bottom: 1px solid @color-separator;
   height: 59px;
   left: 0;
@@ -51,10 +51,10 @@
 }
 
 .toolTitle {
-  float: right;
   height: 46px;
   line-height: 46px;
-  margin: 7px 50px 0 20px;
+  margin: 7px 40px 0 20px;
+  width: 200px;
 
   .link {
     color: @color-text;
@@ -73,7 +73,7 @@
 }
 
 .toolEnv {
-  .background-color(@color-overlay);
+  .background-color(black);
   box-shadow: 0 0 5px fade(black, 50%);
   height: 22px;
   font-size: 11px;
@@ -87,60 +87,124 @@
   text-transform: uppercase;
 }
 
-.toolProfile {
-  font-size: 11px;
-  line-height: 24px;
+.toolAvatar {
+  @size: 50px;
+
+  .background-color(@color-gray-faint);
+  border-radius: 100%;
+  display: block;
+  height: @size;
+  right: 70px;
+  overflow: hidden;
   position: absolute;
-  left: 220px;
-  top: 0;
+  top: 5px;
+  width: @size;
+}
 
-  .toolHeader-hasEnvironment & {
-    right: 77px;
-  }
-
-  ul {
-    .piped;
-
-    display: inline;
-
-    &:before {
-      color: @color-separator;
-      content: ' ( ';
-      padding: 0 2px;
-    }
-
-    &:after {
-      color: @color-separator;
-      content: ' ) ';
-      padding: 0 2px;
-    }
-  }
+.toolProfile {
+  display: none;
 }
 
 .toolSearch {
   position: absolute;
-  left: 20px;
+  left: 220px;
   top: 15px;
-  width: 185px;
+  transition: width @speed-fast;
+  width: 98px;
+
+  .toolSearchOpen & {
+    width: 185px;
+  }
 
   .toolHeader-hasEnvironment & {
     right: 52px;
   }
 
   .searchInput {
+    .icon;
+    .icon-action-search;
+
     width: 100%;
 
-    input[type=text] {
+    &:before {
+      color: @color-link;
+      cursor: pointer;
+      left: 8px;
+      line-height: 1;
+      position: absolute;
+      top: 8px;
+      transition: color @speed-fast;
+
+      .toolSearchOpen & {
+        color: black;
+      }
+    }
+
+    button {
+      display: none;
+    }
+
+    label {
+      color: @color-link;
+      cursor: pointer;
+      font-family: @fontFamily-label;
+      font-weight: bold;
+      left: 0;
+      padding-left: 26px;
+      text-transform: uppercase;
+      transition: color @speed-fast;
+
+      .toolSearchOpen & {
+        color: @color-note;
+      }
+    }
+
+    input[type='text'] {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
       height: 30px;
+      padding-left: 25px;
+      transition: border @speed-fast;
       width: 100%;
+
+      .toolSearchOpen & {
+        background: white;
+        border-color: @color-gray-light;
+        box-shadow: inset 1px 1px 1px fade(black, 5%);
+
+        &:focus,
+        &.state-focus {
+          border-color: @color-focus;
+          box-shadow: 0 0 4px @color-focus;
+        }
+      }
     }
   }
 }
 
+.toolSearchSaved {
+  display: block;
+  left: -200px;
+  position: absolute;
+  top: 5px;
+  width: 180px;
+}
+
 .toolNav {
-  float: left;
+  font-family: @fontFamily-label;
+  font-size: 100%;
+  font-weight: bold;
+  left: 298px;
   list-style-type: none;
-  margin: 23px 0 0 220px;
+  position: absolute;
+  transition: left @speed-fast;
+  text-transform: uppercase;
+  top: 6px;
+
+  .toolSearchOpen & {
+    left: 400px;
+  }
 
   > li {
     float: left;
@@ -149,15 +213,11 @@
     position: relative;
 
     > .link {
-      background-color: @color-background;
-      border: 1px solid @color-separator;
-      border-top-left-radius: 5px;
-      border-top-right-radius: 5px;
       display: block;
-      font-size: 15px;
-      height: 35px;
-      line-height: 35px;
-      padding: 0 10px;
+      font-weight: bold;
+      height: 48px;
+      line-height: 48px;
+      margin: 0 15px 0 0;
 
       &:hover {
         text-decoration: none;
@@ -165,17 +225,16 @@
     }
 
     > ul {
-      background-color: @color-background;
-      border-bottom-left-radius: 5px;
-      border-bottom-right-radius: 5px;
-      box-shadow: rgba(0, 0, 0, 0.5) 0 2px 2px;
+      background: white;
+      border-bottom: 5px solid black;
+      box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.5);
       display: none;
-      left: 1px;
+      left: -15px;
       list-style-type: none;
       margin: 0;
       padding: 0 0 5px 0;
       position: absolute;
-      top: 37px;
+      top: 47px;
       z-index: 200;
 
       > li {
@@ -209,8 +268,7 @@
 
     &.selected {
       > .link {
-        background: @color-background;
-        border-bottom-color: @color-background;
+        border-bottom: 5px solid black;
         color: @color-text;
         position: relative;
       }
@@ -240,6 +298,16 @@
     opacity: 0.3;
     transform: translateZ(0);
   }
+}
+
+.toolBackground {
+  bottom: 0;
+  display: block;
+  left: 0;
+  opacity: 0.4;
+  position: fixed;
+  right: 0;
+  top: 0;
 }
 
 .toolFooter {
@@ -413,7 +481,7 @@
 }
 
 .searchResult {
-  margin-left: @searchControls-width;
+  margin-left: @searchControls-width + 5;
   position: relative;
 }
 

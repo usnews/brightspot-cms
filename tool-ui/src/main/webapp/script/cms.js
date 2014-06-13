@@ -535,6 +535,14 @@ function() {
         }
     });
 
+    $doc.on('open', '.popup[name="miscSearch"]', function() {
+      $(document.body).addClass('toolSearchOpen');
+    });
+
+    $doc.on('close', '.popup[name="miscSearch"]', function() {
+      $(document.body).removeClass('toolSearchOpen');
+    });
+
     $doc.ready(function() {
         $(this).trigger('create');
 

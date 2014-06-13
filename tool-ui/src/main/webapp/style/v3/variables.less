@@ -75,6 +75,8 @@
 @color-text: @color-black;
 
 @fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
+@fontFamily-label: 'Open Sans', sans-serif;
 
 @size-input-border: 1px;
 @size-input-padding: 4px;
@@ -92,8 +94,8 @@
 }
 
 .background-striped(@color) {
-  @from: husl-lighten(@color, 2.5);
-  @to: husl-darken(@color, 2.5);
+  @from: husl-lighten(@color, 1.5);
+  @to: husl-darken(@color, 1.5);
 
   .background-color(@color);
 

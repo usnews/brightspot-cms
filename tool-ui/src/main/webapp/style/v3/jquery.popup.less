@@ -86,7 +86,7 @@
 // General search input is in the header so no need to display it again.
 .popup[name=miscSearch] {
   .searchSaved {
-    display: block;
+    display: none;
   }
 
   .searchFilters {
@@ -140,13 +140,17 @@
     border-radius: 0;
     border-top: 1px solid @color-gray-light;
     box-shadow: 0 40px 80px -40px black;
-    padding: 20px;
+    padding: 10px 20px 20px 220px;
 
     > .closeButton {
       background: transparent;
       border-color: transparent;
       right: 5px;
       top: 4px;
+    }
+
+    > .marker {
+      display: none;
     }
 
     > .frame {
