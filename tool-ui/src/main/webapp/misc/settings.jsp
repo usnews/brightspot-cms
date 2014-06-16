@@ -55,7 +55,9 @@ wp.writeStart("div", "class", "widget");
             "method", "post",
             "enctype", "multipart/form-data",
             "action", wp.objectUrl("", user));
-        wp.include("/WEB-INF/objectForm.jsp", "object", user, "excludeFields", excludeFields);
+        wp.writeStart("div", "class", "fixedScrollable");
+            wp.include("/WEB-INF/objectForm.jsp", "object", user, "excludeFields", excludeFields);
+        wp.writeEnd();
 
         wp.writeStart("div", "class", "actions");
             wp.writeStart("button", "class", "icon icon-action-save");
