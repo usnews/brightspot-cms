@@ -193,17 +193,7 @@ public class Draft extends Content {
         Object object = getObject();
 
         if (object != null) {
-            State state = State.getInstance(object);
-            ObjectType type = state.getType();
-            StringBuilder label = new StringBuilder();
-
-            if (type != null) {
-                label.append(type.getLabel());
-                label.append(": ");
-            }
-
-            label.append(state.getLabel());
-            return label.toString();
+            return State.getInstance(object).getLabel();
 
         } else {
             return super.getLabel();

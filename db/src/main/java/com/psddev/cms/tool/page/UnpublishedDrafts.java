@@ -299,7 +299,7 @@ public class UnpublishedDrafts extends PageServlet {
                                 page.writeStart("tr", "data-preview-url", "/_preview?_cms.db.previewId=" + draftId);
                                     page.writeStart("td");
                                         page.writeStart("span", "class", "visibilityLabel");
-                                            page.writeHtml("Draft");
+                                            page.writeHtml("Update");
                                         page.writeEnd();
                                     page.writeEnd();
 

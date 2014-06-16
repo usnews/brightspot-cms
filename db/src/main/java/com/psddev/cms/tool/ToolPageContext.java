@@ -924,7 +924,7 @@ public class ToolPageContext extends WebPageContext {
 
         } else {
             State state = State.getInstance(object);
-            String visibilityLabel = state.getVisibilityLabel();
+            String visibilityLabel = object instanceof Draft ? "Update" : state.getVisibilityLabel();
             String label = state.getLabel();
 
             if (!ObjectUtils.isBlank(visibilityLabel)) {
@@ -951,7 +951,12 @@ public class ToolPageContext extends WebPageContext {
         ObjectType type = null;
 
         if (object != null) {
-            type = State.getInstance(object).getType();
+            if (object instanceof Draft) {
+                type = ((Draft) object).getObjectType();
+
+            } else {
+                type = State.getInstance(object).getType();
+            }
         }
 
         writeObjectLabel(type);
