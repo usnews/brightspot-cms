@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,7 @@ import org.apache.commons.codec.language.Metaphone;
 
 import com.psddev.dari.db.ComparisonPredicate;
 import com.psddev.dari.db.CompoundPredicate;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -22,7 +24,9 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
+import com.psddev.dari.util.ObjectUtils;
 
+@Deprecated
 public class Search extends Record {
 
     private static final Metaphone METAPHONE = new Metaphone();
@@ -78,7 +82,7 @@ public class Search extends Record {
     // --- Fluent methods ---
 
     public static Search named(String name) {
-        return Query.from(Search.class).where("internalName = ?").first();
+        return Query.from(Search.class).where("internalName = ?", name).first();
     }
 
     public Search addTypes(ObjectType... types) {
@@ -202,6 +206,14 @@ public class Search extends Record {
         return addTypeKeywords(boost, ObjectType.getInstance(objectClass), keywords);
     }
 
+    public Search boostDirectoryItems(final double boost) {
+        return addRule(new Rule() {
+            public void apply(Search search, SearchQuery query, List<String> queryTerms) {
+                query.sortRelevant(boost, Directory.Static.hasPathPredicate());
+            }
+        });
+    }
+
     private List<String> normalizeTerms(Object... terms) {
         List<String> normalized = new ArrayList<String>();
 
@@ -212,7 +224,7 @@ public class Search extends Record {
             } else if (term instanceof Recordable) {
                 normalized.add(((Recordable) term).getState().getId().toString());
 
-            } else {
+            } else if (term != null) {
                 String termString = term.toString();
                 char[] letters = termString.toCharArray();
                 int lastEnd = 0;
@@ -246,17 +258,17 @@ public class Search extends Record {
         return addRule(rule);
     }
 
+    @Deprecated
     public SearchQuery toQuery(Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         SearchQuery query = new SearchQuery();
 
+        for (Rule rule : getRules()) {
+            rule.apply(this, query, queryTerms);
+        }
+
         if (!queryTerms.isEmpty()) {
-            for (Rule rule : getRules()) {
-                rule.apply(this, query, queryTerms);
-            }
-            if (!queryTerms.isEmpty()) {
-                query.and("_any matchesAll ?", queryTerms);
-            }
+            query.or("_any matchesAll ?", queryTerms);
         }
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
@@ -268,19 +280,28 @@ public class Search extends Record {
         return query;
     }
 
+    @Deprecated
     @Embedded
     public abstract static class Rule extends Record {
 
+        @Deprecated
         public abstract void apply(Search search, SearchQuery query, List<String> queryTerms);
     }
 
     public static class StopWords extends Rule {
 
+        @CollectionMinimum(1)
         private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
-                "a", "about", "an", "are", "as", "at", "be", "by", "com",
-                "for", "from", "how", "in", "is", "it", "of", "on", "or",
-                "that", "the", "this", "to", "was", "what", "when", "where",
-                "who", "will", "with", "the", "www"));
+                "a", "about", "an", "and", "are", "as", "at", "be", "but",
+                "by", "com", "do", "for", "from", "he", "her", "him", "his",
+                "her", "hers", "how", "I", "if", "in", "is", "it", "its", "me",
+                "my", "of", "on", "or", "our", "ours", "that", "the", "they",
+                "this", "to", "too", "us", "she", "was", "what", "when",
+                "where", "who", "will", "with", "why", "www"));
+
+        public String getLabel() {
+            return "Common words that may be omitted from the search query to provide higher quality results";
+        }
 
         public Set<String> getStopWords() {
             if (stopWords == null) {
@@ -293,6 +314,7 @@ public class Search extends Record {
             this.stopWords = stopWords;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
@@ -340,6 +362,7 @@ public class Search extends Record {
             this.type = type;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
@@ -348,6 +371,7 @@ public class Search extends Record {
 
     public static class BoostLabels extends BoostRule {
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             double boost = getBoost();
@@ -384,12 +408,37 @@ public class Search extends Record {
             this.fields = fields;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             double boost = getBoost();
             String prefix = getType().getInternalName() + "/";
             for (String field : getFields()) {
-                query.sortRelevant(boost, prefix + field + " matchesAll ?", queryTerms);
+
+                List<UUID> uuids = new ArrayList<UUID>();
+                List<String> texts = new ArrayList<String>();
+
+                if (queryTerms != null) {
+                    for (String queryTerm : queryTerms) {
+                        UUID uuid = ObjectUtils.to(UUID.class, queryTerm);
+                        if (uuid != null) {
+                            uuids.add(uuid);
+                        } else {
+                            texts.add(queryTerm);
+                        }
+                    }
+                }
+
+                if (ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
+                    if (!uuids.isEmpty()) {
+                        query.sortRelevant(boost, prefix + field + " matchesAll ?", uuids);
+                    }
+
+                } else {
+                    if (!texts.isEmpty()) {
+                        query.sortRelevant(boost, prefix + field + " matchesAll ?", texts);
+                    }
+                }
             }
         }
     }
@@ -424,6 +473,7 @@ public class Search extends Record {
             this.predicate = predicate;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
@@ -497,6 +547,7 @@ public class Search extends Record {
             this.keywords = keywords;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             List<ObjectType> types = getType().as(ToolUi.class).findDisplayTypes();
@@ -551,6 +602,7 @@ public class Search extends Record {
             this.terms = terms;
         }
 
+        @Deprecated
         @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             Set<String> terms = getTerms();
@@ -563,8 +615,8 @@ public class Search extends Record {
                 }
             }
 
-            query.and("_any matchesAny ?", terms);
-            query.sortRelevant(getBoost(), "_any matchesAll ?", queryTerms);
+            query.or("_any matchesAny ?", terms);
+            query.sortRelevant(getBoost(), "_any matchesAny ?", terms);
         }
     }
 }
