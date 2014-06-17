@@ -980,9 +980,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 }
 
                 String url = item.getPublicUrl();
-                if (url != null) {
-                    attributes.put(srcAttr != null ? srcAttr : "src", url);
-                }
 
                 if (editor == null) {
                     editor = ImageEditor.Static.getDefault();
@@ -1005,6 +1002,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                .append(".")
                                .append(extension);
                     url = friendlyUrl.toString();
+                }
+
+                if (url != null) {
+                    attributes.put(srcAttr != null ? srcAttr : "src", url);
                 }
 
                 Integer newWidth = findDimension(item, "width");
