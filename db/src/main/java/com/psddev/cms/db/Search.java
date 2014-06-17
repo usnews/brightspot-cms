@@ -1,5 +1,19 @@
 package com.psddev.cms.db;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.codec.language.Metaphone;
+
 import com.psddev.dari.db.ComparisonPredicate;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.ObjectField;
@@ -11,19 +25,6 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
-import org.apache.commons.codec.language.Metaphone;
-
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Deprecated
 public class Search extends Record {
@@ -79,6 +80,7 @@ public class Search extends Record {
     }
 
     // --- Fluent methods ---
+
     public static Search named(String name) {
         return Query.from(Search.class).where("internalName = ?", name).first();
     }
@@ -227,7 +229,7 @@ public class Search extends Record {
                 char[] letters = termString.toCharArray();
                 int lastEnd = 0;
 
-                for (int i = 0, length = letters.length; i < length; ++i) {
+                for (int i = 0, length = letters.length; i < length; ++ i) {
                     char letter = letters[i];
 
                     if (Character.isWhitespace(letter)) {
@@ -245,6 +247,7 @@ public class Search extends Record {
                 normalized.add(termString.substring(lastEnd));
             }
         }
+
         return normalized;
     }
 
@@ -272,8 +275,8 @@ public class Search extends Record {
         for (ObjectType type : getTypes()) {
             allTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
         }
-        query.and("_type = ?", allTypes);
 
+        query.and("_type = ?", allTypes);
         return query;
     }
 
@@ -289,10 +292,11 @@ public class Search extends Record {
 
         @CollectionMinimum(1)
         private Set<String> stopWords = new LinkedHashSet<String>(Arrays.asList(
-                "a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "com",
-                "do", "for", "from", "he", "her", "him", "his", "her", "hers", "how", "I",
-                "if", "in", "is", "it", "its", "me", "my", "of", "on", "or", "our", "ours",
-                "that", "the", "they", "this", "to", "too", "us", "she", "was", "what", "when",
+                "a", "about", "an", "and", "are", "as", "at", "be", "but",
+                "by", "com", "do", "for", "from", "he", "her", "him", "his",
+                "her", "hers", "how", "I", "if", "in", "is", "it", "its", "me",
+                "my", "of", "on", "or", "our", "ours", "that", "the", "they",
+                "this", "to", "too", "us", "she", "was", "what", "when",
                 "where", "who", "will", "with", "why", "www"));
 
         public String getLabel() {
@@ -311,6 +315,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
             Set<String> removed = null;
@@ -358,6 +363,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             query.sortRelevant(getBoost(), "_type = ?", type.as(ToolUi.class).findDisplayTypes());
         }
@@ -366,6 +372,7 @@ public class Search extends Record {
     public static class BoostLabels extends BoostRule {
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             double boost = getBoost();
             for (ObjectType type : search.getTypes()) {
@@ -402,6 +409,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             double boost = getBoost();
             String prefix = getType().getInternalName() + "/";
@@ -466,6 +474,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             StringBuilder queryTermsString = new StringBuilder();
 
@@ -481,7 +490,7 @@ public class Search extends Record {
                 int groupCount = matcher.groupCount();
                 Object[] parameters = new Object[groupCount];
 
-                for (int i = 0; i < groupCount; ++i) {
+                for (int i = 0; i < groupCount; ++ i) {
                     parameters[i] = matcher.group(i + 1);
                 }
 
@@ -503,10 +512,10 @@ public class Search extends Record {
             } else if (predicate instanceof ComparisonPredicate) {
                 ComparisonPredicate comparison = (ComparisonPredicate) predicate;
                 return new ComparisonPredicate(
-                                                      comparison.getOperator(),
-                                                      comparison.isIgnoreCase(),
-                                                      prefix + comparison.getKey(),
-                                                      comparison.getValues());
+                        comparison.getOperator(),
+                        comparison.isIgnoreCase(),
+                        prefix + comparison.getKey(),
+                        comparison.getValues());
 
             } else {
                 return predicate;
@@ -539,6 +548,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             List<ObjectType> types = getType().as(ToolUi.class).findDisplayTypes();
 
@@ -593,6 +603,7 @@ public class Search extends Record {
         }
 
         @Deprecated
+        @Override
         public void apply(Search search, SearchQuery query, List<String> queryTerms) {
             Set<String> terms = getTerms();
 
