@@ -533,7 +533,7 @@ public class ToolPageContext extends WebPageContext {
         Object object;
         WorkStream workStream = Query.findById(WorkStream.class, param(UUID.class, "workStreamId"));
 
-        if (workStream != null) {
+        if (!isFormPost() && workStream != null) {
             object = workStream.next(getUser());
 
         } else {
