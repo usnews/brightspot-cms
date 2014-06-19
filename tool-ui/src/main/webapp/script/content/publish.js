@@ -126,4 +126,16 @@ function($, bsp_utils) {
             }
         }
     });
+
+    (function() {
+      var submitting;
+
+      $(document).on('submit', '.contentForm', function() {
+        submitting = true;
+      });
+
+      $(document).on('click', '.widget-publishing button, .widget-publishing :submit', function() {
+        return !submitting;
+      });
+    })();
 });
