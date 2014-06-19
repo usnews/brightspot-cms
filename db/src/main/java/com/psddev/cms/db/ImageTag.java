@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,8 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Application;
+import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
@@ -834,9 +837,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             Integer originalHeight = null;
             Map<String, ImageCrop> crops = null;
 
+            String field = null;
             if (this.state != null) { // backwards compatibility path
                 State objectState = this.state;
-                String field = this.field;
+                field = this.field;
 
                 if (ObjectUtils.isBlank(field)) {
                     field = findStorageItemField(objectState);
@@ -988,20 +992,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (!StringUtils.isBlank(url) &&
                         standardImageSize != null &&
                         this.state != null &&
-                        editor instanceof JavaImageEditor) {
+                        field != null &&
+                        editor instanceof JavaImageEditor &&
+                        this.state.getOriginalObject() instanceof ImageTag.Item)  {
                     //TODO: check JavaImageEditor setting friendlyPath = true
-                    //TODO: Image modificaiton - find or create file / standardImageSize / path on Image
 
                     String extension = url.substring(url.lastIndexOf("/")).contains(".") ? url.substring(url.lastIndexOf(".") + 1) : item.getContentType().substring(item.getContentType().lastIndexOf("/" + 1)).toLowerCase();
-
-                    StringBuilder friendlyUrl = new StringBuilder(ImageSizeFilter.JAVA_IMAGE_SERVLET_PATH);
-                    friendlyUrl.append("/")
-                               .append(standardImageSize.getInternalName())
-                               .append("/")
-                               .append(this.state.getId())
-                               .append(".")
-                               .append(extension);
-                    url = friendlyUrl.toString();
+                    ImageTag.Item imageTagItem = (ImageTag.Item) this.state.getOriginalObject();
+                    url = imageTagItem.as(ImageTag.Item.Data.class).buildFriendlyUrl(url, extension, standardImageSize.getInternalName(), field);
                 }
 
                 if (url != null) {
@@ -1253,5 +1251,180 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         Map<String, String> attributes = getAttributes(new WebPageContext(pageContext),
                 object, field, imageEditor, standardImageSize, width, height, null, null, null, null);
         return attributes.get("src");
+    }
+
+    public static interface Item extends Recordable {
+
+        /** Modification that adds image path information. */
+        @Modification.FieldInternalNamePrefix("cms.imageTag.")
+        public static final class Data extends Modification<ImageTag.Item> {
+            @ToolUi.Hidden
+            private List<ImageFieldPath> imageFieldPaths;
+
+            //TODO: optional unique friendly name, shouldn't contain "." or "-v"
+
+            public List<ImageFieldPath> getImageFieldPaths() {
+                return imageFieldPaths;
+            }
+
+            public void setImageFieldPaths(List<ImageFieldPath> imageFieldPaths) {
+                this.imageFieldPaths = imageFieldPaths;
+            }
+
+            public String buildFriendlyUrl(String url, String extension, String imageSize , String field) {
+
+                String localUrl = url;
+                if (localUrl.startsWith("http")) {
+                    localUrl = localUrl.substring(localUrl.indexOf("//") + 2);
+                    localUrl = localUrl.substring(localUrl.indexOf("/"));
+                }
+
+                StringBuilder friendlyUrl = new StringBuilder(ImageSizeFilter.JAVA_IMAGE_SERVLET_PATH);
+                friendlyUrl.append("/")
+                           .append(imageSize)
+                           .append("/")
+                           .append(field) //potential problem with embeded content fields
+                           .append("/")
+                           .append(this.getId());
+                Integer offset = null;
+
+                if (imageFieldPaths == null) {
+                    imageFieldPaths = new ArrayList<ImageFieldPath>();
+                } else if (this.getImageFieldPaths().size() > 0) {
+                    findOffset : for (ImageTag.Item.ImageFieldPath fieldPath : this.getImageFieldPaths()) {
+                        if (fieldPath.getField().equals(field)) {
+                            for (ImageTag.Item.ImageSizePath imageSizePath : fieldPath.getImageSizePaths()) {
+                                if (imageSizePath.getSize().equals(imageSize) && imageSizePath.getPaths().contains(localUrl)) {
+                                    offset =  imageSizePath.getPaths().indexOf(localUrl);
+                                    break findOffset;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //new image size/url combination
+                if (offset == null) {
+                    ImageFieldPath updatedImageFieldPath = null;
+                    int imageFieldPathIndex = -1;
+
+                    if (imageFieldPaths == null) {
+                        imageFieldPaths = new ArrayList<ImageFieldPath>();
+                    }
+
+                    for (int i = 0; i < imageFieldPaths.size(); i++) {
+                        if (imageFieldPaths.get(i).getField().equals(field)) {
+                            imageFieldPathIndex = i;
+                            updatedImageFieldPath = this.getImageFieldPaths().get(i);
+                            break;
+                        }
+
+                    }
+                    if (imageFieldPathIndex == -1) {
+                        updatedImageFieldPath = new ImageTag.Item.ImageFieldPath();
+                        updatedImageFieldPath.setField(field);
+                    }
+
+                    boolean found = false;
+                    if (updatedImageFieldPath.getImageSizePaths() == null) {
+                        updatedImageFieldPath.setImageSizePaths(new ArrayList<ImageSizePath>());
+                    } else {
+                        for (ImageSizePath imageSizePath : updatedImageFieldPath.getImageSizePaths()) {
+                            if (imageSizePath.getSize().equals(imageSize)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        ImageSizePath imageSizePath = new ImageSizePath();
+                        imageSizePath.setSize(imageSize);
+                        List<ImageSizePath> imageSizePaths = updatedImageFieldPath.getImageSizePaths();
+                        imageSizePaths.add(imageSizePath);
+                        updatedImageFieldPath.setImageSizePaths(imageSizePaths);
+                    }
+
+                    for (ImageTag.Item.ImageSizePath imageSizePath : updatedImageFieldPath.getImageSizePaths()) {
+                        if (imageSizePath.getSize().equals(imageSize)) {
+                            ImageSizePath newImageSizePath = imageSizePath;
+                            List<String> paths = newImageSizePath.getPaths();
+                            if (paths == null) {
+                                paths = new ArrayList<String>();
+                            }
+
+                            if (!paths.contains(localUrl)) {
+                                paths.add(localUrl);
+                                newImageSizePath.setPaths(paths);
+                            }
+                            break;
+                        }
+                    }
+
+                    if (imageFieldPathIndex == -1) {
+                        imageFieldPaths.add(updatedImageFieldPath);
+                    } else {
+                        imageFieldPaths.get(imageFieldPathIndex).setImageSizePaths(updatedImageFieldPath.getImageSizePaths());
+                    }
+                    this.getState().saveUnsafely();
+                    return url; //image will most likely not have saved and propigated for inital request
+
+                }
+
+                if (offset > 0) {
+                     friendlyUrl.append("-v")
+                                .append(offset);
+                }
+                friendlyUrl.append(".")
+                           .append(extension);
+
+                return friendlyUrl.toString();
+
+            }
+        }
+
+        @Recordable.Embedded
+        public static final class ImageFieldPath extends Record {
+            private String field;
+            private List<ImageSizePath> imageSizePaths;
+
+            public String getField() {
+                return field;
+            }
+
+            public void setField(String field) {
+                this.field = field;
+            }
+
+            public List<ImageSizePath> getImageSizePaths() {
+                return imageSizePaths;
+            }
+
+            public void setImageSizePaths(List<ImageSizePath> imageSizePaths) {
+                this.imageSizePaths = imageSizePaths;
+            }
+        }
+
+        @Recordable.Embedded
+        public static final class ImageSizePath extends Record {
+            private String size;
+            private List<String> paths;
+
+            public String getSize() {
+                return size;
+            }
+
+            public void setSize(String size) {
+                this.size = size;
+            }
+
+            public List<String> getPaths() {
+                return paths;
+            }
+
+            public void setPaths(List<String> paths) {
+                this.paths = paths;
+            }
+        }
+
     }
 }
