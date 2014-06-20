@@ -34,6 +34,7 @@ import com.psddev.dari.util.JavaImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectMap;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.PageContextFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
@@ -41,6 +42,7 @@ import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.WebPageContext;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Equivalent to the HTML {@code img} tag where its {@code src} attribute
@@ -991,7 +993,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     editor = ImageEditor.Static.getDefault();
                 }
 
-                if (!StringUtils.isBlank(url) &&
+                HttpServletRequest request = PageContextFilter.Static.getRequestOrNull();
+                if (request != null &&
+                        !PageFilter.Static.isPreview(request) &&
+                        !StringUtils.isBlank(url) &&
                         standardImageSize != null &&
                         this.state != null &&
                         field != null &&
