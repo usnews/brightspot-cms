@@ -49,8 +49,7 @@ require([
     'nv.d3',
 
     'dashboard',
-    'content',
-    'constrainedscroll' ],
+    'content' ],
 
 function() {
     var $ = arguments[0];
@@ -294,6 +293,73 @@ function() {
                 }
             }));
         });
+    })();
+
+    // Make sure that most elements are always in view.
+    (function() {
+        var lastScrollTop = $win.scrollTop();
+
+        $win.scroll($.throttle(100, function() {
+            var scrollTop = $win.scrollTop();
+
+            $('.leftNav, .withLeftNav > .main, .contentForm-aside').each(function() {
+                var $element = $(this),
+                        elementTop = $element.offset().top,
+                        initialElementTop = $element.data('initialElementTop'),
+                        windowHeight,
+                        elementHeight,
+                        alignToTop;
+
+                if ($element.closest('.popup').length > 0) {
+                    return;
+                }
+
+                if (!initialElementTop) {
+                    initialElementTop = elementTop;
+                    $element.data('initialElementTop', initialElementTop);
+                    $element.css({
+                        'position': 'relative',
+                        'top': 0
+                    });
+                }
+
+                windowHeight = $win.height();
+                elementHeight = $element.outerHeight();
+                alignToTop = function() {
+                    $element.stop(true);
+                    $element.animate({
+                        'top': Math.max(scrollTop, 0)
+                    }, 'fast');
+                };
+
+                // The element height is less than the window height,
+                // so there's no need to account for the bottom alignment.
+                if (initialElementTop + elementHeight < windowHeight) {
+                    alignToTop();
+
+                // The user is scrolling down.
+                } else {
+                    if (lastScrollTop < scrollTop) {
+                        var windowBottom = scrollTop + windowHeight;
+                        var elementBottom = elementTop + elementHeight;
+                        if (windowBottom > elementBottom) {
+                            $element.stop(true);
+                            $element.animate({
+                                'top': Math.min(windowBottom, $('body').height()) - elementHeight - initialElementTop
+                            }, 'fast');
+                        }
+
+                    // The user is scrolling up.
+                    } else if (lastScrollTop > scrollTop) {
+                        if (elementTop > scrollTop + initialElementTop) {
+                            alignToTop();
+                        }
+                    }
+                }
+            });
+
+            lastScrollTop = scrollTop;
+        }));
     })();
 
     // Handle file uploads from drag-and-drop.
