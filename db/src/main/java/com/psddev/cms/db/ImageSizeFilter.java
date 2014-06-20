@@ -6,7 +6,10 @@ import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
+import com.psddev.dari.util.ImageEditor;
+import com.psddev.dari.util.JavaImageEditor;
 import com.psddev.dari.util.JavaImageServlet;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
@@ -61,64 +64,74 @@ public class ImageSizeFilter extends AbstractFilter {
 
                         if (storageItem != null) {
                             String forwardPath = null;
-                            if (image.as(ImageTag.Item.Data.class).getImageFieldPaths().size() > 0) {
-                                findForwardPath : for (ImageTag.Item.ImageFieldPath fieldPath : image.as(ImageTag.Item.Data.class).getImageFieldPaths()) {
-                                    if (fieldPath.getField().equals(field)) {
-                                        for (ImageTag.Item.ImageSizePath imageSizePath : fieldPath.getImageSizePaths()) {
-                                            if (imageSizePath.getSize().contains(imageSize)) {
-                                                if (imageSizePath.getPaths().size() > revision) {
-                                                    forwardPath = imageSizePath.getPaths().get(revision);
-                                                    break findForwardPath;
+                            if (!ObjectUtils.isBlank(image.as(ImageTag.Item.Data.class).getImageFieldPaths())) {
+                                findForwardPath :
+                                    for (ImageTag.Item.ImageFieldPath fieldPath : image.as(ImageTag.Item.Data.class).getImageFieldPaths()) {
+                                        if (fieldPath.getField().equals(field) && !ObjectUtils.isBlank(fieldPath.getImageSizePaths())) {
+                                            for (ImageTag.Item.ImageSizePath imageSizePath : fieldPath.getImageSizePaths()) {
+                                                if (!ObjectUtils.isBlank(imageSizePath.getSize()) && imageSizePath.getSize().contains(imageSize)) {
+                                                    if (imageSizePath.getPaths().size() > revision) {
+                                                        forwardPath = imageSizePath.getPaths().get(revision);
+                                                        break findForwardPath;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                            }
+
+                            //Either the image/size wasn't built with ImageTag or the updated Image record isn't avialable yet
+                            if (StringUtils.isBlank(forwardPath)) {
+                                ImageTag.Builder imageTagBuilder = new ImageTag.Builder(storageItem);
+                                imageTagBuilder.setStandardImageSize(standardImageSize);
+
+                                JavaImageEditor javaImageEditor = ObjectUtils.to(JavaImageEditor.class, ImageEditor.Static.getInstance(ImageEditor.JAVA_IMAGE_EDITOR_NAME));
+                                forwardPath = JAVA_IMAGE_SERVLET_PATH +
+                                                    imageTagBuilder.toUrl()
+                                                                   .substring(imageTagBuilder.toUrl().indexOf(javaImageEditor.getBaseUrl()) + javaImageEditor.getBaseUrl().length() - 1);
+                            }
+
+                            request.setAttribute(IMAGE_PATH_ATTRIBUTE, forwardPath);
+                            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request) {
+                                private String newPath;
+                                private String queryString;
+                                private String url;
+
+                                @Override
+                                public String getServletPath() {
+                                    return !StringUtils.isBlank(this.getNewPath()) ? this.getNewPath() : super.getServletPath();
                                 }
-                            }
 
-                            if (!StringUtils.isBlank(forwardPath)) {
-                                request.setAttribute(IMAGE_PATH_ATTRIBUTE, forwardPath);
-                                HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request) {
-                                    private String newPath;
-                                    private String queryString;
-                                    private String url;
-
-                                    @Override
-                                    public String getServletPath() {
-                                        return !StringUtils.isBlank(this.getNewPath()) ? this.getNewPath() : super.getServletPath();
+                                @Override
+                                public String getQueryString() {
+                                    if (queryString == null) {
+                                        queryString = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[1];
                                     }
+                                    return StringUtils.isBlank(super.getQueryString()) ? queryString : super.getQueryString() + "&" + queryString;
+                                }
 
-                                    @Override
-                                    public String getQueryString() {
-                                        if (queryString == null) {
-                                            queryString = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[1];
-                                        }
-                                        return StringUtils.isBlank(super.getQueryString()) ? queryString : super.getQueryString() + "&" + queryString;
+                                @Override
+                                public String getParameter(String string) {
+                                   return string != null && string.equals("url") ? getUrl() : super.getParameter(string);
+                                }
+
+                                public String getNewPath() {
+                                    if (newPath == null) {
+                                        newPath = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[0];
                                     }
+                                    return newPath;
+                                }
 
-                                    @Override
-                                    public String getParameter(String string) {
-                                       return string != null && string.equals("url") ? getUrl() : super.getParameter(string);
+                                public String getUrl() {
+                                    if (url == null) {
+                                        url = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?url=")[1];
                                     }
+                                    return url;
+                                }
 
-                                    public String getNewPath() {
-                                        if (newPath == null) {
-                                            newPath = ((String) this.getAttribute(IMAGE_PATH_ATTRIBUTE)).split("\\?")[0];
-                                        }
-                                        return newPath;
-                                    }
+                            };
 
-                                    public String getUrl() {
-                                        if (url == null) {
-                                            url = this.getNewPath().substring(this.getNewPath().indexOf("?url=") + 5);
-                                        }
-                                        return url;
-                                    }
-
-                                };
-
-                                request = requestWrapper;
-                            }
+                            request = requestWrapper;
                         }
                     }
 

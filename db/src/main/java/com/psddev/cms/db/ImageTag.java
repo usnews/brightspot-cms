@@ -1344,6 +1344,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         updatedImageFieldPath.setImageSizePaths(imageSizePaths);
                     }
 
+                    offset = 0;
                     for (ImageTag.Item.ImageSizePath imageSizePath : updatedImageFieldPath.getImageSizePaths()) {
                         if (imageSizePath.getSize().equals(imageSize)) {
                             ImageSizePath newImageSizePath = imageSizePath;
@@ -1356,6 +1357,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                                 paths.add(localUrl);
                                 newImageSizePath.setPaths(paths);
                             }
+                            offset = paths.size() - 1;
                             break;
                         }
                     }
@@ -1366,8 +1368,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         imageFieldPaths.get(imageFieldPathIndex).setImageSizePaths(updatedImageFieldPath.getImageSizePaths());
                     }
                     this.getState().saveUnsafely();
-                    return url; //image will most likely not have saved and propigated for inital request
-
                 }
 
                 if (offset > 0) {
