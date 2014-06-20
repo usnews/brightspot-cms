@@ -39,6 +39,8 @@ import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.WebPageContext;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Equivalent to the HTML {@code img} tag where its {@code src} attribute
@@ -1258,8 +1260,13 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         /** Modification that adds image path information. */
         @Modification.FieldInternalNamePrefix("cms.imageTag.")
         public static final class Data extends Modification<ImageTag.Item> {
+            private static final Pattern VERSION_PATTERN = Pattern.compile("^.*-v\\d+$");
+
             @ToolUi.Hidden
             private List<ImageFieldPath> imageFieldPaths;
+            @ToolUi.Heading("Image Tag")
+            @Indexed(unique = true)
+            private String urlFriendlyName;
 
             //TODO: optional unique friendly name, shouldn't contain "." or "-v"
 
@@ -1269,6 +1276,15 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
             public void setImageFieldPaths(List<ImageFieldPath> imageFieldPaths) {
                 this.imageFieldPaths = imageFieldPaths;
+            }
+
+            @Override
+            public void beforeSave() {
+                urlFriendlyName = StringUtils.toNormalized(urlFriendlyName);
+                Matcher rawPathMatcher = VERSION_PATTERN.matcher(urlFriendlyName);
+                if (rawPathMatcher.matches()) {
+                    this.getState().addError(this.getState().getField("cms.imageTag.urlFriendlyName"), "Cannot end with -v##");
+                }
             }
 
             public String buildFriendlyUrl(String url, String extension, String imageSize , String field) {
@@ -1283,9 +1299,13 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 friendlyUrl.append("/")
                            .append(imageSize)
                            .append("/")
-                           .append(field) //potential problem with embeded content fields
-                           .append("/")
-                           .append(this.getId());
+                           .append(StringUtils.encodeUri(field))
+                           .append("/");
+                if (!StringUtils.isBlank(urlFriendlyName)) {
+                    friendlyUrl.append(urlFriendlyName);
+                } else {
+                    friendlyUrl.append(this.getId());
+                }
                 Integer offset = null;
 
                 if (imageFieldPaths == null) {

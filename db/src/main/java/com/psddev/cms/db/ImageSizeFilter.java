@@ -14,7 +14,6 @@ import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.UuidFormatException;
-import com.psddev.dari.util.UuidUtils;
 import java.io.IOException;
 import java.util.UUID;
 import javax.servlet.FilterChain;
@@ -56,8 +55,14 @@ public class ImageSizeFilter extends AbstractFilter {
                 }
 
                 try {
-                    UUID id = UuidUtils.fromString(imageId);
-                    ImageTag.Item image = Query.from(ImageTag.Item.class).where("id = ?", id).first();
+                    UUID id = ObjectUtils.to(UUID.class, imageId);
+                    ImageTag.Item image = null;
+                    if (id != null) {
+                        image = Query.from(ImageTag.Item.class).where("id = ?", id).first();
+                    } else {
+                        image = Query.from(ImageTag.Item.class).where("cms.imageTag.urlFriendlyName = ?", imageId).first();
+                    }
+
                     if (image != null) {
                         State state = image.getState();
                         StorageItem storageItem = (StorageItem) state.get(field);
