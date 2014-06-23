@@ -1006,7 +1006,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     String extension = url.substring(url.lastIndexOf("/")).contains(".") ? url.substring(url.lastIndexOf(".") + 1) : item.getContentType().substring(item.getContentType().lastIndexOf("/" + 1)).toLowerCase();
                     ImageTag.Item imageTagItem = (ImageTag.Item) this.state.getOriginalObject();
-                    url = imageTagItem.as(ImageTag.Item.Data.class).buildFriendlyUrl((JavaImageEditor)editor, url, extension, standardImageSize.getInternalName(), field);
+                    url = imageTagItem.as(ImageTag.Item.Data.class).buildFriendlyUrl((JavaImageEditor) editor, url, extension, standardImageSize.getInternalName(), field);
                 }
 
                 if (url != null) {
@@ -1264,12 +1264,14 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
         /** Modification that adds image path information. */
         @Modification.FieldInternalNamePrefix("cms.imageTag.")
+        @Renderer.BeanProperty("cmsImageTag")
         public static final class Data extends Modification<ImageTag.Item> {
             private static final Pattern VERSION_PATTERN = Pattern.compile("^.*-v\\d+$");
 
             @ToolUi.Hidden
             private List<ImageFieldPath> imageFieldPaths;
             @ToolUi.Heading("Image Tag")
+            @ToolUi.NoteHtml("<span data-dynamic-html='${content.cmsImageTag.imagePath}'></span>")
             @Indexed(unique = true)
             private String urlFriendlyName;
 
@@ -1281,6 +1283,27 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
             public void setImageFieldPaths(List<ImageFieldPath> imageFieldPaths) {
                 this.imageFieldPaths = imageFieldPaths;
+            }
+
+            public String getImagePath() {
+                if (ImageEditor.Static.getDefault() instanceof JavaImageEditor) {
+                    StringBuilder imagePath = new StringBuilder();
+                    imagePath.append(((JavaImageEditor) ImageEditor.Static.getDefault()).getBaseUrl())
+                             .append("size/")
+                             .append("field/");
+                    if (!StringUtils.isBlank(urlFriendlyName)) {
+                        imagePath.append(StringUtils.toNormalized(urlFriendlyName));
+                    } else if (this.getOriginalObject() != null &&
+                               this.getOriginalObject().getState() != null &&
+                               this.getOriginalObject().getState().getId() != null) {
+                        imagePath.append(this.getOriginalObject().getState().getId().toString());
+                    } else {
+                        imagePath.append("id");
+                    }
+                    imagePath.append(".ext");
+                    return imagePath.toString();
+                }
+                return  "";
             }
 
             @Override
