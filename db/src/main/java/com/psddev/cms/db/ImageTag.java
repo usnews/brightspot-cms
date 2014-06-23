@@ -407,7 +407,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     private static StorageItem findStorageItem(State state, String field) {
         StorageItem item = null;
         if (field != null) {
-            Object fieldValue = state.getRawValue(field);
+            Object fieldValue = state.get(field);
             if (fieldValue instanceof StorageItem) {
                 item = (StorageItem) fieldValue;
             }
