@@ -1006,7 +1006,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     String extension = url.substring(url.lastIndexOf("/")).contains(".") ? url.substring(url.lastIndexOf(".") + 1) : item.getContentType().substring(item.getContentType().lastIndexOf("/" + 1)).toLowerCase();
                     ImageTag.Item imageTagItem = (ImageTag.Item) this.state.getOriginalObject();
-                    url = imageTagItem.as(ImageTag.Item.Data.class).buildFriendlyUrl(url, extension, standardImageSize.getInternalName(), field);
+                    url = imageTagItem.as(ImageTag.Item.Data.class).buildFriendlyUrl((JavaImageEditor)editor, url, extension, standardImageSize.getInternalName(), field);
                 }
 
                 if (url != null) {
@@ -1292,7 +1292,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 }
             }
 
-            public String buildFriendlyUrl(String url, String extension, String imageSize , String field) {
+            public String buildFriendlyUrl(JavaImageEditor imageEditor, String url, String extension, String imageSize , String field) {
 
                 String localUrl = url;
                 if (localUrl.startsWith("http")) {
@@ -1300,9 +1300,8 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                     localUrl = localUrl.substring(localUrl.indexOf("/"));
                 }
 
-                StringBuilder friendlyUrl = new StringBuilder(ImageSizeFilter.JAVA_IMAGE_SERVLET_PATH);
-                friendlyUrl.append("/")
-                           .append(imageSize)
+                StringBuilder friendlyUrl = new StringBuilder(imageEditor.getBaseUrl());
+                friendlyUrl.append(imageSize)
                            .append("/")
                            .append(StringUtils.encodeUri(field))
                            .append("/");
@@ -1345,7 +1344,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         }
 
                     }
-                    if (imageFieldPathIndex == -1) {
+                    if (updatedImageFieldPath == null) {
                         updatedImageFieldPath = new ImageTag.Item.ImageFieldPath();
                         updatedImageFieldPath.setField(field);
                     }
