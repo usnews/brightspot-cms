@@ -95,9 +95,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     /**
      * Sets the field that contains the image. If not set, the first
      * field with {@value ObjectField.FILE_TYPE} type is used.
-     * @deprecated No replacement
      */
-    @Deprecated
     public void setField(String field) {
         tagBuilder.setField(field);
     }
@@ -382,10 +380,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 .toAttributes();
     }
 
-    /**
-     * @deprecated No replacement
-     */
-    @Deprecated
     protected static String findStorageItemField(State state) {
         String field = null;
         ObjectType objectType = state.getType();
@@ -400,10 +394,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return field;
     }
 
-    /**
-     * @deprecated No replacement
-     */
-    @Deprecated
     private static StorageItem findStorageItem(State state, String field) {
         StorageItem item = null;
         if (field != null) {
@@ -495,7 +485,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     public static final class Builder {
 
         private StorageItem item;
-        @Deprecated
         private String field;
         private ImageEditor editor;
 
@@ -554,9 +543,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         /**
          * Sets the field that contains the image. If not set, the first
          * field with {@value ObjectField.FILE_TYPE} type is used.
-         * @deprecated No replacement
          */
-        @Deprecated
         private Builder setField(String field) {
             this.field = field;
             return this;
@@ -681,9 +668,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         /**
          * For backwards compatibility
          *
-         * @deprecated
          */
-        @Deprecated
         private Builder setState(State state) {
             this.state = state;
             return this;
