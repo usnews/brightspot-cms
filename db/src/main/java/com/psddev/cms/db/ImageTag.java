@@ -386,7 +386,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      * @deprecated No replacement
      */
     @Deprecated
-    private static String findStorageItemField(State state) {
+    protected static String findStorageItemField(State state) {
         String field = null;
         ObjectType objectType = state.getType();
         if (objectType != null) {
@@ -407,7 +407,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     private static StorageItem findStorageItem(State state, String field) {
         StorageItem item = null;
         if (field != null) {
-            Object fieldValue = state.get(field);
+            Object fieldValue = state.getRawValue(field);
             if (fieldValue instanceof StorageItem) {
                 item = (StorageItem) fieldValue;
             }
@@ -1289,8 +1289,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (ImageEditor.Static.getDefault() instanceof JavaImageEditor) {
                     StringBuilder imagePath = new StringBuilder();
                     imagePath.append(((JavaImageEditor) ImageEditor.Static.getDefault()).getBaseUrl())
-                             .append("size/")
-                             .append("field/");
+                             .append("size/");
                     if (!StringUtils.isBlank(urlFriendlyName)) {
                         imagePath.append(StringUtils.toNormalized(urlFriendlyName));
                     } else if (this.getOriginalObject() != null &&
@@ -1327,21 +1326,19 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                 StringBuilder friendlyUrl = new StringBuilder(imageEditor.getBaseUrl());
                 friendlyUrl.append(imageSize)
-                           .append("/")
-                           .append(StringUtils.encodeUri(field))
                            .append("/");
-                if (!StringUtils.isBlank(urlFriendlyName)) {
-                    friendlyUrl.append(urlFriendlyName);
-                } else {
-                    friendlyUrl.append(this.getId());
-                }
-                Integer offset = null;
 
+                Integer offset = null;
+                int imageFieldPathIndex = -1;
+
+                boolean firstField = true;
                 if (imageFieldPaths == null) {
                     imageFieldPaths = new ArrayList<ImageFieldPath>();
                 } else if (this.getImageFieldPaths().size() > 0) {
-                    findOffset : for (ImageTag.Item.ImageFieldPath fieldPath : this.getImageFieldPaths()) {
+                    findOffset : for (int i = 0; i < this.getImageFieldPaths().size(); i++) {
+                        ImageTag.Item.ImageFieldPath fieldPath = this.getImageFieldPaths().get(i);
                         if (fieldPath.getField().equals(field)) {
+                            imageFieldPathIndex = i;
                             for (ImageTag.Item.ImageSizePath imageSizePath : fieldPath.getImageSizePaths()) {
                                 if (imageSizePath.getSize().equals(imageSize) && imageSizePath.getPaths().contains(localUrl)) {
                                     offset =  imageSizePath.getPaths().indexOf(localUrl);
@@ -1355,7 +1352,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 //new image size/url combination
                 if (offset == null) {
                     ImageFieldPath updatedImageFieldPath = null;
-                    int imageFieldPathIndex = -1;
 
                     if (imageFieldPaths == null) {
                         imageFieldPaths = new ArrayList<ImageFieldPath>();
@@ -1413,10 +1409,22 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     if (imageFieldPathIndex == -1) {
                         imageFieldPaths.add(updatedImageFieldPath);
+                        imageFieldPathIndex = imageFieldPaths.size() - 1;
                     } else {
                         imageFieldPaths.get(imageFieldPathIndex).setImageSizePaths(updatedImageFieldPath.getImageSizePaths());
                     }
                     this.getState().saveUnsafely();
+                }
+
+                if (imageFieldPathIndex > 0) {
+                    friendlyUrl.append(StringUtils.encodeUri(field))
+                               .append("/");
+                }
+
+                if (!StringUtils.isBlank(urlFriendlyName)) {
+                    friendlyUrl.append(urlFriendlyName);
+                } else {
+                    friendlyUrl.append(this.getId());
                 }
 
                 if (offset > 0) {

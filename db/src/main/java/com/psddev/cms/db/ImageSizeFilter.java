@@ -44,9 +44,8 @@ public class ImageSizeFilter extends AbstractFilter {
 
             StandardImageSize standardImageSize = findStandardImageSize(imageSize);
             if (standardImageSize != null) {
-                //String imageId = pathInfo.substring(2 + imageSizeIndex, pathInfo.lastIndexOf("."));
-                String field = parameters[1];
-                String imageId = parameters[2].substring(0, parameters[2].lastIndexOf("."));
+                String imageId = parameters.length > 2 ? parameters[2] : parameters[1];
+                imageId = imageId.substring(0, imageId.lastIndexOf("."));
                 Integer revision = 0;
                 if (imageId.contains("-v")) {
                     int versionIndex = imageId.lastIndexOf("-v");
@@ -65,6 +64,17 @@ public class ImageSizeFilter extends AbstractFilter {
 
                     if (image != null) {
                         State state = image.getState();
+
+                        String field = null;
+                        if (parameters.length > 2) {
+                            field = parameters[1];
+                        } else if (!ObjectUtils.isBlank(image.as(ImageTag.Item.Data.class).getImageFieldPaths())) {
+                            field = image.as(ImageTag.Item.Data.class).getImageFieldPaths().get(0).getField();
+                        } else {
+                            //no saved image sizes default to first found
+                            field = ImageTag.findStorageItemField(image.getState());
+                        }
+
                         StorageItem storageItem = (StorageItem) state.get(field);
 
                         if (storageItem != null) {
