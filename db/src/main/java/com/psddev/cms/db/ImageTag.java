@@ -987,7 +987,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         field != null &&
                         editor instanceof JavaImageEditor &&
                         this.state.getOriginalObject() instanceof ImageTag.Item)  {
-                    //TODO: check JavaImageEditor setting friendlyPath = true
 
                     String extension = url.substring(url.lastIndexOf("/")).contains(".") ? url.substring(url.lastIndexOf(".") + 1) : item.getContentType().substring(item.getContentType().lastIndexOf("/" + 1)).toLowerCase();
                     ImageTag.Item imageTagItem = (ImageTag.Item) this.state.getOriginalObject();
@@ -1259,8 +1258,6 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             @ToolUi.NoteHtml("<span data-dynamic-html='${content.cmsImageTag.imagePath}'></span>")
             @Indexed(unique = true)
             private String urlFriendlyName;
-
-            //TODO: optional unique friendly name, shouldn't contain "." or "-v"
 
             public List<ImageFieldPath> getImageFieldPaths() {
                 return imageFieldPaths;
