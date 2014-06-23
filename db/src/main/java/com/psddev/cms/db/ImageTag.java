@@ -1285,10 +1285,12 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
             @Override
             public void beforeSave() {
-                urlFriendlyName = StringUtils.toNormalized(urlFriendlyName);
-                Matcher rawPathMatcher = VERSION_PATTERN.matcher(urlFriendlyName);
-                if (rawPathMatcher.matches()) {
-                    this.getState().addError(this.getState().getField("cms.imageTag.urlFriendlyName"), "Cannot end with -v##");
+                if (!StringUtils.isBlank(urlFriendlyName)) {
+                    urlFriendlyName = StringUtils.toNormalized(urlFriendlyName);
+                    Matcher rawPathMatcher = VERSION_PATTERN.matcher(urlFriendlyName);
+                    if (rawPathMatcher.matches()) {
+                        this.getState().addError(this.getState().getField("cms.imageTag.urlFriendlyName"), "Cannot end with -v##");
+                    }
                 }
             }
 
