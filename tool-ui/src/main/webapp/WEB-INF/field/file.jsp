@@ -18,6 +18,7 @@ com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
+com.psddev.dari.util.JavaImageEditor,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.RoutingFilter,
@@ -84,6 +85,7 @@ String grayscaleName = inputName + ".grayscale";
 String invertName = inputName + ".invert";
 String rotateName = inputName + ".rotate";
 String sepiaName = inputName + ".sepia";
+String sharpenName = inputName + ".sharpen";
 
 String metadataFieldName = fieldName + ".metadata";
 String widthFieldName = fieldName + ".width";
@@ -114,6 +116,7 @@ boolean grayscale = ObjectUtils.to(boolean.class, edits.get("grayscale"));
 boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
 int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
 boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
+int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
 
 Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, fieldValueMetadata.get("cms.crops"));
 if (crops == null) {
@@ -150,6 +153,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         invert = wp.param(boolean.class, invertName);
         rotate = wp.param(int.class, rotateName);
         sepia = wp.param(boolean.class, sepiaName);
+        sharpen = wp.param(int.class, sharpenName);
 
         edits = new HashMap<String, Object>();
 
@@ -176,6 +180,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
         if (sepia) {
             edits.put("sepia", sepia);
+        }
+        if (sharpen != 0) {
+            edits.put("sharpen", sharpen);
         }
 
         fieldValueMetadata.put("cms.edits", edits);
@@ -543,6 +550,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                         <div class="imageEditor-edit">
                             <h2>Adjustments</h2>
+                            <%
+                                boolean usingJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
+                            %>
                             <table><tbody>
                                 <tr>
                                     <th>Brightness</th>
@@ -576,6 +586,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     <th>Sepia</th>
                                     <td><input type="checkbox" name="<%= sepiaName %>" value="true"<%= sepia ? " checked" : "" %>></td>
                                 </tr>
+                                <% if (usingJavaImageEditor) { %>
+                                    <tr>
+                                        <th>Sharpen</th>
+                                        <td><input type="range" name="<%= sharpenName %>" value="<%= sharpen %>" min="0" max="10" step="1"></td>
+                                    </tr>
+                                <% } %>
                             </tbody></table>
                         </div>
 

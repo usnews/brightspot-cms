@@ -17,7 +17,8 @@ requirejs.config({
         'pixastic/actions/flipv': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/invert': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/rotate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ]
+        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/sharpen': [ 'pixastic/pixastic.core' ]
     }
 });
 

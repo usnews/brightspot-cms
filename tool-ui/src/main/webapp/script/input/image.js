@@ -9,7 +9,8 @@ define([
     'pixastic/actions/flipv',
     'pixastic/actions/invert',
     'pixastic/actions/rotate',
-    'pixastic/actions/sepia' ],
+    'pixastic/actions/sepia',
+    'pixastic/actions/sharpen' ],
     
 function($, bsp_utils) {
     var INPUT_NAMES = 'x y width height texts textSizes textXs textYs textWidths'.split(' ');
@@ -105,6 +106,11 @@ function($, bsp_utils) {
 
                     } else if (name === 'sepia') {
                         operations.sepia = operations.sepia || { };
+
+                    } else if (name === 'sharpen') {
+                        operations.sharpen = operations.sharpen || { };
+                        operations.sharpen.amount = value;
+
                     }
                 });
 
