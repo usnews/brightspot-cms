@@ -1,22 +1,15 @@
 ---
 layout: default
-title: Annotations Brightspot 2.4
-id: annotations-2.4
+title: Annotations Brightspot 2.3
+id: annotations-2.3
 section: documentation
 ---
+
 <div markdown="1" class="span12">
-
-<a class="btn btn-mini" href="/annotations-2.0.html">Brightspot 2.0</a>&nbsp;&nbsp;
-<a class="btn btn-mini" href="/annotations-2.1.html">Brightspot 2.1</a>&nbsp;&nbsp;
-<a class="btn btn-mini" href="/annotations-2.2.html">Brightspot 2.2</a>&nbsp;&nbsp;
-<a class="btn btn-mini" href="/annotations-2.3.html">Brightspot 2.3</a>&nbsp;&nbsp;
-<a class="btn btn-mini" href="/annotations.html">Brightspot 2.4</a>
-<br>
-
 Annotations provide information on how a particular field or model class
-should behave. The most commonly used annotations, and examples of their implementation are documented below:
+should behave. The most commonly used annotations, and examples of their implementation are documented in [Using Annotations](/using-annotations.html).
 
-#### Field Annotations
+### Field Annotations
 
 **@InternalNamePrefix(String)**
 
@@ -52,6 +45,8 @@ should behave. The most commonly used annotations, and examples of their impleme
         }
 
     }
+
+![](00000145-ae61-d719-abef-bf63de6b0000)
 
 **@Ignored**
 
@@ -93,17 +88,9 @@ should behave. The most commonly used annotations, and examples of their impleme
 
 > Specifies the valid types for the target field value. `@Types({Image.class, Video.class, Widget.class})` Deprecated @FieldTypes(Class<Recordable>[])
 
-**@FieldUnique**
-
-> Deprecated. Use `@Indexed(Unique=true)` instead.
-
 **@Values**
 
 > Specifies the valid values for the target field value.
-
-**@LazyLoad**
-
-> Internal annotation to mark the fields in the target type are lazily loaded. 
 
 ### Class Annotations
 
@@ -396,14 +383,11 @@ The value passed to the annotation is the limiting value.  When a user is modify
 
 > Specifies whether the values in the target field should be sorted before being saved.
 
-**@ToolUi.DefaultSortField**
-> Specifies which field should be used as the default sorter.
-
-**@ToolUi.InputProcessorPath()**
+**@ToolUi.InputProcessorPath / InputProcessorApplication**
 
 > Specifies the path to the processor used to render and update the target field.
 
-**@ToolUi.InputSearcherPath()**
+**@ToolUi.InputSearcherPath**
 
 > Specifies the path to the searcher used to find a value for the target field.
 
@@ -430,16 +414,6 @@ The value passed to the annotation is the limiting value.  When a user is modify
 **@ToolUi.Sortable**
 
 > Specifies whether the target field should be offered as a sortable field in search.
-
-**@ToolUi.Where**
-
-> Limits results on the returned objects. Example `@ToolUi.Where("title ^= a" )` would limit the returned objects to ones whose title starts with the letter a. A field within an object can also be used. When returning a list of Articles, each with an Author, the annotation can be used like so: `@ToolUi.Where("author/name ^= a" )` 
-
-> The `@ToolUi.Where` annotation can also be used to limit object types based on a common interface. In the example below, only objects that are taggable can be chosen.
-{% highlight java %}
-@ToolUi.Where("groups = com.psddev.brightspot.Taggable") 
-List <ObjectType> types; 
-{% endhighlight %}
 
 **@ToolUi.Tab("tabName")**
 
