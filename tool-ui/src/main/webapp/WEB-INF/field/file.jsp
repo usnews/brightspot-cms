@@ -36,6 +36,7 @@ java.io.InputStream,
 java.io.IOException,
 java.net.URL,
 java.util.AbstractMap,
+java.util.ArrayList,
 java.util.Collections,
 java.util.HashMap,
 java.util.Iterator,
@@ -86,6 +87,7 @@ String invertName = inputName + ".invert";
 String rotateName = inputName + ".rotate";
 String sepiaName = inputName + ".sepia";
 String sharpenName = inputName + ".sharpen";
+String blurName = inputName + ".blur";
 
 String metadataFieldName = fieldName + ".metadata";
 String widthFieldName = fieldName + ".width";
@@ -117,6 +119,16 @@ boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
 int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
 boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
 int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
+
+List<String> blurs = new ArrayList<String>();
+if (!ObjectUtils.isBlank(edits.get("blur"))) {
+    Object blur = edits.get("blur");
+    if (blur instanceof String) {
+        blurs.add(ObjectUtils.to(String.class, blur));
+    } else if (blur instanceof List) {
+        blurs.addAll((List<String>)blur);
+    }
+}
 
 Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, fieldValueMetadata.get("cms.crops"));
 if (crops == null) {
@@ -183,6 +195,21 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
         if (sharpen != 0) {
             edits.put("sharpen", sharpen);
+        }
+
+        if (!ObjectUtils.isBlank(wp.params(String.class, blurName))) {
+            blurs = new ArrayList<String>();
+            for (String blur : wp.params(String.class, blurName)) {
+                if (!blurs.contains(blur)) {
+                    blurs.add(blur);
+                }
+            }
+
+            if (blurs.size() == 1) {
+                edits.put("blur", blurs.get(0));
+            } else {
+                edits.put("blur", blurs);
+            }
         }
 
         fieldValueMetadata.put("cms.edits", edits);
@@ -591,8 +618,19 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                         <th>Sharpen</th>
                                         <td><input type="range" name="<%= sharpenName %>" value="<%= sharpen %>" min="0" max="10" step="1"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Blur</th>
+                                        <td><a class="imageEditor-addBlur">Add Blur</a><br/></td>
+                                    </tr>
                                 <% } %>
                             </tbody></table>
+                            <%
+                                if (!ObjectUtils.isBlank(blurs)) {
+                                    for (String blur : blurs) {
+                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
+                                    }
+                                }
+                            %>
                         </div>
 
                         <% if (!crops.isEmpty()) { %>

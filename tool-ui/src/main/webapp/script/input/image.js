@@ -2,6 +2,7 @@ define([
     'jquery',
     'bsp-utils',
     'pixastic/pixastic.core',
+    'pixastic/actions/blurfast',
     'pixastic/actions/brightness',
     'pixastic/actions/crop',
     'pixastic/actions/desaturate',
@@ -110,7 +111,14 @@ function($, bsp_utils) {
                     } else if (name === 'sharpen') {
                         operations.sharpen = operations.sharpen || { };
                         operations.sharpen.amount = value;
+                    } else if (name === "blur") {
+                        operations.blurfast = operations.blurfast || { };
+                        operations.blurfast.amount = 1.0;
 
+                        var values = $input.val().split("x");
+                        var rect = {"left" : values[0], "top" : values[1], "width" : values[2], "height" : values[3]};
+
+                        operations.blurfast.rect = rect;
                     }
                 });
 
@@ -200,6 +208,83 @@ function($, bsp_utils) {
 
                     return false;
                 }
+            });
+            
+            var $blurOverlayIndex = 0;
+            var $dataName = $editor.parents('.inputContainer').attr('data-name');
+            $edit.find('.imageEditor-addBlur').bind('click', function() {                
+                //add blur box
+                $blurOverlayIndex++;
+                var $imageEditorCanvas = $editor.find('.imageEditor-image canvas');
+                var $left = Math.floor($imageEditorCanvas.attr('width') / 2 - 50);
+                var $top = Math.floor($imageEditorCanvas.attr('height') / 2 - 50);
+                var $width = 100;
+                var $height = 100;
+
+                var $blurInput = $('<input>', {
+                   'type' : 'hidden',
+                   'name' : $dataName + ".blur",
+                   'value' : $left + "x" + $top + "x" + $width + "x" + $height
+                });
+                $edit.append($blurInput);
+
+                var $editButton = $('<li/>', {
+                    'html': $('<a/>', {
+                        'class': 'action-image-edit',
+                        'text': 'Edit Image',
+                        'click': function() {
+                            $edit.popup('source', $(this));
+                            $edit.popup('open');
+                            return false;
+                        }
+                    })
+                });
+
+                var $blurOverlay = $('<div/>', {
+                    'class': 'imageEditor-blurOverlay',
+                    'css': {
+                        'height': $height + 'px',
+                        'left': $left  + 'px',
+                        'position': 'absolute',
+                        'top': $top + 'px',
+                        'width': $width + 'px',
+                        'z-index': 1
+                    }
+                });
+
+                var $blurOverlayBox = $('<div/>', {
+                    'class': 'imageEditor-blurOverlayBox',
+                    'css': {
+                        'height': '100px',
+                        'position': 'absolute',
+                        'width': '100px',
+                        'z-index': 1,
+                        'outline': '1px dashed #fff'
+                    }
+                });
+
+                $blurOverlay.append($blurOverlayBox);
+
+                var $blurOverlayLabel = $('<div/>', {
+                    'class': 'imageEditor-textOverlayLabel',
+                    'text': 'Blur #' + $blurOverlayIndex
+                });
+
+                $blurOverlay.append($blurOverlayLabel);
+
+                var $blurOverlayRemove = $('<div/>', {
+                    'class': 'imageEditor-textOverlayRemove',
+                    'text': 'Remove',
+                    'click': function() {
+                        $blurOverlay.remove();
+                        $blurInput.remove();
+                        return false;
+                    }
+                });
+
+                $blurOverlay.append($blurOverlayRemove);
+
+                $editor.append($blurOverlay);
             });
 
             $edit.append($resetButton);
