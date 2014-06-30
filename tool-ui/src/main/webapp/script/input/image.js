@@ -44,6 +44,7 @@ function($, bsp_utils) {
 
             var $tools = $editor.find('.imageEditor-tools ul');
             var $edit = $editor.find('.imageEditor-edit');
+            var $dataName = $editor.parents('.inputContainer').attr('data-name');
 
             var $editButton = $('<li/>', {
                 'html': $('<a/>', {
@@ -52,6 +53,10 @@ function($, bsp_utils) {
                     'click': function() {
                         $edit.popup('source', $(this));
                         $edit.popup('open');
+                        $("input[name=\'" + $dataName + ".blur\']").each(function(){
+                            var attributes = $(this).val().split("x");
+                            addSizeBox(this, attributes[0], attributes[1], attributes[2], attributes[3]);
+                        });
                         return false;
                     }
                 })
@@ -210,45 +215,33 @@ function($, bsp_utils) {
                     return false;
                 }
             });
-            
+
             var $blurOverlayIndex = 0;
-            var $dataName = $editor.parents('.inputContainer').attr('data-name');
-            $edit.find('.imageEditor-addBlur').bind('click', function() {                
+            var addSizeBox = function(input, left, top, width, height) {
                 //add blur box
                 $blurOverlayIndex++;
-                var $imageEditorCanvas = $editor.find('.imageEditor-image canvas');
-                var $left = Math.floor($imageEditorCanvas.attr('width') / 2 - 50);
-                var $top = Math.floor($imageEditorCanvas.attr('height') / 2 - 50);
-                var $width = 100;
-                var $height = 100;
 
-                var $blurInput = $('<input>', {
-                   'type' : 'hidden',
-                   'name' : $dataName + ".blur",
-                   'value' : $left + "x" + $top + "x" + $width + "x" + $height
-                });
-                $edit.append($blurInput);
+                var $blurInput;
 
-                var $editButton = $('<li/>', {
-                    'html': $('<a/>', {
-                        'class': 'action-image-edit',
-                        'text': 'Edit Image',
-                        'click': function() {
-                            $edit.popup('source', $(this));
-                            $edit.popup('open');
-                            return false;
-                        }
-                    })
-                });
+                if (input === null) {
+                    $blurInput = $('<input>', {
+                        'type' : 'hidden',
+                        'name' : $dataName + ".blur",
+                        'value' : left + "x" + top + "x" + width + "x" + height
+                    });
+                    $edit.append($blurInput);
+                } else {
+                    $blurInput = input;
+                }
 
                 var $blurOverlay = $('<div/>', {
                     'class': 'imageEditor-blurOverlay',
                     'css': {
-                        'height': $height + 'px',
-                        'left': $left  + 'px',
+                        'height': height + 'px',
+                        'left': left  + 'px',
                         'position': 'absolute',
-                        'top': $top + 'px',
-                        'width': $width + 'px',
+                        'top': top + 'px',
+                        'width': width + 'px',
                         'z-index': 1
                     }
                 });
@@ -256,9 +249,9 @@ function($, bsp_utils) {
                 var $blurOverlayBox = $('<div/>', {
                     'class': 'imageEditor-blurOverlayBox',
                     'css': {
-                        'height': '100px',
+                        'height': height + 'px',
                         'position': 'absolute',
-                        'width': '100px',
+                        'width': width + 'px',
                         'z-index': 1,
                         'outline': '1px dashed #fff'
                     }
@@ -269,7 +262,7 @@ function($, bsp_utils) {
                     'text': 'Blur #' + $blurOverlayIndex
                 });
 
-                var sizeAspectRatio = $width / $height;
+                var sizeAspectRatio = width / height;
                 var updateSizeBox = function(callback) {
                     return function(event) {
                         var sizeBoxPosition = $blurOverlayBox.parent().position();
@@ -422,8 +415,28 @@ function($, bsp_utils) {
                     'class': 'imageEditor-textOverlayRemove',
                     'text': 'Remove',
                     'click': function() {
-                        $blurOverlay.remove();
+                        var left = $blurOverlay.css("left");
+                        var top = $blurOverlay.css("top");
+                        var width = $blurOverlay.css("width");
+                        var height = $blurOverlay.css("height");
+
+                        $('.imageEditor-blurOverlay').each(function() {
+                            var $overlay = $(this);
+                            if ($overlay.css("left") === left &&
+                                    $overlay.css("top") === top &&
+                                    $overlay.css("width") === width &&
+                                    $overlay.css("height") === height) {
+                                $overlay.remove();
+                            }
+                        });
+
+                        var input = $blurInput;
+                        var value = $(input).attr("value");
+                        var name = $(input).attr("name");
+                        $("input[name='" + name + "'][value='" + value + "']").remove();
+
                         $blurInput.remove();
+                        $blurOverlay.remove();
                         return false;
                     }
                 });
@@ -431,6 +444,15 @@ function($, bsp_utils) {
                 $blurOverlay.append($blurOverlayRemove);
 
                 $editor.append($blurOverlay);
+            };
+
+            $edit.find('.imageEditor-addBlur').bind('click', function() {
+                var $imageEditorCanvas = $editor.find('.imageEditor-image canvas');
+                var left = Math.floor($imageEditorCanvas.attr('width') / 2 - 50);
+                var top = Math.floor($imageEditorCanvas.attr('height') / 2 - 50);
+                var width = 100;
+                var height = 100;
+                addSizeBox(null, left, top, width, height);
             });
 
             $edit.append($resetButton);

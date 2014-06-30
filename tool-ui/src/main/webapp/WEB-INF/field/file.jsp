@@ -620,17 +620,19 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     </tr>
                                     <tr>
                                         <th>Blur</th>
-                                        <td><a class="imageEditor-addBlur">Add Blur</a><br/></td>
+                                        <td>
+                                            <a class="imageEditor-addBlur">Add Blur</a><br/>
+                                            <%
+                                                if (!ObjectUtils.isBlank(blurs)) {
+                                                    for (String blur : blurs) {
+                                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
+                                                    }
+                                                }
+                                            %>
+                                        </td>
                                     </tr>
                                 <% } %>
                             </tbody></table>
-                            <%
-                                if (!ObjectUtils.isBlank(blurs)) {
-                                    for (String blur : blurs) {
-                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
-                                    }
-                                }
-                            %>
                         </div>
 
                         <% if (!crops.isEmpty()) { %>
