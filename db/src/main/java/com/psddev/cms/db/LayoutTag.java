@@ -272,12 +272,17 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
                 return;
             }
 
+            boolean styleStarted = false;
+
             if (request.getAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE) == null) {
                 request.setAttribute(GRID_CSS_COMMON_WRITTEN_ATTRIBUTE, Boolean.TRUE);
 
-                writer.writeStart("style", "type", "text/css");
-                    writer.writeCommonGridCss();
-                writer.writeEnd();
+                if (!styleStarted) {
+                    styleStarted = true;
+                    writer.writeStart("style", "type", "text/css");
+                }
+
+                writer.writeCommonGridCss();
             }
 
             if (cssClasses != null) {
@@ -293,13 +298,20 @@ public class LayoutTag extends BodyTagSupport implements DynamicAttributes, TryC
                             if (request.getAttribute(attr) == null) {
                                 request.setAttribute(attr, Boolean.TRUE);
 
-                                writer.writeStart("style", "type", "text/css");
-                                    writer.writeGridCss(selector, entry.getValue());
-                                writer.writeEnd();
+                                if (!styleStarted) {
+                                    styleStarted = true;
+                                    writer.writeStart("style", "type", "text/css");
+                                }
+
+                                writer.writeGridCss(selector, entry.getValue());
                             }
                         }
                     }
                 }
+            }
+
+            if (styleStarted) {
+                writer.writeEnd();
             }
         }
 
