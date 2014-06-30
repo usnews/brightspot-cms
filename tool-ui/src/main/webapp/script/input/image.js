@@ -111,6 +111,7 @@ function($, bsp_utils) {
                     } else if (name === 'sharpen') {
                         operations.sharpen = operations.sharpen || { };
                         operations.sharpen.amount = value;
+
                     } else if (name === "blur") {
                         operations.blurfast = operations.blurfast || { };
                         operations.blurfast.amount = 1.0;
@@ -263,12 +264,157 @@ function($, bsp_utils) {
                     }
                 });
 
-                $blurOverlay.append($blurOverlayBox);
-
                 var $blurOverlayLabel = $('<div/>', {
                     'class': 'imageEditor-textOverlayLabel',
                     'text': 'Blur #' + $blurOverlayIndex
                 });
+
+                var sizeAspectRatio = $width / $height;
+                var updateSizeBox = function(callback) {
+                    return function(event) {
+                        var sizeBoxPosition = $blurOverlayBox.parent().position();
+                        var original = {
+                            'left': sizeBoxPosition.left,
+                            'top': sizeBoxPosition.top,
+                            'width': $blurOverlayBox.width(),
+                            'height': $blurOverlayBox.height(),
+                            'pageX': event.pageX,
+                            'pageY': event.pageY
+                        };
+
+                        var imageWidth = $image.width();
+                        var imageHeight = $image.height();
+
+                        $.drag(this, event, function(event) {
+
+                        }, function(event) {
+                            var deltaX = event.pageX - original.pageX;
+                            var deltaY = event.pageY - original.pageY;
+                            var bounds = callback(event, original, {
+                                'x': deltaX,
+                                'y': deltaY,
+                                'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
+                                'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
+                            });
+
+                            // Fill out the missing bounds.
+                            for (key in original) {
+                                bounds[key] = bounds[key] || original[key];
+                            }
+
+                            var overflow;
+
+                            // When moving, don't let it go outside the image.
+                            if (bounds.moving) {
+                                if (bounds.left < 0) {
+                                    bounds.left = 0;
+                                }
+
+                                if (bounds.top < 0) {
+                                    bounds.top = 0;
+                                }
+
+                                overflow = bounds.left + bounds.width - imageWidth;
+                                if (overflow > 0) {
+                                    bounds.left -= overflow;
+                                }
+
+                                overflow = bounds.top + bounds.height - imageHeight;
+                                if (overflow > 0) {
+                                    bounds.top -= overflow;
+                                }
+
+                            // Resizing...
+                            } else {
+                                if (bounds.width < 10 || bounds.height < 10) {
+                                    if (sizeAspectRatio > 1.0) {
+                                        bounds.width = sizeAspectRatio * 10;
+                                        bounds.height = 10;
+                                    } else {
+                                        bounds.width = 10;
+                                        bounds.height = 10 / sizeAspectRatio;
+                                    }
+                                }
+
+                                if (bounds.left < 0) {
+                                    bounds.width += bounds.left;
+                                    bounds.height = bounds.width / sizeAspectRatio;
+                                    bounds.top -= bounds.left / sizeAspectRatio;
+                                    bounds.left = 0;
+                                }
+
+                                if (bounds.top < 0) {
+                                    bounds.height += bounds.top;
+                                    bounds.width = bounds.height * sizeAspectRatio;
+                                    bounds.left -= bounds.top * sizeAspectRatio;
+                                    bounds.top = 0;
+                                }
+
+                                overflow = bounds.left + bounds.width - imageWidth;
+                                if (overflow > 0) {
+                                    bounds.width -= overflow;
+                                    bounds.height = bounds.width / sizeAspectRatio;
+                                }
+
+                                overflow = bounds.top + bounds.height - imageHeight;
+                                if (overflow > 0) {
+                                    bounds.height -= overflow;
+                                    bounds.width = bounds.height * sizeAspectRatio;
+                                }
+                            }
+
+                            $blurOverlay.css(bounds);
+                            $blurOverlayBox.css('width', bounds.width);
+                            $blurOverlayBox.css('height', bounds.height);
+
+                        // Set the hidden inputs to the current bounds.
+                        }, function() {
+                            var blurOverlayBoxPosition = $blurOverlayBox.parent().position();
+                            $blurInput.attr("value", blurOverlayBoxPosition.left + "x" + blurOverlayBoxPosition.top + "x" + $blurOverlayBox.width() + "x" + $blurOverlayBox.height());
+
+                        });
+
+                        return false;
+                    };
+                };
+
+                $blurOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-left',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'left': original.left + delta.x,
+                            'width': original.width - delta.x
+                        };
+                    })
+                }));
+                $blurOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-right',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'left': original.left,
+                            'width': original.width + delta.x
+                        };
+                    })
+                }));
+                $blurOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'width': original.width + delta.constrainedX,
+                            'height': original.height + delta.constrainedY
+                        };
+                    })
+                }));
+
+                $blurOverlay.append($blurOverlayBox);
+
+                $blurOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
+                    return {
+                        'moving': true,
+                        'left': original.left + delta.x,
+                        'top': original.top + delta.y
+                    };
+                }));
 
                 $blurOverlay.append($blurOverlayLabel);
 
