@@ -73,6 +73,7 @@ function($, bsp_utils) {
 
             var processImage = function() {
                 var operations = { };
+                var blurIndex = 0;
 
                 $edit.find(':input').each(function() {
                     var $input = $(this);
@@ -118,13 +119,15 @@ function($, bsp_utils) {
                         operations.sharpen.amount = value;
 
                     } else if (name === "blur") {
-                        operations.blurfast = operations.blurfast || { };
-                        operations.blurfast.amount = 1.0;
+                        operations.blurfast = operations.blurfast || [ ];
+                        operations.blurfast[blurIndex] = { };
+                        operations.blurfast[blurIndex].amount = 1.0;
 
                         var values = $input.val().split("x");
                         var rect = {"left" : values[0], "top" : values[1], "width" : values[2], "height" : values[3]};
 
-                        operations.blurfast.rect = rect;
+                        operations.blurfast[blurIndex].rect = rect;
+                        blurIndex++;
                     }
                 });
 
@@ -159,10 +162,19 @@ function($, bsp_utils) {
                         if (index < operationKeys.length) {
                             var key = operationKeys[index];
 
-                            Pixastic.process(processedImage, key, operations[key], function(newImage) {
+                            if ($.isArray(operations[key])) {
+                                for (var i in operations[key]) {
+                                    processedImage = Pixastic.process(processedImage, key, operations[key][i]);
+                                }
                                 ++ index;
-                                operate(newImage, index);
-                            });
+                                operate(processedImage, index);
+
+                            } else {
+                                Pixastic.process(processedImage, key, operations[key], function(newImage) {
+                                    ++ index;
+                                    operate(newImage, index);
+                                });
+                            }
 
                         } else {
                             if ($image !== $originalImage) {
