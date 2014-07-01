@@ -111,7 +111,7 @@ if (!ObjectUtils.isBlank(fieldValue)) {
 wp.writeStart("script", "type", "text/template");
     wp.writeStart("li");
         wp.writeStart("textarea",
-                "class", "richtext"
+                "class", "richtext",
                 "data-expandable-class", "code",
                 "id", wp.getId(),
                 "name", wp.h(inputName));
