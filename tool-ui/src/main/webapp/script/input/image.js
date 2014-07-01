@@ -221,6 +221,7 @@ function($, bsp_utils) {
                             $input.val(0);
                         }
                     });
+                    $editor.find(".imageEditor-blurOverlay").remove();
 
                     processImage();
 
