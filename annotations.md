@@ -22,7 +22,6 @@ should behave. The most commonly used annotations, and examples of their impleme
 
 > Specifies the prefix for the internal names of all fields in the target type.
 
-
 **@CollectionMaximum(int)**
 
 > Specifies the maximum number of items in the target field.
@@ -89,7 +88,7 @@ should behave. The most commonly used annotations, and examples of their impleme
 
 > Specifies whether the target field value is required.
 	
-**@Types(Class<Recordable>[])**
+**@Types(Class<>[])**
 
 > Specifies the valid types for the target field value. `@Types({Image.class, Video.class, Widget.class})` Deprecated @FieldTypes(Class<Recordable>[])
 
@@ -190,7 +189,6 @@ For example when a class has been modified, and a field needs to be accessed to 
 
     search.boostFields(5.0, Person.class, "state/abbreviation");
 
-@@note
 This annotation should be used only when necessary in advanced cases.
 
 **@DisplayName(String)**
@@ -262,16 +260,16 @@ The @ToolUi Library  `import com.psddev.cms.db.ToolUi;` gives you more options f
 > Specifies the note, in raw HTML, displayed along with the target in the UI.
 
 The note can also display dynamic content. In the example below the editor can be alerted to the content that will be used if the field is left blank. See the `@ToolUi.Placeholder` annotation for more options here also:
-```
-public class Image extends Content {
 
-	private String name;
-	private StorageItem file;
-	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}</strong>
-	will be used as altText if this is left blank'></span>")
-	private String altText;
-}
-```
+    public class Image extends Content {
+
+    	private String name;
+    	private StorageItem file;
+    	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}</strong>
+    	will be used as altText if this is left blank'></span>")
+    	private String altText;
+    }
+
 
 ![](http://docs.brightspot.s3.amazonaws.com/note-html-ui.png)
 
@@ -314,16 +312,16 @@ You can also add dynamic content as placeholder text, using any existing attribu
 
 In the example below the name field appears as a placeholder in the altText field of the image object. If an editor clicks into the altText field they can add to or modify the text thanks to the `editable=true` option . This increases editor efficiency.
 
-````
-public class Image extends Content {
 
-    private String name;
-    private StorageItem file;
-    @ToolUi.Placeholder(dynamicText = "${content.name}", editable=true)
-    private String altText;
+    public class Image extends Content {
 
-}
-````
+        private String name;
+        private StorageItem file;
+        @ToolUi.Placeholder(dynamicText = "${content.name}", editable=true)
+        private String altText;
+
+    }
+
 
 In the CMS user interface, the placeholder text is shown in grey - and darkens on hover:
 
@@ -331,32 +329,32 @@ In the CMS user interface, the placeholder text is shown in grey - and darkens o
 
 Either use the `beforeSave()` method in your class to populate the field on save ([documentation on beforeSave](/triggers.html)), or if the placeholder text is being used to indicate what will be rendered in it's place on the front-end if left blank, add logic to your JSP. In the example below when the altText field is left null, the name field is used.
 
-````
-<c:choose>
-   	<c:when test="${empty content.altText}">
-   		<cms:img src="${content}" size="${imageSize}" overlay="true" alt="${content.name}"/>
-   	</c:when>
-   	<c:otherwise>
-   		<cms:img src="${content}" size="${imageSize}" overlay="true" alt="${content.altText}"/>
-   	</c:otherwise>
-</c:choose>
-````
+
+    <c:choose>
+       	<c:when test="${empty content.altText}">
+       		<cms:img src="${content}" size="${imageSize}" overlay="true" alt="${content.name}"/>
+       	</c:when>
+       	<c:otherwise>
+       		<cms:img src="${content}" size="${imageSize}" overlay="true" alt="${content.altText}"/>
+       	</c:otherwise>
+    </c:choose>
+
 
 A method can also be used:
 
-````
-public class Image extends Content {
 
-    private String name;
-    private StorageItem file;
-    @ToolUi.Placeholder(dynamicText = "${content.example()}", editable=true)
-    private String altText;
+    public class Image extends Content {
 
-    public String example() {
-       return "Return the placeholder content here"
+        private String name;
+        private StorageItem file;
+        @ToolUi.Placeholder(dynamicText = "${content.example()}", editable=true)
+        private String altText;
+
+        public String example() {
+           return "Return the placeholder content here"
+        }
     }
-}
-````
+
 
 **@ToolUi.DisplayType**
 
@@ -397,6 +395,7 @@ The value passed to the annotation is the limiting value.  When a user is modify
 > Specifies whether the values in the target field should be sorted before being saved.
 
 **@ToolUi.DefaultSortField**
+
 > Specifies which field should be used as the default sorter.
 
 **@ToolUi.InputProcessorPath()**
