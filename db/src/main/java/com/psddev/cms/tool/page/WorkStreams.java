@@ -81,7 +81,7 @@ public class WorkStreams extends PageServlet {
                             if (working) {
                                 page.writeStart("a",
                                         "class", "button",
-                                        "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId()),
+                                        "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId(), "_", System.currentTimeMillis()),
                                         "target", "_top",
                                         "style", page.cssString(
                                                 "bottom", 0,
@@ -107,7 +107,7 @@ public class WorkStreams extends PageServlet {
                             } else {
                                 page.writeStart("a",
                                         "class", "button",
-                                        "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId()),
+                                        "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId(), "_", System.currentTimeMillis()),
                                         "target", "_top",
                                         "style", page.cssString(
                                                 "bottom", 0,

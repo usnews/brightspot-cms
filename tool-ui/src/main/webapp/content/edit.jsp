@@ -64,7 +64,7 @@ if (wp.requireUser()) {
 
 Object selected = wp.findOrReserve();
 if (selected == null) {
-    wp.redirect("/");
+    wp.redirect("/", "reason", "no-object");
     return;
 }
 
@@ -73,7 +73,7 @@ Site site = wp.getSite();
 
 if (selected != null) {
     if (!(site == null || Site.Static.isObjectAccessible(site, selected))) {
-        wp.redirect("/");
+        wp.redirect("/", "reason", "not-accessible");
         return;
     }
 }
@@ -128,7 +128,7 @@ if (workStream != null) {
 
     } else if (wp.param(boolean.class, "action-stopWorkStream")) {
         workStream.stop(wp.getUser());
-        wp.redirect("/");
+        wp.redirect("/", "reason", "stop-work-stream");
         return;
     }
 
