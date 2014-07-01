@@ -137,16 +137,17 @@ should behave. The most commonly used annotations, and examples of their impleme
 > Specifies the note, in raw HTML, displayed along with the target in the UI.
 
 The note can also display dynamic content. In the example below the editor can be alerted to the content that will be used if the field is left blank. See the `@ToolUi.Placeholder` annotation for more options here also:
-```
-public class Image extends Content {
 
-	private String name;
-	private StorageItem file;
-	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}</strong>
-	will be used as altText if this is left blank'></span>")
-	private String altText;
-}
-```
+
+        public class Image extends Content {
+
+        	private String name;
+        	private StorageItem file;
+        	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}</strong>
+        	will be used as altText if this is left blank'></span>")
+        	private String altText;
+        }
+
 
 ![](http://docs.brightspot.s3.amazonaws.com/note-html-ui.png)
 
