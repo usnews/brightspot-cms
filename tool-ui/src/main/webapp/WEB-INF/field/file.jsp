@@ -123,10 +123,15 @@ int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
 List<String> blurs = new ArrayList<String>();
 if (!ObjectUtils.isBlank(edits.get("blur"))) {
     Object blur = edits.get("blur");
-    if (blur instanceof String) {
+    if (blur instanceof String && ObjectUtils.to(String.class, blur).matches("(\\d+x){3}\\d+")) {
         blurs.add(ObjectUtils.to(String.class, blur));
     } else if (blur instanceof List) {
-        blurs.addAll((List<String>)blur);
+        for (Object blurItem : (List) blur) {
+            String blurValue = ObjectUtils.to(String.class, blurItem);
+            if (blurValue.matches("(\\d+x){3}\\d+")) {
+                 blurs.add(blurValue);
+            }
+        }
     }
 }
 
