@@ -73,7 +73,6 @@ function($, bsp_utils) {
 
             var processImage = function() {
                 var operations = { };
-                var blurIndex = 0;
 
                 $edit.find(':input').each(function() {
                     var $input = $(this);
@@ -119,15 +118,11 @@ function($, bsp_utils) {
                         operations.sharpen.amount = value;
 
                     } else if (name === "blur") {
-                        operations.blurfast = operations.blurfast || [ ];
-                        operations.blurfast[blurIndex] = { };
-                        operations.blurfast[blurIndex].amount = 1.0;
-
+                        operations.blurfast = operations.blurfast || {"count" : 0, "data" : []};
                         var values = $input.val().split("x");
                         var rect = {"left" : values[0], "top" : values[1], "width" : values[2], "height" : values[3]};
-
-                        operations.blurfast[blurIndex].rect = rect;
-                        blurIndex++;
+                        operations.blurfast.data[operations.blurfast.count] = {"amount" : 1.0, "rect" :rect};
+                        operations.blurfast.count++;
                     }
                 });
 
@@ -174,8 +169,8 @@ function($, bsp_utils) {
                         if (index < operationKeys.length) {
                             var key = operationKeys[index];
 
-                            if ($.isArray(operations[key])) {
-                                operateItem(processedImage, index, key, operations[key], 0);
+                            if (operations[key].count !== undefined) {
+                                operateItem(processedImage, index, key, operations[key].data, 0);
                             } else {
                                 Pixastic.process(processedImage, key, operations[key], function(newImage) {
                                     ++ index;

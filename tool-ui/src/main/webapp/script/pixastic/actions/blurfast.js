@@ -36,18 +36,18 @@ Pixastic.Actions.blurfast = {
 			for (var i=0;i<steps;i++) {
 				var scaledWidth = Math.max(1,Math.round(smallWidth - i));
 				var scaledHeight = Math.max(1,Math.round(smallHeight - i));
-	
+
 				copyCtx.clearRect(0,0,smallWidth,smallHeight);
-	
+
 				copyCtx.drawImage(
 					params.canvas,
 					0,0,params.width,params.height,
 					0,0,scaledWidth,scaledHeight
 				);
-	
+
 				if (clear)
 					ctx.clearRect(rect.left,rect.top,rect.width,rect.height);
-	
+
 				ctx.drawImage(
 					copy,
 					0,0,scaledWidth,scaledHeight,
