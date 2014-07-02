@@ -53,7 +53,7 @@ function($, bsp_utils) {
                     'click': function() {
                         $edit.popup('source', $(this));
                         $edit.popup('open');
-                        $("input[name=\'" + $dataName + ".blur\']").each(function(){
+                        $(".imageEditor-edit input[name=\'" + $dataName + ".blur\']").each(function(){
                             var attributes = $(this).val().split("x");
                             addSizeBox(this, attributes[0], attributes[1], attributes[2], attributes[3]);
                         });
@@ -251,7 +251,7 @@ function($, bsp_utils) {
                     });
                     $edit.append($blurInput);
                 } else {
-                    $blurInput = input;
+                    $blurInput = $(input);
                 }
 
                 var $blurOverlay = $('<div/>', {
