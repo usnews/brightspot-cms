@@ -74,8 +74,7 @@ function($, bsp_utils) {
             var processImage = function() {
                 var operations = { };
 
-                $edit.find(':input').each(function() {
-                    var $input = $(this);
+                var applyOperation = function($input) {
                     var value = $input.is(':checkbox') ? $input.is(':checked') : parseFloat($input.val());
 
                     if (value === false || isNaN(value)) {
@@ -124,6 +123,14 @@ function($, bsp_utils) {
                         operations.blurfast.data[operations.blurfast.count] = {"amount" : 1.0, "rect" :rect};
                         operations.blurfast.count++;
                     }
+                }
+
+                $edit.find(":input[name$='.rotate']").each(function() {
+                    applyOperation($(this));
+                });
+
+                $edit.find(":input:not([name$='.rotate'])").each(function() {
+                    applyOperation($(this));
                 });
 
                 var serialized = JSON.stringify(operations);
