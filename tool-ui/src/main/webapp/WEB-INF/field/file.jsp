@@ -586,6 +586,21 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                 boolean usingJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
                             %>
                             <table><tbody>
+                                <% if (usingJavaImageEditor) { %>
+                                    <tr>
+                                        <th>Blur</th>
+                                        <td>
+                                            <a class="imageEditor-addBlurOverlay">Add Blur</a><br/>
+                                            <%
+                                                if (!ObjectUtils.isBlank(blurs)) {
+                                                    for (String blur : blurs) {
+                                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
+                                                    }
+                                                }
+                                            %>
+                                        </td>
+                                    </tr>
+                                <% } %>
                                 <tr>
                                     <th>Brightness</th>
                                     <td><input type="range" name="<%= brightnessName %>" value="<%= brightness %>" min="-1.0" max="1.0" step="0.01"></td>
@@ -622,19 +637,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     <tr>
                                         <th>Sharpen</th>
                                         <td><input type="range" name="<%= sharpenName %>" value="<%= sharpen %>" min="0" max="10" step="1"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Blur</th>
-                                        <td>
-                                            <a class="imageEditor-addBlur">Add Blur</a><br/>
-                                            <%
-                                                if (!ObjectUtils.isBlank(blurs)) {
-                                                    for (String blur : blurs) {
-                                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
-                                                    }
-                                                }
-                                            %>
-                                        </td>
                                     </tr>
                                 <% } %>
                             </tbody></table>

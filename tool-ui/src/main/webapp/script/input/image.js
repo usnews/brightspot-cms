@@ -158,17 +158,24 @@ function($, bsp_utils) {
                         }
                     }
 
+                    var operateItem = function(processedImage, index, key, operations, operationIndex) {
+                        if (operationIndex < operations.length) {
+                            Pixastic.process(processedImage, key, operations[operationIndex], function(newImage) {
+                                ++ operationIndex;
+                                operateItem(newImage, index, key, operations, operationIndex);
+                            });
+                        } else {
+                            ++ index;
+                            operate(processedImage, index);
+                        }
+                    }
+
                     var operate = function(processedImage, index) {
                         if (index < operationKeys.length) {
                             var key = operationKeys[index];
 
                             if ($.isArray(operations[key])) {
-                                for (var i in operations[key]) {
-                                    processedImage = Pixastic.process(processedImage, key, operations[key][i]);
-                                }
-                                ++ index;
-                                operate(processedImage, index);
-
+                                operateItem(processedImage, index, key, operations[key], 0);
                             } else {
                                 Pixastic.process(processedImage, key, operations[key], function(newImage) {
                                     ++ index;
@@ -459,7 +466,7 @@ function($, bsp_utils) {
                 $editor.append($blurOverlay);
             };
 
-            $edit.find('.imageEditor-addBlur').bind('click', function() {
+            $edit.find('.imageEditor-addBlurOverlay').bind('click', function() {
                 var $imageEditorCanvas = $editor.find('.imageEditor-image canvas');
                 var left = Math.floor($imageEditorCanvas.attr('width') / 2 - 50);
                 var top = Math.floor($imageEditorCanvas.attr('height') / 2 - 50);
