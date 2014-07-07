@@ -181,7 +181,7 @@ body.hasToolBroadcast {
 
         <div class="buttons">
             <button class="action action-logIn">Log In</button>
-            <% if (Settings.get(boolean.class, "cms/tool/enableForgotPassword") && user == null) {%>
+            <% if (!StringUtils.isBlank(Settings.get(String.class, "cms/tool/forgotPasswordEmailSender")) && user == null) {%>
             <a class="action-reset" href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">Forgot Password?</a>
             <% } %>
         </div>

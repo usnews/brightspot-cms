@@ -42,6 +42,10 @@ boolean submitted = false;
 
 if (wp.isFormPost()) {
     try {
+        String emailSender = Settings.get(String.class, "cms/tool/forgotPasswordEmailSender");
+        if (StringUtils.isBlank(emailSender)) {
+            throw new PasswordException("Please contact administrators.");
+        }
         if (StringUtils.isBlank(username)) {
             throw new PasswordException("Oops! No user with that username");
         }
@@ -82,10 +86,9 @@ if (wp.isFormPost()) {
         body.append("<p>Thank you,<br />");
         body.append("Brightspot Support</p>");
 
-        // TODO: make sender configurable
         MailProvider.Static.getDefault().send(new MailMessage(email).
-                from("asung@perfectsensedigital.com").
-                subject("Password reset request").
+                from(emailSender).
+                subject("Password Reset").
                 bodyHtml(body.toString()));
         user.setChangePasswordToken(changePasswordToken);
         user.save();
@@ -139,7 +142,7 @@ body.hasToolBroadcast {
 
     <% if (submitted) { %>
         <div class="message message-info">
-            <p>You'll receive email to reset password shortly.</p>
+            <p>An email regarding your password reset has been sent to your email address.</p>
         </div>
     <% } else { %>
 
