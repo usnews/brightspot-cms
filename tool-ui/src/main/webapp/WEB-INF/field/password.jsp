@@ -1,4 +1,5 @@
 <%@ page session="false" import="
+java.util.Date,
 
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.tool.ToolPageContext,
@@ -8,6 +9,7 @@ com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
+com.psddev.dari.util.NewPasswordPolicy,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Password,
 com.psddev.dari.util.PasswordException,
@@ -38,9 +40,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (ObjectUtils.isBlank(password)) {
             state.addError(field, "Password can't be blank!");
         } else {
+            ToolUser user = wp.getUser();
             if (!state.isNew()) {
                 String currentPassword = wp.param(currentPasswordName);
-                ToolUser user = wp.getUser();
 
                 if (ObjectUtils.isBlank(currentPassword)) {
                     state.addError(field, "Must supply your current password!");
@@ -61,20 +63,29 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (!password.equals(wp.param(password2Name))) {
                 state.addError(field, "Passwords don't match!");
             } else {
+                String algorithm = null;
+                String salt = null;
+
+                if (state.get(fieldName) != null) {
+                    Password current = Password.valueOf(String.valueOf(state.get(fieldName)));
+
+                    algorithm = current.getAlgorithm();
+                    salt = current.getSalt();
+                }
                 try {
-                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
-
-                    String algorithm = null;
-                    String salt = null;
-
-                    if (state.get(fieldName) != null) {
-                        Password current = Password.valueOf(String.valueOf(state.get(fieldName)));
-
-                        algorithm = current.getAlgorithm();
-                        salt = current.getSalt();
+                    NewPasswordPolicy newPasswordPolicy = NewPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/newPasswordPolicy"));
+                    PasswordPolicy passwordPolicy = null;
+                    if (newPasswordPolicy == null) {
+                        passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
                     }
-
-                    state.put(fieldName, Password.validateAndCreateCustom(policy, algorithm, salt, password).toString());
+                    Password hashedPassword;
+                    if (newPasswordPolicy != null || (newPasswordPolicy == null && passwordPolicy == null)) {
+                        hashedPassword = Password.validateAndCreateCustom(newPasswordPolicy, user, null, null, password);
+                    } else {
+                        hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
+                    }
+                    state.put(fieldName, hashedPassword.toString());
+                    state.put(fieldName + "ChangedDate", new Date());
                 } catch (PasswordException error) {
                     state.addError(field, error.getMessage());
                 }

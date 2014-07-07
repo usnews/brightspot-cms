@@ -12,6 +12,7 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Settings,
+com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.UrlBuilder,
 
 java.net.MalformedURLException,
@@ -34,8 +35,8 @@ if (wp.getUser() != null) {
 
 AuthenticationException authError = null;
 String username = wp.param("username");
+String returnPath = wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER);
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
-
 if (wp.isFormPost()) {
     try {
 
@@ -63,12 +64,23 @@ if (wp.isFormPost()) {
             }
         }
 
+        if (user.isChangePasswordOnLogIn()) {
+            String changePasswordToken = UUID.randomUUID().toString();
+            user.setChangePasswordToken(changePasswordToken);
+            user.save();
+            wp.redirect("change-password.jsp", "changePasswordToken", changePasswordToken, AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath);
+            return;
+        }
+
         AuthenticationFilter.Static.logIn(request, response, user);
 
-        try {
-            wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER, "/"))).toString());
-
-        } catch (MalformedURLException e) {
+        if (!StringUtils.isBlank(returnPath)) {
+            try {
+                wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, returnPath)).toString());
+            } catch (MalformedURLException e) {
+                wp.redirect("/");
+            }
+        } else {
             wp.redirect("/");
         }
 
@@ -162,13 +174,16 @@ body.hasToolBroadcast {
                     <label for="<%= wp.createId() %>">Code</label>
                 </div>
                 <div class="inputSmall">
-                    <input id="<%= wp.getId() %>" name="totpCode" type="text">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="totpCode" type="text">
                 </div>
             </div>
         <% } %>
 
         <div class="buttons">
             <button class="action action-logIn">Log In</button>
+            <% if (Settings.get(boolean.class, "cms/tool/enableForgotPassword") && user == null) {%>
+            <a class="action-reset" href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">Forgot Password?</a>
+            <% } %>
         </div>
     </form>
 </div>
