@@ -11,15 +11,12 @@ com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.MailMessage,
 com.psddev.dari.util.MailProvider,
-com.psddev.dari.util.NewPasswordPolicy,
 com.psddev.dari.util.PasswordException,
 com.psddev.dari.util.RoutingFilter,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.UrlBuilder,
 
-java.net.MalformedURLException,
-java.net.URL,
 java.util.UUID
 " %><%
 
@@ -78,7 +75,9 @@ if (wp.isFormPost()) {
         body.append("<p>You recently requested to reset your password at ");
         body.append(baseUrl);
         body.append(".</p>");
-        body.append("<p>Please click on the link below (expires in 24 hours) to reset your password:</p>");
+        body.append("<p>Please click on the link below (expires in ");
+        body.append(Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L));
+        body.append(" hours) to reset your password:</p>");
         body.append("<a href=\"");
         body.append(url);
         body.append("\" target=\"_blank\">Password Reset</a><br />");
