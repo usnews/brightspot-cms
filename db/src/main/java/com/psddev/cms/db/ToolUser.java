@@ -26,6 +26,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
+import com.psddev.dari.util.Settings;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -649,8 +650,8 @@ public class ToolUser extends Record implements ToolEntity {
 
         public static ToolUser getByChangePasswordToken(String changePasswordToken) {
             ToolUser user = Query.from(ToolUser.class).where("changePasswordToken = ?", changePasswordToken).first();
-            // TODO: make timeout configurable
-            return user != null && user.changePasswordTokenTime + 60000 > System.currentTimeMillis() ? user : null;
+            long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L) * 60L * 60L * 1000L;
+            return user != null && user.changePasswordTokenTime + expiration > System.currentTimeMillis() ? user : null;
         }
     }
 
