@@ -68,6 +68,8 @@ if (wp.isFormPost()) {
         String url = urlBuilder.toString();
         url = StringUtils.addQueryParameters(url, "rpr", changePasswordToken);
 
+        long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L);
+
         StringBuilder body = new StringBuilder();
         body.append("<p>Dear ");
         body.append(user.getName());
@@ -76,8 +78,12 @@ if (wp.isFormPost()) {
         body.append(baseUrl);
         body.append(".</p>");
         body.append("<p>Please click on the link below (expires in ");
-        body.append(Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L));
-        body.append(" hours) to reset your password:</p>");
+        body.append(expiration);
+        body.append(" hour");
+        if (expiration > 1) {
+            body.append("s");
+        }
+        body.append(") to reset your password:</p>");
         body.append("<a href=\"");
         body.append(url);
         body.append("\" target=\"_blank\">Password Reset</a><br />");
