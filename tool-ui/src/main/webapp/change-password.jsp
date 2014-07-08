@@ -69,7 +69,7 @@ if (user != null) {
             AuthenticationFilter.Static.logIn(request, response, user);
 
             try {
-                wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER, wp.url("/"))).toString());
+                wp.redirect(new URL(JspUtils.getAbsoluteUrl(request, wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER, wp.url("/")))).toString());
             } catch (MalformedURLException e) {
                 wp.redirect("/");
             }
