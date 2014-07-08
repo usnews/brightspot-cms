@@ -14,6 +14,7 @@ import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.DatabaseException;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
@@ -72,7 +73,17 @@ public class RecentActivity extends PageServlet {
                     break;
             }
 
-            result = contentQuery.select(offset, limit);
+            try {
+                result = contentQuery.select(offset, limit);
+
+            } catch (DatabaseException error) {
+                if (error instanceof DatabaseException.ReadTimeout) {
+                    result = contentQuery.and("_any matches *").select(offset, limit);
+
+                } else {
+                    throw error;
+                }
+            }
         }
 
         page.writeStart("div", "class", "widget");
