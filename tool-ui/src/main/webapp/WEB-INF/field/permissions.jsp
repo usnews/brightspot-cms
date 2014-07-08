@@ -85,12 +85,16 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     }
 
     for (String permissionId : wp.params(inputName)) {
-        String excludeFields = wp.param(inputName + "." + permissionId + "/excludeFields");
+        String parent = wp.param(inputName + "." + permissionId);
 
-        if (!ObjectUtils.isBlank(excludeFields)) {
-            for (String fn : excludeFields.trim().split("\\s+")) {
-                permissions.remove(permissionId + "/field/" + fn);
-                permissions.remove(permissionId + "/field/" + fn + "/");
+        if ("some".equals(parent)) {
+            String excludeFields = wp.param(inputName + "." + permissionId + "/excludeFields");
+
+            if (!ObjectUtils.isBlank(excludeFields)) {
+                for (String fn : excludeFields.trim().split("\\s+")) {
+                    permissions.remove(permissionId + "/field/" + fn);
+                    permissions.remove(permissionId + "/field/" + fn + "/");
+                }
             }
         }
     }
