@@ -9,12 +9,12 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.util.AuthenticationException;
 import com.psddev.dari.util.AuthenticationPolicy;
 import com.psddev.dari.util.LdapUtils;
-import com.psddev.dari.util.NewPasswordPolicy;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 import com.psddev.dari.util.PasswordException;
 import com.psddev.dari.util.PasswordPolicy;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.UserPasswordPolicy;
 
 public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
@@ -63,15 +63,15 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
             }
 
             user = new ToolUser();
-            NewPasswordPolicy newPasswordPolicy = NewPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/newPasswordPolicy"));
+            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
             PasswordPolicy passwordPolicy = null;
             Password hashedPassword;
-            if (newPasswordPolicy == null) {
+            if (userPasswordPolicy == null) {
                 passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
             }
             try {
-                if (newPasswordPolicy != null || (newPasswordPolicy == null && passwordPolicy == null)) {
-                    hashedPassword = Password.validateAndCreateCustom(newPasswordPolicy, user, null, null, password);
+                if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                    hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);
                 } else {
                     hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
                 }

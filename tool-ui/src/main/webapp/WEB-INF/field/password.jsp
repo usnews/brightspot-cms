@@ -9,12 +9,12 @@ com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
-com.psddev.dari.util.NewPasswordPolicy,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Password,
 com.psddev.dari.util.PasswordException,
 com.psddev.dari.util.PasswordPolicy,
 com.psddev.dari.util.Settings,
+com.psddev.dari.util.UserPasswordPolicy,
 com.psddev.dari.util.ValidationException
 " %><%
 
@@ -73,14 +73,14 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     salt = current.getSalt();
                 }
                 try {
-                    NewPasswordPolicy newPasswordPolicy = NewPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/newPasswordPolicy"));
+                    UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
                     PasswordPolicy passwordPolicy = null;
-                    if (newPasswordPolicy == null) {
+                    if (userPasswordPolicy == null) {
                         passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
                     }
                     Password hashedPassword;
-                    if (newPasswordPolicy != null || (newPasswordPolicy == null && passwordPolicy == null)) {
-                        hashedPassword = Password.validateAndCreateCustom(newPasswordPolicy, user, null, null, password);
+                    if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                        hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);
                     } else {
                         hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
                     }

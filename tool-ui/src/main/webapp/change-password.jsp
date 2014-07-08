@@ -6,13 +6,13 @@ com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
-com.psddev.dari.util.NewPasswordPolicy,
 com.psddev.dari.util.Password,
 com.psddev.dari.util.PasswordException,
 com.psddev.dari.util.PasswordPolicy,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.StringUtils,
 com.psddev.dari.util.UrlBuilder,
+com.psddev.dari.util.UserPasswordPolicy,
 
 java.net.MalformedURLException,
 java.net.URL
@@ -51,14 +51,14 @@ if (user != null) {
                 throw new PasswordException("Invalid current password!");
             }
 
-            NewPasswordPolicy newPasswordPolicy = NewPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/newPasswordPolicy"));
+            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
             PasswordPolicy passwordPolicy = null;
-            if (newPasswordPolicy == null) {
+            if (userPasswordPolicy == null) {
                 passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
             }
             Password hashedPassword;
-            if (newPasswordPolicy != null || (newPasswordPolicy == null && passwordPolicy == null)) {
-                hashedPassword = Password.validateAndCreateCustom(newPasswordPolicy, user, current.getAlgorithm(), null, newPassword1);
+            if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, current.getAlgorithm(), null, newPassword1);
             } else {
                 hashedPassword = Password.validateAndCreateCustom(passwordPolicy, current.getAlgorithm(), null, newPassword1);
             }
