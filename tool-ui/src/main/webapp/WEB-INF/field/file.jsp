@@ -472,7 +472,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
     } finally {
         if (file != null && file.exists()) {
-            // file.delete();
+            file.delete();
         }
     }
 }
