@@ -24,11 +24,10 @@
     <name>BrightSpot CMS</name>
 
     <modules>
-        <module>archetypes/app-archetype</module>
-        <module>archetypes/content-article-archetype</module>
-        <module>archetypes/content-common-archetype</module>
+        <module>archetypes/app</module>
+        <module>archetypes/content-article</module>
+        <module>archetypes/content-common</module>
         <module>db</module>
-        <module>launcher</module>
         <module>tool-ui</module>
     </modules>
 
