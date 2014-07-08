@@ -18,6 +18,7 @@ com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
+com.psddev.dari.util.JavaImageEditor,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.RoutingFilter,
@@ -35,6 +36,7 @@ java.io.InputStream,
 java.io.IOException,
 java.net.URL,
 java.util.AbstractMap,
+java.util.ArrayList,
 java.util.Collections,
 java.util.HashMap,
 java.util.Iterator,
@@ -84,6 +86,8 @@ String grayscaleName = inputName + ".grayscale";
 String invertName = inputName + ".invert";
 String rotateName = inputName + ".rotate";
 String sepiaName = inputName + ".sepia";
+String sharpenName = inputName + ".sharpen";
+String blurName = inputName + ".blur";
 
 String metadataFieldName = fieldName + ".metadata";
 String widthFieldName = fieldName + ".width";
@@ -114,6 +118,22 @@ boolean grayscale = ObjectUtils.to(boolean.class, edits.get("grayscale"));
 boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
 int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
 boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
+int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
+
+List<String> blurs = new ArrayList<String>();
+if (!ObjectUtils.isBlank(edits.get("blur"))) {
+    Object blur = edits.get("blur");
+    if (blur instanceof String && ObjectUtils.to(String.class, blur).matches("(\\d+x){3}\\d+")) {
+        blurs.add(ObjectUtils.to(String.class, blur));
+    } else if (blur instanceof List) {
+        for (Object blurItem : (List) blur) {
+            String blurValue = ObjectUtils.to(String.class, blurItem);
+            if (blurValue.matches("(\\d+x){3}\\d+")) {
+                 blurs.add(blurValue);
+            }
+        }
+    }
+}
 
 Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, fieldValueMetadata.get("cms.crops"));
 if (crops == null) {
@@ -150,6 +170,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         invert = wp.param(boolean.class, invertName);
         rotate = wp.param(int.class, rotateName);
         sepia = wp.param(boolean.class, sepiaName);
+        sharpen = wp.param(int.class, sharpenName);
 
         edits = new HashMap<String, Object>();
 
@@ -176,6 +197,24 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
         if (sepia) {
             edits.put("sepia", sepia);
+        }
+        if (sharpen != 0) {
+            edits.put("sharpen", sharpen);
+        }
+
+        if (!ObjectUtils.isBlank(wp.params(String.class, blurName))) {
+            blurs = new ArrayList<String>();
+            for (String blur : wp.params(String.class, blurName)) {
+                if (!blurs.contains(blur)) {
+                    blurs.add(blur);
+                }
+            }
+
+            if (blurs.size() == 1) {
+                edits.put("blur", blurs.get(0));
+            } else {
+                edits.put("blur", blurs);
+            }
         }
 
         fieldValueMetadata.put("cms.edits", edits);
@@ -543,7 +582,25 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 
                         <div class="imageEditor-edit">
                             <h2>Adjustments</h2>
+                            <%
+                                boolean usingJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
+                            %>
                             <table><tbody>
+                                <% if (usingJavaImageEditor) { %>
+                                    <tr>
+                                        <th>Blur</th>
+                                        <td>
+                                            <a class="imageEditor-addBlurOverlay">Add Blur</a><br/>
+                                            <%
+                                                if (!ObjectUtils.isBlank(blurs)) {
+                                                    for (String blur : blurs) {
+                                                        %><input type="hidden" name="<%=blurName%>" value="<%=blur%>"><%
+                                                    }
+                                                }
+                                            %>
+                                        </td>
+                                    </tr>
+                                <% } %>
                                 <tr>
                                     <th>Brightness</th>
                                     <td><input type="range" name="<%= brightnessName %>" value="<%= brightness %>" min="-1.0" max="1.0" step="0.01"></td>
@@ -576,6 +633,12 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     <th>Sepia</th>
                                     <td><input type="checkbox" name="<%= sepiaName %>" value="true"<%= sepia ? " checked" : "" %>></td>
                                 </tr>
+                                <% if (usingJavaImageEditor) { %>
+                                    <tr>
+                                        <th>Sharpen</th>
+                                        <td><input type="range" name="<%= sharpenName %>" value="<%= sharpen %>" min="0" max="10" step="1"></td>
+                                    </tr>
+                                <% } %>
                             </tbody></table>
                         </div>
 
