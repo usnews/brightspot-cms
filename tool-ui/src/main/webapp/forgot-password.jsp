@@ -63,7 +63,7 @@ if (wp.isFormPost()) {
         urlBuilder.append(baseUrl);
         urlBuilder.append(RoutingFilter.Static.getApplicationPath(Application.Static.getInstance(CmsTool.class).getApplicationName()));
         urlBuilder.append(StringUtils.ensureStart("reset-password.jsp", "/"));
-        String changePasswordToken = UUID.randomUUID().toString();
+        String changePasswordToken = StringUtils.hex(StringUtils.hash("SHA-256", UUID.randomUUID().toString()));
 
         String url = urlBuilder.toString();
         url = StringUtils.addQueryParameters(url, "rpr", changePasswordToken);
