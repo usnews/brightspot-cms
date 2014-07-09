@@ -22,7 +22,8 @@ com.psddev.dari.util.ValidationException
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
-State state = State.getInstance(request.getAttribute("object"));
+Object object = request.getAttribute("object");
+State state = State.getInstance(object);
 
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
@@ -80,6 +81,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     }
                     Password hashedPassword;
                     if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                        if (object instanceof ToolUser) {
+                            user = (ToolUser) object;
+                        }
                         hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);
                     } else {
                         hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
