@@ -82,6 +82,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     Password hashedPassword;
                     if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
                         if (object instanceof ToolUser) {
+                            // Apply password policy to this user if the user is different from the authenticated user.
                             user = (ToolUser) object;
                         }
                         hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);

@@ -37,6 +37,7 @@ AuthenticationException authError = null;
 String username = wp.param("username");
 String returnPath = wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER);
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
+
 if (wp.isFormPost()) {
     try {
 
@@ -182,7 +183,7 @@ body.hasToolBroadcast {
         <div class="buttons">
             <button class="action action-logIn">Log In</button>
             <% if (!StringUtils.isBlank(Settings.get(String.class, "cms/tool/forgotPasswordEmailSender")) && user == null) {%>
-            <a class="action-reset" href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">Forgot Password?</a>
+            <a href="<%= wp.url("forgot-password.jsp", AuthenticationFilter.RETURN_PATH_PARAMETER, returnPath) %>">Forgot Password?</a>
             <% } %>
         </div>
     </form>
