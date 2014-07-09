@@ -34,6 +34,9 @@ String isNewName = inputName + "/isNew";
 String currentPasswordName = inputName + "/currentPassword";
 String password1Name = inputName + "/password1";
 String password2Name = inputName + "/password2";
+ToolUser user = wp.getUser();
+boolean disablePasswordChange = Settings.get(boolean.class, "cms/tool/admin/users/disablePasswordChange") && !object.equals(user);
+
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     if (wp.boolParam(isNewName)) {
@@ -41,7 +44,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         if (ObjectUtils.isBlank(password)) {
             state.addError(field, "Password can't be blank!");
         } else {
-            ToolUser user = wp.getUser();
             if (!state.isNew()) {
                 String currentPassword = wp.param(currentPasswordName);
 
@@ -105,7 +107,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 String isNewInputId = wp.getId();
 
 %><div class="inputSmall">
-    <select class="toggleable" data-root=".inputSmall" id="<%= isNewInputId %>" name="<%= isNewName %>">
+    <select class="toggleable" data-root=".inputSmall" id="<%= isNewInputId %>" name="<%= isNewName %>" <%= disablePasswordChange ? "disabled" : "" %>>
         <option data-hide=".passwordChange" value="false"<%= wp.boolParam(isNewName) ? "" : " selected" %>>Keep Same</option>
         <option data-show=".passwordChange" value="true"<%= wp.boolParam(isNewName) ? " selected" : "" %>>Change</option>
     </select>
@@ -126,7 +128,7 @@ String isNewInputId = wp.getId();
     </div>
 </div>
 
-<% if (state.isNew()) { %>
+<% if (state.isNew() && !disablePasswordChange) { %>
     <script type="text/javascript">
     if (typeof jQuery !== 'undefined') jQuery(function($) {
         $('#<%= isNewInputId %>').val('true').change();
