@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.psddev.dari.db.ForwardingDatabase;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -14,6 +17,19 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 
 public class RichTextDatabase extends ForwardingDatabase {
+
+    private static final LoadingCache<String, String> PUBLISHABLES = CacheBuilder.
+            newBuilder().
+            maximumSize(10000).
+            build(new CacheLoader<String, String>() {
+
+                @Override
+                public String load(String value) {
+                    List<Object> publishables = new ReferentialText(value, true).toPublishables(true, new RichTextCleaner());
+
+                    return publishables.isEmpty() ? "" : (String) publishables.get(0);
+                }
+            });
 
     // --- ForwardingDatabase support ---
 
@@ -32,9 +48,7 @@ public class RichTextDatabase extends ForwardingDatabase {
                     Object value = state.get(fieldName);
 
                     if (value instanceof String) {
-                        List<Object> publishables = new ReferentialText((String) value, true).toPublishables(true, new RichTextCleaner());
-
-                        state.put(fieldName, publishables.isEmpty() ? null : publishables.get(0));
+                        state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
                     }
                 }
             }
