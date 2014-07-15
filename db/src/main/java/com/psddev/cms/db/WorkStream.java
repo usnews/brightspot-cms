@@ -14,6 +14,7 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ErrorUtils;
 
 @SuppressWarnings("rawtypes")
+@Record.BootstrapPackages(value = "Work Streams", depends = { com.psddev.cms.tool.Search.class, Query.class })
 public class WorkStream extends Record {
 
     @Required
