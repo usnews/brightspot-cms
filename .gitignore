@@ -4,6 +4,10 @@
 
 # Maven
 /target/
+/app-archetype/
+/archetypes/app/target/
+/archetypes/content-article/target/
+/archetypes/content-common/target/
 /archetypes/app-archetype/target/
 /archetypes/content-common-archetype/target/
 /archetypes/content-article-archetype/target/
