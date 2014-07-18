@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -962,8 +963,18 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                         if (realEditor == null) {
                             realEditor = ImageEditor.Static.getDefault();
                         }
-                        for (Map.Entry<String, Object> entry : new TreeMap<String, Object>(edits).entrySet()) {
-                            item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+
+                        //rotate first
+                        Set<Map.Entry<String, Object>> entrySet = new TreeMap<String, Object>(edits).entrySet();
+                        for (Map.Entry<String, Object> entry : entrySet) {
+                            if (entry.getKey().equals("rotate")) {
+                                item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+                            }
+                        }
+                        for (Map.Entry<String, Object> entry : entrySet) {
+                            if (!entry.getKey().equals("rotate")) {
+                                item = realEditor.edit(item, entry.getKey(), null, entry.getValue());
+                            }
                         }
                     }
                 }

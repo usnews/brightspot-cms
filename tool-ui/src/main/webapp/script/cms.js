@@ -10,6 +10,7 @@ requirejs.config({
         'l.control.geosearch': [ 'leaflet' ],
         'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
         'nv.d3': [ 'd3' ],
+        'pixastic/actions/blurfast': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/crop': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/desaturate': [ 'pixastic/pixastic.core' ],
@@ -17,7 +18,8 @@ requirejs.config({
         'pixastic/actions/flipv': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/invert': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/rotate': [ 'pixastic/pixastic.core' ],
-        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ]
+        'pixastic/actions/sepia': [ 'pixastic/pixastic.core' ],
+        'pixastic/actions/sharpen': [ 'pixastic/pixastic.core' ]
     }
 });
 

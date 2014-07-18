@@ -128,14 +128,14 @@ function($, bsp_utils) {
     });
 
     (function() {
-      var submitting;
+      var SUBMITTING_DATA = 'bsp-publish-submitting';
 
-      $(document).on('submit', '.contentForm', function() {
-        submitting = true;
+      $(document).on('submit', '.contentForm', function(event) {
+        $.data($(event.target)[0], SUBMITTING_DATA, true);
       });
 
-      $(document).on('click', '.widget-publishing button, .widget-publishing :submit', function() {
-        return !submitting;
+      $(document).on('click', '.widget-publishing button, .widget-publishing :submit', function(event) {
+        return !$.data($(event.target).closest('.contentForm')[0], SUBMITTING_DATA);
       });
     })();
 });

@@ -56,6 +56,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
         newValue = newValueBuilder.toString();
+
+        if (newValue.matches("(?i)<br[^>]*/?>")) {
+            newValue = null;
+        }
     }
 
     state.put(fieldName, newValue);
