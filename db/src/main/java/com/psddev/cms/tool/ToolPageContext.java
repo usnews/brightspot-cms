@@ -1336,7 +1336,7 @@ public class ToolPageContext extends WebPageContext {
 
                 writeEnd();
 
-                writeStart("div", "class", "toolContent");
+                writeTag("div", "class", "toolContent");
 
                     StorageItem backgroundImage = cms.getBackgroundImage();
 
