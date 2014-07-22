@@ -17,6 +17,7 @@ ToolUser user = wp.getUser();
 Collection<String> excludeFields = new ArrayList<String>();
 
 excludeFields.add("role");
+excludeFields.add("changePasswordOnLogIn");
 
 if (user.isExternal()) {
     excludeFields.add("password");

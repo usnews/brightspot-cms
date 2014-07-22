@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -26,6 +27,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.Settings;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -52,6 +54,9 @@ public class ToolUser extends Record implements ToolEntity {
     private String password;
 
     private StorageItem avatar;
+
+    @ToolUi.Hidden
+    private Date passwordChangedDate;
 
     @ToolUi.FieldDisplayType("timeZone")
     private String timeZone;
@@ -110,6 +115,16 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Advanced")
     private boolean disableNavigateAwayAlert;
 
+    @ToolUi.Note("Force the user to change the password on next log in.")
+    private boolean changePasswordOnLogIn;
+
+    @Indexed
+    @ToolUi.Hidden
+    private String changePasswordToken;
+
+    @ToolUi.Hidden
+    private long changePasswordTokenTime;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -156,6 +171,11 @@ public class ToolUser extends Record implements ToolEntity {
     /** Sets the password. */
     public void setPassword(Password password) {
         this.password = password.toString();
+        this.passwordChangedDate = new Date();
+    }
+
+    public Date getPasswordChangedDate() {
+        return passwordChangedDate;
     }
 
     public StorageItem getAvatar() {
@@ -577,6 +597,28 @@ public class ToolUser extends Record implements ToolEntity {
         this.disableNavigateAwayAlert = disableNavigateAwayAlert;
     }
 
+    public boolean isChangePasswordOnLogIn() {
+        return changePasswordOnLogIn;
+    }
+
+    public void setChangePasswordOnLogIn(boolean changePasswordOnLogIn) {
+        this.changePasswordOnLogIn = changePasswordOnLogIn;
+    }
+
+    public String getChangePasswordToken() {
+        return changePasswordToken;
+    }
+
+    public void setChangePasswordToken(String changePasswordToken) {
+        this.changePasswordToken = changePasswordToken;
+        this.changePasswordTokenTime = changePasswordToken == null ? 0L : System.currentTimeMillis();
+    }
+
+    public void updatePassword(Password password) {
+        setPassword(password);
+        setChangePasswordToken(null);
+    }
+
     /**
      * Returns {@code true} if this user is allowed access to the
      * resources identified by the given {@code permissionId}.
@@ -615,6 +657,12 @@ public class ToolUser extends Record implements ToolEntity {
         public static ToolUser getByTotpToken(String totpToken) {
             ToolUser user = Query.from(ToolUser.class).where("totpToken = ?", totpToken).first();
             return user != null && user.totpTokenTime + 60000 > System.currentTimeMillis() ? user : null;
+        }
+
+        public static ToolUser getByChangePasswordToken(String changePasswordToken) {
+            ToolUser user = Query.from(ToolUser.class).where("changePasswordToken = ?", changePasswordToken).first();
+            long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L) * 60L * 60L * 1000L;
+            return user != null && user.changePasswordTokenTime + expiration > System.currentTimeMillis() ? user : null;
         }
     }
 

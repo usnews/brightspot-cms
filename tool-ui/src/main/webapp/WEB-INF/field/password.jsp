@@ -1,4 +1,5 @@
 <%@ page session="false" import="
+java.util.Date,
 
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.tool.ToolPageContext,
@@ -13,6 +14,7 @@ com.psddev.dari.util.Password,
 com.psddev.dari.util.PasswordException,
 com.psddev.dari.util.PasswordPolicy,
 com.psddev.dari.util.Settings,
+com.psddev.dari.util.UserPasswordPolicy,
 com.psddev.dari.util.ValidationException
 " %><%
 
@@ -20,7 +22,8 @@ com.psddev.dari.util.ValidationException
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
-State state = State.getInstance(request.getAttribute("object"));
+Object object = request.getAttribute("object");
+State state = State.getInstance(object);
 
 ObjectField field = (ObjectField) request.getAttribute("field");
 String fieldName = field.getInternalName();
@@ -31,6 +34,9 @@ String isNewName = inputName + "/isNew";
 String currentPasswordName = inputName + "/currentPassword";
 String password1Name = inputName + "/password1";
 String password2Name = inputName + "/password2";
+ToolUser user = wp.getUser();
+boolean disablePasswordChange = Settings.get(boolean.class, "cms/tool/admin/users/disablePasswordChange") && !object.equals(user);
+
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     if (wp.boolParam(isNewName)) {
@@ -40,7 +46,6 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         } else {
             if (!state.isNew()) {
                 String currentPassword = wp.param(currentPasswordName);
-                ToolUser user = wp.getUser();
 
                 if (ObjectUtils.isBlank(currentPassword)) {
                     state.addError(field, "Must supply your current password!");
@@ -61,20 +66,33 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             if (!password.equals(wp.param(password2Name))) {
                 state.addError(field, "Passwords don't match!");
             } else {
+                String algorithm = null;
+                String salt = null;
+
+                if (state.get(fieldName) != null) {
+                    Password current = Password.valueOf(String.valueOf(state.get(fieldName)));
+
+                    algorithm = current.getAlgorithm();
+                    salt = current.getSalt();
+                }
                 try {
-                    PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
-
-                    String algorithm = null;
-                    String salt = null;
-
-                    if (state.get(fieldName) != null) {
-                        Password current = Password.valueOf(String.valueOf(state.get(fieldName)));
-
-                        algorithm = current.getAlgorithm();
-                        salt = current.getSalt();
+                    UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
+                    PasswordPolicy passwordPolicy = null;
+                    if (userPasswordPolicy == null) {
+                        passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
                     }
-
-                    state.put(fieldName, Password.validateAndCreateCustom(policy, algorithm, salt, password).toString());
+                    Password hashedPassword;
+                    if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                        if (object instanceof ToolUser) {
+                            // Apply password policy to this user if the user is different from the authenticated user.
+                            user = (ToolUser) object;
+                        }
+                        hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);
+                    } else {
+                        hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
+                    }
+                    state.put(fieldName, hashedPassword.toString());
+                    state.put(fieldName + "ChangedDate", new Date());
                 } catch (PasswordException error) {
                     state.addError(field, error.getMessage());
                 }
@@ -89,7 +107,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
 String isNewInputId = wp.getId();
 
 %><div class="inputSmall">
-    <select class="toggleable" data-root=".inputSmall" id="<%= isNewInputId %>" name="<%= isNewName %>">
+    <select class="toggleable" data-root=".inputSmall" id="<%= isNewInputId %>" name="<%= isNewName %>" <%= disablePasswordChange ? "disabled" : "" %>>
         <option data-hide=".passwordChange" value="false"<%= wp.boolParam(isNewName) ? "" : " selected" %>>Keep Same</option>
         <option data-show=".passwordChange" value="true"<%= wp.boolParam(isNewName) ? " selected" : "" %>>Change</option>
     </select>
@@ -110,7 +128,7 @@ String isNewInputId = wp.getId();
     </div>
 </div>
 
-<% if (state.isNew()) { %>
+<% if (state.isNew() && !disablePasswordChange) { %>
     <script type="text/javascript">
     if (typeof jQuery !== 'undefined') jQuery(function($) {
         $('#<%= isNewInputId %>').val('true').change();

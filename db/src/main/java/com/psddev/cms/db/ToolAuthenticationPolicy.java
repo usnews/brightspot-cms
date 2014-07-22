@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.naming.ldap.LdapContext;
@@ -13,6 +14,7 @@ import com.psddev.dari.util.Password;
 import com.psddev.dari.util.PasswordException;
 import com.psddev.dari.util.PasswordPolicy;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.UserPasswordPolicy;
 
 public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
@@ -36,6 +38,15 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
 
         if (user != null) {
             if (user.getPassword().check(password)) {
+                long passwordExpirationInDays = Settings.get(long.class, "cms/tool/passwordExpirationInDays");
+                if (passwordExpirationInDays > 0L ) {
+                    long passwordExpiration = passwordExpirationInDays * 24 * 60 * 60 * 1000;
+                    Date passwordChangedDate = user.getPasswordChangedDate();
+                    if (passwordChangedDate == null || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
+                        user.setChangePasswordOnLogIn(true);
+                        user.save();
+                    }
+                }
                 return user;
             }
 
@@ -51,16 +62,23 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
                 name = username.substring(0, atAt);
             }
 
-            PasswordPolicy policy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+            user = new ToolUser();
+            UserPasswordPolicy userPasswordPolicy = UserPasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/userPasswordPolicy"));
+            PasswordPolicy passwordPolicy = null;
             Password hashedPassword;
-
+            if (userPasswordPolicy == null) {
+                passwordPolicy = PasswordPolicy.Static.getInstance(Settings.get(String.class, "cms/tool/passwordPolicy"));
+            }
             try {
-                hashedPassword = Password.validateAndCreateCustom(policy, null, null, password);
+                if (userPasswordPolicy != null || (userPasswordPolicy == null && passwordPolicy == null)) {
+                    hashedPassword = Password.validateAndCreateCustom(userPasswordPolicy, user, null, null, password);
+                } else {
+                    hashedPassword = Password.validateAndCreateCustom(passwordPolicy, null, null, password);
+                }
             } catch (PasswordException error) {
                 throw new AuthenticationException(error);
             }
 
-            user = new ToolUser();
             user.setName(name);
 
             if (atAt >= 0) {
