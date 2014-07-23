@@ -39,7 +39,7 @@ public class ToolAuthenticationPolicy implements AuthenticationPolicy {
         if (user != null) {
             if (user.getPassword().check(password)) {
                 long passwordExpirationInDays = Settings.get(long.class, "cms/tool/passwordExpirationInDays");
-                if (passwordExpirationInDays > 0L ) {
+                if (passwordExpirationInDays > 0L) {
                     long passwordExpiration = passwordExpirationInDays * 24 * 60 * 60 * 1000;
                     Date passwordChangedDate = user.getPasswordChangedDate();
                     if (passwordChangedDate == null || System.currentTimeMillis() - passwordExpiration > passwordChangedDate.getTime()) {
