@@ -73,6 +73,11 @@ if (wp.isFormPost()) {
             return;
         }
 
+        if (user.getChangePasswordToken() != null) {
+            user.setChangePasswordToken(null);
+            user.save();
+        }
+
         AuthenticationFilter.Static.logIn(request, response, user);
 
         if (!StringUtils.isBlank(returnPath)) {
