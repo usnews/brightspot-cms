@@ -165,6 +165,36 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    /**
+     * Returns the parameter value as an instance of the given
+     * {@code returnClass} associated with the given {@code name}, or if not
+     * found, either the {@linkplain #getPageSetting page setting value} or
+     * the given {@code defaultValue}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> pageParams(Class<T> returnClass, String name, List<T> defaultValue) {
+        Class<?> valueClass = PRIMITIVE_CLASSES.get(returnClass);
+
+        if (valueClass == null) {
+            valueClass = returnClass;
+        }
+
+        HttpServletRequest request = getRequest();
+        List<T> value = params(returnClass, name);
+        List<Object> userValue = ObjectUtils.to(new TypeReference<List<Object>>() { }, AuthenticationFilter.Static.getPageSetting(request, name));
+
+        if (value == null || value.isEmpty()) {
+            return ObjectUtils.isBlank(userValue) ? defaultValue : (List<T>) userValue;
+
+        } else {
+            if (!ObjectUtils.equals(value, userValue)) {
+                AuthenticationFilter.Static.putPageSetting(request, name, value);
+            }
+
+            return (List<T>) value;
+        }
+    }
+
     private static final Map<Class<?>, Class<?>> PRIMITIVE_CLASSES; static {
         Map<Class<?>, Class<?>> m = new HashMap<Class<?>, Class<?>>();
 
