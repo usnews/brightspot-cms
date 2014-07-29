@@ -1,6 +1,8 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -13,9 +15,11 @@ import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
+import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.DatabaseException;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
@@ -47,6 +51,8 @@ public class RecentActivity extends PageServlet {
 
         PaginatedResult<?> result;
 
+        List<String> visibilities = page.pageParams(String.class, Search.VISIBILITIES_PARAMETER, new ArrayList<String>());
+
         if (valueObject == null && (type == Type.ROLE || type == Type.USER)) {
             result = null;
 
@@ -71,6 +77,12 @@ public class RecentActivity extends PageServlet {
 
                 default :
                     break;
+            }
+
+            Predicate visibilitiesPredicate = Search.getVisibilitiesPredicate(itemType, visibilities, null, false);
+
+            if (visibilitiesPredicate != null) {
+                contentQuery.and(visibilitiesPredicate);
             }
 
             try {
@@ -172,6 +184,12 @@ public class RecentActivity extends PageServlet {
                             }
                         }
                     page.writeEnd();
+
+                    page.writeStart("li");
+                        page.writeTag("input", "type", "hidden", "name", Search.VISIBILITIES_PARAMETER, "value", ""); // extra hidden field so ToolPageContext#pageParams() knows we are intentionally submitting nothing
+                        page.writeMultipleVisibilitySelect(itemType, visibilities, "name", Search.VISIBILITIES_PARAMETER, "data-bsp-autosubmit", "");
+                    page.writeEnd();
+
                 page.writeEnd();
             page.writeEnd();
 

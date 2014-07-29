@@ -399,6 +399,101 @@ public class Search extends Record {
         }
     }
 
+    public static Predicate getVisibilitiesPredicate(ObjectType selectedType, Collection<String> visibilities, Set<UUID> validTypeIds, boolean showDrafts) {
+
+        Set<UUID> visibilityTypeIds = new HashSet<UUID>();
+
+        Predicate visibilitiesPredicate = null;
+
+        for (String visibility : visibilities) {
+            if ("p".equals(visibility)) {
+                Set<String> comparisonKeys = new HashSet<String>();
+                DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+
+                addVisibilityFields(comparisonKeys, environment);
+
+                for (ObjectType type : environment.getTypes()) {
+                    addVisibilityFields(comparisonKeys, type);
+                }
+
+                for (String key : comparisonKeys) {
+                    if (showDrafts) {
+                        visibilitiesPredicate = CompoundPredicate.combine(
+                                PredicateParser.OR_OPERATOR,
+                                visibilitiesPredicate,
+                                PredicateParser.Static.parse(key + " = missing or " + key + " != missing or " + key + " = true"));
+
+                    } else {
+                        visibilitiesPredicate = CompoundPredicate.combine(
+                                PredicateParser.OR_OPERATOR,
+                                visibilitiesPredicate,
+                                PredicateParser.Static.parse(key + " = missing"));
+                    }
+                }
+
+            } else if ("w".equals(visibility)) {
+                Set<String> ss = new HashSet<String>();
+
+                for (Workflow w : (selectedType == null ?
+                        Query.from(Workflow.class) :
+                        Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
+                        selectAll()) {
+                    for (WorkflowState s : w.getStates()) {
+                        String value = s.getName();
+
+                        ss.add(value);
+                        addVisibilityTypeIds(visibilityTypeIds, validTypeIds, "cms.workflow.currentState", value);
+                    }
+                }
+
+                visibilitiesPredicate = CompoundPredicate.combine(
+                        PredicateParser.OR_OPERATOR,
+                        visibilitiesPredicate,
+                        PredicateParser.Static.parse("cms.workflow.currentState = ?", ss));
+
+            } else if (visibility.startsWith("w.")) {
+                String value = visibility.substring(2);
+                visibilitiesPredicate = CompoundPredicate.combine(
+                        PredicateParser.OR_OPERATOR,
+                        visibilitiesPredicate,
+                        PredicateParser.Static.parse("cms.workflow.currentState = ?", value));
+
+                addVisibilityTypeIds(visibilityTypeIds, validTypeIds, "cms.workflow.currentState", value);
+
+            } else if (visibility.startsWith("b.")) {
+                String field = visibility.substring(2);
+                visibilitiesPredicate = CompoundPredicate.combine(
+                        PredicateParser.OR_OPERATOR,
+                        visibilitiesPredicate,
+                        PredicateParser.Static.parse(field + " = true"));
+
+                addVisibilityTypeIds(visibilityTypeIds, validTypeIds, field, "true");
+
+            } else if (visibility.startsWith("t.")) {
+                visibility = visibility.substring(2);
+                int equalAt = visibility.indexOf('=');
+
+                if (equalAt > -1) {
+                    String field = visibility.substring(0, equalAt);
+                    String value = visibility.substring(equalAt + 1);
+                    visibilitiesPredicate = CompoundPredicate.combine(
+                            PredicateParser.OR_OPERATOR,
+                            visibilitiesPredicate,
+                            PredicateParser.Static.parse(field + " = ?", value));
+
+                    addVisibilityTypeIds(visibilityTypeIds, validTypeIds, field, value);
+                }
+            }
+        }
+
+        if (validTypeIds != null) {
+            validTypeIds.addAll(visibilityTypeIds);
+        }
+
+        return visibilitiesPredicate;
+
+    }
+
     public Query<?> toQuery(Site site) {
 
         // If the query string is an URL, hit it to find the ID.
@@ -725,95 +820,10 @@ public class Search extends Record {
         Collection<String> visibilities = getVisibilities();
 
         if (!visibilities.isEmpty()) {
-            Predicate visibilitiesPredicate = null;
-            Set<UUID> visibilityTypeIds = new HashSet<UUID>();
 
-            for (String visibility : visibilities) {
-                if ("p".equals(visibility)) {
-                    Set<String> comparisonKeys = new HashSet<String>();
-                    DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
-
-                    addVisibilityFields(comparisonKeys, environment);
-
-                    for (ObjectType type : environment.getTypes()) {
-                        addVisibilityFields(comparisonKeys, type);
-                    }
-
-                    for (String key : comparisonKeys) {
-                        if (isShowDrafts()) {
-                            visibilitiesPredicate = CompoundPredicate.combine(
-                                    PredicateParser.OR_OPERATOR,
-                                    visibilitiesPredicate,
-                                    PredicateParser.Static.parse(key + " = missing or " + key + " != missing or " + key + " = true"));
-
-                        } else {
-                            visibilitiesPredicate = CompoundPredicate.combine(
-                                    PredicateParser.OR_OPERATOR,
-                                    visibilitiesPredicate,
-                                    PredicateParser.Static.parse(key + " = missing"));
-                        }
-                    }
-
-                } else if ("w".equals(visibility)) {
-                    Set<String> ss = new HashSet<String>();
-
-                    for (Workflow w : (selectedType == null ?
-                            Query.from(Workflow.class) :
-                            Query.from(Workflow.class).where("contentTypes = ?", selectedType)).
-                            selectAll()) {
-                        for (WorkflowState s : w.getStates()) {
-                            String value = s.getName();
-
-                            ss.add(value);
-                            addVisibilityTypeIds(visibilityTypeIds, validTypeIds, "cms.workflow.currentState", value);
-                        }
-                    }
-
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse("cms.workflow.currentState = ?", ss));
-
-                } else if (visibility.startsWith("w.")) {
-                    String value = visibility.substring(2);
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse("cms.workflow.currentState = ?", value));
-
-                    addVisibilityTypeIds(visibilityTypeIds, validTypeIds, "cms.workflow.currentState", value);
-
-                } else if (visibility.startsWith("b.")) {
-                    String field = visibility.substring(2);
-                    visibilitiesPredicate = CompoundPredicate.combine(
-                            PredicateParser.OR_OPERATOR,
-                            visibilitiesPredicate,
-                            PredicateParser.Static.parse(field + " = true"));
-
-                    addVisibilityTypeIds(visibilityTypeIds, validTypeIds, field, "true");
-
-                } else if (visibility.startsWith("t.")) {
-                    visibility = visibility.substring(2);
-                    int equalAt = visibility.indexOf('=');
-
-                    if (equalAt > -1) {
-                        String field = visibility.substring(0, equalAt);
-                        String value = visibility.substring(equalAt + 1);
-                        visibilitiesPredicate = CompoundPredicate.combine(
-                                PredicateParser.OR_OPERATOR,
-                                visibilitiesPredicate,
-                                PredicateParser.Static.parse(field + " = ?", value));
-
-                        addVisibilityTypeIds(visibilityTypeIds, validTypeIds, field, value);
-                    }
-                }
-            }
+            Predicate visibilitiesPredicate = getVisibilitiesPredicate(selectedType, visibilities, validTypeIds, isShowDrafts());
 
             query.and(visibilitiesPredicate);
-
-            if (validTypeIds != null) {
-                validTypeIds.addAll(visibilityTypeIds);
-            }
 
         } else if (selectedType == null &&
                 isAllSearchable) {
@@ -913,7 +923,7 @@ public class Search extends Record {
         return query;
     }
 
-    private void addVisibilityTypeIds(Set<UUID> visibilityTypeIds, Set<UUID> validTypeIds, String field, String value) {
+    private static void addVisibilityTypeIds(Set<UUID> visibilityTypeIds, Set<UUID> validTypeIds, String field, String value) {
         if (validTypeIds == null) {
             return;
         }
@@ -937,7 +947,7 @@ public class Search extends Record {
         }
     }
 
-    private void addVisibilityFields(Set<String> comparisonKeys, ObjectStruct struct) {
+    private static void addVisibilityFields(Set<String> comparisonKeys, ObjectStruct struct) {
         if (struct == null) {
             return;
         }
