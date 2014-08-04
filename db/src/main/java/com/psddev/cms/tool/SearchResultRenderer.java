@@ -138,10 +138,29 @@ public class SearchResultRenderer {
             page.writeStart("h2").writeHtml("Result").writeEnd();
         }
 
+        // check if the Taxon UI should be displayed
+        ObjectType taxonType = null;
         if (ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getSelectedType() != null &&
-                search.getSelectedType().getGroups().contains(Taxon.class.getName()) &&
                 search.getVisibilities().isEmpty()) {
+
+            if (search.getSelectedType() != null) {
+
+                if (search.getSelectedType().getGroups().contains(Taxon.class.getName())) {
+                    taxonType = search.getSelectedType();
+                }
+
+            } else if (search.getTypes() != null && search.getTypes().size() == 1) {
+
+                ObjectType searchType = search.getTypes().iterator().next();
+
+                if (searchType.getGroups().contains(Taxon.class.getName())) {
+                    taxonType = searchType;
+                }
+            }
+        }
+
+        // display the taxon UI if the type is not null
+        if (taxonType != null) {
 
             search.setSuggestions(false);
 
@@ -169,7 +188,7 @@ public class SearchResultRenderer {
                 }
 
             } else {
-                taxonResults = Taxon.Static.getRoots((Class<Taxon>) search.getSelectedType().getObjectClass(), site, predicate);
+                taxonResults = Taxon.Static.getRoots((Class<Taxon>) taxonType.getObjectClass(), site, predicate);
             }
 
             if (!ObjectUtils.isBlank(taxonResults)) {
