@@ -62,7 +62,7 @@ Copy Solr's DB directory into $TOMCAT_HOME:
 cp -r $SOLR_DIST/example/solr $TOMCAT_HOME
 {% endhighlight %}</div>
 
-Replace the default Solr `schema.xml` and `solrconfig.xml` files with Dari configurations downloaded from the Dari repository - [here](https://github.com/perfectsense/dari/tree/master/etc/solr) - *Note, Make sure the filenames remain `solrconfig.xml` and `schema.xml`*
+Replace the default Solr `schema.xml` and `solrconfig.xml` files with Dari configurations downloaded from the Dari repository.  - [here](https://github.com/perfectsense/dari/tree/master/etc/solr) - *Note, the files will be named config-x.xml and schema-x.xml. Make sure the filenames are changed, with config-x renamed to be `solrconfig.xml` and schema-x.xml renamed to be `schema.xml`*
 
 <div class="highlight">{% highlight java %}
 cp solrconfig.xml $TOMCAT_HOME/solr/conf/solrconfig.xml
