@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class ImageHotSpotCrop {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHotSpotCrop.class);
 
-    public static List<Integer> hotSpotCrop(StorageItem item, Integer cropX, Integer cropY, Integer cropWidth, Integer cropHeight) {
+    public static List<Integer> hotSpotCrop(StorageItem item, Integer cropWidth, Integer cropHeight) {
         //TODO: add support for either cropWidth or cropHeight being null
         if (item != null &&
             cropWidth != null &&
@@ -57,7 +57,7 @@ public class ImageHotSpotCrop {
                             ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_WIDTH_METADATA_PATH)) :
                             imageWidth;
 
-                    double scale = (double) cropHeight / cropWidth;
+                    double scale = (double) cropWidth / cropHeight;
                     if (imageWidth < imageHeight) {
                         cropWidth = imageWidth;
                         cropHeight = ((Double) (imageWidth * scale)).intValue();
@@ -70,39 +70,40 @@ public class ImageHotSpotCrop {
                     double widthScaleFactor = originalWidth != null && originalWidth > 0 ? (double) imageWidth / originalWidth : 1.0;
 
                     //bounding box of hotspots
+                    Integer x1 = null;
+                    Integer y1 = null;
                     for (HotSpot hotSpot : hotSpots) {
-                        cropX = cropX == null || hotSpot.getX() < cropX ? hotSpot.getX() : cropX;
+                        x1 = x1 == null || hotSpot.getX() < x1 ? hotSpot.getX() : x1;
                         x2 = x2 == null || (hotSpot.getX() + hotSpot.getWidth()) > x2 ? (hotSpot.getX() + hotSpot.getWidth()) : x2;
-                        cropY = cropY == null || hotSpot.getY() < cropY ? hotSpot.getY() : cropY;
+                        y1 = y1 == null || hotSpot.getY() < y1 ? hotSpot.getY() : y1;
                         y2 = y2 == null || (hotSpot.getY() + hotSpot.getHeight()) > y2 ? (hotSpot.getY() + hotSpot.getHeight()) : y2;
                     }
 
-                    cropX = ((Double) (cropX * widthScaleFactor)).intValue();
+                    x1 = ((Double) (x1 * widthScaleFactor)).intValue();
                     x2 = ((Double) (x2 * widthScaleFactor)).intValue();
-                    cropY = ((Double) (cropY * heightScaleFactor)).intValue();
+                    y1 = ((Double) (y1 * heightScaleFactor)).intValue();
                     y2 = ((Double) (y2 * heightScaleFactor)).intValue();
 
-                    int centerX = (cropX + x2) / 2;
-                    int centerY = (cropY + y2) / 2;
+                    int centerX = (x1 + x2) / 2;
+                    int centerY = (y1 + y2) / 2;
 
-                    cropX = centerX - (cropWidth / 2);
+                    x1 = centerX - (cropWidth / 2);
                     x2 = centerX + (cropWidth / 2);
-                    cropY = centerY - (cropHeight / 2);
+                    y1 = centerY - (cropHeight / 2);
                     y2 = centerY + (cropHeight / 2);
 
-                    if (cropX < 0) {
-                        cropX = 0;
+                    if (x1 < 0) {
+                        x1 = 0;
                     } else if (x2 > imageWidth) {
-                        cropX = cropX - x2 + imageWidth;
+                        x1 = x1 - x2 + imageWidth;
                     }
 
-                    if (cropY < 0) {
-                        cropY = 0;
+                    if (y1 < 0) {
+                        y1 = 0;
                     } else if (y2 > cropHeight) {
-                        cropY = cropY - y2 + cropHeight;
+                        y1 = y1 - y2 + cropHeight;
                     }
-
-                    return Arrays.asList(cropX, cropY, cropWidth, cropHeight);
+                    return Arrays.asList(x1, y1, cropWidth, cropHeight);
                 }
             }
         }
