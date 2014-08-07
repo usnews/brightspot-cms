@@ -57,13 +57,15 @@ public class ImageHotSpotCrop {
                             ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_WIDTH_METADATA_PATH)) :
                             imageWidth;
 
-                    double scale = (double) cropWidth / cropHeight;
-                    if (imageWidth < imageHeight) {
-                        cropWidth = imageWidth;
-                        cropHeight = ((Double) (imageWidth * scale)).intValue();
-                    } else {
+                    double horzScale = (double) imageWidth / cropWidth;
+                    double vertScale = (double) imageHeight / cropHeight;
+
+                    if (vertScale < horzScale) {
                         cropHeight = imageHeight;
-                        cropWidth = ((Double) (cropHeight * scale)).intValue();
+                        cropWidth = ((Double) (cropWidth * vertScale)).intValue();
+                    } else {
+                        cropWidth = imageWidth;
+                        cropHeight = ((Double) (cropWidth * horzScale)).intValue();
                     }
 
                     double heightScaleFactor = originalHeight != null && originalHeight > 0 ? (double) imageHeight / originalHeight : 1.0;
