@@ -50,6 +50,15 @@ public class ImageHotSpotCrop {
                     Integer imageHeight = ObjectUtils.to(Integer.class, item.getMetadata().get("height"));
                     Integer imageWidth = ObjectUtils.to(Integer.class, item.getMetadata().get("width"));
 
+                    if (item.getMetadata().containsKey("rotate")) {
+                        Integer angle = ObjectUtils.to(Integer.class, item.getMetadata().get("rotate"));
+                        if (angle % 90 == 0 && angle % 180 != 0) {
+                            Integer rotate = imageHeight;
+                            imageHeight = imageWidth;
+                            imageWidth = rotate;
+                        }
+                    }
+
                     Integer originalHeight = CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_HEIGHT_METADATA_PATH) != null ?
                             ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_HEIGHT_METADATA_PATH)) :
                             imageHeight;
@@ -65,7 +74,7 @@ public class ImageHotSpotCrop {
                         cropWidth = ((Double) (cropWidth * vertScale)).intValue();
                     } else {
                         cropWidth = imageWidth;
-                        cropHeight = ((Double) (cropWidth * horzScale)).intValue();
+                        cropHeight = ((Double) (cropHeight * horzScale)).intValue();
                     }
 
                     double heightScaleFactor = originalHeight != null && originalHeight > 0 ? (double) imageHeight / originalHeight : 1.0;
