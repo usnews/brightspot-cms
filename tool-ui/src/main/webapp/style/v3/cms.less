@@ -213,7 +213,7 @@
 .contentForm {
   margin: -10px;
   overflow: hidden;
-  padding: 10px 260px 10px 10px;
+  padding: 10px 360px 10px 10px;
 
   @media @media-tablet {
     padding-right: 210px;
@@ -232,8 +232,8 @@
 
 .contentForm-aside {
   float: left;
-  margin: 0 -250px 0 10px;
-  width: 240px;
+  margin: 0 -350px 0 10px;
+  width: 340px;
 
   @media @media-tablet {
     margin-right: -200px;
@@ -507,30 +507,30 @@
   margin-bottom: 0;
 
   [name='action-publish'] {
-    float: left;
+    margin-left: 10px;
 
     & {
-      .button-color(@color-green-light);
-      .button-extraLarge;
+      .button-color(#83bf3b);
 
       margin-top: 5px;
 
       &.schedule {
-        .button-color(@color-yellow-light);
+        .button-color(#f5d63d);
       }
     }
   }
 
   [name='action-trash'] {
-    float: right;
+    bottom: 20px;
     margin-top: 16px;
+    position: absolute;
+    right: 20px;
   }
 }
 
 .widget-publishingExtra {
   .piped;
 
-  border-top: 1px solid @color-separator;
   margin-bottom: 0;
   margin-top: 15px;
   padding-top: 5px;
@@ -772,5 +772,45 @@ form[data-type='com.psddev.cms.db.ContentType'] {
 
   li button.icon-action-add {
     left: 165px;
+  }
+}
+
+.contentForm-main > .widget > h1 {
+  background: transparent;
+  border-bottom: 1px solid darken(white, 10%);
+  font-size: 18px;
+  font-weight: normal;
+  height: 50px;
+  line-height: 50px;
+  margin: -20px 0 20px 0;
+  padding: 0;
+}
+
+.noToolUser .toolTitle {
+  position: relative;
+  top: 200px;
+}
+
+.widget-logIn {
+  background: fade(white, 50%);
+  border: none;
+  padding-top: 200px;
+
+  h1 {
+    display: none;
+  }
+
+  .inputLabel {
+    display: none;
+  }
+
+  .inputSmall {
+    margin-left: 50px;
+    margin-right: 50px;
+  }
+
+  .buttons {
+    background: transparent;
+    text-align: center;
   }
 }

@@ -3,9 +3,11 @@ iframe.wysihtml5-sandbox {
 }
 
 .rte-container {
-  border: 1px solid @color-note;
-  border-radius: 5px;
+  border: @size-input-border solid transparent;
+  border-radius: 2px;
+  box-shadow: 0px 1px 2px fade(black, 20%);
   display: block;
+  padding: 0 11px;
   margin: 0;
 
   iframe {
@@ -53,12 +55,11 @@ body.rte-fullscreen {
 }
 
 .rte-toolbar {
-  .background-color(fade(@color-gray-faint, 95%));
-
-  border-bottom: 1px solid @color-note;
+  background-color: fade(white, 93%);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  padding: 3px 3px 0 3px;
+  margin-top: 5px;
+  padding: 0 15px;
   position: relative;
   vertical-align: top;
 
@@ -79,13 +80,9 @@ body.rte-fullscreen {
 }
 
 .rte-group {
-  background-color: @color-text;
-  color: @color-background;
-  border-radius: 5px;
+  border-right: 1px solid darken(white, 10%);
   display: inline-block;
-  margin: 3px;
-  margin: 0 3px 3px 0;
-  padding-right: 3px;
+  margin: 0 5px 5px 0;
 
   &:last-child {
     margin-right: 60px;
@@ -93,7 +90,7 @@ body.rte-fullscreen {
 }
 
 .rte-group-label {
-  display: block;
+  display: none;
   font-size: 60%;
   line-height: 8px;
   margin: 2px 0 3px 3px;
@@ -108,14 +105,14 @@ body.rte-fullscreen {
   background-color: @color-background;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 3px;
-  color: @color-text;
+  border-radius: 2px;
+  color: @color-note;
   cursor: pointer;
   display: inline-block;
   font-size: 80%;
   height: 20px;
   line-height: 20px;
-  margin: 0 0 3px 3px;
+  margin: 0 5px 0 0;
   overflow: hidden;
   width: 20px;
 
@@ -130,10 +127,13 @@ body.rte-fullscreen {
   .link {
     color: @color-text;
   }
+
+  &:hover {
+    color: @color-text;
+  }
 }
 
 .rte-group-dropDown {
-  height: 36px;
   overflow: hidden;
 
   .rte-group-label {

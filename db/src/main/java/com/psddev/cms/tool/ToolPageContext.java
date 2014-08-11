@@ -1193,7 +1193,9 @@ public class ToolPageContext extends WebPageContext {
                     (broadcastExpiration == null ||
                     broadcastExpiration.after(new Date()));
 
-            writeTag("body", "class", currentSchedule != null || hasBroadcast ? "hasToolBroadcast" : null);
+            writeTag("body", "class",
+                    (currentSchedule != null || hasBroadcast ? "hasToolBroadcast " : "") +
+                    (user != null ? "" : "noToolUser "));
                 if (currentSchedule != null || hasBroadcast) {
                     writeStart("div", "class", "toolBroadcast");
                         if (currentSchedule != null) {

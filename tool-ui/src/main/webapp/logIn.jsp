@@ -128,7 +128,7 @@ body.hasToolBroadcast {
 }
 </style>
 
-<div class="widget">
+<div class="widget widget-logIn">
     <h1>Log In</h1>
 
     <%
