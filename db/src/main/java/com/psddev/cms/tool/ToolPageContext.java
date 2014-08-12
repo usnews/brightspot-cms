@@ -1797,7 +1797,10 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (isObjectSelectDropDown(field)) {
-            List<?> items = new Search(field).toQuery(getSite()).selectAll();
+            Search dropDownSearch = new Search(field);
+            dropDownSearch.setParentId(param(UUID.class, OBJECT_ID_PARAMETER));
+            dropDownSearch.setParentTypeId(param(UUID.class, TYPE_ID_PARAMETER));
+            List<?> items = dropDownSearch.toQuery(getSite()).selectAll();
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
             writeStart("select",

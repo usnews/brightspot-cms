@@ -180,6 +180,7 @@ writer.start("div", "class", "searchForm");
                 writer.writeElement("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
                 writer.writeElement("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
                 writer.writeElement("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
+                writer.writeElement("input", "type", "hidden", "name", Search.PARENT_TYPE_PARAMETER, "value", search.getParentTypeId());
                 writer.writeElement("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
 
                 writer.writeElement("input",
@@ -217,6 +218,7 @@ writer.start("div", "class", "searchForm");
                 writer.writeElement("input", "type", "hidden", "name", Search.IS_ONLY_PATHED, "value", search.isOnlyPathed());
                 writer.writeElement("input", "type", "hidden", "name", Search.ADDITIONAL_QUERY_PARAMETER, "value", search.getAdditionalPredicate());
                 writer.writeElement("input", "type", "hidden", "name", Search.PARENT_PARAMETER, "value", search.getParentId());
+                writer.writeElement("input", "type", "hidden", "name", Search.PARENT_TYPE_PARAMETER, "value", search.getParentTypeId());
                 writer.writeElement("input", "type", "hidden", "name", Search.SUGGESTIONS_PARAMETER, "value", search.isSuggestions());
                 writer.writeElement("input", "type", "hidden", "name", Search.OFFSET_PARAMETER, "value", search.getOffset());
                 writer.writeElement("input", "type", "hidden", "name", Search.LIMIT_PARAMETER, "value", search.getLimit());
