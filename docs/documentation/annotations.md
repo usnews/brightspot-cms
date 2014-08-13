@@ -215,6 +215,32 @@ This annotation should be used only when necessary in advanced cases.
 
 > Specifies the name of the field in the junction query that should be used to populate the target field.
 
+Given two objects, Video and Playlist, JunctionField would allow the population of a list of videos for a playlist, on the Playlist object, simply by having each Video object contain a reference to the Playlist it is within.
+
+
+Video Object:
+
+	public class Video extends Content { 
+
+		private String name;
+		private StorageItem videoFile;
+
+		@Indexed 
+		@Recordable.JunctionField("videos") 
+		private Playlist playlist; 
+	} 
+
+The Playlist object:
+
+	public class Playlist extends Content { 
+
+		private String name; 
+
+		@Indexed 
+		private List<Video> videos; 
+	} 
+
+
 **@Recordable.JunctionPositionField**
 
 > Specifies the name of the position field in the junction query that should be used to order the collection in the target field.
