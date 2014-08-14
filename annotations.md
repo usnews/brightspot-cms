@@ -226,7 +226,6 @@ Video Object:
 		private StorageItem videoFile;
 
 		@Indexed 
-		@Recordable.JunctionField("videos") 
 		private Playlist playlist; 
 	} 
 
@@ -237,6 +236,7 @@ The Playlist object:
 		private String name; 
 
 		@Indexed 
+		@Recordable.JunctionField("playlist") 
 		private List<Video> videos; 
 	} 
 
