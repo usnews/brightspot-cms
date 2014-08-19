@@ -45,6 +45,7 @@ $.plugin2('repeatable', {
                     'click': function() {
                         $item.toggleClass('collapsed');
                         $item.resize();
+                        $item.find(':input:first').change();
                     }
                 });
                 if ($labelHtml.size() !== 0) {
