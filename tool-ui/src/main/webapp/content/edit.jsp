@@ -875,23 +875,25 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                 }
                             }
 
-                            wp.writeHtml(" ");
-                            wp.writeStart("select",
-                                    "name", "_context",
-                                    "onchange",
-                                            "var $input = $(this)," +
-                                                    "$form = $input.closest('form');" +
-                                            "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.find(':selected').attr('data-width') || '100%');" +
-                                            "$form.submit();");
-                                for (Context context : contexts) {
-                                    wp.writeStart("option",
-                                            "value", context.value,
-                                            "data-width", context.width);
-                                        wp.writeHtml("Context: ");
-                                        wp.writeHtml(context.label);
-                                    wp.writeEnd();
-                                }
-                            wp.writeEnd();
+                            if (contexts.size() > 1) {
+                                wp.writeHtml(" ");
+                                wp.writeStart("select",
+                                        "name", "_context",
+                                        "onchange",
+                                                "var $input = $(this)," +
+                                                        "$form = $input.closest('form');" +
+                                                "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.find(':selected').attr('data-width') || '100%');" +
+                                                "$form.submit();");
+                                    for (Context context : contexts) {
+                                        wp.writeStart("option",
+                                                "value", context.value,
+                                                "data-width", context.width);
+                                            wp.writeHtml("Context: ");
+                                            wp.writeHtml(context.label);
+                                        wp.writeEnd();
+                                    }
+                                wp.writeEnd();
+                            }
                         }
 
                         Set<Directory.Path> paths = editingState.as(Directory.Data.class).getPaths();
