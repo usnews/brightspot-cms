@@ -1,3 +1,4 @@
+<%@page import="com.psddev.dari.util.CollectionUtils"%>
 <%@ page session="false" import="
 
 com.psddev.cms.db.ImageCrop,
@@ -8,6 +9,7 @@ com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
+com.psddev.dari.util.ClassFinder,
 com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ReferentialText,
@@ -681,17 +683,24 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     <div class="imageEditor-image">
                         <%
                         String fieldValueUrl;
+                        String resizeScale = "";
                         if (ImageEditor.Static.getDefault() != null) {
-                            fieldValueUrl = new ImageTag.Builder(fieldValue).
+                            ImageTag.Builder imageTagBuilder = new ImageTag.Builder(fieldValue).
                                     setWidth(1000).
                                     setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
-                                    setEdits(false).
-                                    toUrl();
+                                    setEdits(false);
+                            if (CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth") != null) {
+                                int originalWidth = (Integer)CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
+                                if (originalWidth > 1000) {
+                                    resizeScale = String.format("%.2f", (double) 1000 /originalWidth);
+                                }
+                            }
+                            fieldValueUrl = imageTagBuilder.toUrl();
                         } else {
                             fieldValueUrl = fieldValue.getPublicUrl();
                         }
                         %>
-                        <img alt="" src="<%= wp.url("/misc/proxy.jsp",
+                        <img alt="" data-scale="<%=resizeScale%>" src="<%= wp.url("/misc/proxy.jsp",
                                 "url", fieldValueUrl,
                                 "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))) %>">
                     </div>
@@ -794,3 +803,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         </div>
     <% } %>
 </div>
+<%
+    Class HotSpotClass = Class.forName(ImageTag.HOTSPOT_CLASS);
+    if (HotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(HotSpotClass))) {
+        JspUtils.include(request, response, out, "set/hotSpot.jsp");
+    }
+%>

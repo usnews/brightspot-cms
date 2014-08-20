@@ -23,6 +23,7 @@ function($, bsp_utils) {
             var $form = $editor.closest('form');
             var $image = $editor.find('.imageEditor-image img');
             var imageSrc = $image.attr('src');
+            var $imageReSizeScale = $image.attr('data-scale') !== undefined && $image.attr('data-scale') !== "" ? $image.attr('data-scale') : 1.0;
             var $originalImage = $image;
             var $imageClone = $image.clone();
             var imageClone = $imageClone[0];
@@ -45,7 +46,6 @@ function($, bsp_utils) {
             var $tools = $editor.find('.imageEditor-tools ul');
             var $edit = $editor.find('.imageEditor-edit');
             var $dataName = $editor.parents('.inputContainer').attr('data-name');
-
             var $editButton = $('<li/>', {
                 'html': $('<a/>', {
                     'class': 'action-image-edit',
@@ -475,6 +475,272 @@ function($, bsp_utils) {
                 var width = 100;
                 var height = 100;
                 addSizeBox(null, left, top, width, height);
+            });
+
+            var addHotSpot = function(input, left, top, width, height) {
+                var $input = $(input);
+
+                var $hotSpotOverlay = $('<div/>', {
+                    'class': 'imageEditor-hotSpotOverlay',
+                    'css': {
+                        'height': height + 'px',
+                        'left': left  + 'px',
+                        'position': 'absolute',
+                        'top': top + 'px',
+                        'width': width + 'px',
+                        'z-index': 1
+                    }
+                });
+
+                var $hotSpotOverlayBox = $('<div/>', {
+                    'class': 'imageEditor-hotSpotOverlayBox',
+                    'css': {
+                        'height': height + 'px',
+                        'position': 'absolute',
+                        'width': width + 'px',
+                        'z-index': 1,
+                        'outline': '1px dashed #fff'
+                    }
+                });
+
+                var $hotSpotOverlayLabel = $('<div/>', {
+                    'class': 'imageEditor-textOverlayLabel',
+                    'text': 'HotSpot'
+                });
+
+                var sizeAspectRatio = width / height;
+                var updateSizeBox = function(callback) {
+                    return function(event) {
+                        var sizeBoxPosition = $hotSpotOverlayBox.parent().position();
+                        var original = {
+                            'left': sizeBoxPosition.left,
+                            'top': sizeBoxPosition.top,
+                            'width': $hotSpotOverlayBox.width(),
+                            'height': $hotSpotOverlayBox.height(),
+                            'pageX': event.pageX,
+                            'pageY': event.pageY
+                        };
+
+                        var imageWidth = $image.width();
+                        var imageHeight = $image.height();
+
+                        $.drag(this, event, function(event) {
+
+                        }, function(event) {
+                            var deltaX = event.pageX - original.pageX;
+                            var deltaY = event.pageY - original.pageY;
+                            var bounds = callback(event, original, {
+                                'x': deltaX,
+                                'y': deltaY,
+                                'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
+                                'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
+                            });
+
+                            // Fill out the missing bounds.
+                            for (key in original) {
+                                bounds[key] = bounds[key] || original[key];
+                            }
+
+                            var overflow;
+
+                            // When moving, don't let it go outside the image.
+                            if (bounds.moving) {
+                                if (bounds.left < 0) {
+                                    bounds.left = 0;
+                                }
+
+                                if (bounds.top < 0) {
+                                    bounds.top = 0;
+                                }
+
+                                overflow = bounds.left + bounds.width - imageWidth;
+                                if (overflow > 0) {
+                                    bounds.left -= overflow;
+                                }
+
+                                overflow = bounds.top + bounds.height - imageHeight;
+                                if (overflow > 0) {
+                                    bounds.top -= overflow;
+                                }
+
+                            // Resizing...
+                            } else {
+                                if (bounds.width < 10 || bounds.height < 10) {
+                                    if (sizeAspectRatio > 1.0) {
+                                        bounds.width = sizeAspectRatio * 10;
+                                        bounds.height = 10;
+                                    } else {
+                                        bounds.width = 10;
+                                        bounds.height = 10 / sizeAspectRatio;
+                                    }
+                                }
+
+                                if (bounds.left < 0) {
+                                    bounds.width += bounds.left;
+                                    bounds.height = bounds.width / sizeAspectRatio;
+                                    bounds.top -= bounds.left / sizeAspectRatio;
+                                    bounds.left = 0;
+                                }
+
+                                if (bounds.top < 0) {
+                                    bounds.height += bounds.top;
+                                    bounds.width = bounds.height * sizeAspectRatio;
+                                    bounds.left -= bounds.top * sizeAspectRatio;
+                                    bounds.top = 0;
+                                }
+
+                                overflow = bounds.left + bounds.width - imageWidth;
+                                if (overflow > 0) {
+                                    bounds.width -= overflow;
+                                    bounds.height = bounds.width / sizeAspectRatio;
+                                }
+
+                                overflow = bounds.top + bounds.height - imageHeight;
+                                if (overflow > 0) {
+                                    bounds.height -= overflow;
+                                    bounds.width = bounds.height * sizeAspectRatio;
+                                }
+                            }
+
+                            $hotSpotOverlay.css(bounds);
+                            $hotSpotOverlayBox.css('width', bounds.width);
+                            $hotSpotOverlayBox.css('height', bounds.height);
+
+                        // Set the hidden inputs to the current bounds.
+                        }, function() {
+                            var hotSpotOverlayBoxPosition = $hotSpotOverlayBox.parent().position();
+                            var scale = $imageReSizeScale;
+                            if ($imageReSizeScale < 1) {
+                                var cavnasWidth = $image.parent().find("canvas").width();
+                                scale = (cavnasWidth / 1000) * scale;
+                            }
+                            scale = 1 / scale;
+                            $input.find(':input[name$="x"]').val(parseInt(hotSpotOverlayBoxPosition.left * scale));
+                            $input.find(':input[name$="y"]').val(parseInt(hotSpotOverlayBoxPosition.top * scale));
+                            $input.find(':input[name$="width"]').val(parseInt($hotSpotOverlayBox.width() * scale));
+                            $input.find(':input[name$="height"]').val(parseInt($hotSpotOverlayBox.height() * scale));
+                        });
+
+                        return false;
+                    };
+                };
+
+                $hotSpotOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-left',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'left': original.left + delta.x,
+                            'width': original.width - delta.x
+                        };
+                    })
+                }));
+                $hotSpotOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-right',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'left': original.left,
+                            'width': original.width + delta.x
+                        };
+                    })
+                }));
+                $hotSpotOverlayBox.append($('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
+                    'mousedown': updateSizeBox(function(event, original, delta) {
+                        return {
+                            'width': original.width + delta.constrainedX,
+                            'height': original.height + delta.constrainedY
+                        };
+                    })
+                }));
+
+                $hotSpotOverlay.append($hotSpotOverlayBox);
+
+                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
+                    return {
+                        'moving': true,
+                        'left': original.left + delta.x,
+                        'top': original.top + delta.y
+                    };
+                }));
+
+                $hotSpotOverlay.append($hotSpotOverlayLabel);
+
+                var $hotSpotOverlayRemove = $('<div/>', {
+                    'class': 'imageEditor-textOverlayRemove',
+                    'text': 'Remove',
+                    'click': function() {
+                        var left = $hotSpotOverlay.css("left");
+                        var top = $hotSpotOverlay.css("top");
+                        var width = $hotSpotOverlay.css("width");
+                        var height = $hotSpotOverlay.css("height");
+
+                        $('.imageEditor-hotSpotOverlay').each(function() {
+                            var $overlay = $(this);
+                            if ($overlay.css("left") === left &&
+                                    $overlay.css("top") === top &&
+                                    $overlay.css("width") === width &&
+                                    $overlay.css("height") === height) {
+                                $overlay.remove();
+                            }
+                        });
+
+                        $input.addClass("toBeRemoved");
+                        $hotSpotOverlay.remove();
+                        return false;
+                    }
+                });
+
+                $hotSpotOverlay.append($hotSpotOverlayRemove);
+                $editor.append($hotSpotOverlay);
+            };
+
+            var $initalizeHotSpots = function() {
+                $image.parents(".inputContainer").find('.imageEditor-hotSpotOverlay').remove();
+                var $hotSpots = $image.parents(".inputContainer").find('.hotSpots .objectInputs');
+                if ($hotSpots !== undefined && $hotSpots.length > 0) {
+                    var scale = $imageReSizeScale;
+                    if ($imageReSizeScale < 1) {
+                        var cavnasWidth = $image.parent().find("canvas").width();
+                        scale = (cavnasWidth / 1000) * scale;
+                    }
+
+                    $hotSpots.each(function() {
+                        var $this = $(this);
+                        if (!$this.parents('li').first().hasClass('toBeRemoved')) {
+                            var x = parseInt($this.find(':input[name$="x"]').val()) * scale;
+                            var y = parseInt($this.find(':input[name$="y"]').val()) * scale;
+                            var width = parseInt($this.find(':input[name$="width"]').val()) * scale;
+                            var height = parseInt($this.find(':input[name$="height"]').val()) * scale;
+                            addHotSpot($this.parent(), x, y, width, height);
+                        }
+                    });
+
+                    $image.parents(".inputContainer").find(".hotSpots").unbind('change');
+                    $image.parents(".inputContainer").find(".hotSpots").bind('change', function() {
+                        $initalizeHotSpots();
+                    });
+                }
+            };
+
+            $initalizeHotSpots();
+
+            $editor.parents('.inputContainer').bind('create', function() {
+               var defaultX = parseInt(($image.width() / $imageReSizeScale) / 2);
+               var defaultY = parseInt(($image.height() / $imageReSizeScale) / 2);
+
+               $image.parents(".inputContainer").find('.hotSpots .objectInputs').each(function() {
+                   var $this = $(this);
+                   if ($this.find(':input[name$="x"]').val() === "" &&
+                           $this.find(':input[name$="y"]').val() === ""  &&
+                           $this.find(':input[name$="width"]').val() === ""  &&
+                           $this.find(':input[name$="height"]').val() === "") {
+                       $this.find(':input[name$="x"]').val(defaultX);
+                       $this.find(':input[name$="y"]').val(defaultY);
+                       $this.find(':input[name$="width"]').val(100);
+                       $this.find(':input[name$="height"]').val(100);
+                   }
+               });
+               $initalizeHotSpots();
             });
 
             $edit.append($resetButton);

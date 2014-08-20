@@ -44,7 +44,7 @@ import com.psddev.dari.util.WebPageContext;
  */
 @SuppressWarnings("serial")
 public class ImageTag extends TagSupport implements DynamicAttributes {
-    private static final String HOTSPOT_CLASS = "com.psddev.image.HotSpot";
+    public static final String HOTSPOT_CLASS = "com.psddev.image.HotSpots";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ImageTag.class);
     protected static final String ORIGINAL_WIDTH_METADATA_PATH = "image/originalWidth";
