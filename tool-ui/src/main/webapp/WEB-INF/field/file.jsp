@@ -689,10 +689,17 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                                     setWidth(1000).
                                     setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
                                     setEdits(false);
-                            if (CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth") != null) {
-                                int originalWidth = (Integer)CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
-                                if (originalWidth > 1000) {
-                                    resizeScale = String.format("%.2f", (double) 1000 /originalWidth);
+                            Number originalWidth = null;
+                            if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"))) {
+                                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
+                            } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"))) {
+                                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth");
+                            } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width"))) {
+                                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width");
+                            }
+                            if (originalWidth != null) {
+                                if (originalWidth.intValue() > 1000) {
+                                    resizeScale = String.format("%.2f", (double) 1000 /originalWidth.intValue());
                                 }
                             }
                             fieldValueUrl = imageTagBuilder.toUrl();
