@@ -685,6 +685,7 @@ function($, bsp_utils) {
                         });
 
                         $input.addClass("toBeRemoved");
+                        $input.find("input").attr("disabled", "disabled");
                         $hotSpotOverlay.remove();
                         return false;
                     }
