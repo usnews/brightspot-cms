@@ -1,5 +1,3 @@
-<%@page import="com.psddev.image.HotSpot"%>
-<%@page import="com.psddev.image.HotSpots"%>
 <%@ page session="false" import="
          
 com.psddev.cms.db.Content,
@@ -17,10 +15,14 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StorageItem,
 
+com.psddev.image.HotSpot,
+com.psddev.image.HotSpots,
+
 java.util.ArrayList,
 java.util.Collections,
 java.util.Date,
 java.util.HashMap,
+java.util.LinkedHashMap,
 java.util.LinkedHashSet,
 java.util.List,
 java.util.Map,
@@ -45,48 +47,102 @@ if (state.getOriginalObject() instanceof HotSpots) {
         List<HotSpot> hotspotList = state.as(HotSpots.Data.class).getHotSpots();
 
         String inputName = (String) request.getAttribute("inputName");
-        String idName = inputName + ".id";
-        String typeIdName = inputName + ".typeId";
-        String publishDateName = inputName + ".publishDate";
+        String hotSpotsList = fieldName + "/hotspots";
+        String hotSpotsName = inputName + ".hotspots";
+        String idName = hotSpotsName + ".id";
+        String typeIdName = hotSpotsName + ".typeId";
 
         List<ObjectType> validTypes = new ArrayList<ObjectType>();
         validTypes.addAll(ObjectType.getInstance(HotSpot.class).findConcreteTypes());
 
         Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
+        Map<String, Object> fieldValueMetadata = null;
+        if (fieldValue != null) {
+            fieldValueMetadata = fieldValue.getMetadata();
+        }
+
+        if (fieldValueMetadata == null) {
+            fieldValueMetadata = new LinkedHashMap<String, Object>();
+        }
+        Map<String, Object> hotSpots = (Map<String, Object>) fieldValueMetadata.get("cms.hotspots");
+        if (hotSpots == null) {
+            hotSpots = new HashMap<String, Object>();
+            fieldValueMetadata.put("cms.hotspots", hotSpots);
+        }
+
         if ((Boolean) request.getAttribute("isFormPost")) {
-            //Todo
-            //state.putValue(fieldName, fieldValue);
+            List<Map<String, Object>> hotSpotObjects = null;
+            List<Map<String, Object>> newHotSpotObjects = new ArrayList<Map<String, Object>>();
+            if(!ObjectUtils.isBlank(hotSpots) && !ObjectUtils.isBlank(hotSpots.get("objects"))) {
+                hotSpotObjects = (List<Map<String, Object>>)hotSpots.get("objects");
+            } else {
+                hotSpotObjects = new ArrayList<Map<String, Object>>();
+            }
+
+            if (!ObjectUtils.isBlank(wp.params(String.class, idName))) {
+                for (String hotSpot : wp.params(String.class, idName)) {
+                    Object item = null;
+                    if (!ObjectUtils.isBlank(hotSpotObjects)) {
+                        for (Map<String, Object> object : hotSpotObjects) {
+                            if (object.get("_id").equals(hotSpot)) {
+                                HotSpot hotSpotObject = new HotSpot();
+                                hotSpotObject.getState().putAll(object);
+                                item = hotSpotObject;
+                                break;
+                            }
+                        }
+                    }
+                    State itemState = null;
+                    String typeId = wp.param(String.class, typeIdName);
+
+                    if (item != null) {
+                        itemState = State.getInstance(ObjectUtils.to(HotSpot.class, item));
+                        itemState.setTypeId(UUID.fromString(typeId));
+                    } else {
+                        ObjectType type = ObjectType.getInstance(UUID.fromString(typeId));
+                        item = type.createObject(null);
+                        itemState = State.getInstance(item);
+                        itemState.setId(UUID.fromString(hotSpot));
+                    }
+                    wp.updateUsingParameters(item);
+                    newHotSpotObjects.add(itemState.getSimpleValues());
+                }
+            }
+            hotSpots.put("objects", newHotSpotObjects);
+            fieldValue.getMetadata().put("cms.hotspots", hotSpots);
+            state.putValue(fieldName, fieldValue);
             return;
 
         }
         // --- Presentation ---
 
         %>
-        <div class="inputSmall">
-            <div class="inputLarge repeatableForm hotSpots">
-                <ul>
-                    <%
-                    for (HotSpot item : hotspotList) {
-                        State itemState = State.getInstance(item);
-                        ObjectType itemType = itemState.getType();
-                        Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
-                        %>
-                        <li data-type="<%= wp.objectLabel(itemType) %>" data-label="<%= wp.objectLabel(item) %>">
-                            <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
-                            <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
-                            <input name="<%= wp.h(publishDateName) %>" type="hidden" value="<%= wp.h(itemPublishDate != null ? itemPublishDate.getTime() : null) %>">
-                            <% wp.writeFormFields(item); %>
-                        </li>
-                    <% } %>
-                    <% for (ObjectType type : validTypes) { %>
-                        <script type="text/template">
-                            <li data-type="<%= wp.objectLabel(type) %>">
-                                <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", inputName, "typeId", type.getId()) %>"></a>
+        <div class="inputContainer" data-field="<%=hotSpotsList%>"  data-name="<%=hotSpotsName%>">
+            <div class="inputSmall">
+                <div class="inputLarge repeatableForm hotSpots">
+                    <ul>
+                        <%
+                        for (HotSpot item : hotspotList) {
+                            State itemState = State.getInstance(item);
+                            ObjectType itemType = itemState.getType();
+                            Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
+                            %>
+                            <li data-type="<%= wp.objectLabel(itemType) %>" data-label="<%= wp.objectLabel(item) %>">
+                                <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
+                                <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
+                                <% wp.writeFormFields(item); %>
                             </li>
-                        </script>
-                    <% } %>
-                </ul>
+                        <% } %>
+                        <% for (ObjectType type : validTypes) { %>
+                            <script type="text/template">
+                                <li data-type="<%= wp.objectLabel(type) %>">
+                                    <a href="<%= wp.cmsUrl("/content/repeatableObject.jsp", "inputName", hotSpotsName, "typeId", type.getId()) %>"></a>
+                                </li>
+                            </script>
+                        <% } %>
+                    </ul>
+                </div>
             </div>
         </div>
     <% }

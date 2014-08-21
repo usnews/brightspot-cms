@@ -1,4 +1,3 @@
-<%@page import="com.psddev.dari.util.CollectionUtils"%>
 <%@ page session="false" import="
 
 com.psddev.cms.db.ImageCrop,
@@ -9,13 +8,14 @@ com.psddev.cms.db.StandardImageSize,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.tool.ToolPageContext,
 
-com.psddev.dari.util.ClassFinder,
 com.psddev.dari.db.ColorDistribution,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ReferentialText,
 com.psddev.dari.db.State,
 com.psddev.dari.util.AggregateException,
 com.psddev.dari.util.BrightcoveStorageItem,
+com.psddev.dari.util.ClassFinder,
+com.psddev.dari.util.CollectionUtils,
 com.psddev.dari.util.MultipartRequest,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
@@ -156,6 +156,9 @@ for (StandardImageSize size : StandardImageSize.findAll()) {
         crops.put(sizeId, new ImageCrop());
     }
 }
+
+Class HotSpotClass = Class.forName(ImageTag.HOTSPOT_CLASS);
+boolean projectUsingBrightSpotImage = HotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(HotSpotClass));
 
 if ((Boolean) request.getAttribute("isFormPost")) {
     File file = null;
@@ -509,6 +512,10 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         }
 
         state.putValue(fieldName, newItem);
+
+        if (projectUsingBrightSpotImage) {
+            JspUtils.include(request, response, out, "set/hotSpot.jsp");
+        }
         return;
 
     } finally {
@@ -811,8 +818,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     <% } %>
 </div>
 <%
-    Class HotSpotClass = Class.forName(ImageTag.HOTSPOT_CLASS);
-    if (HotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(HotSpotClass))) {
+    if (projectUsingBrightSpotImage) {
         JspUtils.include(request, response, out, "set/hotSpot.jsp");
     }
 %>
