@@ -1980,10 +1980,36 @@ public class ToolPageContext extends WebPageContext {
     public boolean isObjectSelectDropDown(ObjectField field) {
         ErrorUtils.errorIfNull(field, "field");
 
-        return field.as(ToolUi.class).isDropDown() &&
-                ((field.getTypes().contains(ObjectType.getInstance(ObjectType.class)) &&
-                  Database.Static.getDefault().getEnvironment().getTypes().size() <= Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L)) ||
-                !new Search(field).toQuery(getSite()).hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L)));
+        if (field.as(ToolUi.class).isDropDown()) {
+            long dropDownMaximum = Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L);
+
+            if (field.getTypes().contains(ObjectType.getInstance(ObjectType.class))) {
+                Set<ObjectType> types = Database.Static.getDefault().getEnvironment().getTypes();
+
+                if (types.size() <= dropDownMaximum) {
+                    return true;
+
+                } else if (field.getPredicate() != null) {
+                    long numFilteredTypes = 0;
+                    for (ObjectType type : types) {
+                        if (type.is(field.getPredicate())) {
+                            if (++numFilteredTypes > dropDownMaximum) {
+                                break;
+                            }
+                        }
+                    }
+
+                    return (numFilteredTypes <= dropDownMaximum);
+                }
+
+            } else {
+                return !new Search(field).toQuery(getSite()).hasMoreThan(dropDownMaximum);
+            }
+
+        }
+
+        return false;
+
     }
 
     /** Writes all grid CSS, or does nothing if it's already written. */
