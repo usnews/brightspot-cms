@@ -60,6 +60,7 @@ public class Search extends Record {
     public static final String COLOR_PARAMETER = "c";
     public static final String ONLY_PATHED_PARAMETER = "p";
     public static final String PARENT_PARAMETER = "pt";
+    public static final String PARENT_TYPE_PARAMETER = "py";
     public static final String QUERY_STRING_PARAMETER = "q";
     public static final String SELECTED_TYPE_PARAMETER = "st";
     public static final String SHOW_DRAFTS_PARAMETER = "d";
@@ -85,6 +86,7 @@ public class Search extends Record {
     private String additionalPredicate;
     private String advancedQuery;
     private UUID parentId;
+    private UUID parentTypeId;
     private Map<String, String> globalFilters;
     private Map<String, Map<String, String>> fieldFilters;
     private String sort;
@@ -160,6 +162,7 @@ public class Search extends Record {
         setAdditionalPredicate(page.param(String.class, ADDITIONAL_QUERY_PARAMETER));
         setAdvancedQuery(page.param(String.class, ADVANCED_QUERY_PARAMETER));
         setParentId(page.param(UUID.class, PARENT_PARAMETER));
+        setParentTypeId(page.param(UUID.class, PARENT_TYPE_PARAMETER));
         setSort(page.param(String.class, SORT_PARAMETER));
         setShowDrafts(page.param(boolean.class, SHOW_DRAFTS_PARAMETER));
         setVisibilities(page.params(String.class, VISIBILITIES_PARAMETER));
@@ -250,6 +253,14 @@ public class Search extends Record {
 
     public void setParentId(UUID parentId) {
         this.parentId = parentId;
+    }
+
+    public UUID getParentTypeId() {
+        return parentTypeId;
+    }
+
+    public void setParentTypeId(UUID parentTypeId) {
+        this.parentTypeId = parentTypeId;
     }
 
     public Map<String, String> getGlobalFilters() {
@@ -720,10 +731,15 @@ public class Search extends Record {
         String additionalPredicate = getAdditionalPredicate();
 
         if (!ObjectUtils.isBlank(additionalPredicate)) {
-            query.and(additionalPredicate, Query.
+            Object parent = Query.
                     from(Object.class).
                     where("_id = ?", getParentId()).
-                    first());
+                    first();
+            if (parent == null && getParentTypeId() != null) {
+                ObjectType parentType = ObjectType.getInstance(getParentTypeId());
+                parent = parentType.createObject(null);
+            }
+            query.and(additionalPredicate, parent);
         }
 
         String advancedQuery = getAdvancedQuery();

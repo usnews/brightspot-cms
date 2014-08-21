@@ -1797,7 +1797,25 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (isObjectSelectDropDown(field)) {
-            List<?> items = new Search(field).toQuery(getSite()).selectAll();
+            Search dropDownSearch = new Search(field);
+            dropDownSearch.setParentId(param(UUID.class, OBJECT_ID_PARAMETER));
+            dropDownSearch.setParentTypeId(param(UUID.class, TYPE_ID_PARAMETER));
+
+            List<?> items;
+            if (field.getTypes().contains(ObjectType.getInstance(ObjectType.class))) {
+                List<ObjectType> types = new ArrayList<ObjectType>();
+                Predicate predicate = dropDownSearch.toQuery(getSite()).getPredicate();
+
+                for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+                    if (t.is(predicate)) {
+                        types.add(t);
+                    }
+                }
+                items = new ArrayList<Object>(types);
+            } else {
+                items = dropDownSearch.toQuery(getSite()).selectAll();
+            }
+
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 
             writeStart("select",
@@ -1962,8 +1980,36 @@ public class ToolPageContext extends WebPageContext {
     public boolean isObjectSelectDropDown(ObjectField field) {
         ErrorUtils.errorIfNull(field, "field");
 
-        return field.as(ToolUi.class).isDropDown() &&
-                !new Search(field).toQuery(getSite()).hasMoreThan(Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L));
+        if (field.as(ToolUi.class).isDropDown()) {
+            long dropDownMaximum = Settings.getOrDefault(long.class, "cms/tool/dropDownMaximum", 250L);
+
+            if (field.getTypes().contains(ObjectType.getInstance(ObjectType.class))) {
+                Set<ObjectType> types = Database.Static.getDefault().getEnvironment().getTypes();
+
+                if (types.size() <= dropDownMaximum) {
+                    return true;
+
+                } else if (field.getPredicate() != null) {
+                    long numFilteredTypes = 0;
+                    for (ObjectType type : types) {
+                        if (type.is(field.getPredicate())) {
+                            if (++numFilteredTypes > dropDownMaximum) {
+                                break;
+                            }
+                        }
+                    }
+
+                    return (numFilteredTypes <= dropDownMaximum);
+                }
+
+            } else {
+                return !new Search(field).toQuery(getSite()).hasMoreThan(dropDownMaximum);
+            }
+
+        }
+
+        return false;
+
     }
 
     /** Writes all grid CSS, or does nothing if it's already written. */
