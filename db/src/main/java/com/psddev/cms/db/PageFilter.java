@@ -518,11 +518,11 @@ public class PageFilter extends AbstractFilter {
                                 "_format", "oembed"));
             }
 
-            stage.update(mainObject);
             stage.setTitle(seoTitle);
             stage.setDescription(seoDescription);
             stage.setMetaName("robots", seoRobots);
             stage.setMetaName("keywords", seoKeywordsString);
+            stage.update(mainObject);
 
             // Try to set the right content type based on the extension.
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(servletPath);
