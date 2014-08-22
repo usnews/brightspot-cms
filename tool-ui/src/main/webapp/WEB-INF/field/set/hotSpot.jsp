@@ -81,11 +81,12 @@ if (state.getOriginalObject() instanceof HotSpots) {
             }
 
             if (!ObjectUtils.isBlank(wp.params(String.class, idName))) {
-                for (String hotSpot : wp.params(String.class, idName)) {
+                for (int index = 0; index < wp.params(String.class, idName).size(); index++) {
+                    String hotSpotId = wp.params(String.class, idName).get(index);
                     Object item = null;
                     if (!ObjectUtils.isBlank(hotSpotObjects)) {
                         for (Map<String, Object> object : hotSpotObjects) {
-                            if (object.get("_id").equals(hotSpot)) {
+                            if (object.get("_id").equals(hotSpotId)) {
                                 HotSpot hotSpotObject = new HotSpot();
                                 hotSpotObject.getState().putAll(object);
                                 item = hotSpotObject;
@@ -93,9 +94,9 @@ if (state.getOriginalObject() instanceof HotSpots) {
                             }
                         }
                     }
-                    State itemState = null;
-                    String typeId = wp.param(String.class, typeIdName);
 
+                    State itemState = null;
+                    String typeId = wp.params(String.class, typeIdName).get(index);
                     if (item != null) {
                         itemState = State.getInstance(ObjectUtils.to(HotSpot.class, item));
                         itemState.setTypeId(UUID.fromString(typeId));
@@ -103,7 +104,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
                         ObjectType type = ObjectType.getInstance(UUID.fromString(typeId));
                         item = type.createObject(null);
                         itemState = State.getInstance(item);
-                        itemState.setId(UUID.fromString(hotSpot));
+                        itemState.setId(UUID.fromString(hotSpotId));
                     }
                     wp.updateUsingParameters(item);
                     newHotSpotObjects.add(itemState.getSimpleValues());
