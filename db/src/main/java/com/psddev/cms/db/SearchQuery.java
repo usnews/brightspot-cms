@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Deprecated
+@ToolUi.Hidden
 public class SearchQuery extends Query<Object> {
 
     private Map<String, String> substitutions;
