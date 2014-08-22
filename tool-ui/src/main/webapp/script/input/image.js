@@ -489,7 +489,8 @@ function($, bsp_utils) {
                         'top': top + 'px',
                         'width': width + 'px',
                         'z-index': 1
-                    }
+                    },
+                    'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val()
                 });
 
                 var $hotSpotOverlayBox = $('<div/>', {
