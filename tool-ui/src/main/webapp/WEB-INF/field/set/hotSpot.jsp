@@ -40,11 +40,9 @@ if (state.getOriginalObject() instanceof HotSpots) {
     String fieldName = field.getInternalName();
     StorageItem fieldValue = (StorageItem) state.getByPath(fieldName);
     HotSpots hotspots = ObjectUtils.to(HotSpots.class, state.getOriginalObject());
-    if (fieldValue != null &&
-            hotspots.getHotSpotImage() != null &&
-            hotspots.getHotSpotImage().equals(fieldValue)) {
+    if (fieldValue != null) {
 
-        List<HotSpot> hotspotList = state.as(HotSpots.Data.class).getHotSpots();
+        List<HotSpot> hotspotList = HotSpots.Data.getHotSpots(fieldValue);
 
         String inputName = (String) request.getAttribute("inputName");
         String hotSpotsList = fieldName + "/hotspots";
@@ -124,16 +122,18 @@ if (state.getOriginalObject() instanceof HotSpots) {
                 <div class="inputLarge repeatableForm hotSpots">
                     <ul>
                         <%
-                        for (HotSpot item : hotspotList) {
-                            State itemState = State.getInstance(item);
-                            ObjectType itemType = itemState.getType();
-                            Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
-                            %>
-                            <li data-type="<%= wp.objectLabel(itemType) %>" data-label="<%= wp.objectLabel(item) %>">
-                                <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
-                                <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
-                                <% wp.writeFormFields(item); %>
-                            </li>
+                        if (!ObjectUtils.isBlank(hotspotList)) {
+                            for (HotSpot item : hotspotList) {
+                                State itemState = State.getInstance(item);
+                                ObjectType itemType = itemState.getType();
+                                Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();
+                                %>
+                                <li data-type="<%= wp.objectLabel(itemType) %>" data-label="<%= wp.objectLabel(item) %>">
+                                    <input name="<%= wp.h(idName) %>" type="hidden" value="<%= itemState.getId() %>">
+                                    <input name="<%= wp.h(typeIdName) %>" type="hidden" value="<%= itemType.getId() %>">
+                                    <% wp.writeFormFields(item); %>
+                                </li>
+                                <% } %>
                         <% } %>
                         <% for (ObjectType type : validTypes) { %>
                             <script type="text/template">
