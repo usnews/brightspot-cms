@@ -731,15 +731,11 @@ function($, bsp_utils) {
 
                $image.parents(".inputContainer").find('.hotSpots .objectInputs').each(function() {
                    var $this = $(this);
-                   if ($this.find(':input[name$="x"]').val() === "" &&
-                           $this.find(':input[name$="y"]').val() === ""  &&
-                           $this.find(':input[name$="width"]').val() === ""  &&
-                           $this.find(':input[name$="height"]').val() === "") {
-                       $this.find(':input[name$="x"]').val(defaultX);
-                       $this.find(':input[name$="y"]').val(defaultY);
-                       $this.find(':input[name$="width"]').val(100);
-                       $this.find(':input[name$="height"]').val(100);
-                   }
+
+                   $this.find(':input[name$="x"]').val($this.find(':input[name$="x"]').val() === "" ? defaultX : $this.find(':input[name$="x"]').val());
+                   $this.find(':input[name$="y"]').val($this.find(':input[name$="y"]').val() === "" ? defaultY : $this.find(':input[name$="y"]').val());
+                   $this.find(':input[name$="width"]').val($this.find(':input[name$="width"]').val() === "" ? 100 : $this.find(':input[name$="width"]').val());
+                   $this.find(':input[name$="height"]').val($this.find(':input[name$="height"]').val() === "" ? 100 : $this.find(':input[name$="height"]').val());
                });
                $initalizeHotSpots();
             });
