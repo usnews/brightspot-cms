@@ -291,13 +291,40 @@ The note can also display dynamic content. In the example below the editor can b
 
     	private String name;
     	private StorageItem file;
-    	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}</strong>
+    	@ToolUi.NoteHtml("<span data-dynamic-html='<strong>${content.name}></strong>
     	will be used as altText if this is left blank'></span>")
     	private String altText;
     }
 
 
 ![](http://docs.brightspot.s3.amazonaws.com/note-html-ui.png)
+
+Notes can be applied at a Class level, adding a dynamic note at the top of the content edit view:
+
+    @ToolUi.NoteHtml("<span data-dynamic-html='${content.author.name}'></span>")
+    public class Article extends Content {
+
+    	private String headline;
+    	private Author author;
+    	private ReferentialText bodyText;
+    }
+
+
+![](http://docs.brightspot.s3.amazonaws.com/note-class-level.png)
+
+
+Notes can be applied at a Class level, adding a dynamic note at the top of the content edit view:
+
+    @ToolUi.NoteHtml("<span data-dynamic-html='${content.author.name}'></span>")
+    public class Article extends Content {
+
+    	private String headline;
+    	private Author author;
+    	private ReferentialText bodyText;
+    }
+
+
+![](http://docs.brightspot.s3.amazonaws.com/note-class-level.png)
 
 **@ToolUi.Heading("String")**
 

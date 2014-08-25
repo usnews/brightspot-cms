@@ -269,6 +269,20 @@ The note can also display dynamic content. In the example below the editor can b
 
 ![](http://docs.brightspot.s3.amazonaws.com/note-html-ui.png)
 
+Notes can be applied at a Class level, adding a dynamic note at the top of the content edit view:
+
+    @ToolUi.NoteHtml("<span data-dynamic-html='${content.author.name}'></span>")
+    public class Article extends Content {
+
+    	private String headline;
+    	private Author author;
+    	private ReferentialText bodyText;
+    }
+
+
+![](http://docs.brightspot.s3.amazonaws.com/note-class-level.png)
+
+
 **@ToolUi.Heading("String")**
 
 > Provides a horizontal rule within the Content Object, allowing new sections to be created with headings.
