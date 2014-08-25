@@ -1322,8 +1322,13 @@ public class PageFilter extends AbstractFilter {
                         } else if (preview instanceof Preview) {
                             Preview previewPreview = (Preview) preview;
                             mainObject = previewPreview.getObject();
-                            site = previewPreview.getSite();
-                            setSite(request, site);
+                            Site previewSite = previewPreview.getSite();
+
+                            if (previewSite != null) {
+                                site = previewSite;
+                                setSite(request, site);
+                            }
+
                             AuthenticationFilter.Static.setCurrentPreview(request, PageContextFilter.Static.getResponse(), previewPreview);
 
                         } else if (mainObjectId != null) {
