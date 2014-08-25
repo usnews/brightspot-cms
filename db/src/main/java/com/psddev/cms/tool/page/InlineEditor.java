@@ -53,7 +53,7 @@ public class InlineEditor extends HttpServlet {
             page.writeEnd();
 
             page.writeStart("style", "type", "text/css");
-                page.writeCss(".toolBroadcast, .toolHeader, .toolFooter", "display", "none");
+                page.writeCss(".toolBroadcast, .toolHeader, .toolBackground, .toolFooter", "display", "none");
                 page.writeCss("body, .toolContent", "background", "transparent");
                 page.writeCss("body", "margin-top", "75px !important");
                 page.writeCss(".toolContent", "position", "static");
