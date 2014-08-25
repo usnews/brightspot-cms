@@ -118,6 +118,7 @@ function($) {
                     target,
                     typeIds,
                     formAction,
+                    searcherPath,
                     $select,
                     $edit,
                     $clear,
@@ -141,13 +142,14 @@ function($) {
 
             typeIds = $input.attr('data-typeIds');
             formAction = $form.attr('action');
+            searcherPath = $input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp');
 
             $select = $('<a/>', {
                 'class': 'objectId-select',
                 'target': target,
                 'click': function() { return !$(this).is('.state-disabled'); },
-                'href': ($input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp')) +
-                        '?pt=' + encodeURIComponent((/id=([^&]+)/.exec(formAction) || [ ])[1] || '') +
+                'href': searcherPath +
+                        (searcherPath.indexOf('?') > -1 ? '&' : '?') + 'pt=' + encodeURIComponent((/id=([^&]+)/.exec(formAction) || [ ])[1] || '') +
                         '&py=' + encodeURIComponent((/typeId=([^&]+)/.exec(formAction) || [ ])[1] || '') +
                         '&p=' + encodeURIComponent($input.attr('data-pathed')) +
                         '&' + (typeIds ? $.map(typeIds.split(','), function(typeId) { return 'rt=' + typeId; }).join('&') : '') +
