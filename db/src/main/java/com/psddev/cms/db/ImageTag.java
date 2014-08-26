@@ -3,9 +3,12 @@ package com.psddev.cms.db;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -224,6 +227,10 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return SKIP_BODY;
     }
 
+    private static final Set<String> VOID_ELEMENTS = new HashSet<String>(Arrays.asList(
+            "area", "base", "br", "col", "embed", "hr", "img", "input",
+            "keygen", "link", "meta", "param", "source", "track", "wbr"));
+
     private static String convertAttributesToHtml(String tagName, Map<String, String> attributes) {
         StringBuilder builder = new StringBuilder();
         if (!attributes.isEmpty()) {
@@ -244,7 +251,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 }
             }
 
-            if ("img".equalsIgnoreCase(tagName)) {
+            if (VOID_ELEMENTS.contains(tagName.toLowerCase(Locale.ENGLISH))) {
                 if (Settings.get(boolean.class, "dari/selfClosingElements")) {
                     builder.append('/');
                 }
