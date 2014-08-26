@@ -422,6 +422,19 @@ public class PageFilter extends AbstractFilter {
                 final String previewPath = request.getParameter("_previewPath");
 
                 if (!ObjectUtils.isBlank(previewPath)) {
+                    int colonAt = previewPath.indexOf(':');
+
+                    if (colonAt > -1) {
+                        Site previewSite = Query.
+                                from(Site.class).
+                                where("_id = ?", ObjectUtils.to(UUID.class, previewPath.substring(0, colonAt))).
+                                first();
+
+                        if (previewSite != null) {
+                            Static.setSite(request, previewSite);
+                        }
+                    }
+
                     request = new HttpServletRequestWrapper(request) {
 
                         @Override

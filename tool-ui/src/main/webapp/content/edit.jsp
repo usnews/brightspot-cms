@@ -907,14 +907,18 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                     Site s = p.getSite();
                                     String path = p.getPath();
 
-                                    wp.writeStart("option", "value", path);
-                                        if (s != null) {
+                                    if (s != null) {
+                                        wp.writeStart("option", "value", s.getId() + ":" + path);
                                             wp.writeObjectLabel(s);
                                             wp.writeHtml(": ");
-                                        }
+                                            wp.writeHtml(path);
+                                        wp.writeEnd();
 
-                                        wp.writeHtml(path);
-                                    wp.writeEnd();
+                                    } else {
+                                        wp.writeStart("option", "value", path);
+                                            wp.writeHtml(path);
+                                        wp.writeEnd();
+                                    }
                                 }
                             wp.writeEnd();
                         }
