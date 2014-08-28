@@ -157,7 +157,7 @@ for (StandardImageSize size : StandardImageSize.findAll()) {
     }
 }
 
-Class HotSpotClass = Class.forName(ImageTag.HOTSPOT_CLASS);
+Class HotSpotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
 boolean projectUsingBrightSpotImage = HotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(HotSpotClass));
 
 if ((Boolean) request.getAttribute("isFormPost")) {
