@@ -701,7 +701,9 @@ function($, bsp_utils) {
 
                 $hotSpotOverlay.append($hotSpotOverlayBox);
 
-                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) { 
+                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
+                    $input.addClass("state-focus");
+                    $hotSpotOverlay.addClass("selected");
                     return {
                         'moving': true,
                         'left': original.left + delta.x,
