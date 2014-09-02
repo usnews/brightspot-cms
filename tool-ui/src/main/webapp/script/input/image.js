@@ -741,8 +741,10 @@ function($, bsp_utils) {
                 angle = parseInt(angle);
 
                 var scale = $imageReSizeScale;
-                var cavnasHeight = $image.parent().find("canvas").height();
-                scale = (cavnasHeight / 1000) * scale;
+                if ($imageReSizeScale < 1) {
+                    var cavnasHeight = $image.parent().find("canvas").height();
+                    scale = (cavnasHeight / 1000) * scale;
+                }
                 if (angle === 90 ) {
                     var originalHeight = $image.width() / scale;
 
