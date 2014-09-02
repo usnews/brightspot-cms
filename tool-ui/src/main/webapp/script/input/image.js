@@ -499,8 +499,7 @@ function($, bsp_utils) {
                         'height': height + 'px',
                         'position': 'absolute',
                         'width': width + 'px',
-                        'z-index': 1,
-                        'outline': '1px dashed #fff'
+                        'z-index': 1
                     }
                 });
 
@@ -669,6 +668,8 @@ function($, bsp_utils) {
                 $hotSpotOverlayBox.append($('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-left',
                     'mousedown': updateSizeBox(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotSpotOverlay.addClass("selected");
                         return {
                             'left': original.left + delta.x,
                             'width': original.width - delta.x
@@ -678,6 +679,8 @@ function($, bsp_utils) {
                 $hotSpotOverlayBox.append($('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-right',
                     'mousedown': updateSizeBox(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotSpotOverlay.addClass("selected");
                         return {
                             'left': original.left,
                             'width': original.width + delta.x
@@ -687,6 +690,8 @@ function($, bsp_utils) {
                 $hotSpotOverlayBox.append($('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
                     'mousedown': updateSizeBox(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotSpotOverlay.addClass("selected");
                         return {
                             'width': original.width + delta.constrainedX,
                             'height': original.height + delta.constrainedY
@@ -696,13 +701,7 @@ function($, bsp_utils) {
 
                 $hotSpotOverlay.append($hotSpotOverlayBox);
 
-                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
-                    $input.addClass("state-focus");
-                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
+                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) { 
                     return {
                         'moving': true,
                         'left': original.left + delta.x,
@@ -710,41 +709,23 @@ function($, bsp_utils) {
                     };
                 }));
 
-                $hotSpotOverlay.mouseover(function() {
+                $hotSpotOverlay.mousedown(function() {
                     $input.addClass("state-focus");
-                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
-                    top-color
+                    $hotSpotOverlay.addClass("selected");
                 });
-
-                $hotSpotOverlay.mouseleave(function() {
+                $editor.mouseleave(function() {
                     $input.removeClass("state-focus");
-                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #fff');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#29c');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#fff');
+                    $hotSpotOverlay.removeClass("selected");
                 });
 
                 $input.mouseover(function() {
                     $input.addClass("state-focus");
-                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
+                    $hotSpotOverlay.addClass("selected");
                 });
 
                 $input.mouseleave(function() {
                     $input.removeClass("state-focus");
-                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #fff');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '');
-                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#29c');
-                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#fff');
+                    $hotSpotOverlay.removeClass("selected");
                 });
 
                 $hotSpotOverlay.append($hotSpotOverlayLabel);
