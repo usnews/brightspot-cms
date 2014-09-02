@@ -762,7 +762,6 @@ function($, bsp_utils) {
             };
 
             var $initalizeHotSpots = function() {
-                console.log("$initalizeHotSpots 2");
                 $image.parents(".inputContainer").find('.imageEditor-hotSpotOverlay').remove();
                 var $hotSpots = $image.parents(".inputContainer").find('.hotSpots .objectInputs');
                 if ($hotSpots !== undefined && $hotSpots.length > 0) {
