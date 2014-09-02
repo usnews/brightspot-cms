@@ -697,12 +697,55 @@ function($, bsp_utils) {
                 $hotSpotOverlay.append($hotSpotOverlayBox);
 
                 $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
+                    $input.addClass("state-focus");
+                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
                     return {
                         'moving': true,
                         'left': original.left + delta.x,
                         'top': original.top + delta.y
                     };
                 }));
+
+                $hotSpotOverlay.mouseover(function() {
+                    $input.addClass("state-focus");
+                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
+                    top-color
+                });
+
+                $hotSpotOverlay.mouseleave(function() {
+                    $input.removeClass("state-focus");
+                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #fff');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#29c');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#fff');
+                });
+
+                $input.mouseover(function() {
+                    $input.addClass("state-focus");
+                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '#83cbea');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#fff');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#29c');
+                });
+
+                $input.mouseleave(function() {
+                    $input.removeClass("state-focus");
+                    $hotSpotOverlay.find('.imageEditor-hotSpotOverlayBox').css('outline', '1px dashed #fff');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayLabel').css('color', '');
+                    $hotSpotOverlay.find('.imageEditor-textOverlayRemove').css('color', '');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('background-color', '#29c');
+                    $hotSpotOverlay.find('.imageEditor-resizer').css('border-color', '#fff');
+                });
 
                 $hotSpotOverlay.append($hotSpotOverlayLabel);
 
