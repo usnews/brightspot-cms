@@ -611,15 +611,55 @@ function($, bsp_utils) {
                         }, function() {
                             var hotSpotOverlayBoxPosition = $hotSpotOverlayBox.parent().position();
                             var scale = $imageReSizeScale;
+                            var rotation = $edit.find(":input[name$='.rotate']").first().val();
+
                             if ($imageReSizeScale < 1) {
-                                var cavnasWidth = $image.parent().find("canvas").width();
-                                scale = (cavnasWidth / 1000) * scale;
+                                if (rotation === '0') {
+                                    var cavnasWidth = $image.parent().find("canvas").width();
+                                    scale = (cavnasWidth / 1000) * scale;
+                                } else if (rotation === '90' || rotation === '-90') {
+                                    var cavnasHeight = $image.parent().find("canvas").height();
+                                    scale = (cavnasHeight / 1000) * scale;
+                                }
                             }
                             scale = 1 / scale;
-                            $input.find(':input[name$="x"]').val(parseInt(hotSpotOverlayBoxPosition.left * scale));
-                            $input.find(':input[name$="y"]').val(parseInt(hotSpotOverlayBoxPosition.top * scale));
-                            $input.find(':input[name$="width"]').val(parseInt($hotSpotOverlayBox.width() * scale));
-                            $input.find(':input[name$="height"]').val(parseInt($hotSpotOverlayBox.height() * scale));
+
+                            var x = parseInt(hotSpotOverlayBoxPosition.left * scale);
+                            var y = parseInt(hotSpotOverlayBoxPosition.top * scale);
+                            var width;
+                            var height;
+                            if (rotation === "0") {
+                                width = parseInt($hotSpotOverlayBox.width() * scale);
+                                height = parseInt($hotSpotOverlayBox.height() * scale);
+                            } else if (rotation === '90' || rotation === '-90') {
+                                height = parseInt($hotSpotOverlayBox.width() * scale);
+                                width = parseInt($hotSpotOverlayBox.height() * scale);
+
+                                if (rotation === '90') {
+                                    var originalWidth = $image.width() / scale;
+                                    y = originalWidth - x + height;
+                                    x = parseInt(hotSpotOverlayBoxPosition.top * scale);
+                                } else if (rotation === '-90') {
+                                    var originalWidth = $image.height() * scale;
+                                    x = originalWidth - parseInt(hotSpotOverlayBoxPosition.top * scale) - width;
+                                    y = parseInt(hotSpotOverlayBoxPosition.left * scale);
+                                }
+                            }
+
+                            if ($edit.find(":input[name$='.flipH']").first().prop('checked')) {
+                                var originalWidth = $image.width() * scale;
+                                x = originalWidth - x - width;
+                            }
+
+                            if ($edit.find(":input[name$='.flipV']").first().prop('checked')) {
+                                var originalHeight = $image.height() * scale;
+                                y = originalHeight - y - height;
+                            }
+
+                            $input.find(':input[name$="x"]').val(x);
+                            $input.find(':input[name$="y"]').val(y);
+                            $input.find(':input[name$="width"]').val(width);
+                            $input.find(':input[name$="height"]').val(height);
                         });
 
                         return false;
@@ -696,23 +736,79 @@ function($, bsp_utils) {
                 $editor.append($hotSpotOverlay);
             };
 
+            var rotateHotSpot = function (angle, x, y, width, height) {
+                var $rotatedHotSpot = {};
+                angle = parseInt(angle);
+
+                var scale = $imageReSizeScale;
+                var cavnasHeight = $image.parent().find("canvas").height();
+                scale = (cavnasHeight / 1000) * scale;
+                if (angle === 90 ) {
+                    var originalHeight = $image.width() / scale;
+
+                    $rotatedHotSpot.x = originalHeight - y - width;
+                    $rotatedHotSpot.y = x;
+                    $rotatedHotSpot.width = height;
+                    $rotatedHotSpot.height = width;
+                } else if (angle === -90 ) {
+                    var originalWidth = $image.height() / scale;
+
+                    $rotatedHotSpot.x = y;
+                    $rotatedHotSpot.y = originalWidth - x - height;
+                    $rotatedHotSpot.width = height;
+                    $rotatedHotSpot.height = width;
+                }
+                return $rotatedHotSpot;
+            };
+
             var $initalizeHotSpots = function() {
+                console.log("$initalizeHotSpots 2");
                 $image.parents(".inputContainer").find('.imageEditor-hotSpotOverlay').remove();
                 var $hotSpots = $image.parents(".inputContainer").find('.hotSpots .objectInputs');
                 if ($hotSpots !== undefined && $hotSpots.length > 0) {
                     var scale = $imageReSizeScale;
+                    var rotation = $edit.find(":input[name$='.rotate']").first().val();
                     if ($imageReSizeScale < 1) {
-                        var cavnasWidth = $image.parent().find("canvas").width();
-                        scale = (cavnasWidth / 1000) * scale;
+                        if (rotation === '0') {
+                            var cavnasWidth = $image.parent().find("canvas").width();
+                            scale = (cavnasWidth / 1000) * scale;
+                        } else if (rotation === '90' || rotation === '-90') {
+                            var cavnasHeight = $image.parent().find("canvas").height();
+                            scale = (cavnasHeight / 1000) * scale;
+                        }
                     }
 
                     $hotSpots.each(function() {
                         var $this = $(this);
                         if (!$this.parents('li').first().hasClass('toBeRemoved')) {
-                            var x = parseInt($this.find(':input[name$="x"]').val()) * scale;
-                            var y = parseInt($this.find(':input[name$="y"]').val()) * scale;
-                            var width = parseInt($this.find(':input[name$="width"]').val()) * scale;
-                            var height = parseInt($this.find(':input[name$="height"]').val()) * scale;
+                            var x = parseInt($this.find(':input[name$="x"]').val());
+                            var y = parseInt($this.find(':input[name$="y"]').val());
+                            var width = parseInt($this.find(':input[name$="width"]').val());
+                            var height = parseInt($this.find(':input[name$="height"]').val());
+
+                            if (rotation !== '0') {
+                                var $rotatedHotSpot = rotateHotSpot(rotation, x, y, width, height);
+                                x = $rotatedHotSpot.x;
+                                y = $rotatedHotSpot.y;
+                                width = $rotatedHotSpot.width;
+                                height = $rotatedHotSpot.height;
+                            }
+
+                            if ($edit.find(":input[name$='.flipH']").first().prop('checked')) {
+                                var originalWidth = $image.width() / scale;
+                                x = originalWidth - x - width;
+                            }
+
+                            if ($edit.find(":input[name$='.flipV']").first().prop('checked')) {
+                                var originalHeight = $image.height() / scale;
+                                y = originalHeight - y - height;
+                            }
+
+                            x = x * scale;
+                            y = y * scale;
+                            width = width * scale;
+                            height = height * scale;
+
                             addHotSpot($this.parent(), x, y, width, height);
                         }
                     });
@@ -739,6 +835,17 @@ function($, bsp_utils) {
                    $this.find(':input[name$="height"]').val($this.find(':input[name$="height"]').val() === "" ? 100 : $this.find(':input[name$="height"]').val());
                });
                $initalizeHotSpots();
+            });
+
+            $edit.find(":input[name$='.rotate']").change(function() {
+                setTimeout($initalizeHotSpots(), 250);
+            });
+            $edit.find(":input[name$='.flipH']").change(function() {
+                setTimeout($initalizeHotSpots(), 250);
+            });
+
+            $edit.find(":input[name$='.flipV']").change(function() {
+                setTimeout($initalizeHotSpots(), 250);
             });
 
             $edit.append($resetButton);
