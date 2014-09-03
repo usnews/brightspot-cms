@@ -14,14 +14,11 @@ public class ImageHotSpotCrop {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHotSpotCrop.class);
 
     public static List<Integer> hotSpotCrop(StorageItem item, Integer cropWidth, Integer cropHeight) {
-        //TODO: add support for either cropWidth or cropHeight being null
         if (item != null &&
-            cropWidth != null &&
-            cropHeight != null &&
             item.getMetadata().containsKey("height") &&
             item.getMetadata().containsKey("width") &&
-            ObjectUtils.to(Integer.class, item.getMetadata().get("height")) > cropHeight &&
-            ObjectUtils.to(Integer.class, item.getMetadata().get("width")) > cropWidth) {
+            ((cropWidth != null && ObjectUtils.to(Integer.class, item.getMetadata().get("width")) > cropWidth) ||
+                cropHeight != null && ObjectUtils.to(Integer.class, item.getMetadata().get("height")) > cropHeight)) {
 
             List<HotSpot> hotSpots = HotSpots.Data.getHotSpots(item);
             if (!ObjectUtils.isBlank(hotSpots)) {
@@ -37,14 +34,22 @@ public class ImageHotSpotCrop {
                         ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_WIDTH_METADATA_PATH)) :
                         imageWidth;
 
-                double horzScale = (double) imageWidth / cropWidth;
-                double vertScale = (double) imageHeight / cropHeight;
-                if (vertScale < horzScale) {
-                    cropHeight = imageHeight;
-                    cropWidth = ((Double) (cropWidth * vertScale)).intValue();
+                if (cropWidth == null) {
+                    double scale = (double) imageHeight / cropHeight;
+                    cropWidth = ((Double) (cropWidth * scale)).intValue();
+                } else if (cropHeight == null) {
+                    double scale = (double) imageWidth / cropWidth;
+                    cropHeight = ((Double) (cropHeight * scale)).intValue();
                 } else {
-                    cropWidth = imageWidth;
-                    cropHeight = ((Double) (cropHeight * horzScale)).intValue();
+                    double horzScale = (double) imageWidth / cropWidth;
+                    double vertScale = (double) imageHeight / cropHeight;
+                    if (vertScale < horzScale) {
+                        cropHeight = imageHeight;
+                        cropWidth = ((Double) (cropWidth * vertScale)).intValue();
+                    } else {
+                        cropWidth = imageWidth;
+                        cropHeight = ((Double) (cropHeight * horzScale)).intValue();
+                    }
                 }
 
                 double heightScaleFactor = originalHeight != null && originalHeight > 0 ? (double) imageHeight / originalHeight : 1.0;
@@ -62,9 +67,7 @@ public class ImageHotSpotCrop {
 
                 //rotate bounding box
                 if (CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate") != null) {
-                    LOGGER.error("rotate");
                     Integer angle = ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate"));
-                    LOGGER.error("cord " + x1 + "," + y1 + "," + x2 + "," + y2);
                     double radians = Math.toRadians(angle);
 
                     int centerX = (x1 + x2) / 2;
@@ -76,7 +79,6 @@ public class ImageHotSpotCrop {
                     x2 = (new Double(centerX + Math.cos(radians) * (x2 - centerX) - Math.sin(radians) * (y2 - centerY))).intValue();
                     y2 = (new Double(centerY + Math.sin(radians) * (x2 - centerX) + Math.cos(radians) * (y2 - centerY))).intValue();
 
-                    LOGGER.error("cord " + x1 + "," + y1 + "," + x2 + "," + y2);
                 }
 
                 x1 = ((Double) (x1 * widthScaleFactor)).intValue();
