@@ -10,10 +10,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImageHotSpotCrop {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageHotSpotCrop.class);
+public class ImageHotSpot {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageHotSpot.class);
 
-    public static List<Integer> hotSpotCrop(StorageItem item, Integer cropWidth, Integer cropHeight) {
+    public static List<Integer> crop(StorageItem item, Integer cropWidth, Integer cropHeight) {
         if (item != null &&
             item.getMetadata().containsKey("height") &&
             item.getMetadata().containsKey("width") &&

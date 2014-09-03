@@ -1031,7 +1031,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                             cropX == null &&
                             cropY == null) {
 
-                        List<Integer> hotSpotCrop = ImageHotSpotCrop.hotSpotCrop(item, cropWidth, cropHeight);
+                        List<Integer> hotSpotCrop = ImageHotSpot.crop(item, cropWidth, cropHeight);
                         if (!ObjectUtils.isBlank(hotSpotCrop) &&
                                 hotSpotCrop.size() == 4) {
                             cropX = hotSpotCrop.get(0);
