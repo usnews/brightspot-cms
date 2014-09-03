@@ -80,7 +80,7 @@ public class Text extends Content implements Renderer {
             httpResponse.setStatus(statusCode);
         }
 
-        for (Header header : headers) {
+        for (Header header : getHeaders()) {
             httpResponse.addHeader(header.getName(), header.getValue());
         }
 
