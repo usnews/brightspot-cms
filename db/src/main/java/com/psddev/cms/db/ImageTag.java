@@ -678,7 +678,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
             this.overlay = overlay;
         }
 
-        public boolean isFisableHotSpotCrop() {
+        public boolean isDisableHotSpotCrop() {
             return disableHotSpotCrop;
         }
 
