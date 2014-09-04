@@ -148,7 +148,7 @@ public class ImageHotSpot {
         } else if (size instanceof String) {
             standardImageSize = ImageTag.getStandardImageSizeByName((String) size);
         }
-        if (!ObjectUtils.isBlank(standardImageSize)) {
+        if (standardImageSize != null && standardImageSize.getId() != null) {
             return getReSizedHotSpots(item, standardImageSize.getWidth(), standardImageSize.getHeight(), standardImageSize.getCropOption(), standardImageSize.getResizeOption(), standardImageSize.getId().toString(), disableHotSpotCrop);
         }
         return null;
@@ -264,8 +264,8 @@ public class ImageHotSpot {
     }
 
     public static List<HotSpot> getReSizedHotSpots(StorageItem item, Integer cropX, Integer cropY, Integer cropWidth, Integer cropHeight, Integer reSizedWidth, Integer reSizedHeight) {
-        List<HotSpot> originalHotSpots = HotSpots.Data.getHotSpots(item);
-        if (!ObjectUtils.isBlank(originalHotSpots) &&
+        List<HotSpot> hotSpots = HotSpots.Data.getHotSpots(item);
+        if (!ObjectUtils.isBlank(hotSpots) &&
             item != null &&
             item.getMetadata().containsKey("height") &&
             item.getMetadata().containsKey("width")) {
@@ -280,11 +280,50 @@ public class ImageHotSpot {
                     ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), ImageTag.ORIGINAL_WIDTH_METADATA_PATH)) :
                     imageWidth;
 
+            Boolean flipH = ObjectUtils.to(Boolean.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/flipH"));
+            Boolean flipV = ObjectUtils.to(Boolean.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/flipV"));
+
+            if (flipH != null && flipH) {
+                for (HotSpot hotSpot : hotSpots) {
+                    hotSpot.setX(originalWidth - hotSpot.getX()  - hotSpot.getWidth());
+                }
+            }
+
+            if (flipV != null && flipV) {
+                for (HotSpot hotSpot : hotSpots) {
+                    hotSpot.setY(originalHeight - hotSpot.getY() - hotSpot.getHeight());
+                }
+            }
+
             if (cropX != null && cropY != null) {
-                for (HotSpot hotSpot : originalHotSpots) {
+                for (HotSpot hotSpot : hotSpots) {
                     hotSpot.setX(hotSpot.getX() - cropX);
                     hotSpot.setY(hotSpot.getY() - cropY);
                 }
+            }
+
+            if (CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate") != null) {
+                Integer angle = ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate"));
+                if (angle != null) {
+                    if (angle == 90) {
+                        for (HotSpot hotSpot : hotSpots) {
+                            Integer originalX = hotSpot.getX();
+                            hotSpot.setX(originalHeight - hotSpot.getY() - hotSpot.getWidth());
+                            hotSpot.setY(originalX);
+                            hotSpot.setWidth(hotSpot.getHeight());
+                            hotSpot.setHeight(hotSpot.getWidth());
+                        }
+                    } else if (angle == -90) {
+                        for (HotSpot hotSpot : hotSpots) {
+                            Integer originalX = hotSpot.getX();
+                            hotSpot.setX(hotSpot.getY());
+                            hotSpot.setY(originalWidth - originalX - hotSpot.getHeight());
+                            hotSpot.setWidth(hotSpot.getHeight());
+                            hotSpot.setHeight(hotSpot.getWidth());
+                        }
+                    }
+                }
+
             }
 
             if (reSizedHeight != null || reSizedWidth != null) {
@@ -304,7 +343,7 @@ public class ImageHotSpot {
                     widthScaleFactor = cropWidth != null && cropWidth > 0 ? (double) reSizedWidth / cropWidth : 1.0;
                 }
 
-                for (HotSpot hotSpot : originalHotSpots) {
+                for (HotSpot hotSpot : hotSpots) {
                     hotSpot.setX(((Double) (hotSpot.getX() * widthScaleFactor)).intValue());
                     hotSpot.setY(((Double) (hotSpot.getY() * heightScaleFactor)).intValue());
                     hotSpot.setWidth(((Double) (hotSpot.getWidth() * widthScaleFactor)).intValue());
@@ -312,7 +351,8 @@ public class ImageHotSpot {
                 }
             }
         }
-        return originalHotSpots;
+
+        return hotSpots;
     }
 
     private static class Dimension {
