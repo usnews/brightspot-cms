@@ -296,7 +296,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
      * Finds the dimension {@code name} ("width", or "height") for the given
      * StorageItem {@code item}.
      */
-    private static Integer findDimension(StorageItem item, String name) {
+    protected static Integer findDimension(StorageItem item, String name) {
         if (item == null) {
             return null;
         }
@@ -314,7 +314,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
     /**
      * Finds the crop information for the StorageItem {@code item}.
      */
-    private static Map<String, ImageCrop> findImageCrops(StorageItem item) {
+    protected static Map<String, ImageCrop> findImageCrops(StorageItem item) {
         if (item == null) {
             return null;
         }
@@ -485,7 +485,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
         return dimension;
     }
 
-    private static StandardImageSize getStandardImageSizeByName(String size) {
+    protected static StandardImageSize getStandardImageSizeByName(String size) {
         StandardImageSize standardImageSize = null;
         for (StandardImageSize standardSize : StandardImageSize.findAll()) {
             if (standardSize.getInternalName().equals(size)) {
