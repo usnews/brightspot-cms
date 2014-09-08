@@ -140,7 +140,17 @@ function($) {
                 $.data($form[0], TARGET_DATA, target);
             }
 
-            typeIds = $input.attr('data-typeIds');
+            var genericArgumentIndex = $input.attr('data-generic-argument-index');
+            var genericArguments = $input.closest('[data-generic-arguments]').attr('data-generic-arguments');
+
+            if (genericArgumentIndex && genericArguments) {
+              typeIds = genericArguments.split(',')[genericArgumentIndex];
+            }
+
+            if (!typeIds) {
+              typeIds = $input.attr('data-typeIds');
+            }
+
             formAction = $form.attr('action');
             searcherPath = $input.attr('data-searcher-path') || (CONTEXT_PATH + 'content/objectId.jsp');
 

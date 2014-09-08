@@ -550,7 +550,22 @@ if (!isValueExternal) {
         }
     }
 
-    wp.writeStart("div", "class", "inputLarge repeatableForm" + (!bulkUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""));
+    StringBuilder genericArgumentsString = new StringBuilder();
+    List<ObjectType> genericArguments = field.getGenericArguments();
+
+    if (genericArguments != null && !genericArguments.isEmpty()) {
+        for (ObjectType type : genericArguments) {
+            genericArgumentsString.append(type.getId());
+            genericArgumentsString.append(",");
+        }
+
+        genericArgumentsString.setLength(genericArgumentsString.length() - 1);
+    }
+
+    wp.writeStart("div",
+            "class", "inputLarge repeatableForm" + (!bulkUploadTypes.isEmpty() ? " repeatableForm-previewable" : ""),
+            "foo", "bar",
+            "data-generic-arguments", genericArgumentsString);
         wp.writeStart("ol");
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);

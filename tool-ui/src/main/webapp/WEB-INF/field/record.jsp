@@ -19,6 +19,7 @@ java.util.Collections,
 java.util.Date,
 java.util.List,
 java.util.HashMap,
+java.util.Iterator,
 java.util.Map,
 java.util.UUID
 " %><%
@@ -145,7 +146,23 @@ if (isEmbedded) {
             wp.writeEnd();
         }
 
-        wp.write("<div class=\"inputLarge\">");
+        wp.write("<div class=\"inputLarge\" data-generic-arguments=\"");
+
+        List<ObjectType> genericArguments = field.getGenericArguments();
+
+        if (genericArguments != null && !genericArguments.isEmpty()) {
+            for (Iterator<ObjectType> i = genericArguments.iterator(); i.hasNext();) {
+                ObjectType type = i.next();
+
+                wp.write(type.getId());
+
+                if (i.hasNext()) {
+                    wp.write(",");
+                }
+            }
+        }
+
+        wp.write("\">");
         wp.write("<input name=\"", wp.h(idName), "\" type=\"hidden\" value=\"", fieldValueState.getId(), "\">");
         wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", fieldValueState.getTypeId(), "\">");
         wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(fieldValuePublishDate != null ? fieldValuePublishDate.getTime() : null), "\">");
