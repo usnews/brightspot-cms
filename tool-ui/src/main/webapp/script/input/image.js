@@ -712,6 +712,8 @@ function($, bsp_utils) {
                 }));
 
                 $hotSpotOverlay.mousedown(function() {
+                    $('.imageEditor-hotSpotOverlay').removeClass("selected");
+                    $('.state-focus').removeClass("state-focus");
                     $input.addClass("state-focus");
                     $hotSpotOverlay.addClass("selected");
                 });
