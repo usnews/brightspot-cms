@@ -1,7 +1,5 @@
 package com.psddev.cms.db;
 
-import com.psddev.dari.util.JspUtils;
-
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,11 +12,30 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("serial")
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.Settings;
+
 public class CacheTag extends BodyTagSupport implements TryCatchFinally {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheTag.class);
-    private static final ConcurrentMap<String, Output> OUTPUT_CACHE = new ConcurrentHashMap<String, Output>();
+    private static final ConcurrentMap<String, Output> OUTPUT_LOCKS = new ConcurrentHashMap<String, Output>();
+    private static final Cache<String, Output> OUTPUT_CACHE = CacheBuilder.
+            newBuilder().
+            maximumSize(Settings.getOrDefault(int.class, "brightspot/cacheTagOutputMaximumSize", 100000)).
+            removalListener(new RemovalListener<String, Output>() {
+
+                @Override
+                public void onRemoval(RemovalNotification<String, Output> notification) {
+                    OUTPUT_LOCKS.remove(notification.getKey());
+                }
+            }).
+            build();
 
     private String name;
     private long duration;
@@ -39,14 +56,15 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
     public int doStartTag() throws JspException {
         String key = JspUtils.getCurrentServletPath((HttpServletRequest) pageContext.getRequest()) + "/" + name;
         bodyContent = null;
-        output = OUTPUT_CACHE.get(key);
+        output = OUTPUT_LOCKS.get(key);
 
         // Output is expired? While producing, it's not considered expired
         // because lastProduced field is set far in the future.
         if (output != null &&
                 System.currentTimeMillis() - output.lastProduced > duration) {
             setOutput(output, null);
-            OUTPUT_CACHE.remove(key);
+            OUTPUT_LOCKS.remove(key);
+            OUTPUT_CACHE.invalidate(key);
             output = null;
         }
 
@@ -56,8 +74,9 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
             output.key = key;
 
             // Make sure there's only one producing output at [R].
-            Output o = OUTPUT_CACHE.putIfAbsent(key, output);
+            Output o = OUTPUT_LOCKS.putIfAbsent(key, output);
             if (o == null) {
+                OUTPUT_CACHE.put(key, output);
                 LOGGER.debug("Producing [{}] in [{}]", key, Thread.currentThread());
                 return EVAL_BODY_BUFFERED;
             }
@@ -119,7 +138,8 @@ public class CacheTag extends BodyTagSupport implements TryCatchFinally {
     @Override
     public void doCatch(Throwable error) throws Throwable {
         setOutput(output, null);
-        OUTPUT_CACHE.remove(output.key);
+        OUTPUT_LOCKS.remove(output.key);
+        OUTPUT_CACHE.invalidate(output.key);
         throw error;
     }
 
