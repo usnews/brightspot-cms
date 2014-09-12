@@ -15,7 +15,7 @@ com.psddev.dari.db.State,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.StorageItem,
 
-com.psddev.image.HotSpot,
+com.psddev.image.HotSpotPoint,
 com.psddev.image.HotSpots,
 
 java.util.ArrayList,
@@ -42,7 +42,8 @@ if (state.getOriginalObject() instanceof HotSpots) {
     HotSpots hotspots = ObjectUtils.to(HotSpots.class, state.getOriginalObject());
     if (fieldValue != null) {
 
-        List<HotSpot> hotspotList = HotSpots.Data.getHotSpots(fieldValue);
+        List<HotSpotPoint> hotspotList = HotSpots.Data.getHotSpots(fieldValue);
+        %>hotspot list size <%=hotspotList.size()%><%
 
         String inputName = (String) request.getAttribute("inputName");
         String hotSpotsList = fieldName + "/hotspots";
@@ -51,7 +52,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
         String typeIdName = hotSpotsName + ".typeId";
 
         List<ObjectType> validTypes = new ArrayList<ObjectType>();
-        validTypes.addAll(ObjectType.getInstance(HotSpot.class).findConcreteTypes());
+        validTypes.addAll(ObjectType.getInstance(HotSpotPoint.class).findConcreteTypes());
 
         Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
@@ -84,8 +85,9 @@ if (state.getOriginalObject() instanceof HotSpots) {
                     Object item = null;
                     if (!ObjectUtils.isBlank(hotSpotObjects)) {
                         for (Map<String, Object> object : hotSpotObjects) {
-                            if (object.get("_id").equals(hotSpotId)) {
-                                HotSpot hotSpotObject = new HotSpot();
+                            if (object.containsKey("_id") && object.containsKey("_type") && object.get("_id").equals(hotSpotId)) {
+                                ObjectType objectType = ObjectType.getInstance(UUID.fromString((String)object.get("_type")));
+                                HotSpotPoint hotSpotObject = (HotSpotPoint)objectType.createObject(UUID.fromString((String)object.get("_id")));
                                 hotSpotObject.getState().putAll(object);
                                 item = hotSpotObject;
                                 break;
@@ -96,7 +98,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
                     State itemState = null;
                     String typeId = wp.params(String.class, typeIdName).get(index);
                     if (item != null) {
-                        itemState = State.getInstance(ObjectUtils.to(HotSpot.class, item));
+                        itemState = State.getInstance(ObjectUtils.to(HotSpotPoint.class, item));
                         itemState.setTypeId(UUID.fromString(typeId));
                     } else {
                         ObjectType type = ObjectType.getInstance(UUID.fromString(typeId));
@@ -123,7 +125,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
                     <ul>
                         <%
                         if (!ObjectUtils.isBlank(hotspotList)) {
-                            for (HotSpot item : hotspotList) {
+                            for (HotSpotPoint item : hotspotList) {
                                 State itemState = State.getInstance(item);
                                 ObjectType itemType = itemState.getType();
                                 Date itemPublishDate = itemState.as(Content.ObjectModification.class).getPublishDate();

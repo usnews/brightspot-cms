@@ -6,7 +6,8 @@ import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
-import com.psddev.image.HotSpot;
+import com.psddev.image.HotSpotPoint;
+import com.psddev.image.HotSpotRegion;
 import com.psddev.image.HotSpots;
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +23,7 @@ public class ImageHotSpot {
             ((cropWidth != null && ObjectUtils.to(Integer.class, item.getMetadata().get("width")) > cropWidth) ||
                 cropHeight != null && ObjectUtils.to(Integer.class, item.getMetadata().get("height")) > cropHeight)) {
 
-            List<HotSpot> hotSpots = HotSpots.Data.getHotSpots(item);
+            List<HotSpotPoint> hotSpots = HotSpots.Data.getHotSpots(item);
             if (!ObjectUtils.isBlank(hotSpots)) {
                 Integer x2 = null;
                 Integer y2 = null;
@@ -71,12 +72,20 @@ public class ImageHotSpot {
                 //rotate bounding box
                 if (CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate") != null) {
                     if (angle != null && angle == 90) {
-                        for (HotSpot hotSpot : hotSpots) {
-                            Integer originalX = hotSpot.getX();
-                            hotSpot.setX(originalHeight - hotSpot.getY() - hotSpot.getWidth());
-                            hotSpot.setY(originalX);
-                            hotSpot.setWidth(hotSpot.getHeight());
-                            hotSpot.setHeight(hotSpot.getWidth());
+                        for (HotSpotPoint hotSpot : hotSpots) {
+                            Integer x = hotSpot.as(HotSpotPoint.Data.class).getX();
+                            Integer y = hotSpot.as(HotSpotPoint.Data.class).getY();
+
+                            Integer width = (hotSpot instanceof HotSpotRegion) ? hotSpot.as(HotSpotRegion.Data.class).getWidth() : 0;
+
+                            hotSpot.as(HotSpotPoint.Data.class).setX(originalHeight - y - width);
+                            hotSpot.as(HotSpotPoint.Data.class).setY(x);
+
+                            if (hotSpot instanceof HotSpotRegion) {
+                                Integer temp = hotSpot.as(HotSpotRegion.Data.class).getWidth();
+                                hotSpot.as(HotSpotRegion.Data.class).setWidth(hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                                hotSpot.as(HotSpotRegion.Data.class).setHeight(temp);
+                            }
                         }
                     }
 
@@ -86,25 +95,35 @@ public class ImageHotSpot {
                 Boolean flipV = ObjectUtils.to(Boolean.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/flipV"));
 
                 if (flipH != null && flipH) {
-                    for (HotSpot hotSpot : hotSpots) {
-                        hotSpot.setX(originalWidth - hotSpot.getX() - hotSpot.getWidth());
+                    for (HotSpotPoint hotSpot : hotSpots) {
+                        if (hotSpot instanceof HotSpotRegion) {
+                            hotSpot.as(HotSpotPoint.Data.class).setX(originalWidth - hotSpot.as(HotSpotPoint.Data.class).getX() - hotSpot.as(HotSpotRegion.Data.class).getWidth());
+                        } else {
+                            hotSpot.as(HotSpotPoint.Data.class).setX(originalWidth - hotSpot.as(HotSpotPoint.Data.class).getX());
+                        }
                     }
                 }
 
                 if (flipV != null && flipV) {
-                    for (HotSpot hotSpot : hotSpots) {
-                        hotSpot.setY(originalHeight - hotSpot.getY() - hotSpot.getHeight());
+                    for (HotSpotPoint hotSpot : hotSpots) {
+                        if (hotSpot instanceof HotSpotRegion) {
+                            hotSpot.as(HotSpotPoint.Data.class).setY(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY() - hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                        } else {
+                            hotSpot.as(HotSpotPoint.Data.class).setY(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY());
+                        }
                     }
                 }
 
                 //bounding box of hotspots
                 Integer x1 = null;
                 Integer y1 = null;
-                for (HotSpot hotSpot : hotSpots) {
-                    x1 = x1 == null || hotSpot.getX() < x1 ? hotSpot.getX() : x1;
-                    x2 = x2 == null || (hotSpot.getX() + hotSpot.getWidth()) > x2 ? (hotSpot.getX() + hotSpot.getWidth()) : x2;
-                    y1 = y1 == null || hotSpot.getY() < y1 ? hotSpot.getY() : y1;
-                    y2 = y2 == null || (hotSpot.getY() + hotSpot.getHeight()) > y2 ? (hotSpot.getY() + hotSpot.getHeight()) : y2;
+                for (HotSpotPoint hotSpot : hotSpots) {
+                    x1 = x1 == null || hotSpot.as(HotSpotPoint.Data.class).getX() < x1 ? hotSpot.as(HotSpotPoint.Data.class).getX() : x1;
+                    y1 = y1 == null || hotSpot.as(HotSpotPoint.Data.class).getY() < y1 ? hotSpot.as(HotSpotPoint.Data.class).getY() : y1;
+                    if (hotSpot instanceof HotSpotRegion) {
+                        x2 = x2 == null || (hotSpot.as(HotSpotPoint.Data.class).getX() + hotSpot.as(HotSpotRegion.Data.class).getWidth()) > x2 ? (hotSpot.as(HotSpotPoint.Data.class).getX() +  hotSpot.as(HotSpotRegion.Data.class).getWidth()) : x2;
+                        y2 = y2 == null || (hotSpot.as(HotSpotPoint.Data.class).getY() + hotSpot.as(HotSpotRegion.Data.class).getHeight()) > y2 ? (hotSpot.as(HotSpotPoint.Data.class).getY() +  hotSpot.as(HotSpotRegion.Data.class).getHeight()) : y2;
+                    }
                 }
 
                 x1 = ((Double) (x1 * widthScaleFactor)).intValue();
@@ -137,11 +156,11 @@ public class ImageHotSpot {
         return null;
     }
 
-    public static List<HotSpot> getReSizedHotSpots(StorageItem item, Object size) throws IOException {
+    public static List<HotSpotPoint> getReSizedHotSpots(StorageItem item, Object size) throws IOException {
         return getReSizedHotSpots(item, size, Boolean.FALSE);
     }
 
-    public static List<HotSpot> getReSizedHotSpots(StorageItem item, Object size, Boolean disableHotSpotCrop) throws IOException {
+    public static List<HotSpotPoint> getReSizedHotSpots(StorageItem item, Object size, Boolean disableHotSpotCrop) throws IOException {
         StandardImageSize standardImageSize = null;
         if (size instanceof StandardImageSize) {
             standardImageSize = ((StandardImageSize) size);
@@ -154,8 +173,8 @@ public class ImageHotSpot {
         return null;
     }
 
-    public static List<HotSpot> getReSizedHotSpots(StorageItem item, Integer reSizedWidth, Integer reSizedHeight, CropOption cropOption, ResizeOption resizeOption, String standardImageSizeId, Boolean disableHotSpotCrop) throws IOException {
-        List<HotSpot> originalHotSpots = HotSpots.Data.getHotSpots(item);
+    public static List<HotSpotPoint> getReSizedHotSpots(StorageItem item, Integer reSizedWidth, Integer reSizedHeight, CropOption cropOption, ResizeOption resizeOption, String standardImageSizeId, Boolean disableHotSpotCrop) throws IOException {
+        List<HotSpotPoint> originalHotSpots = HotSpots.Data.getHotSpots(item);
         if (!ObjectUtils.isBlank(originalHotSpots) &&
             item != null &&
             item.getMetadata().containsKey("height") &&
@@ -263,8 +282,8 @@ public class ImageHotSpot {
         return null;
     }
 
-    public static List<HotSpot> getReSizedHotSpots(StorageItem item, Integer cropX, Integer cropY, Integer cropWidth, Integer cropHeight, Integer reSizedWidth, Integer reSizedHeight) {
-        List<HotSpot> hotSpots = HotSpots.Data.getHotSpots(item);
+    public static List<HotSpotPoint> getReSizedHotSpots(StorageItem item, Integer cropX, Integer cropY, Integer cropWidth, Integer cropHeight, Integer reSizedWidth, Integer reSizedHeight) {
+        List<HotSpotPoint> hotSpots = HotSpots.Data.getHotSpots(item);
         if (!ObjectUtils.isBlank(hotSpots) &&
             item != null &&
             item.getMetadata().containsKey("height") &&
@@ -284,21 +303,29 @@ public class ImageHotSpot {
             Boolean flipV = ObjectUtils.to(Boolean.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/flipV"));
 
             if (flipH != null && flipH) {
-                for (HotSpot hotSpot : hotSpots) {
-                    hotSpot.setX(originalWidth - hotSpot.getX()  - hotSpot.getWidth());
+                for (HotSpotPoint hotSpot : hotSpots) {
+                    if (hotSpot instanceof HotSpotRegion) {
+                        hotSpot.as(HotSpotPoint.Data.class).setX(originalWidth - hotSpot.as(HotSpotPoint.Data.class).getX() - hotSpot.as(HotSpotRegion.Data.class).getWidth());
+                    } else {
+                        hotSpot.as(HotSpotPoint.Data.class).setX(originalWidth - hotSpot.as(HotSpotPoint.Data.class).getX());
+                    }
                 }
             }
 
             if (flipV != null && flipV) {
-                for (HotSpot hotSpot : hotSpots) {
-                    hotSpot.setY(originalHeight - hotSpot.getY() - hotSpot.getHeight());
+                for (HotSpotPoint hotSpot : hotSpots) {
+                    if (hotSpot instanceof HotSpotRegion) {
+                        hotSpot.as(HotSpotPoint.Data.class).setY(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY());
+                    } else {
+                        hotSpot.as(HotSpotPoint.Data.class).setY(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY() - hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                    }
                 }
             }
 
             if (cropX != null && cropY != null) {
-                for (HotSpot hotSpot : hotSpots) {
-                    hotSpot.setX(hotSpot.getX() - cropX);
-                    hotSpot.setY(hotSpot.getY() - cropY);
+                for (HotSpotPoint hotSpot : hotSpots) {
+                    hotSpot.as(HotSpotPoint.Data.class).setX(hotSpot.as(HotSpotPoint.Data.class).getX() - cropX);
+                    hotSpot.as(HotSpotPoint.Data.class).setY(hotSpot.as(HotSpotPoint.Data.class).getY() - cropY);
                 }
             }
 
@@ -306,20 +333,28 @@ public class ImageHotSpot {
                 Integer angle = ObjectUtils.to(Integer.class, CollectionUtils.getByPath(item.getMetadata(), "cms.edits/rotate"));
                 if (angle != null) {
                     if (angle == 90) {
-                        for (HotSpot hotSpot : hotSpots) {
-                            Integer originalX = hotSpot.getX();
-                            hotSpot.setX(originalHeight - hotSpot.getY() - hotSpot.getWidth());
-                            hotSpot.setY(originalX);
-                            hotSpot.setWidth(hotSpot.getHeight());
-                            hotSpot.setHeight(hotSpot.getWidth());
+                        for (HotSpotPoint hotSpot : hotSpots) {
+                            Integer originalX = hotSpot.as(HotSpotPoint.Data.class).getX();
+                            hotSpot.as(HotSpotPoint.Data.class).setY(originalX);
+                            if (hotSpot instanceof HotSpotRegion) {
+                                hotSpot.as(HotSpotPoint.Data.class).setX(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY());
+                            } else {
+                                hotSpot.as(HotSpotPoint.Data.class).setX(originalHeight - hotSpot.as(HotSpotPoint.Data.class).getY() - hotSpot.as(HotSpotRegion.Data.class).getWidth());
+                                hotSpot.as(HotSpotRegion.Data.class).setWidth(hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                                hotSpot.as(HotSpotRegion.Data.class).setHeight(hotSpot.as(HotSpotRegion.Data.class).getWidth());
+                            }
                         }
                     } else if (angle == -90) {
-                        for (HotSpot hotSpot : hotSpots) {
-                            Integer originalX = hotSpot.getX();
-                            hotSpot.setX(hotSpot.getY());
-                            hotSpot.setY(originalWidth - originalX - hotSpot.getHeight());
-                            hotSpot.setWidth(hotSpot.getHeight());
-                            hotSpot.setHeight(hotSpot.getWidth());
+                        for (HotSpotPoint hotSpot : hotSpots) {
+                            Integer originalX = hotSpot.as(HotSpotPoint.Data.class).getX();
+                            hotSpot.as(HotSpotPoint.Data.class).setX(hotSpot.as(HotSpotPoint.Data.class).getY());
+                            if (hotSpot instanceof HotSpotRegion) {
+                                hotSpot.as(HotSpotPoint.Data.class).setY(originalWidth - originalX);
+                            } else {
+                                hotSpot.as(HotSpotPoint.Data.class).setY(originalWidth - originalX - hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                                hotSpot.as(HotSpotRegion.Data.class).setWidth(hotSpot.as(HotSpotRegion.Data.class).getHeight());
+                                hotSpot.as(HotSpotRegion.Data.class).setHeight(hotSpot.as(HotSpotRegion.Data.class).getWidth());
+                            }
                         }
                     }
                 }
@@ -343,11 +378,13 @@ public class ImageHotSpot {
                     widthScaleFactor = cropWidth != null && cropWidth > 0 ? (double) reSizedWidth / cropWidth : 1.0;
                 }
 
-                for (HotSpot hotSpot : hotSpots) {
-                    hotSpot.setX(((Double) (hotSpot.getX() * widthScaleFactor)).intValue());
-                    hotSpot.setY(((Double) (hotSpot.getY() * heightScaleFactor)).intValue());
-                    hotSpot.setWidth(((Double) (hotSpot.getWidth() * widthScaleFactor)).intValue());
-                    hotSpot.setHeight(((Double) (hotSpot.getHeight() * heightScaleFactor)).intValue());
+                for (HotSpotPoint hotSpot : hotSpots) {
+                    hotSpot.as(HotSpotPoint.Data.class).setX(((Double) (hotSpot.as(HotSpotPoint.Data.class).getX() * widthScaleFactor)).intValue());
+                    hotSpot.as(HotSpotPoint.Data.class).setY(((Double) (hotSpot.as(HotSpotPoint.Data.class).getY() * heightScaleFactor)).intValue());
+                    if (hotSpot instanceof HotSpotRegion) {
+                        hotSpot.as(HotSpotRegion.Data.class).setWidth(((Double) (hotSpot.as(HotSpotRegion.Data.class).getWidth() * widthScaleFactor)).intValue());
+                        hotSpot.as(HotSpotRegion.Data.class).setHeight(((Double) (hotSpot.as(HotSpotRegion.Data.class).getHeight() * heightScaleFactor)).intValue());
+                    }
                 }
             }
         }
