@@ -553,6 +553,10 @@ function($, bsp_utils) {
                                     bounds.top = 0;
                                 }
 
+                                if (bounds.width === 0) {
+                                    bounds.width = 10;
+                                }
+
                                 overflow = bounds.left + bounds.width - imageWidth;
                                 if (overflow > 0) {
                                     bounds.left -= overflow;
@@ -665,39 +669,44 @@ function($, bsp_utils) {
                     };
                 };
 
-                $hotSpotOverlayBox.append($('<div/>', {
-                    'class': 'imageEditor-resizer imageEditor-resizer-left',
-                    'mousedown': updateSizeBox(function(event, original, delta) {
-                        $input.addClass("state-focus");
-                        $hotSpotOverlay.addClass("selected");
-                        return {
-                            'left': original.left + delta.x,
-                            'width': original.width - delta.x
-                        };
-                    })
-                }));
-                $hotSpotOverlayBox.append($('<div/>', {
-                    'class': 'imageEditor-resizer imageEditor-resizer-right',
-                    'mousedown': updateSizeBox(function(event, original, delta) {
-                        $input.addClass("state-focus");
-                        $hotSpotOverlay.addClass("selected");
-                        return {
-                            'left': original.left,
-                            'width': original.width + delta.x
-                        };
-                    })
-                }));
-                $hotSpotOverlayBox.append($('<div/>', {
-                    'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
-                    'mousedown': updateSizeBox(function(event, original, delta) {
-                        $input.addClass("state-focus");
-                        $hotSpotOverlay.addClass("selected");
-                        return {
-                            'width': original.width + delta.constrainedX,
-                            'height': original.height + delta.constrainedY
-                        };
-                    })
-                }));
+                if (isNaN(width)) {
+                    $hotSpotOverlay.css("width", "10px");
+                    $hotSpotOverlay.css("height", "0px");
+                } else {
+                    $hotSpotOverlayBox.append($('<div/>', {
+                        'class': 'imageEditor-resizer imageEditor-resizer-left',
+                        'mousedown': updateSizeBox(function(event, original, delta) {
+                            $input.addClass("state-focus");
+                            $hotSpotOverlay.addClass("selected");
+                            return {
+                                'left': original.left + delta.x,
+                                'width': original.width - delta.x
+                            };
+                        })
+                    }));
+                    $hotSpotOverlayBox.append($('<div/>', {
+                        'class': 'imageEditor-resizer imageEditor-resizer-right',
+                        'mousedown': updateSizeBox(function(event, original, delta) {
+                            $input.addClass("state-focus");
+                            $hotSpotOverlay.addClass("selected");
+                            return {
+                                'left': original.left,
+                                'width': original.width + delta.x
+                            };
+                        })
+                    }));
+                    $hotSpotOverlayBox.append($('<div/>', {
+                        'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
+                        'mousedown': updateSizeBox(function(event, original, delta) {
+                            $input.addClass("state-focus");
+                            $hotSpotOverlay.addClass("selected");
+                            return {
+                                'width': original.width + delta.constrainedX,
+                                'height': original.height + delta.constrainedY
+                            };
+                        })
+                    }));
+                }
 
                 $hotSpotOverlay.append($hotSpotOverlayBox);
 
