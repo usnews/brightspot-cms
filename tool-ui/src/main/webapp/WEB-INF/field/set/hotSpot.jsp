@@ -43,7 +43,6 @@ if (state.getOriginalObject() instanceof HotSpots) {
     if (fieldValue != null) {
 
         List<HotSpotPoint> hotspotList = HotSpots.Data.getHotSpots(fieldValue);
-        %>hotspot list size <%=hotspotList.size()%><%
 
         String inputName = (String) request.getAttribute("inputName");
         String hotSpotsList = fieldName + "/hotspots";
