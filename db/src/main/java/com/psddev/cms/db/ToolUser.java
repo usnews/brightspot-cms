@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -57,6 +58,8 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Hidden
     private Date passwordChangedDate;
+
+    private Locale locale = Locale.getDefault();
 
     @ToolUi.FieldDisplayType("timeZone")
     private String timeZone;
@@ -184,6 +187,21 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setAvatar(StorageItem avatar) {
         this.avatar = avatar;
+    }
+
+    /**
+     * @return the user's locale.
+     */
+    public Locale getLocale() {
+        return locale;
+    }
+
+    /**
+     * Sets the user's locale.
+     * @param locale the locale.
+     */
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     /**
