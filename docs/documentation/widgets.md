@@ -156,13 +156,13 @@ public class NewTab extends Tool {
         plugins.add(createArea2("Main Tab", "mainTab",
                  "mainTab", null));
 
-        plugins.add(createArea2("First DropDown", "mainTab",
+        plugins.add(createArea2("First DropDown", "firstDropDown",
                 "mainTab/firstDropDown", "path/to/your.jsp"));
 
-        plugins.add(createArea2("Second DropDown", "mainTab",
+        plugins.add(createArea2("Second DropDown", "secondDropDown",
                 "mainTab/secondDropDown", "path/to/your.jsp"));
 
-        plugins.add(createArea2("Third DropDown", "mainTab",
+        plugins.add(createArea2("Third DropDown", "third",
                 "mainTab/third", "path/to/your.jsp"));
 
         return plugins;
