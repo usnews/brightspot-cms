@@ -30,7 +30,7 @@ public class QueryFieldResult extends PageServlet {
 
         renderer.render();
 
-        String pageId = page.getId();
+        String pageId = page.createId();
         Query<?> query = search.toQuery(page.getSite());
         State queryState = query.getState();
 
