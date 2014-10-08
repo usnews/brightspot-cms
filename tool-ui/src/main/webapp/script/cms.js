@@ -524,7 +524,7 @@ function() {
     });
 
     $doc.onCreate('.inputContainer-readOnly', function() {
-        $(this).find(':input').trigger('input-disable', [ true ]);
+        $(this).find(":input, div").trigger('input-disable', [ true ]);
     });
 
     (function() {
