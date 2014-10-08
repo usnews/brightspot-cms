@@ -39,8 +39,6 @@ function($, bsp_utils) {
 
             $.data($field[0], 'query-$frame', $frame);
             $.data($frame[0], 'query-$field', $field);
-            $frames.append($frame);
-            $frames.trigger('create');
         }
     });
 
@@ -49,6 +47,11 @@ function($, bsp_utils) {
             var $field = $(this);
             var $frame = $.data($field[0], 'query-$frame');
             var fieldOffset = $field.offset();
+
+            if ($frame.closest('.queryField_frames').length === 0) {
+                $frames.append($frame);
+                $frames.trigger('create');
+            }
 
             $frame.css({
                 'left': fieldOffset.left,
@@ -66,7 +69,7 @@ function($, bsp_utils) {
             var $field = $(this);
             var $frame = $.data($field[0], 'query-$frame');
 
-            if ($frame) {
+            if ($frame && $frame.closest('.queryField_frames').length > 0) {
                 $frame.hide();
             }
         });
