@@ -66,7 +66,9 @@ function($, bsp_utils) {
             var $field = $(this);
             var $frame = $.data($field[0], 'query-$frame');
 
-            $frame.hide();
+            if ($frame) {
+                $frame.hide();
+            }
         });
     }, 100);
 });
