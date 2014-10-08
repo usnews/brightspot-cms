@@ -53,7 +53,8 @@ function($, bsp_utils) {
             $frame.css({
                 'left': fieldOffset.left,
                 'position': 'absolute',
-                'top': fieldOffset.top
+                'top': fieldOffset.top,
+                'z-index': 1000000
             });
 
             $frame.outerWidth($field.outerWidth());
