@@ -447,7 +447,7 @@ function($) {
                     var $parent, $prev, $next;
 
                     if (action === 'moveDown') {
-                        $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
+                        $placeholder.closest('body').find('br + br, div, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                             if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_FOLLOWING) {
                                 $(this).after($placeholder);
                                 return false;
@@ -460,7 +460,7 @@ function($) {
                         var precedings = [ ],
                                 precedingsLength;
 
-                        $placeholder.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
+                        $placeholder.closest('body').find('br + br, div, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                             if ($placeholder[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
                                 precedings.push(this);
                             }
