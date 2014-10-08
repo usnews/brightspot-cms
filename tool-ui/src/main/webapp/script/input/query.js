@@ -73,5 +73,13 @@ function($, bsp_utils) {
                 $frame.hide();
             }
         });
+
+        $('.queryField_frames > .frame').each(function() {
+            var $field = $.data(this, 'query-$field');
+
+            if (!$field || !$field.is(':visible')) {
+                $(this).hide();
+            }
+        });
     }, 100);
 });
