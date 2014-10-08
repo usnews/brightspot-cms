@@ -187,7 +187,7 @@ table {
   td,
   th {
     border-style: none;
-    padding: 2px 5px;
+    padding: ((@tableCell-height - @global-lineHeight) / 2) 5px;
   }
 
   th {
@@ -255,7 +255,8 @@ ul {
 }
 
 .state-placeholder {
-  color: @color-note;
+  color: @placeholder-color;
+  font-style: @placeholder-font-style;
 }
 
 ::placeholder {

@@ -8,14 +8,13 @@
 
     > li {
       background-color: rgba(255, 255, 255, 0.5);
-      border: 1px solid @color-alt;
       margin-bottom: 6px;
-      padding: 0 6px;
       position: relative;
 
       > .repeatableLabel {
-        .background-color(@color-alt);
-
+        background: @inputLabel-background;
+        border-radius: @inputLabel-borderRadius;
+        color: @inputLabel-color;
         cursor: pointer;
         left: 0;
         margin: 0 -6px 0 -6px;
@@ -43,6 +42,26 @@
         }
       }
 
+      > .objectInputs {
+        padding: @inputLarge-padding;
+
+        &:before {
+          bottom: 15px;
+          border-color: @inputLabel-background;
+          border-style: solid;
+          border-width: 0 0 1px 1px;
+          content: '';
+          left: 15px;
+          position: absolute;
+          width: 7.5px;
+          top: 0;
+        }
+
+        &.state-focus:before {
+          border-color: @inputLabel-background-focus;
+        }
+      }
+
       > .removeButton {
         .icon;
         .icon-minus-sign;
@@ -60,10 +79,9 @@
       }
 
       &.state-focus {
-        border-color: @color-link-lighter;
-
         > .repeatableLabel {
-          background-color: @color-link-lighter;
+          background: @inputLabel-background-focus;
+          color: @inputLabel-color-focus;
         }
       }
 

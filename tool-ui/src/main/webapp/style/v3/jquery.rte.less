@@ -3,11 +3,13 @@ iframe.wysihtml5-sandbox {
 }
 
 .rte-container {
-  border: @size-input-border solid transparent;
-  border-radius: 2px;
-  box-shadow: 0px 1px 2px fade(black, 20%);
+  background: @input-background;
+  border-color: @input-borderColor;
+  border-radius: @input-borderRadius;
+  border-style: solid;
+  border-width: @input-borderWidth;
   display: block;
-  padding: 0 11px;
+  padding: ((@input-height - @input-lineHeight) / 2 - @input-borderWidth) @input-padding-lr;
   margin: 0;
 
   iframe {
