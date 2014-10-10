@@ -56,7 +56,11 @@ try {
     IoUtils.copy(urlInput, response.getOutputStream());
     response.getOutputStream().flush();
 
+    // ensure that no additional calls to response.getWriter() are made by the compiled JSP
+    if(true) { return; }
+
 } finally {
     urlInput.close();
 }
+
 %>
