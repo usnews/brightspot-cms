@@ -43,8 +43,19 @@ function($, bsp_utils) {
     });
 
     setInterval(function() {
+        function inNonInitializedRepeatable($field) {
+            var $repeatable = $field.closest('.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId, .repeatableText');
+
+            return $repeatable.length > 0 && !$repeatable.is('.plugin-repeatable');
+        }
+
         $fields.filter(':visible').each(function() {
             var $field = $(this);
+
+            if (inNonInitializedRepeatable($field)) {
+                return;
+            }
+
             var $frame = $.data($field[0], 'query-$frame');
             var fieldOffset = $field.offset();
 
@@ -67,6 +78,11 @@ function($, bsp_utils) {
 
         $fields.filter(':not(:visible)').each(function() {
             var $field = $(this);
+
+            if (inNonInitializedRepeatable($field)) {
+                return;
+            }
+
             var $frame = $.data($field[0], 'query-$frame');
 
             if ($frame && $frame.closest('.queryField_frames').length > 0) {
@@ -76,6 +92,10 @@ function($, bsp_utils) {
 
         $('.queryField_frames > .frame').each(function() {
             var $field = $.data(this, 'query-$field');
+
+            if (inNonInitializedRepeatable($field)) {
+                return;
+            }
 
             if (!$field || !$field.is(':visible')) {
                 $(this).hide();
