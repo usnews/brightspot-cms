@@ -14,6 +14,20 @@ function($, bsp_utils) {
                     idleTimeout;
 
             updateContentState = function(idle, wait) {
+                if ($form.find(
+                        '.repeatableForm:not(.plugin-repeatable),' +
+                        '.repeatableInputs:not(.plugin-repeatable),' +
+                        '.repeatableLayout:not(.plugin-repeatable),' +
+                        '.repeatableObjectId:not(.plugin-repeatable),' +
+                        '.repeatableText:not(.plugin-repeatable)').
+                        length > 0) {
+
+                    setTimeout(function() {
+                        updateContentState(idle, wait);
+                    }, 100);
+                    return;
+                }
+
                 var action,
                         questionAt,
                         complete,
@@ -25,8 +39,12 @@ function($, bsp_utils) {
                 end = +new Date() + 1000;
                 $dynamicTexts = $form.find(
                         '[data-dynamic-text][data-dynamic-text != ""],' +
-                                '[data-dynamic-html][data-dynamic-html != ""],' +
-                                '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
+                        '[data-dynamic-html][data-dynamic-html != ""],' +
+                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
+
+                $dynamicTexts = $dynamicTexts.filter(function() {
+                    return $(this).closest('.collapsed').length === 0;
+                });
 
                 $.ajax({
                     'type': 'post',
@@ -67,6 +85,8 @@ function($, bsp_utils) {
                                 $element.prop('placeholder', text);
                             }
                         });
+
+                        $form.resize();
                     },
 
                     'complete': function() {
