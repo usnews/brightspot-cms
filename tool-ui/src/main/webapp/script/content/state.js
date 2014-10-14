@@ -103,7 +103,7 @@ function($, bsp_utils) {
                 }
             };
 
-            updateContentStateThrottled = $.throttle(100, updateContentState);
+            updateContentStateThrottled = $.throttle(200, updateContentState);
 
             updateContentStateThrottled();
 
@@ -115,7 +115,7 @@ function($, bsp_utils) {
                 changed = true;
                 idleTimeout = setTimeout(function() {
                     updateContentStateThrottled(true);
-                }, 2000);
+                }, 5000);
             });
 
             $(window).bind('beforeunload', function() {
