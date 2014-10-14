@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -8,6 +9,8 @@ import javax.servlet.ServletException;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.State;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 
 @RoutingFilter.Path(application = "cms", value = "contentFormFields")
@@ -21,10 +24,16 @@ public class ContentFormFields extends PageServlet {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         UUID typeId = page.param(UUID.class, "typeId");
         UUID id = page.param(UUID.class, "id");
+        String data = page.param(String.class, "data");
         Object object = ObjectType.getInstance(typeId).createObject(id);
+
+        if (data != null) {
+            State.getInstance(object).putAll((Map<String, Object>) ObjectUtils.fromJson(data));
+        }
 
         page.writeFormFields(object);
     }
