@@ -19,6 +19,7 @@ function($) {
                     preview,
                     visibility,
                     label,
+                    dynamicPlaceholderText,
                     placeholder,
                     value;
 
@@ -59,9 +60,16 @@ function($) {
                     }
 
                 } else {
+                    dynamicPlaceholderText = $input.attr('data-dynamic-placeholder');
                     placeholder = $input.attr('placeholder');
 
-                    if (placeholder) {
+                    if (dynamicPlaceholderText) {
+                        $select.html($('<span/>', {
+                            'type': 'text',
+                            'class': 'objectId-placeholder',
+                            'data-dynamic-text': dynamicPlaceholderText
+                        }));
+                    } else if (placeholder) {
                         $select.html($('<span/>', {
                             'class': 'objectId-placeholder',
                             'text': placeholder

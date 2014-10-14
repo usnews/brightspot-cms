@@ -1853,6 +1853,7 @@ public class ToolPageContext extends WebPageContext {
                     "class", "objectId",
                     "data-additional-query", field.getPredicate(),
                     "data-generic-argument-index", field.getGenericArgumentIndex(),
+                    "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     "data-label", value != null ? getObjectLabel(value) : null,
                     "data-pathed", ToolUi.isOnlyPathed(field),
                     "data-preview", getPreviewThumbnailUrl(value),
