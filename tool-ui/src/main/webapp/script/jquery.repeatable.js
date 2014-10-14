@@ -49,7 +49,7 @@ $.plugin2('repeatable', {
                             var url = $input.attr('data-form-fields-url');
                             var data = $input.val();
 
-                            $input.removeAttr('data-form-url');
+                            $input.removeAttr('data-form-fields-url');
                             $input.val('');
 
                             $.ajax({
