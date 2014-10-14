@@ -66,6 +66,7 @@ final String inputName = (String) request.getAttribute("inputName");
 final String idName = inputName + ".id";
 final String typeIdName = inputName + ".typeId";
 final String publishDateName = inputName + ".publishDate";
+final String dataName = inputName + ".data";
 String layoutsName = inputName + ".layouts";
 
 if ((Boolean) request.getAttribute("isFormPost")) {
@@ -81,6 +82,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         UUID[] ids = wp.uuidParams(idName);
         UUID[] typeIds = wp.uuidParams(typeIdName);
         Date[] publishDates = wp.dateParams(publishDateName);
+        List<String> datas = wp.params(String.class, dataName);
 
         for (int i = 0, s = Math.min(Math.min(ids.length, typeIds.length), publishDates.length); i < s; ++ i) {
             Object item = existing.get(ids[i]);
@@ -96,7 +98,15 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 itemState.setId(ids[i]);
             }
 
-            wp.updateUsingParameters(item);
+            String data = i < datas.size() ? datas.get(i) : null;
+
+            if (!ObjectUtils.isBlank(data)) {
+                itemState.putAll((Map<String, Object>) ObjectUtils.fromJson(data));
+
+            } else {
+                wp.updateUsingParameters(item);
+            }
+
             itemState.putValue(Content.PUBLISH_DATE_FIELD, publishDates[i] != null ? publishDates[i] : new Date());
             itemState.putValue(Content.UPDATE_DATE_FIELD, new Date());
             fieldValue.add(item);
@@ -590,7 +600,14 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    wp.writeFormFields(item);
+                    wp.writeElement("input",
+                            "type", "hidden",
+                            "name", dataName,
+                            "value", ObjectUtils.toJson(itemState.getSimpleValues()),
+                            "data-form-fields-url", wp.cmsUrl(
+                                    "/contentFormFields",
+                                    "typeId", itemType.getId(),
+                                    "id", itemState.getId()));
                 wp.writeEnd();
             }
 

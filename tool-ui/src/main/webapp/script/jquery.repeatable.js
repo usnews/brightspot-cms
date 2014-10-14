@@ -43,6 +43,29 @@ $.plugin2('repeatable', {
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
                     'data-dynamic-text': '${content.state.getType().label}: ${content.label}',
                     'click': function() {
+                        var $input = $item.find('input[data-form-fields-url]');
+
+                        if ($input.length > 0) {
+                            var url = $input.attr('data-form-fields-url');
+                            var data = $input.val();
+
+                            $input.removeAttr('data-form-url');
+                            $input.val('');
+
+                            $.ajax({
+                                'type': 'POST',
+                                'cache': false,
+                                'url': url,
+                                'data': { 'data': data },
+                                'complete': function(response) {
+                                    $item.append(response.responseText);
+                                    $item.trigger('create');
+                                    $item.trigger('load');
+                                    $item.resize();
+                                }
+                            });
+                        }
+
                         $item.toggleClass('collapsed');
                         $item.resize();
                         $item.find(':input:first').change();
