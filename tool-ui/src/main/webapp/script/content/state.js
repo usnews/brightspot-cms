@@ -5,6 +5,17 @@ define([
 function($, bsp_utils) {
     var $win = $(window);
 
+    bsp_utils.onDomInsert(document, '.message', {
+        'insert': function(message) {
+            var $message = $(message);
+
+            if ($message.text() === '' &&
+                    $message.find('[data-dynamic-html], [data-dynamic-text]').length > 0) {
+                $message.hide();
+            }
+        }
+    });
+
     bsp_utils.onDomInsert(document, '.contentForm, .enhancementForm, .standardForm', {
         'insert': function(form) {
             var $form = $(form),
