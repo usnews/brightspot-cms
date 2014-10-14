@@ -51,6 +51,7 @@ $.plugin2('repeatable', {
 
                             $input.removeAttr('data-form-fields-url');
                             $input.val('');
+                            $item.toggleClass('collapsed');
 
                             $.ajax({
                                 'type': 'POST',
@@ -62,13 +63,15 @@ $.plugin2('repeatable', {
                                     $item.trigger('create');
                                     $item.trigger('load');
                                     $item.resize();
+                                    $item.find(':input:first').change();
                                 }
                             });
-                        }
 
-                        $item.toggleClass('collapsed');
-                        $item.resize();
-                        $item.find(':input:first').change();
+                        } else {
+                            $item.toggleClass('collapsed');
+                            $item.resize();
+                            $item.find(':input:first').change();
+                        }
                     }
                 });
                 if ($labelHtml.size() !== 0) {
