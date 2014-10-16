@@ -752,6 +752,10 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        if (object != null) {
+            State.getInstance(object).setResolveInvisible(true);
+        }
+
         Template template = Query.from(Template.class).where("_id = ?", param(UUID.class, "templateId")).first();
 
         if (template != null) {
