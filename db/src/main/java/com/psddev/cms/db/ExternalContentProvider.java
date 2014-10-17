@@ -132,7 +132,7 @@ public interface ExternalContentProvider {
      */
     public static class Pinterest extends RichExternalContentProvider {
 
-        private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\.)?pinterest.com/([^/]+)(/[^/]+)?.*");
+        private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\\.)?pinterest.com/([^/]+)(/[^/]+)?.*");
 
         @Override
         protected Pattern getUrlPattern() {
