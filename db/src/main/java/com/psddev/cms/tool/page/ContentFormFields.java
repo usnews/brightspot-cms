@@ -31,6 +31,8 @@ public class ContentFormFields extends PageServlet {
         String data = page.param(String.class, "data");
         Object object = ObjectType.getInstance(typeId).createObject(id);
 
+        State.getInstance(object).setResolveInvisible(true);
+
         if (data != null) {
             State.getInstance(object).putAll((Map<String, Object>) ObjectUtils.fromJson(data));
         }
