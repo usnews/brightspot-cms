@@ -43,7 +43,7 @@ $.plugin2('repeatable', {
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
                     'data-dynamic-text': '${content.state.getType().label}: ${content.label}',
                     'click': function() {
-                        var $input = $item.find('input[data-form-fields-url]');
+                        var $input = $item.find('> input[data-form-fields-url]');
 
                         if ($input.length > 0) {
                             var url = $input.attr('data-form-fields-url');
