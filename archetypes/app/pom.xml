@@ -10,7 +10,7 @@
         <groupId>com.psddev</groupId>
         <artifactId>cms</artifactId>
         <version>2.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <groupId>com.psddev</groupId>
