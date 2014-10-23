@@ -423,19 +423,33 @@
   }
 
   &.searchFilter-date {
+    position: relative;
+
     .calendarButton {
       width: 100%;
     }
 
     > input:first-child + .calendarButton {
+      border-bottom-color: transparent;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
 
     > input[name$='.x'] + .calendarButton {
+      border-top-color: transparent;
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       margin-top: -1px;
+    }
+
+    &:before {
+      border-top: 1px solid husl-lightness-set(black, 90);
+      content: '';
+      height: 0;
+      left: 10px;
+      position: absolute;
+      top: 29px;
+      right: 35px;
     }
   }
 

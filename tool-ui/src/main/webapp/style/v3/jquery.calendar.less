@@ -92,11 +92,17 @@
   padding-right: 0;
 
   &:before {
-    color: @color-text;
+    color: husl-lightness-set(white, 60);
+    margin-right: 3px;
   }
 
   &.calendarButton-empty {
-    color: @color-note;
+    color: husl-lightness-set(white, 60);
+    font-style: italic;
+
+    &:before {
+      font-style: normal;
+    }
   }
 }
 
