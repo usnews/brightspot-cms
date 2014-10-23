@@ -1206,19 +1206,18 @@ table.links.table-striped {
 }
 
 .tabs {
-  border-bottom: 1px solid @color-separator;
-  font-family: @fontFamily-label;
-  font-size: 80%;
-  font-weight: bold;
+  @-color-border: husl-lightness-set(black, 90);
+
+  border-bottom: 1px solid @-color-border;
+  font-weight: 700;
   list-style-type: none;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   margin-left: 0;
   position: relative;
-  text-transform: uppercase;
-  top: -3px;
+  top: -1px;
 
   .link {
-    font-weight: bold;
+    font-weight: 700;
 
     &:hover {
       text-decoration: none;
@@ -1226,14 +1225,21 @@ table.links.table-striped {
   }
 
   > li {
+    @length-border: 1px;
+    @length-height: 36px;
+
     border-color: transparent;
+    border-radius: 2px;
     border-style: solid;
-    border-width: 0 0 3px 0;
+    border-width: @length-border;
     display: inline-block;
-    margin-right: 15px;
+    padding: ((@length-height - @length-lineHeight - @length-border) / 2) 20px;
+    position: relative;
+    top: 1px;
 
     &.state-selected {
-      border-color: @color-black;
+      border-color: @-color-border;
+      border-bottom-color: white;
 
       .link {
         color: @color-text;

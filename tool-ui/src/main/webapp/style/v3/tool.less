@@ -194,32 +194,34 @@
 }
 
 .toolNav {
-  font-family: @fontFamily-label;
-  font-size: 100%;
-  font-weight: bold;
+  font-weight: 700;
   left: 373px;
   list-style-type: none;
   position: absolute;
   transition: left @time-fast;
-  top: 25px;
+  top: 20px;
 
   .toolSearchOpen & {
     left: 475px;
   }
 
   > li {
+    @length-border: 1px;
+    @length-height: 36px;
+
+    border-color: transparent;
+    border-radius: 2px;
+    border-style: solid;
+    border-width: @length-border;
     float: left;
-    margin: 0 3px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: ((@length-height - @length-lineHeight - @length-border) / 2) 20px;
     position: relative;
 
     > .link {
       color: @color-text;
       display: block;
       font-weight: bold;
-      height: 30px;
-      line-height: 30px;
-      margin: 0 15px 0 0;
 
       &:hover {
         text-decoration: none;
@@ -228,14 +230,18 @@
 
     > ul {
       background: white;
-      box-shadow: 0 0px 5px fade(black, 20%);
+      border: 1px solid @color-focus;
+      border-bottom-left-radius: 2px;
+      border-bottom-right-radius: 2px;
+      border-top-right-radius: 2px;
+      box-shadow: 0 0px 5px fade(black, 10%);
       display: none;
-      left: -15px;
+      left: -1px;
       list-style-type: none;
       margin: 0;
-      padding: 0 0 5px 0;
+      padding: 0;
       position: absolute;
-      top: 30px;
+      top: (@length-height - 1);
       z-index: 200;
 
       > li {
@@ -271,15 +277,24 @@
 
     &.selected {
       > .link {
-        border-bottom: 3px solid @color-focus;
         color: @color-text;
         position: relative;
       }
     }
 
     &:hover {
-      > .link {
-        border-bottom-color: @color-background;
+      border-color: @color-focus;
+      box-shadow: 0 0px 5px fade(black, 10%);
+
+      &:after {
+        background: white;
+        bottom: -1px;
+        content: '';
+        left: 0;
+        height: 5px;
+        position: absolute;
+        right: 0;
+        z-index: 201;
       }
 
       > ul {
