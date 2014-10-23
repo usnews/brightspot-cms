@@ -109,6 +109,19 @@ i {
 }
 
 input {
+  &[type='checkbox'] {
+    -webkit-appearance: none;
+    background-image: url(icon/checkbox-empty.png);
+    height: 18px;
+    margin: 0;
+    vertical-align: middle;
+    width: 18px;
+
+    &:checked {
+      background-image: url(icon/checkbox-check.png);
+    }
+  }
+
   &[type='password'],
   &[type='text'] {
     &:extend(.input all);

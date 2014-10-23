@@ -405,7 +405,7 @@
 }
 
 .searchFilter {
-  margin-top: 5px;
+  margin-top: 10px;
   position: relative;
 
   .objectId,
@@ -464,11 +464,15 @@
   input[type='checkbox'] {
     position: absolute;
     right: 0;
-    top: 4px;
+    top: 6px;
+
+    &:checked {
+      background-image: url(icon/checkbox-cross.png);
+    }
   }
 
   .searchFilter {
-    padding-right: 20px;
+    padding-right: 25px;
   }
 
   .objectId-clear {
