@@ -4,7 +4,6 @@
   &.dropDown-list-open {
     border-bottom-left-radius: 0;
     border-color: @color-focus;
-    box-shadow: 0 0 4px @color-focus;
 
     &:not(.dropDown-input-larger) {
       border-bottom-right-radius: 0;
@@ -51,10 +50,9 @@ input[type="text"].dropDown-search {
 
 .dropDown-list {
   background-color: @color-background;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
   border: @size-input-border solid @color-focus;
-  box-shadow: 0 0 4px @color-focus;
   list-style-type: none;
   margin: 0 5px 0 0;
   max-height: 300px;
@@ -80,7 +78,9 @@ input[type="text"].dropDown-search {
 
 .dropDown-listItem {
   cursor: pointer;
-  padding: 1px 15px 1px 25px;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
+  padding: 0px 15px 0px 25px;
   position: relative;
 
   &.state-hover {

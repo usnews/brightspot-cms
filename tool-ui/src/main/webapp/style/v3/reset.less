@@ -146,15 +146,13 @@ pre {
 }
 
 select {
-  .input;
+  &:extend(.select all);
 
   cursor: pointer;
-  height: (@length-lineHeight + 2 * (@size-input-padding + @size-input-border));
   white-space: nowrap;
   word-wrap: normal;
 
   &[multiple] {
-    height: (@size-input-border + @size-input-padding) * 2 + @length-lineHeight * 5;
     width: 100%;
   }
 }

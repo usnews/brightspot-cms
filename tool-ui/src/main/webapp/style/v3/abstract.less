@@ -1155,11 +1155,12 @@ table.links.table-striped {
 @select-markerSize: (@length-fontSize + 2 * (@size-input-padding + @size-input-border - @select-markerMargin));
 
 .select {
-  .icon;
-  .icon-chevron-down;
-  .input;
+  &:extend(.input all);
 
-  color: @color-text;
+  -webkit-appearance: none;
+  background-image: url(icon/select-arrow.png);
+  background-position: top right;
+  background-repeat: no-repeat;
   cursor: pointer;
   display: inline-block;
   height: (@length-lineHeight + 2 * (@size-input-padding + @size-input-border));
@@ -1174,21 +1175,6 @@ table.links.table-striped {
 
   &:hover {
     text-decoration: none;
-  }
-
-  &:before {
-    border-radius: 3px;
-    bottom: @select-markerMargin;
-    color: @color-text;
-    font-size: @length-fontSize * 0.7;
-    height: auto;
-    line-height: @select-markerSize;
-    padding: 0;
-    position: absolute;
-    text-align: center;
-    top: @select-markerMargin;
-    right: @select-markerMargin;
-    width: @select-markerSize;
   }
 
   &.state-disabled:before {
