@@ -78,19 +78,25 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,700);
 @fontFamily-label: 'Open Sans', sans-serif;
 
+@length-fontSize: 13px;
+@length-inputHeight: 30px;
+@length-lineHeight: 17px;
+
 @size-input-border: 1px;
 @size-input-padding: 4px;
-@size-line: 20px;
-@size-text: 13px;
 
-@speed-fast: 0.4s;
+@time-fast: 0.4s;
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
 
 .background-color(@color) {
-  background: @color;
-  color: contrast(@color, @color-black, @color-white);
+  background-color: @color;
+  color: contrast(@color, husl-darken(white, 85), white);
+
+  .link {
+    color: contrast(@color, @color-link, @color-link-lighter);
+  }
 }
 
 .background-striped(@color) {
@@ -103,38 +109,8 @@
   background-size: 50px 50px;
 }
 
-@global-lineHeight: 20px;
-
-@button-height: 30px;
-@button-padding-lr: 20px;
-
-@input-background: white;
-@input-background-focus: fade(#35b4de, 7%);
-@input-borderColor: darken(white, 20%);
-@input-borderColor-focus: fade(#35b4de, 50%);
-@input-borderRadius: 2px;
-@input-borderWidth: 1px;
-@input-height: 30px;
-@input-lineHeight: 20px;
-@input-padding-lr: 5px;
-
-@inputContainer-marginBottom: 5px;
-
 @inputLabel-background: darken(white, 3%);
 @inputLabel-background-focus: @color-focus;
-@inputLabel-borderRadius: 2px;
-@inputLabel-color: darken(white, 70%);
 @inputLabel-color-focus: white;
-@inputLabel-height: 30px;
 @inputLabel-marginRight: 5px;
-@inputLabel-paddingLeftRight: 10px;
 @inputLabel-width: 140px;
-
-@inputLarge-padding: 5px 0 0 30px;
-
-@linksItem-height: 30px;
-
-@placeholder-color: darken(white, 40%);
-@placeholder-font-style: italic;
-
-@tableCell-height: 30px;

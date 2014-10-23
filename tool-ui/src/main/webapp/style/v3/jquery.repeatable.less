@@ -12,9 +12,8 @@
       position: relative;
 
       > .repeatableLabel {
-        background: @inputLabel-background;
-        border-radius: @inputLabel-borderRadius;
-        color: @inputLabel-color;
+        &:extend(.inputLabelLike all);
+
         cursor: pointer;
         left: 0;
         margin: 0 -6px 0 -6px;
@@ -43,7 +42,7 @@
       }
 
       > .objectInputs {
-        padding: @inputLarge-padding;
+        &:extend(.inputLargeLike all);
 
         &:before {
           bottom: 15px;

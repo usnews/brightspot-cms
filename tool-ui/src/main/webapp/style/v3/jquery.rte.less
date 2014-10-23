@@ -3,13 +3,9 @@ iframe.wysihtml5-sandbox {
 }
 
 .rte-container {
-  background: @input-background;
-  border-color: @input-borderColor;
-  border-radius: @input-borderRadius;
-  border-style: solid;
-  border-width: @input-borderWidth;
+  &:extend(.inputLike all);
+
   display: block;
-  padding: ((@input-height - @input-lineHeight) / 2 - @input-borderWidth) @input-padding-lr;
   margin: 0;
 
   iframe {

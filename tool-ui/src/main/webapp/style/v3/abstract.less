@@ -35,7 +35,7 @@
   .background-color(@color);
 
   // border: 1px solid husl-darken(@color, 5);
-  transition: background-color @speed-fast;
+  transition: background-color @time-fast;
 
   &:hover {
     background: husl-darken(@color, 5);
@@ -52,13 +52,12 @@
   box-sizing: border-box;
   cursor: pointer;
   display: inline-block;
-  font-family: @fontFamily-label;
   font-size: 14px;
   font-weight: 600;
-  height: @button-height;
-  line-height: @button-height;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
   margin: 0;
-  padding: 0 @button-padding-lr;
+  padding: 0 20px;
   vertical-align: middle;
   white-space: nowrap;
 
@@ -193,7 +192,7 @@ figure,
     box-sizing: border-box;
     color: @color-background;
     left: 0;
-    line-height: @size-line;
+    line-height: @length-lineHeight;
     margin: 0;
     max-height: 100%;
     overflow: hidden;
@@ -232,7 +231,7 @@ figure,
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
-  width: @size-text;
+  width: @length-fontSize;
 
   &:before {
     padding-right: 1.1em;
@@ -475,19 +474,26 @@ figure,
 .icon-tumblr { &:before { content: '\f173'; } }
 .icon-user-md { &:before { content: '\f200'; } }
 
-.input {
-  background: @input-background;
-  border-color: @input-borderColor;
-  border-radius: @input-borderRadius;
+.inputLike {
+  @size-border: 1px;
+
+  .background-color(white);
+  border-color: husl-lightness-set(white, 80);
+  border-radius: 2px;
   border-style: solid;
-  border-width: @input-borderWidth;
+  border-width: @size-border;
   box-sizing: border-box;
+  min-height: @length-inputHeight;
+  padding: ((@length-inputHeight - @length-lineHeight) / 2 - @size-border) 10px;
+}
+
+.input {
+  &:extend(.inputLike all);
+
   display: inline-block;
-  line-height: @input-lineHeight;
+  line-height: @length-lineHeight;
   margin: 0;
-  min-height: @input-height;
-  padding: ((@input-height - @input-lineHeight) / 2 - @input-borderWidth) @input-padding-lr;
-  transition: border-color @speed-fast, box-shadow @speed-fast;
+  transition: border-color @time-fast, box-shadow @time-fast;
   vertical-align: middle;
   white-space: pre-wrap;
 
@@ -498,8 +504,8 @@ figure,
 
   &:focus,
   &.state-focus {
-    background: @input-background-focus;
-    border-color: @input-borderColor-focus;
+    background: fade(#35b4de, 7%);
+    border-color: fade(#35b4de, 50%);
     transition: none;
   }
 
@@ -510,7 +516,7 @@ figure,
 }
 
 .inputContainer {
-  margin: 0 0 @inputContainer-marginBottom 0;
+  margin: 0 0 10px 0;
   min-height: 30px;
   overflow: hidden;
   position: relative;
@@ -548,16 +554,20 @@ figure,
   }
 }
 
+.inputLabelLike {
+  .background-color(husl-darken(white, 3));
+  border-radius: 2px;
+}
+
 .inputLabel {
-  background: @inputLabel-background;
-  border-radius: @inputLabel-borderRadius;
+  &:extend(.inputLabelLike all);
+
   box-sizing: border-box;
-  color: @inputLabel-color;
   float: left;
-  min-height: @inputLabel-height;
-  padding: ((@inputLabel-height - @global-lineHeight) / 2) @inputLabel-paddingLeftRight;
+  min-height: @length-inputHeight;
+  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
+  position: relative;
   width: @inputLabel-width;
-  z-index: -1;
 
   > label {
     display: block;
@@ -607,10 +617,15 @@ figure,
   }
 }
 
+.inputLargeLike {
+  padding: 5px 0 0 30px;
+}
+
 .inputLarge {
+  &:extend(.inputLargeLike all);
+
   background-color: rgba(255, 255, 255, 0.7);
   clear: left;
-  padding: @inputLarge-padding;
   position: relative;
   z-index: 0;
 
@@ -770,7 +785,6 @@ figure,
   border-radius: 0;
   border-style: none;
   box-shadow: none;
-  color: @color-link;
   cursor: pointer;
   display: inline;
   font-family: inherit;
@@ -800,7 +814,8 @@ ul.links {
   > li {
     box-sizing: border-box;
     border-bottom: 1px solid darken(white, 10%);
-    min-height: @linksItem-height;
+    min-height: (@length-lineHeight * 2);
+    padding: (@length-lineHeight / 2) 10px;
 
     > .link {
       display: block;
@@ -888,8 +903,10 @@ table.links.table-striped {
   }
 
   td {
-    padding-bottom: 5px;
-    padding-top: 5px;
+    @-length-padding: @length-lineHeight / 2;
+
+    padding-bottom: @-length-padding;
+    padding-top: @-length-padding;
   }
 }
 
@@ -1135,7 +1152,7 @@ table.links.table-striped {
 }
 
 @select-markerMargin: 2px;
-@select-markerSize: (@size-text + 2 * (@size-input-padding + @size-input-border - @select-markerMargin));
+@select-markerSize: (@length-fontSize + 2 * (@size-input-padding + @size-input-border - @select-markerMargin));
 
 .select {
   .icon;
@@ -1145,7 +1162,7 @@ table.links.table-striped {
   color: @color-text;
   cursor: pointer;
   display: inline-block;
-  height: (@size-line + 2 * (@size-input-padding + @size-input-border));
+  height: (@length-lineHeight + 2 * (@size-input-padding + @size-input-border));
   padding-right: 26px;
   position: relative;
   user-select: none;
@@ -1163,7 +1180,7 @@ table.links.table-striped {
     border-radius: 3px;
     bottom: @select-markerMargin;
     color: @color-text;
-    font-size: @size-text * 0.7;
+    font-size: @length-fontSize * 0.7;
     height: auto;
     line-height: @select-markerSize;
     padding: 0;
@@ -1282,7 +1299,7 @@ table.links.table-striped {
   background-color: @color-gray-plain;
   border-radius: 3px;
   color: @color-background;
-  font-size: (@size-text - 4);
+  font-size: (@length-fontSize - 4);
   padding: 2px 3px;
   text-transform: uppercase;
 }

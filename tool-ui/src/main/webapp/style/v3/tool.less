@@ -112,7 +112,7 @@
   position: absolute;
   left: 300px;
   top: 25px;
-  transition: width @speed-fast;
+  transition: width @time-fast;
   width: 98px;
 
   .toolSearchOpen & {
@@ -136,7 +136,7 @@
       line-height: 1;
       position: absolute;
       top: 8px;
-      transition: color @speed-fast;
+      transition: color @time-fast;
 
       .toolSearchOpen & {
         color: black;
@@ -154,7 +154,7 @@
       font-weight: bold;
       left: 0;
       padding-left: 26px;
-      transition: color @speed-fast;
+      transition: color @time-fast;
 
       .toolSearchOpen & {
         color: @color-note;
@@ -167,7 +167,7 @@
       box-shadow: none;
       height: 30px;
       padding-left: 25px;
-      transition: border @speed-fast;
+      transition: border @time-fast;
       width: 100%;
 
       .toolSearchOpen & {
@@ -200,7 +200,7 @@
   left: 373px;
   list-style-type: none;
   position: absolute;
-  transition: left @speed-fast;
+  transition: left @time-fast;
   top: 25px;
 
   .toolSearchOpen & {
@@ -390,7 +390,7 @@
 
   color: @color-note;
   font-size: 80%;
-  line-height: (@size-line * 0.8);
+  line-height: (@length-lineHeight * 0.8);
   padding-right: 20px;
   position: relative;
   text-align: right;

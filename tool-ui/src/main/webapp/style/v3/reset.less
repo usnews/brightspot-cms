@@ -28,13 +28,12 @@ b {
 }
 
 body {
-  background-color: @color-background;
-  color: @color-text;
+  .background-color(white);
   font-family: 'Open Sans', sans-serif;
-  font-size: @size-text;
+  font-size: @length-fontSize;
   font-style: normal;
   font-weight: normal;
-  line-height: @size-line;
+  line-height: @length-lineHeight;
   margin: 75px 20px 20px 20px;
   padding: 0;
   vertical-align: baseline;
@@ -42,7 +41,7 @@ body {
 }
 
 button {
-  .button;
+  &:extend(.button all);
 }
 
 code {
@@ -69,7 +68,7 @@ h1 {
   &:extend(.block all);
 
   font-size: 120%;
-  line-height: (@size-line * 1.2);
+  line-height: (@length-lineHeight * 1.2);
   margin: 0 0 10px 0;
   padding: 0;
 
@@ -93,7 +92,7 @@ h2 {
   color: @color-note;
   font-family: @fontFamily-label;
   font-size: 80%;
-  line-height: (@size-line * 0.8);
+  line-height: (@length-lineHeight * 0.8);
   text-transform: uppercase;
   margin: 0 0 10px 0;
   padding: 0;
@@ -150,12 +149,12 @@ select {
   .input;
 
   cursor: pointer;
-  height: (@size-line + 2 * (@size-input-padding + @size-input-border));
+  height: (@length-lineHeight + 2 * (@size-input-padding + @size-input-border));
   white-space: nowrap;
   word-wrap: normal;
 
   &[multiple] {
-    height: (@size-input-border + @size-input-padding) * 2 + @size-line * 5;
+    height: (@size-input-border + @size-input-padding) * 2 + @length-lineHeight * 5;
     width: 100%;
   }
 }
@@ -187,7 +186,7 @@ table {
   td,
   th {
     border-style: none;
-    padding: ((@tableCell-height - @global-lineHeight) / 2) 5px;
+    padding: (@length-lineHeight / 2) 5px;
   }
 
   th {
@@ -255,8 +254,8 @@ ul {
 }
 
 .state-placeholder {
-  color: @placeholder-color;
-  font-style: @placeholder-font-style;
+  color: husl-lightness-set(white, 60);
+  font-style: italic;
 }
 
 ::placeholder {

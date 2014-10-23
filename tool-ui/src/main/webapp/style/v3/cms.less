@@ -377,7 +377,7 @@
   .background-striped(@color-alt);
 
   margin-top: 10px;
-  transition: box-shadow @speed-fast;
+  transition: box-shadow @time-fast;
 
   > h1 {
     .icon;
@@ -679,10 +679,10 @@
   .link {
     color: @color-text;
     display: inline-block;
-    font-size: (@size-text * 2);
-    line-height: (@size-text * 2);
+    font-size: (@length-fontSize * 2);
+    line-height: (@length-fontSize * 2);
     left: 0;
-    margin-top: (0 - @size-text);
+    margin-top: (0 - @length-fontSize);
     position: absolute;
     top: 50%;
     width: 100%;
@@ -692,7 +692,7 @@
     }
 
     &:before {
-      font-size: (@size-text * 2);
+      font-size: (@length-fontSize * 2);
       opacity: 1;
     }
   }
