@@ -8,6 +8,7 @@ import com.psddev.dari.db.State;
 public class BulkUploadDraft extends Modification<Object> {
 
     @Indexed(visibility = true)
+    @ToolUi.Sortable(false)
     private String containerId;
 
     private transient boolean runAfterSave;
