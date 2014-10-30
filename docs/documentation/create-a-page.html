@@ -10,9 +10,9 @@ section: documentation
             <div class="span12">
                 <p>Once objects are <a href="new-content.html">modeled</a> and then published in the CMS, the next step is to build pages on which to display them. Within Brightspot there are two types of page templates:</br>
                 <h4>Pages</h4>
-                Pages are created when a one-off use is needed. Examples would be a Homepage or Contact page. New Pages are created by building a Java class that extends <code>Content</code>, and implements <code>Directory.item</code>.
+                Pages are created when a one-off use is needed. Examples would be a Homepage or Contact page. New Pages are created by building a Java class that extends <code>Content</code>, and implements <code>Directory.Item</code>.
                 <h4>Templates</h4>
-                Templates are used when an object is used across multiple instances, within the same layout. Examples would be an Article, Video or Blog template. Objects are defined as Templates by implementing <code>Directory.item</code> within the class itself. Once <code>Directory.item</code> has been implemented the object appears within the Create New widget on the dashboard.
+                Templates are used when an object is used across multiple instances, within the same layout. Examples would be an Article, Video or Blog template. Objects are defined as Templates by implementing <code>Directory.Item</code> within the class itself. Once <code>Directory.Item</code> has been implemented the object appears within the Create New widget on the dashboard.
                 </br></br><b>Note:</b> The method for creating Pages and Templates has changed from versions 2.0 and 2.1 of Brightspot. If you are using either of those versions, see the dedicated Template creation documention for them here: <a href="template-tool.html">Brightspot 2.0</a> | <a href="create-a-page-2.1.html">Brightspot 2.1</a>
                 <hr>
                 <h2>Creating a Page</h2>
@@ -104,7 +104,7 @@ Using the search tool, in the Create New drop down, find your new object and cre
 
 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/page-container.jsp")
 @Renderer.Path("/article-object.jsp")
-public class Article extends Content implements Directory.item {
+public class Article extends Content implements Directory.Item {
 
     // Fields and Getters and Setters
 }
@@ -134,7 +134,7 @@ public class Article extends Content implements Directory.item {
                 Using the <code>@Renderer.LayoutPath</code> and <code>@Renderer.Path</code> annotations, the JSP files used to render the layout of the Article template are added.</br></br>
                 <div class="highlight">{% highlight java %}@Renderer.LayoutPath("/page-container.jsp")
 @Renderer.Path("/article-object.jsp")
-public class Article extends Content implements Directory.item {
+public class Article extends Content implements Directory.Item {
 
 }
 {% endhighlight %}</div></br>
