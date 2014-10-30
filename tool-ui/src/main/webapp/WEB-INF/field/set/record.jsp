@@ -159,6 +159,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
     if (wp.isObjectSelectDropDown(field)) {
         ToolUi ui = field.as(ToolUi.class);
         String placeholder = ui.getPlaceholder();
+        String dynamicPlaceholder = ui.getPlaceholderDynamicText();
 
         if (field.isRequired()) {
             if (ObjectUtils.isBlank(placeholder)) {
@@ -177,6 +178,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     "multiple", "multiple",
                     "data-searchable", "true",
                     "placeholder", placeholder,
+                    "data-dynamic-placeholder", dynamicPlaceholder,
                     "name", inputName);
                 for (Object item : items) {
                     State itemState = State.getInstance(item);

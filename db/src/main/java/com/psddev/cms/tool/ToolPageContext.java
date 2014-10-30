@@ -1824,6 +1824,7 @@ public class ToolPageContext extends WebPageContext {
 
             writeStart("select",
                     "data-searchable", "true",
+                    "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     attributes);
                 writeStart("option", "value", "");
                     writeHtml(placeholder);
