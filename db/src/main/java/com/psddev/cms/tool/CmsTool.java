@@ -768,6 +768,7 @@ public class CmsTool extends Tool {
         plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createPageWidget("Drafts", "dashboard.unpublishedDrafts", "/unpublishedDrafts", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
         plugins.add(createJspWidget("Resources", "dashboard.resources", "/resources", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
+        plugins.add(createJspWidget("Production Guides", "dashboard.productionGuides", "/misc/productionGuides", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
 
         // Content right widgets.
         double rightColumn = 0.0;
@@ -848,6 +849,7 @@ public class CmsTool extends Tool {
             this.file = file;
         }
 
+        @Override
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;

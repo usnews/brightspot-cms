@@ -154,9 +154,9 @@
 
                 <%
                     if (guide != null) {
-                        Page prevT = null;
-                        Page nxtT = null;
-                        Page curT = null;
+                        GuidePage prevT = null;
+                        GuidePage nxtT = null;
+                        GuidePage curT = null;
                         foundSelected = false;
                         int pageCnt = 1;
 
@@ -178,7 +178,7 @@
                             if (curT != null && !foundSelected) {
                                 prevT = curT;
                             }
-                            curT = (Page) iter.next();
+                            curT = (GuidePage) iter.next();
                             if (nxtT == null && (foundSelected || overviewPage)) {
                                 nxtT = curT;
                                 nextPageGuideId = nxtT.getId().toString();
