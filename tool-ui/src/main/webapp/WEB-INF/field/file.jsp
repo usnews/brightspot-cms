@@ -17,6 +17,7 @@ com.psddev.dari.util.BrightcoveStorageItem,
 com.psddev.dari.util.ClassFinder,
 com.psddev.dari.util.CollectionUtils,
 com.psddev.dari.util.MultipartRequest,
+com.psddev.dari.util.MultipartRequestFilter,
 com.psddev.dari.util.ImageEditor,
 com.psddev.dari.util.ImageMetadataMap,
 com.psddev.dari.util.IoUtils,
@@ -241,6 +242,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             String fileContentType = null;
             long fileSize = 0;
             file = File.createTempFile("cms.", ".tmp");
+            MultipartRequest mpRequest;
 
             if ("dropbox".equals(action)) {
                 Map<String, Object> fileData = (Map<String, Object>) ObjectUtils.fromJson(wp.param(String.class, dropboxName));
@@ -266,8 +268,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     }
                 }
 
-            } else if (request instanceof MultipartRequest) {
-                MultipartRequest mpRequest = (MultipartRequest) request;
+            } else if ((mpRequest = MultipartRequestFilter.Static.getInstance(request)) != null) {
                 FileItem fileItem = mpRequest.getFileItem(fileName);
 
                 if (fileItem != null) {
