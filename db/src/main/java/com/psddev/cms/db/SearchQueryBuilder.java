@@ -294,7 +294,7 @@ public class SearchQueryBuilder extends Record {
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
-            Set<String> removed = null;
+            List<String> updatedQueryTerms = new ArrayList<String>();
 
             if (ObjectUtils.isBlank(queryTerms)) {
                 return;
@@ -303,11 +303,12 @@ public class SearchQueryBuilder extends Record {
             for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext();) {
                 String term = qt.next();
                 for (Iterator<String> sw = stopWords.iterator(); sw.hasNext();) {
-                    if (term.equals(sw.next())) {
-                        queryTerms.remove(term);
+                    if (!term.equals(sw.next())) {
+                        updatedQueryTerms.add(term);
                     }
                 }
             }
+            queryTerms = updatedQueryTerms;
         }
     }
 
