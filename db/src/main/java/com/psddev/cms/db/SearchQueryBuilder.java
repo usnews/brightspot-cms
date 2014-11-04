@@ -544,7 +544,7 @@ public class SearchQueryBuilder extends Record {
                     }
                 }
 
-                if (ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
+                if (type.getField(field) != null && ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
                     if (!uuids.isEmpty()) {
                         query.sortRelevant(boost, prefix + field + " matchesAny ?", uuids);
                     }
