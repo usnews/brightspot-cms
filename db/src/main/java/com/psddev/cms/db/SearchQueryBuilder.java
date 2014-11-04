@@ -222,7 +222,6 @@ public class SearchQueryBuilder extends Record {
 
         if (!queryTerms.isEmpty()) {
             query.and("_any matchesAny ?", queryTerms);
-            query.sortRelevant(100000.0, "_any matchesAll ?", terms);
         }
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
