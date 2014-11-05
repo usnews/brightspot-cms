@@ -1321,7 +1321,7 @@ table.links.table-striped {
   color: @color-text;
   font-family: @fontFamily-label;
   font-size: 100%;
-  font-weight: 600;
+  font-weight: 700;
   height: 34px;
   line-height: 34px;
   margin: -20px -20px 20px -20px;
@@ -1330,6 +1330,10 @@ table.links.table-striped {
   text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &:before {
+    display: none;
+  }
 }
 
 .widgetControls {
