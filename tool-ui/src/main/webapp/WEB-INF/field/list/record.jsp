@@ -667,6 +667,21 @@ if (!isValueExternal) {
     PageWriter writer = wp.getWriter();
 
     writer.start("div", "class", "inputSmall repeatableObjectId" + (previewable ? " repeatableObjectId-previewable" : ""));
+
+        if (fieldValue == null || fieldValue.isEmpty()) {
+
+            String dynamicPlaceholderText = field.as(ToolUi.class).getPlaceholderDynamicText();
+            String placeholder = field.as(ToolUi.class).getPlaceholder();
+
+            if (!ObjectUtils.isBlank(dynamicPlaceholderText)) {
+                writer.start("span", "class", "objectId-placeholder", "id", field.getId() + "-placeholder", "data-dynamic-text", dynamicPlaceholderText).end();
+            } else if (!ObjectUtils.isBlank(placeholder)) {
+                writer.start("span", "class", "objectId-placeholder", "id", field.getId() + "-placeholder");
+                    writer.html(placeholder);
+                writer.end();
+            }
+        }
+
         writer.start("ol");
             if (fieldValue != null) {
                 for (Object item : fieldValue) {
