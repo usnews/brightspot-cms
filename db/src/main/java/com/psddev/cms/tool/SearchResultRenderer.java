@@ -45,6 +45,7 @@ public class SearchResultRenderer {
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
     private static final String TAXON_PARENT_ID_PARAMETER = "taxonParentId";
     private static final String SORT_SETTING_PREFIX = "sort/";
+    private static final String SORT_SHOW_MISSING_SETTING_PREFIX = "sortShowMissing/";
 
     protected final ToolPageContext page;
 
@@ -69,12 +70,17 @@ public class SearchResultRenderer {
         if (selectedType != null) {
             if (search.getSort() != null) {
                 AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
+                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SHOW_MISSING_SETTING_PREFIX + selectedType.getId(), ObjectUtils.to(String.class, search.isShowMissing()));
 
             } else {
                 Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
 
                 if (!ObjectUtils.isBlank(sortSetting)) {
                     search.setSort(sortSetting.toString());
+                    Object showMissingSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SHOW_MISSING_SETTING_PREFIX + selectedType.getId());
+                    if (!ObjectUtils.isBlank(showMissingSetting)) {
+                        search.setShowMissing(ObjectUtils.to(Boolean.class, showMissingSetting));
+                    }
                 }
             }
         }
