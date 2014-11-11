@@ -78,7 +78,7 @@ public class AuthenticationFilter extends AbstractFilter {
         /** Logs in the given tool {@code user}. */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
             String token = (String) request.getAttribute(USER_TOKEN);
-            if (token == null) {
+            if (token == null || (user != null && user.getId().toString().equals(token))) {
                 token = user.generateLoginToken();
             } else {
                 user.refreshLoginToken(token);
