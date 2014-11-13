@@ -74,11 +74,10 @@
 
 .actions,
 .buttons {
-  .background-color(@color-alt);
-
-  margin: 6px 0 15px 0;
+  border-top: 1px solid fade(black, 20%);
+  margin: 0 0 20px 0;
   overflow: hidden;
-  padding: 10px;
+  padding: 20px 0 0 0;
 
   .action,
   .button,
@@ -187,10 +186,9 @@ figure,
 
   figcaption,
   .figcaption {
-    background-color: fade(@color-text, 80%);
+    background-color: fade(white, 85%);
     bottom: 0;
     box-sizing: border-box;
-    color: @color-background;
     left: 0;
     line-height: @length-lineHeight;
     margin: 0;
@@ -463,6 +461,9 @@ figure,
 .icon-terminal { &:before { content: '\f120'; } }
 .icon-crop { &:before { content: '\f125'; } }
 .icon-unlink { &:before { content: '\f127'; } }
+.icon-question { &:before { content: '\f128'; } }
+.icon-info { &:before { content: '\f129'; } }
+.icon-exclamation { &:before { content: '\f12a'; } }
 .icon-superscript { &:before { content: '\f12b'; } }
 .icon-subscript { &:before { content: '\f12c'; } }
 .icon-rocket { &:before { content: '\f135'; } }
@@ -478,7 +479,7 @@ figure,
   @size-border: 1px;
 
   .background-color(white);
-  border-color: husl-lightness-set(white, 80);
+  border-color: darken(white, 20%);
   border-radius: 2px;
   border-style: solid;
   border-width: @size-border;
@@ -504,8 +505,8 @@ figure,
 
   &:focus,
   &.state-focus {
-    background: fade(#35b4de, 7%);
-    border-color: fade(#35b4de, 50%);
+    background-color: fade(@color-focus, 10%);
+    border-color: fade(@color-focus, 50%);
     transition: none;
   }
 
@@ -516,6 +517,7 @@ figure,
 }
 
 .inputContainer {
+  background: linear-gradient(90deg, @color-heading 0, @color-heading 140px, white 140px, white 100%);
   margin: 0 0 10px 0;
   min-height: 30px;
   overflow: hidden;
@@ -552,20 +554,26 @@ figure,
     position: absolute;
     right: 6px;
   }
+
+  > h2 {
+    background-color: white;
+    margin: 0 !important;
+    padding: 20px 0 10px 0;
+  }
 }
 
 .inputLabelLike {
-  .background-color(husl-darken(white, 3));
+  .background-color(@color-heading, darken(white, 70%));
   border-radius: 2px;
+  box-sizing: border-box;
+  min-height: @length-inputHeight;
+  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
 }
 
 .inputLabel {
   &:extend(.inputLabelLike all);
 
-  box-sizing: border-box;
   float: left;
-  min-height: @length-inputHeight;
-  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
   position: relative;
   width: @inputLabel-width;
 
@@ -618,13 +626,13 @@ figure,
 }
 
 .inputLargeLike {
-  padding: 5px 0 0 30px;
+  padding: 10px 0 10px 30px;
 }
 
 .inputLarge {
   &:extend(.inputLargeLike all);
 
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: white;
   clear: left;
   position: relative;
   z-index: 0;
@@ -648,6 +656,7 @@ figure,
 
 .inputNote {
   display: block;
+  margin-bottom: 5px;
   margin-left: (@inputLabel-width + @inputLabel-marginRight);
 
   .objectInputs-small & {
@@ -781,14 +790,14 @@ figure,
 }
 
 .link {
-  background: transparent;
+  background-color: transparent;
   border-radius: 0;
   border-style: none;
   box-shadow: none;
   cursor: pointer;
   display: inline;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 100%;
   font-weight: normal;
   height: auto;
   line-height: inherit;
@@ -797,7 +806,7 @@ figure,
   text-transform: inherit;
 
   &:hover {
-    background: transparent;
+    background-color: transparent;
     text-decoration: underline;
   }
 
@@ -812,14 +821,16 @@ ul.links {
   margin-left: 0;
 
   > li {
+    @-length-border: 1px;
+    @-length-height: @length-lineHeight - @-length-border;
+    @-length-paddingTop: floor(@-length-height / 2);
+
     box-sizing: border-box;
-    border-bottom: 1px solid darken(white, 10%);
-    min-height: (@length-lineHeight * 2);
-    padding: (@length-lineHeight / 2) 10px;
+    border-bottom: @-length-border solid darken(white, 10%);
+    padding: @-length-paddingTop 10px (@-length-height - @-length-paddingTop) 10px;
 
     > .link {
       display: block;
-      padding: 1px 0;
       position: relative;
       text-decoration: none;
     }
@@ -830,18 +841,22 @@ ul.links {
       list-style-type: none;
 
       > .link {
-        background-color: inherit;
+        background-color: transparent;
         color: inherit;
       }
     }
 
     &:hover {
-      .background-color(#d7f0f8);
+      background-color: fade(@color-focus, 10%);
     }
 
     &.links-selected,
     &.selected {
-      .background-color(@color-select);
+      .background-color(@color-focus);
+
+      .link {
+        color: white;
+      }
     }
 
     &.links-new,
@@ -850,7 +865,7 @@ ul.links {
 
       > .link {
         .icon;
-        .icon-plus-sign;
+        .icon-plus;
 
         &:before {
           padding-right: 7px;
@@ -903,10 +918,10 @@ table.links.table-striped {
   }
 
   td {
-    @-length-padding: @length-lineHeight / 2;
+    @-length-paddingTop: floor(@length-lineHeight / 2);
 
-    padding-bottom: @-length-padding;
-    padding-top: @-length-padding;
+    padding-bottom: (@length-lineHeight - @-length-paddingTop);
+    padding-top: @-length-paddingTop;
   }
 }
 
@@ -923,11 +938,11 @@ table.links.table-striped {
 .message-info {
   .background-color(@color-gray-faint);
   .icon;
-  .icon-info-sign;
+  .icon-info;
   .message-icon();
 
-  border-radius: 5px;
-  margin-bottom: 15px;
+  border-radius: 2px;
+  margin-bottom: 10px;
   min-height: 20px;
   padding: 10px 10px 10px 33px;
   position: relative;
@@ -954,7 +969,7 @@ table.links.table-striped {
 .message-error {
   .background-color(@color-red-dark);
   .icon;
-  .icon-exclamation-sign;
+  .icon-exclamation;
   .message-icon();
 
   .link {
@@ -965,14 +980,14 @@ table.links.table-striped {
 .message-success {
   .background-color(@color-green-light);
   .icon;
-  .icon-ok-sign;
+  .icon-ok;
   .message-icon();
 }
 
 .message-warning {
   .background-color(@color-yellow-faint);
   .icon;
-  .icon-exclamation-sign;
+  .icon-exclamation;
   .message-icon();
 }
 
@@ -985,7 +1000,7 @@ table.links.table-striped {
 
   li {
     float: left;
-    padding: 5px 5px 0 0;
+    padding: 10px 10px 0 0;
     white-space: nowrap;
 
     &:last-child {
@@ -999,29 +1014,52 @@ table.links.table-striped {
 }
 
 .pagination {
+  &:extend(.inputLike all);
+
+  display: inline-block;
   list-style-type: none;
   margin-bottom: 5px;
   margin-left: 0;
+  overflow: hidden;
+  padding: 0;
   text-align: right;
 
   > li {
     .paginationItem;
   }
-
-  form {
-    display: inline;
-  }
 }
 
 .paginationItem {
-  display: inline;
+  float: left;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
+  padding: 0 10px;
   white-space: nowrap;
 
-  &:not(:last-child):after {
-    color: @color-note;
-    content: '\00a0|\00a0';
-    padding: 0 0.3em;
+  &:not(:last-child) {
+    border-right: 1px solid darken(white, 20%);
   }
+
+  .select {
+    border: none;
+    margin-right: -5px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-top: 0;
+  }
+}
+
+.pagination-first,
+.paginationFirst,
+.pagination-previous,
+.paginationPrevious,
+.pagination-next,
+.paginationNext,
+.pagination-last,
+.paginationLast {
+  padding: 0;
+  text-align: center;
+  width: 25px;
 }
 
 .pagination-first,
@@ -1029,6 +1067,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-backward;
+    .icon-only;
   }
 }
 
@@ -1037,6 +1076,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-caret-left;
+    .icon-only;
   }
 }
 
@@ -1045,7 +1085,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-caret-right;
-    .icon-pullRight;
+    .icon-only;
   }
 }
 
@@ -1054,7 +1094,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-forward;
-    .icon-pullRight;
+    .icon-only;
   }
 }
 
@@ -1159,7 +1199,7 @@ table.links.table-striped {
 
   -webkit-appearance: none;
   background-image: url(icon/select-arrow.png);
-  background-position: top right;
+  background-position: right -2px;
   background-repeat: no-repeat;
   cursor: pointer;
   display: inline-block;
@@ -1207,14 +1247,15 @@ table.links.table-striped {
 
 .tabs {
   @-color-border: husl-lightness-set(black, 90);
+  @-length-border: 1px;
 
   border-bottom: 1px solid @-color-border;
   font-weight: 700;
   list-style-type: none;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   margin-left: 0;
   position: relative;
-  top: -1px;
+  top: (0 - @-length-border);
 
   .link {
     font-weight: 700;
@@ -1225,17 +1266,17 @@ table.links.table-striped {
   }
 
   > li {
-    @length-border: 1px;
-    @length-height: 36px;
+    @-length-paddingTopBottom: @length-tabHeight - @length-lineHeight - (@-length-border * 2);
+    @-length-paddingTop: floor(@-length-paddingTopBottom / 2);
 
     border-color: transparent;
     border-radius: 2px;
     border-style: solid;
-    border-width: @length-border;
+    border-width: @-length-border;
     display: inline-block;
-    padding: ((@length-height - @length-lineHeight - @length-border) / 2) 20px;
+    padding: @-length-paddingTop 20px (@-length-paddingTopBottom - @-length-paddingTop) 20px;
     position: relative;
-    top: 1px;
+    top: @-length-border;
 
     &.state-selected {
       border-color: @-color-border;
@@ -1249,7 +1290,7 @@ table.links.table-striped {
     &.state-error {
       .link {
         .icon;
-        .icon-exclamation-sign;
+        .icon-exclamation;
 
         color: @color-alert;
       }
@@ -1315,15 +1356,17 @@ table.links.table-striped {
 }
 
 .widgetHeading {
-  background: darken(white, 3%);
+  @-length-height: @length-lineHeight * 2;
+
+  background: @color-heading;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   color: @color-text;
   font-family: @fontFamily-label;
   font-size: 100%;
   font-weight: 700;
-  height: 34px;
-  line-height: 34px;
+  height: @-length-height;
+  line-height: @-length-height;
   margin: -20px -20px 20px -20px;
   overflow: hidden;
   padding: 0 20px;
@@ -1332,7 +1375,7 @@ table.links.table-striped {
   white-space: nowrap;
 
   &:before {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -1346,7 +1389,7 @@ table.links.table-striped {
 .icon-object { .icon-file; }
 .icon-object-directory { .icon-sitemap; }
 .icon-object-draft { .icon-edit; }
-.icon-object-guide { .icon-question-sign; }
+.icon-object-guide { .icon-question; }
 .icon-object-history { .icon-time; }
 .icon-object-notification { .icon-envelope; }
 .icon-object-schedule { .icon-calendar; }
@@ -1362,13 +1405,13 @@ table.links.table-striped {
 .icon-object-workStream { .icon-tasks; }
 
 // Standard CMS actions.
-.icon-action-add { .icon-plus-sign; }
-.icon-action-cancel { .icon-ban-circle; color: @color-alert; }
+.icon-action-add { .icon-plus; }
+.icon-action-cancel { .icon-ban-circle; color: @color-alert !important; }
 .icon-action-change { .icon-random; }
 .icon-action-copy { .icon-copy; }
-.icon-action-create { .icon-plus-sign; }
+.icon-action-create { .icon-plus; }
 .icon-action-customize { .icon-cog; }
-.icon-action-delete { .icon-remove; color: @color-alert; }
+.icon-action-delete { .icon-remove; color: @color-alert !important; }
 .icon-action-download { .icon-download-alt; }
 .icon-action-edit { .icon-pencil; }
 .icon-action-logIn { .icon-signin; }
@@ -1376,37 +1419,46 @@ table.links.table-striped {
 .icon-action-preview { .icon-eye-open; }
 .icon-action-print { .icon-print; }
 .icon-action-publish { .icon-bullhorn; }
-.icon-action-remove { .icon-minus-sign; color: @color-alert; }
+.icon-action-remove { .icon-remove; color: @color-alert !important; }
 .icon-action-restore { .icon-reply; }
 .icon-action-save { .icon-ok; }
 .icon-action-schedule { .icon-calendar; }
 .icon-action-search { .icon-search; }
 .icon-action-share { .icon-share; }
-.icon-action-trash { .icon-trash; color: @color-alert; }
+.icon-action-trash { .icon-trash; color: @color-alert !important; }
 .icon-action-upload { .icon-upload-alt; }
 
 .action-add { .icon; .icon-action-add; }
-.action-cancel { .icon; .icon-action-cancel; color: @color-alert; }
+.action-cancel { .icon; .icon-action-cancel; color: @color-alert !important; }
 .action-change { .icon; .icon-action-change; }
 .action-copy { .icon; .icon-action-copy; }
 .action-create { .icon; .icon-action-create; }
 .action-customize { .icon; .icon-action-customize; }
-.action-delete { .icon; .icon-action-delete; color: @color-alert; }
+.action-delete { .icon; .icon-action-delete; color: @color-alert !important; }
 .action-download { .icon; .icon-action-download; }
 .action-edit { .icon; .icon-action-edit; }
 .action-logIn { .icon; .icon-action-logIn; }
 .action-logOut { .icon; .icon-action-logOut; }
 .action-preview { .icon; .icon-action-preview; }
 .action-print { .icon; .icon-action-print; }
-.action-remove { .icon; .icon-action-remove; color: @color-alert; }
+.action-remove { .icon; .icon-action-remove; color: @color-alert !important; }
 .action-save { .icon; .icon-action-save; }
 .action-schedule { .icon; .icon-action-schedule; }
 .action-search { .icon; .icon-action-search; }
 .action-share { .icon; .icon-action-share; }
-.action-trash { .icon; .icon-action-trash; color: @color-alert; }
+.action-trash { .icon; .icon-action-trash; color: @color-alert !important; }
 .action-upload { .icon; .icon-action-upload; }
 
 .action-image-edit { .icon; .icon-magic; }
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }
 .action-tools { .icon; .icon-wrench; }
+
+.button:not(.link) {
+  &.action,
+  &.icon {
+    &:before {
+      display: none !important;
+    }
+  }
+}

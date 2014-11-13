@@ -9,6 +9,11 @@
       border-bottom-right-radius: 0;
     }
   }
+
+  &:focus,
+  &.state-focus {
+    background-color: transparent;
+  }
 }
 
 .dropDown-label {
@@ -29,6 +34,11 @@ input[type="text"].dropDown-search {
 
   overflow: hidden;
   width: 100%;
+
+  &:focus,
+  &.state-focus {
+    background-color: transparent;
+  }
 }
 
 .dropDown-marker {
@@ -84,13 +94,14 @@ input[type="text"].dropDown-search {
   position: relative;
 
   &.state-hover {
-    background-color: @color-link;
-    color: @color-background;
+    background-color: fade(@color-focus, 10%);
   }
 
   &.dropDown-listItem-selected {
     .icon;
     .icon-ok;
+
+    .background-color(@color-focus);
 
     &:before {
       left: 4px;

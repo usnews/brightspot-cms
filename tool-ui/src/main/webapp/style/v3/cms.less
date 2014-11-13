@@ -257,7 +257,7 @@
 
 .contentPreviewClose {
   .icon;
-  .icon-remove-sign;
+  .icon-remove;
   .icon-only;
 
   cursor: pointer;
@@ -777,13 +777,16 @@ form[data-type='com.psddev.cms.db.ContentType'] {
 
 .contentForm-main > .widget > h1 {
   background: transparent;
-  border-bottom: 1px solid darken(white, 10%);
   font-size: 18px;
   font-weight: normal;
   height: 50px;
   line-height: 50px;
-  margin: -20px 0 20px 0;
+  margin: -10px 0 10px 0;
   padding: 0;
+
+  .icon:before {
+    display: none !important;
+  }
 }
 
 .noToolUser .toolTitle {

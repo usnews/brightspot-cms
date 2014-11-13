@@ -59,19 +59,23 @@
 
 @color-alt: @color-gray-faint;
 @color-overlay: @color-gray-dark;
-@color-separator: @color-gray-light;
 
 @color-alert: @color-red-dark;
-@color-link: #008dbb;
 @color-note: @color-gray-plain;
 
 @color-change: #f5d63d;
-@color-focus: #35b4de;
+@color-heading: darken(white, 5%);
+@color-focus: #38b5dc;
+@color-link-dark: #0c90bc;
+@color-link-light: #43d4fd;
 @color-remove: @color-red-state;
 @color-select: @color-black;
+@color-separator: darken(white, 10%);
+
+@color-link: @color-link-dark;
+@color-link-lighter: @color-link-light;
 
 @color-background: white;
-@color-link-lighter: lighten(@color-link, 25%);
 @color-text: darken(white, 85%);
 
 @fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
@@ -79,8 +83,13 @@
 @fontFamily-label: 'Open Sans', sans-serif;
 
 @length-fontSize: 13px;
+@length-iconSize: 18px;
 @length-inputHeight: 30px;
 @length-lineHeight: 17px;
+@length-searchControlsWidth: 180px;
+@length-toolHeaderHeight: 70px;
+@length-toolTitleWidth: 200px;
+@length-tabHeight: 36px;
 
 @size-input-border: 1px;
 @size-input-padding: 4px;
@@ -90,9 +99,9 @@
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
 
-.background-color(@color) {
+.background-color(@color, @text: contrast(@color, darken(white, 85%), white)) {
   background-color: @color;
-  color: contrast(@color, husl-darken(white, 85), white);
+  color: @text;
 
   .link {
     color: contrast(@color, @color-link, @color-link-lighter);
