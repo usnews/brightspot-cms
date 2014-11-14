@@ -18,7 +18,6 @@ import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
-import sun.rmi.runtime.Log;
 
 public class AuthenticationFilter extends AbstractFilter {
 
