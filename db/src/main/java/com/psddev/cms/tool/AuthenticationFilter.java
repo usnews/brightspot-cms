@@ -18,6 +18,7 @@ import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
+import sun.rmi.runtime.Log;
 
 public class AuthenticationFilter extends AbstractFilter {
 
@@ -26,6 +27,7 @@ public class AuthenticationFilter extends AbstractFilter {
     public static final String AUTHENTICATED_ATTRIBUTE = ATTRIBUTE_PREFIX + "authenticated";
     public static final String DATABASE_OVERRIDDEN_ATTRIBUTE = ATTRIBUTE_PREFIX + "databaseOverridden";
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
+    public static final String USER_TOKEN = ATTRIBUTE_PREFIX + "token";
     public static final String USER_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userChecked";
     public static final String USER_SETTINGS_CHANGED_ATTRIBUTE = ATTRIBUTE_PREFIX + "userSettingsChanged";
 
@@ -75,24 +77,43 @@ public class AuthenticationFilter extends AbstractFilter {
 
         /** Logs in the given tool {@code user}. */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
-            Cookie cookie = new Cookie(USER_COOKIE, user.getId().toString());
+            String token = (String) request.getAttribute(USER_TOKEN);
+            if (token == null || (user != null && user.getId().toString().equals(token))) {
+                token = user.generateLoginToken();
+            } else {
+                user.refreshLoginToken(token);
+            }
+
+            Cookie cookie = new Cookie(USER_COOKIE, token);
 
             cookie.setPath("/");
             cookie.setSecure(JspUtils.isSecure(request));
             JspUtils.setSignedCookie(response, cookie);
 
             request.setAttribute(USER_ATTRIBUTE, user);
+            request.setAttribute(USER_TOKEN, token);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
 
         /** Logs out the current tool user. */
-        public static void logOut(HttpServletResponse response) {
+        public static void logOut(HttpServletRequest request, HttpServletResponse response) {
+            if (request != null) {
+                ToolUser user = getUser(request);
+                String token = (String) request.getAttribute(USER_TOKEN);
+                user.removeLoginToken(token);
+            }
+
             Cookie cookie = new Cookie(USER_COOKIE, null);
 
             cookie.setMaxAge(0);
             cookie.setPath("/");
 
             response.addCookie(cookie);
+        }
+
+        @Deprecated
+        public static void logOut(HttpServletResponse response) {
+            logOut(null, response);
         }
 
         /**
@@ -147,10 +168,11 @@ public class AuthenticationFilter extends AbstractFilter {
 
             } else {
                 long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
-                UUID userId = ObjectUtils.to(UUID.class, JspUtils.getSignedCookieWithExpiry(request, USER_COOKIE, sessionTimeout));
-                user = Query.findById(ToolUser.class, userId);
+                String token = ObjectUtils.to(String.class, JspUtils.getSignedCookieWithExpiry(request, USER_COOKIE, sessionTimeout));
+                user = ToolUser.Static.getByToken(token);
 
                 request.setAttribute(USER_ATTRIBUTE, user);
+                request.setAttribute(USER_TOKEN, token);
                 request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
             }
 
