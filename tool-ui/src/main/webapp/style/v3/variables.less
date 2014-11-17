@@ -60,15 +60,17 @@
 @color-alt: @color-gray-faint;
 @color-overlay: @color-gray-dark;
 
-@color-alert: @color-red-dark;
 @color-note: @color-gray-plain;
 
+@color-border: darken(white, 20%);
 @color-change: #f5d63d;
 @color-heading: darken(white, 5%);
 @color-focus: #38b5dc;
 @color-link-dark: #0c90bc;
 @color-link-light: #43d4fd;
-@color-remove: @color-red-state;
+@color-publish: @-color-green;
+@color-remove: @-color-red;
+@color-schedule: @-color-yellow;
 @color-select: @color-black;
 @color-separator: darken(white, 10%);
 
@@ -103,8 +105,20 @@
   background-color: @color;
   color: @text;
 
+  &:hover {
+    color: @text;
+  }
+
   .link {
-    color: contrast(@color, @color-link, @color-link-lighter);
+    @-linkColor: contrast(@color, @color-link, @color-link-lighter);
+
+    color: @-linkColor;
+    transition: color @time-fast;
+
+    &:hover {
+      color: darken(@-linkColor, 5%);
+      transition: none;
+    }
   }
 }
 

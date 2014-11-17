@@ -133,7 +133,6 @@
       line-height: 1;
       position: absolute;
       top: 8px;
-      transition: color @time-fast;
     }
 
     button {
@@ -147,23 +146,11 @@
       font-weight: bold;
       left: 0;
       padding-left: 26px;
-      transition: color @time-fast;
     }
 
     input[type='text'] {
-      background: white;
-      border-color: @color-gray-light;
-      box-shadow: inset 1px 1px 1px fade(black, 5%);
-      height: 30px;
       padding-left: 25px;
-      transition: border @time-fast;
       width: 100%;
-
-      &:focus,
-      &.state-focus {
-        border-color: @color-focus;
-        box-shadow: 0 0 4px @color-focus;
-      }
     }
   }
 }
@@ -297,11 +284,6 @@
   position: relative;
   transition: opacity 0.4s;
   z-index: 0;
-
-  .objectEditing & {
-    opacity: 0.3;
-    transform: translateZ(0);
-  }
 }
 
 .toolBackground {
@@ -311,6 +293,7 @@
 .toolFooter {
   background: white;
   bottom: 0;
+  display: none;
   height: 60px;
   left: 0;
   line-height: 60px;
@@ -322,11 +305,6 @@
   img {
     vertical-align: middle;
   }
-
-  .objectEditing & {
-    bottom: -30px;
-    visibility: hidden;
-  }
 }
 
 .searchForm {
@@ -336,7 +314,7 @@
 }
 
 .searchControls {
-  border-right: 2px solid darken(white, 10%);
+  border-right: 2px solid @color-separator;
   box-sizing: border-box;
   float: left;
   padding-right: 20px;
@@ -353,28 +331,31 @@
 }
 
 .searchFilters {
-  margin: 50px 0 20px -10px;
-  padding: 0 0 0 10px;
+  @-length-top: @length-inputHeight + 20px;
+
+  border-top: 2px solid @color-separator;
+  margin: @-length-top 0 20px 0;
+  padding: 20px 0 0 0;
   position: relative;
 
   form {
-    margin-bottom: 5px;
+    margin-bottom: 0;
   }
 
   .searchInput {
-    left: 10px;
-    right: 10px;
+    left: 0;
+    right: 0;
     position: absolute;
-    top: -45px;
+    top: (0 - @-length-top);
   }
 
   .action-cancel {
     .small;
 
-    color: @color-alert;
+    color: @color-remove;
+    left: 50px;
     position: absolute;
-    right: 10px;
-    top: -2px;
+    top: 20px;
   }
 }
 
@@ -438,7 +419,7 @@
     }
 
     &:before {
-      border-top: 1px solid husl-lightness-set(black, 90);
+      border-top: 1px solid @color-separator;
       content: '';
       height: 0;
       left: 10px;
@@ -476,7 +457,7 @@
     top: 6px;
 
     &:checked {
-      background-image: url(icon/checkbox-cross.png);
+      background-image: url(icon/x.svg);
     }
   }
 
@@ -490,8 +471,15 @@
 }
 
 .searchCreate {
-  button {
-    margin-top: 5px;
+  border-top: 2px solid @color-separator;
+  padding-top: 20px;
+
+  form {
+    margin-bottom: 0;
+  }
+
+  .select {
+    margin-bottom: 5px;
   }
 }
 
@@ -520,7 +508,7 @@
   margin-bottom: 20px;
   position: absolute;
   right: 0;
-  top: 30px;
+  top: (@length-lineHeight + 10px);
 }
 
 .searchResultImages {

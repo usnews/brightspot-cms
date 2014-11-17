@@ -54,8 +54,10 @@ body.rte-fullscreen {
 
 .rte-toolbar {
   background-color: fade(white, 93%);
+  border-bottom: 1px solid @color-separator;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  margin-bottom: 5px;
   margin-top: 5px;
   position: relative;
   vertical-align: top;
@@ -198,9 +200,9 @@ body.rte-fullscreen {
 .rte-button-moveRight { .icon; .icon-arrow-right; }
 .rte-button-enhancementSelect { .icon; .icon-random; }
 .rte-button-enhancementEdit { .icon; .icon-pencil; }
-.rte-button-remove { .icon; .icon-remove; color: @color-alert; }
+.rte-button-remove { .icon; .icon-remove; color: @color-remove; }
 .rte-button-restore { .icon; .icon-undo; }
-.rte-button-removeCompletely { .icon; .icon-remove; color: @color-alert; }
+.rte-button-removeCompletely { .icon; .icon-remove; color: @color-remove; }
 
 .rte-button-link {
   color: @color-note;
@@ -323,7 +325,7 @@ body.rte-fullscreen {
   .icon;
   .icon-unlink;
 
-  color: @color-alert;
+  color: @color-remove;
   float: right;
 }
 
@@ -356,7 +358,7 @@ body.rte-fullscreen {
   &.state-removing {
     .background-color(@color-remove);
 
-    border-color: @color-alert;
+    border-color: @color-remove;
 
     .rte-button-remove {
       display: none;
@@ -368,7 +370,7 @@ body.rte-fullscreen {
     }
 
     .rte-enhancement-label {
-      color: @color-alert;
+      color: @color-remove;
       text-decoration: line-through;
     }
   }

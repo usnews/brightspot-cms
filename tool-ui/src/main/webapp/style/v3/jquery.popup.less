@@ -11,6 +11,17 @@
   > .content > .frame > .widget {
     margin: -20px;
   }
+
+  &:before {
+    background-color: black;
+    bottom: 0;
+    content: '';
+    left: 0;
+    opacity: 0.2;
+    position: fixed;
+    top: 0;
+    right: 0;
+  }
 }
 
 .popup-content {
@@ -90,12 +101,22 @@
 
 // General search input is in the header so no need to display it again.
 .popup[name=miscSearch] {
+  &:before {
+    top: @length-toolHeaderHeight;
+  }
+
   .searchSaved {
     display: none;
   }
 
   .searchFilters {
+    border-style: none;
     margin-top: 0;
+    padding-top: 0;
+
+    .action-cancel {
+      top: 0;
+    }
   }
 
   .searchInput {

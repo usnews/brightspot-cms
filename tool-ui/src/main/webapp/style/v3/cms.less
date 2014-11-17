@@ -114,10 +114,6 @@
   }
 }
 
-.popup .widget-content > .widgetControls > .widgetControlsEditInFull {
-  display: inline;
-}
-
 .widget-contentCreate {
   position: absolute;
   right: 3px;
@@ -269,19 +265,7 @@
 
 // --- Widgets ---
 
-.widget-drafts h1 { .icon; .icon-edit; }
-.widget-history h1 { .icon; .icon-copy; }
-.widget-references h1 { .icon; .icon-book; }
-.widget-schedules h1 { .icon; .icon-calendar; }
-.widget-seo h1 { .icon; .icon-tags; }
-.widget-template h1 { .icon; .icon-th; }
-
 .widget-urls {
-  h1 {
-    .icon;
-    .icon-sitemap;
-  }
-
   ul {
     list-style-type: none;
     margin-left: 0;
@@ -307,10 +291,10 @@
 }
 
 .widget-urlsAutomatic {
-  .background-color(@color-alt);
+  .background-color(@color-heading);
 
-  border-radius: 5px;
-  margin-bottom: 10px;
+  border-radius: 2px;
+  margin-bottom: 20px;
   padding: 5px;
 
   label {
@@ -507,15 +491,13 @@
   margin-bottom: 0;
 
   [name='action-publish'] {
-    margin-left: 10px;
+    margin-left: 5px;
 
     & {
-      .button-color(#83bf3b);
-
-      margin-top: 5px;
+      .button-color(@color-publish);
 
       &.schedule {
-        .button-color(#f5d63d);
+        .button-color(@color-schedule);
       }
     }
   }

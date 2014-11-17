@@ -220,6 +220,11 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                 }
                             wp.write("</select>");
                         }
+
+                        if (!state.isNew()) {
+                            wp.write(": " );
+                            wp.write(wp.objectLabel(editing));
+                        }
                     wp.writeEnd();
 
                     if (selected instanceof Page &&
