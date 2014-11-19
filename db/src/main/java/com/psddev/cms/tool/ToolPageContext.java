@@ -1391,11 +1391,10 @@ public class ToolPageContext extends WebPageContext {
                             writeEnd();
 
                             writeStart("image",
-                                    "xlink:href", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), backgroundImage, null, 400, 400).getPublicUrl(),
+                                    "xlink:href", backgroundImage.getPublicUrl(),
                                     "width", "100%",
                                     "height", "100%",
-                                    "preserveAspectRatio", "xMidYMid slice",
-                                    "filter", "url(#blur)");
+                                    "preserveAspectRatio", "xMidYMid slice");
                             writeEnd();
                         writeEnd();
                     }

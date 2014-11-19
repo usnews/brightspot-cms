@@ -51,26 +51,34 @@
 }
 
 .toolTitle {
-  height: @length-inputHeight;
-  line-height: @length-inputHeight;
-  margin: ((@length-toolHeaderHeight - @length-inputHeight) / 2) 40px 0 20px;
+  @-height: @length-toolHeaderHeight - 20px;
+
+  font-size: @-height;
+  font-weight: bold;
+  height: @-height;
+  left: 20px;
+  line-height: @-height;
+  position: absolute;
   text-transform: uppercase;
+  top: ((@length-toolHeaderHeight - @-height) / 2);
   width: @length-toolTitleWidth;
 
   .link {
     color: @color-text;
-    font-size: @length-inputHeight;
-    font-weight: bold;
-    vertical-align: bottom;
 
     &:hover {
       text-decoration: none;
     }
 
     img {
+      bottom: 0;
+      left: 0;
+      margin: auto;
       max-height: 100%;
       max-width: 100%;
-      vertical-align: middle;
+      position: absolute;
+      right: 0;
+      top: 0;
     }
   }
 }
@@ -220,7 +228,7 @@
         > .link {
           color: @color-text;
           display: block;
-          padding: 2px 15px;
+          padding: 2px 20px;
           white-space: nowrap;
 
           &:hover {
