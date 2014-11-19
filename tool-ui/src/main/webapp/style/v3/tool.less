@@ -40,9 +40,9 @@
 }
 
 .toolHeader {
-  background-color: fade(white, 93%);
-  border-bottom: 1px solid @color-separator;
-  height: 79px;
+  background-color: white;
+  box-shadow: 0 0 10px fade(black, 20%);
+  height: @length-toolHeaderHeight;
   left: 0;
   position: fixed;
   top: 0;
@@ -51,17 +51,15 @@
 }
 
 .toolTitle {
-  height: 46px;
-  font-family: @fontFamily-label;
-  font-weight: bold;
-  line-height: 46px;
-  margin: 17px 40px 0 40px;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
+  margin: ((@length-toolHeaderHeight - @length-inputHeight) / 2) 40px 0 20px;
   text-transform: uppercase;
-  width: 200px;
+  width: @length-toolTitleWidth;
 
   .link {
     color: @color-text;
-    font-size: 30px;
+    font-size: @length-inputHeight;
     font-weight: bold;
     vertical-align: bottom;
 
@@ -70,7 +68,9 @@
     }
 
     img {
-      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      vertical-align: middle;
     }
   }
 }
@@ -91,17 +91,18 @@
 }
 
 .toolAvatar {
-  @size: 60px;
+  @-length-padding: 10px;
+  @-length-size: @length-toolHeaderHeight - (@-length-padding * 2);
 
-  .background-color(@color-gray-faint);
+  .background-color(@color-heading);
   border-radius: 100%;
   display: block;
-  height: @size;
-  right: 70px;
+  height: @-length-size;
+  right: (@-length-padding + 60);
   overflow: hidden;
   position: absolute;
-  top: 10px;
-  width: @size;
+  top: @-length-padding;
+  width: @-length-size;
 }
 
 .toolProfile {
@@ -110,14 +111,10 @@
 
 .toolSearch {
   position: absolute;
-  left: 300px;
-  top: 25px;
-  transition: width @speed-fast;
-  width: 98px;
-
-  .toolSearchOpen & {
-    width: 185px;
-  }
+  left: (@length-toolTitleWidth + 60);
+  top: ((@length-toolHeaderHeight - @length-inputHeight) / 2);
+  transition: width @time-fast;
+  width: @length-searchControlsWidth;
 
   .toolHeader-hasEnvironment & {
     right: 52px;
@@ -136,11 +133,6 @@
       line-height: 1;
       position: absolute;
       top: 8px;
-      transition: color @speed-fast;
-
-      .toolSearchOpen & {
-        color: black;
-      }
     }
 
     button {
@@ -148,78 +140,58 @@
     }
 
     label {
-      color: @color-text;
+      color: @color-note;
       cursor: pointer;
       font-family: @fontFamily-label;
       font-weight: bold;
       left: 0;
       padding-left: 26px;
-      transition: color @speed-fast;
-
-      .toolSearchOpen & {
-        color: @color-note;
-      }
     }
 
     input[type='text'] {
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-      height: 30px;
       padding-left: 25px;
-      transition: border @speed-fast;
       width: 100%;
-
-      .toolSearchOpen & {
-        background: white;
-        border-color: @color-gray-light;
-        box-shadow: inset 1px 1px 1px fade(black, 5%);
-
-        &:focus,
-        &.state-focus {
-          border-color: @color-focus;
-          box-shadow: 0 0 4px @color-focus;
-        }
-      }
     }
   }
 }
 
 .toolSearchSaved {
+  border-right: 2px solid @color-separator;
+  box-sizing: border-box;
   display: block;
-  left: -200px;
+  left: (-40 - @length-toolTitleWidth);
+  padding-right: 20px;
   position: absolute;
   top: 5px;
-  width: 180px;
+  width: (@length-toolTitleWidth + 21);
 }
 
 .toolNav {
-  font-family: @fontFamily-label;
-  font-size: 100%;
-  font-weight: bold;
-  left: 373px;
+  font-weight: 700;
+  left: (@length-toolTitleWidth + @length-searchControlsWidth + 80);
   list-style-type: none;
+  margin: 0;
   position: absolute;
-  transition: left @speed-fast;
-  top: 25px;
-
-  .toolSearchOpen & {
-    left: 475px;
-  }
+  transition: left @time-fast;
+  top: ((@length-toolHeaderHeight - @length-tabHeight) / 2);
 
   > li {
+    @length-border: 1px;
+    @length-height: 36px;
+
+    border-color: transparent;
+    border-radius: 2px;
+    border-style: solid;
+    border-width: @length-border;
     float: left;
-    margin: 0 3px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: ((@length-height - @length-lineHeight - @length-border) / 2) 20px;
     position: relative;
 
     > .link {
       color: @color-text;
       display: block;
       font-weight: bold;
-      height: 30px;
-      line-height: 30px;
-      margin: 0 15px 0 0;
 
       &:hover {
         text-decoration: none;
@@ -228,14 +200,18 @@
 
     > ul {
       background: white;
-      box-shadow: 0 0px 5px fade(black, 20%);
+      border: 1px solid @color-focus;
+      border-bottom-left-radius: 2px;
+      border-bottom-right-radius: 2px;
+      border-top-right-radius: 2px;
+      box-shadow: 0 0px 5px fade(black, 10%);
       display: none;
-      left: -15px;
+      left: -1px;
       list-style-type: none;
       margin: 0;
-      padding: 0 0 5px 0;
+      padding: 10px 0;
       position: absolute;
-      top: 30px;
+      top: (@length-height - 1);
       z-index: 200;
 
       > li {
@@ -255,8 +231,11 @@
 
         &.selected {
           > .link {
-            background-color: @color-text;
-            color: @color-background;
+            .background-color(@color-link);
+
+            .link {
+              color: white;
+            }
           }
         }
       }
@@ -271,15 +250,24 @@
 
     &.selected {
       > .link {
-        border-bottom: 3px solid @color-focus;
         color: @color-text;
         position: relative;
       }
     }
 
     &:hover {
-      > .link {
-        border-bottom-color: @color-background;
+      border-color: @color-focus;
+      box-shadow: 0 0px 5px fade(black, 10%);
+
+      &:after {
+        background: white;
+        bottom: -1px;
+        content: '';
+        left: 0;
+        height: 5px;
+        position: absolute;
+        right: 0;
+        z-index: 201;
       }
 
       > ul {
@@ -290,32 +278,22 @@
 }
 
 .toolContent {
-  background: white;
+  background: darken(white, 20%);
   margin: -75px -20px 60px -20px;
   padding: 90px 20px 0 20px;
   position: relative;
   transition: opacity 0.4s;
   z-index: 0;
-
-  .objectEditing & {
-    opacity: 0.3;
-    transform: translateZ(0);
-  }
 }
 
 .toolBackground {
-  bottom: 0;
-  display: block;
-  left: 0;
-  opacity: 0.4;
-  position: fixed;
-  right: 0;
-  top: 0;
+  display: none;
 }
 
 .toolFooter {
   background: white;
   bottom: 0;
+  display: none;
   height: 60px;
   left: 0;
   line-height: 60px;
@@ -327,11 +305,6 @@
   img {
     vertical-align: middle;
   }
-
-  .objectEditing & {
-    bottom: -30px;
-    visibility: hidden;
-  }
 }
 
 .searchForm {
@@ -340,13 +313,12 @@
   padding: 5px;
 }
 
-@searchControls-width: 200px;
-
 .searchControls {
+  border-right: 2px solid @color-separator;
   box-sizing: border-box;
   float: left;
-  padding-right: 15px;
-  width: @searchControls-width;
+  padding-right: 20px;
+  width: (@length-searchControlsWidth + 20);
 
   input[type=text],
   select {
@@ -359,28 +331,31 @@
 }
 
 .searchFilters {
-  margin: 50px -10px 20px -10px;
-  padding: 0 10px 0 10px;
+  @-length-top: @length-inputHeight + 20px;
+
+  border-top: 2px solid @color-separator;
+  margin: @-length-top 0 20px 0;
+  padding: 20px 0 0 0;
   position: relative;
 
   form {
-    margin-bottom: 5px;
+    margin-bottom: 0;
   }
 
   .searchInput {
-    left: 10px;
-    right: 10px;
+    left: 0;
+    right: 0;
     position: absolute;
-    top: -45px;
+    top: (0 - @-length-top);
   }
 
   .action-cancel {
     .small;
 
-    color: @color-alert;
+    color: @color-remove;
+    left: 50px;
     position: absolute;
-    right: 10px;
-    top: -2px;
+    top: 20px;
   }
 }
 
@@ -390,7 +365,8 @@
 
   color: @color-note;
   font-size: 80%;
-  line-height: (@size-line * 0.8);
+  line-height: @length-inputHeight;
+  margin-bottom: -10px;
   padding-right: 20px;
   position: relative;
   text-align: right;
@@ -405,7 +381,7 @@
 }
 
 .searchFilter {
-  margin-top: 5px;
+  margin-top: 10px;
   position: relative;
 
   .objectId,
@@ -423,19 +399,33 @@
   }
 
   &.searchFilter-date {
+    position: relative;
+
     .calendarButton {
       width: 100%;
     }
 
     > input:first-child + .calendarButton {
+      border-bottom-color: transparent;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
 
     > input[name$='.x'] + .calendarButton {
+      border-top-color: transparent;
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       margin-top: -1px;
+    }
+
+    &:before {
+      border-top: 1px solid @color-separator;
+      content: '';
+      height: 0;
+      left: 10px;
+      position: absolute;
+      top: 29px;
+      right: 35px;
     }
   }
 
@@ -451,9 +441,9 @@
     }
 
     .icon-action-edit {
-      bottom: 2px;
+      bottom: ((@length-inputHeight - @length-iconSize) / 2);
       position: absolute;
-      right: 4px;
+      right: 5px;
     }
   }
 }
@@ -464,11 +454,15 @@
   input[type='checkbox'] {
     position: absolute;
     right: 0;
-    top: 4px;
+    top: 6px;
+
+    &:checked {
+      background-image: url(icon/x.svg);
+    }
   }
 
   .searchFilter {
-    padding-right: 20px;
+    padding-right: 25px;
   }
 
   .objectId-clear {
@@ -477,13 +471,20 @@
 }
 
 .searchCreate {
-  button {
-    margin-top: 5px;
+  border-top: 2px solid @color-separator;
+  padding-top: 20px;
+
+  form {
+    margin-bottom: 0;
+  }
+
+  .select {
+    margin-bottom: 5px;
   }
 }
 
 .searchResult {
-  margin-left: @searchControls-width + 5;
+  margin-left: (@length-searchControlsWidth + 40);
   position: relative;
 }
 
@@ -496,7 +497,7 @@
 }
 
 .searchSorter {
-  float: left;
+  margin-bottom: 20px;
 
   form {
     display: inline;
@@ -505,15 +506,22 @@
 
 .searchPagination {
   margin-bottom: 20px;
+  position: absolute;
+  right: 0;
+  top: (@length-lineHeight + 10px);
 }
 
 .searchResultImages {
+  margin-bottom: 10px;
   overflow: hidden;
 
   figure {
+    border: 1px solid darken(white, 20%);
+    box-sizing: border-box;
     float: left;
     height: 100px;
-    margin: 0 5px 5px 0;
+    margin: 0 10px 10px 0;
+    padding: 4px;
     max-width: 150px;
 
     img {

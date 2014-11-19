@@ -220,6 +220,11 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                 }
                             wp.write("</select>");
                         }
+
+                        if (!state.isNew()) {
+                            wp.write(": " );
+                            wp.write(wp.objectLabel(editing));
+                        }
                     wp.writeEnd();
 
                     if (selected instanceof Page &&
@@ -344,8 +349,10 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                 wp.writeEnd();
 
                 if (workStream != null) {
-                    long incomplete = workStream.countIncomplete();
-                    long total = workStream.getQuery().count();
+                    long skipped = workStream.countSkipped(user);
+                    long complete = workStream.countComplete();
+                    long incomplete = workStream.countIncomplete() - skipped;
+                    long total = complete + incomplete + skipped;
 
                     wp.writeStart("div",
                             "class", "block",
@@ -383,7 +390,36 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                 wp.writeHtml(total);
                             wp.writeEnd();
 
-                            wp.writeHtml(" left");
+                            wp.writeHtml(" left ");
+
+                            if (complete > 0L || skipped > 0L) {
+                                wp.writeHtml("(");
+                            }
+
+                            if (complete > 0L) {
+                                wp.writeStart("strong");
+                                    wp.writeHtml(complete);
+                                wp.writeEnd();
+
+                                wp.writeHtml(" complete");
+
+                                if (skipped > 0L) {
+                                    wp.writeHtml(", ");
+                                }
+                            }
+
+                            if (skipped > 0L) {
+                                wp.writeStart("strong");
+                                    wp.writeHtml(skipped);
+                                wp.writeEnd();
+
+                                wp.writeHtml(" skipped");
+                            }
+
+                            if (complete > 0L || skipped > 0L) {
+                                wp.writeHtml(")");
+                            }
+
                         wp.writeEnd();
 
                         wp.writeStart("ul", "class", "piped");

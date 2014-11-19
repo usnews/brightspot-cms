@@ -42,7 +42,32 @@ String fieldName = field.getInternalName();
 ToolUi ui = field.as(ToolUi.class);
 ObjectType type = field.getParentType();
 
+boolean isFormPost = (Boolean) request.getAttribute("isFormPost");
+boolean isReadOnly = ui.isReadOnly();
 boolean isHidden = ui.isHidden();
+
+String tab = null;
+String label = null;
+ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
+
+if (ct != null) {
+    for (ContentField cf : ct.getFields()) {
+        if (fieldName.equals(cf.getInternalName())) {
+            tab = cf.getTab();
+            label = cf.getDisplayName();
+            break;
+        }
+    }
+
+} else {
+    tab = ui.getTab();
+    label = field.getLabel();
+}
+
+List<String> errors = state.getErrors(field);
+if (originalState != null && ObjectUtils.isBlank(errors)) {
+    errors = originalState.getErrors(field);
+}
 
 if (!isHidden &&
         !wp.param(boolean.class, "deprecated") &&
@@ -55,12 +80,25 @@ if (!isHidden && type != null) {
     isHidden = !wp.hasPermission("type/" + field.getParentType().getId() + "/read")
             || !wp.hasPermission("type/" + field.getParentType().getId() + "/field/" + fieldName + "/read");
 }
+
 if (isHidden) {
+    if (!isFormPost && !ObjectUtils.isBlank(errors)) {
+        wp.write("<div class=\"inputContainer\">");
+            wp.write("<div class=\"inputLabel\">");
+            wp.write("<a class=\"icon icon-object-guide\" tabindex=\"-1\" target=\"guideField\" href=\"", wp.cmsUrl("/guideField", "typeId", state.getType().getId(), "field", field.getInternalName()), "\">Guide</a>");
+            wp.write("<label for=\"", wp.createId(), "\">");
+            wp.write(wp.h(label));
+            wp.write("</label></div>");
+            wp.write("<div class=\"message message-error\">");
+            for (String error : errors) {
+                wp.write(wp.h(error), " ");
+            }
+            wp.write("</div>");
+        wp.write("</div>");
+    }
     return;
 }
 
-boolean isFormPost = (Boolean) request.getAttribute("isFormPost");
-boolean isReadOnly = ui.isReadOnly();
 if (!isReadOnly && type != null) {
     isReadOnly = !wp.hasPermission("type/" + type.getId() + "/write")
             || !wp.hasPermission("type/" + type.getId() + "/field/" + fieldName + "/write");
@@ -114,24 +152,6 @@ try {
             wp.write(wp.h(size));
         }
 
-        String tab = null;
-        String label = null;
-        ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
-
-        if (ct != null) {
-            for (ContentField cf : ct.getFields()) {
-                if (fieldName.equals(cf.getInternalName())) {
-                    tab = cf.getTab();
-                    label = cf.getDisplayName();
-                    break;
-                }
-            }
-
-        } else {
-            tab = ui.getTab();
-            label = field.getLabel();
-        }
-
         wp.write("\" data-tab=\"");
         wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
         wp.write("\">");
@@ -179,10 +199,6 @@ try {
         }
 
         // Field-specific error messages.
-        List<String> errors = state.getErrors(field);
-        if (originalState != null && ObjectUtils.isBlank(errors)) {
-            errors = originalState.getErrors(field);
-        }
         if (!ObjectUtils.isBlank(errors)) {
             wp.write("<div class=\"message message-error\">");
             for (String error : errors) {

@@ -73,6 +73,11 @@ if (wp.isFormPost()) {
             return;
         }
 
+        if (user.getChangePasswordToken() != null) {
+            user.setChangePasswordToken(null);
+            user.save();
+        }
+
         AuthenticationFilter.Static.logIn(request, response, user);
 
         if (!StringUtils.isBlank(returnPath)) {
@@ -100,6 +105,7 @@ if (wp.isFormPost()) {
 .toolHeader {
     background-color: transparent;
     border-style: none;
+    box-shadow: none;
 }
 .toolTitle {
     float: none;
@@ -107,6 +113,9 @@ if (wp.isFormPost()) {
     margin: 30px 0 0 0;
     text-align: center;
     width: auto;
+}
+.toolTitle a img {
+    max-width: 390px;
 }
 .toolFooter {
     border-style: none;
@@ -125,6 +134,12 @@ body {
 }
 body.hasToolBroadcast {
     margin-top: 195px;
+}
+.inputContainer {
+    background: transparent !important;
+}
+.buttons {
+    border-top-style: none;
 }
 </style>
 

@@ -222,7 +222,6 @@ public class SearchQueryBuilder extends Record {
 
         if (!queryTerms.isEmpty()) {
             query.and("_any matchesAny ?", queryTerms);
-            query.sortRelevant(100000.0, "_any matchesAll ?", terms);
         }
 
         Set<ObjectType> allTypes = new HashSet<ObjectType>();
@@ -277,6 +276,13 @@ public class SearchQueryBuilder extends Record {
                 "that", "the", "they", "this", "to", "too", "us", "she", "was", "what", "when",
                 "where", "who", "will", "with", "why", "www"));
 
+        public StopWords() {
+        }
+
+        public StopWords(Set<String> stopWords) {
+            this.stopWords = stopWords;
+        }
+
         public String getLabel() {
             return "Stop Words " + stopWords;
         }
@@ -294,7 +300,7 @@ public class SearchQueryBuilder extends Record {
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
-            Set<String> removed = null;
+            List<String> updatedQueryTerms = new ArrayList<String>();
 
             if (ObjectUtils.isBlank(queryTerms)) {
                 return;
@@ -303,11 +309,12 @@ public class SearchQueryBuilder extends Record {
             for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext();) {
                 String term = qt.next();
                 for (Iterator<String> sw = stopWords.iterator(); sw.hasNext();) {
-                    if (term.equals(sw.next())) {
-                        queryTerms.remove(term);
+                    if (!term.equals(sw.next())) {
+                        updatedQueryTerms.add(term);
                     }
                 }
             }
+            queryTerms = updatedQueryTerms;
         }
     }
 
@@ -317,6 +324,13 @@ public class SearchQueryBuilder extends Record {
         @Embedded
         @ToolUi.Note("Similar words that should be used in the search query to enrich the experience")
         private Set<Synonym> synonyms = new HashSet<Synonym>();
+
+        public Synonyms() {
+        }
+
+        public Synonyms(Set<Synonym> synonyms) {
+            this.synonyms = synonyms;
+        }
 
         public String getLabel() {
             return synonyms.size() + " Synonym Groups";
@@ -447,6 +461,14 @@ public class SearchQueryBuilder extends Record {
         @Required
         private ObjectType type;
 
+        public BoostType() {
+        }
+
+        public BoostType(int boost, ObjectType type) {
+            setBoost(boost);
+            this.type = type;
+        }
+
         public String getLabel() {
             return "Boost: " + getBoost() + " Type: " + type.getDisplayName();
         }
@@ -469,6 +491,15 @@ public class SearchQueryBuilder extends Record {
 
         private ObjectType type;
         private Set<String> fields;
+
+        public BoostFields() {
+        }
+
+        public BoostFields(int boost, ObjectType type, Set<String> fields) {
+            setBoost(boost);
+            this.type = type;
+            this.fields = fields;
+        }
 
         public String getLabel() {
             return "Boost: " + getBoost() + " " + type.getDisplayName() + " Field(s): " + fields;
@@ -513,7 +544,7 @@ public class SearchQueryBuilder extends Record {
                     }
                 }
 
-                if (ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
+                if (type.getField(field) != null && ObjectField.RECORD_TYPE.equals(type.getField(field).getInternalItemType())) {
                     if (!uuids.isEmpty()) {
                         query.sortRelevant(boost, prefix + field + " matchesAny ?", uuids);
                     }
@@ -532,6 +563,16 @@ public class SearchQueryBuilder extends Record {
         public String pattern;
         public ObjectType type;
         public String predicate;
+
+        public BoostPhrase() {
+        }
+
+        public BoostPhrase(int boost, ObjectType type, String pattern, String predicate) {
+            setBoost(boost);
+            this.type = type;
+            this.pattern = pattern;
+            this.predicate = predicate;
+        }
 
         public String getLabel() {
             return "Boost: " + getBoost() + " Phrase: " + pattern;

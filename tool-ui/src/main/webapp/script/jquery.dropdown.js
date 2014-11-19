@@ -23,6 +23,8 @@ $.plugin2('dropDown', {
                 isMultiple = $original.is('[multiple]'),
                 isSearchable = $original.is('[data-searchable="true"]'),
                 placeholder = $original.attr('placeholder'),
+                dynamicPlaceholderText = $original.attr('data-dynamic-placeholder'),
+                dynamicPlaceholderHtml = dynamicPlaceholderText && '<span data-dynamic-text=' + dynamicPlaceholderText + '>',
                 $input,
                 $label,
                 $search,
@@ -92,7 +94,7 @@ $.plugin2('dropDown', {
                 return $(option).text();
             }).join(', ');
 
-            $label.html(newLabel || placeholder || '&nbsp;');
+            $label.html(newLabel || dynamicPlaceholderHtml || placeholder || '&nbsp;');
             $label.toggleClass('state-placeholder', !newLabel);
         });
 

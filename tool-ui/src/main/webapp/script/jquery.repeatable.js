@@ -159,6 +159,8 @@ $.plugin2('repeatable', {
                         return false;
                     }
 
+                    $container.find(".objectId-placeholder").hide();
+
                     var $addedItem = $template.clone();
                     $addedItem.removeClass('template');
                     $addedItem.find(':input[name$=".toggle"]').attr('checked', 'checked');

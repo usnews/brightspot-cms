@@ -58,11 +58,13 @@ if (wp.isFormPost()) {
         if (StringUtils.isBlank(baseUrl)) {
             baseUrl = JspUtils.getAbsoluteUrl(request, "/");
         }
+        if (!baseUrl.startsWith("https") && JspUtils.isSecure(request)) {
+            baseUrl = baseUrl.replace("http", "https");
+        }
 
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(baseUrl);
-        urlBuilder.append(RoutingFilter.Static.getApplicationPath(Application.Static.getInstance(CmsTool.class).getApplicationName()));
-        urlBuilder.append(StringUtils.ensureStart("reset-password.jsp", "/"));
+        urlBuilder.append(wp.cmsUrl("/reset-password.jsp"));
         String changePasswordToken = StringUtils.hex(StringUtils.hash("SHA-256", UUID.randomUUID().toString()));
 
         String url = urlBuilder.toString();

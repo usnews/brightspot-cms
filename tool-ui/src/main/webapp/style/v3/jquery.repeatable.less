@@ -12,14 +12,12 @@
       position: relative;
 
       > .repeatableLabel {
-        background: @inputLabel-background;
-        border-radius: @inputLabel-borderRadius;
-        color: @inputLabel-color;
+        &:extend(.inputLabelLike all);
+
         cursor: pointer;
         left: 0;
-        margin: 0 -6px 0 -6px;
-        min-height: 22px;
-        padding: 3px 35px 3px 45px;
+        padding-left: 35px;
+        padding-right: 45px;
         position: relative;
 
         &:before {
@@ -43,7 +41,7 @@
       }
 
       > .objectInputs {
-        padding: @inputLarge-padding;
+        &:extend(.inputLargeLike all);
 
         &:before {
           bottom: 15px;
@@ -64,11 +62,11 @@
 
       > .removeButton {
         .icon;
-        .icon-minus-sign;
+        .icon-remove;
         .icon-only;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 5px;
         top: 4px;
@@ -99,13 +97,11 @@
       }
 
       &.toBeRemoved {
-        border-color: #fdd;
         padding-bottom: 0;
 
         > .repeatableLabel {
-          background-color: #fdd;
           border-bottom-style: none;
-          color: @color-alert;
+          color: @color-remove;
           margin-bottom: 0;
           text-decoration: line-through;
 
@@ -116,7 +112,7 @@
 
         > .removeButton {
           .icon;
-          .icon-plus-sign;
+          .icon-plus;
           color: @color-link;
         }
       }
@@ -127,9 +123,10 @@
     overflow: hidden;
 
     > .addButton {
+      &:extend(.link all);
+
       .icon;
-      .icon-plus-sign;
-      .link;
+      .icon-plus;
 
       float: left;
       margin-right: 15px;
@@ -285,17 +282,17 @@
 
       > .removeButton {
         .icon;
-        .icon-minus-sign;
+        .icon-remove;
         .link;
         bottom: 0;
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 0;
       }
 
       &.toBeRemoved > .removeButton {
         .icon;
-        .icon-plus-sign;
+        .icon-plus;
         color: @color-link;
       }
     }
@@ -305,9 +302,11 @@
     margin-top: 5px;
 
     > .addButton {
+      &:extend(.link all);
+
       .icon;
-      .icon-plus-sign;
-      .link;
+      .icon-plus;
+
       margin-right: 15px;
     }
   }
@@ -350,11 +349,11 @@
 
       > .removeButton {
         .icon;
-        .icon-minus-sign;
+        .icon-remove;
         .icon-only;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 5px;
         top: 4px;
@@ -373,9 +372,8 @@
         padding-bottom: 0;
 
         > .repeatableLabel {
-          background-color: #fdd;
           border-bottom-style: none;
-          color: @color-alert;
+          color: @color-remove;
           margin-bottom: 0;
           text-decoration: line-through;
 
@@ -390,7 +388,7 @@
 
         > .removeButton {
           .icon;
-          .icon-plus-sign;
+          .icon-plus;
           color: @color-link;
         }
       }
@@ -401,9 +399,10 @@
     overflow: hidden;
 
     > .addButton {
+      &:extend(.link all);
+
       .icon;
-      .icon-plus-sign;
-      .link;
+      .icon-plus;
 
       float: left;
       margin-right: 15px;
@@ -424,15 +423,19 @@
   > ul {
     margin-bottom: 0;
 
+    &:not(:empty) {
+      margin-bottom: 10px;
+    }
+
     > li {
       margin-bottom: 5px;
       white-space: nowrap;
 
       > .removeButton {
         .icon;
-        .icon-minus-sign;
+        .icon-remove;
         .link;
-        color: @color-alert;
+        color: @color-remove;
         margin-left: 10px;
 
         @media @media-tablet {
@@ -445,13 +448,12 @@
       &.toBeRemoved {
         > .removeButton {
           .icon;
-          .icon-plus-sign;
+          .icon-plus;
           color: @color-link;
         }
 
         .objectId-select {
-          background-color: #fdd;
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
 
           &:before,
@@ -465,7 +467,7 @@
         }
 
         .objectId-edit {
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
         }
       }
@@ -482,16 +484,14 @@
     margin-top: 5px;
 
     .addButton {
+      &:extend(.link all);
+
       .icon;
-      .icon-plus-sign;
-      .link;
+      .icon-plus;
     }
   }
 
   &.repeatableObjectId-previewable {
-    @listItem-margin: 10px;
-    @listItem-markerSize: 20px;
-
     > ol,
     > ul {
       list-style-type: none;
@@ -499,29 +499,42 @@
       overflow: hidden;
 
       > li {
+        background-color: darken(white, 3%);
+        border: 1px solid darken(white, 20%);
+        border-radius: 2px;
         box-sizing: border-box;
         float: left;
-        margin: 0;
-        max-width: 180px;
-        padding: 0 @listItem-margin @listItem-margin 0;
+        margin: 0 10px 10px 0;
+        padding: 4px;
         position: relative;
-        width: 33%;
+        width: 210px;
 
         .objectId-select {
-          @img-height: 100px;
-
+          background-color: white;
+          border: none;
+          box-sizing: border-box;
           display: block;
-          height: (@img-height + 2 * (@size-input-padding + @size-input-border));
-          margin-bottom: 5px;
-          width: 100%;
+          margin: -4px -4px 0 -4px;
+          padding: 4px 4px 10px 4px;
+          width: auto;
 
-          img {
-            height: @img-height;
+          figure {
+            width: 100%;
+          }
+
+          &:before,
+          &:after {
+            display: none;
           }
         }
 
-        .objectId-edit {
-          margin-left: 0;
+        .objectId-edit,
+        .removeButton {
+          .icon-only;
+        }
+
+        .removeButton {
+          float: right;
         }
       }
     }
@@ -531,26 +544,22 @@
 
       > li {
         &:before {
-          .background-color(@color-alt);
-          .strong;
+          @length-size: 20px;
 
-          border-bottom-left-radius: 3px;
-          border-top-right-radius: 5px;
+          .background-color(fade(black, 60%));
+
+          border: 2px solid white;
+          border-radius: @length-size;
           counter-increment: listItem;
           content: counter(listItem);
-          height: @select-markerSize;
-          line-height: @select-markerSize;
-          min-width: (@listItem-markerSize - @select-markerMargin - @size-input-padding - @size-input-border);
-          padding: 0 @size-input-padding;
+          height: @length-size;
+          line-height: @length-size;
           position: absolute;
-          right: (@listItem-margin + @size-input-border);
+          right: 10px;
           text-align: center;
-          top: @size-input-border;
+          top: 10px;
+          width: @length-size;
           z-index: 1;
-        }
-
-        .objectId-select:before {
-          top: (@select-markerSize + @select-markerMargin);
         }
       }
     }
@@ -565,6 +574,8 @@
 }
 
 .repeatableText {
+  @-length-buttonOffset: (@length-inputHeight - @length-iconSize) / 2;
+
   > ol, > ul {
     margin-bottom: 0;
 
@@ -574,30 +585,30 @@
       position: relative;
 
       > input[type=text] {
-        padding-right: 20px;
+        padding-right: @length-inputHeight;
       }
 
       > .removeButton {
         .icon;
-        .icon-minus-sign;
+        .icon-remove;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
-        right: 1px;
-        top: 4px;
+        right: @-length-buttonOffset;
+        top: @-length-buttonOffset;
         user-select: none;
       }
 
       &.toBeRemoved {
         > input[type='text'] {
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
         }
 
         > .removeButton {
           .icon;
-          .icon-plus-sign;
+          .icon-plus;
 
           color: @color-link;
         }
@@ -634,12 +645,14 @@
     }
 
     > .addButton {
+      &:extend(.link all);
+
       .icon;
-      .icon-plus-sign;
-      .link;
+      .icon-plus;
+
       position: absolute;
-      right: 1px;
-      top: 4px;
+      right: @-length-buttonOffset;
+      top: @-length-buttonOffset;
     }
   }
 
@@ -655,7 +668,7 @@
     &.state-disabled {
         .removeButton,
         .addButtonContainer {
-            display: none;
+          display: none;
         }
     }
 }

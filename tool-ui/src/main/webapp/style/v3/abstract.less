@@ -34,36 +34,40 @@
 .button-color(@color) {
   .background-color(@color);
 
-  // border: 1px solid husl-darken(@color, 5);
-  transition: background-color @speed-fast;
+  border-color: @color;
+  font-weight: 600;
+  font-size: 15px;
 
   &:hover {
-    background: husl-darken(@color, 5);
-    border-color: husl-darken(@color, 10);
-    transition: none;
+    background-color: darken(@color, 5%);
   }
 }
 
 .button {
-  .button-color(@color-blue-plain);
+  @-borderWidth: 1px;
+  @-lineHeight: 20px;
+  @-paddingTB: @length-inputHeight - @-lineHeight - (@-borderWidth * 2);
+  @-paddingTop: floor(@-paddingTB / 2);
 
-  border: none;
+  .background-color(white);
+  border: @-borderWidth solid @color-border;
   border-radius: 2px;
   box-sizing: border-box;
   cursor: pointer;
   display: inline-block;
-  font-family: @fontFamily-label;
-  font-size: 14px;
-  font-weight: 600;
-  height: @button-height;
-  line-height: @button-height;
+  font-weight: 700;
+  max-width: 100%;
+  min-height: @length-inputHeight;
+  line-height: @-lineHeight;
   margin: 0;
-  padding: 0 @button-padding-lr;
+  padding: @-paddingTop 20px (@-paddingTB - @-paddingTop) 20px;
+  transition: background-color @time-fast;
   vertical-align: middle;
-  white-space: nowrap;
 
   &:hover {
+    background-color: darken(white, 5%);
     text-decoration: none;
+    transition: none;
   }
 }
 
@@ -75,11 +79,10 @@
 
 .actions,
 .buttons {
-  .background-color(@color-alt);
-
-  margin: 6px 0 15px 0;
+  border-top: 1px solid fade(black, 20%);
+  margin: 0 0 20px 0;
   overflow: hidden;
-  padding: 10px;
+  padding: 20px 0 0 0;
 
   .action,
   .button,
@@ -188,12 +191,11 @@ figure,
 
   figcaption,
   .figcaption {
-    background-color: fade(@color-text, 80%);
+    background-color: fade(white, 85%);
     bottom: 0;
     box-sizing: border-box;
-    color: @color-background;
     left: 0;
-    line-height: @size-line;
+    line-height: @length-lineHeight;
     margin: 0;
     max-height: 100%;
     overflow: hidden;
@@ -232,7 +234,7 @@ figure,
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
-  width: @size-text;
+  width: @length-fontSize;
 
   &:before {
     padding-right: 1.1em;
@@ -464,6 +466,9 @@ figure,
 .icon-terminal { &:before { content: '\f120'; } }
 .icon-crop { &:before { content: '\f125'; } }
 .icon-unlink { &:before { content: '\f127'; } }
+.icon-question { &:before { content: '\f128'; } }
+.icon-info { &:before { content: '\f129'; } }
+.icon-exclamation { &:before { content: '\f12a'; } }
 .icon-superscript { &:before { content: '\f12b'; } }
 .icon-subscript { &:before { content: '\f12c'; } }
 .icon-rocket { &:before { content: '\f135'; } }
@@ -475,19 +480,26 @@ figure,
 .icon-tumblr { &:before { content: '\f173'; } }
 .icon-user-md { &:before { content: '\f200'; } }
 
-.input {
-  background: @input-background;
-  border-color: @input-borderColor;
-  border-radius: @input-borderRadius;
+.inputLike {
+  @size-border: 1px;
+
+  .background-color(white);
+  border-color: @color-border;
+  border-radius: 2px;
   border-style: solid;
-  border-width: @input-borderWidth;
+  border-width: @size-border;
   box-sizing: border-box;
+  min-height: @length-inputHeight;
+  padding: ((@length-inputHeight - @length-lineHeight) / 2 - @size-border) 6px;
+}
+
+.input {
+  &:extend(.inputLike all);
+
   display: inline-block;
-  line-height: @input-lineHeight;
+  line-height: @length-lineHeight;
   margin: 0;
-  min-height: @input-height;
-  padding: ((@input-height - @input-lineHeight) / 2 - @input-borderWidth) @input-padding-lr;
-  transition: border-color @speed-fast, box-shadow @speed-fast;
+  transition: border-color @time-fast, box-shadow @time-fast;
   vertical-align: middle;
   white-space: pre-wrap;
 
@@ -498,8 +510,8 @@ figure,
 
   &:focus,
   &.state-focus {
-    background: @input-background-focus;
-    border-color: @input-borderColor-focus;
+    background-color: fade(@color-focus, 10%);
+    border-color: fade(@color-focus, 50%);
     transition: none;
   }
 
@@ -510,7 +522,8 @@ figure,
 }
 
 .inputContainer {
-  margin: 0 0 @inputContainer-marginBottom 0;
+  background: linear-gradient(90deg, @color-heading 0, @color-heading 140px, white 140px, white 100%);
+  margin: 0 0 10px 0;
   min-height: 30px;
   overflow: hidden;
   position: relative;
@@ -528,12 +541,16 @@ figure,
   }
 
   &.state-changed {
+    background: linear-gradient(90deg, @color-change 0, @color-change 140px, white 140px, white 100%);
+
     > .inputLabel {
       .background-color(@color-change);
     }
   }
 
   &.state-focus {
+    background: linear-gradient(90deg, @color-focus 0 , @color-focus 140px, white 140px, white 100%);
+
     > .inputLabel {
       .background-color(@color-focus);
     }
@@ -546,18 +563,28 @@ figure,
     position: absolute;
     right: 6px;
   }
+
+  > h2 {
+    background-color: white;
+    margin: 0 !important;
+    padding: 20px 0 10px 0;
+  }
+}
+
+.inputLabelLike {
+  .background-color(@color-heading, darken(white, 70%));
+  border-radius: 2px;
+  box-sizing: border-box;
+  min-height: @length-inputHeight;
+  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
 }
 
 .inputLabel {
-  background: @inputLabel-background;
-  border-radius: @inputLabel-borderRadius;
-  box-sizing: border-box;
-  color: @inputLabel-color;
+  &:extend(.inputLabelLike all);
+
   float: left;
-  min-height: @inputLabel-height;
-  padding: ((@inputLabel-height - @global-lineHeight) / 2) @inputLabel-paddingLeftRight;
+  position: relative;
   width: @inputLabel-width;
-  z-index: -1;
 
   > label {
     display: block;
@@ -607,16 +634,21 @@ figure,
   }
 }
 
+.inputLargeLike {
+  padding: 10px 0 10px 30px;
+}
+
 .inputLarge {
-  background-color: rgba(255, 255, 255, 0.7);
+  &:extend(.inputLargeLike all);
+
+  background-color: white;
   clear: left;
-  padding: @inputLarge-padding;
   position: relative;
   z-index: 0;
 
   &:before {
-    bottom: 15px;
-    border-color: @inputLabel-background;
+    bottom: 25px;
+    border-color: @color-heading;
     border-style: solid;
     border-width: 0 0 1px 1px;
     content: '';
@@ -626,13 +658,18 @@ figure,
     top: 0;
   }
 
-  &.state-focus:before {
-    border-color: @inputLabel-background-focus;
+  .inputContainer.state-changed > &:before {
+    border-color: @color-change;
+  }
+
+  .inputContainer.state-focus > &:before {
+    border-color: @color-focus;
   }
 }
 
 .inputNote {
   display: block;
+  margin-bottom: 5px;
   margin-left: (@inputLabel-width + @inputLabel-marginRight);
 
   .objectInputs-small & {
@@ -766,24 +803,24 @@ figure,
 }
 
 .link {
-  background: transparent;
+  background-color: transparent;
   border-radius: 0;
   border-style: none;
   box-shadow: none;
-  color: @color-link;
   cursor: pointer;
   display: inline;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 100%;
   font-weight: normal;
   height: auto;
   line-height: inherit;
   margin: 0;
+  min-height: 0;
   padding: 0;
   text-transform: inherit;
 
   &:hover {
-    background: transparent;
+    background-color: transparent;
     text-decoration: underline;
   }
 
@@ -798,13 +835,16 @@ ul.links {
   margin-left: 0;
 
   > li {
+    @-length-border: 1px;
+    @-length-height: @length-lineHeight - @-length-border;
+    @-length-paddingTop: floor(@-length-height / 2);
+
     box-sizing: border-box;
-    border-bottom: 1px solid darken(white, 10%);
-    min-height: @linksItem-height;
+    border-bottom: @-length-border solid darken(white, 10%);
+    padding: @-length-paddingTop 0 (@-length-height - @-length-paddingTop) 0;
 
     > .link {
       display: block;
-      padding: 1px 0;
       position: relative;
       text-decoration: none;
     }
@@ -813,20 +853,27 @@ ul.links {
     &.links-selected,
     &.selected {
       list-style-type: none;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
 
       > .link {
-        background-color: inherit;
-        color: inherit;
+        background-color: transparent;
       }
     }
 
     &:hover {
-      .background-color(#d7f0f8);
+      background-color: fade(@color-focus, 10%);
     }
 
     &.links-selected,
     &.selected {
-      .background-color(@color-select);
+      .background-color(@color-focus);
+
+      .link {
+        color: white;
+      }
     }
 
     &.links-new,
@@ -835,7 +882,7 @@ ul.links {
 
       > .link {
         .icon;
-        .icon-plus-sign;
+        .icon-plus;
 
         &:before {
           padding-right: 7px;
@@ -888,8 +935,10 @@ table.links.table-striped {
   }
 
   td {
-    padding-bottom: 5px;
-    padding-top: 5px;
+    @-length-paddingTop: floor(@length-lineHeight / 2);
+
+    padding-bottom: (@length-lineHeight - @-length-paddingTop);
+    padding-top: @-length-paddingTop;
   }
 }
 
@@ -904,13 +953,13 @@ table.links.table-striped {
 
 .message,
 .message-info {
-  .background-color(@color-gray-faint);
+  .background-color(@color-heading);
   .icon;
   .icon-info-sign;
   .message-icon();
 
-  border-radius: 5px;
-  margin-bottom: 15px;
+  border-radius: 2px;
+  margin-bottom: 20px;
   min-height: 20px;
   padding: 10px 10px 10px 33px;
   position: relative;
@@ -935,7 +984,7 @@ table.links.table-striped {
 }
 
 .message-error {
-  .background-color(@color-red-dark);
+  .background-color(@color-remove);
   .icon;
   .icon-exclamation-sign;
   .message-icon();
@@ -946,14 +995,14 @@ table.links.table-striped {
 }
 
 .message-success {
-  .background-color(@color-green-light);
+  .background-color(@color-publish);
   .icon;
   .icon-ok-sign;
   .message-icon();
 }
 
 .message-warning {
-  .background-color(@color-yellow-faint);
+  .background-color(@color-schedule);
   .icon;
   .icon-exclamation-sign;
   .message-icon();
@@ -968,7 +1017,7 @@ table.links.table-striped {
 
   li {
     float: left;
-    padding: 5px 5px 0 0;
+    padding: 10px 10px 0 0;
     white-space: nowrap;
 
     &:last-child {
@@ -982,29 +1031,52 @@ table.links.table-striped {
 }
 
 .pagination {
+  &:extend(.inputLike all);
+
+  display: inline-block;
   list-style-type: none;
   margin-bottom: 5px;
   margin-left: 0;
+  overflow: hidden;
+  padding: 0;
   text-align: right;
 
   > li {
     .paginationItem;
   }
-
-  form {
-    display: inline;
-  }
 }
 
 .paginationItem {
-  display: inline;
+  float: left;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
+  padding: 0 10px;
   white-space: nowrap;
 
-  &:not(:last-child):after {
-    color: @color-note;
-    content: '\00a0|\00a0';
-    padding: 0 0.3em;
+  &:not(:last-child) {
+    border-right: 1px solid darken(white, 20%);
   }
+
+  .select {
+    border: none;
+    margin-right: -5px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-top: 0;
+  }
+}
+
+.pagination-first,
+.paginationFirst,
+.pagination-previous,
+.paginationPrevious,
+.pagination-next,
+.paginationNext,
+.pagination-last,
+.paginationLast {
+  padding: 0;
+  text-align: center;
+  width: 25px;
 }
 
 .pagination-first,
@@ -1012,6 +1084,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-backward;
+    .icon-only;
   }
 }
 
@@ -1020,6 +1093,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-caret-left;
+    .icon-only;
   }
 }
 
@@ -1028,7 +1102,7 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-caret-right;
-    .icon-pullRight;
+    .icon-only;
   }
 }
 
@@ -1037,13 +1111,14 @@ table.links.table-striped {
   .link {
     .icon;
     .icon-forward;
-    .icon-pullRight;
+    .icon-only;
   }
 }
 
 .piped {
   list-style-type: none;
   margin-left: 0;
+  overflow: hidden;
 
   > li {
     .pipedItem;
@@ -1051,12 +1126,13 @@ table.links.table-striped {
 }
 
 .pipedItem {
-  display: inline;
+  float: left;
 
   &:not(:last-child):after {
-    color: @color-separator;
-    content: ' | ';
-    padding: 0 0.3em;
+    border-right: 1px solid @color-separator;
+    content: '';
+    margin-right: 10px;
+    padding-right: 10px;
   }
 
   &.selected {
@@ -1105,7 +1181,6 @@ table.links.table-striped {
   }
 
   > input[type=text] {
-    border-radius: 1em;
     padding-left: 0.7em;
     padding-right: 24px;
   }
@@ -1135,17 +1210,18 @@ table.links.table-striped {
 }
 
 @select-markerMargin: 2px;
-@select-markerSize: (@size-text + 2 * (@size-input-padding + @size-input-border - @select-markerMargin));
+@select-markerSize: (@length-fontSize + 2 * (@size-input-padding + @size-input-border - @select-markerMargin));
 
 .select {
-  .icon;
-  .icon-chevron-down;
-  .input;
+  &:extend(.input all);
 
-  color: @color-text;
+  -webkit-appearance: none;
+  background-image: url(icon/select-arrow.png);
+  background-position: right -2px;
+  background-repeat: no-repeat;
   cursor: pointer;
   display: inline-block;
-  height: (@size-line + 2 * (@size-input-padding + @size-input-border));
+  height: (@length-lineHeight + 2 * (@size-input-padding + @size-input-border));
   padding-right: 26px;
   position: relative;
   user-select: none;
@@ -1159,28 +1235,12 @@ table.links.table-striped {
     text-decoration: none;
   }
 
-  &:before {
-    border-radius: 3px;
-    bottom: @select-markerMargin;
-    color: @color-text;
-    font-size: @size-text * 0.7;
-    height: auto;
-    line-height: @select-markerSize;
-    padding: 0;
-    position: absolute;
-    text-align: center;
-    top: @select-markerMargin;
-    right: @select-markerMargin;
-    width: @select-markerSize;
-  }
-
   &.state-disabled:before {
     display: none;
   }
 
   &.toBeRemoved {
-    background-color: @color-remove;
-    color: @color-alert;
+    color: @color-remove;
     text-decoration: line-through;
 
     img {
@@ -1203,19 +1263,19 @@ table.links.table-striped {
 }
 
 .tabs {
-  border-bottom: 1px solid @color-separator;
-  font-family: @fontFamily-label;
-  font-size: 80%;
-  font-weight: bold;
+  @-color-border: husl-lightness-set(black, 90);
+  @-length-border: 1px;
+
+  border-bottom: 1px solid @-color-border;
+  font-weight: 700;
   list-style-type: none;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-left: 0;
   position: relative;
-  text-transform: uppercase;
-  top: -3px;
+  top: (0 - @-length-border);
 
   .link {
-    font-weight: bold;
+    font-weight: 700;
 
     &:hover {
       text-decoration: none;
@@ -1223,14 +1283,21 @@ table.links.table-striped {
   }
 
   > li {
+    @-length-paddingTopBottom: @length-tabHeight - @length-lineHeight - (@-length-border * 2);
+    @-length-paddingTop: floor(@-length-paddingTopBottom / 2);
+
     border-color: transparent;
+    border-radius: 2px;
     border-style: solid;
-    border-width: 0 0 3px 0;
+    border-width: @-length-border;
     display: inline-block;
-    margin-right: 15px;
+    padding: @-length-paddingTop 20px (@-length-paddingTopBottom - @-length-paddingTop) 20px;
+    position: relative;
+    top: @-length-border;
 
     &.state-selected {
-      border-color: @color-black;
+      border-color: @-color-border;
+      border-bottom-color: white;
 
       .link {
         color: @color-text;
@@ -1240,9 +1307,9 @@ table.links.table-striped {
     &.state-error {
       .link {
         .icon;
-        .icon-exclamation-sign;
+        .icon-exclamation;
 
-        color: @color-alert;
+        color: @color-remove;
       }
     }
   }
@@ -1279,10 +1346,9 @@ table.links.table-striped {
 }
 
 .visibilityLabel {
-  background-color: @color-gray-plain;
+  .background-color(@color-gray-plain);
   border-radius: 3px;
-  color: @color-background;
-  font-size: (@size-text - 4);
+  font-size: (@length-fontSize - 4);
   padding: 2px 3px;
   text-transform: uppercase;
 }
@@ -1306,21 +1372,27 @@ table.links.table-striped {
 }
 
 .widgetHeading {
-  background: darken(white, 3%);
+  @-length-height: @length-lineHeight * 2;
+
+  background: @color-heading;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   color: @color-text;
   font-family: @fontFamily-label;
   font-size: 100%;
-  font-weight: 600;
-  height: 34px;
-  line-height: 34px;
+  font-weight: 700;
+  height: @-length-height;
+  line-height: @-length-height;
   margin: -20px -20px 20px -20px;
   overflow: hidden;
   padding: 0 20px;
   text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &:before {
+    display: none !important;
+  }
 }
 
 .widgetControls {
@@ -1333,7 +1405,7 @@ table.links.table-striped {
 .icon-object { .icon-file; }
 .icon-object-directory { .icon-sitemap; }
 .icon-object-draft { .icon-edit; }
-.icon-object-guide { .icon-question-sign; }
+.icon-object-guide { .icon-question; }
 .icon-object-history { .icon-time; }
 .icon-object-notification { .icon-envelope; }
 .icon-object-schedule { .icon-calendar; }
@@ -1349,13 +1421,13 @@ table.links.table-striped {
 .icon-object-workStream { .icon-tasks; }
 
 // Standard CMS actions.
-.icon-action-add { .icon-plus-sign; }
-.icon-action-cancel { .icon-ban-circle; color: @color-alert; }
+.icon-action-add { .icon-plus; }
+.icon-action-cancel { .icon-ban-circle; color: @color-remove !important; }
 .icon-action-change { .icon-random; }
 .icon-action-copy { .icon-copy; }
-.icon-action-create { .icon-plus-sign; }
+.icon-action-create { .icon-plus; }
 .icon-action-customize { .icon-cog; }
-.icon-action-delete { .icon-remove; color: @color-alert; }
+.icon-action-delete { .icon-remove; color: @color-remove !important; }
 .icon-action-download { .icon-download-alt; }
 .icon-action-edit { .icon-pencil; }
 .icon-action-logIn { .icon-signin; }
@@ -1363,37 +1435,47 @@ table.links.table-striped {
 .icon-action-preview { .icon-eye-open; }
 .icon-action-print { .icon-print; }
 .icon-action-publish { .icon-bullhorn; }
-.icon-action-remove { .icon-minus-sign; color: @color-alert; }
+.icon-action-remove { .icon-remove; color: @color-remove !important; }
 .icon-action-restore { .icon-reply; }
 .icon-action-save { .icon-ok; }
 .icon-action-schedule { .icon-calendar; }
 .icon-action-search { .icon-search; }
 .icon-action-share { .icon-share; }
-.icon-action-trash { .icon-trash; color: @color-alert; }
+.icon-action-trash { .icon-trash; color: @color-remove !important; }
 .icon-action-upload { .icon-upload-alt; }
 
 .action-add { .icon; .icon-action-add; }
-.action-cancel { .icon; .icon-action-cancel; color: @color-alert; }
+.action-cancel { .icon; .icon-action-cancel; color: @color-remove !important; }
 .action-change { .icon; .icon-action-change; }
 .action-copy { .icon; .icon-action-copy; }
 .action-create { .icon; .icon-action-create; }
 .action-customize { .icon; .icon-action-customize; }
-.action-delete { .icon; .icon-action-delete; color: @color-alert; }
+.action-delete { .icon; .icon-action-delete; color: @color-remove !important; }
 .action-download { .icon; .icon-action-download; }
 .action-edit { .icon; .icon-action-edit; }
 .action-logIn { .icon; .icon-action-logIn; }
 .action-logOut { .icon; .icon-action-logOut; }
 .action-preview { .icon; .icon-action-preview; }
 .action-print { .icon; .icon-action-print; }
-.action-remove { .icon; .icon-action-remove; color: @color-alert; }
+.action-remove { .icon; .icon-action-remove; color: @color-remove !important; }
 .action-save { .icon; .icon-action-save; }
 .action-schedule { .icon; .icon-action-schedule; }
 .action-search { .icon; .icon-action-search; }
 .action-share { .icon; .icon-action-share; }
-.action-trash { .icon; .icon-action-trash; color: @color-alert; }
+.action-trash { .icon; .icon-action-trash; color: @color-remove !important; }
 .action-upload { .icon; .icon-action-upload; }
 
 .action-image-edit { .icon; .icon-magic; }
 .action-image-viewMetadata { .icon; .icon-table; }
 .action-live { .icon; .icon-bullhorn; }
 .action-tools { .icon; .icon-wrench; }
+
+.button:not(.link) {
+  &[class*='action-'],
+  &.action,
+  &.icon {
+    &:not(.link):before {
+      display: none !important;
+    }
+  }
+}

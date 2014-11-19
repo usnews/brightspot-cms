@@ -1824,6 +1824,7 @@ public class ToolPageContext extends WebPageContext {
 
             writeStart("select",
                     "data-searchable", "true",
+                    "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     attributes);
                 writeStart("option", "value", "");
                     writeHtml(placeholder);
@@ -2345,20 +2346,23 @@ public class ToolPageContext extends WebPageContext {
 
         try {
             State state = State.getInstance(object);
-            Draft draft = getOverlaidDraft(object);
 
-            if (draft != null) {
-                draft.delete();
+            if (param(UUID.class, "draftId") != null) {
+                Draft draft = getOverlaidDraft(object);
 
-                if (state.as(Content.ObjectModification.class).isDraft()) {
-                    state.delete();
-                }
+                if (draft != null) {
+                    draft.delete();
 
-                Schedule schedule = draft.getSchedule();
+                    if (state.as(Content.ObjectModification.class).isDraft()) {
+                        state.delete();
+                    }
 
-                if (schedule != null &&
-                        ObjectUtils.isBlank(schedule.getName())) {
-                    schedule.delete();
+                    Schedule schedule = draft.getSchedule();
+
+                    if (schedule != null &&
+                            ObjectUtils.isBlank(schedule.getName())) {
+                        schedule.delete();
+                    }
                 }
 
             } else {

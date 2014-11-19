@@ -125,6 +125,18 @@ public class WorkStream extends Record {
                 count();
     }
 
+    /** Returns the number of items completed. */
+    public long countComplete() {
+        return Query.fromAll().
+                where("cms.workstream.completeIds ^= ?", getId().toString() + ",").
+                count();
+    }
+
+    /** Returns the total number of items, complete and incomplete */
+    public long countTotal() {
+        return countIncomplete() + countComplete();
+    }
+
     /**
      * Returns the number of items completed by the given {@code user}.
      *
@@ -137,6 +149,22 @@ public class WorkStream extends Record {
                 from(Object.class).
                 where("cms.workstream.completeIds = ?", getId().toString() + "," + user.getId().toString()).
                 count();
+    }
+
+    /**
+     * Returns the number of items skipped by the given {@code user}.
+     *
+     * @param user Can't be {@code null}.
+     */
+    public long countSkipped(ToolUser user) {
+        ErrorUtils.errorIfNull(user, "user");
+        String userId = user.getId().toString();
+
+        if (skippedItems != null && skippedItems.get(userId) != null) {
+            return skippedItems.get(userId).size();
+        } else {
+            return 0L;
+        }
     }
 
     /**

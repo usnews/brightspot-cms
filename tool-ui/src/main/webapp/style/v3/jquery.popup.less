@@ -9,14 +9,25 @@
 
   > .popup-content > .frame > .widget,
   > .content > .frame > .widget {
-    margin: -10px;
+    margin: -20px;
+  }
+
+  &:before {
+    background-color: black;
+    bottom: 0;
+    content: '';
+    left: 0;
+    opacity: 0.2;
+    position: fixed;
+    top: 0;
+    right: 0;
   }
 }
 
 .popup-content {
   background-color: @color-background;
   border-radius: 2px;
-  box-shadow: 0 0 20px @color-gray-dark;
+  box-shadow: 0 0 20px fade(black, 10%);
   padding: 20px;
   position: relative;
   top: 10px;
@@ -35,14 +46,12 @@
   .icon;
   .icon-remove;
 
-  background-color: @color-background;
-  border: 2px solid @color-text;
-  border-radius: 20px;
+  color: fade(black, 50%);
   cursor: pointer;
   height: 20px;
-  right: -11px;
+  right: 10px;
   position: absolute;
-  top: -11px;
+  top: 10px;
   width: 20px;
   z-index: 1;
 
@@ -51,6 +60,13 @@
     left: 3px;
     position: absolute;
     top: 0px;
+  }
+
+  &:hover {
+    background-color: white;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px fade(black, 20%);
+    color: fade(black, 85%);
   }
 
   .popup.popup-loading &:not(:hover):after,
@@ -85,12 +101,22 @@
 
 // General search input is in the header so no need to display it again.
 .popup[name=miscSearch] {
+  &:before {
+    top: @length-toolHeaderHeight;
+  }
+
   .searchSaved {
     display: none;
   }
 
   .searchFilters {
+    border-style: none;
     margin-top: 0;
+    padding-top: 0;
+
+    .action-cancel {
+      top: 0;
+    }
   }
 
   .searchInput {
@@ -134,13 +160,14 @@
   margin-top: 3px !important;
   max-width: none !important;
   right: 0 !important;
+  top: (@length-toolHeaderHeight - 14) !important;
   width: auto !important;
 
   > .content {
     border-radius: 0;
-    border-top: 1px solid @color-gray-light;
+    border-top: 2px solid @color-separator;
     box-shadow: 0 40px 80px -40px black;
-    padding: 10px 20px 20px 220px;
+    padding: 20px 20px 20px (@length-toolTitleWidth + 60);
 
     > .closeButton {
       background: transparent;
@@ -150,7 +177,17 @@
     }
 
     > .marker {
-      display: none;
+      border-color: transparent transparent @color-separator transparent;
+
+      &:before {
+        border-color: transparent transparent white transparent;
+        border-style: solid;
+        border-width: 8px;
+        content: '';
+        left: -8px;
+        position: absolute;
+        top: -5px;
+      }
     }
 
     > .frame {

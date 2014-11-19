@@ -49,8 +49,10 @@ public class WorkStreams extends PageServlet {
                 } else {
                     for (WorkStream workStream : workStreams) {
                         List<ToolUser> users = workStream.getUsers();
-                        long incomplete = workStream.countIncomplete();
-                        long total = workStream.getQuery().count();
+                        long skipped = workStream.countSkipped(user);
+                        long complete = workStream.countComplete();
+                        long incomplete = workStream.countIncomplete() - skipped;
+                        long total = complete + incomplete + skipped;
                         boolean working = workStream.isWorking(user);
 
                         page.writeStart("div",
@@ -133,7 +135,36 @@ public class WorkStreams extends PageServlet {
                                     page.writeHtml(total);
                                 page.writeEnd();
 
-                                page.writeHtml(" left");
+                                page.writeHtml(" left ");
+
+                                if (complete > 0L || skipped > 0L) {
+                                    page.writeHtml("(");
+                                }
+
+                                if (complete > 0L) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(complete);
+                                    page.writeEnd();
+
+                                    page.writeHtml(" complete");
+
+                                    if (skipped > 0L) {
+                                        page.writeHtml(", ");
+                                    }
+                                }
+
+                                if (skipped > 0L) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(skipped);
+                                    page.writeEnd();
+
+                                    page.writeHtml(" skipped");
+                                }
+
+                                if (complete > 0L || skipped > 0L) {
+                                    page.writeHtml(")");
+                                }
+
                             page.writeEnd();
                         page.writeEnd();
                     }

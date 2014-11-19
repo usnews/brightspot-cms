@@ -694,7 +694,7 @@ public class Search extends Record {
                             predicate = CompoundPredicate.combine(
                                     PredicateParser.OR_OPERATOR,
                                     predicate,
-                                    PredicateParser.Static.parse(prefix + field + " ^=[c] ?", queryString));
+                                    PredicateParser.Static.parse(prefix + field + " contains[c] ?", queryString));
                         }
                         break;
                     }

@@ -28,21 +28,24 @@ b {
 }
 
 body {
-  background-color: @color-background;
-  color: @color-text;
+  .background-color(darken(white, 20%));
   font-family: 'Open Sans', sans-serif;
-  font-size: @size-text;
+  font-size: @length-fontSize;
   font-style: normal;
   font-weight: normal;
-  line-height: @size-line;
+  line-height: @length-lineHeight;
   margin: 75px 20px 20px 20px;
   padding: 0;
   vertical-align: baseline;
   word-wrap: break-word;
+
+  &.objectEditing {
+    overflow: hidden;
+  }
 }
 
 button {
-  .button;
+  &:extend(.button all);
 }
 
 code {
@@ -69,7 +72,7 @@ h1 {
   &:extend(.block all);
 
   font-size: 120%;
-  line-height: (@size-line * 1.2);
+  line-height: (@length-lineHeight * 1.2);
   margin: 0 0 10px 0;
   padding: 0;
 
@@ -89,12 +92,8 @@ h1 {
 h2 {
   &:extend(.block all);
 
-  border-bottom: 1px solid @color-separator;
-  color: @color-note;
   font-family: @fontFamily-label;
-  font-size: 80%;
-  line-height: (@size-line * 0.8);
-  text-transform: uppercase;
+  font-weight: 700;
   margin: 0 0 10px 0;
   padding: 0;
 }
@@ -110,6 +109,22 @@ i {
 }
 
 input {
+  &[type='checkbox'] {
+    -webkit-appearance: none;
+    background-color: white;
+    border: 1px solid @color-border;
+    border-radius: 2px;
+    box-sizing: border-box;
+    height: 18px;
+    margin: 0;
+    vertical-align: middle;
+    width: 18px;
+
+    &:checked {
+      background-image: url(icon/ok.svg);
+    }
+  }
+
   &[type='password'],
   &[type='text'] {
     &:extend(.input all);
@@ -147,15 +162,13 @@ pre {
 }
 
 select {
-  .input;
+  &:extend(.select all);
 
   cursor: pointer;
-  height: (@size-line + 2 * (@size-input-padding + @size-input-border));
   white-space: nowrap;
   word-wrap: normal;
 
   &[multiple] {
-    height: (@size-input-border + @size-input-padding) * 2 + @size-line * 5;
     width: 100%;
   }
 }
@@ -187,7 +200,7 @@ table {
   td,
   th {
     border-style: none;
-    padding: ((@tableCell-height - @global-lineHeight) / 2) 5px;
+    padding: (@length-lineHeight / 2) 5px;
   }
 
   th {
@@ -228,7 +241,7 @@ table {
 
 .table-striped {
   > tbody > tr:nth-child(2n+1) {
-    background-color: darken(white, 3%);
+    background-color: @color-heading;
   }
 }
 
@@ -255,8 +268,8 @@ ul {
 }
 
 .state-placeholder {
-  color: @placeholder-color;
-  font-style: @placeholder-font-style;
+  color: husl-lightness-set(white, 60);
+  font-style: italic;
 }
 
 ::placeholder {
