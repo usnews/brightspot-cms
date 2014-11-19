@@ -1377,25 +1377,10 @@ public class ToolPageContext extends WebPageContext {
                     StorageItem backgroundImage = cms.getBackgroundImage();
 
                     if (backgroundImage != null) {
-                        writeStart("svg",
-                                "xmlns", "http://www.w3.org/2000/svg",
-                                "xmlns:xlink", "http://www.w3.org/1999/xlink",
+                        writeStart("div",
                                 "class", "toolBackground",
-                                "width", "100%",
-                                "height", "100%");
-                            writeStart("defs");
-                                writeStart("filter", "id", "blur");
-                                    writeStart("feGaussianBlur", "stdDeviation", 40);
-                                    writeEnd();
-                                writeEnd();
-                            writeEnd();
-
-                            writeStart("image",
-                                    "xlink:href", backgroundImage.getPublicUrl(),
-                                    "width", "100%",
-                                    "height", "100%",
-                                    "preserveAspectRatio", "xMidYMid slice");
-                            writeEnd();
+                                "style", cssString(
+                                        "background-image", "url(" + backgroundImage.getPublicUrl() + ")"));
                         writeEnd();
                     }
     }

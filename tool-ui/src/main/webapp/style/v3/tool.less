@@ -81,6 +81,10 @@
       top: 0;
     }
   }
+
+  .noToolUser & {
+    left: 0;
+  }
 }
 
 .toolEnv {
@@ -296,6 +300,17 @@
 
 .toolBackground {
   display: none;
+
+  .noToolUser & {
+    background-position: center;
+    background-size: cover;
+    bottom: 0;
+    display: block;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+  }
 }
 
 .toolFooter {
