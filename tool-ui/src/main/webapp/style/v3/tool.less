@@ -102,19 +102,51 @@
   text-transform: uppercase;
 }
 
-.toolAvatar {
+.toolUserDisplay {
   @-length-padding: 10px;
   @-length-size: @length-toolHeaderHeight - (@-length-padding * 2);
 
-  .background-color(@color-heading);
-  border-radius: 100%;
   display: block;
-  height: @-length-size;
-  right: (@-length-padding + 60);
+  line-height: @-length-size;
+  right: 20px;
   overflow: hidden;
   position: absolute;
   top: @-length-padding;
-  width: @-length-size;
+
+  .toolHeader-hasEnvironment & {
+    right: 70px;
+  }
+
+  .link {
+    color: @color-text;
+    font-weight: 700;
+
+    &:hover {
+      color: @color-text;
+      text-decoration: none;
+    }
+  }
+
+  .toolUserAvatar {
+    .background-color(@color-heading);
+    border-radius: 100%;
+    color: @color-border;
+    display: inline-block;
+    height: @-length-size;
+    margin-left: 10px;
+    text-align: center;
+    vertical-align: middle;
+    width: @-length-size;
+
+    &:hover {
+      color: @color-border;
+    }
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
+  }
 }
 
 .toolProfile {

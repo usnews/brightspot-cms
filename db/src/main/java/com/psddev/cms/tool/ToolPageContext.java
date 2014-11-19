@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -1187,6 +1188,7 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
 
                 writeElement("meta", "name", "robots", "content", "noindex");
+                writeElement("meta", "name", "viewport", "content", "width=device-width, initial-scale=1");
                 writeStylesAndScripts();
             writeEnd();
 
@@ -1252,19 +1254,41 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                     if (user != null) {
-                        int nowHour = new DateTime().getHourOfDay();
+                        StorageItem avatar = user.getAvatar();
+                        String name = user.getName().trim();
+                        String[] nameParts = name.split("\\s+");
+                        String firstName = nameParts[0];
 
-                        writeStart("div", "class", "toolAvatar");
+                        writeStart("div", "class", "toolUserDisplay");
+                            writeStart("a",
+                                    "href", cmsUrl("/toolUserDashboard"),
+                                    "target", "toolUserDashboard");
 
-                            StorageItem avatar = user.getAvatar();
+                                writeHtml("Welcome, ");
 
-                            if (avatar != null) {
-                                writeStart("a", "href", cmsUrl("/misc/settings.jsp"));
-                                    writeTag("img",
-                                            "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 50, 50).getPublicUrl());
+                                if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
+                                    writeHtml(firstName.substring(0, 1).toUpperCase(Locale.ENGLISH));
+                                    writeHtml(firstName.substring(1));
+
+                                } else {
+                                    writeHtml(firstName);
+                                }
+
+                                writeStart("span", "class", "toolUserAvatar");
+                                    if (avatar != null) {
+                                            writeTag("img",
+                                                    "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 100, 100).getPublicUrl());
+
+                                    } else {
+                                        for (String namePart : nameParts) {
+                                            writeHtml(namePart.substring(0, 1).toUpperCase(Locale.ENGLISH));
+                                        }
+                                    }
                                 writeEnd();
-                            }
+                            writeEnd();
                         writeEnd();
+
+                        int nowHour = new DateTime().getHourOfDay();
 
                         writeStart("div", "class", "toolProfile");
                             writeHtml("Good ");
