@@ -57,7 +57,7 @@ public class ToolUserDashboard extends PageServlet {
                 page.writeRaw("window.top.window.location = window.top.window.location;");
             page.writeEnd();
             return;
-            
+
         } else if ("profile".equals(tab) && page.isFormPost()) {
             try {
                 page.include("/WEB-INF/objectPost.jsp", "object", user, "excludeFields", excludeFields);

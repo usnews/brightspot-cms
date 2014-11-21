@@ -128,6 +128,11 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private long changePasswordTokenTime;
 
+    @ToolUi.Placeholder("Default")
+    @ToolUi.Tab("Advanced")
+    @ToolUi.Values({ "v2", "v3" })
+    private String theme;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -630,6 +635,14 @@ public class ToolUser extends Record implements ToolEntity {
     public void setChangePasswordToken(String changePasswordToken) {
         this.changePasswordToken = changePasswordToken;
         this.changePasswordTokenTime = changePasswordToken == null ? 0L : System.currentTimeMillis();
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public void updatePassword(Password password) {

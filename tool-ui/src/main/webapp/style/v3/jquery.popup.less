@@ -25,7 +25,7 @@
 }
 
 .popup-content {
-  background-color: @color-background;
+  background-color: white;
   border-radius: 2px;
   box-shadow: 0 0 20px fade(black, 10%);
   padding: 20px;
@@ -34,7 +34,7 @@
 }
 
 .popup-marker {
-  border-color: transparent transparent @color-background transparent;
+  border-color: transparent transparent white transparent;
   border-style: solid;
   border-width: 10px;
   left: 5px;
@@ -126,7 +126,7 @@
   max-width: none !important;
   overflow: auto;
   position: fixed !important;
-  top: @length-toolHeaderHeight !important;
+  top: @length-toolHeader-height !important;
   width: auto !important;
   */
 
@@ -162,11 +162,11 @@
   margin-top: 3px !important;
   max-width: none !important;
   right: 0 !important;
-  top: (@length-toolHeaderHeight - 14) !important;
+  top: (@length-toolHeader-height - 14) !important;
   width: auto !important;
 
   &:before {
-    top: @length-toolHeaderHeight;
+    top: @length-toolHeader-height;
   }
 
   > .content {
@@ -199,13 +199,17 @@
       h1 {
         display: none;
       }
+
+      > .widget {
+        border-style: none;
+      }
     }
   }
 }
 
 .popup[name=miscSearch] {
   > .content {
-    padding: 20px 20px 20px (@length-toolTitleWidth + 60);
+    padding: 20px 20px 20px (@length-toolTitle-width + 60);
   }
 
   .searchSaved {

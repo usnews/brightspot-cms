@@ -1439,32 +1439,41 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
-        String cssPrefix = ObjectUtils.firstNonNull(cms.getStyleSheetPath(), "/style/");
-        cssPrefix = StringUtils.ensureStart(cssPrefix, "/");
-        cssPrefix = StringUtils.ensureEnd(cssPrefix, "/");
+        ToolUser user = getUser();
+        String theme = ObjectUtils.firstNonNull(user != null ? user.getTheme() : null, cms.getTheme(), "cms");
+
+        if ("v2".equals(theme)) {
+            theme = "cms";
+        }
 
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource(cssPrefix + "cms.less"));
+            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/" + theme + ".less"));
 
         } else {
-            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource(cssPrefix + "cms.min.css"));
+            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/" + theme + ".min.css"));
         }
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
         }
 
+        String scriptPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
+
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-dev.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "less-dev.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl.js"));
+            writeStart("script", "type", "text/javascript");
+                writeHtml("window.less.relativeUrls = true;");
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl-less.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl-less.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "less.js"));
             writeEnd();
         }
 
@@ -1531,32 +1540,30 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
         writeEnd();
 
-        String jsPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
-
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.extra.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.extra.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.handsontable.full.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.handsontable.full.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "d3.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "d3.js"));
         writeEnd();
 
         writeStart("script", "type", "text/javascript");
             writeRaw("var require = ");
             writeRaw(ObjectUtils.toJson(ImmutableMap.of(
-                    "baseUrl", cmsUrl(jsPrefix),
+                    "baseUrl", cmsUrl(scriptPrefix),
                     "urlArgs", "_=" + System.currentTimeMillis())));
             writeRaw(";");
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "require.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "require.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "cms.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + theme + ".js"));
         writeEnd();
 
         String dropboxAppKey = getCmsTool().getDropboxApplicationKey();
