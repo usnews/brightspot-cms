@@ -491,17 +491,7 @@ figure,
   box-sizing: border-box;
   min-height: @length-inputHeight;
   padding: ((@length-inputHeight - @length-lineHeight) / 2 - @size-border) 6px;
-}
-
-.input {
-  &:extend(.inputLike all);
-
-  display: inline-block;
-  line-height: @length-lineHeight;
-  margin: 0;
   transition: border-color @time-fast, box-shadow @time-fast;
-  vertical-align: middle;
-  white-space: pre-wrap;
 
   &:hover,
   &.state-hover {
@@ -519,6 +509,16 @@ figure,
   &.state-disabled {
     border-color: @color-placeholder;
   }
+}
+
+.input {
+  &:extend(.inputLike all);
+
+  display: inline-block;
+  line-height: @length-lineHeight;
+  margin: 0;
+  vertical-align: middle;
+  white-space: pre-wrap;
 }
 
 .inputContainer {
