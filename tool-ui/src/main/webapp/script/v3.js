@@ -31,6 +31,7 @@ require([
   'bsp-autosubmit',
   'bsp-utils',
   'jquery.mousewheel',
+  'velocity',
 
   'input/change',
   'input/code',
