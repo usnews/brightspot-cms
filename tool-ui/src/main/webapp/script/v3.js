@@ -56,7 +56,7 @@ require([
   'jquery.lazyload',
   'jquery.pagelayout',
   'jquery.pagethumbnails',
-  'jquery.repeatable',
+  'v3/jquery.repeatable',
   'jquery.sortable',
   'jquery.tabbed',
   'jquery.toggleable',
