@@ -157,7 +157,7 @@ public class CreateNew extends PageServlet {
             page.writeCss("#" + widgetId + " .checkboxContainer", "text-align", "center");
         page.writeEnd();
 
-        page.writeStart("div", "class", "widget", "id", widgetId);
+        page.writeStart("div", "class", "widget p-commonContent", "id", widgetId);
             page.writeStart("h1", "class", "icon icon-file").writeHtml("Common Content").writeEnd();
 
             if (page.param(boolean.class, "customize")) {
@@ -257,7 +257,7 @@ public class CreateNew extends PageServlet {
                     }
                 }
 
-                page.writeStart("div", "style", page.cssString(
+                page.writeStart("div", "class", "p-commonContent-new", "style", page.cssString(
                         "-moz-box-sizing", "border-box",
                         "-webkit-box-sizing", "border-box",
                         "box-sizing", "border-box",
@@ -323,7 +323,7 @@ public class CreateNew extends PageServlet {
                 }
 
                 if (!editExistingContents.isEmpty()) {
-                    page.writeStart("div", "style", page.cssString(
+                    page.writeStart("div", "class", "p-commonContent-existing", "style", page.cssString(
                             "-moz-box-sizing", "border-box",
                             "-webkit-box-sizing", "border-box",
                             "box-sizing", "border-box",
