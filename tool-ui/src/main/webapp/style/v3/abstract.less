@@ -503,6 +503,10 @@ figure,
     background-color: fade(@color-focus, 10%);
     border-color: fade(@color-focus, 50%);
     transition: none;
+
+    .noToolUser & {
+      background-color: white;
+    }
   }
 
   &[disabled],
@@ -536,6 +540,10 @@ figure,
     position: absolute;
     top: 0;
     width: 140px;
+
+    .noToolUser & {
+      display: none;
+    }
   }
 
   .message {
