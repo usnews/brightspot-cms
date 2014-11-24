@@ -105,6 +105,14 @@ module.exports = function(grunt) {
                     }
                 ]
             }
-        }
+        },
+
+        less: {
+            compile: {
+                options: {
+                    relativeUrls: true
+                }
+            }
+        },
     });
 };
