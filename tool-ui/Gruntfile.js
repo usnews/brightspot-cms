@@ -91,7 +91,7 @@ module.exports = function(grunt) {
 
             styles: {
                 dir: 'style',
-                less: 'cms.less'
+                less: [ 'cms.less', 'v3.less' ]
             },
 
             scripts: {
@@ -99,9 +99,20 @@ module.exports = function(grunt) {
                 rjsModules: [
                     {
                         name: 'cms'
+                    },
+                    {
+                        name: 'v3'
                     }
                 ]
             }
-        }
+        },
+
+        less: {
+            compile: {
+                options: {
+                    relativeUrls: true
+                }
+            }
+        },
     });
 };

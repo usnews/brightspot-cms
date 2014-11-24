@@ -584,7 +584,8 @@ if (!isValueExternal) {
 
                 wp.writeStart("li",
                         "data-type", wp.getObjectLabel(itemType),
-                        "data-label", wp.getObjectLabel(item));
+                        "data-label", wp.getObjectLabel(item),
+                        "data-preview", wp.getPreviewThumbnailUrl(item));
                     wp.writeElement("input",
                             "type", "hidden",
                             "name", idName,

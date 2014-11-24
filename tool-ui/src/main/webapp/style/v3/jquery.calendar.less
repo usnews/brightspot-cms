@@ -45,13 +45,13 @@
 }
 #calendar > * > .day0,
 #calendar > * > .day6 {
-  .background-color(@color-alt);
+  .background-flat(@color-alt);
 }
 #calendar > .week > .day:hover {
-  .background-color(@color-link);
+  .background-flat(@color-link-dark);
 }
 #calendar > .week > .day.selected {
-  .background-color(@color-select);
+  .background-flat(@color-select);
 }
 #calendar > .dayLabels > .day {
   font-size: 80%;
@@ -92,12 +92,12 @@
   padding-right: 0;
 
   &:before {
-    color: husl-lightness-set(white, 60);
+    color: @color-placeholder;
     margin-right: 3px;
   }
 
   &.calendarButton-empty {
-    color: husl-lightness-set(white, 60);
+    color: @color-placeholder;
     font-style: italic;
 
     &:before {

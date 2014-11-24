@@ -42,7 +42,7 @@
 .toolHeader {
   background-color: white;
   box-shadow: 0 0 10px fade(black, 20%);
-  height: @length-toolHeaderHeight;
+  height: @length-toolHeader-height;
   left: 0;
   position: fixed;
   top: 0;
@@ -51,32 +51,48 @@
 }
 
 .toolTitle {
-  height: @length-inputHeight;
-  line-height: @length-inputHeight;
-  margin: ((@length-toolHeaderHeight - @length-inputHeight) / 2) 40px 0 20px;
+  @-height: @length-toolHeader-height - 20px;
+
+  font-size: @-height;
+  font-weight: bold;
+  height: @-height;
+  left: 20px;
+  line-height: @-height;
+  position: absolute;
   text-transform: uppercase;
-  width: @length-toolTitleWidth;
+  top: ((@length-toolHeader-height - @-height) / 2);
+  width: @length-toolTitle-width;
 
   .link {
     color: @color-text;
-    font-size: @length-inputHeight;
-    font-weight: bold;
-    vertical-align: bottom;
 
     &:hover {
       text-decoration: none;
     }
 
     img {
+      bottom: 0;
+      left: 0;
+      margin: auto 0;
       max-height: 100%;
       max-width: 100%;
-      vertical-align: middle;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+
+  .noToolUser & {
+    left: 0;
+
+    .link img {
+      margin: auto;
     }
   }
 }
 
 .toolEnv {
-  .background-color(black);
+  .background-flat(black);
   box-shadow: 0 0 5px fade(black, 50%);
   height: 22px;
   font-size: 11px;
@@ -90,19 +106,51 @@
   text-transform: uppercase;
 }
 
-.toolAvatar {
+.toolUserDisplay {
   @-length-padding: 10px;
-  @-length-size: @length-toolHeaderHeight - (@-length-padding * 2);
+  @-length-size: @length-toolHeader-height - (@-length-padding * 2);
 
-  .background-color(@color-heading);
-  border-radius: 100%;
   display: block;
-  height: @-length-size;
-  right: (@-length-padding + 60);
+  line-height: @-length-size;
+  right: 20px;
   overflow: hidden;
   position: absolute;
   top: @-length-padding;
-  width: @-length-size;
+
+  .toolHeader-hasEnvironment & {
+    right: 70px;
+  }
+
+  .link {
+    color: @color-text;
+    font-weight: 700;
+
+    &:hover {
+      color: @color-text;
+      text-decoration: none;
+    }
+  }
+
+  .toolUserAvatar {
+    .background-flat(@color-heading);
+    border-radius: 100%;
+    color: @color-border;
+    display: inline-block;
+    height: @-length-size;
+    margin-left: 10px;
+    text-align: center;
+    vertical-align: middle;
+    width: @-length-size;
+
+    &:hover {
+      color: @color-border;
+    }
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
+  }
 }
 
 .toolProfile {
@@ -111,8 +159,8 @@
 
 .toolSearch {
   position: absolute;
-  left: (@length-toolTitleWidth + 60);
-  top: ((@length-toolHeaderHeight - @length-inputHeight) / 2);
+  left: (@length-toolTitle-width + 60);
+  top: ((@length-toolHeader-height - @length-inputHeight) / 2);
   transition: width @time-fast;
   width: @length-searchControlsWidth;
 
@@ -159,21 +207,21 @@
   border-right: 2px solid @color-separator;
   box-sizing: border-box;
   display: block;
-  left: (-40 - @length-toolTitleWidth);
+  left: (-40 - @length-toolTitle-width);
   padding-right: 20px;
   position: absolute;
   top: 5px;
-  width: (@length-toolTitleWidth + 21);
+  width: (@length-toolTitle-width + 21);
 }
 
 .toolNav {
   font-weight: 700;
-  left: (@length-toolTitleWidth + @length-searchControlsWidth + 80);
+  left: (@length-toolTitle-width + @length-searchControlsWidth + 80);
   list-style-type: none;
   margin: 0;
   position: absolute;
   transition: left @time-fast;
-  top: ((@length-toolHeaderHeight - @length-tabHeight) / 2);
+  top: ((@length-toolHeader-height - @length-tabHeight) / 2);
 
   > li {
     @length-border: 1px;
@@ -220,7 +268,7 @@
         > .link {
           color: @color-text;
           display: block;
-          padding: 2px 15px;
+          padding: 2px 20px;
           white-space: nowrap;
 
           &:hover {
@@ -231,7 +279,7 @@
 
         &.selected {
           > .link {
-            .background-color(@color-link);
+            .background-flat(@color-link-dark);
 
             .link {
               color: white;
@@ -279,8 +327,9 @@
 
 .toolContent {
   background: darken(white, 20%);
-  margin: -75px -20px 60px -20px;
-  padding: 90px 20px 0 20px;
+  box-shadow: 0 0 10px fade(black, 20%);
+  margin: (0 - @length-toolHeader-height) -20px 0 -20px;
+  padding: (@length-toolHeader-height + 20px) 20px 20px 20px;
   position: relative;
   transition: opacity 0.4s;
   z-index: 0;
@@ -288,19 +337,29 @@
 
 .toolBackground {
   display: none;
+
+  .noToolUser & {
+    background-position: center;
+    background-size: cover;
+    bottom: 0;
+    display: block;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+  }
 }
 
 .toolFooter {
   background: white;
   bottom: 0;
-  display: none;
-  height: 60px;
+  height: @length-toolFooter-height;
   left: 0;
-  line-height: 60px;
+  line-height: @length-toolFooter-height;
+  padding: 0 20px;
   position: fixed;
   right: 0;
-  text-align: center;
-  transition: bottom 0.0s linear 0.4s;
+  z-index: -1;
 
   img {
     vertical-align: middle;

@@ -28,20 +28,16 @@ b {
 }
 
 body {
-  .background-color(darken(white, 20%));
+  .background-flat(darken(white, 20%));
   font-family: 'Open Sans', sans-serif;
   font-size: @length-fontSize;
   font-style: normal;
   font-weight: normal;
   line-height: @length-lineHeight;
-  margin: 75px 20px 20px 20px;
+  margin: (@length-toolHeader-height) 20px (@length-toolFooter-height) 20px;
   padding: 0;
   vertical-align: baseline;
   word-wrap: break-word;
-
-  &.objectEditing {
-    overflow: hidden;
-  }
 }
 
 button {
@@ -204,7 +200,7 @@ table {
   }
 
   th {
-    .background-color(@color-note);
+    .background-flat(@color-note);
 
     text-align: left;
   }
@@ -268,7 +264,7 @@ ul {
 }
 
 .state-placeholder {
-  color: husl-lightness-set(white, 60);
+  color: @color-placeholder;
   font-style: italic;
 }
 

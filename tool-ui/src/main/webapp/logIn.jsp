@@ -172,7 +172,7 @@ body.hasToolBroadcast {
                     <label for="<%= wp.createId() %>">Username</label>
                 </div>
                 <div class="inputSmall">
-                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>">
+                    <input class="autoFocus" id="<%= wp.getId() %>" name="username" type="text" value="<%= wp.h(username) %>" placeholder="Email or Username">
                 </div>
             </div>
 
@@ -181,7 +181,7 @@ body.hasToolBroadcast {
                     <label for="<%= wp.createId() %>">Password</label>
                 </div>
                 <div class="inputSmall">
-                    <input id="<%= wp.getId() %>" name="password" type="password">
+                    <input id="<%= wp.getId() %>" name="password" type="password" placeholder="Password">
                 </div>
             </div>
 

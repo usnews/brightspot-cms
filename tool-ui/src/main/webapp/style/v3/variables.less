@@ -1,107 +1,45 @@
-// Base colors from design.
-@-color-gray: #666;
-@-color-purple: #bd64a5;
-@-color-green: #85bd43;
-@-color-blue: #38b5dc;
-@-color-yellow: #f5d449;
-@-color-orange: #f88631;
-@-color-red: #fb1a41;
-
-// HUSL lightness normalized colors for perceptual equality.
-@-lightness-faint: 95;
-@-lightness-state: 89;
-@-lightness-light: 79;
-@-lightness-plain: 63;
-@-lightness-dark: 37;
-
-@color-white: #fff;
-@color-black: #000;
-
-@color-gray-faint: husl-lightness-set(@-color-gray, @-lightness-faint);
-@color-purple-faint: husl-lightness-set(@-color-purple, @-lightness-faint);
-@color-green-faint: husl-lightness-set(@-color-green, @-lightness-faint);
-@color-blue-faint: husl-lightness-set(@-color-blue, @-lightness-faint);
-@color-yellow-faint: husl-lightness-set(@-color-yellow, @-lightness-faint);
-@color-orange-faint: husl-lightness-set(@-color-orange, @-lightness-faint);
-@color-red-faint: husl-lightness-set(@-color-red, @-lightness-faint);
-
-@color-gray-state: husl-lightness-set(@-color-gray, @-lightness-state);
-@color-purple-state: husl-lightness-set(@-color-purple, @-lightness-state);
-@color-green-state: husl-lightness-set(@-color-green, @-lightness-state);
-@color-blue-state: husl-lightness-set(@-color-blue, @-lightness-state);
-@color-yellow-state: husl-lightness-set(@-color-yellow, @-lightness-state);
-@color-orange-state: husl-lightness-set(@-color-orange, @-lightness-state);
-@color-red-state: husl-lightness-set(@-color-red, @-lightness-state);
-
-@color-gray-light: husl-lightness-set(@-color-gray, @-lightness-light);
-@color-purple-light: husl-lightness-set(@-color-purple, @-lightness-light);
-@color-green-light: husl-lightness-set(@-color-green, @-lightness-light);
-@color-blue-light: husl-lightness-set(@-color-blue, @-lightness-light);
-@color-yellow-light: husl-lightness-set(@-color-yellow, @-lightness-light);
-@color-orange-light: husl-lightness-set(@-color-orange, @-lightness-light);
-@color-red-light: husl-lightness-set(@-color-red, @-lightness-light);
-
-@color-gray-plain: husl-lightness-set(@-color-gray, @-lightness-plain);
-@color-purple-plain: husl-lightness-set(@-color-purple, @-lightness-plain);
-@color-green-plain: husl-lightness-set(@-color-green, @-lightness-plain);
-@color-blue-plain: husl-lightness-set(@-color-blue, @-lightness-plain);
-@color-yellow-plain: husl-lightness-set(@-color-yellow, @-lightness-plain);
-@color-orange-plain: husl-lightness-set(@-color-orange, @-lightness-plain);
-@color-red-plain: husl-lightness-set(@-color-red, @-lightness-plain);
-
-@color-gray-dark: husl-lightness-set(@-color-gray, @-lightness-dark);
-@color-purple-dark: husl-lightness-set(@-color-purple, @-lightness-dark);
-@color-green-dark: husl-lightness-set(@-color-green, @-lightness-dark);
-@color-blue-dark: husl-lightness-set(@-color-blue, @-lightness-dark);
-@color-yellow-dark: husl-lightness-set(@-color-yellow, @-lightness-dark);
-@color-orange-dark: husl-lightness-set(@-color-orange, @-lightness-dark);
-@color-red-dark: husl-lightness-set(@-color-red, @-lightness-dark);
-
-@color-alt: @color-gray-faint;
-@color-overlay: @color-gray-dark;
-
-@color-note: @color-gray-plain;
-
-@color-border: darken(white, 20%);
+@color-border: darken(white, 21%);
 @color-change: #f5d63d;
-@color-heading: darken(white, 5%);
+@color-heading: darken(white, 7%);
 @color-focus: #38b5dc;
 @color-link-dark: #0c90bc;
 @color-link-light: #43d4fd;
-@color-publish: @-color-green;
-@color-remove: @-color-red;
-@color-schedule: @-color-yellow;
-@color-select: @color-black;
-@color-separator: darken(white, 10%);
-
-@color-link: @color-link-dark;
-@color-link-lighter: @color-link-light;
-
-@color-background: white;
+@color-overlay: darken(white, 60%);
+@color-placeholder: darken(white, 42%);
+@color-publish: #85bd43;
+@color-remove: #fb1a41;
+@color-schedule: #f5d449;
+@color-select: black;
+@color-separator: darken(white, 14%);
 @color-text: darken(white, 85%);
 
+@color-alt: @color-heading;
+@color-note: @color-placeholder;
+
 @fontFamily-code: 'Andale Mono', 'Lucida Console', monospace;
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,700);
 @fontFamily-label: 'Open Sans', sans-serif;
 
 @length-fontSize: 13px;
 @length-iconSize: 18px;
+@length-inputBorderWidth: 1px;
 @length-inputHeight: 30px;
+@length-inputLabel-marginRight: 5px;
+@length-inputLabel-width: 140px;
 @length-lineHeight: 17px;
 @length-searchControlsWidth: 180px;
-@length-toolHeaderHeight: 70px;
-@length-toolTitleWidth: 200px;
+@length-toolHeader-height: 70px;
+@length-toolTitle-width: 200px;
+@length-toolFooter-height: 40px;
 @length-tabHeight: 36px;
-
-@size-input-border: 1px;
 @size-input-padding: 4px;
 
-@time-fast: 0.4s;
+@time-fast: 0.3s;
 
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
 
-.background-color(@color, @text: contrast(@color, darken(white, 85%), white)) {
+.background-flat(@color, @text: contrast(@color, @color-text, white)) {
   background-color: @color;
   color: @text;
 
@@ -110,30 +48,23 @@
   }
 
   .link {
-    @-linkColor: contrast(@color, @color-link, @color-link-lighter);
+    @link: contrast(@color, @color-link-dark, @color-link-light);
 
-    color: @-linkColor;
+    color: @link;
     transition: color @time-fast;
 
     &:hover {
-      color: darken(@-linkColor, 5%);
+      color: darken(@link, 5%);
       transition: none;
     }
   }
 }
 
 .background-striped(@color) {
-  @from: husl-lighten(@color, 1.5);
-  @to: husl-darken(@color, 1.5);
+  @from: lighten(@color, 1.5%);
+  @to: darken(@color, 1.5%);
 
-  .background-color(@color);
-
-  background: linear-gradient(-45deg, @from, @from 25%, @to 25%, @to 50%, @from 50%, @from 75%, @to 75%);
+  .background-flat(@color);
+  background-image: linear-gradient(-45deg, @from, @from 25%, @to 25%, @to 50%, @from 50%, @from 75%, @to 75%);
   background-size: 50px 50px;
 }
-
-@inputLabel-background: darken(white, 3%);
-@inputLabel-background-focus: @color-focus;
-@inputLabel-color-focus: white;
-@inputLabel-marginRight: 5px;
-@inputLabel-width: 140px;

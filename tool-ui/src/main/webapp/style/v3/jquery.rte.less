@@ -17,7 +17,7 @@ iframe.wysihtml5-sandbox {
   }
 
   &.rte-fullscreen {
-    background-color: @color-background;
+    background-color: white;
     border-style: none;
     height: 100%;
     left: 0;
@@ -101,7 +101,7 @@ body.rte-fullscreen {
 }
 
 .rte-button {
-  background-color: @color-background;
+  background-color: white;
   background-position: center;
   background-repeat: no-repeat;
   color: @color-note;
@@ -119,7 +119,7 @@ body.rte-fullscreen {
   }
 
   &.wysihtml5-command-active {
-    background-color: @color-link-lighter;
+    background-color: @color-link-light;
   }
 
   .link {
@@ -249,7 +249,7 @@ body.rte-fullscreen {
   color: @color-note;
 
   &.wysihtml5-command-active {
-    background: @color-background;
+    background: white;
     color: @color-text;
   }
 }
@@ -330,7 +330,7 @@ body.rte-fullscreen {
 }
 
 .rte-enhancement {
-  .background-striped(@color-gray-faint);
+  .background-striped(@color-heading);
 
   box-sizing: border-box;
   padding: 4px;
@@ -356,7 +356,7 @@ body.rte-fullscreen {
   }
 
   &.state-removing {
-    .background-color(@color-remove);
+    .background-flat(@color-remove);
 
     border-color: @color-remove;
 
@@ -376,7 +376,7 @@ body.rte-fullscreen {
   }
 
   &[data-image-size]:after {
-    background-color: fade(@color-background, 80%);
+    background-color: fade(white, 80%);
     content: attr(data-image-size);
     left: 3px;
     padding: 4px;

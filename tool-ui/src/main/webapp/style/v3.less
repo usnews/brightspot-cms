@@ -1,17 +1,15 @@
-@import '../compat.less';
-
 @font-face {
   font-family: 'FontAwesome';
   font-style: normal;
   font-weight: normal;
-  src: url('../fontawesome-webfont.eot');
-  src: url('../fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../fontawesome-webfont.woff') format('woff'), url('../fontawesome-webfont.ttf') format('truetype');
+  src: url('fontawesome-webfont.eot');
+  src: url('fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('fontawesome-webfont.woff') format('woff'), url('fontawesome-webfont.ttf') format('truetype');
 }
 
-@import 'variables.less';
-@import 'abstract.less';
-@import 'reset.less';
-@import 'hacks.less';
+@import 'v3/variables.less';
+@import 'v3/abstract.less';
+@import 'v3/reset.less';
+@import 'v3/hacks.less';
 
 .repeatableForm > ol > li > .inputLabel > .inputSmall,
 .repeatableForm > ul > li > .inputLabel > .inputSmall {
@@ -20,33 +18,36 @@
   padding: 0 2px 0 6px;
 }
 
-@import 'tool.less';
-@import 'guide.less';
-@import 'inlineeditor.less';
-@import 'jquery.calendar.less';
-@import 'jquery.code.less';
-@import 'jquery.dropdown.less';
-@import 'jquery.expandable.less';
-@import 'jquery.fixedscrollable.less';
-@import 'jquery.frame.less';
-@import '../jquery.handsontable.full.css';
-@import 'jquery.imageeditor.less';
-@import 'jquery.objectid.less';
-@import 'jquery.pagelayout.less';
-@import 'jquery.pagethumbnails.less';
-@import 'jquery.popup.less';
-@import 'jquery.repeatable.less';
-@import 'jquery.rte.less';
-@import '../spectrum.css';
-@import 'jquery.taxonomy.less';
-@import 'jquery.workflow.less';
-@import '../leaflet/leaflet.css';
-@import '../leaflet/leaflet.ie.css';
-@import '../leaflet/leaflet.draw.css';
-@import '../leaflet/leaflet.draw.ie.css';
-@import '../leaflet/l.geosearch.css';
-@import '../nv.d3.css';
-@import 'content/diff.less';
+@import 'v3/tool.less';
+@import 'v3/guide.less';
+@import 'v3/inlineeditor.less';
+@import 'v3/jquery.calendar.less';
+@import 'v3/jquery.code.less';
+@import 'v3/jquery.dropdown.less';
+@import 'v3/jquery.expandable.less';
+@import 'v3/jquery.fixedscrollable.less';
+@import 'v3/jquery.frame.less';
+@import 'jquery.handsontable.full.css';
+@import 'v3/jquery.imageeditor.less';
+@import 'v3/jquery.objectid.less';
+@import 'v3/jquery.pagelayout.less';
+@import 'v3/jquery.pagethumbnails.less';
+@import 'v3/jquery.popup.less';
+@import 'v3/jquery.repeatable.less';
+@import 'v3/jquery.rte.less';
+@import 'spectrum.css';
+@import 'v3/jquery.taxonomy.less';
+@import 'v3/jquery.workflow.less';
+@import 'leaflet/leaflet.css';
+@import 'leaflet/leaflet.ie.css';
+@import 'leaflet/leaflet.draw.css';
+@import 'leaflet/leaflet.draw.ie.css';
+@import 'leaflet/l.geosearch.css';
+@import 'nv.d3.css';
+@import 'v3/content/diff.less';
+@import 'v3/page/common-content';
+@import 'v3/page/tool-user-profile';
+@import 'v3/page/work-streams';
 
 .locationMap, .regionMap {
   min-width: 500px;
@@ -114,6 +115,10 @@
   }
 }
 
+.popup .widget-content > .widgetControls > .widgetControlsEditInFull {
+  display: inline;
+}
+
 .widget-contentCreate {
   position: absolute;
   right: 3px;
@@ -124,7 +129,7 @@
     border-color: transparent;
     border-style: solid;
     border-width: 1px 1px 0 1px;
-    color: @color-link;
+    color: @color-link-dark;
     cursor: default;
     float: right;
     padding: 2px 6px;
@@ -137,7 +142,7 @@
 
   &:hover {
     > .action-create {
-      background: @color-background;
+      background: white;
       border-color: @color-note;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
@@ -145,7 +150,7 @@
       position: relative;
 
       &:after {
-        background: @color-background;
+        background: white;
         content: '';
         height: 5px;
         left: 0;
@@ -156,7 +161,7 @@
     }
 
     > ul {
-      background: @color-background;
+      background: white;
       border: 1px solid @color-note;
       border-bottom-left-radius: 5px;
       border-bottom-right-radius: 5px;
@@ -177,8 +182,8 @@
         }
 
         &:hover {
-          background-color: @color-link;
-          color: @color-background;
+          background-color: @color-link-dark;
+          color: white;
 
           > .link {
             background-color: inherit;
@@ -193,8 +198,7 @@
 /* --- Hovering focus label --- */
 
 .focusLabel {
-  background: @inputLabel-background-focus;
-  color: @inputLabel-color-focus;
+  .background-flat(@color-focus);
   box-sizing: border-box;
   display: none;
   min-height: 22px;
@@ -260,7 +264,7 @@
   font-size: 120%;
   position: fixed;
   right: 20px;
-  top: 82px;
+  top: (@length-toolHeader-height + 30px);
 }
 
 // --- Widgets ---
@@ -291,7 +295,7 @@
 }
 
 .widget-urlsAutomatic {
-  .background-color(@color-heading);
+  .background-flat(@color-heading);
 
   border-radius: 2px;
   margin-bottom: 20px;
@@ -381,10 +385,10 @@
   }
 
   &.widget-expanded {
-    box-shadow: 0 0 20px @color-gray-dark;
+    box-shadow: 0 0 20px fade(black, 50%);
 
     > h1:after {
-      color: @color-link;
+      color: @color-link-dark;
       content: 'Pin \00bb';
       font-size: 90%;
       left: 50%;
@@ -454,8 +458,7 @@
   }
 
   .inputContainer {
-    margin-top: -2px;
-    margin-bottom: 3px;
+    margin-bottom: 0;
 
     .inputLabel {
       display: none;
@@ -536,7 +539,7 @@
   }
 
   .permissionsSection {
-    .background-color(@color-alt);
+    .background-flat(@color-alt);
 
     border-radius: 5px;
     box-sizing: border-box;
@@ -547,7 +550,7 @@
   }
 
   .permissionsType {
-    .background-color(@color-alt);
+    .background-flat(@color-alt);
 
     border-radius: 5px;
     clear: left;
@@ -585,7 +588,7 @@
   &[data-wc-message],
   [data-wc-message] {
     &:after {
-      .background-color(@color-gray-plain);
+      .background-flat(@color-placeholder);
 
       content: attr(data-wc-message);
       font-size: 11px;
@@ -609,7 +612,7 @@
     }
 
     &:hover {
-      background-color: @color-link-lighter;
+      background-color: @color-link-light;
     }
   }
 }
@@ -638,8 +641,8 @@
   z-index: 1;
 
   &:hover {
-    color: @color-link;
-    text-shadow: 0 0 5px @color-background;
+    color: @color-link-dark;
+    text-shadow: 0 0 5px white;
   }
 
   .inputContainer:hover > & {
@@ -653,7 +656,7 @@
 }
 
 .uploadableDrop {
-  background-color: fade(@color-background, 80%);
+  background-color: fade(white, 80%);
   text-align: center;
   outline: 3px dashed @color-text;
   user-select: none;
@@ -777,7 +780,7 @@ form[data-type='com.psddev.cms.db.ContentType'] {
 }
 
 .widget-logIn {
-  background: fade(white, 50%);
+  background: fade(white, 80%);
   border: none;
   padding-top: 200px;
 

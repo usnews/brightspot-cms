@@ -138,9 +138,10 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Debug")
     private List<DariSetting> dariSettings;
 
-    @ToolUi.Placeholder("/style/")
+    @ToolUi.Placeholder("v2")
     @ToolUi.Tab("Debug")
-    private String styleSheetPath;
+    @ToolUi.Values({ "v3" })
+    private String theme;
 
     private boolean enableCrossDomainInlineEditing;
 
@@ -663,12 +664,12 @@ public class CmsTool extends Tool {
         this.dariSettings = dariSettings;
     }
 
-    public String getStyleSheetPath() {
-        return styleSheetPath;
+    public String getTheme() {
+        return theme;
     }
 
-    public void setStyleSheetPath(String styleSheetPath) {
-        this.styleSheetPath = styleSheetPath;
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public boolean isEnableCrossDomainInlineEditing() {
