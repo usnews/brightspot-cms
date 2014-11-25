@@ -103,7 +103,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             }
         }
     } else {
-        fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
+        fieldValue = Query.fromAll().where("_id = ?", wp.uuidParam(inputName)).resolveInvisible().first();
     }
 
     if ("none".equals(wp.param(String.class, setName))) {

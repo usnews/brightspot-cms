@@ -646,7 +646,7 @@ public class ToolPageContext extends WebPageContext {
             object = workStream.next(getUser());
 
         } else {
-            object = Query.findById(Object.class, objectId);
+            object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
         }
 
         if (object != null) {
@@ -684,12 +684,12 @@ public class ToolPageContext extends WebPageContext {
 
             if (selectedType != null) {
                 if (selectedType.getSourceDatabase() != null) {
-                    object = Query.fromType(selectedType).where("_id = ?", objectId).first();
+                    object = Query.fromType(selectedType).where("_id = ?", objectId).resolveInvisible().first();
                 }
 
                 if (object == null) {
                     if (selectedType.getGroups().contains(Singleton.class.getName())) {
-                        object = Query.fromType(selectedType).first();
+                        object = Query.fromType(selectedType).resolveInvisible().first();
                     }
 
                     if (object == null) {

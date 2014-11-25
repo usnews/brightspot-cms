@@ -66,7 +66,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         UUID[] ids = wp.uuidParams(inputName);
         String[] keys = wp.params(keyName);
         for(int i = 0, s = Math.min(ids.length, keys.length); i < s; ++ i) {
-            Object item = Query.findById(Object.class, ids[i]);
+            Object item = Query.fromAll().where("_id = ?", ids[i]).resolveInvisible().first();
             if (item != null) {
                 fieldValue.put(keys[i], item);
             }
