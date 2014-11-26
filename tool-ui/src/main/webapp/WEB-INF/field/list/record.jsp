@@ -95,6 +95,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType type = ObjectType.getInstance(typeIds[i]);
                 item = type.createObject(null);
                 itemState = State.getInstance(item);
+                itemState.setResolveInvisible(true);
                 itemState.setId(ids[i]);
             }
 
@@ -294,7 +295,9 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     validObjects.add(itemState.getOriginalObject());
 
                                                                 } else {
-                                                                    validObjects.add(type.createObject(null));
+                                                                    Object itemObj = type.createObject(null);
+                                                                    State.getInstance(itemObj).setResolveInvisible(true);
+                                                                    validObjects.add(itemObj);
                                                                 }
                                                             }
 
@@ -455,7 +458,9 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                         List<Object> validObjects = new ArrayList<Object>();
 
                                                         for (ObjectType type : itemTypes) {
-                                                            validObjects.add(type.createObject(null));
+                                                            Object itemObj = type.createObject(null);
+                                                            State.getInstance(itemObj).setResolveInvisible(true);
+                                                            validObjects.add(itemObj);
                                                         }
 
                                                         Collections.sort(validObjects, new ObjectFieldComparator("_type/_label", false));

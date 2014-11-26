@@ -87,6 +87,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
                             if (object.containsKey("_id") && object.containsKey("_type") && object.get("_id").equals(hotSpotId)) {
                                 ObjectType objectType = ObjectType.getInstance(UUID.fromString((String)object.get("_type")));
                                 HotSpotPoint hotSpotObject = (HotSpotPoint)objectType.createObject(UUID.fromString((String)object.get("_id")));
+                                hotSpotObject.getState().setResolveInvisible(true);
                                 hotSpotObject.getState().putAll(object);
                                 item = hotSpotObject;
                                 break;
@@ -103,6 +104,7 @@ if (state.getOriginalObject() instanceof HotSpots) {
                         ObjectType type = ObjectType.getInstance(UUID.fromString(typeId));
                         item = type.createObject(null);
                         itemState = State.getInstance(item);
+                        itemState.setResolveInvisible(true);
                         itemState.setId(UUID.fromString(hotSpotId));
                     }
                     wp.updateUsingParameters(item);
