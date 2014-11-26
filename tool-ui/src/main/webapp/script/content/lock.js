@@ -38,13 +38,13 @@ function($, bsp_utils) {
         var key;
         var now = +new Date();
         var contentId;
-
         var contentIdsToUnlock = [];
 
         for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
             key = STORAGE.key(itemIndex);
 
-            if (key !== null && key !== undefined && key.indexOf(KEY_PREFIX, 0) === 0 &&
+            if (key &&
+                    key.indexOf(KEY_PREFIX, 0) === 0 &&
                     parseInt(STORAGE.getItem(key), 10) + 5000 < now) {
                 contentId = key.substring(KEY_PREFIX.length);
 
@@ -52,10 +52,11 @@ function($, bsp_utils) {
             }
         }
 
-        for (itemIndex = 0; itemIndex < contentIdsToUnlock.length; ++ itemIndex) {
+        itemLength = contentIdsToUnlock.length;
+
+        for (itemIndex = 0; itemIndex < itemLength; ++ itemIndex) {
             unlock(contentIdsToUnlock[itemIndex]);
         }
-
     }, 1000);
 
     window.bspContentLock = lock;
