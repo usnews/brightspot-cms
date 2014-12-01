@@ -12,7 +12,8 @@
     "leaflet-dist": "0.6.4",
     "leaflet.draw": "0.2.2",
     "L.GeoSearch": "*",
-    "spectrum": "1.3.4"
+    "spectrum": "1.3.4",
+    "velocity": "1.1.0"
   },
   "name": "brightspot-cms"
 }

@@ -61,7 +61,7 @@
 .imageEditor-removeHotSpotOverlay {
     .icon;
     .icon-remove;
-    color: @color-alert;
+    color: @color-remove;
 }
 
 .imageEditor-hotSpotOverlayBox {
@@ -116,7 +116,7 @@
 }
 
 .imageEditor-sizeLabel {
-  .background-color(@color-alt);
+  .background-flat(@color-alt);
 
   display: block;
   font-size: 11px;
@@ -126,12 +126,12 @@
   white-space: nowrap;
 
   .imageEditor-sizeSelected & {
-    .background-color(@color-select);
+    .background-flat(@color-select);
   }
 }
 
 .imageEditor-sizeBox {
-  border: 1px dashed @color-background;
+  border: 1px dashed white;
   box-sizing: border-box;
   cursor: move;
 }
@@ -172,7 +172,7 @@
   .rte-container {
     border: none;
     margin: -4px;
-    outline: 1px dashed @color-background;
+    outline: 1px dashed white;
   }
 }
 
@@ -201,7 +201,7 @@
   .icon;
 
   border-radius: 50%;
-  color: @color-background;
+  color: white;
   height: 20px;
   line-height: 20px;
   position: absolute;
@@ -227,7 +227,7 @@
   .icon-remove;
   .icon-only;
 
-  background-color: fade(@color-alert, 80%);
+  background-color: fade(@color-remove, 80%);
   cursor: pointer;
   right: -15px;
   width: 20px;

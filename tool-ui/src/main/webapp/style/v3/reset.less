@@ -28,36 +28,16 @@ b {
 }
 
 body {
-  .background-color(white);
+  .background-flat(darken(white, 20%));
   font-family: 'Open Sans', sans-serif;
   font-size: @length-fontSize;
   font-style: normal;
   font-weight: normal;
   line-height: @length-lineHeight;
-  margin: 75px 20px 20px 20px;
+  margin: (@length-toolHeader-height) 20px (@length-toolFooter-height) 20px;
   padding: 0;
-  position: relative;
   vertical-align: baseline;
   word-wrap: break-word;
-
-  &:before {
-    background-color: black;
-    bottom: -20px;;
-    content: '';
-    left: -20px;
-    opacity: 0;
-    position: absolute;
-    right: -20px;
-    top: -20px;
-    transition: opacity @time-fast;
-    visibility: hidden;
-    z-index: 1;
-  }
-
-  &.hasPopup:before {
-    opacity: 0.2;
-    visibility: visible;
-  }
 }
 
 button {
@@ -127,14 +107,17 @@ i {
 input {
   &[type='checkbox'] {
     -webkit-appearance: none;
-    background-image: url(icon/checkbox-empty.png);
+    background-color: white;
+    border: 1px solid @color-border;
+    border-radius: 2px;
+    box-sizing: border-box;
     height: 18px;
     margin: 0;
     vertical-align: middle;
     width: 18px;
 
     &:checked {
-      background-image: url(icon/checkbox-check.png);
+      background-image: url(icon/ok.svg);
     }
   }
 
@@ -217,7 +200,7 @@ table {
   }
 
   th {
-    .background-color(@color-note);
+    .background-flat(@color-note);
 
     text-align: left;
   }
@@ -281,7 +264,7 @@ ul {
 }
 
 .state-placeholder {
-  color: husl-lightness-set(white, 60);
+  color: @color-placeholder;
   font-style: italic;
 }
 

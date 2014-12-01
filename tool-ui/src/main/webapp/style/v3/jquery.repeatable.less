@@ -40,12 +40,17 @@
         }
       }
 
+      > .repeatablePreview {
+        display: none;
+        max-width: 100%;
+      }
+
       > .objectInputs {
         &:extend(.inputLargeLike all);
 
         &:before {
           bottom: 15px;
-          border-color: @inputLabel-background;
+          border-color: @color-heading;
           border-style: solid;
           border-width: 0 0 1px 1px;
           content: '';
@@ -56,7 +61,7 @@
         }
 
         &.state-focus:before {
-          border-color: @inputLabel-background-focus;
+          border-color: @color-focus;
         }
       }
 
@@ -66,7 +71,7 @@
         .icon-only;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 5px;
         top: 4px;
@@ -78,8 +83,7 @@
 
       &.state-focus {
         > .repeatableLabel {
-          background: @inputLabel-background-focus;
-          color: @inputLabel-color-focus;
+          .background-flat(@color-focus);
         }
       }
 
@@ -94,16 +98,18 @@
             margin-right: 5px;
           }
         }
+
+        > .repeatablePreview {
+          display: block;
+        }
       }
 
       &.toBeRemoved {
-        border-color: #fdd;
         padding-bottom: 0;
 
         > .repeatableLabel {
-          background-color: #fdd;
           border-bottom-style: none;
-          color: @color-alert;
+          color: @color-remove;
           margin-bottom: 0;
           text-decoration: line-through;
 
@@ -115,7 +121,7 @@
         > .removeButton {
           .icon;
           .icon-plus;
-          color: @color-link;
+          color: @color-link-dark;
         }
       }
     }
@@ -149,7 +155,7 @@
       overflow: hidden;
 
       > li {
-        background: @color-background;
+        background: white;
         box-sizing: border-box;
         float: left;
         margin-right: 1%;
@@ -209,7 +215,7 @@
             @img-height: 100px;
 
             display: block;
-            height: (@img-height + 2 * (@size-input-padding + @size-input-border));
+            height: (@img-height + 2 * (@size-input-padding + @length-inputBorderWidth));
 
             img {
               height: @img-height;
@@ -277,7 +283,7 @@
     margin-bottom: 0;
 
     > li {
-      background-color: @color-background;
+      background-color: white;
       border-bottom: 1px solid @color-note;
       margin-bottom: 10px;
       position: relative;
@@ -287,7 +293,7 @@
         .icon-remove;
         .link;
         bottom: 0;
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 0;
       }
@@ -295,7 +301,7 @@
       &.toBeRemoved > .removeButton {
         .icon;
         .icon-plus;
-        color: @color-link;
+        color: @color-link-dark;
       }
     }
   }
@@ -336,7 +342,7 @@
       position: relative;
 
       > .repeatableLabel {
-        .background-color(@color-alt);
+        .background-flat(@color-alt);
 
         cursor: pointer;
         left: 0;
@@ -355,17 +361,17 @@
         .icon-only;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: 5px;
         top: 4px;
       }
 
       &.state-focus {
-        border-color: @color-link-lighter;
+        border-color: @color-link-light;
 
         > .repeatableLabel {
-          background-color: @color-link-lighter;
+          background-color: @color-link-light;
         }
       }
 
@@ -374,9 +380,8 @@
         padding-bottom: 0;
 
         > .repeatableLabel {
-          background-color: #fdd;
           border-bottom-style: none;
-          color: @color-alert;
+          color: @color-remove;
           margin-bottom: 0;
           text-decoration: line-through;
 
@@ -392,7 +397,7 @@
         > .removeButton {
           .icon;
           .icon-plus;
-          color: @color-link;
+          color: @color-link-dark;
         }
       }
     }
@@ -438,7 +443,7 @@
         .icon;
         .icon-remove;
         .link;
-        color: @color-alert;
+        color: @color-remove;
         margin-left: 10px;
 
         @media @media-tablet {
@@ -452,12 +457,11 @@
         > .removeButton {
           .icon;
           .icon-plus;
-          color: @color-link;
+          color: @color-link-dark;
         }
 
         .objectId-select {
-          background-color: #fdd;
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
 
           &:before,
@@ -471,7 +475,7 @@
         }
 
         .objectId-edit {
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
         }
       }
@@ -550,7 +554,7 @@
         &:before {
           @length-size: 20px;
 
-          .background-color(fade(black, 60%));
+          .background-flat(fade(black, 60%));
 
           border: 2px solid white;
           border-radius: @length-size;
@@ -597,7 +601,7 @@
         .icon-remove;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         position: absolute;
         right: @-length-buttonOffset;
         top: @-length-buttonOffset;
@@ -606,7 +610,7 @@
 
       &.toBeRemoved {
         > input[type='text'] {
-          color: @color-alert;
+          color: @color-remove;
           text-decoration: line-through;
         }
 
@@ -614,7 +618,7 @@
           .icon;
           .icon-plus;
 
-          color: @color-link;
+          color: @color-link-dark;
         }
       }
     }

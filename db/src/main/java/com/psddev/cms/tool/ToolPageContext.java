@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -645,7 +646,7 @@ public class ToolPageContext extends WebPageContext {
             object = workStream.next(getUser());
 
         } else {
-            object = Query.findById(Object.class, objectId);
+            object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
         }
 
         if (object != null) {
@@ -683,12 +684,12 @@ public class ToolPageContext extends WebPageContext {
 
             if (selectedType != null) {
                 if (selectedType.getSourceDatabase() != null) {
-                    object = Query.fromType(selectedType).where("_id = ?", objectId).first();
+                    object = Query.fromType(selectedType).where("_id = ?", objectId).resolveInvisible().first();
                 }
 
                 if (object == null) {
                     if (selectedType.getGroups().contains(Singleton.class.getName())) {
-                        object = Query.fromType(selectedType).first();
+                        object = Query.fromType(selectedType).resolveInvisible().first();
                     }
 
                     if (object == null) {
@@ -1187,6 +1188,7 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
 
                 writeElement("meta", "name", "robots", "content", "noindex");
+                writeElement("meta", "name", "viewport", "content", "width=device-width, initial-scale=1");
                 writeStylesAndScripts();
             writeEnd();
 
@@ -1252,19 +1254,41 @@ public class ToolPageContext extends WebPageContext {
                     }
 
                     if (user != null) {
-                        int nowHour = new DateTime().getHourOfDay();
+                        StorageItem avatar = user.getAvatar();
+                        String name = user.getName().trim();
+                        String[] nameParts = name.split("\\s+");
+                        String firstName = nameParts[0];
 
-                        writeStart("div", "class", "toolAvatar");
+                        writeStart("div", "class", "toolUserDisplay");
+                            writeStart("a",
+                                    "href", cmsUrl("/toolUserDashboard"),
+                                    "target", "toolUserDashboard");
 
-                            StorageItem avatar = user.getAvatar();
+                                writeHtml("Welcome, ");
 
-                            if (avatar != null) {
-                                writeStart("a", "href", cmsUrl("/misc/settings.jsp"));
-                                    writeTag("img",
-                                            "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 50, 50).getPublicUrl());
+                                if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
+                                    writeHtml(firstName.substring(0, 1).toUpperCase(Locale.ENGLISH));
+                                    writeHtml(firstName.substring(1));
+
+                                } else {
+                                    writeHtml(firstName);
+                                }
+
+                                writeStart("span", "class", "toolUserAvatar");
+                                    if (avatar != null) {
+                                            writeTag("img",
+                                                    "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 100, 100).getPublicUrl());
+
+                                    } else {
+                                        for (String namePart : nameParts) {
+                                            writeHtml(namePart.substring(0, 1).toUpperCase(Locale.ENGLISH));
+                                        }
+                                    }
                                 writeEnd();
-                            }
+                            writeEnd();
                         writeEnd();
+
+                        int nowHour = new DateTime().getHourOfDay();
 
                         writeStart("div", "class", "toolProfile");
                             writeHtml("Good ");
@@ -1377,26 +1401,10 @@ public class ToolPageContext extends WebPageContext {
                     StorageItem backgroundImage = cms.getBackgroundImage();
 
                     if (backgroundImage != null) {
-                        writeStart("svg",
-                                "xmlns", "http://www.w3.org/2000/svg",
-                                "xmlns:xlink", "http://www.w3.org/1999/xlink",
+                        writeStart("div",
                                 "class", "toolBackground",
-                                "width", "100%",
-                                "height", "100%");
-                            writeStart("defs");
-                                writeStart("filter", "id", "blur");
-                                    writeStart("feGaussianBlur", "stdDeviation", 40);
-                                    writeEnd();
-                                writeEnd();
-                            writeEnd();
-
-                            writeStart("image",
-                                    "xlink:href", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), backgroundImage, null, 400, 400).getPublicUrl(),
-                                    "width", "100%",
-                                    "height", "100%",
-                                    "preserveAspectRatio", "xMidYMid slice",
-                                    "filter", "url(#blur)");
-                            writeEnd();
+                                "style", cssString(
+                                        "background-image", "url(" + backgroundImage.getPublicUrl() + ")"));
                         writeEnd();
                     }
     }
@@ -1431,32 +1439,41 @@ public class ToolPageContext extends WebPageContext {
             companyName = "Brightspot";
         }
 
-        String cssPrefix = ObjectUtils.firstNonNull(cms.getStyleSheetPath(), "/style/");
-        cssPrefix = StringUtils.ensureStart(cssPrefix, "/");
-        cssPrefix = StringUtils.ensureEnd(cssPrefix, "/");
+        ToolUser user = getUser();
+        String theme = ObjectUtils.firstNonNull(user != null ? user.getTheme() : null, cms.getTheme(), "cms");
+
+        if ("v2".equals(theme)) {
+            theme = "cms";
+        }
 
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource(cssPrefix + "cms.less"));
+            writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/" + theme + ".less"));
 
         } else {
-            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource(cssPrefix + "cms.min.css"));
+            writeElement("link", "rel", "stylesheet", "type", "text/css", "href", cmsResource("/style/" + theme + ".min.css"));
         }
 
         for (Tool tool : tools) {
             tool.writeHeaderAfterStyles(this);
         }
 
+        String scriptPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
+
         if (getCmsTool().isUseNonMinifiedCss()) {
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less-dev.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "less-dev.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl.js"));
+            writeStart("script", "type", "text/javascript");
+                writeHtml("window.less.relativeUrls = true;");
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/husl-less.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl.js"));
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource("/script/less.js"));
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl-less.js"));
+            writeEnd();
+
+            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "less.js"));
             writeEnd();
         }
 
@@ -1523,32 +1540,30 @@ public class ToolPageContext extends WebPageContext {
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
         writeEnd();
 
-        String jsPrefix = getCmsTool().isUseNonMinifiedJavaScript() ? "/script/" : "/script.min/";
-
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.extra.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.extra.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "jquery.handsontable.full.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "jquery.handsontable.full.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "d3.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "d3.js"));
         writeEnd();
 
         writeStart("script", "type", "text/javascript");
             writeRaw("var require = ");
             writeRaw(ObjectUtils.toJson(ImmutableMap.of(
-                    "baseUrl", cmsUrl(jsPrefix),
+                    "baseUrl", cmsUrl(scriptPrefix),
                     "urlArgs", "_=" + System.currentTimeMillis())));
             writeRaw(";");
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "require.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "require.js"));
         writeEnd();
 
-        writeStart("script", "type", "text/javascript", "src", cmsResource(jsPrefix + "cms.js"));
+        writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + theme + ".js"));
         writeEnd();
 
         String dropboxAppKey = getCmsTool().getDropboxApplicationKey();

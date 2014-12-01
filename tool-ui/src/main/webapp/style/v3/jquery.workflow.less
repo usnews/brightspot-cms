@@ -1,5 +1,5 @@
 .workflowVisual {
-  .background-color(@color-alt);
+  .background-flat(@color-alt);
 
   border-radius: 4px;
   min-height: 400px;
@@ -9,14 +9,14 @@
 }
 
 .workflowState {
-  .background-color(@color-gray-dark);
+  .background-flat(@color-placeholder);
 
   border-radius: 5px;
   padding: 10px 20px 10px 10px;
   position: absolute;
 
   .link {
-    color: @color-link-lighter;
+    color: @color-link-light;
   }
 
   input[type='text'] {
@@ -49,7 +49,7 @@
   .icon-remove;
   .icon-only;
 
-  color: @color-alert !important;
+  color: @color-remove !important;
   position: absolute;
 
   &:hover {

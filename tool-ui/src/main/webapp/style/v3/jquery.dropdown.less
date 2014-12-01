@@ -43,7 +43,7 @@ input[type="text"].dropDown-search {
 
 .dropDown-marker {
   &:before {
-    background-color: @color-background;
+    background-color: white;
     content: '';
     height: 3px;
     left: 1px;
@@ -59,10 +59,10 @@ input[type="text"].dropDown-search {
 }
 
 .dropDown-list {
-  background-color: @color-background;
+  background-color: white;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
-  border: @size-input-border solid @color-focus;
+  border: @length-inputBorderWidth solid @color-focus;
   list-style-type: none;
   margin: 0 5px 0 0;
   max-height: 300px;
@@ -101,7 +101,7 @@ input[type="text"].dropDown-search {
     .icon;
     .icon-ok;
 
-    .background-color(@color-focus);
+    .background-flat(@color-focus);
 
     &:before {
       left: 4px;

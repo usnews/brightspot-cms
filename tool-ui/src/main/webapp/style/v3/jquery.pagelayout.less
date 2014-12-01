@@ -13,7 +13,7 @@
       position: relative;
 
       &:after {
-        border-color: transparent transparent @color-gray-faint transparent;
+        border-color: transparent transparent @color-border transparent;
         border-style: solid;
         border-width: 6px;
         bottom: 0;
@@ -38,7 +38,7 @@
 // Visual representation.
 .pageLayout-visual {
   .section {
-    .background-color(@color-gray-faint);
+    .background-flat(@color-heading);
 
     margin-bottom: 10px;
     min-height: 30px;
@@ -46,14 +46,14 @@
     position: relative;
 
     // Sections get darker as they nest.
-    .section { .background-color(husl-darken(@color-gray-faint, 5));
-      .section { .background-color(husl-darken(@color-gray-faint, 10));
-        .section { .background-color(husl-darken(@color-gray-faint, 15));
-          .section { .background-color(husl-darken(@color-gray-faint, 20));
-            .section { .background-color(husl-darken(@color-gray-faint, 25));
-              .section { .background-color(husl-darken(@color-gray-faint, 30));
-                .section { .background-color(husl-darken(@color-gray-faint, 35));
-                  .section { .background-color(husl-darken(@color-gray-faint, 40));
+    .section { .background-flat(darken(@color-heading, 5%));
+      .section { .background-flat(darken(@color-heading, 10%));
+        .section { .background-flat(darken(@color-heading, 15%));
+          .section { .background-flat(darken(@color-heading, 20%));
+            .section { .background-flat(darken(@color-heading, 25%));
+              .section { .background-flat(darken(@color-heading, 30%));
+                .section { .background-flat(darken(@color-heading, 35%));
+                  .section { .background-flat(darken(@color-heading, 40%));
     } } } } } } } }
 
     // Hide contents if the section is set to be removed.
@@ -71,7 +71,7 @@
       }
 
       > .heading > .name {
-        color: @color-alert;
+        color: @color-remove;
         text-decoration: line-through;
       }
     }
@@ -96,7 +96,7 @@
         .icon-only;
         .link;
 
-        color: @color-link-lighter;
+        color: @color-link-light;
         float: left;
         margin-top: 2px;
         margin-right: 4px;
@@ -111,7 +111,7 @@
         .icon;
         .icon-cogs;
 
-        color: @color-link-lighter;
+        color: @color-link-light;
         float: left;
         margin-top: 2px;
       }
@@ -122,7 +122,7 @@
         .icon-only;
         .link;
 
-        color: @color-alert;
+        color: @color-remove;
         float: right;
         margin-top: 2px;
       }
@@ -144,14 +144,14 @@
         .icon;
         .icon-pencil;
 
-        color: husl-darken(@color-link, 10);
+        color: darken(@color-link-dark, 10%);
       }
 
       > .removeContentButton {
         .icon;
         .icon-remove;
 
-        color: @color-red-dark;
+        color: @color-remove;
         margin-left: 10px;
       }
 
@@ -159,7 +159,7 @@
         .icon;
         .icon-plus;
 
-        background: @color-link-lighter;
+        background: @color-link-light;
         border-radius: 5px;
         cursor: pointer;
         text-align: center;
