@@ -1,0 +1,533 @@
+define([
+    'jquery',
+    'bsp-utils' ],
+
+function($, bsp_utils) {
+
+    var carouselUtility;
+
+    // Singleton object for the carousel.
+    //
+    // Do not directly use this object - instead create your own instance using Object.create():
+    //   mycarousel = Object.create(carouselUtility);
+    //   mycarousel.init(element, settings);
+    //
+    // To control the carousel, save the object instance. Or you could save it in the data
+    // of the element so other code can get to it and control the carousel:
+    //   $(element).data('carousel', mycarousel);
+    //
+    // Then other code can always get the carousel and control it:
+    //   var mycarousel = $(element).data('carousel');
+    //   if (mycarousel) {
+    //     mycarousel.nextPage();
+    //   }
+    //
+    // The object has functions for you to control the carousel:
+    // 
+    // init() Call this after you create the object to initialize the carousel
+    // addTile() Add a tile to the carousel
+    // update() After adding multiple tiles call the update function to ensure the carousel updates the display
+    // 
+    // The carousel also triggers events - listen for these events to perform actions such as loading more tiles
+    // when the user reaches the end of the carousel.
+    //
+    // carousel.end = The user has reached the end of the carousel tiles
+    // carousel.tile = The user clicked one of the tiles
+    // 
+    // @example
+    // 
+    // var mydiv = $('#mycarousel');
+    // var mycarousel = Object.create(carouselUtility);
+    //
+    // mycarousel.init(mydiv);
+    // mycarousel.addTile('<div>My tile 1</div>');
+    // mycarousel.addTile('<div>My tile 2</div>');
+    // mycarousel.addTile('<div>My tile 3</div>');
+    // mycarousel.update();
+    //
+    // // Do something when user clicks a tile
+    // mydiv.on('carousel.tile', function(event, data) {
+    //   // data.carousel = the carousel object
+    //   // data.index = which tile was clicked
+    //   // data.tile = the tile content
+    //   alert('User clicked tile number ' + data.index);
+    // });
+    //
+    // // Ajax more content when reach end of carousel
+    // mydiv.on('carousel.end', function(event, data) {
+    //   // data.carousel = the carousel object
+    //   $.get('/moredata.jsp', function(ajaxData){
+    //     data.carousel.addTile(ajaxData);
+    //   });
+    // });
+
+    carouselUtility = {
+
+        /**
+         * Default settings for the carousel.
+         */
+        defaults: {
+
+            // @param {Boolean} numbered
+            // true = overlay numbers on top of the tiles
+            // false = do not overlay numbers on top of the tiles
+            numbered: false
+
+        },
+
+
+        /**
+         * Various class names
+         */
+        classActive: 'carousel-active',
+        classNavHide: 'carousel-nav-hide',
+        classNumbered: 'carousel-numbered',
+
+        /**
+         * Names for custom events
+         *
+         * When these events are triggered, an object is sent so the event listener
+         * will have access to the following:
+         *
+         * carousel = the carousel object
+         * n = the number of the tile that was clicked
+         * tile = the dom element for the tile
+         */
+
+        // Event when a tile is clicked
+        eventTile: 'carousel.tile',
+
+        // Event when reach the end of a carousel
+        // For example, you can listen for this event then dynamically add more tiles
+        eventEnd: 'carousel.end',
+
+        /**
+         * HTML template for the carousel
+         *
+         * Due to CSS issues using overflow-x:hidden, it's not possible to do
+         * the active arrow simply with positioning within the carousel tiles,
+         * so we need to also set up a viewport for the arrow
+         * at the bottom of the carousel.
+         */
+        template:
+          '<div class="carousel-wrapper">' +
+            '<div class="carousel-viewport">' +
+              '<ol class="carousel-tiles"></ol>' +
+            '</div>' +
+            '<div class="carousel-nav carousel-nav-previous"><a href="#">Previous</a></div>' +
+            '<div class="carousel-nav carousel-nav-next"><a href="#">Next</a></div>' +
+          '</div>' +
+          '<div class="carousel-bottom-viewport">' +
+            '<div class="carousel-bottom-content">' +
+              '<span class="carousel-arrow"></span>' +
+            '</div>' +
+          '</div>',
+
+
+        /**
+         * Initialize the object. Call this once.
+         *
+         * @param {Element} element
+         * The element where the carousel should be created.
+         *
+         * @param {Object} [settings]
+         * A set of key/value pairs to override the default settings.
+         *
+         */
+        init: function(element, settings) {
+
+            var self = this;
+
+            // Save the main element so we can use it later
+            self.element = $(element);
+
+            // Use the default settings, overridden by whatever settings were passed in.
+            self.settings = $.extend(true, {}, self.defaults, settings);
+
+            self._initHTML();
+        },
+
+
+        /**
+         * @private
+         * Create the HTML for the carousel.
+         */
+        _initHTML: function() {
+            var self = this;
+
+            // A place to cache all our dom elements so we don't have to query the dom repeatedly
+            self.dom = {};
+
+            // Create the HTML for the carousel
+            self.dom.carousel = $(self.template).appendTo(self.element);
+
+            // Add the numbered class if user requested a numberd carousel
+            if (self.settings.numbered) {
+                self.dom.carousel.addClass(self.classNumbered);
+            }
+
+            // Save pointers to the elements we will use later
+            self.dom.previous = self.dom.carousel.find('.carousel-nav-previous');
+            self.dom.next = self.dom.carousel.find('.carousel-nav-next');
+            self.dom.tiles = self.dom.carousel.find('.carousel-tiles');
+            self.dom.viewport = self.dom.carousel.find('.carousel-viewport');
+            self.dom.bottomViewport = self.dom.carousel.find('.carousel-bottom-viewport');
+            self.dom.bottomContent = self.dom.carousel.find('.carousel-bottom-content');
+            self.dom.arrow = self.dom.carousel.find('.carousel-arrow');
+
+            self._initEvents();
+        },
+
+
+        /**
+         * @private
+         * Create the event handlers for the carousel and bind to the HTML.
+         */
+        _initEvents: function() {
+
+            var self = this;
+
+            // Previous button
+            self.dom.previous.on('click', function(e) {
+                self.previousPage();
+                return false;
+            });
+
+            // Next button
+            self.dom.next.on('click', function(e) {
+                self.nextPage();
+                return false;
+            });
+
+            // Clicking on a tile
+            self.dom.tiles.on('click', '> li', function(e) {
+
+                // Determine which tile was clicked
+                // The index() function returns the index of the <li> element relative to its siblings.
+                var n = $(this).index();
+
+                // Make it the active tile
+                self.setActive(n);
+
+                // Do the action for the tile
+                self.doTile(n);
+
+                return false;
+            });
+        },
+
+
+        /**
+         * Add a new tile to the end of the carousel.
+         * @param {String|jQueryObject} content
+         * HTML content (or a jQuery object) to add to the carousel.
+         * Note this will be enclosed in an <LI> element.
+         */
+        addTile: function(content) {
+
+            var self = this;
+
+            var tile = $('<li>').append(content).appendTo(self.dom.tiles);
+        },
+
+
+        /**
+         * Remove a tile from the carousel by specifying its index.
+         *
+         * @param {Number} n
+         * Number of the tile to remove.
+         */
+        removeTile: function(n) {
+
+            var self = this;
+
+            var tile = self.dom.tiles.find('li').eq(n).remove();
+        },
+
+
+        /**
+         * @private
+         * Move the carousel forward or back.
+         *
+         * @param {Boolean|Number} direction
+         * To move one "page" forward, set to true.
+         * To move one "page" backward, set to false.
+         * To move forward tiles set to a positive number.
+         * To move backward tiles set to a negative number.
+         */
+        _move: function(amount) {
+
+            var self = this;
+
+            // First get some information about where we are currently scrolled
+            var layout = self._getLayout();
+
+            // Sometimes the tilesOffset value can get out of whack
+            // (for example if user clicks nav links in quick succession)
+            // So re-baseline on a tile border if necessary
+            layout.tilesOffset -= (layout.tilesOffset % layout.tileWidth);
+
+            var newOffset = 0;
+
+            // Number of tiles to shift
+            var moveTiles = 0;
+
+            // If all tiles fit within the viewport then no movement needed
+            if (layout.tilesWidth <= layout.viewportWidth) {
+                return;
+            }
+
+            if ($.isNumeric(amount)) {
+                moveTiles = amount;
+            } else {
+
+                // Determine if we are moving back or forward
+
+                if (amount === false) {
+                    // Move back one page
+                    moveTiles = -layout.tilesPerViewport;
+                } else {
+                    // Move forward one page
+                    moveTiles = layout.tilesPerViewport;
+                }
+            }
+
+            // Calculate the new margin-left value
+            newOffset = layout.tilesOffset + (moveTiles * layout.tileWidth);
+
+            // Don't move too far
+            if (newOffset < 0) {
+                newOffset = 0;
+            }
+
+            // Don't move too far
+            if (newOffset > layout.tilesWidth) {
+                newOffset = layout.tilesOffset;
+            }
+
+            if (newOffset !== layout.tilesOffset) {
+
+                // Set the left offset to move the tiles to the left within the viewport
+                self.dom.tiles.css('margin-left', '-' + newOffset + 'px');
+
+            }
+
+            // Hide the active arrow, it will be shown again after calling update()
+            self.dom.arrow.hide();
+
+            // Update the nav links etc but wait enough time for the animation to complete
+            setTimeout(function(){
+                self.update();
+            }, 1000);
+
+        },
+
+
+        /**
+         * Go to the next page of tiles.
+         */
+        nextPage: function() {
+            var self = this;
+            self._move(true);
+        },
+
+
+        /**
+         * Go to the previous page of tiles.
+         */
+        previousPage: function() {
+            var self = this;
+            self._move(false);
+        },
+
+
+        /**
+         * Advance to the next tile.
+         */
+        nextTile: function() {
+            var self = this;
+            self._move(+1);
+        },
+
+
+        /**
+         * Go to the previous page of tiles.
+         */
+        previousTile: function() {
+            var self = this;
+            self._move(-1);
+        },
+
+
+        /**
+         * Set a tile to the active state.
+         *
+         * @param Number n
+         * The tile number (1-n) to set active.
+         */
+        setActive: function(n) {
+
+            var self = this;
+
+            self.clearActive();
+            self.dom.tiles.find('li').eq(n).addClass(self.classActive);
+            self._setActiveArrow();
+        },
+
+
+        /**
+         * @private
+         * Update the positioning for the arrow so it sits underneath the active
+         * tile.
+         */
+        _setActiveArrow: function() {
+            var self = this;
+            //var layout = self._getLayout();
+            var activeTile = self.dom.tiles.find('li.' + self.classActive);
+            var activeTileWidth;
+            var activeTilePosition;
+            var activeTileLeft;
+            var arrowWidth;
+
+            if (activeTile.length) {
+                activeTileWidth = activeTile.width() || 0;
+                activeTilePosition = activeTile.position();
+                 activeTileLeft = activeTilePosition.left;
+                arrowWidth = self.dom.arrow.outerWidth() || 0;
+                self.dom.arrow.css('left', activeTileLeft + (activeTileWidth / 2) - arrowWidth).show();
+            } else {
+                self.dom.arrow.hide();
+            }
+        },
+
+
+        /**
+         * Return the tile number that is currenly active.
+         *
+         * @returns Number
+         * Index of the active tile (1-n) or 0 if there is no active tile.
+         */
+        getActive: function() {
+
+            var self = this;
+            var index;
+
+            // return tile number of the active tile
+            index = self.dom.tiles.find('li').filter(function(){
+                return $(this).hasClass(self.classActive);
+            }).index();
+
+            return (index + 1);
+        },
+
+
+        /**
+         * Clear the active state from all tiles.
+         */
+        clearActive: function() {
+
+            var self = this;
+
+            self.dom.tiles.find('> li').removeClass(self.classActive);
+        },
+
+
+        /**
+         * Update various parts of the carousel ui after a change has been made.
+         * This should be called after a move() or after a tile is added or removed.
+         * Note the carousel does not call this after a tile is added or removed for performance reasons.
+         * So after you add or remove one or more tiles you should call it directly.
+         */
+        update: function(layout) {
+
+            var self = this;
+
+            var layout = self._getLayout();
+
+            // Determine if we should show the next/previous buttons
+            // Note the actual showing/hiding is done via CSS rules
+            self.dom.previous.toggleClass(self.classNavHide, layout.atMin);
+            self.dom.next.toggleClass(self.classNavHide, layout.atMax);
+
+            // Update the active arrow
+            self._setActiveArrow();
+
+            // Trigger an event if we reach the end of the carousel
+            // This can be used to fetch more data and add more tiles to the carousel
+            if (layout.atMax) {
+
+                self.element.trigger(self.eventEnd, {
+                    carousel: self
+                });
+
+            }
+        },
+
+
+        /**
+         * @private
+         * Get various layout numbers to calculate positions.
+         */
+        _getLayout: function() {
+
+            var self = this;
+            var layout;
+
+            layout = {
+
+                viewportWidth: self.dom.viewport.width(),
+
+                // Get the total width of all tiles
+                tilesWidth: self.dom.tiles.width(),
+
+                // Get width of first tile including margin
+                // (note we assume all tiles will have same width)
+                tileWidth: self.dom.tiles.find('> li:first-child').outerWidth(true),
+
+                // Get the current left offset of the tiles within the viewport
+                tilesOffset: Math.abs(parseInt(self.dom.tiles.css('margin-left'), 10)) || 0
+
+            };
+
+            // Calculate how many tiles fit within the viewport
+            layout.tilesPerViewport = Math.floor( layout.viewportWidth / layout.tileWidth );
+
+            // Determine if we are already at the maximum / minimum range of movement
+            layout.atMax = Boolean(layout.tilesWidth - layout.tilesOffset <= layout.viewportWidth);
+            layout.atMin = Boolean(layout.tilesOffset <= 0);
+
+            return layout;
+        },
+
+
+        /**
+         * Perform the action for the user clicking a tile.
+         * Note this function does not mark the tile "active".
+         *
+         * @param {Number} n
+         * Index of the tile that was clicked (starting at 1).
+         */
+        doTile: function(n) {
+
+            var self = this;
+
+            // Get the content for tile n,
+            // so we can pass it when we trigger a custom event.
+            // That way someone using the carousel can attach data to the tiles
+            // and receive it back when the event occurs, so they will
+            // know which tile was clicked
+            var content = self.dom.tiles.find('li').eq(n).contents();
+
+            // Data to pass as part of the custom event
+            var data = {
+                carousel: self,
+                index: n,
+                tile: content
+            };
+
+            self.element.trigger(self.eventTile, data);
+        }
+    };
+
+    return carouselUtility;
+});
