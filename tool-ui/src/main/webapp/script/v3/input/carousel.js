@@ -246,25 +246,6 @@ function($, bsp_utils) {
 
 
         /**
-         * Return the content of a tile by specifying the tile index.
-         *
-         * @param {Number} n
-         * Number of the tile to retrieve (starting at 1 for the first tile).
-         *
-         * @returns {jQuery Object}
-         *
-         * @example
-         * mycarousel.getTileContent(1).addClass('toBeRemoved');
-         */
-        getTileContent: function(n) {
-            
-            var self = this;
-
-            return self.dom.tiles.find('li').eq(n).contents();
-        },
-
-        
-        /**
          * @private
          * Move the carousel forward or back.
          *
