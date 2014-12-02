@@ -186,3 +186,39 @@
     }
 }
 
+// Carousel tile content
+.carousel-tile {
+    text-align: center;
+    width: @carousel-tile-width;
+    height: @carousel-tile-height;
+    overflow:hidden;
+}
+.carousel-tile-image {
+    // Resize the image so it's largest dimension fits within the tile
+    max-height: @carousel-tile-height;
+    max-width: @carousel-tile-width;
+}
+.carousel-tile-label {
+    text-align: left;
+    position:absolute;
+    bottom:0;
+    left:0;
+    font-size:80%;
+    background-color:#eee;
+    padding:2px 4px;
+    border:1px solid #000;
+    margin:2px;
+    width: @carousel-tile-width - 8px - 2px - 4px;
+
+    // Make the text end in ellipsis if it is too long to fit
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+
+    // Hide by default but show on hover or active tile
+    opacity:0;
+    .carousel-active &, .carousel-tile:hover & {
+        opacity:1;
+    }
+    transition:opacity 200ms ease-in-out 100ms;
+}

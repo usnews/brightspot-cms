@@ -33,6 +33,7 @@ require([
   'jquery.mousewheel',
   'velocity',
 
+  'input/carousel',
   'input/change',
   'input/code',
   'input/color',
