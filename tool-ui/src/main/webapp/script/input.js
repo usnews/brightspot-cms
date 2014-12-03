@@ -1,5 +1,4 @@
 define([
-    'input/carousel',
     'input/change',
     'input/code',
     'input/color',
