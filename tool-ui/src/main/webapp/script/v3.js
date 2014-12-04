@@ -41,7 +41,7 @@ require([
   'input/grid',
   'input/image',
   'input/location',
-  'input/object',
+  'v3/input/object',
   'input/query',
   'input/region',
   'v3/input/richtext',
@@ -53,7 +53,7 @@ require([
   'jquery.editableplaceholder',
   'jquery.popup',
   'jquery.fixedscrollable',
-  'jquery.frame',
+  'v3/jquery.frame',
   'jquery.lazyload',
   'jquery.pagelayout',
   'jquery.pagethumbnails',
@@ -626,6 +626,55 @@ function() {
 
   $doc.on('close', '.popup[name="miscSearch"]', function() {
     $(document.body).removeClass('toolSearchOpen');
+  });
+
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    $(event.target).popup('source').closest('.popup, .toolContent').addClass('under');
+    $win.resize();
+  });
+
+  $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
+    var $frame = $(event.target);
+
+    // Move the close button to the publishing widget.
+    var $publishing = $frame.find('.widget-publishing');
+
+    if ($publishing.length > 0) {
+      $publishing.append($('<a/>', {
+        'class': 'widget-publishing-close',
+        'click': function(event) {
+          $frame.popup('close');
+          return false;
+        }
+      }));
+
+      $publishing.addClass('widget-publishing-hasClose');
+      $frame.popup('container').find('> .content > .closeButton').hide();
+    }
+
+    // Scroll the frame into view.
+    var oldScrollTop = $win.scrollTop();
+    var $source = $frame.popup('source');
+
+    $.data($source[0], 'oldScrollTop', oldScrollTop);
+
+    $('html, body').animate({
+      'scrollTop': $source.offset().top - $('.toolHeader:visible').outerHeight(true)
+    });
+  });
+
+  $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    var $source = $(event.target).popup('source');
+    var oldScrollTop = $.data($source[0], 'oldScrollTop');
+
+    if (oldScrollTop) {
+      $('html, body').animate({
+        'scrollTop': oldScrollTop
+      });
+    }
+
+    $source.closest('.popup, .toolContent').removeClass('under');
+    $win.resize();
   });
 
   $doc.ready(function() {

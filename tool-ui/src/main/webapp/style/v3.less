@@ -215,6 +215,7 @@
   margin: -10px;
   overflow: hidden;
   padding: 10px 360px 10px 10px;
+  transition: all @time-fast;
 
   @media @media-tablet {
     padding-right: 210px;
@@ -430,9 +431,23 @@
     right: 10px;
   }
 
+  &.widget-publishing-hasClose .icon-wrench {
+    right: 40px;
+  }
+
   [name='workflowComment'] {
     margin-bottom: 5px;
   }
+}
+
+.widget-publishing-close {
+  .icon;
+  .icon-remove;
+
+  color: @color-text;
+  position: absolute;
+  right: 10px;
+  top: 6px;
 }
 
 .widget-publishingWorkflow {
