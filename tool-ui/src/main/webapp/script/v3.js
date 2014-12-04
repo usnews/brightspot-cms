@@ -65,7 +65,10 @@ require([
   'nv.d3',
 
   'dashboard',
-  'content' ],
+  'content/diff',
+  'content/lock',
+  'v3/content/publish',
+  'content/state' ],
 
 function() {
   var $ = arguments[0];
