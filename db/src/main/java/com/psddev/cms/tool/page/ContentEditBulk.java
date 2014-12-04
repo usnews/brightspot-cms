@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
@@ -62,7 +63,7 @@ public class ContentEditBulk extends PageServlet {
                             page.getRequest(),
                             page.getResponse(),
                             page,
-                            page.cmsUrl("/WEB-INF/objectPost.jsp"),
+                            page.toolPath(CmsTool.class, "/WEB-INF/objectPost.jsp"),
                             "object", state.getOriginalObject());
 
                     Map<String, Object> values = state.getValues();
@@ -228,7 +229,7 @@ public class ContentEditBulk extends PageServlet {
                                 request,
                                 page.getResponse(),
                                 page,
-                                page.cmsUrl("/WEB-INF/objectForm.jsp"),
+                                page.toolPath(CmsTool.class, "/WEB-INF/objectForm.jsp"),
                                 "object", state.getOriginalObject());
 
                     } finally {

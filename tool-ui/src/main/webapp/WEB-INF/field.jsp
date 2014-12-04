@@ -8,6 +8,7 @@ com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
 com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.page.ContentEditBulk,
 
@@ -384,7 +385,7 @@ public static void writeInput(
 
     // Look for class/field-specific handler.
     // TODO - There should be some type of a hook for external plugins.
-    String prefix = wp.cmsUrl("/WEB-INF/field/");
+    String prefix = wp.toolPath(CmsTool.class, "/WEB-INF/field/");
     String path = prefix + field.getJavaDeclaringClassName() + "." + fieldName + ".jsp";
     if (getResource(application, request, path) != null) {
         JspUtils.include(request, response, out, path);
