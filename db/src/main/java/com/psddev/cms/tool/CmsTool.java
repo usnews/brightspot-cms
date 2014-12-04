@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -795,6 +796,34 @@ public class CmsTool extends Tool {
 
         plugins.add(createJspWidget("Search Engine Optimization", "seo", "/WEB-INF/widget/seo.jsp", CONTENT_BOTTOM_WIDGET_POSITION, bottomColumn, bottomRow ++));
 
+        // Dynamic dashboards
+        for (Dashboard dashboard : Query.from(Dashboard.class).iterable(0)) {
+            String dashboardName = dashboard.as(Dashboard.Data.class).getName();
+            String dashboardDisplayName = dashboard.getState().getLabel();
+            String dashboardInternalName = dashboard.as(Dashboard.Data.class).getInternalName();
+            String dashboardHierarchy = dashboard.getHierarchicalParent() + "/" + dashboardInternalName;
+            String dashboardUrl = "/dashboard/" + dashboardName;
+            String dashboardWidgetPosition = dashboard.as(Dashboard.Data.class).getWidgetPosition();
+            int dashboardNumOfColumns = dashboard.getDefaultNumberOfColumns();
+
+            plugins.add(createArea2(dashboardDisplayName, dashboardInternalName, dashboardHierarchy, dashboardUrl));
+
+            int i = 0;
+            List<? extends DashboardWidget> widgets = dashboard.getWidgets();
+            if (widgets != null) {
+                for (DashboardWidget widget : widgets) {
+                    UUID dashboardId = dashboard.getState().getId();
+                    UUID widgetId = widget.getState().getId();
+                    String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
+                    String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
+                    String widgetUrl = "/dashboardWidget/" + dashboardId + "/" + widgetId;
+                    double rowNum = Math.floor(i / dashboardNumOfColumns);
+                    double columnNum = (i ++ % dashboardNumOfColumns);
+
+                    plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                }
+            }
+        }
         return plugins;
     }
 
