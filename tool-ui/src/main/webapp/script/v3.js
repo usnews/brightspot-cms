@@ -701,27 +701,32 @@ function() {
   });
 
   $doc.ready(function() {
+    (function() {
+      var $nav = $('.toolNav');
+      var $toggle = $('<div/>', {
+        'class': 'toolNavToggle',
+        'click': function() {
+          $nav.toggle();
+        }
+      });
+
+      $nav.before($toggle);
+
+      $win.click(function(event) {
+        var nav = $nav[0];
+        var toggle = $toggle[0];
+        var target = event.target;
+
+        if (nav !== target &&
+            !$.contains(nav, target) &&
+            toggle !== target &&
+            !$.contains(toggle, target)) {
+          $nav.hide();
+        }
+      });
+    })();
+
     $(this).trigger('create');
-
-    // Add the name of the sub-selected item on the main nav.
-    $('.toolNav .selected').each(function() {
-      var $selected = $(this),
-          $subList = $selected.find('> ul'),
-          $subSelected = $subList.find('> .selected > a'),
-          $selectedLink;
-
-      if ($subSelected.length > 0) {
-        $selectedLink = $selected.find('> a');
-        $selectedLink.text($selectedLink.text() + ' \u2192 ' + $subSelected.text());
-      }
-
-      $subList.css('min-width', $selected.outerWidth());
-    });
-
-    // Don't allow main nav links to be clickable if they have any children.
-    $('.toolNav li.isNested > a').click(function(event) {
-      event.preventDefault();
-    });
 
     // Sync the search input in the tool header with the one in the popup.
     (function() {
