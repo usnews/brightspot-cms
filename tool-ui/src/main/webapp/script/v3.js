@@ -40,7 +40,7 @@ require([
   'input/grid',
   'input/image',
   'input/location',
-  'input/object',
+  'v3/input/object',
   'input/query',
   'input/region',
   'v3/input/richtext',
@@ -52,7 +52,7 @@ require([
   'jquery.editableplaceholder',
   'jquery.popup',
   'jquery.fixedscrollable',
-  'jquery.frame',
+  'v3/jquery.frame',
   'jquery.lazyload',
   'jquery.pagelayout',
   'jquery.pagethumbnails',
@@ -64,7 +64,10 @@ require([
   'nv.d3',
 
   'dashboard',
-  'content' ],
+  'content/diff',
+  'content/lock',
+  'v3/content/publish',
+  'content/state' ],
 
 function() {
   var $ = arguments[0];
@@ -624,28 +627,106 @@ function() {
     $(document.body).removeClass('toolSearchOpen');
   });
 
-  $doc.ready(function() {
-    $(this).trigger('create');
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-select"]', function(event) {
+    var $popup = $(event.target);
+    var $input = $popup.popup('source');
+    var $container = $input;
+    var labels = '';
 
-    // Add the name of the sub-selected item on the main nav.
-    $('.toolNav .selected').each(function() {
-      var $selected = $(this),
-          $subList = $selected.find('> ul'),
-          $subSelected = $subList.find('> .selected > a'),
-          $selectedLink;
+    while (true) {
+      $container = $container.parent().closest('.inputContainer');
 
-      if ($subSelected.length > 0) {
-        $selectedLink = $selected.find('> a');
-        $selectedLink.text($selectedLink.text() + ' \u2192 ' + $subSelected.text());
+      if ($container.length > 0) {
+        labels = $container.find('> .inputLabel > label').text() + (labels ? ' \u2192 ' + labels : '');
+
+      } else {
+        break;
       }
+    }
 
-      $subList.css('min-width', $selected.outerWidth());
-    });
+    $popup.find('> .content > .frame > h1').text(
+        'Select ' +
+        labels +
+        ' for ' +
+        $input.closest('.contentForm').attr('data-o-label'));
+  });
 
-    // Don't allow main nav links to be clickable if they have any children.
-    $('.toolNav li.isNested > a').click(function(event) {
-      event.preventDefault();
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    $(event.target).popup('source').closest('.popup, .toolContent').addClass('under');
+    $win.resize();
+  });
+
+  $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
+    var $frame = $(event.target);
+
+    // Move the close button to the publishing widget.
+    var $publishing = $frame.find('.widget-publishing');
+
+    if ($publishing.length > 0) {
+      $publishing.append($('<a/>', {
+        'class': 'widget-publishing-close',
+        'click': function(event) {
+          $frame.popup('close');
+          return false;
+        }
+      }));
+
+      $publishing.addClass('widget-publishing-hasClose');
+      $frame.popup('container').find('> .content > .closeButton').hide();
+    }
+
+    // Scroll the frame into view.
+    var oldScrollTop = $win.scrollTop();
+    var $source = $frame.popup('source');
+
+    $.data($source[0], 'oldScrollTop', oldScrollTop);
+
+    $('html, body').animate({
+      'scrollTop': $source.offset().top - $('.toolHeader:visible').outerHeight(true)
     });
+  });
+
+  $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    var $source = $(event.target).popup('source');
+    var oldScrollTop = $.data($source[0], 'oldScrollTop');
+
+    if (oldScrollTop) {
+      $('html, body').animate({
+        'scrollTop': oldScrollTop
+      });
+    }
+
+    $source.closest('.popup, .toolContent').removeClass('under');
+    $win.resize();
+  });
+
+  $doc.ready(function() {
+    (function() {
+      var $nav = $('.toolNav');
+      var $toggle = $('<div/>', {
+        'class': 'toolNavToggle',
+        'click': function() {
+          $nav.toggle();
+        }
+      });
+
+      $nav.before($toggle);
+
+      $win.click(function(event) {
+        var nav = $nav[0];
+        var toggle = $toggle[0];
+        var target = event.target;
+
+        if (nav !== target &&
+            !$.contains(nav, target) &&
+            toggle !== target &&
+            !$.contains(toggle, target)) {
+          $nav.hide();
+        }
+      });
+    })();
+
+    $(this).trigger('create');
 
     // Sync the search input in the tool header with the one in the popup.
     (function() {

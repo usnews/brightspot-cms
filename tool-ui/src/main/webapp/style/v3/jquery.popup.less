@@ -19,6 +19,7 @@
     left: 0;
     opacity: 0.2;
     position: fixed;
+    transform: translateZ(0);
     top: 0;
     right: 0;
   }
@@ -116,43 +117,19 @@
 
 .popup[data-popup-source-class~='objectId-edit'],
 .popup[name='contentEdit'] {
-  max-width: 1200px;
-  width: 90%;
-
-  /*
-  bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
   max-width: none !important;
-  overflow: auto;
-  position: fixed !important;
-  top: @length-toolHeader-height !important;
   width: auto !important;
-  */
 
   > .content {
-    @bc: fade(white, 90%);
-
-    background: @bc;
-
-    /*
     background-color: transparent;
-    top: 0;
-    */
+    box-shadow: none;
+    padding-top: 0;
 
     > .marker {
-      border-bottom-color: @bc;
-
-      /*
-      display: none;
-      */
+      top: -10px;
     }
-
-    /*
-    .contentForm-main {
-      padding-top: 70px;
-    }
-    */
   }
 }
 

@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
@@ -39,7 +40,7 @@ public class EnhancementSelect extends PageServlet {
                 page.getRequest(),
                 page.getResponse(),
                 page,
-                page.cmsUrl("/WEB-INF/search.jsp"),
+                page.toolPath(CmsTool.class, "/WEB-INF/search.jsp"),
                         "newJsp", "/content/enhancement.jsp",
                         "resultJsp", "/enhancementSearchResult",
                         "validTypeIds", validTypeIds.toArray(new UUID[validTypeIds.size()]));

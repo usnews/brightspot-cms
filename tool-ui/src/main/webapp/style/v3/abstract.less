@@ -219,6 +219,7 @@ figure,
     display: inline-block;
     font-family: 'FontAwesome';
     -webkit-font-smoothing: antialiased;
+    font-size: 14px;
     font-weight: normal;
     padding-right: 0.25em;
     text-align: center;
@@ -481,16 +482,18 @@ figure,
 .icon-user-md { &:before { content: '\f200'; } }
 
 .inputLike {
-  @size-border: 1px;
+  @-borderWidth: 1px;
+  @-paddingTB: @length-inputHeight - @length-lineHeight - (@-borderWidth * 2);
+  @-paddingTop: floor(@-paddingTB / 2);
 
   .background-flat(white);
   border-color: @color-border;
   border-radius: 2px;
   border-style: solid;
-  border-width: @size-border;
+  border-width: @-borderWidth;
   box-sizing: border-box;
   min-height: @length-inputHeight;
-  padding: ((@length-inputHeight - @length-lineHeight) / 2 - @size-border) 6px;
+  padding: @-paddingTop 6px (@-paddingTB - @-paddingTop) 6px;
   transition: border-color @time-fast, box-shadow @time-fast;
 
   &:hover,
@@ -582,6 +585,7 @@ figure,
     background-color: white;
     margin: 0 !important;
     padding: 20px 0 10px 0;
+    position: relative;
   }
 
   .objectInputs-small &:before {
@@ -860,6 +864,10 @@ ul.links {
     box-sizing: border-box;
     border-bottom: @-length-border solid darken(white, 10%);
     padding: @-length-paddingTop 0 (@-length-height - @-length-paddingTop) 0;
+
+    &:last-child {
+      border-bottom-style: none;
+    }
 
     > .link {
       display: block;
@@ -1242,6 +1250,7 @@ table.links.table-striped {
   cursor: pointer;
   display: inline-block;
   height: (@length-lineHeight + 2 * (@size-input-padding + @length-inputBorderWidth));
+  max-width: 100%;
   padding-right: 26px;
   position: relative;
   user-select: none;
@@ -1376,6 +1385,12 @@ table.links.table-striped {
   text-align: right;
   width: 55px;
   white-space: nowrap;
+}
+
+.under {
+  filter: url(filters.svg#under);
+  filter: grayscale(1) blur(5px);
+  transition: all @time-fast;
 }
 
 .visibilityLabel {

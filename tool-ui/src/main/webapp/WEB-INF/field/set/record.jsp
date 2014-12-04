@@ -82,6 +82,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                 ObjectType type = ObjectType.getInstance(typeIds[i]);
                 item = type.createObject(null);
                 itemState = State.getInstance(item);
+                itemState.setResolveInvisible(true);
                 itemState.setId(ids[i]);
             }
 
@@ -100,7 +101,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         fieldValue.clear();
 
         for (UUID id : wp.uuidParams(inputName)) {
-            Object item = Query.findById(Object.class, id);
+            Object item = Query.fromAll().where("_id = ?", id).resolveInvisible().first();
             if (item != null) {
                 fieldValue.add(item);
             }

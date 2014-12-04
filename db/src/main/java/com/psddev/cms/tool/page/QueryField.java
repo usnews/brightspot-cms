@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.JspUtils;
@@ -27,7 +28,7 @@ public class QueryField extends PageServlet {
                         page.getRequest(),
                         page.getResponse(),
                         page,
-                        page.cmsUrl("/WEB-INF/search.jsp"),
+                        page.toolPath(CmsTool.class, "/WEB-INF/search.jsp"),
                         "resultJsp", "/queryFieldResult");
             page.writeEnd();
         page.writeFooter();

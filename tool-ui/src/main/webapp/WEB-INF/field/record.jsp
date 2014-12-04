@@ -72,12 +72,14 @@ if ((Boolean) request.getAttribute("isFormPost") && fieldValue != null && !State
 if (fieldValue == null && isEmbedded) {
     if (fieldValueType != null) {
         fieldValue = fieldValueType.createObject(null);
+        State.getInstance(fieldValue).setResolveInvisible(true);
         fieldValueNew = true;
 
     } else {
         for (ObjectType type : validTypes) {
             if (type.getId().equals(typeId)) {
                 fieldValue = type.createObject(null);
+                State.getInstance(fieldValue).setResolveInvisible(true);
                 break;
             }
         }
@@ -103,7 +105,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             }
         }
     } else {
-        fieldValue = Query.findById(Object.class, wp.uuidParam(inputName));
+        fieldValue = Query.fromAll().where("_id = ?", wp.uuidParam(inputName)).resolveInvisible().first();
     }
 
     if ("none".equals(wp.param(String.class, setName))) {
@@ -175,7 +177,9 @@ if (isEmbedded) {
             if (fieldValue != null && type.equals(State.getInstance(fieldValue).getType())) {
                 validObjects.add(fieldValue);
             } else {
-                validObjects.add(type.createObject(null));
+                Object itemObj = type.createObject(null);
+                State.getInstance(itemObj).setResolveInvisible(true);
+                validObjects.add(itemObj);
             }
         }
 

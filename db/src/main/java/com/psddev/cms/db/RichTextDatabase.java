@@ -48,7 +48,14 @@ public class RichTextDatabase extends ForwardingDatabase {
                     Object value = state.get(fieldName);
 
                     if (value instanceof String) {
-                        state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
+                        try {
+                            state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
+
+                        } catch (IllegalStateException error) {
+                            List<Object> publishables = new ReferentialText((String) value, true).toPublishables(true, new RichTextCleaner());
+
+                            state.put(fieldName, publishables.isEmpty() ? "" : (String) publishables.get(0));
+                        }
                     }
                 }
             }
