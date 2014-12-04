@@ -45,7 +45,7 @@ public class RichTextDatabase extends ForwardingDatabase {
             for (ObjectField field : type.getFields()) {
                 if (field.as(ToolUi.class).isRichText()) {
                     String fieldName = field.getInternalName();
-                    Object value = state.get(fieldName);
+                    Object value = state.getRawValue(fieldName);
 
                     if (value instanceof String) {
                         state.put(fieldName, PUBLISHABLES.getUnchecked((String) value));
