@@ -432,6 +432,36 @@ public class ToolPageContext extends WebPageContext {
         return newArray;
     }
 
+    public String toolPath(Tool tool, String path, Object... parameters) {
+        String toolPath = null;
+        String appName = tool.getApplicationName();
+
+        if (appName != null) {
+            toolPath = RoutingFilter.Static.getApplicationPath(appName);
+
+        } else {
+            for (Map.Entry<String, Tool> entry : getEmbeddedTools().entrySet()) {
+                if (entry.getValue().equals(tool)) {
+                    toolPath = entry.getKey();
+                    break;
+                }
+            }
+
+            if (toolPath == null) {
+                throw new IllegalStateException(String.format(
+                        "Can't find tool path for [%s]", tool.getName()));
+            }
+        }
+
+        toolPath = toolPath + StringUtils.ensureStart(path, "/");
+
+        return StringUtils.addQueryParameters(toolPath, parameters);
+    }
+
+    public String toolPath(Class<? extends Tool> toolClass, String path, Object... parameters) {
+        return toolPath(getToolByClass(toolClass), path, parameters);
+    }
+
     /**
      * Returns an absolute version of the given {@code path} in context
      * of the given {@code tool}, modified by the given {@code parameters}.
@@ -2150,8 +2180,8 @@ public class ToolPageContext extends WebPageContext {
         return true;
     }
 
-    private void includeFromCms(String url, Object... attributes) throws IOException, ServletException {
-        JspUtils.include(getRequest(), getResponse(), getWriter(), cmsUrl(url), attributes);
+    private void includeFromCms(String path, Object... attributes) throws IOException, ServletException {
+        JspUtils.include(getRequest(), getResponse(), getWriter(), toolPath(CmsTool.class, path), attributes);
     }
 
     /**
