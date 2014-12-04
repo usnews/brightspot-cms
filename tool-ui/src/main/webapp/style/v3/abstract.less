@@ -865,6 +865,10 @@ ul.links {
     border-bottom: @-length-border solid darken(white, 10%);
     padding: @-length-paddingTop 0 (@-length-height - @-length-paddingTop) 0;
 
+    &:last-child {
+      border-bottom-style: none;
+    }
+
     > .link {
       display: block;
       margin: (0 - @-length-paddingTop) 0 (0 - @-length-height + @-length-paddingTop) 0;
