@@ -44,6 +44,7 @@
   box-shadow: 0 0 10px fade(black, 20%);
   height: @length-toolHeader-height;
   left: 0;
+  margin-bottom: 20px;
   position: fixed;
   top: 0;
   width: 100%;
@@ -56,12 +57,12 @@
   font-size: @-height;
   font-weight: bold;
   height: @-height;
-  left: 20px;
+  left: 55px;
   line-height: @-height;
   position: absolute;
   text-transform: uppercase;
   top: ((@length-toolHeader-height - @-height) / 2);
-  width: @length-toolTitle-width;
+  width: (@length-toolTitle-width - 35px);
 
   .link {
     color: @color-text;
@@ -214,120 +215,77 @@
   width: (@length-toolTitle-width + 21);
 }
 
+.toolNavToggle {
+  &:extend(.button all);
+
+  .icon;
+  .icon-reorder;
+
+  @-size: @length-inputHeight;
+
+  height: @-size;
+  left: 20px;
+  padding: 0;
+  position: absolute;
+  text-align: center;
+  top: ((@length-toolHeader-height - @-size) / 2);
+  user-select: none;
+  width: @-size;
+
+  &:before {
+    line-height: @-size;
+    padding: 0;
+  }
+}
+
 .toolNav {
-  font-weight: 700;
-  left: (@length-toolTitle-width + @length-searchControlsWidth + 80);
+  border-top: 2px solid @color-separator;
+  display: none;
+  left: 0;
   list-style-type: none;
   margin: 0;
-  position: absolute;
-  transition: left @time-fast;
-  top: ((@length-toolHeader-height - @length-tabHeight) / 2);
+  overflow: hidden;
+  padding: 20px 50px 30px 40px;
+  position: fixed;
+  top: (@length-toolHeader-height - 1px);
+  width: 100%;
+
+  &:before {
+    background-color: white;
+    bottom: 10px;
+    box-shadow: 0 0 10px fade(black, 20%);
+    content: '';
+    left: 0;
+    position: absolute;
+    right: 10px;
+    top: 0;
+    z-index: -1;
+  }
 
   > li {
-    @length-border: 1px;
-    @length-height: 36px;
-
-    border-color: transparent;
-    border-radius: 2px;
-    border-style: solid;
-    border-width: @length-border;
     float: left;
-    margin: 0;
-    padding: ((@length-height - @length-lineHeight - @length-border) / 2) 20px;
-    position: relative;
+    margin-right: 60px;
+
+    &:last-child {
+      margin-right: 0;
+    }
 
     > .link {
-      color: @color-text;
-      display: block;
-      font-weight: bold;
+      &:extend(h2 all);
 
-      &:hover {
-        text-decoration: none;
-      }
+      color: @color-text;
     }
 
     > ul {
-      background: white;
-      border: 1px solid @color-focus;
-      border-bottom-left-radius: 2px;
-      border-bottom-right-radius: 2px;
-      border-top-right-radius: 2px;
-      box-shadow: 0 0px 5px fade(black, 10%);
-      display: none;
-      left: -1px;
-      list-style-type: none;
+      &:extend(ul.links all);
+
       margin: 0;
-      padding: 10px 0;
-      position: absolute;
-      top: (@length-height - 1);
-      z-index: 200;
-
-      > li {
-        line-height: 30px;
-
-        > .link {
-          color: @color-text;
-          display: block;
-          padding: 2px 20px;
-          white-space: nowrap;
-
-          &:hover {
-            background-color: #d7f0f8;
-            text-decoration: none;
-          }
-        }
-
-        &.selected {
-          > .link {
-            .background-flat(@color-link-dark);
-
-            .link {
-              color: white;
-            }
-          }
-        }
-      }
-    }
-
-    &.isNested {
-      &:hover > .link {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-      }
-    }
-
-    &.selected {
-      > .link {
-        color: @color-text;
-        position: relative;
-      }
-    }
-
-    &:hover {
-      border-color: @color-focus;
-      box-shadow: 0 0px 5px fade(black, 10%);
-
-      &:after {
-        background: white;
-        bottom: -1px;
-        content: '';
-        left: 0;
-        height: 5px;
-        position: absolute;
-        right: 0;
-        z-index: 201;
-      }
-
-      > ul {
-        display: block;
-      }
     }
   }
 }
 
 .toolContent {
   background: darken(white, 20%);
-  box-shadow: 0 0 10px fade(black, 20%);
   margin: (0 - @length-toolHeader-height) -20px 0 -20px;
   padding: (@length-toolHeader-height + 20px) 20px 20px 20px;
   position: relative;
