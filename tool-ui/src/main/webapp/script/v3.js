@@ -627,6 +627,30 @@ function() {
     $(document.body).removeClass('toolSearchOpen');
   });
 
+  $doc.on('open', '.popup[data-popup-source-class~="objectId-select"]', function(event) {
+    var $popup = $(event.target);
+    var $input = $popup.popup('source');
+    var $container = $input;
+    var labels = '';
+
+    while (true) {
+      $container = $container.parent().closest('.inputContainer');
+
+      if ($container.length > 0) {
+        labels = $container.find('> .inputLabel > label').text() + (labels ? ' \u2192 ' + labels : '');
+
+      } else {
+        break;
+      }
+    }
+
+    $popup.find('> .content > .frame > h1').text(
+        'Select ' +
+        labels +
+        ' for ' +
+        $input.closest('.contentForm').attr('data-o-label'));
+  });
+
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
     $(event.target).popup('source').closest('.popup, .toolContent').addClass('under');
     $win.resize();
