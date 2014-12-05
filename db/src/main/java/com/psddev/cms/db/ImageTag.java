@@ -927,8 +927,12 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
 
                     Integer standardWidth = standardImageSize.getWidth();
                     Integer standardHeight = standardImageSize.getHeight();
-                    if (standardWidth <= 0) { standardWidth = null; }
-                    if (standardHeight <= 0) { standardHeight = null; }
+                    if (standardWidth <= 0) {
+                        standardWidth = null;
+                    }
+                    if (standardHeight <= 0) {
+                        standardHeight = null;
+                    }
 
                     Double standardAspectRatio = null;
                     if (standardWidth != null && standardHeight != null) {
