@@ -790,12 +790,6 @@ public class CmsTool extends Tool {
 
         urls.getUpdateDependencies().add(template);
 
-        // Content bottom widgets.
-        double bottomColumn = 0.0;
-        double bottomRow = 0.0;
-
-        plugins.add(createJspWidget("Search Engine Optimization", "seo", "/WEB-INF/widget/seo.jsp", CONTENT_BOTTOM_WIDGET_POSITION, bottomColumn, bottomRow ++));
-
         // Dynamic dashboards
         for (Dashboard dashboard : Query.from(Dashboard.class).iterable(0)) {
             String dashboardName = dashboard.as(Dashboard.Data.class).getName();
@@ -826,6 +820,7 @@ public class CmsTool extends Tool {
                 }
             }
         }
+
         return plugins;
     }
 

@@ -3,6 +3,7 @@ package com.psddev.cms.tool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -38,6 +39,8 @@ import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.ContentField;
+import com.psddev.cms.db.ContentType;
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.History;
 import com.psddev.cms.db.ImageTag;
@@ -79,6 +82,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.HtmlWriter;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -2185,12 +2189,188 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
+     * Writes some form fields for the given {@code object}.
+     *
+     * @param object Can't be {@code null}.
+     * @param includeFields {@code null} to include all fields.
+     * @param excludeFields {@code null} to exclude no fields.
+     */
+    public void writeSomeFormFields(
+            Object object,
+            Collection<String> includeFields,
+            Collection<String> excludeFields)
+            throws IOException, ServletException {
+
+        State state = State.getInstance(object);
+        ObjectType type = state.getType();
+        List<ObjectField> fields = new ArrayList<>();
+
+        if (type != null) {
+            fields.addAll(type.getFields());
+        }
+
+        if (!fields.isEmpty()) {
+            for (ObjectField field : state.getDatabase().getEnvironment().getFields()) {
+                if (Boolean.FALSE.equals(field.getState().get("cms.ui.hidden"))) {
+                    fields.add(field);
+                }
+            }
+        }
+
+        HttpServletRequest request = getRequest();
+        Object oldContainer = request.getAttribute("containerObject");
+
+        try {
+            if (oldContainer == null) {
+                request.setAttribute("containerObject", object);
+            }
+
+            writeStart("div",
+                    "class", "objectInputs",
+                    "data-type", type != null ? type.getInternalName() : null,
+                    "data-id", state.getId(),
+                    "data-object-id", state.getId(),
+                    "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }");
+
+                Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
+
+                if (original != null) {
+                    Date updateDate = State.getInstance(original).as(Content.ObjectModification.class).getUpdateDate();
+
+                    if (updateDate != null) {
+                        writeElement("input",
+                                "type", "hidden",
+                                "name", state.getId() + "/_updateDate",
+                                "value", updateDate.getTime());
+                    }
+                }
+
+                if (type != null) {
+                    String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
+
+                    if (!ObjectUtils.isBlank(noteHtml)) {
+                        write("<div class=\"message message-info\">");
+                        write(noteHtml);
+                        write("</div>");
+                    }
+                }
+
+                if (object instanceof Query) {
+                    writeStart("div", "class", "queryField");
+                        writeElement("input",
+                                "type", "text",
+                                "name", state.getId() + "/_query",
+                                "value", ObjectUtils.toJson(state.getSimpleValues()));
+                    writeEnd();
+
+                } else if (!fields.isEmpty()) {
+                    ContentType ct = type != null ? Query.from(ContentType.class).where("internalName = ?", type.getInternalName()).first() : null;
+
+                    if (ct != null) {
+                        List<ObjectField> firsts = new ArrayList<ObjectField>();
+
+                        for (ContentField cf : ct.getFields()) {
+                            for (Iterator<ObjectField> i = fields.iterator(); i.hasNext();) {
+                                ObjectField field = i.next();
+
+                                if (field.getInternalName().equals(cf.getInternalName())) {
+                                    firsts.add(field);
+                                    i.remove();
+                                    break;
+                                }
+                            }
+                        }
+
+                        fields.addAll(0, firsts);
+
+                    } else {
+                        List<ObjectField> firsts = new ArrayList<ObjectField>();
+                        List<ObjectField> lasts = new ArrayList<ObjectField>();
+
+                        for (Iterator<ObjectField> i = fields.iterator(); i.hasNext();) {
+                            ObjectField field = i.next();
+                            ToolUi ui = field.as(ToolUi.class);
+
+                            if (ui.isDisplayFirst()) {
+                                firsts.add(field);
+                                i.remove();
+
+                            } else if (ui.isDisplayLast()) {
+                                lasts.add(field);
+                                i.remove();
+                            }
+                        }
+
+                        fields.addAll(0, firsts);
+                        fields.addAll(lasts);
+                    }
+
+                    boolean draftCheck = false;
+
+                    try {
+                        if (request.getAttribute("firstDraft") == null) {
+                            draftCheck = true;
+
+                            request.setAttribute("firstDraft", state.isNew());
+                            request.setAttribute("finalDraft", !state.isNew() &&
+                                    !state.as(Content.ObjectModification.class).isDraft() &&
+                                    state.as(Workflow.Data.class).getCurrentState() == null &&
+                                    getOverlaidDraft(object) == null);
+                        }
+
+                        for (ObjectField field : fields) {
+                            String name = field.getInternalName();
+
+                            if ((includeFields == null ||
+                                    includeFields.contains(name)) &&
+                                    (excludeFields == null ||
+                                    !excludeFields.contains(name))) {
+
+                                renderField(object, field);
+                            }
+                        }
+
+                    } finally {
+                        if (draftCheck) {
+                            request.setAttribute("firstDraft", null);
+                            request.setAttribute("finalDraft", null);
+                        }
+                    }
+
+                } else {
+                    writeStart("div", "class", "inputContainer");
+                        writeStart("div", "class", "inputLabel");
+                            writeStart("label", "for", createId());
+                                writeHtml("Data");
+                            writeEnd();
+                        writeEnd();
+
+                        writeStart("div", "class", "inputSmall");
+                            writeStart("textarea",
+                                    "data-code-type", "text/json",
+                                    "id", getId(),
+                                    "name", "data");
+                                writeHtml(ObjectUtils.toJson(state.getSimpleValues(), true));
+                            writeEnd();
+                        writeEnd();
+                    writeEnd();
+                }
+            writeEnd();
+
+        } finally {
+            if (oldContainer == null) {
+                request.setAttribute("containerObject", null);
+            }
+        }
+    }
+
+    /**
      * Writes all form fields for the given {@code object}.
      *
      * @param object Can't be {@code null}.
      */
     public void writeFormFields(Object object) throws IOException, ServletException {
-        includeFromCms("/WEB-INF/objectForm.jsp", "object", object);
+        writeSomeFormFields(object, null, null);
     }
 
     /**
