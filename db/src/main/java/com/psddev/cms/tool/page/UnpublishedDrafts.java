@@ -37,6 +37,10 @@ public class UnpublishedDrafts extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
         Map<String, String> workflowStateLabels = new TreeMap<String, String>();
 

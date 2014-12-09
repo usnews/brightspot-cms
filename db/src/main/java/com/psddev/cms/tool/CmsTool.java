@@ -74,6 +74,9 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private List<CommonTime> commonTimes;
 
+    @ToolUi.Tab("Defaults")
+    private CmsDashboard defaultDashboard;
+
     @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
     private String defaultTextOverlayCss;
@@ -456,6 +459,14 @@ public class CmsTool extends Tool {
             commonTimes = new ArrayList<CommonTime>();
         }
         return commonTimes;
+    }
+
+    public CmsDashboard getDefaultDashboard() {
+        return defaultDashboard;
+    }
+
+    public void setDefaultDashboard(CmsDashboard defaultDashboard) {
+        this.defaultDashboard = defaultDashboard;
     }
 
     public void setCommonTimes(List<CommonTime> commonTimes) {

@@ -59,6 +59,10 @@ public class UploadFiles extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
         Exception postError = null;
         ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
@@ -395,7 +399,7 @@ public class UploadFiles extends PageServlet {
         page.writeEnd();
     }
 
-    private ObjectField getPreviewField(ObjectType type) {
+    private static ObjectField getPreviewField(ObjectType type) {
         ObjectField previewField = type.getField(type.getPreviewField());
 
         if (previewField == null) {
