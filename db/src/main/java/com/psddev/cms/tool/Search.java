@@ -3,6 +3,7 @@ package com.psddev.cms.tool;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -26,6 +27,7 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.dari.db.CompoundPredicate;
@@ -41,10 +43,12 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Singleton;
 import com.psddev.dari.db.Sorter;
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.HuslColorSpace;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.UuidUtils;
 
 public class Search extends Record {
@@ -979,6 +983,83 @@ public class Search extends Record {
                 }
             }
         }
+    }
+
+    /**
+     * @param page Can't be {@code null}.
+     * @param itemWriter May be {@code null}.
+     * @throws IOException if unable to write to the given {@code page}.
+     */
+    public void writeResultHtml(SearchResultItem itemWriter) throws IOException {
+        List<SearchResultView> views = new ArrayList<>();
+
+        for (Class<? extends SearchResultView> viewClass : ClassFinder.Static.findClasses(SearchResultView.class)) {
+            if (!viewClass.isInterface() && !Modifier.isAbstract(viewClass.getModifiers())) {
+                SearchResultView view = TypeDefinition.getInstance(viewClass).newInstance();
+
+                if (view.isSupported(this)) {
+                    views.add(view);
+                }
+            }
+        }
+
+        String selectedViewClassName = page.param(String.class, "view");
+        ToolUser user = page.getUser();
+
+        if (user != null) {
+            Map<String, String> userViews = user.getSearchViews();
+            ObjectType selectedType = getSelectedType();
+            String userViewKey = selectedType != null ? selectedType.getId().toString() : "";
+            String userViewClassName = userViews.get(userViewKey);
+
+            if (selectedViewClassName == null) {
+                selectedViewClassName = userViewClassName;
+
+            } else if (!ObjectUtils.equals(userViewClassName, selectedViewClassName)) {
+                userViews.put(userViewKey, selectedViewClassName);
+                user.save();
+            }
+        }
+
+        SearchResultView selectedView = null;
+
+        for (SearchResultView view : views) {
+            if (view.getClass().getName().equals(selectedViewClassName)) {
+                selectedView = view;
+                break;
+            }
+        }
+
+        if (selectedView == null) {
+            for (SearchResultView view : views) {
+                if (view.isPreferred(this)) {
+                    selectedView = view;
+                    break;
+                }
+            }
+        }
+
+        if (selectedView == null) {
+            selectedView = new ListSearchResultView();
+        }
+
+        page.writeStart("div", "class", "search-result");
+            page.writeStart("div", "class", "search-views");
+                page.writeStart("ul", "class", "piped");
+                    for (SearchResultView view : views) {
+                        page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
+                            page.writeStart("a",
+                                    "class", "icon icon-" + view.getIconName(),
+                                    "href", page.url("", "view", view.getClass().getName()));
+                                page.writeHtml(view.getDisplayName());
+                            page.writeEnd();
+                        page.writeEnd();
+                    }
+                page.writeEnd();
+            page.writeEnd();
+
+            selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+        page.writeEnd();
     }
 
     /** @deprecated Use {@link #toQuery(Site)} instead. */

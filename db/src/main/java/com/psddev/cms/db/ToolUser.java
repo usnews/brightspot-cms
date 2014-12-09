@@ -27,8 +27,8 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
-import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -132,6 +132,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Advanced")
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
+
+    @ToolUi.Hidden
+    private Map<String, String> searchViews;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -643,6 +646,17 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public Map<String, String> getSearchViews() {
+        if (searchViews == null) {
+            searchViews = new CompactMap<>();
+        }
+        return searchViews;
+    }
+
+    public void setSearchViews(Map<String, String> searchViews) {
+        this.searchViews = searchViews;
     }
 
     public void updatePassword(Password password) {
