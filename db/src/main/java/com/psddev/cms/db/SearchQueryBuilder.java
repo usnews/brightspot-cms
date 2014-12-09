@@ -409,7 +409,8 @@ public class SearchQueryBuilder extends Record {
                     }
                 }
             }
-            queryTerms = new ArrayList<String>(newTerms);
+            queryTerms.clear();
+            queryTerms.addAll(new ArrayList<String>(newTerms));
         }
 
         public static class Synonym extends Record {
