@@ -212,6 +212,32 @@ public class SearchQueryBuilder extends Record {
         return normalized;
     }
 
+    public Query toQuery(Site site, Object... terms) {
+        List<String> queryTerms = normalizeTerms(terms);
+        Query query = Query.from(Object.class);
+
+        if (site != null) {
+            query.and(site.itemsPredicate());
+        }
+
+        for (Rule rule : getRules()) {
+            rule.apply(this, query, queryTerms);
+        }
+
+        if (!queryTerms.isEmpty()) {
+            query.and("_any matchesAny ?", queryTerms);
+        }
+
+        Set<ObjectType> allTypes = new HashSet<ObjectType>();
+        for (ObjectType type : getTypes()) {
+            allTypes.addAll(type.as(ToolUi.class).findDisplayTypes());
+        }
+        query.and("_type = ?", allTypes);
+
+        return query;
+    }
+
+    @Deprecated
     public Query toQuery(Object... terms) {
         List<String> queryTerms = normalizeTerms(terms);
         Query query = Query.from(Object.class);
