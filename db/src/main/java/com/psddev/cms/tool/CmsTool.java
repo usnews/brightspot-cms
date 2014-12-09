@@ -812,15 +812,17 @@ public class CmsTool extends Tool {
             List<? extends DashboardWidget> widgets = dashboard.getWidgets();
             if (widgets != null) {
                 for (DashboardWidget widget : widgets) {
-                    UUID dashboardId = dashboard.getState().getId();
-                    UUID widgetId = widget.getState().getId();
-                    String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
-                    String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
-                    String widgetUrl = "/dashboardWidget/" + dashboardId + "/" + widgetId;
-                    double rowNum = Math.floor(i / dashboardNumOfColumns);
-                    double columnNum = (i ++ % dashboardNumOfColumns);
+                    if (widget != null) {
+                        UUID dashboardId = dashboard.getState().getId();
+                        UUID widgetId = widget.getState().getId();
+                        String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
+                        String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
+                        String widgetUrl = "/dashboardWidget/" + dashboardId + "/" + widgetId;
+                        double rowNum = Math.floor(i / dashboardNumOfColumns);
+                        double columnNum = (i ++ % dashboardNumOfColumns);
 
-                    plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                        plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                    }
                 }
             }
         }
