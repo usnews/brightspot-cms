@@ -11,6 +11,7 @@ import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -203,10 +204,14 @@ public class SearchQueryBuilder extends Record {
 
                         String word = termString.substring(lastEnd, end);
                         lastEnd = i;
-                        normalized.add(word);
+                        if (!StringUtils.isBlank(word)) {
+                            normalized.add(word);
+                        }
                     }
                 }
-                normalized.add(termString.substring(lastEnd));
+                if (!StringUtils.isBlank(termString.substring(lastEnd))) {
+                    normalized.add(termString.substring(lastEnd));
+                }
             }
         }
         return normalized;
