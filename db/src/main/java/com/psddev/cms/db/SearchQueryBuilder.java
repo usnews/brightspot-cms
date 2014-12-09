@@ -300,21 +300,22 @@ public class SearchQueryBuilder extends Record {
 
         public void apply(SearchQueryBuilder queryBuilder, Query query, List<String> queryTerms) {
             Set<String> stopWords = getStopWords();
-            List<String> updatedQueryTerms = new ArrayList<String>();
+            List<String> removeQueryTerms = new ArrayList<String>();
 
             if (ObjectUtils.isBlank(queryTerms)) {
                 return;
             }
 
-            for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext();) {
+            for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext(); ) {
                 String term = qt.next();
-                for (Iterator<String> sw = stopWords.iterator(); sw.hasNext();) {
-                    if (!term.equals(sw.next())) {
-                        updatedQueryTerms.add(term);
+                for (Iterator<String> sw = stopWords.iterator(); sw.hasNext(); ) {
+                    String stopWordString = sw.next();
+                    if (term.equals(stopWordString)) {
+                        removeQueryTerms.add(term);
                     }
                 }
             }
-            queryTerms = updatedQueryTerms;
+            queryTerms.removeAll(removeQueryTerms);
         }
     }
 
