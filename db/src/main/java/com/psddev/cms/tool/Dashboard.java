@@ -55,7 +55,8 @@ public interface Dashboard extends Recordable {
                 for (Object widgetObj : widgets) {
                     if (widgetObj instanceof DashboardWidget && ObjectUtils.isBlank(((DashboardWidget) widgetObj).as(DashboardWidget.Data.class).getName()) && !ObjectUtils.isBlank(((DashboardWidget) widgetObj).getState().getLabel())) {
                         DashboardWidget widget = (DashboardWidget) widgetObj;
-                        String originalName = StringUtils.toCamelCase(widget.getState().getLabel()).replaceAll("[^A-Za-z0-9]", "");
+                        String widgetLabel = widget.getState().getLabel().replaceAll("[^A-Za-z0-9]", "");
+                        String originalName = StringUtils.toCamelCase(!StringUtils.isBlank(widgetLabel) ? widgetLabel : widget.getState().getId().toString());
                         widget.as(DashboardWidget.Data.class).setName(originalName);
                         int i = 0;
                         for (Object otherWidgetObj : widgets) {
