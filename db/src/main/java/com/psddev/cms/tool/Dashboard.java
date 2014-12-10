@@ -52,15 +52,18 @@ public interface Dashboard extends Recordable {
             List<? extends DashboardWidget> widgets = getOriginalObject().getWidgets();
 
             if (widgets != null) {
-                for (DashboardWidget widget : widgets) {
-                    if (widget != null && ObjectUtils.isBlank(widget.as(DashboardWidget.Data.class).getName()) && !ObjectUtils.isBlank(widget.getState().getLabel())) {
+                for (Object widgetObj : widgets) {
+                    if (widgetObj instanceof DashboardWidget && ObjectUtils.isBlank(((DashboardWidget) widgetObj).as(DashboardWidget.Data.class).getName()) && !ObjectUtils.isBlank(((DashboardWidget) widgetObj).getState().getLabel())) {
+                        DashboardWidget widget = (DashboardWidget) widgetObj;
                         String originalName = StringUtils.toCamelCase(widget.getState().getLabel()).replaceAll("[^A-Za-z0-9]", "");
                         widget.as(DashboardWidget.Data.class).setName(originalName);
                         int i = 0;
-                        for (DashboardWidget otherWidget : widgets) {
-                            if (widget.equals(otherWidget)) {
+                        for (Object otherWidgetObj : widgets) {
+                            if (widget.equals(otherWidgetObj) || !(otherWidgetObj instanceof DashboardWidget)) {
                                 continue;
                             }
+                            DashboardWidget otherWidget = (DashboardWidget) otherWidgetObj;
+
                             if (widget.as(DashboardWidget.Data.class).getName().equals(otherWidget.as(DashboardWidget.Data.class).getName())) {
                                 widget.as(DashboardWidget.Data.class).setName(originalName + (++i));
                                 ObjectType widgetType = ObjectType.getInstance(widget.getClass());
