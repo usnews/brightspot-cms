@@ -20,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
+import com.psddev.cms.tool.CmsDashboard;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -55,6 +56,8 @@ public class ToolUser extends Record implements ToolEntity {
     private String password;
 
     private StorageItem avatar;
+
+    private CmsDashboard dashboard;
 
     @ToolUi.Hidden
     private Date passwordChangedDate;
@@ -192,6 +195,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setAvatar(StorageItem avatar) {
         this.avatar = avatar;
+    }
+
+    public CmsDashboard getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(CmsDashboard dashboard) {
+        this.dashboard = dashboard;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.psddev.cms.db;
 
+import com.psddev.cms.tool.CmsDashboard;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
@@ -15,6 +16,8 @@ public class ToolRole extends Record implements ToolEntity {
 
     @ToolUi.FieldDisplayType("permissions")
     private String permissions;
+
+    private CmsDashboard dashboard;
 
     private transient SparseSet permissionsCache;
 
@@ -37,6 +40,14 @@ public class ToolRole extends Record implements ToolEntity {
     public void setPermissions(String permissions) {
         this.permissions = permissions;
         this.permissionsCache = null;
+    }
+
+    public CmsDashboard getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(CmsDashboard dashboard) {
+        this.dashboard = dashboard;
     }
 
     /**
