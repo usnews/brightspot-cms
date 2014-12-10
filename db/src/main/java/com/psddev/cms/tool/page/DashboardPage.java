@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -67,7 +66,6 @@ public class DashboardPage extends PageServlet {
             String dashboardName = p.length > 0 ? p[0] : null;
             dashboard = dashboardName != null ? Query.from(Dashboard.class).where("cms.dashboard.name = ?", dashboardName).first() : null;
         }
-
 
         if (dashboard == null) {
             page.redirect("/", "reason", "no-object");
