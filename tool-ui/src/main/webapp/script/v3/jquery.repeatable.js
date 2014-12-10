@@ -146,16 +146,9 @@ The HTML within the repeatable element must conform to these standards:
             /**
              * Default options
              */
-            defaults: {
-                addButtonText: 'Add',
-                removeButtonText: 'Remove',
-                restoreButtonText: 'Restore',
-                sortableOptions: {
-                    delay: 300
-                }
-            },
+            defaults: repeatableDefaults,
 
-            
+                
             /**
              * Initialize the object and set up the user interface.
              *
