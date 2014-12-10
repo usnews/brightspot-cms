@@ -1,7 +1,15 @@
+.search-result {
+  padding-right: 240px;
+}
+
 .search-views {
   .piped {
     margin-bottom: 10px;
   }
+}
+
+.search-view {
+  position: relative;
 }
 
 .search-fields {
@@ -10,6 +18,29 @@
 
   .link {
     &:extend(.select all);
+  }
+}
+
+.search-pagination {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.search-actions {
+  border-left: 2px solid @color-separator;
+  box-sizing: border-box;
+  overflow: auto;
+  padding-left: 19px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 221px;
+
+  .action-cancel {
+    left: 88px;
+    position: absolute;
+    top: 0;
   }
 }
 

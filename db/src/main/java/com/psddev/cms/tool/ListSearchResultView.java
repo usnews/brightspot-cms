@@ -148,7 +148,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
     }
 
     protected void writeImageHtml(Object item, StorageItem image) throws IOException {
-        itemWriter.writeBeforeHtml(page, item);
+        itemWriter.writeBeforeHtml(page, search, item);
 
         page.writeStart("figure");
             page.writeElement("img",
@@ -172,7 +172,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
             page.writeEnd();
         page.writeEnd();
 
-        itemWriter.writeAfterHtml(page, item);
+        itemWriter.writeAfterHtml(page, search, item);
     }
 
     protected void writeTableRowHtml(Object item) throws IOException {
@@ -201,6 +201,10 @@ public class ListSearchResultView extends AbstractSearchResultView {
                 "data-preview-url", permalink,
                 "data-preview-embed-width", embedWidth,
                 "class", State.getInstance(item).getId().equals(page.param(UUID.class, "id")) ? "selected" : null);
+
+            page.writeStart("td");
+                itemWriter.writeCheckboxHtml(page, search, item);
+            page.writeEnd();
 
             if (sortField != null &&
                     ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
@@ -241,9 +245,9 @@ public class ListSearchResultView extends AbstractSearchResultView {
             }
 
             page.writeStart("td", "data-preview-anchor", "");
-                itemWriter.writeBeforeHtml(page, item);
+                itemWriter.writeBeforeHtml(page, search, item);
                 page.writeObjectLabel(item);
-                itemWriter.writeAfterHtml(page, item);
+                itemWriter.writeAfterHtml(page, search, item);
             page.writeEnd();
 
             if (sortField != null &&

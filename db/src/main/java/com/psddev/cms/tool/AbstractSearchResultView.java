@@ -182,7 +182,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     protected void writePaginationHtml(PaginatedResult<?> result) throws IOException {
-        page.writeStart("div", "class", "searchPagination");
+        page.writeStart("div", "class", "search-pagination");
             page.writeStart("ul", "class", "pagination");
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");

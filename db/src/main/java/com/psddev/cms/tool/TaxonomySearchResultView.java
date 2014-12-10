@@ -83,7 +83,7 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
                             for (Taxon item : items) {
                                 page.writeStart("li");
                                     if (item.as(Taxon.Data.class).isSelectable()) {
-                                        itemWriter.writeBeforeHtml(page, item);
+                                        itemWriter.writeBeforeHtml(page, search, item);
                                     }
 
                                     String altLabel = item.as(Taxon.Data.class).getAltLabel();
@@ -105,7 +105,7 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
                                     }
 
                                     if (item.as(Taxon.Data.class).isSelectable()) {
-                                        itemWriter.writeAfterHtml(page, item);
+                                        itemWriter.writeAfterHtml(page, search, item);
                                     }
 
                                     Collection<? extends Taxon> children = Taxon.Static.getChildren(item, predicate);

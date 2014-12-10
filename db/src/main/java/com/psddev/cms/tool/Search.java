@@ -1058,7 +1058,16 @@ public class Search extends Record {
                 page.writeEnd();
             page.writeEnd();
 
-            selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+            page.writeStart("div", "class", "search-view");
+                selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+            page.writeEnd();
+
+            page.writeStart("div", "class", "frame search-actions", "name", "searchResultActions");
+                page.writeStart("a",
+                        "href", page.toolUrl(CmsTool.class, "/searchResultActions",
+                                "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                page.writeEnd();
+            page.writeEnd();
         page.writeEnd();
     }
 

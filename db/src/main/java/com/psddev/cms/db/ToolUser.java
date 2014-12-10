@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -133,6 +134,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Advanced")
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
+
+    @ToolUi.Hidden
+    private SearchResultSelection currentSearchResultSelection;
 
     @ToolUi.Hidden
     private Map<String, String> searchViews;
@@ -650,6 +654,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public SearchResultSelection getCurrentSearchResultSelection() {
+        return currentSearchResultSelection;
+    }
+
+    public void setCurrentSearchResultSelection(SearchResultSelection currentSearchResultSelection) {
+        this.currentSearchResultSelection = currentSearchResultSelection;
     }
 
     public Map<String, String> getSearchViews() {
