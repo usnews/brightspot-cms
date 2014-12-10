@@ -97,9 +97,9 @@ public interface Dashboard extends Recordable {
 
         public DashboardWidget getWidgetById(UUID widgetId) {
             if (widgetId != null) {
-                for (DashboardWidget widget : getOriginalObject().getWidgets()) {
-                    if (widget != null && widgetId.equals(widget.getState().getId())) {
-                        return widget;
+                for (Object widgetObj : getOriginalObject().getWidgets()) {
+                    if (widgetObj instanceof DashboardWidget && widgetId.equals(((DashboardWidget) widgetObj).getState().getId())) {
+                        return (DashboardWidget) widgetObj;
                     }
                 }
             }

@@ -805,8 +805,9 @@ public class CmsTool extends Tool {
             int i = 0;
             List<? extends DashboardWidget> widgets = dashboard.getWidgets();
             if (widgets != null) {
-                for (DashboardWidget widget : widgets) {
-                    if (widget != null) {
+                for (Object widgetObj : widgets) {
+                    if (widgetObj instanceof DashboardWidget) {
+                        DashboardWidget widget = (DashboardWidget) widgetObj;
                         UUID dashboardId = dashboard.getState().getId();
                         UUID widgetId = widget.getState().getId();
                         String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
