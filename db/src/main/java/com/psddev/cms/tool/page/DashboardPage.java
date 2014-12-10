@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.DefaultCmsDashboard;
 import com.psddev.cms.tool.JspWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.PageWidget;
@@ -60,6 +61,10 @@ public class DashboardPage extends PageServlet {
 
             if (dashboard == null) {
                 dashboard = page.getCmsTool().getDefaultDashboard();
+            }
+
+            if (dashboard == null) {
+                dashboard = Query.from(DefaultCmsDashboard.class).first();
             }
         } else {
             String[] p = StringUtils.removeStart(pathInfo, "/").split("/");
