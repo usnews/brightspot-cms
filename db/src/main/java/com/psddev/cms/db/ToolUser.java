@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +136,9 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Hidden
     private Map<String, String> searchViews;
+
+    @ToolUi.Hidden
+    private Map<String, List<String>> searchResultFieldsByTypeId;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -657,6 +661,17 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setSearchViews(Map<String, String> searchViews) {
         this.searchViews = searchViews;
+    }
+
+    public Map<String, List<String>> getSearchResultFieldsByTypeId() {
+        if (searchResultFieldsByTypeId == null) {
+            searchResultFieldsByTypeId = new CompactMap<>();
+        }
+        return searchResultFieldsByTypeId;
+    }
+
+    public void setSearchResultFieldsByTypeId(Map<String, List<String>> searchResultFieldsByTypeId) {
+        this.searchResultFieldsByTypeId = searchResultFieldsByTypeId;
     }
 
     public void updatePassword(Password password) {

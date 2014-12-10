@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -50,6 +51,25 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     protected abstract void doWriteHtml() throws IOException;
+
+    protected void writeFieldsHtml() throws IOException {
+        ObjectType type = search.getSelectedType();
+        ToolUser user = page.getUser();
+
+        page.writeStart("div", "class", "search-fields");
+            page.writeStart("a",
+                    "target", "searchResultFields",
+                    "href", page.toolUrl(CmsTool.class, "/searchResultFields",
+                            "typeId", type != null ? type.getId() : null));
+
+                page.writeHtml("Fields: ");
+                page.writeHtml(user != null &&
+                        user.getSearchResultFieldsByTypeId().get(type != null ? type.getId().toString() : "") != null ?
+                        "Custom" :
+                        "Default");
+            page.writeEnd();
+        page.writeEnd();
+    }
 
     protected ObjectField updateSort() {
         ObjectType selectedType = search.getSelectedType();

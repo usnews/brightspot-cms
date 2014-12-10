@@ -1,6 +1,7 @@
 package com.psddev.cms.tool;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.MetricInterval;
@@ -25,10 +27,12 @@ import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.TypeDefinition;
 
 public class ListSearchResultView extends AbstractSearchResultView {
 
@@ -84,6 +88,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
             result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
         }
 
+        writeFieldsHtml();
         writeSortsHtml();
         writePaginationHtml(result);
 
@@ -334,6 +339,45 @@ public class ListSearchResultView extends AbstractSearchResultView {
                         page.writeHtml(value);
                     }
                 page.writeEnd();
+            }
+
+            ToolUser user = page.getUser();
+
+            if (user != null) {
+                ObjectType selectedType = search.getSelectedType();
+                List<String> fieldNames = user.getSearchResultFieldsByTypeId().get(selectedType != null ? selectedType.getId().toString() : "");
+                ObjectType itemType = itemState.getType();
+
+                if (fieldNames == null) {
+                    for (Class<? extends SearchResultField> c : ClassFinder.Static.findClasses(SearchResultField.class)) {
+                        if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
+                            SearchResultField field = TypeDefinition.getInstance(c).newInstance();
+
+                            if (field.isDefault(itemType)) {
+                                field.writeTableDataCellHtml(page, item);
+                            }
+                        }
+                    }
+
+                } else {
+                    for (String fieldName : fieldNames) {
+                        Class<?> fieldNameClass = ObjectUtils.getClassByName(fieldName);
+
+                        if (fieldNameClass != null && SearchResultField.class.isAssignableFrom(fieldNameClass)) {
+                            @SuppressWarnings("unchecked")
+                            SearchResultField field = TypeDefinition.getInstance((Class<? extends SearchResultField>) fieldNameClass).newInstance();
+
+                            if (field.isSupported(itemState.getType())) {
+                                field.writeTableDataCellHtml(page, item);
+                            }
+
+                        } else {
+                            page.writeStart("td");
+                                page.writeHtml(itemState.get(fieldName));
+                            page.writeEnd();
+                        }
+                    }
+                }
             }
         page.writeEnd();
     }
