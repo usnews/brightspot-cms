@@ -1,8 +1,8 @@
 package com.psddev.cms.tool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Modification;
@@ -15,14 +15,30 @@ import com.psddev.dari.util.StringUtils;
 
 public interface Dashboard extends Recordable {
 
-    public List<? extends DashboardWidget> getWidgets();
+    public List<? extends DashboardColumn<? extends DashboardWidget>> getColumns();
+
+    public default List<? extends DashboardWidget> getWidgets() {
+        List<DashboardWidget> widgets = new ArrayList<DashboardWidget>();
+        List<?> columns = getColumns();
+        if (columns != null) {
+            for (Object columnObj : columns) {
+                if (columnObj instanceof DashboardColumn) {
+                    List<?> columnWidgets = ((DashboardColumn<?>) columnObj).getWidgets();
+                    if (columnWidgets != null) {
+                        for (Object widgetObj : columnWidgets) {
+                            if (widgetObj instanceof DashboardWidget) {
+                                widgets.add((DashboardWidget) widgetObj);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return widgets;
+    }
 
     public default String getHierarchicalParent() {
         return "dashboard";
-    }
-
-    public default int getDefaultNumberOfColumns() {
-        return 2;
     }
 
     public default void writeHeaderHtml(ToolPageContext page) throws IOException {
@@ -92,17 +108,17 @@ public interface Dashboard extends Recordable {
         }
 
         public String getName() {
-            return name;
+            return !ObjectUtils.isBlank(name) ? name : getId().toString();
         }
 
         public void setName(String name) {
             this.name = name;
         }
 
-        public DashboardWidget getWidgetById(UUID widgetId) {
-            if (widgetId != null) {
+        public DashboardWidget getWidgetByName(String widgetName) {
+            if (widgetName != null) {
                 for (Object widgetObj : getOriginalObject().getWidgets()) {
-                    if (widgetObj instanceof DashboardWidget && widgetId.equals(((DashboardWidget) widgetObj).getState().getId())) {
+                    if (widgetObj instanceof DashboardWidget && widgetName.equals(((DashboardWidget) widgetObj).getState().as(DashboardWidget.Data.class).getName())) {
                         return (DashboardWidget) widgetObj;
                     }
                 }

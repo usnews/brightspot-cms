@@ -159,12 +159,15 @@ public class DashboardPage extends PageServlet {
                             String name = widget.getInternalName();
                             StringBuilder url = new StringBuilder(page.toolUrl(widget.getTool(), jsp));
 
-                            if (url.toString().contains("?")) {
-                                url.append("&");
-                            } else {
-                                url.append("?");
+                            String queryString = page.getRequest().getQueryString();
+                            if (ObjectUtils.isBlank(queryString)) {
+                                if (url.toString().contains("?")) {
+                                    url.append("&");
+                                } else {
+                                    url.append("?");
+                                }
+                                url.append(queryString);
                             }
-                            url.append(page.getRequest().getQueryString());
 
                             page.writeStart("div",
                                     "class", "dashboardCell" + (collapse != null && collapse.contains(name) ? " dashboardCell-collapse" : ""),

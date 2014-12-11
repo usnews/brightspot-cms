@@ -10,7 +10,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -792,28 +791,35 @@ public class CmsTool extends Tool {
             String dashboardHierarchy = dashboard.getHierarchicalParent() + "/" + dashboardInternalName;
             String dashboardUrl = "/dashboard/" + dashboardName;
             String dashboardWidgetPosition = dashboard.as(Dashboard.Data.class).getWidgetPosition();
-            int dashboardNumOfColumns = dashboard.getDefaultNumberOfColumns();
 
             plugins.add(createArea2(dashboardDisplayName, dashboardInternalName, dashboardHierarchy, dashboardUrl));
 
-            int i = 0;
-            List<? extends DashboardWidget> widgets = dashboard.getWidgets();
-            if (widgets != null) {
-                for (Object widgetObj : widgets) {
-                    if (widgetObj instanceof DashboardWidget) {
-                        DashboardWidget widget = (DashboardWidget) widgetObj;
-                        UUID dashboardId = dashboard.getState().getId();
-                        UUID widgetId = widget.getState().getId();
-                        String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
-                        String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
-                        String widgetUrl = "/dashboardWidget/" + dashboardId + "/" + widgetId;
-                        double rowNum = Math.floor(i / dashboardNumOfColumns);
-                        double columnNum = (i ++ % dashboardNumOfColumns);
-                        if (widget instanceof Content) {
-                            plugins.add(createContentPageWidget(widgetDisplayName, (Content) widget, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
-                        } else {
-                            plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+            List<? extends DashboardColumn<?>> columns = dashboard.getColumns();
+            double columnNum = 0;
+            if (columns != null) {
+                for (Object columnObj : columns) {
+                    if (columnObj instanceof DashboardColumn) {
+                        double rowNum = 0;
+                        DashboardColumn<?> column = (DashboardColumn<?>) columnObj;
+                        List<? extends DashboardWidget> widgets = column.getWidgets();
+                        if (widgets != null) {
+                            for (Object widgetObj : widgets) {
+                                if (widgetObj instanceof DashboardWidget) {
+                                    DashboardWidget widget = (DashboardWidget) widgetObj;
+                                    String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
+                                    String widgetName = widget.as(DashboardWidget.Data.class).getName();
+                                    String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
+                                    String widgetUrl = "/dashboardWidget/" + dashboardName + "/" + widgetName;
+                                    if (widget instanceof Content) {
+                                        plugins.add(createContentPageWidget(widgetDisplayName, (Content) widget, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                                    } else {
+                                        plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                                    }
+                                }
+                                rowNum ++;
+                            }
                         }
+                        columnNum ++;
                     }
                 }
             }

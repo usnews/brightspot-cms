@@ -1,16 +1,17 @@
 package com.psddev.cms.tool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.widgets.CmsWidget;
-
-import java.util.List;
 
 public class CmsDashboard extends Content implements Dashboard {
 
     @Required
     private String title;
 
-    List<CmsWidget> widgets;
+    private List<DashboardColumn<CmsWidget>> columns;
 
     public String getTitle() {
         return title;
@@ -21,11 +22,11 @@ public class CmsDashboard extends Content implements Dashboard {
     }
 
     @Override
-    public List<CmsWidget> getWidgets() {
-        return widgets;
+    public List<DashboardColumn<CmsWidget>> getColumns() {
+        if (columns == null) {
+            columns = new ArrayList<DashboardColumn<CmsWidget>>();
+        }
+        return columns;
     }
 
-    public void setWidgets(List<CmsWidget> widgets) {
-        this.widgets = widgets;
-    }
 }

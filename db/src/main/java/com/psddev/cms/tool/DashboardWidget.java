@@ -2,11 +2,12 @@ package com.psddev.cms.tool;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
+
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Recordable;
-
-import javax.servlet.ServletException;
+import com.psddev.dari.util.ObjectUtils;
 
 public interface DashboardWidget extends Recordable {
 
@@ -19,7 +20,7 @@ public interface DashboardWidget extends Recordable {
         private String name;
 
         public String getName() {
-            return name;
+            return !ObjectUtils.isBlank(name) ? name : getId().toString();
         }
 
         public void setName(String name) {
