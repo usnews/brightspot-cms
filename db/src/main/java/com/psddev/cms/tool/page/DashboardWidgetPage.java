@@ -12,6 +12,7 @@ import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.UuidUtils;
@@ -44,11 +45,14 @@ public class DashboardWidgetPage extends PageServlet {
         }
 
         Site site = page.getSite();
-        Site.ObjectModification objectModification = widget.as(Site.ObjectModification.class);
-        Set<Site> consumerSites = objectModification.getConsumers();
-        if (consumerSites != null && site != null && !consumerSites.contains(site)) {
-            page.redirect("/", "reason", "site-not-permitted");
-            return;
+        if (site != null) {
+            Site.ObjectModification objectModification = widget.as(Site.ObjectModification.class);
+            Set<Site> consumerSites = objectModification.getConsumers();
+            if(!ObjectUtils.isBlank(consumerSites)
+                    && !consumerSites.contains(site)) {
+                //page.redirect("/", "reason", "site-not-permitted");
+                return;
+            }
         }
 
         widget.writeHtml(page, dashboard);
