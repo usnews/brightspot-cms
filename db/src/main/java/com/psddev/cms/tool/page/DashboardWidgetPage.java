@@ -48,8 +48,7 @@ public class DashboardWidgetPage extends PageServlet {
         if (site != null) {
             Site.ObjectModification objectModification = widget.as(Site.ObjectModification.class);
             Set<Site> consumerSites = objectModification.getConsumers();
-            if(!ObjectUtils.isBlank(consumerSites)
-                    && !consumerSites.contains(site)) {
+            if (!ObjectUtils.isBlank(consumerSites) && !consumerSites.contains(site)) {
                 //page.redirect("/", "reason", "site-not-permitted");
                 return;
             }
