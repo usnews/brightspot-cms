@@ -138,7 +138,7 @@ $.plugin2('frame', {
       });
     });
 
-    $caller.on('change', ':checkbox', function(event) {
+    $caller.on('change', ':checkbox[data-frame-target]', function(event) {
       return findTargetFrame(this, function($checkbox, $frame) {
         var href = $checkbox.prop('checked') ?
             $checkbox.attr('data-frame-check') :
