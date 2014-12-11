@@ -765,23 +765,6 @@ public class CmsTool extends Tool {
         plugins.add(createArea2("Variations & Profiles", "adminVariations", "admin/adminVariations", "/admin/variations.jsp"));
         plugins.add(createArea2("Workflows", "adminWorkflows", "admin/adminWorkflows", "/admin/workflows.jsp"));
 
-        // Dashboard widgets.
-        double dashboardColumn = 0.0;
-        double dashboardRow = 0.0;
-
-        plugins.add(createJspWidget("Work Streams", "dashboard.workStreams", "/workStreams", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Site Map", "dashboard.siteMap", "/misc/siteMap.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Recent Activity", "dashboard.recentActivity", "/misc/recentActivity.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-
-        dashboardColumn ++;
-        dashboardRow = 0.0;
-
-        plugins.add(createJspWidget("Create New", "dashboard.createNew", "/createNew", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Bulk Upload", "dashboard.bulkUpload", "/bulkUpload", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Schedules", "dashboard.scheduledEvents", "/misc/scheduledEvents.jsp", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createPageWidget("Drafts", "dashboard.unpublishedDrafts", "/unpublishedDrafts", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-        plugins.add(createJspWidget("Resources", "dashboard.resources", "/resources", DASHBOARD_WIDGET_POSITION, dashboardColumn, dashboardRow ++));
-
         // Content right widgets.
         double rightColumn = 0.0;
         double rightRow = 0.0;
