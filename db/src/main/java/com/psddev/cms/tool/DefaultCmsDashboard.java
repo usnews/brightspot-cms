@@ -8,7 +8,7 @@ import com.psddev.cms.tool.widget.CmsWidget;
 import com.psddev.cms.tool.widget.CreateNewWidget;
 import com.psddev.cms.tool.widget.RecentActivityWidget;
 import com.psddev.cms.tool.widget.ResourcesWidget;
-import com.psddev.cms.tool.widget.ScheduleListWidget;
+import com.psddev.cms.tool.widget.ScheduledEventsWidget;
 import com.psddev.cms.tool.widget.SiteMapWidget;
 import com.psddev.cms.tool.widget.UnpublishedDraftsWidget;
 import com.psddev.cms.tool.widget.WorkStreamsWidget;
@@ -40,7 +40,7 @@ public class DefaultCmsDashboard extends Record implements Dashboard, Singleton 
 
         rightColumnWidgets.add(new CreateNewWidget());
         rightColumnWidgets.add(new BulkUploadWidget());
-        rightColumnWidgets.add(new ScheduleListWidget());
+        rightColumnWidgets.add(new ScheduledEventsWidget());
         rightColumnWidgets.add(new ResourcesWidget());
         rightColumnWidgets.add(new UnpublishedDraftsWidget());
 

@@ -30,6 +30,10 @@ public class ScheduledEvents extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
         DateTime date = new DateTime(page.param(Date.class, "date"), page.getUserDateTimeZone());
         DateTime begin = mode.getBegin(date);
