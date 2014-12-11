@@ -94,7 +94,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
         writeSortsHtml();
         writePaginationHtml(result);
 
-        page.writeStart("div", "class", "searchResultList");
+        page.writeStart("div", "class", "searchResult-list");
             if (result.hasPages()) {
                 writeItemsHtml(result.getItems());
 
