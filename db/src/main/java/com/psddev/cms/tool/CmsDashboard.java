@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.psddev.cms.db.Content;
-import com.psddev.cms.tool.widgets.CmsWidget;
+import com.psddev.cms.tool.widget.CmsWidget;
 
 public class CmsDashboard extends Content implements Dashboard {
 

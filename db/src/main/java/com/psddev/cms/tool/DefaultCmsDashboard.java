@@ -3,15 +3,15 @@ package com.psddev.cms.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.psddev.cms.tool.widgets.BulkUploadWidget;
-import com.psddev.cms.tool.widgets.CmsWidget;
-import com.psddev.cms.tool.widgets.CreateNewWidget;
-import com.psddev.cms.tool.widgets.RecentActivityWidget;
-import com.psddev.cms.tool.widgets.ResourcesWidget;
-import com.psddev.cms.tool.widgets.ScheduleListWidget;
-import com.psddev.cms.tool.widgets.SiteMapWidget;
-import com.psddev.cms.tool.widgets.UnpublishedDraftsWidget;
-import com.psddev.cms.tool.widgets.WorkStreamsWidget;
+import com.psddev.cms.tool.widget.BulkUploadWidget;
+import com.psddev.cms.tool.widget.CmsWidget;
+import com.psddev.cms.tool.widget.CreateNewWidget;
+import com.psddev.cms.tool.widget.RecentActivityWidget;
+import com.psddev.cms.tool.widget.ResourcesWidget;
+import com.psddev.cms.tool.widget.ScheduleListWidget;
+import com.psddev.cms.tool.widget.SiteMapWidget;
+import com.psddev.cms.tool.widget.UnpublishedDraftsWidget;
+import com.psddev.cms.tool.widget.WorkStreamsWidget;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.Singleton;
 

@@ -1,4 +1,4 @@
-package com.psddev.cms.tool.widgets;
+package com.psddev.cms.tool.widget;
 
 import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.Dashboard;
