@@ -1,18 +1,17 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
-import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.UuidUtils;
@@ -45,14 +44,9 @@ public class DashboardWidgetPage extends PageServlet {
         }
 
         Site site = page.getSite();
-        if (site != null) {
-            Site.ObjectModification siteData = widget.as(Site.ObjectModification.class);
-            if (siteData != null) {
-                Site owner = siteData.getOwner();
-                Set<Site> consumerSites = siteData.getConsumers();
-                if (owner != null && !ObjectUtils.equals(site, owner) && consumerSites != null && !consumerSites.contains(site)) {
-                    return;
-                }
+        if (site != null && widget instanceof Content) {
+            if (!((Content) widget).is(site.itemsPredicate())) {
+                return;
             }
         }
 

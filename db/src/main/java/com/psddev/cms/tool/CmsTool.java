@@ -814,8 +814,11 @@ public class CmsTool extends Tool {
                         String widgetUrl = "/dashboardWidget/" + dashboardId + "/" + widgetId;
                         double rowNum = Math.floor(i / dashboardNumOfColumns);
                         double columnNum = (i ++ % dashboardNumOfColumns);
-
-                        plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                        if (widget instanceof Content) {
+                            plugins.add(createContentPageWidget(widgetDisplayName, (Content) widget, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                        } else {
+                            plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
+                        }
                     }
                 }
             }

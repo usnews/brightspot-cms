@@ -1,5 +1,6 @@
 package com.psddev.cms.tool;
 
+import com.psddev.cms.db.Content;
 import com.psddev.dari.db.Record;
 
 /** Part of the tool UI that can be modified. */
@@ -8,6 +9,7 @@ public class Plugin extends Record {
     private Tool tool;
     private String displayName;
     private String internalName;
+    private Content content;
 
     /** Returns the tool. */
     public Tool getTool() {
@@ -37,5 +39,15 @@ public class Plugin extends Record {
     /** Sets the unique internal name. */
     public void setInternalName(String internalName) {
         this.internalName = internalName;
+    }
+
+    /** Returns the content */
+    public Content getContent() {
+        return content;
+    }
+
+    /** Sets the content */
+    public void setContent(Content content) {
+        this.content = content;
     }
 }
