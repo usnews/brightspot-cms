@@ -8,7 +8,10 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Site;
+import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.DefaultCmsDashboard;
 import com.psddev.cms.tool.JspWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.PageWidget;
@@ -32,9 +35,42 @@ public class DashboardPage extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        String[] p = StringUtils.removeStart(page.getRequest().getPathInfo(), "/").split("/");
-        String dashboardName = p.length > 0 ? p[0] : null;
-        Dashboard dashboard = dashboardName != null ? Query.from(Dashboard.class).where("cms.dashboard.name = ?", dashboardName).first() : null;
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
+        String pathInfo = page.getRequest().getPathInfo();
+        Dashboard dashboard;
+        if (StringUtils.isBlank(pathInfo)) {
+
+            dashboard =  page.getUser().getDashboard();
+
+            if (dashboard == null) {
+                ToolRole role = page.getUser().getRole();
+                if (role != null) {
+                    dashboard = role.getDashboard();
+                }
+            }
+
+            if (dashboard == null) {
+                Site site = page.getSite();
+                if (site != null) {
+                    dashboard = page.getSite().getDashboard();
+                }
+            }
+
+            if (dashboard == null) {
+                dashboard = page.getCmsTool().getDefaultDashboard();
+            }
+
+            if (dashboard == null) {
+                dashboard = Query.from(DefaultCmsDashboard.class).first();
+            }
+        } else {
+            String[] p = StringUtils.removeStart(pathInfo, "/").split("/");
+            String dashboardName = p.length > 0 ? p[0] : null;
+            dashboard = dashboardName != null ? Query.from(Dashboard.class).where("cms.dashboard.name = ?", dashboardName).first() : null;
+        }
 
         if (dashboard == null) {
             page.redirect("/", "reason", "no-object");
@@ -54,7 +90,7 @@ public class DashboardPage extends PageServlet {
     private static final TypeReference<List<String>> LIST_STRING_TYPE_REFERENCE = new TypeReference<List<String>>() { };
     private static final TypeReference<List<List<String>>> LIST_LIST_STRING_TYPE_REFERENCE = new TypeReference<List<List<String>>>() { };
 
-    private void writeDashboardWidgets(final ToolPageContext page, final Dashboard dashboard) throws IOException {
+    private static void writeDashboardWidgets(final ToolPageContext page, final Dashboard dashboard) throws IOException {
         List<List<Widget>> widgetsByColumn = Tool.Static.getWidgets(dashboard.as(Dashboard.Data.class).getWidgetPosition());
         List<String> collapse = ObjectUtils.to(LIST_STRING_TYPE_REFERENCE, page.getUser().getState().get(dashboard.as(Dashboard.Data.class).getName() + ".dashboardWidgetsCollapse"));
         List<List<String>> namesByColumn = ObjectUtils.to(LIST_LIST_STRING_TYPE_REFERENCE, page.getUser().getState().get(dashboard.as(Dashboard.Data.class).getName() + ".dashboardWidgets"));

@@ -38,6 +38,10 @@ public class RecentActivity extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         Type type = page.pageParam(Type.class, "type", Type.ANYONE);
         String valueParameter = type + ".value";

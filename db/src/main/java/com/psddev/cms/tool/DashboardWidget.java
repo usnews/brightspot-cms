@@ -6,9 +6,11 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.Recordable;
 
+import javax.servlet.ServletException;
+
 public interface DashboardWidget extends Recordable {
 
-    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException;
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException;
 
     @FieldInternalNamePrefix("cms.dashboard.widget.")
     public static final class Data extends Modification<DashboardWidget> {

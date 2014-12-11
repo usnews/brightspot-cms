@@ -41,6 +41,10 @@ public class SiteMap extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         String type = page.pageParam(String.class, "type", null);
         final ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         long offset = page.param(long.class, "offset");

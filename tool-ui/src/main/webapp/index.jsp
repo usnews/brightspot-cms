@@ -16,7 +16,7 @@ java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
 javax.servlet.http.HttpServletResponse
-" %><%
+, com.psddev.cms.tool.page.DashboardPage" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -38,88 +38,11 @@ if (!wp.hasPermission("area/dashboard")) {
     return;
 }
 
+DashboardPage.reallyDoService(wp);
+
 wp.include("/WEB-INF/header.jsp");
 
-HtmlWriter writer = new HtmlWriter(out);
-List<List<Widget>> widgetsByColumn = Tool.Static.getWidgets(CmsTool.DASHBOARD_WIDGET_POSITION);
-List<List<String>> namesByColumn = (List<List<String>>) wp.getUser().getState().get("dashboardWidgets");
-List<String> collapse = (List<String>) wp.getUser().getState().get("dashboardWidgetsCollapse");
 
-if (namesByColumn != null) {
-    Map<String, Widget> widgetsByName = new LinkedHashMap<String, Widget>();
-
-    for (List<Widget> widgets : widgetsByColumn) {
-        for (Widget widget : widgets) {
-            widgetsByName.put(widget.getInternalName(), widget);
-        }
-    }
-
-    widgetsByColumn = new ArrayList<List<Widget>>();
-
-    for (List<String> names : namesByColumn) {
-        List<Widget> widgets = new ArrayList<Widget>();
-
-        widgetsByColumn.add(widgets);
-
-        for (String name : names) {
-            Widget widget = widgetsByName.remove(name);
-
-            if (widget != null) {
-                widgets.add(widget);
-            }
-        }
-    }
-
-    if (!widgetsByName.isEmpty()) {
-        List<Widget> widgets;
-
-        if (widgetsByColumn.isEmpty()) {
-            widgets = new ArrayList<Widget>();
-
-            widgetsByColumn.add(widgets);
-
-        } else {
-            widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
-        }
-
-        for (Widget widget : widgetsByName.values()) {
-            widgets.add(widget);
-        }
-    }
-}
-
-writer.start("div", "class", "dashboard", "data-columns", widgetsByColumn.size());
-    for (List<Widget> widgets : widgetsByColumn) {
-        writer.start("div", "class", "dashboardColumn");
-            for (Widget widget : widgets) {
-                if (!wp.hasPermission(widget.getPermissionId())) {
-                    continue;
-                }
-
-                String jsp = null;
-
-                if (widget instanceof JspWidget) {
-                    jsp = ((JspWidget) widget).getJsp();
-
-                } else if (widget instanceof PageWidget) {
-                    jsp = ((PageWidget) widget).getPath();
-                }
-
-                if (jsp != null) {
-                    String name = widget.getInternalName();
-
-                    writer.start("div",
-                            "class", "dashboardCell" + (collapse != null && collapse.contains(name) ? " dashboardCell-collapse" : ""),
-                            "data-widget", name);
-                        writer.start("div", "class", "frame");
-                            writer.start("a", "href", wp.toolUrl(widget.getTool(), jsp)).html(jsp).end();
-                        writer.end();
-                    writer.end();
-                }
-            }
-        writer.end();
-    }
-writer.end();
 
 wp.include("/WEB-INF/footer.jsp");
 %>

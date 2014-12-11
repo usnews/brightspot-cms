@@ -43,6 +43,10 @@ public class CreateNew extends PageServlet {
     @Override
     @SuppressWarnings("unchecked")
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         String redirect = page.param(String.class, "redirect");
         CmsTool.CommonContentSettings settings = null;
         Site site = page.getSite();
@@ -353,7 +357,7 @@ public class CreateNew extends PageServlet {
         page.writeEnd();
     }
 
-    private String getTypeTemplateLabel(Map<ObjectType, Integer> typeCounts, TypeTemplate typeTemplate) {
+    private static String getTypeTemplateLabel(Map<ObjectType, Integer> typeCounts, TypeTemplate typeTemplate) {
         ObjectType type = typeTemplate.type;
         Template template = typeTemplate.template;
         StringBuilder label = new StringBuilder();

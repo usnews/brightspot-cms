@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
@@ -39,6 +41,13 @@ public class DashboardWidgetPage extends PageServlet {
         if (!page.hasPermission(widget.as(DashboardWidget.Data.class).getPermissionId(dashboard))) {
             page.redirect("/", "reason", "no-permission-" + widget.as(DashboardWidget.Data.class).getPermissionId(dashboard));
             return;
+        }
+
+        Site site = page.getSite();
+        if (site != null && widget instanceof Content) {
+            if (!((Content) widget).is(site.itemsPredicate())) {
+                return;
+            }
         }
 
         widget.writeHtml(page, dashboard);

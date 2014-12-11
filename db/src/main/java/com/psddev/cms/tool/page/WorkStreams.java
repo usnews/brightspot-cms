@@ -24,6 +24,10 @@ public class WorkStreams extends PageServlet {
 
     @Override
     protected void doService(final ToolPageContext page) throws IOException, ServletException {
+        reallyDoService(page);
+    }
+
+    public static void reallyDoService(final ToolPageContext page) throws IOException, ServletException {
         List<WorkStream> workStreams = Query.from(WorkStream.class).where(page.siteItemsPredicate()).selectAll();
 
         UUID stop = page.param(UUID.class, "stop");
