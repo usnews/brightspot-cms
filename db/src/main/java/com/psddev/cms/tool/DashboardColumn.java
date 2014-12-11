@@ -10,6 +10,7 @@ import com.psddev.dari.db.State;
 @Embedded
 public class DashboardColumn<T extends DashboardWidget> extends Record {
 
+    @Embedded
     private List<T> widgets;
 
     public List<T> getWidgets() {
