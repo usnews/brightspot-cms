@@ -56,7 +56,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
         ObjectType type = search.getSelectedType();
         ToolUser user = page.getUser();
 
-        page.writeStart("div", "class", "search-fields");
+        page.writeStart("div", "class", "searchResult-fields");
             page.writeStart("a",
                     "target", "searchResultFields",
                     "href", page.toolUrl(CmsTool.class, "/searchResultFields",
@@ -132,7 +132,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
             return;
         }
 
-        page.writeStart("div", "class", "searchSorter");
+        page.writeStart("div", "class", "searchResult-sorts");
             page.writeStart("form",
                     "data-bsp-autosubmit", "",
                     "method", "get",
@@ -182,7 +182,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     protected void writePaginationHtml(PaginatedResult<?> result) throws IOException {
-        page.writeStart("div", "class", "search-pagination");
+        page.writeStart("div", "class", "searchResult-pagination");
             page.writeStart("ul", "class", "pagination");
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");

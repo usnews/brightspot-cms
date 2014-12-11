@@ -1043,8 +1043,8 @@ public class Search extends Record {
             selectedView = new ListSearchResultView();
         }
 
-        page.writeStart("div", "class", "search-result");
-            page.writeStart("div", "class", "search-views");
+        page.writeStart("div", "class", "searchResult-container");
+            page.writeStart("div", "class", "searchResult-views");
                 page.writeStart("ul", "class", "piped");
                     for (SearchResultView view : views) {
                         page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
@@ -1058,11 +1058,11 @@ public class Search extends Record {
                 page.writeEnd();
             page.writeEnd();
 
-            page.writeStart("div", "class", "search-view");
+            page.writeStart("div", "class", "searchResult-view");
                 selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
             page.writeEnd();
 
-            page.writeStart("div", "class", "frame search-actions", "name", "searchResultActions");
+            page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
                 page.writeStart("a",
                         "href", page.toolUrl(CmsTool.class, "/searchResultActions",
                                 "search", ObjectUtils.toJson(getState().getSimpleValues())));
