@@ -39,10 +39,4 @@ if (!wp.hasPermission("area/dashboard")) {
 }
 
 DashboardPage.reallyDoService(wp);
-
-wp.include("/WEB-INF/header.jsp");
-
-
-
-wp.include("/WEB-INF/footer.jsp");
 %>
