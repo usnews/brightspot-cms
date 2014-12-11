@@ -39,7 +39,7 @@ public class CreateDraft extends PageServlet {
         ObjectField field = type.getField(typeIdAndField.substring(commaAt + 1));
         UUID selectionId = page.param(UUID.class, "selectionId");
         Set<UUID> itemIds = new HashSet<>();
-        
+
         for (SearchResultSelectionItem item : Query.
                 from(SearchResultSelectionItem.class).
                 where("selectionId = ?", selectionId).
