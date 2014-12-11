@@ -14,14 +14,16 @@ public class FullscreenSearchResultAction implements SearchResultAction {
             throws IOException {
 
         if (selection == null) {
-            page.writeStart("a",
-                    "class", "button icon icon-fullscreen",
-                    "target", "_top",
-                    "href", new UrlBuilder(page.getRequest()).
-                            absolutePath(page.cmsUrl("/searchAdvancedFull")).
-                            currentParameters().
-                            parameter(Search.NAME_PARAMETER, null));
-                page.writeHtml("Fullscreen");
+            page.writeStart("div", "class", "searchResult-singleAction");
+                page.writeStart("a",
+                        "class", "button",
+                        "target", "_top",
+                        "href", new UrlBuilder(page.getRequest()).
+                                absolutePath(page.cmsUrl("/searchAdvancedFull")).
+                                currentParameters().
+                                parameter(Search.NAME_PARAMETER, null));
+                    page.writeHtml("Fullscreen");
+                page.writeEnd();
             page.writeEnd();
         }
     }

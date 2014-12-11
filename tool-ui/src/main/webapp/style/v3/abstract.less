@@ -61,6 +61,7 @@
   line-height: @-lineHeight;
   margin: 0;
   padding: @-paddingTop 20px (@-paddingTB - @-paddingTop) 20px;
+  text-align: center;
   transition: background-color @time-fast;
   vertical-align: middle;
 
@@ -1170,6 +1171,12 @@ table.links.table-striped {
 
   &.selected {
     .strong;
+
+    .link {
+      .strong;
+
+      color: @color-text;
+    }
   }
 }
 

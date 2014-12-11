@@ -12,12 +12,14 @@ public class SaveSearchResultAction implements SearchResultAction {
             throws IOException {
 
         if (selection == null) {
-            page.writeStart("a",
-                    "class", "button icon icon-action-search",
-                    "target", "toolUserSaveSearch",
-                    "href", page.cmsUrl("/toolUserSaveSearch",
-                            "search", page.url("", Search.NAME_PARAMETER, null)));
-                page.writeHtml("Save Search");
+            page.writeStart("div", "class", "searchResult-singleAction");
+                page.writeStart("a",
+                        "class", "button",
+                        "target", "toolUserSaveSearch",
+                        "href", page.cmsUrl("/toolUserSaveSearch",
+                                "search", page.url("", Search.NAME_PARAMETER, null)));
+                    page.writeHtml("Save Search");
+                page.writeEnd();
             page.writeEnd();
         }
     }

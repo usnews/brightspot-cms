@@ -24,13 +24,15 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                 }
             }
 
-            page.writeStart("a",
-                    "class", "button icon icon-object-workStream",
-                    "href", page.cmsUrl("/content/newWorkStream.jsp",
-                            "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
-                            "incompleteIfMatching", hasMissing),
-                    "target", "newWorkStream");
-                page.writeHtml("New Work Stream");
+            page.writeStart("div", "class", "searchResult-singleAction");
+                page.writeStart("a",
+                        "class", "button",
+                        "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
+                                "incompleteIfMatching", hasMissing),
+                        "target", "newWorkStream");
+                    page.writeHtml("New Work Stream");
+                page.writeEnd();
             page.writeEnd();
         }
     }
