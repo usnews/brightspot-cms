@@ -14,26 +14,28 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
             SearchResultSelection selection)
             throws IOException {
 
-        if (selection == null) {
-            boolean hasMissing = false;
-
-            for (Map<String, String> value : search.getFieldFilters().values()) {
-                if (ObjectUtils.to(boolean.class, value.get("m"))) {
-                    hasMissing = true;
-                    break;
-                }
-            }
-
-            page.writeStart("div", "class", "searchResult-singleAction");
-                page.writeStart("a",
-                        "class", "button",
-                        "href", page.cmsUrl("/content/newWorkStream.jsp",
-                                "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
-                                "incompleteIfMatching", hasMissing),
-                        "target", "newWorkStream");
-                    page.writeHtml("New Work Stream");
-                page.writeEnd();
-            page.writeEnd();
+        if (selection != null) {
+            return;
         }
+
+        boolean hasMissing = false;
+
+        for (Map<String, String> value : search.getFieldFilters().values()) {
+            if (ObjectUtils.to(boolean.class, value.get("m"))) {
+                hasMissing = true;
+                break;
+            }
+        }
+
+        page.writeStart("div", "class", "searchResult-action-simple");
+            page.writeStart("a",
+                    "class", "button",
+                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                            "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
+                            "incompleteIfMatching", hasMissing),
+                    "target", "newWorkStream");
+                page.writeHtml("New Work Stream");
+            page.writeEnd();
+        page.writeEnd();
     }
 }
