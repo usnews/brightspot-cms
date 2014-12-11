@@ -11,6 +11,11 @@ import java.io.IOException;
 public class SiteMapWidget extends Content implements CmsWidget {
 
     @Override
+    public String getLabel() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         SiteMap.reallyDoService(page);
     }

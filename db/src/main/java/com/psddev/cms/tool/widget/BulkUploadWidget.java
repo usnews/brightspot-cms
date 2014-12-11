@@ -9,6 +9,12 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class BulkUploadWidget extends Content implements CmsWidget {
+
+    @Override
+    public String getLabel() {
+        return this.getClass().getSimpleName();
+    }
+
     @Override
     public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         BulkUpload.reallyDoService(page);
