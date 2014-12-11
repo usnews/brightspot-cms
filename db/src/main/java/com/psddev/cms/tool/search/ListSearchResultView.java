@@ -1,4 +1,4 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -17,6 +17,9 @@ import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultField;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.MetricInterval;
@@ -33,7 +36,7 @@ import com.psddev.dari.util.TypeDefinition;
 
 public class ListSearchResultView extends AbstractSearchResultView {
 
-    private static final String ATTRIBUTE_PREFIX = SearchResultRenderer.class.getName() + ".";
+    private static final String ATTRIBUTE_PREFIX = ListSearchResultView.class.getName() + ".";
     private static final String PREVIOUS_DATE_ATTRIBUTE = ATTRIBUTE_PREFIX + "previousDate";
     private static final String MAX_SUM_ATTRIBUTE = ATTRIBUTE_PREFIX + ".maximumSum";
 

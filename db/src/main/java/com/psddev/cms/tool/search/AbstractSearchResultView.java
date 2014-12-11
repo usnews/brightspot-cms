@@ -1,4 +1,4 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.List;
@@ -6,6 +6,12 @@ import java.util.Map;
 
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.AuthenticationFilter;
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultItem;
+import com.psddev.cms.tool.SearchResultView;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;

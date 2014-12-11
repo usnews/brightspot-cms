@@ -1,6 +1,11 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
+
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultAction;
+import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.ToolPageContext;
 
 public class SaveSearchResultAction implements SearchResultAction {
 

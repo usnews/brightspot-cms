@@ -1,4 +1,4 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,12 @@ import java.util.UUID;
 
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultAction;
+import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.SearchResultSelectionItem;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;

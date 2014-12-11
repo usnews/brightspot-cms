@@ -1,8 +1,9 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.Collection;
 
+import com.psddev.cms.tool.Search;
 import com.psddev.dari.db.ObjectType;
 
 public class GridSearchResultView extends ListSearchResultView {

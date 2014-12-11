@@ -1,8 +1,12 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.Map;
 
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultAction;
+import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.ObjectUtils;
 
 public class WorkStreamSearchResultAction implements SearchResultAction {

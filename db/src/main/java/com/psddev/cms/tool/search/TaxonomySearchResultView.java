@@ -1,4 +1,4 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Taxon;
+import com.psddev.cms.tool.Search;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;

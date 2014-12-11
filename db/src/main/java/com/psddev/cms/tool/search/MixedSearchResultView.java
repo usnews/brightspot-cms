@@ -1,4 +1,4 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.search;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.Tool;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.StorageItem;
