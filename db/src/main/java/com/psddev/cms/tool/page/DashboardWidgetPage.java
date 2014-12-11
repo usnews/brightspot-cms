@@ -1,10 +1,12 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
@@ -38,6 +40,14 @@ public class DashboardWidgetPage extends PageServlet {
 
         if (!page.hasPermission(widget.as(DashboardWidget.Data.class).getPermissionId(dashboard))) {
             page.redirect("/", "reason", "no-permission-" + widget.as(DashboardWidget.Data.class).getPermissionId(dashboard));
+            return;
+        }
+
+        Site site = page.getSite();
+        Site.ObjectModification objectModification = widget.as(Site.ObjectModification.class);
+        Set<Site> consumerSites = objectModification.getConsumers();
+        if (consumerSites != null && site != null && !consumerSites.contains(site)) {
+            page.redirect("/", "reason", "site-not-permitted");
             return;
         }
 
