@@ -5,10 +5,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable.Embedded;
 import com.psddev.dari.util.StringUtils;
 
-@Embedded
 public abstract class DashboardWidget extends Record {
 
     public abstract void writeHtml(

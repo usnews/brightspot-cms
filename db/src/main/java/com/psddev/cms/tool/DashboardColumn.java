@@ -9,6 +9,8 @@ import com.psddev.dari.db.Record;
 public class DashboardColumn extends Record {
 
     private int width;
+
+    @Embedded
     private List<DashboardWidget> widgets;
 
     public int getWidth() {
