@@ -183,7 +183,7 @@ The HTML within the repeatable element must conform to these standards:
                 self.initMode();
 
                 // Intialize a carousel if we need it
-                // self.initCarousel();
+                self.initCarousel();
 
                 // For each item initialize it
                 self.dom.$list.find('> li').each(function(){
@@ -264,8 +264,9 @@ The HTML within the repeatable element must conform to these standards:
                     
                     self.dom.$list.sortable(self.options.sortableOptions);
                     
-                    // TODO: need to set up some events so we know when order has changed
-                    
+                    // Note: there is a 'sortable.end' event triggered after an item is dragged and dropped,
+                    // which will be used later to adjust the carousel
+                   
                 }
             },
 
@@ -318,24 +319,49 @@ The HTML within the repeatable element must conform to these standards:
                 var $carouselTarget;
                 var $carouselContainer;
                 var $viewSwitcher;
+                var $topButtonContainer;
                 
                 // We only need a carousel for "preview" mode
                 if (!self.modeIsPreview()) {
                     return;
                 }
-                
-                $viewGrid = self.$element;
 
-                $viewCarousel = $('<div/>', { 'class': 'inputLarge viewCarousel' });
-                $carouselContainer = $('<div/>', {'class': 'carousel-container'}).appendTo($viewCarousel);
-                $carouselTarget = $('<div/>', {'class': 'carousel-target'}).appendTo($viewCarousel);
+                // Create controls at the top
+                $topButtonContainer = $('<div/>', { 'class': 'repeatablePreviewControls' }).prependTo($container);
+
+                // TODO: what about the "Upload Files" link that is already at the bottom and needs to move to the top?
+                // We could just move all content after the list into  the top button container, but that sounds like a hack
                 
+                // Add a placeholder for the "Add Item" button(s) to later be added to the top.
+                // Refer to initAddButton() to see how this is used.
+                $('<span/>', { 'class': 'addButtonContainer' }).appendTo($topButtonContainer);
+
+                // Create buttons to switch between grid view and gallery view
+                $viewSwitcher = $('<span class="view-switcher inputSmall">' +
+                                  '<a href="#" class="view-switcher-active view-switcher-grid">Grid View</a> | ' +
+                                  '<a href="#" class="view-switcher-gallery">Gallery View</a>' +
+                                  '</span>').appendTo($topButtonContainer);
+                
+                self.dom.$viewSwitcher = $viewSwitcher; // Save for later
+
+                // The grid view will the existing UL or OL
+                $viewGrid = self.dom.$list;
+                self.dom.$viewGrid = $viewGrid; // save for later
+
+                // For the carousel view, create a new placeholder but hide it initially
+                $viewCarousel = $('<div/>', { 'class': 'inputLarge viewCarousel' }).insertAfter(self.dom.$list).hide();
+                self.dom.$viewCarousel = $viewCarousel; // save for later
+
+                $carouselContainer = $('<div/>', {'class': 'carousel-container'}).appendTo($viewCarousel);
+
+                // Also create a placeholder where we can put an item after the user clicks a carousel item
+                $carouselTarget = $('<div/>', {'class': 'carousel-target'}).appendTo($viewCarousel);
+
+                // Now create the carousel object, initialize it, and save it for later use
                 carousel = Object.create(carouselUtility);
                 carousel.init($carouselContainer, {numbered:true});
-
-                // Save for later use
                 self.carousel = carousel;
-
+                
                 // Add a listener so we can do something when carousel items are clicked
                 $carouselContainer.on('carousel.tile', function(e, carouselData) {
 
@@ -347,31 +373,40 @@ The HTML within the repeatable element must conform to these standards:
                     
                 });
 
-                // Add links to switch between viewGrid and viewContainer
-                $viewSwitcher = $('<div class="view-switcher inputSmall">' +
-                                  '<a href="#" class="view-switcher-active view-switcher-grid">Grid View</a> | ' +
-                                  '<a href="#" class="view-switcher-gallery">Gallery View</a>' +
-                                  '</div>');
-                
-                $container.before($viewSwitcher);
-                $container.before($viewCarousel);
-                $viewCarousel.hide();
-                
+                // Set up events so user can switch between the carousel view and the grid view
                 $viewSwitcher.on('click', '.view-switcher-grid', function(event) {
-                    $viewSwitcher.find('a').removeClass('view-switcher-active');
-                    $(this).addClass('view-switcher-active');
-                    $viewGrid.show();
-                    $viewCarousel.hide();
+                    self.previewShowGrid();
                     return false;
+                });
+                $viewSwitcher.on('click', '.view-switcher-gallery', function(event) {
+                    self.previewShowCarousel();
+                    return false;
+                });
+
+                // Set up a listener for when the user drags and drops an item to change the order,
+                // so we can adjust the order of tiles in the carousel
+                self.dom.$list.on('sortable.end', function(event, element) {
+
+                    var $item = $(element);
+                    
+                    // Find the index for the new position of the element
+                    var newIndex = $item.index() + 1;
+
+                    // Get the carousel tile that corresponds to the item that was moved
+                    var carouselTile = $item.data('carouselTile');
+
+                    var oldIndex;
+                    
+                    if (carouselTile) {
+
+                        // Take the carousel tile content and find the current index in the carousel
+                        oldIndex = self.carousel.getTileIndex(carouselTile) || 0;
+                        
+                        self.carousel.repositionTile(oldIndex, newIndex);
+                    }
+
                 });
                 
-                $viewSwitcher.on('click', '.view-switcher-gallery', function(event) {
-                    $viewSwitcher.find('a').removeClass('view-switcher-active');
-                    $(this).addClass('view-switcher-active');
-                    $viewGrid.hide();
-                    $viewCarousel.show();
-                    return false;
-                });
             },
 
 
@@ -394,10 +429,14 @@ The HTML within the repeatable element must conform to these standards:
                 //   -- Create an add button for each template
                 //   -- Set up click event on the add button
 
-                // Create an "Add Item" button and add it to the end of the container
-                // TODO: need to add this to the top if in "preview" mode?
-                $addButtonContainer = $('<div/>', { 'class': 'addButtonContainer' }).appendTo(self.$element);
-                
+                // Create a container where all the "Add Item" buttons will be displayed
+                // First check to see if there is already a div to place them,
+                // if not create a new div at the bottom.
+                $addButtonContainer = self.$element.find('.addButtonContainer');
+                if (!$addButtonContainer.length) {
+                    $addButtonContainer = $('<div/>', { 'class': 'addButtonContainer' }).appendTo(self.$element);
+                }
+
                 // Save the add button container for later use
                 // (in single mode we will add more to it)
                 self.dom.$addButtonContainer = $addButtonContainer;
@@ -559,7 +598,7 @@ The HTML within the repeatable element must conform to these standards:
                 if (!type) {
                     return;
                 }
-                
+
                 // The text for the label will be the data type such as "Slideshow Slide"
                 // And if a data-label attribute was provided append it after a colon such as "Slideshow Slide: My Slide"
                 labelText = type;
@@ -638,12 +677,12 @@ The HTML within the repeatable element must conform to these standards:
                     return;
                 }
                 
-                $carouselTile = $('<div class="carousel-tile"/>');
+                $carouselTile = $('<div class="carousel-tile-content"/>');
                 
                 // Add the thumbnail image
                 if (preview) {
                     $('<img/>', {
-                        'class': 'carousel-tile-image',
+                        'class': 'carousel-tile-content-image',
                         src: preview,
                         alt: ''
                     }).appendTo($carouselTile);
@@ -652,13 +691,18 @@ The HTML within the repeatable element must conform to these standards:
                 // Add the text label
                 if (label) {
                     $('<div/>', {
-                        'class': 'carousel-tile-label',
+                        'class': 'carousel-tile-content-label',
                         text: label
                     }).appendTo($carouselTile);
                 }
 
-                // Save the item along with the tile so we can access it later
-                // when carousel events occur
+                // On the item, save a reference to the carousel tile,
+                // so later if user changes sort order of the items,
+                // we can determine which carousel tile needs to be moved
+                $item.data('carouselTile', $carouselTile);
+                
+                // On the carousel tile, save a reference back to the item,
+                // so later when carousel events occur we can find the item
                 $carouselTile.data('item', $item);
                 
                 // Add the tile to the carousel
@@ -1005,9 +1049,12 @@ The HTML within the repeatable element must conform to these standards:
                 var $removeButton = $item.find('.removeButton');
                 var $inputs = $item.find(':input');
                 var itemNumber = $item.index();
+                var carousel = self.carousel;
                 var $itemCarousel;
 
-                if (self.carousel) {
+                // If we previously set up a carousel, get the tile in the carousel
+                // so we can mark it as removed
+                if (carousel) {
                     $itemCarousel = carousel.getTileContent(itemNumber);
                 }
 
@@ -1019,7 +1066,7 @@ The HTML within the repeatable element must conform to these standards:
                 
                 if (removeFlag) {
                     
-                    // Add the "toBeRemoved" class to both the item and the carousel
+                    // Add the "toBeRemoved" class to both the item and the item in the carousel
                     $item.add($itemCarousel).addClass('toBeRemoved');
                     
                     // Disable all the inputs within the item so they will not be sent to the backend
@@ -1071,6 +1118,41 @@ The HTML within the repeatable element must conform to these standards:
              */
             restoreItem: function(item) {
                 self.removeItemToggle(item, false);
+            },
+
+
+            /**
+             * When in preview mode, show the grid view.
+             */
+            previewShowGrid: function() {
+
+                var self = this;
+                
+                if (!self.modeIsPreview()) {
+                    return;
+                }
+
+                // Mark the "Grid View" link as active and the "Gallery View" link as inactive
+                self.dom.$viewSwitcher.find('a').removeClass('view-switcher-active').filter('.view-switcher-grid').addClass('view-switcher-active');
+                self.dom.$viewGrid.show();
+                self.dom.$viewCarousel.hide();
+            },
+
+            
+            /**
+             * When in preview mode, show the carousel view.
+             */
+            previewShowCarousel: function() {
+
+                var self = this;
+                
+                if (!self.modeIsPreview()) {
+                    return;
+                }
+
+                self.dom.$viewSwitcher.find('a').removeClass('view-switcher-active').filter('.view-switcher-gallery').addClass('view-switcher-active');
+                self.dom.$viewGrid.hide();
+                self.dom.$viewCarousel.show();
             }
             
         } // END repeatableUtility
