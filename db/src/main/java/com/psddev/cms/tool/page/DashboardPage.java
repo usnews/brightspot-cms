@@ -160,7 +160,7 @@ public class DashboardPage extends PageServlet {
                             StringBuilder url = new StringBuilder(page.toolUrl(widget.getTool(), jsp));
 
                             String queryString = page.getRequest().getQueryString();
-                            if (ObjectUtils.isBlank(queryString)) {
+                            if (!ObjectUtils.isBlank(queryString)) {
                                 if (url.toString().contains("?")) {
                                     url.append("&");
                                 } else {
