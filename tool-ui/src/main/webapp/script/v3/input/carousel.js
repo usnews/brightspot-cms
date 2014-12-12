@@ -227,7 +227,7 @@ function($, bsp_utils) {
 
             var self = this;
 
-            var tile = $('<li>').append(content).appendTo(self.dom.tiles);
+            var tile = $('<li/>', {'class': 'carousel-tile'}).append(content).appendTo(self.dom.tiles);
         },
 
 
@@ -241,10 +241,88 @@ function($, bsp_utils) {
 
             var self = this;
 
-            var tile = self.dom.tiles.find('li').eq(n).remove();
+            var tile = self.dom.tiles.find('> .carousel-tile').eq(n).remove();
         },
 
 
+        /**
+         * Move a tile within the carousel.
+         *
+         * @param {Element|jQuery object} element
+         * The tile element. This can be an element within the tile content, or the LI element of the tile itself.
+         *
+         * @param {Number} newPosition
+         * The new index for the tile (starting with 1).
+         */
+        repositionTile: function(currentPosition, newPosition) {
+            
+            var self = this;
+            var $tiles = self.dom.tiles.find('> .carousel-tile');
+            var $tile = $tiles.eq(currentPosition - 1);
+
+            // Make sure newPosition is valid
+            if (newPosition > $tiles.length ) {
+                console.log('newPosition invalid');
+                return;
+            }
+            
+            // Make sure tile at current position exists
+            if (!$tile.length) {
+                return;
+            }
+
+            // Remove the tile temporarily
+            $tile = $tile.detach();
+
+            // Add the tile in the new position
+            if (newPosition === 1) {
+                // Special case add to the front of the carousel
+                self.dom.tiles.prepend($tile);
+            } else {
+                self.dom.tiles.find('> .carousel-tile').eq(newPosition - 2).after($tile);
+            }
+
+            self.update();
+            
+        },
+
+        
+        /**
+         * Return the content of a tile by specifying the tile index.
+         *
+         * @param {Number} n
+         * Number of the tile to retrieve (starting at 1 for the first tile).
+         *
+         * @returns {jQuery Object}
+         *
+         * @example
+         * mycarousel.getTileContent(1).addClass('toBeRemoved');
+         */
+        getTileContent: function(n) {
+            
+            var self = this;
+
+            return self.dom.tiles.find('li').eq(n).contents();
+        },
+
+
+        /**
+         * Given the tile content, returns the index of the tile.
+         *
+         * @param {Element|jQuery object} element
+         * The tile content (an element within the carousel tile).
+         *
+         * @returns {Number} index
+         * The tile number within the carousel (starting with 1).
+         */
+        getTileIndex: function(element) {
+            var self = this;
+            var $element = $(element);
+
+            return $element.closest('.carousel-tile').index() + 1;
+        },
+
+        
         /**
          * @private
          * Move the carousel forward or back.

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 @carousel-tile-width: 140px;
 @carousel-tile-height: 105px;
-=======
-@carousel-tile-width: 120px;
-@carousel-tile-height: 80px;
->>>>>>> Carousel first checkin work in progress
 @carousel-nav-width: 20px;
 @carousel-padding: 4px;
 @carousel-margin-between-tiles: 6px;
@@ -73,8 +68,8 @@
     // For a numbered carousel create a CSS counter
     counter-reset: @carousel-counter;
 
-    // Styles for individual tiles
-    > li {
+    // Styles for individual tiles (the LI element)
+    > .carousel-tile {
         display: inline-block;
         white-space: normal;
         padding: 0;
@@ -191,9 +186,8 @@
     }
 }
 
-<<<<<<< HEAD
 // Carousel tile content
-.carousel-tile {
+.carousel-tile-content {
     text-align: center;
     width: @carousel-tile-width;
     height: @carousel-tile-height;
@@ -204,14 +198,14 @@
     }
 
 }
-.carousel-tile-image {
+.carousel-tile-content-image {
     height: 100%;
     width: 100%;
     // Resize the image so it's largest dimension fills the tile completely
     // and keeps the correct aspect ratio. Any extra 
     object-fit: cover;
 }
-.carousel-tile-label {
+.carousel-tile-content-label {
     text-align: left;
     position:absolute;
     bottom:0;
@@ -228,7 +222,7 @@
 
     // Hide by default but show on hover or active tile
     opacity:0;
-    .carousel-active &, .carousel-tile:hover & {
+    .carousel-active &, .carousel-tile-content:hover & {
         opacity:1;
     }
     transition:opacity 200ms ease-in-out 200ms;
@@ -250,5 +244,3 @@
         color:black;
     }
 }
-=======
->>>>>>> Carousel first checkin work in progress
