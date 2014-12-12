@@ -1413,15 +1413,11 @@ public class ToolPageContext extends WebPageContext {
                                                     continue;
                                                 }
 
-                                                Content content = child.getContent();
-                                                if (content == null || content.is(site.itemsPredicate())) {
-                                                    writeStart("li", "class", area != null && area.getInternalName().equals(child.getInternalName()) ? "selected" : null);
-                                                        writeStart("a", "href", toolUrl(child.getTool(), child.getUrl()));
-                                                            writeHtml(getObjectLabel(child));
-                                                        writeEnd();
+                                                writeStart("li", "class", area != null && area.getInternalName().equals(child.getInternalName()) ? "selected" : null);
+                                                    writeStart("a", "href", toolUrl(child.getTool(), child.getUrl()));
+                                                        writeHtml(getObjectLabel(child));
                                                     writeEnd();
-                                                }
-
+                                                writeEnd();
                                             }
                                         writeEnd();
                                     }

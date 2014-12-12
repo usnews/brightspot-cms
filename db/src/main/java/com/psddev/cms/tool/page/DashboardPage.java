@@ -1,185 +1,93 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolRole;
+import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DefaultCmsDashboard;
-import com.psddev.cms.tool.JspWidget;
+import com.psddev.cms.tool.DashboardColumn;
+import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
-import com.psddev.cms.tool.PageWidget;
-import com.psddev.cms.tool.Tool;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.Widget;
-import com.psddev.dari.db.Query;
-import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
-import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.TypeReference;
 
-@RoutingFilter.Path(application = "cms", value = "dashboard")
-@SuppressWarnings("serial")
+@RoutingFilter.Path(application = "cms", value = "/dashboard")
 public class DashboardPage extends PageServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected String getPermissionId() {
-        return null;
+        return "area/dashboard";
     }
 
     @Override
-    protected void doService(final ToolPageContext page) throws IOException, ServletException {
-        reallyDoService(page);
-    }
+    public void doService(ToolPageContext page) throws IOException, ServletException {
+        ToolUser user = page.getUser();
+        Dashboard dashboard = page.getUser().getDashboard();
 
-    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
-        String pathInfo = page.getRequest().getPathInfo();
-        Dashboard dashboard;
-        if (StringUtils.isBlank(pathInfo)) {
+        if (dashboard == null) {
+            ToolRole role = user.getRole();
 
-            dashboard =  page.getUser().getDashboard();
-
-            if (dashboard == null) {
-                ToolRole role = page.getUser().getRole();
-                if (role != null) {
-                    dashboard = role.getDashboard();
-                }
+            if (role != null) {
+                dashboard = role.getDashboard();
             }
-
-            if (dashboard == null) {
-                Site site = page.getSite();
-                if (site != null) {
-                    dashboard = page.getSite().getDashboard();
-                }
-            }
-
-            if (dashboard == null) {
-                dashboard = page.getCmsTool().getDefaultDashboard();
-            }
-
-            if (dashboard == null) {
-                dashboard = Query.from(DefaultCmsDashboard.class).first();
-            }
-        } else {
-            String[] p = StringUtils.removeStart(pathInfo, "/").split("/");
-            String dashboardName = p.length > 0 ? p[0] : null;
-            dashboard = dashboardName != null ? Query.from(Dashboard.class).where("cms.dashboard.name = ?", dashboardName).first() : null;
         }
 
         if (dashboard == null) {
-            page.redirect("/", "reason", "no-object");
-            return;
-        }
+            Site site = page.getSite();
 
-        if (!page.hasPermission(dashboard.as(Dashboard.Data.class).getPermissionId())) {
-            page.redirect("/", "reason", "no-permission-" + dashboard.as(Dashboard.Data.class).getPermissionId());
-            return;
-        }
-
-        dashboard.writeHeaderHtml(page);
-        writeDashboardWidgets(page, dashboard);
-        dashboard.writeFooterHtml(page);
-    }
-
-    private static final TypeReference<List<String>> LIST_STRING_TYPE_REFERENCE = new TypeReference<List<String>>() { };
-    private static final TypeReference<List<List<String>>> LIST_LIST_STRING_TYPE_REFERENCE = new TypeReference<List<List<String>>>() { };
-
-    private static void writeDashboardWidgets(final ToolPageContext page, final Dashboard dashboard) throws IOException {
-        List<List<Widget>> widgetsByColumn = Tool.Static.getWidgets(dashboard.as(Dashboard.Data.class).getWidgetPosition());
-        List<String> collapse = ObjectUtils.to(LIST_STRING_TYPE_REFERENCE, page.getUser().getState().get(dashboard.as(Dashboard.Data.class).getName() + ".dashboardWidgetsCollapse"));
-        List<List<String>> namesByColumn = ObjectUtils.to(LIST_LIST_STRING_TYPE_REFERENCE, page.getUser().getState().get(dashboard.as(Dashboard.Data.class).getName() + ".dashboardWidgets"));
-
-        if (namesByColumn != null) {
-            Map<String, Widget> widgetsByName = new LinkedHashMap<String, Widget>();
-
-            for (List<Widget> widgets : widgetsByColumn) {
-                for (Widget widget : widgets) {
-                    widgetsByName.put(widget.getInternalName(), widget);
-                }
-            }
-
-            widgetsByColumn = new ArrayList<List<Widget>>();
-
-            for (List<String> names : namesByColumn) {
-                List<Widget> widgets = new ArrayList<Widget>();
-
-                widgetsByColumn.add(widgets);
-
-                for (String name : names) {
-                    Widget widget = widgetsByName.remove(name);
-
-                    if (widget != null) {
-                        widgets.add(widget);
-                    }
-                }
-            }
-
-            if (!widgetsByName.isEmpty()) {
-                List<Widget> widgets;
-
-                if (widgetsByColumn.isEmpty()) {
-                    widgets = new ArrayList<Widget>();
-
-                    widgetsByColumn.add(widgets);
-
-                } else {
-                    widgets = widgetsByColumn.get(widgetsByColumn.size() - 1);
-                }
-
-                for (Widget widget : widgetsByName.values()) {
-                    widgets.add(widget);
-                }
+            if (site != null) {
+                dashboard = site.getDashboard();
             }
         }
 
-        page.writeStart("div", "class", "dashboard", "data-columns", widgetsByColumn.size(), "data-settings-prefix", dashboard.as(Dashboard.Data.class).getName() + ".");
-            for (List<Widget> widgets : widgetsByColumn) {
-                page.writeStart("div", "class", "dashboardColumn");
-                    for (Widget widget : widgets) {
-                        if (!page.hasPermission(widget.getPermissionId())) {
-                            continue;
-                        }
+        if (dashboard == null) {
+            dashboard = page.getCmsTool().getDefaultDashboard();
+        }
 
-                        String jsp = null;
+        if (dashboard == null) {
+            dashboard = Dashboard.getDefaultDashboard();
+        }
 
-                        if (widget instanceof JspWidget) {
-                            jsp = ((JspWidget) widget).getJsp();
+        page.writeHeader();
+            page.writeStart("div", "class", "dashboard-columns");
+                List<DashboardColumn> columns = dashboard.getColumns();
+                double totalWidth = 0;
 
-                        } else if (widget instanceof PageWidget) {
-                            jsp = ((PageWidget) widget).getPath();
-                        }
+                for (DashboardColumn column : columns) {
+                    int width = column.getWidth();
+                    totalWidth += width > 0 ? width : 1;
+                }
 
-                        if (jsp != null) {
-                            String name = widget.getInternalName();
-                            StringBuilder url = new StringBuilder(page.toolUrl(widget.getTool(), jsp));
+                for (int c = 0, cSize = columns.size(); c < cSize; ++ c) {
+                    DashboardColumn column = columns.get(c);
+                    int width = column.getWidth();
 
-                            String queryString = page.getRequest().getQueryString();
-                            if (!ObjectUtils.isBlank(queryString)) {
-                                if (url.toString().contains("?")) {
-                                    url.append("&");
-                                } else {
-                                    url.append("?");
-                                }
-                                url.append(queryString);
-                            }
+                    page.writeStart("div",
+                            "class", "dashboard-column",
+                            "style", page.cssString("width", ((width > 0 ? width : 1) / totalWidth * 100) + "%"));
 
-                            page.writeStart("div",
-                                    "class", "dashboardCell" + (collapse != null && collapse.contains(name) ? " dashboardCell-collapse" : ""),
-                                    "data-widget", name);
-                                page.writeStart("div", "class", "frame");
-                                    page.writeStart("a", "href", url).writeHtml(jsp).writeEnd();
+                        List<DashboardWidget> widgets = column.getWidgets();
+
+                        for (int w = 0, wSize = widgets.size(); w < wSize; ++ w) {
+                            page.writeStart("div", "class", "frame dashboard-widget");
+                                page.writeStart("a",
+                                        "href", page.toolUrl(CmsTool.class, "/dashboardWidget",
+                                                "dashboardId", dashboard.getId(),
+                                                "column", c,
+                                                "widget", w));
                                 page.writeEnd();
                             page.writeEnd();
                         }
-                    }
-                page.writeEnd();
-            }
-        page.writeEnd();
+                    page.writeEnd();
+                }
+            page.writeEnd();
+        page.writeFooter();
     }
 }

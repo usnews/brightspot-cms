@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.psddev.cms.tool.CmsDashboard;
+import com.psddev.cms.tool.Dashboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class Site extends Record {
     private String name;
 
     @ToolUi.Tab("Dashboard")
-    private CmsDashboard dashboard;
+    private Dashboard dashboard;
 
     @ToolUi.Tab("Dashboard")
     private List<CmsTool.ResourceItem> resources;
@@ -99,11 +99,11 @@ public class Site extends Record {
         this.name = name;
     }
 
-    public CmsDashboard getDashboard() {
+    public Dashboard getDashboard() {
         return dashboard;
     }
 
-    public void setDashboard(CmsDashboard dashboard) {
+    public void setDashboard(Dashboard dashboard) {
         this.dashboard = dashboard;
     }
 

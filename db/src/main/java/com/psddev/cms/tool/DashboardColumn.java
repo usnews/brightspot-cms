@@ -4,33 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.Recordable.Embedded;
-import com.psddev.dari.db.State;
 
-@Embedded
-public class DashboardColumn<T extends DashboardWidget> extends Record {
+@DashboardColumn.Embedded
+public class DashboardColumn extends Record {
 
-    @Embedded
-    private List<T> widgets;
+    private int width;
+    private List<DashboardWidget> widgets;
 
-    public List<T> getWidgets() {
+    public int getWidth() {
+        return width > 0 ? width : 50;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public List<DashboardWidget> getWidgets() {
         if (widgets == null) {
-            widgets = new ArrayList<T>();
+            widgets = new ArrayList<>();
         }
         return widgets;
     }
 
+    public void setWidgets(List<DashboardWidget> widgets) {
+        this.widgets = widgets;
+    }
+
     @Override
     public String getLabel() {
-        if (!getWidgets().isEmpty()) {
-            Object obj = getWidgets().get(0);
-            if (obj != null) {
-                State widgetState = State.getInstance(obj);
-                if (widgetState != null) {
-                    return widgetState.getLabel() + " ...";
-                }
-            }
-        }
-        return "Column";
+        return getWidgets().size() + " Widgets";
     }
 }

@@ -38,5 +38,5 @@ if (!wp.hasPermission("area/dashboard")) {
     return;
 }
 
-DashboardPage.reallyDoService(wp);
+new DashboardPage().doService(wp);
 %>

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
@@ -166,16 +165,6 @@ public abstract class Tool extends Application {
         widget.setInternalName(internalName);
         widget.setPath(path);
         widget.addPosition(positionName, positionColumn, positionRow);
-        return widget;
-    }
-
-    protected PageWidget createContentPageWidget(String displayName, Content content, String internalName, String path, String positionName, double positionColumn, double positionRow) {
-        PageWidget widget = new PageWidget();
-        widget.setDisplayName(displayName);
-        widget.setInternalName(internalName);
-        widget.setPath(path);
-        widget.addPosition(positionName, positionColumn, positionRow);
-        widget.setContent(content);
         return widget;
     }
 

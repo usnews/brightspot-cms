@@ -73,8 +73,8 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private List<CommonTime> commonTimes;
 
-    @ToolUi.Tab("Defaults")
-    private CmsDashboard defaultDashboard;
+    @ToolUi.Tab("Dashboard")
+    private Dashboard defaultDashboard;
 
     @ToolUi.Tab("RTE")
     @ToolUi.CodeType("text/css")
@@ -460,11 +460,11 @@ public class CmsTool extends Tool {
         return commonTimes;
     }
 
-    public CmsDashboard getDefaultDashboard() {
+    public Dashboard getDefaultDashboard() {
         return defaultDashboard;
     }
 
-    public void setDefaultDashboard(CmsDashboard defaultDashboard) {
+    public void setDefaultDashboard(Dashboard defaultDashboard) {
         this.defaultDashboard = defaultDashboard;
     }
 
@@ -782,48 +782,6 @@ public class CmsTool extends Tool {
         plugins.add(createPageWidget("References", "references", "/content/references", CONTENT_RIGHT_WIDGET_POSITION, rightColumn, rightRow ++));
 
         urls.getUpdateDependencies().add(template);
-
-        // Dynamic dashboards
-        for (Dashboard dashboard : Query.from(Dashboard.class).iterable(0)) {
-            String dashboardName = dashboard.as(Dashboard.Data.class).getName();
-            String dashboardDisplayName = dashboard.getState().getLabel();
-            String dashboardInternalName = dashboard.as(Dashboard.Data.class).getInternalName();
-            String dashboardHierarchy = dashboard.getHierarchicalParent() + "/" + dashboardInternalName;
-            String dashboardUrl = "/dashboard/" + dashboardName;
-            String dashboardWidgetPosition = dashboard.as(Dashboard.Data.class).getWidgetPosition();
-
-            plugins.add(createArea2(dashboardDisplayName, dashboardInternalName, dashboardHierarchy, dashboardUrl));
-
-            List<? extends DashboardColumn<?>> columns = dashboard.getColumns();
-            double columnNum = 0;
-            if (columns != null) {
-                for (Object columnObj : columns) {
-                    if (columnObj instanceof DashboardColumn) {
-                        double rowNum = 0;
-                        DashboardColumn<?> column = (DashboardColumn<?>) columnObj;
-                        List<? extends DashboardWidget> widgets = column.getWidgets();
-                        if (widgets != null) {
-                            for (Object widgetObj : widgets) {
-                                if (widgetObj instanceof DashboardWidget) {
-                                    DashboardWidget widget = (DashboardWidget) widgetObj;
-                                    String widgetDisplayName = dashboardDisplayName + " " + widget.getState().getLabel();
-                                    String widgetName = widget.as(DashboardWidget.Data.class).getName();
-                                    String widgetInternalName = widget.as(DashboardWidget.Data.class).getInternalName(dashboard);
-                                    String widgetUrl = "/dashboardWidget/" + dashboardName + "/" + widgetName;
-                                    if (widget instanceof Content) {
-                                        plugins.add(createContentPageWidget(widgetDisplayName, (Content) widget, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
-                                    } else {
-                                        plugins.add(createPageWidget(widgetDisplayName, widgetInternalName, widgetUrl, dashboardWidgetPosition, columnNum, rowNum));
-                                    }
-                                }
-                                rowNum ++;
-                            }
-                        }
-                        columnNum ++;
-                    }
-                }
-            }
-        }
 
         return plugins;
     }
