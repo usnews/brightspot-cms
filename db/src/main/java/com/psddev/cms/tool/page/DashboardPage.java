@@ -77,11 +77,7 @@ public class DashboardPage extends PageServlet {
 
                         for (int w = 0, wSize = widgets.size(); w < wSize; ++ w) {
                             page.writeStart("div", "class", "frame dashboard-widget");
-                                page.writeStart("a",
-                                        "href", page.toolUrl(CmsTool.class, "/dashboardWidget",
-                                                "dashboardId", dashboard.getId(),
-                                                "column", c,
-                                                "widget", w));
+                                page.writeStart("a", "href", page.toolUrl(CmsTool.class, "/dashboardWidget/" + dashboard.getId() + "/" + c + "/" + w));
                                 page.writeEnd();
                             page.writeEnd();
                         }
