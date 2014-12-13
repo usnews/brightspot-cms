@@ -14,8 +14,7 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolRole;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.DatabaseException;
@@ -25,18 +24,23 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 
-public class RecentActivityWidget extends DashboardWidget {
+public class RecentActivityWidget extends DefaultDashboardWidget {
 
     private static final int[] LIMITS = { 10, 20, 50 };
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 0;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 0;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         Type type = page.pageParam(Type.class, "type", Type.ANYONE);
         String valueParameter = type + ".value";

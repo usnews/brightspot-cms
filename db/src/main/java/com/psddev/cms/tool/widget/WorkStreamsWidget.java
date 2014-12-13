@@ -9,20 +9,24 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 
-public class WorkStreamsWidget extends DashboardWidget {
+public class WorkStreamsWidget extends DefaultDashboardWidget {
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 0;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 1;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         List<WorkStream> workStreams = Query.from(WorkStream.class).where(page.siteItemsPredicate()).selectAll();
 
         UUID stop = page.param(UUID.class, "stop");

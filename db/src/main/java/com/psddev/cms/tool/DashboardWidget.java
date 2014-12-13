@@ -9,11 +9,7 @@ import com.psddev.dari.util.StringUtils;
 
 public abstract class DashboardWidget extends Record {
 
-    public abstract void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException;
+    public abstract void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException;
 
     @Override
     public String getLabel() {

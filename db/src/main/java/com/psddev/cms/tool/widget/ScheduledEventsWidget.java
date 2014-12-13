@@ -15,20 +15,24 @@ import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Schedule;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 
-public class ScheduledEventsWidget extends DashboardWidget {
+public class ScheduledEventsWidget extends DefaultDashboardWidget {
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 1;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 2;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         Mode mode = page.pageParam(Mode.class, "mode", Mode.WEEK);
         DateTime date = new DateTime(page.param(Date.class, "date"), page.getUserDateTimeZone());
         DateTime begin = mode.getBegin(date);

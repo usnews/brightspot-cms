@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -13,6 +12,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 
 @RoutingFilter.Path(application = "cms", value = "/dashboardWidget")
 public class DashboardWidgetPage extends PageServlet {
@@ -30,19 +30,34 @@ public class DashboardWidgetPage extends PageServlet {
         pathInfo = StringUtils.removeStart(pathInfo, "/");
         pathInfo = StringUtils.removeEnd(pathInfo, "/");
         String[] pathInfoParts = pathInfo.split("/");
+        Dashboard dashboard;
 
-        Dashboard dashboard = Query.
-                from(Dashboard.class).
-                where("_id = ?", pathInfoParts[0]).
-                first();
+        switch (pathInfoParts[0]) {
+            case "user" :
+                dashboard = page.getUser().getDashboard();
+                break;
 
-        if (dashboard == null) {
-            dashboard = Dashboard.getDefaultDashboard();
+            case "tool" :
+                dashboard = page.getCmsTool().getDefaultDashboard();
+                break;
+
+            case "default" :
+                dashboard = Dashboard.getDefaultDashboard();
+                break;
+
+            default :
+                throw new IllegalArgumentException();
         }
 
-        DashboardColumn column = dashboard.getColumns().get(ObjectUtils.to(int.class, pathInfoParts[1]));
-        DashboardWidget widget = column.getWidgets().get(ObjectUtils.to(int.class, pathInfoParts[2]));
+        DashboardWidget widget = Query.
+                from(DashboardWidget.class).
+                where("_id = ?", pathInfoParts[1]).
+                first();
 
-        widget.writeHtml(page, dashboard, column);
+        if (widget == null) {
+            widget = (DashboardWidget) TypeDefinition.getInstance(ObjectUtils.getClassByName(pathInfoParts[1])).newInstance();
+        }
+
+        widget.writeHtml(page, dashboard);
     }
 }

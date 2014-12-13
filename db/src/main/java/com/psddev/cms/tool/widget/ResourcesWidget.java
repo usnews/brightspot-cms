@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.ObjectUtils;
@@ -17,12 +16,7 @@ import com.psddev.dari.util.ObjectUtils;
 public class ResourcesWidget extends DashboardWidget {
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
-
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         List<CmsTool.ResourceItem> resources = null;
         Site site = page.getSite();
 

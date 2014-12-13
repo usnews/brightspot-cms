@@ -16,8 +16,7 @@ import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -25,17 +24,22 @@ import com.psddev.dari.db.QueryFilter;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 
-public class UnpublishedDraftsWidget extends DashboardWidget {
+public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
     private static final int[] LIMITS = { 10, 20, 50 };
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 1;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 3;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         Query<Workflow> workflowQuery = Query.from(Workflow.class);
         Map<String, String> workflowStateLabels = new TreeMap<String, String>();
 

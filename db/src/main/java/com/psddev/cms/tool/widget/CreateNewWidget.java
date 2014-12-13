@@ -21,8 +21,7 @@ import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
@@ -32,15 +31,20 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 
 @SuppressWarnings("deprecation")
-public class CreateNewWidget extends DashboardWidget {
+public class CreateNewWidget extends DefaultDashboardWidget {
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 1;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 0;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         String redirect = page.param(String.class, "redirect");
         CmsTool.CommonContentSettings settings = null;
         Site site = page.getSite();

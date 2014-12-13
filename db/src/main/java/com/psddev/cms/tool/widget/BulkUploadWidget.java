@@ -9,21 +9,25 @@ import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 
-public class BulkUploadWidget extends DashboardWidget {
+public class BulkUploadWidget extends DefaultDashboardWidget {
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 1;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 1;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         boolean hasUploadable = false;
 
         for (ObjectType t : ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes()) {

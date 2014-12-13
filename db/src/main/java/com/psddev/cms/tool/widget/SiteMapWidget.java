@@ -14,8 +14,7 @@ import javax.servlet.ServletException;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.Dashboard;
-import com.psddev.cms.tool.DashboardColumn;
-import com.psddev.cms.tool.DashboardWidget;
+import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.AggregateQueryResult;
 import com.psddev.dari.db.Database;
@@ -28,18 +27,23 @@ import com.psddev.dari.util.PaginatedResult;
 import com.psddev.dari.util.StringUtils;
 
 @SuppressWarnings("deprecation")
-public class SiteMapWidget extends DashboardWidget {
+public class SiteMapWidget extends DefaultDashboardWidget {
 
     private static final int[] LIMITS = { 10, 20, 50 };
     private static final String URL_TYPE = "url";
 
     @Override
-    public void writeHtml(
-            ToolPageContext page,
-            Dashboard dashboard,
-            DashboardColumn column)
-            throws IOException, ServletException {
+    public int getColumnIndex() {
+        return 0;
+    }
 
+    @Override
+    public int getWidgetIndex() {
+        return 2;
+    }
+
+    @Override
+    public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         String type = page.pageParam(String.class, "type", null);
         final ObjectType itemType = Query.findById(ObjectType.class, page.pageParam(UUID.class, "itemType", null));
         long offset = page.param(long.class, "offset");

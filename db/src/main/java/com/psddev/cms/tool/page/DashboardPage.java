@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import com.psddev.cms.db.Site;
-import com.psddev.cms.db.ToolRole;
-import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardColumn;
@@ -28,31 +25,17 @@ public class DashboardPage extends PageServlet {
 
     @Override
     public void doService(ToolPageContext page) throws IOException, ServletException {
-        ToolUser user = page.getUser();
         Dashboard dashboard = page.getUser().getDashboard();
-
-        if (dashboard == null) {
-            ToolRole role = user.getRole();
-
-            if (role != null) {
-                dashboard = role.getDashboard();
-            }
-        }
-
-        if (dashboard == null) {
-            Site site = page.getSite();
-
-            if (site != null) {
-                dashboard = site.getDashboard();
-            }
-        }
+        String dashboardId = "user";
 
         if (dashboard == null) {
             dashboard = page.getCmsTool().getDefaultDashboard();
+            dashboardId = "tool";
         }
 
         if (dashboard == null) {
             dashboard = Dashboard.getDefaultDashboard();
+            dashboardId = "default";
         }
 
         page.writeHeader();
@@ -61,13 +44,13 @@ public class DashboardPage extends PageServlet {
                 double totalWidth = 0;
 
                 for (DashboardColumn column : columns) {
-                    int width = column.getWidth();
+                    double width = column.getWidth();
                     totalWidth += width > 0 ? width : 1;
                 }
 
                 for (int c = 0, cSize = columns.size(); c < cSize; ++ c) {
                     DashboardColumn column = columns.get(c);
-                    int width = column.getWidth();
+                    double width = column.getWidth();
 
                     page.writeStart("div",
                             "class", "dashboard-column",
@@ -76,8 +59,15 @@ public class DashboardPage extends PageServlet {
                         List<DashboardWidget> widgets = column.getWidgets();
 
                         for (int w = 0, wSize = widgets.size(); w < wSize; ++ w) {
+                            DashboardWidget widget = widgets.get(w);
+
                             page.writeStart("div", "class", "frame dashboard-widget");
-                                page.writeStart("a", "href", page.toolUrl(CmsTool.class, "/dashboardWidget/" + dashboard.getId() + "/" + c + "/" + w));
+                                page.writeStart("a", "href", page.toolUrl(CmsTool.class,
+                                        "/dashboardWidget/" +
+                                        dashboardId + "/" +
+                                        (widget.getState().isNew() ?
+                                                widget.getClass().getName() :
+                                                widget.getId())));
                                 page.writeEnd();
                             page.writeEnd();
                         }

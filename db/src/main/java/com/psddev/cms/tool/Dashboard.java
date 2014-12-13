@@ -1,52 +1,51 @@
 package com.psddev.cms.tool;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 
-import com.psddev.cms.tool.widget.BulkUploadWidget;
-import com.psddev.cms.tool.widget.CreateNewWidget;
-import com.psddev.cms.tool.widget.RecentActivityWidget;
-import com.psddev.cms.tool.widget.ResourcesWidget;
-import com.psddev.cms.tool.widget.ScheduledEventsWidget;
-import com.psddev.cms.tool.widget.SiteMapWidget;
-import com.psddev.cms.tool.widget.UnpublishedDraftsWidget;
-import com.psddev.cms.tool.widget.WorkStreamsWidget;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable.Embedded;
+import com.psddev.dari.util.ClassFinder;
+import com.psddev.dari.util.TypeDefinition;
 
-@Dashboard.Embedded
+@Embedded
 public class Dashboard extends Record {
 
     private List<DashboardColumn> columns;
 
     public static Dashboard getDefaultDashboard() {
         Dashboard dashboard = new Dashboard();
-        List<DashboardColumn> columns = new ArrayList<>();
+        List<DashboardColumn> columns = dashboard.getColumns();
 
-        dashboard.setColumns(columns);
+        for (Class<? extends DefaultDashboardWidget> c : ClassFinder.Static.findClasses(DefaultDashboardWidget.class)) {
+            DefaultDashboardWidget widget = TypeDefinition.getInstance(c).newInstance();
+            int columnIndex = widget.getColumnIndex();
 
-        DashboardColumn leftColumn = new DashboardColumn();
+            while (columns.size() - 1 < columnIndex) {
+                columns.add(new DashboardColumn());
+            }
 
-        leftColumn.setWidth(60);
-        columns.add(leftColumn);
+            columns.get(columnIndex).getWidgets().add(widget);
+        }
 
-        List<DashboardWidget> leftColumnWidgets = leftColumn.getWidgets();
+        double width = 1.0;
 
-        leftColumnWidgets.add(new WorkStreamsWidget());
-        leftColumnWidgets.add(new RecentActivityWidget());
-        leftColumnWidgets.add(new SiteMapWidget());
+        for (ListIterator<DashboardColumn> i = columns.listIterator(columns.size()); i.hasPrevious();) {
+            DashboardColumn column = i.previous();
+            width *= 1.61803398875;
 
-        DashboardColumn rightColumn = new DashboardColumn();
+            column.setWidth(width);
+            Collections.sort(column.getWidgets(), new Comparator<DashboardWidget>() {
 
-        rightColumn.setWidth(40);
-        columns.add(rightColumn);
-
-        List<DashboardWidget> rightColumnWidgets = rightColumn.getWidgets();
-
-        rightColumnWidgets.add(new CreateNewWidget());
-        rightColumnWidgets.add(new BulkUploadWidget());
-        rightColumnWidgets.add(new ScheduledEventsWidget());
-        rightColumnWidgets.add(new ResourcesWidget());
-        rightColumnWidgets.add(new UnpublishedDraftsWidget());
+                @Override
+                public int compare(DashboardWidget x, DashboardWidget y) {
+                    return ((DefaultDashboardWidget) x).getWidgetIndex() - ((DefaultDashboardWidget) y).getWidgetIndex();
+                }
+            });
+        }
 
         return dashboard;
     }
