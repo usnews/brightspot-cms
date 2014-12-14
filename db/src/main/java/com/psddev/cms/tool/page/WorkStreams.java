@@ -22,6 +22,6 @@ public class WorkStreams extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new WorkStreamsWidget().writeHtml(page, null, null);
+        new WorkStreamsWidget().writeHtml(page, null);
     }
 }

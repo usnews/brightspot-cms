@@ -22,6 +22,6 @@ public class ScheduledEvents extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new ScheduledEventsWidget().writeHtml(page, null, null);
+        new ScheduledEventsWidget().writeHtml(page, null);
     }
 }

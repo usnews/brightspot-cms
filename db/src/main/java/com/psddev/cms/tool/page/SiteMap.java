@@ -22,6 +22,6 @@ public class SiteMap extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new SiteMapWidget().writeHtml(page, null, null);
+        new SiteMapWidget().writeHtml(page, null);
     }
 }

@@ -22,6 +22,6 @@ public class CreateNew extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new CreateNewWidget().writeHtml(page, null, null);
+        new CreateNewWidget().writeHtml(page, null);
     }
 }

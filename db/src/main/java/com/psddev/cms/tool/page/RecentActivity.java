@@ -22,6 +22,6 @@ public class RecentActivity extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new RecentActivityWidget().writeHtml(page, null, null);
+        new RecentActivityWidget().writeHtml(page, null);
     }
 }

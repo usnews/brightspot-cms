@@ -22,6 +22,6 @@ public class Resources extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new ResourcesWidget().writeHtml(page, null, null);
+        new ResourcesWidget().writeHtml(page, null);
     }
 }

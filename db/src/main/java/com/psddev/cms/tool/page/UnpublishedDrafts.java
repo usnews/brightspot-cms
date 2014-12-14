@@ -22,6 +22,6 @@ public class UnpublishedDrafts extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new UnpublishedDraftsWidget().writeHtml(page, null, null);
+        new UnpublishedDraftsWidget().writeHtml(page, null);
     }
 }

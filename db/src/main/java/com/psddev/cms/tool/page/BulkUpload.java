@@ -22,6 +22,6 @@ public class BulkUpload extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        new BulkUploadWidget().writeHtml(page, null, null);
+        new BulkUploadWidget().writeHtml(page, null);
     }
 }
