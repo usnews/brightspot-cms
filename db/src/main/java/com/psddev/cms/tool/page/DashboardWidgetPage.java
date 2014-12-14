@@ -1,10 +1,12 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 
 import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.DashboardColumn;
 import com.psddev.cms.tool.DashboardWidget;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
@@ -13,6 +15,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
+import com.psddev.dari.util.UuidUtils;
 
 @RoutingFilter.Path(application = "cms", value = "/dashboardWidget")
 public class DashboardWidgetPage extends PageServlet {
@@ -49,12 +52,28 @@ public class DashboardWidgetPage extends PageServlet {
                 throw new IllegalArgumentException();
         }
 
-        DashboardWidget widget = Query.
-                from(DashboardWidget.class).
-                where("_id = ?", pathInfoParts[1]).
-                first();
+        DashboardWidget widget = null;
+        if (pathInfoParts[1].matches("([a-f\\d]{8}(-[a-f\\d]{4}){3}-[a-f\\d]{12}?)")) {
+            UUID widgetId = UuidUtils.fromString(pathInfoParts[1]);
 
-        if (widget == null) {
+            widget = Query.
+                    from(DashboardWidget.class).
+                    where("_id = ?", widgetId).
+                    first();
+
+            if (widget == null) {
+                COLUMNS: for (DashboardColumn column : dashboard.getColumns()) {
+                    if (column != null) {
+                        for (DashboardWidget w : column.getWidgets()) {
+                            if (w != null && widgetId.equals(w.getId())) {
+                                widget = w;
+                                break COLUMNS;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
             widget = (DashboardWidget) TypeDefinition.getInstance(ObjectUtils.getClassByName(pathInfoParts[1])).newInstance();
         }
 
