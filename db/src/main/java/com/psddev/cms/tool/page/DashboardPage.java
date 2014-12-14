@@ -65,7 +65,7 @@ public class DashboardPage extends PageServlet {
                                 page.writeStart("a", "href", page.toolUrl(CmsTool.class,
                                         "/dashboardWidget/" +
                                         dashboardId + "/" +
-                                        (widget.getState().isNew() ?
+                                        ("default".equals(dashboardId) ?
                                                 widget.getClass().getName() :
                                                 widget.getId())));
                                 page.writeEnd();
