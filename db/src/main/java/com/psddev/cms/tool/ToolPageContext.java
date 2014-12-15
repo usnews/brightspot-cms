@@ -2190,11 +2190,13 @@ public class ToolPageContext extends WebPageContext {
      * Writes some form fields for the given {@code object}.
      *
      * @param object Can't be {@code null}.
+     * @param includeGlobals {@true} to include global fields.
      * @param includeFields {@code null} to include all fields.
      * @param excludeFields {@code null} to exclude no fields.
      */
     public void writeSomeFormFields(
             Object object,
+            boolean includeGlobals,
             Collection<String> includeFields,
             Collection<String> excludeFields)
             throws IOException, ServletException {
@@ -2207,7 +2209,7 @@ public class ToolPageContext extends WebPageContext {
             fields.addAll(type.getFields());
         }
 
-        if (!fields.isEmpty()) {
+        if (includeGlobals && !fields.isEmpty()) {
             for (ObjectField field : state.getDatabase().getEnvironment().getFields()) {
                 if (Boolean.FALSE.equals(field.getState().get("cms.ui.hidden"))) {
                     fields.add(field);
@@ -2368,7 +2370,7 @@ public class ToolPageContext extends WebPageContext {
      * @param object Can't be {@code null}.
      */
     public void writeFormFields(Object object) throws IOException, ServletException {
-        writeSomeFormFields(object, null, null);
+        writeSomeFormFields(object, false, null, null);
     }
 
     /**

@@ -9,6 +9,7 @@ com.psddev.cms.tool.ToolPageContext
 
 new ToolPageContext(pageContext).writeSomeFormFields(
         request.getAttribute("object"),
+        false,
         ObjectUtils.to(new TypeReference<Collection<String>>() { }, request.getAttribute("includeFields")),
         ObjectUtils.to(new TypeReference<Collection<String>>() { }, request.getAttribute("excludeFields")));
 %>
