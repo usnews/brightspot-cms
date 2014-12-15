@@ -807,8 +807,9 @@ The HTML within the repeatable element must conform to these standards:
                         $(content).appendTo($location);
 
                         // Trigger some events so other code can know we have added content
-                        $item.trigger('create');
-                        $item.trigger('load');
+                        // and can add more controls to the form we just loaded
+                        $location.trigger('create');
+                        $location.trigger('load');
 
                     });
                 }
@@ -1052,7 +1053,10 @@ The HTML within the repeatable element must conform to these standards:
                     // We previously saved the item element on the carousel tile
                     $item = $(carouselData.tile).data('item');
                     if ($item) {
-                        self.modePreviewEdit($item);
+                        // Send "false" as the second argument because
+                        // we do not want to move the carousel position to
+                        // the active tile.
+                        self.modePreviewEdit($item, false);
                     }
                     
                 });
@@ -1206,8 +1210,12 @@ The HTML within the repeatable element must conform to these standards:
              *
              * @param {Element|jQuery object} item
              * The item to edit.
+             *
+             * @param {Boolean} [goToActiveTile]
+             * Set to false if you do not want to move the carousel to the active tile.
+             * Defaults to true.
              */
-            modePreviewEdit: function(item) {
+            modePreviewEdit: function(item, goToActiveTile) {
                 var self = this;
                 var $item = $(item);
                 var $editContainer;
@@ -1228,8 +1236,12 @@ The HTML within the repeatable element must conform to these standards:
                     self.modePreviewShowCarousel();
 
                     // Set the active tile in the carousel
-                    self.modePreviewSetCarouselActive( $item.index() );
+                    self.carousel.setActive( $item.index() );
 
+                    if (goToActiveTile !== false) {
+                        self.carousel.goToActiveTile();
+                    }
+                    
                     // Hide all the other slide edit forms
                     self.dom.$carouselTarget.find('.itemEdit').hide();
                     $editContainer.show();
@@ -1277,22 +1289,6 @@ The HTML within the repeatable element must conform to these standards:
             },
 
             
-            /**
-             * When in preview mode set the active tile in the carousel.
-             */
-            modePreviewSetCarouselActive: function(index) {
-                var self = this;
-
-                if (!self.carousel) {
-                    return;
-                }
-
-                self.carousel.setActive(index);
-
-                // TODO: move the carousel so the active tile is visible?
-                
-            },
-
             /**
              * After adding one or more items to the carousel,
              * call this to update the carousel display.
