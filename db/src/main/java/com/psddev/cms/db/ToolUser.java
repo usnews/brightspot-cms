@@ -711,6 +711,14 @@ public class ToolUser extends Record implements ToolEntity {
         return role != null ? role.hasPermission(permissionId) : true;
     }
 
+    /**
+     * Returns {@code true} if forgot paassword email was never sent
+     * or was sent before the given {@code interval} in minutes.
+     */
+    public boolean isAllowedToRequestForgotPassword(long interval) {
+        return changePasswordTokenTime + interval * 60L * 1000L < System.currentTimeMillis();
+    }
+
     @Override
     protected void beforeSave() {
         String email = getEmail();

@@ -57,12 +57,12 @@
   font-size: @-height;
   font-weight: bold;
   height: @-height;
-  left: 55px;
+  left: 60px;
   line-height: @-height;
   position: absolute;
   text-transform: uppercase;
   top: ((@length-toolHeader-height - @-height) / 2);
-  width: (@length-toolTitle-width - 35px);
+  width: (@length-toolTitle-width - 40px);
 
   .link {
     color: @color-text;
@@ -189,10 +189,8 @@
     }
 
     label {
-      color: @color-note;
-      cursor: pointer;
-      font-family: @fontFamily-label;
-      font-weight: bold;
+      color: @color-placeholder;
+      font-style: italic;
       left: 0;
       padding-left: 26px;
     }
@@ -205,24 +203,92 @@
 }
 
 .toolSearchSaved {
-  border-right: 2px solid @color-separator;
+  .background-flat(@color-heading);
+  bottom: -15px;
   box-sizing: border-box;
   display: block;
-  left: (-40 - @length-toolTitle-width);
-  padding-right: 20px;
+  left: (-60 - @length-toolTitle-width);
+  padding: 20px;
   position: absolute;
-  top: 5px;
-  width: (@length-toolTitle-width + 21);
+  top: -15px;
+  width: (@length-toolTitle-width + 40);
 }
 
-.toolNavToggle {
-  &:extend(.button all);
+.toolNav {
+  display: none;
+}
+
+.toolNav-split {
+  overflow: hidden;
+
+  .link {
+    &, &:hover {
+      color: @color-text;
+      text-decoration: none;
+    }
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    @-item-height: 40px;
+
+    cursor: pointer;
+    height: @-item-height;
+    line-height: @-item-height;
+    padding: 0 20px;
+
+    &:hover,
+    &.state-hover {
+      background-color: fade(@color-focus, 10%);
+    }
+  }
+}
+
+.toolNav-splitLeft {
+  border-right: 1px solid @color-separator;
+  float: left;
+  min-width: (@length-toolTitle-width + 40px);
+
+  li {
+    .icon;
+    .icon-angle-right;
+
+    position: relative;
+
+    &:before {
+      padding-right: 0;
+      position: absolute;
+      right: 20px;
+      width: auto;
+    }
+  }
+}
+
+.toolNav-splitRight {
+  border-left: 1px solid @color-separator;
+  float: left;
+  margin-left: -1px;
+
+  ul {
+    min-width: (@length-toolTitle-width + 40px);
+  }
+}
+
+.toolNav-toggle {
+  @-size: 25px;
 
   .icon;
   .icon-reorder;
 
-  @-size: @length-inputHeight;
-
+  background: #3fc5f0;
+  border-radius: 2px;
+  color: white;
+  cursor: pointer;
   height: @-size;
   left: 20px;
   padding: 0;
@@ -238,6 +304,32 @@
   }
 }
 
+.toolNav-popup {
+  left: 0 !important;
+  margin: 4px 0 0 0 !important;
+  max-width: none !important;
+  position: fixed !important;
+  top: (@length-toolHeader-height - 14) !important;
+  width: auto !important;
+  z-index: 101 !important;
+
+  &:before {
+    top: @length-toolHeader-height !important;
+  }
+
+  > .content {
+    border-radius: 0 !important;
+    border-bottom-right-radius: 2px !important;
+    border-top: 2px solid @color-separator !important;
+    box-shadow: 0 40px 80px -40px black !important;
+    padding: 0 !important;
+
+    > .closeButton {
+      display: none;
+    }
+  }
+}
+/*
 .toolNav {
   border-top: 2px solid @color-separator;
   display: none;
@@ -245,12 +337,23 @@
   list-style-type: none;
   margin: 0;
   overflow: hidden;
-  padding: 20px 50px 30px 40px;
+  padding: 20px 30px 30px 20px;
   position: fixed;
   top: (@length-toolHeader-height - 1px);
-  width: 100%;
 
   &:before {
+    background-color: black;
+    bottom: 0;
+    content: '';
+    left: 0;
+    opacity: 0.2;
+    position: fixed;
+    transform: translateZ(0);
+    top: 0;
+    right: 0;
+  }
+
+  &:after {
     background-color: white;
     bottom: 10px;
     box-shadow: 0 0 10px fade(black, 20%);
@@ -264,7 +367,7 @@
 
   > li {
     float: left;
-    margin-right: 60px;
+    margin-right: 40px;
 
     &:last-child {
       margin-right: 0;
@@ -283,6 +386,7 @@
     }
   }
 }
+*/
 
 .toolContent {
   background: darken(white, 20%);
@@ -496,7 +600,7 @@
   }
 
   .select {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
 }
 
