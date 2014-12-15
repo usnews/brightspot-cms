@@ -383,11 +383,22 @@ function($, bsp_utils) {
             }
 
             if (newOffset !== layout.tilesOffset) {
-
-                // Set the left offset to move the tiles to the left within the viewport
-                self.dom.tiles.css('margin-left', '-' + newOffset + 'px');
-
+                self._moveTo(newOffset);
             }
+        },
+
+
+        /**
+         * Move the carousel to a specific pixel position
+         *
+         * @param {Number} offset
+         * The pixel position to move the carousel (should be a positive number).
+         */
+        _moveTo: function(offset) {
+            var self = this;
+
+            // Set the left offset to move the tiles to the left within the viewport
+            self.dom.tiles.css('margin-left', '-' + offset + 'px');
 
             // Hide the active arrow, it will be shown again after calling update()
             self.dom.arrow.hide();
@@ -395,11 +406,10 @@ function($, bsp_utils) {
             // Update the nav links etc but wait enough time for the animation to complete
             setTimeout(function(){
                 self.update();
-            }, 1000);
-
+            }, 1100);
         },
 
-
+        
         /**
          * Go to the next page of tiles.
          */
@@ -419,7 +429,7 @@ function($, bsp_utils) {
 
 
         /**
-         * Advance to the next tile.
+         * Advance to the next tile (move only one tile).
          */
         nextTile: function() {
             var self = this;
@@ -428,14 +438,44 @@ function($, bsp_utils) {
 
 
         /**
-         * Go to the previous page of tiles.
+         * Go to the previous tile (move only one tile).
          */
         previousTile: function() {
             var self = this;
             self._move(-1);
         },
 
+        
+        /**
+         * Go to a specific tile.
+         *
+         * @param {Number} index
+         */
+        goToTile: function(n) {
+            
+            var self = this;
+            
+            // First get some information about our tiles
+            var layout = self._getLayout();
 
+            // Now figure out the offset to get to this tile
+            var offset = (n - 1) * layout.tileWidth;
+
+            // Move to the offset
+            self._moveTo(offset);
+        },
+
+        
+        /**
+         * Go to the currently active tile.
+         */
+        goToActiveTile: function() {
+            var self = this;
+            var n = self.getActive();
+            self.goToTile(n);
+        },
+
+        
         /**
          * Set a tile to the active state.
          *
