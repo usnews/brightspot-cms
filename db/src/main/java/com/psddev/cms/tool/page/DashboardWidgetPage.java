@@ -53,28 +53,29 @@ public class DashboardWidgetPage extends PageServlet {
         }
 
         DashboardWidget widget = null;
-        if (pathInfoParts[1].matches("([a-f\\d]{8}(-[a-f\\d]{4}){3}-[a-f\\d]{12}?)")) {
-            UUID widgetId = UuidUtils.fromString(pathInfoParts[1]);
+        String widgetClassName = pathInfoParts[1];
+        UUID widgetId = UuidUtils.fromString(pathInfoParts[2]);
 
-            widget = Query.
-                    from(DashboardWidget.class).
-                    where("_id = ?", widgetId).
-                    first();
+        widget = Query.
+                from(DashboardWidget.class).
+                where("_id = ?", widgetId).
+                first();
 
-            if (widget == null) {
-                COLUMNS: for (DashboardColumn column : dashboard.getColumns()) {
-                    if (column != null) {
-                        for (DashboardWidget w : column.getWidgets()) {
-                            if (w != null && widgetId.equals(w.getId())) {
-                                widget = w;
-                                break COLUMNS;
-                            }
+        if (widget == null) {
+            COLUMNS: for (DashboardColumn column : dashboard.getColumns()) {
+                if (column != null) {
+                    for (DashboardWidget w : column.getWidgets()) {
+                        if (w != null && widgetId.equals(w.getId())) {
+                            widget = w;
+                            break COLUMNS;
                         }
                     }
                 }
             }
-        } else {
-            widget = (DashboardWidget) TypeDefinition.getInstance(ObjectUtils.getClassByName(pathInfoParts[1])).newInstance();
+        }
+
+        if (widget == null) {
+            widget = (DashboardWidget) TypeDefinition.getInstance(ObjectUtils.getClassByName(widgetClassName)).newInstance();
         }
 
         widget.writeHtml(page, dashboard);
