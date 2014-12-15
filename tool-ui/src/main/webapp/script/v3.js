@@ -51,7 +51,7 @@ require([
   'jquery.calendar',
   'jquery.dropdown',
   'jquery.editableplaceholder',
-  'jquery.popup',
+  'v3/jquery.popup',
   'jquery.fixedscrollable',
   'v3/jquery.frame',
   'jquery.lazyload',
@@ -704,27 +704,59 @@ function() {
   $doc.ready(function() {
     (function() {
       var $nav = $('.toolNav');
+
+      var $split = $('<div/>', {
+        'class': 'toolNav-split',
+      });
+
+      var $left = $('<ul/>', {
+        'class': 'toolNav-splitLeft'
+      });
+
+      var $right = $('<div/>', {
+        'class': 'toolNav-splitRight'
+      });
+
+      $split.append($left);
+      $split.append($right);
+
+      $nav.find('> li').each(function() {
+        var $item = $(this);
+        var $sub = $item.find('> ul');
+
+        $right.append($sub);
+        $sub.hide();
+
+        $left.append($('<li/>', {
+          'text': $item.text(),
+          'mouseover': function() {
+            $left.find('> li').removeClass('state-hover');
+            $(this).addClass('state-hover');
+            $right.find('> ul').hide();
+            $sub.show();
+          }
+        }));
+      });
+
+      $left.find('> li:first-child').trigger('mouseover');
+
       var $toggle = $('<div/>', {
-        'class': 'toolNavToggle',
+        'class': 'toolNav-toggle',
         'click': function() {
-          $nav.toggle();
+          if ($split.is(':visible')) {
+            $split.popup('close');
+
+          } else {
+            $split.popup('open');
+          }
         }
       });
 
       $nav.before($toggle);
 
-      $win.click(function(event) {
-        var nav = $nav[0];
-        var toggle = $toggle[0];
-        var target = event.target;
-
-        if (nav !== target &&
-            !$.contains(nav, target) &&
-            toggle !== target &&
-            !$.contains(toggle, target)) {
-          $nav.hide();
-        }
-      });
+      $split.popup();
+      $split.popup('close');
+      $split.popup('container').addClass('toolNav-popup');
     })();
 
     $(this).trigger('create');
