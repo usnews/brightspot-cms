@@ -182,7 +182,7 @@ The HTML within the repeatable element must conform to these standards:
                 // Determine which type of repeatable we are dealing with
                 self.initMode();
 
-                // Intialize a carousel if we need it
+                // Intialize a carousel if we need it (for mode=preview)
                 self.initCarousel();
 
                 // For each item initialize it
@@ -354,8 +354,9 @@ The HTML within the repeatable element must conform to these standards:
 
                 $carouselContainer = $('<div/>', {'class': 'carousel-container'}).appendTo($viewCarousel);
 
-                // Also create a placeholder where we can put an item after the user clicks a carousel item
+                // Also create a placeholder where we can edit each item
                 $carouselTarget = $('<div/>', {'class': 'carousel-target'}).appendTo($viewCarousel);
+                self.dom.$carouselTarget = $carouselTarget;
 
                 // Now create the carousel object, initialize it, and save it for later use
                 carousel = Object.create(carouselUtility);
@@ -365,11 +366,18 @@ The HTML within the repeatable element must conform to these standards:
                 // Add a listener so we can do something when carousel items are clicked
                 $carouselContainer.on('carousel.tile', function(e, carouselData) {
 
-                    // TODO: add an action when carousel tile is clicked
+                    var $item;
+                    
                     // @param {Object} carouselData
                     // @param {Object} carouselData.carousel
                     // @param {jQuery object} carouselData.index = the number of the tile that was clicked
                     // @param {Element} carouselData.tile = the tile that was clicked
+
+                    // We previously saved the item element on the carousel tile
+                    $item = $(carouselData.tile).data('item');
+                    if ($item) {
+                        self.itemEditModePreview($item);
+                    }
                     
                 });
 
@@ -406,7 +414,6 @@ The HTML within the repeatable element must conform to these standards:
                     }
 
                 });
-                
             },
 
 
@@ -555,6 +562,10 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(element);
 
+                // Create an image for the item if necessary,
+                // and set up other stuff for mode=preview
+                self.initItemPreview($item);
+                
                 // Create a the label for the item if necessary.
                 // The label acts as a toggle to show and hide the item,
                 // plus it can load the content of the item from a URL
@@ -575,6 +586,57 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Add the item to the carousel if necessary
                 self.initItemCarousel($item);
+            },
+
+
+            /**
+             * Initialize an item for mode=preview 
+             */
+            initItemPreview: function(element) {
+                var self = this;
+                var $item = $(element);
+                var imageUrl;
+                var $controls;
+
+                // Only do this for mode=preview
+                if (!self.modeIsPreview()) {
+                    return;
+                }
+
+                // Check for the preview image
+                imageUrl = $item.attr('data-preview');
+                if (!imageUrl) {
+                    return;
+                }
+
+                $('<img/>', {
+                    'class': 'previewable-image',
+                    src: imageUrl,
+                    alt: ''
+                }).appendTo($item);
+
+                // TODO: add title here
+
+                // Add controls at bottom of preview image:
+                // - Set as cover
+                // - Edit image
+                // - Remove slide
+                
+                $controls = $('<div/>', {
+                    'class': 'previewable-controls',
+                }).appendTo($item);
+
+                // Add control to set cover
+                // Add control to edit image
+                $('<span/>', {
+                    'class': 'previewable-control-edit',
+                    text: 'Edit'
+                }).on('click', function(event) {
+                    self.itemEditModePreview($item);
+                    return false;
+                }).appendTo($controls);
+                
+                // Add control to remove slide
             },
 
             
@@ -599,6 +661,11 @@ The HTML within the repeatable element must conform to these standards:
                     return;
                 }
 
+                // Do not add a label if this is a mode=preview
+                if (self.modeIsPreview()) {
+                    return;
+                }
+                
                 // The text for the label will be the data type such as "Slideshow Slide"
                 // And if a data-label attribute was provided append it after a colon such as "Slideshow Slide: My Slide"
                 labelText = type;
@@ -899,6 +966,11 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(item);
                 var deferred;
+
+                // Don't do anything if mode=preview
+                if (self.modeIsPreview()) {
+                    return;
+                }
                 
                 // Collapse or uncollapse the item
                 $item.toggleClass('collapsed', collapseFlag);
@@ -961,6 +1033,12 @@ The HTML within the repeatable element must conform to these standards:
              * Checks an item to determine if it needs to load some dynamic content,
              * and loads it if necessary.
              *
+             * @param {Element|jQuery object} item
+             * The item to load.
+             *
+             * @param {Element|jQuery object} [location]
+             * Optional location where to append the loaded content.
+             *
              * @returns {Promise}
              * Returns a promise that tells you when the item is done loading.
              * You can use this promise even if the item is already on the page
@@ -969,14 +1047,15 @@ The HTML within the repeatable element must conform to these standards:
              * @example
              * myRepeatable.itemLoad(element).always(function(){ alert('Item is done loading'); });
              */
-            itemLoad: function(item) {
+            itemLoad: function(item, location) {
                 
                 var self = this;
                 var $item = $(item);
+                var $location = location ? $(location) : $item;
                 var $input;
                 var url;
                 var data;
-                
+
                 // In case we do not need to load anything, we'll create a deferred
                 // promise that is already resolved
                 var promise = $.Deferred().resolve().promise();
@@ -1013,7 +1092,7 @@ The HTML within the repeatable element must conform to these standards:
                         var content = typeof(response) === 'string' ? response : response.responseText;
 
                         // When ajax completes add the content to the page
-                        $item.append(content);
+                        $(content).appendTo($location);
 
                         // Trigger some events so other code can know we have added content
                         $item.trigger('create');
@@ -1024,6 +1103,42 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Return a promise so other events can be triggered after the item is loaded
                 return promise;
+            },
+
+
+            /**
+             * Edit an item for mode=preview
+             *
+             * @param {Element|jQuery object} item
+             * The item to edit.
+             */
+            itemEditModePreview: function(item) {
+                var self = this;
+                var $item = $(item);
+                var $editContainer;
+
+                // If necessary create the container for editing this item
+                $editContainer = $item.data('editContainer');
+                if (!$editContainer) {
+                    $editContainer = $('<div/>', {
+                        'class': 'itemEdit'
+                    }).appendTo(self.dom.$carouselTarget);
+                    $item.data('editContainer', $editContainer);
+                }
+
+                // Load the item into the edit container
+                self.itemLoad($item, $editContainer).always(function(){
+
+                    // Switch to the carousel view
+                    self.previewShowCarousel();
+
+                    // Set the active tile in the carousel
+                    self.previewSetCarouselActive( $item.index() );
+
+                    // Hide all the other slide edit forms
+                    self.dom.$carouselTarget.find('.itemEdit').hide();
+                    $editContainer.show();
+                });
             },
 
             
@@ -1145,7 +1260,7 @@ The HTML within the repeatable element must conform to these standards:
             previewShowCarousel: function() {
 
                 var self = this;
-                
+
                 if (!self.modeIsPreview()) {
                     return;
                 }
@@ -1153,6 +1268,28 @@ The HTML within the repeatable element must conform to these standards:
                 self.dom.$viewSwitcher.find('a').removeClass('view-switcher-active').filter('.view-switcher-gallery').addClass('view-switcher-active');
                 self.dom.$viewGrid.hide();
                 self.dom.$viewCarousel.show();
+
+                // In some cases carousel update doesn't work if carousel is hidden,
+                // so we'll call update whenever we show the carousel to ensure
+                // it is displaying everything correctly
+                self.carousel.update();
+            },
+
+            
+            /**
+             * When in preview mode set the active tile in the carousel.
+             */
+            previewSetCarouselActive: function(index) {
+                var self = this;
+
+                if (!self.carousel) {
+                    return;
+                }
+
+                self.carousel.setActive(index);
+
+                // TODO: move the carousel so the active tile is visible?
+                
             }
             
         } // END repeatableUtility

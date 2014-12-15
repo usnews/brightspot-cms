@@ -283,7 +283,6 @@ function($, bsp_utils) {
             }
 
             self.update();
-            
         },
 
         
@@ -470,7 +469,7 @@ function($, bsp_utils) {
             if (activeTile.length) {
                 activeTileWidth = activeTile.width() || 0;
                 activeTilePosition = activeTile.position();
-                 activeTileLeft = activeTilePosition.left;
+                activeTileLeft = activeTilePosition.left;
                 arrowWidth = self.dom.arrow.outerWidth() || 0;
                 self.dom.arrow.css('left', activeTileLeft + (activeTileWidth / 2) - arrowWidth).show();
             } else {

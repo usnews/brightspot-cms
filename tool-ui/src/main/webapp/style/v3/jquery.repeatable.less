@@ -123,6 +123,10 @@
           .icon-plus;
           color: @color-link-dark;
         }
+
+        .previewable-image {
+          opacity:0.5;
+        }
       }
     }
   }
@@ -163,6 +167,13 @@
 
         &:nth-child(4n+1) {
           clear: left;
+        }
+
+        .previewable-image {
+            width: 100%;
+            // Resize the image so it's largest dimension fills the tile completely
+            // and keeps the correct aspect ratio.
+            object-fit: cover;
         }
 
         > .repeatableLabel {
