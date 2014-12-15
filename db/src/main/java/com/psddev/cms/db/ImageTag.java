@@ -1044,6 +1044,7 @@ public class ImageTag extends TagSupport implements DynamicAttributes {
                 if (cropWidth != null && cropHeight != null) {
                     if (!disableHotSpotCrop &&
                             useHotSpotCrop() &&
+                            standardImageSize != null &&
                             (standardImageSize.getCropOption() == null || standardImageSize.getCropOption().equals(CropOption.AUTOMATIC)) &&
                             cropX == null &&
                             cropY == null) {
