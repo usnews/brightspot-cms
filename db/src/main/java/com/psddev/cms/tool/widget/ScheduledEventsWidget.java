@@ -253,9 +253,9 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                     if (date.getDayOfMonth() == 1 || date.getDayOfWeek() == 1) {
                         page.writeStart("div", "class", "calendarRow");
 
-                        if(date.getDayOfMonth() == 1) {
+                        if (date.getDayOfMonth() == 1) {
                             int offset = date.getDayOfWeek() - 1;
-                            for(int i=0; i < offset; i++) {
+                            for (int i = 0; i < offset; i++) {
                                 page.writeStart("div", "class", "calendarDay", "style", "visibility:hidden;").writeEnd();
                             }
                         }
@@ -275,15 +275,19 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                             int draftCount = drafts.size();
 
                             page.writeStart("div", "class", "calendarEventsContainer");
-                                page.writeStart("div", "class", "calendarEvents");
+                                page.writeStart("a",
+                                        "href", page.cmsUrl("/scheduleEventsList", "date", date.toDate().getTime()),
+                                        "target", "scheduleEventsList");
+                                    page.writeStart("div", "class", "calendarEvents");
 
-                                    page.writeStart("div", "class", "count");
-                                        page.writeHtml(draftCount);
-                                    page.writeEnd();
-                                    page.writeStart("div", "class", "label");
-                                        page.writeHtml("Event" + (draftCount > 1 ? "s" : ""));
-                                    page.writeEnd();
+                                        page.writeStart("div", "class", "count");
+                                            page.writeHtml(draftCount);
+                                        page.writeEnd();
+                                        page.writeStart("div", "class", "label");
+                                            page.writeHtml("Event" + (draftCount > 1 ? "s" : ""));
+                                        page.writeEnd();
 
+                                    page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();
                         }
@@ -320,7 +324,7 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
             return displayName;
         }
 
-        public static void displayAgendaView(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException{
+        public static void displayAgendaView(ToolPageContext page, Map<DateTime, List<Schedule>> schedulesByDate) throws IOException {
             page.writeStart("div", "class", "calendar calendar-week");
             for (Map.Entry<DateTime, List<Schedule>> entry : schedulesByDate.entrySet()) {
                 DateTime date = entry.getKey();
