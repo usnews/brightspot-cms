@@ -51,7 +51,7 @@ require([
   'jquery.calendar',
   'jquery.dropdown',
   'jquery.editableplaceholder',
-  'v3/jquery.popup',
+  'jquery.popup',
   'jquery.fixedscrollable',
   'v3/jquery.frame',
   'jquery.lazyload',
