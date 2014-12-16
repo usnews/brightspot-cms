@@ -454,7 +454,7 @@ The HTML within the repeatable element must conform to these standards:
                     'class': 'repeatableLabel',
                     text: labelText,
                     
-                    // TODO: describe purpose of these attributes 
+                    // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
                     'data-dynamic-text': '${content.state.getType().label}: ${content.label}'
                     
@@ -566,7 +566,7 @@ The HTML within the repeatable element must conform to these standards:
                     promise = $.Deferred().resolve().promise();
                 }
                 
-                // Run more code after the item has been added to the page
+                // Run more code after the item has been loaded
                 promise.always(function() {
 
                     // Add the item to the page
@@ -583,7 +583,7 @@ The HTML within the repeatable element must conform to these standards:
                     // we copy that value into the added item, then clear the value
                     // from the original input so the user can enter another value
                     if (self.modeIsSingle()) {
-                        $addedItem.find(':input:not([name$=".toggle"])').val(self.dom.$singleInput.val());
+                        $addedItem.find(':input:not([name$=".toggle"])').val( self.dom.$singleInput.val() );
                         self.dom.$singleInput.val('');
                     }
 
@@ -617,6 +617,10 @@ The HTML within the repeatable element must conform to these standards:
                     // Since we have added new content
                     $win.resize();
 
+                    // If we are in mode preview, adjust the added item.
+                    // Add a preview image, and move the form to the carousel.
+                    self.modePreviewAddItem($addedItem);
+                    
                     if (customCallback) {
                         customCallback.call($addedItem[0]);
                     }
@@ -1039,15 +1043,15 @@ The HTML within the repeatable element must conform to these standards:
                 // Create controls at the top
                 $topButtonContainer = $('<div/>', { 'class': 'repeatablePreviewControls' }).prependTo($container);
 
-                // TODO: what about the "Upload Files" link that is already at the bottom and needs to move to the top?
-                // We could just move all content after the list into  the top button container, but that sounds like a hack
+                // Move the "action-upload" link into the top button container
+                $container.find('.action-upload').appendTo($topButtonContainer);
                 
                 // Add a placeholder for the "Add Item" button(s) to later be added to the top.
                 // Refer to initAddButton() to see how this is used.
                 $('<span/>', { 'class': 'addButtonContainer' }).appendTo($topButtonContainer);
 
                 // Create buttons to switch between grid view and gallery view
-                $viewSwitcher = $('<span class="view-switcher inputSmall">' +
+                $viewSwitcher = $('<span class="view-switcher">' +
                                   '<a href="#" class="view-switcher-active view-switcher-grid">Grid View</a> | ' +
                                   '<a href="#" class="view-switcher-gallery">Gallery View</a>' +
                                   '</span>').appendTo($topButtonContainer);
@@ -1136,28 +1140,39 @@ The HTML within the repeatable element must conform to these standards:
             modePreviewInitItem: function(element) {
                 var self = this;
                 var $item = $(element);
+                var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
                 var imageUrl;
+                var $label;
                 var $controls;
-
+                var labelText = $item.attr('data-label') || 'LABEL';
+                
                 // Only do this for mode=preview
                 if (!self.modeIsPreview()) {
                     return;
                 }
 
-                // Check for the preview image
-                imageUrl = $item.attr('data-preview');
-                if (!imageUrl) {
-                    return;
-                }
+                // Check for the preview image or use a placeholder image
+                // TODO: update the placeholder image
+                imageUrl = $item.attr('data-preview') || 'slideshow-placeholder.png';
 
                 $('<img/>', {
                     'class': 'previewable-image',
                     src: imageUrl,
                     alt: ''
                 }).appendTo($item);
+                
+                // Add the title of the slide here
+                $label = $('<div/>', {
+                    
+                    'class': 'previewable-label',
+                    text: labelText,
+                    
+                    // Set up some parameters so the label text will dynamically update based on the input field
+                    'data-object-id': itemId,
+                    'data-dynamic-text': '${content.label}'
 
-                // TODO: add title here
-
+                }).appendTo($item);
+                       
                 // Add controls at bottom of preview image:
                 // - Set as cover
                 // - Edit image
@@ -1203,22 +1218,19 @@ The HTML within the repeatable element must conform to these standards:
                 
                 $carouselTile = $('<div class="carousel-tile-content"/>');
                 
-                // Add the thumbnail image
-                if (preview) {
-                    $('<img/>', {
-                        'class': 'carousel-tile-content-image',
-                        src: preview,
-                        alt: ''
-                    }).appendTo($carouselTile);
-                }
+                // Add the thumbnail image.
+                // If there is no thumbnail image use a placeholder image.
+                $('<img/>', {
+                    'class': 'carousel-tile-content-image',
+                    src: preview || 'about:blank',
+                    alt: ''
+                }).appendTo($carouselTile);
                 
                 // Add the text label
-                if (label) {
-                    $('<div/>', {
-                        'class': 'carousel-tile-content-label',
-                        text: label
-                    }).appendTo($carouselTile);
-                }
+                $('<div/>', {
+                    'class': 'carousel-tile-content-label',
+                    text: label || '[Empty Tile]'
+                }).appendTo($carouselTile);
 
                 // On the item, save a reference to the carousel tile,
                 // so later if user changes sort order of the items,
@@ -1237,6 +1249,36 @@ The HTML within the repeatable element must conform to these standards:
                 // at the end for best performance
             },
 
+
+
+            /**
+             * After adding a new item, this function cleans it up for mode=preview.
+             * Create the thumbnail image for the empty item.
+             * The added item will have a complete form, so move the form to the gallery view.
+             */
+            modePreviewAddItem: function(item) {
+                
+                var self = this;
+                var $item = $(item);
+                var $editContainer;
+                
+                if (!self.modeIsPreview()) {
+                    return;
+                }
+                
+                // Create a container in the gallery view for editing the item
+                $editContainer = self.modePreviewCreateEditContainer($item);
+                
+                // Remove the item's edit form and move it to the edit container
+                $item.find('.objectInputs').appendTo($editContainer);
+
+                // Make sure the carousel is updated after we added a tile
+                self.carousel.update();
+
+                // Switch to carousel view and select the tile to edit
+                self.modePreviewEdit($item);
+            },
+
             
             /**
              * Edit an item for mode=preview
@@ -1253,14 +1295,12 @@ The HTML within the repeatable element must conform to these standards:
                 var $item = $(item);
                 var $editContainer;
 
-                // If necessary create the container for editing this item
-                $editContainer = $item.data('editContainer');
-                if (!$editContainer) {
-                    $editContainer = $('<div/>', {
-                        'class': 'itemEdit'
-                    }).appendTo(self.dom.$carouselTarget);
-                    $item.data('editContainer', $editContainer);
+                if (!self.modeIsPreview()) {
+                    return;
                 }
+                
+                // If necessary create the container for editing this item
+                $editContainer = self.modePreviewCreateEditContainer($item);
 
                 // Load the item into the edit container
                 self.itemLoad($item, $editContainer).always(function(){
@@ -1279,6 +1319,35 @@ The HTML within the repeatable element must conform to these standards:
                     self.dom.$carouselTarget.find('.itemEdit').hide();
                     $editContainer.show();
                 });
+            },
+
+            
+            /**
+             * For an item in mode=preview, create a placeholder for the edit container,
+             * and optionally load some content into it.
+             *
+             * @param {Element|jQuery object} item
+             * The item to edit.
+             *
+             * @param {String|Element|jQuery object} [content]
+             * Optional content to add into the 
+             */
+            modePreviewCreateEditContainer: function(item) {
+                
+                var self = this;
+                var $item = $(item);
+                var $editContainer;
+
+                // If necessary create the container for editing this item
+                $editContainer = $item.data('editContainer');
+                if (!$editContainer) {
+                    $editContainer = $('<div/>', {
+                        'class': 'itemEdit'
+                    }).appendTo(self.dom.$carouselTarget);
+                    $item.data('editContainer', $editContainer);
+                }
+
+                return $editContainer;
             },
 
             
