@@ -806,6 +806,13 @@ The HTML within the repeatable element must conform to these standards:
                         // When ajax completes add the content to the page
                         $(content).appendTo($location);
 
+                        // If the item has already been removed, mark the new content to be removed as well
+                        if (self.itemIsRemoved($item)) {
+                            // Call the removeItem function again and this time
+                            // it will also mark the newly loaded content to be disabled
+                            self.removeItem($item);
+                        }
+                        
                         // Trigger some events so other code can know we have added content
                         // and can add more controls to the form we just loaded
                         $location.trigger('create');
@@ -839,17 +846,30 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(item);
                 var $removeButton = $item.find('.removeButton');
-                var $inputs = $item.find(':input');
+                var $inputs;
                 var itemNumber = $item.index();
                 var carousel = self.carousel;
                 var $itemCarousel;
+                var $content = $();
 
+                // Define the content where we need to disable inputs and mark toBeRemoved
+                $content = $content.add($item);
+                
                 // If we previously set up a carousel, get the tile in the carousel
                 // so we can mark it as removed
                 if (carousel) {
-                    $itemCarousel = carousel.getTileContent(itemNumber);
+                    
+                    // Add the carousel tile so it will get the "toBeRemoved" class
+                    $content = $content.add( carousel.getTileContent(itemNumber) );
+
+                    // Add the edit form for this item so we can mark it toBeRemoved
+                    // and disable those inputs
+                    $content = $content.add( $item.data('editContainer') );
                 }
 
+                // Find all the input elements within the content so we can disable them
+                $inputs = $content.find(':input');
+                
                 // If the removeFlag was not specified, determine if it should be true
                 // or false, based on the current class of the item
                 if (removeFlag === undefined) {
@@ -859,7 +879,7 @@ The HTML within the repeatable element must conform to these standards:
                 if (removeFlag) {
                     
                     // Add the "toBeRemoved" class to both the item and the item in the carousel
-                    $item.add($itemCarousel).addClass('toBeRemoved');
+                    $content.addClass('toBeRemoved');
                     
                     // Disable all the inputs within the item so they will not be sent to the backend
                     // when the form is submitted
@@ -873,7 +893,7 @@ The HTML within the repeatable element must conform to these standards:
                 } else {
 
                     // Remove the "toBeRemoved" class to both the item and the carousel
-                    $item.add($itemCarousel).removeClass('toBeRemoved');
+                    $content.removeClass('toBeRemoved');
 
                     // Disable all the inputs within the item so they will not be sent to the backend
                     // when the form is submitted
@@ -909,10 +929,23 @@ The HTML within the repeatable element must conform to these standards:
              * The item (LI element).
              */
             restoreItem: function(item) {
+                var self = this;
                 self.removeItemToggle(item, false);
             },
 
 
+            /**
+             * Determine if an item is currently removed.
+             * 
+             * @param {Element|jQuery object} item
+             * The item (LI element).
+             */
+            itemIsRemoved: function(item) {
+                var self = this;
+                return $(item).hasClass('toBeRemoved');
+            },
+
+            
             //==================================================
             // MODE SINGLE
             //==================================================
