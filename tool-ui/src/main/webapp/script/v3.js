@@ -664,6 +664,8 @@ function() {
     var $publishing = $frame.find('.widget-publishing');
 
     if ($publishing.length > 0) {
+      $publishing.addClass('widget-publishing-hasClose');
+
       $publishing.append($('<a/>', {
         'class': 'widget-publishing-close',
         'click': function(event) {
@@ -671,9 +673,6 @@ function() {
           return false;
         }
       }));
-
-      $publishing.addClass('widget-publishing-hasClose');
-      $frame.popup('container').find('> .content > .closeButton').hide();
     }
 
     // Scroll the frame into view.
@@ -692,13 +691,15 @@ function() {
     var oldScrollTop = $.data($source[0], 'oldScrollTop');
 
     if (oldScrollTop) {
+      $source.closest('.popup, .toolContent').removeClass('under');
+
       $('html, body').animate({
         'scrollTop': oldScrollTop
+
+      }, 300, 'swing', function() {
+        $win.resize();
       });
     }
-
-    $source.closest('.popup, .toolContent').removeClass('under');
-    $win.resize();
   });
 
   $doc.ready(function() {
