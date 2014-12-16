@@ -461,6 +461,10 @@ figure,
 .icon-umbrella { &:before { content: '\f0e9'; } }
 .icon-paste { &:before { content: '\f0ea'; } }
 .icon-exchange { &:before { content: '\f0ec'; } }
+.icon-angle-left { &:before { content: '\f104'; } }
+.icon-angle-right { &:before { content: '\f105'; } }
+.icon-angle-up { &:before { content: '\f106'; } }
+.icon-angle-down { &:before { content: '\f107'; } }
 .icon-desktop { &:before { content: '\f108'; } }
 .icon-laptop { &:before { content: '\f109'; } }
 .icon-reply { &:before { content: '\f112'; } }
@@ -1388,8 +1392,7 @@ table.links.table-striped {
 }
 
 .under {
-  filter: url(filters.svg#under);
-  filter: grayscale(1) blur(5px);
+  opacity: 0.05;
   transition: all @time-fast;
 }
 
