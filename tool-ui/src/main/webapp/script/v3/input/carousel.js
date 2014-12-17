@@ -200,15 +200,21 @@ function($, bsp_utils) {
             });
 
             // Clicking on a tile
-            self.dom.tiles.on('click', '> li', function(e) {
+            self.dom.tiles.on('click', '> .carousel-tile', function(e) {
 
                 // Determine which tile was clicked
                 // The index() function returns the index of the <li> element relative to its siblings.
-                var n = $(this).index();
-
+                // Since it is zero-based we add one to make it the tile number.
+                var n = $(this).index() + 1;
+                
                 // Make it the active tile
                 self.setActive(n);
 
+                // If the tile is not currently visible move it to the center
+                if (!self.tileIsVisible(n)) {
+                    self.goToTile(n, true);
+                }
+            
                 // Do the action for the tile
                 self.doTile(n);
 
@@ -241,7 +247,7 @@ function($, bsp_utils) {
 
             var self = this;
 
-            var tile = self.dom.tiles.find('> .carousel-tile').eq(n).remove();
+            var tile = self.dom.tiles.find('> .carousel-tile').eq(n - 1).remove();
         },
 
 
@@ -258,11 +264,10 @@ function($, bsp_utils) {
             
             var self = this;
             var $tiles = self.dom.tiles.find('> .carousel-tile');
-            var $tile = $tiles.eq(currentPosition - 1);
+            var $tile = $tiles.eq(currentPosition - 2);
 
             // Make sure newPosition is valid
             if (newPosition > $tiles.length ) {
-                console.log('newPosition invalid');
                 return;
             }
             
@@ -301,7 +306,7 @@ function($, bsp_utils) {
             
             var self = this;
 
-            return self.dom.tiles.find('li').eq(n).contents();
+            return self.dom.tiles.find('> .carousel-tile').eq(n - 1).contents();
         },
 
 
@@ -397,11 +402,11 @@ function($, bsp_utils) {
         _moveTo: function(offset) {
             var self = this;
 
-            // Set the left offset to move the tiles to the left within the viewport
-            self.dom.tiles.css('margin-left', '-' + offset + 'px');
-
             // Hide the active arrow, it will be shown again after calling update()
             self.dom.arrow.hide();
+
+            // Set the left offset to move the tiles to the left within the viewport
+            self.dom.tiles.css('margin-left', '-' + offset + 'px');
 
             // Update the nav links etc but wait enough time for the animation to complete
             setTimeout(function(){
@@ -447,11 +452,15 @@ function($, bsp_utils) {
 
         
         /**
-         * Go to a specific tile.
+         * Go to a specific tile and optionally center it in the carousel viewport.
          *
          * @param {Number} index
+         * Tile number (starting with 1).
+         *
+         * @param {Boolean} [center]
+         * Set to true if you want the tile centered in the carousel viewport.
          */
-        goToTile: function(n) {
+        goToTile: function(n, center) {
             
             var self = this;
             
@@ -459,8 +468,16 @@ function($, bsp_utils) {
             var layout = self._getLayout();
 
             // Now figure out the offset to get to this tile
-            var offset = (n - 1) * layout.tileWidth;
+            var offset = (n-1) * layout.tileWidth;
 
+            // Adjust to center the tile in the viewport?
+            if (center) {
+                offset = offset - (layout.viewportWidth / 2) + (layout.tileWidth / 2);
+                if (offset < 0) {
+                    offset = 0;
+                }
+            }
+            
             // Move to the offset
             self._moveTo(offset);
         },
@@ -472,7 +489,37 @@ function($, bsp_utils) {
         goToActiveTile: function() {
             var self = this;
             var n = self.getActive();
-            self.goToTile(n);
+            self.goToTile(n, true);
+        },
+
+
+        /**
+         * Determine if tile is completely visible within the viewport,
+         * or if it is hidden (even partially).
+         *
+         * @param {Number} n
+         * Tile number to check.
+         *
+         * @returns {Boolean}
+         * Returns true if the tile is completely visible within the carousel viewport.
+         * Returns false if the tile is hidden or partially cut off.
+         */
+        tileIsVisible: function(n) {
+            
+            var self = this;
+            
+            // First get some information about our tiles
+            var layout = self._getLayout();
+            
+            // Now figure out the offset to get to the tile we want
+            var tileOffset = (n-1) * layout.tileWidth;
+
+            // Determine the distance from the current offset to the tile we want
+            var offsetDiff = tileOffset - layout.tilesOffset;
+
+            var isVisible = Boolean((offsetDiff > 0) && (offsetDiff + layout.tileWidth < layout.viewportWidth));
+            
+            return isVisible;
         },
 
         
@@ -487,7 +534,7 @@ function($, bsp_utils) {
             var self = this;
 
             self.clearActive();
-            self.dom.tiles.find('li').eq(n).addClass(self.classActive);
+            self.dom.tiles.find('> .carousel-tile').eq(n - 1).addClass(self.classActive);
             self._setActiveArrow();
         },
 
@@ -500,7 +547,7 @@ function($, bsp_utils) {
         _setActiveArrow: function() {
             var self = this;
             //var layout = self._getLayout();
-            var activeTile = self.dom.tiles.find('li.' + self.classActive);
+            var activeTile = self.dom.tiles.find('> .' + self.classActive);
             var activeTileWidth;
             var activeTilePosition;
             var activeTileLeft;
@@ -530,11 +577,11 @@ function($, bsp_utils) {
             var index;
 
             // return tile number of the active tile
-            index = self.dom.tiles.find('li').filter(function(){
+            index = self.dom.tiles.find('> .carousel-tile').filter(function(){
                 return $(this).hasClass(self.classActive);
-            }).index();
+            }).index() + 1;
 
-            return (index + 1);
+            return index;
         },
 
 
@@ -545,7 +592,7 @@ function($, bsp_utils) {
 
             var self = this;
 
-            self.dom.tiles.find('> li').removeClass(self.classActive);
+            self.dom.tiles.find('> .carousel-tile').removeClass(self.classActive);
         },
 
 
@@ -599,7 +646,7 @@ function($, bsp_utils) {
 
                 // Get width of first tile including margin
                 // (note we assume all tiles will have same width)
-                tileWidth: self.dom.tiles.find('> li:first-child').outerWidth(true),
+                tileWidth: self.dom.tiles.find('> .carousel-tile:first-child').outerWidth(true),
 
                 // Get the current left offset of the tiles within the viewport
                 tilesOffset: Math.abs(parseInt(self.dom.tiles.css('margin-left'), 10)) || 0
@@ -633,7 +680,7 @@ function($, bsp_utils) {
             // That way someone using the carousel can attach data to the tiles
             // and receive it back when the event occurs, so they will
             // know which tile was clicked
-            var content = self.dom.tiles.find('li').eq(n).contents();
+            var content = self.dom.tiles.find('> .carousel-tile').eq(n - 1).contents();
 
             // Data to pass as part of the custom event
             var data = {
