@@ -1144,7 +1144,7 @@ The HTML within the repeatable element must conform to these standards:
                 var imageUrl;
                 var $label;
                 var $controls;
-                var labelText = $item.attr('data-label') || 'LABEL';
+                var labelText = $item.attr('data-label') || '[Empty Title]';
                 
                 // Only do this for mode=preview
                 if (!self.modeIsPreview()) {
@@ -1162,17 +1162,15 @@ The HTML within the repeatable element must conform to these standards:
                 }).appendTo($item);
                 
                 // Add the title of the slide here
-                $label = $('<div/>', {
-                    
-                    'class': 'previewable-label',
+                $label = $('<div class="previewable-label"><span class="previewable-label-prefix">Title: </span></div>');
+                $('<span/>', {
                     text: labelText,
-                    
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': itemId,
                     'data-dynamic-text': '${content.label}'
-
-                }).appendTo($item);
-                       
+                }).appendTo($label);
+                $label.appendTo($item);
+               
                 // Add controls at bottom of preview image:
                 // - Set as cover
                 // - Edit image
@@ -1229,9 +1227,14 @@ The HTML within the repeatable element must conform to these standards:
                 // Add the text label
                 $('<div/>', {
                     'class': 'carousel-tile-content-label',
-                    text: label || '[Empty Tile]'
-                }).appendTo($carouselTile);
+                    text: label || '[Empty Tile]',
 
+                    // Set up some parameters so the label text will dynamically update based on the input field
+                    'data-object-id': $item.find('> input[type="hidden"][name$=".id"]').val(),
+                    'data-dynamic-text': '${content.label}'
+
+                }).appendTo($carouselTile);
+                
                 // On the item, save a reference to the carousel tile,
                 // so later if user changes sort order of the items,
                 // we can determine which carousel tile needs to be moved
