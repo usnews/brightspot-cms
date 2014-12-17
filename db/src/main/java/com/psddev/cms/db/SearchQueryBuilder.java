@@ -320,9 +320,9 @@ public class SearchQueryBuilder extends Record {
                 return;
             }
 
-            for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext(); ) {
+            for (Iterator<String> qt = queryTerms.iterator(); qt.hasNext();) {
                 String term = qt.next();
-                for (Iterator<String> sw = stopWords.iterator(); sw.hasNext(); ) {
+                for (Iterator<String> sw = stopWords.iterator(); sw.hasNext();) {
                     String stopWordString = sw.next();
                     if (term.equals(stopWordString)) {
                         removeQueryTerms.add(term);
