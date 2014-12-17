@@ -851,7 +851,7 @@ The HTML within the repeatable element must conform to these standards:
                 var $item = $(item);
                 var $removeButton = $item.find('.removeButton');
                 var $inputs;
-                var itemNumber = $item.index();
+                var itemNumber = $item.index() + 1;
                 var carousel = self.carousel;
                 var $itemCarousel;
                 var $content = $();
@@ -1309,7 +1309,7 @@ The HTML within the repeatable element must conform to these standards:
                     self.modePreviewShowCarousel();
 
                     // Set the active tile in the carousel
-                    self.carousel.setActive( $item.index() );
+                    self.carousel.setActive( $item.index() + 1 );
 
                     if (goToActiveTile !== false) {
                         self.carousel.goToActiveTile();
