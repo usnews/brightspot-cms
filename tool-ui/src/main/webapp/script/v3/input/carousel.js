@@ -264,7 +264,7 @@ function($, bsp_utils) {
             
             var self = this;
             var $tiles = self.dom.tiles.find('> .carousel-tile');
-            var $tile = $tiles.eq(currentPosition - 2);
+            var $tile = $tiles.eq(currentPosition - 1);
 
             // Make sure newPosition is valid
             if (newPosition > $tiles.length ) {
