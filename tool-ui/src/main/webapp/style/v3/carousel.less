@@ -76,7 +76,7 @@
         width: @carousel-tile-width;
         height: @carousel-tile-height;
         background-color: #eee;
-
+        cursor: pointer;
         counter-increment: @carousel-counter;
 
         // Use position relative so we can position counter
@@ -106,7 +106,7 @@
             top:3px;
             right:3px;
             padding:4px;
-            background:rgba(0,0,0,0.7);
+            background:rgba(64,64,64,0.7);
             border:2px solid white;
             border-radius:50%;
             color:white;
@@ -234,13 +234,3 @@
     }
 }
 
-
-.view-switcher-active {
-    font-weight:bold;
-    color:black;
-
-    &:hover {
-        text-decoration: none;
-        color:black;
-    }
-}

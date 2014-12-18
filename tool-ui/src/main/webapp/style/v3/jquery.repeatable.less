@@ -171,23 +171,26 @@
         width: 210px;
         padding:4px;
         padding-bottom:22px;
-        border:1px solid #ddd;
+        border:1px solid #ccc;
         border-radius:2px;
         min-height:170px;
         
         counter-increment: @preview-counter;
 
         .previewable-image {
-            width: 200px;
-            height:150px;
-            
-            // Resize the image so it's largest dimension fills the tile completely
-            // and keeps the correct aspect ratio.
-            object-fit: cover;
+          width: 200px;
+          height:150px;
+          cursor: pointer;
+          
+          // Resize the image so it's largest dimension fills the tile completely
+          // and keeps the correct aspect ratio.
+          object-fit: cover;
         }
 
         .previewable-label {
           margin:2px 4px 8px;
+          height:2.5em;
+          overflow:hidden;
         }
         
         .previewable-label-prefix {
@@ -204,9 +207,14 @@
         }
 
         .previewable-control-edit {
+          .icon;
+          .icon-pencil;
+          .icon-only;
           position:absolute;
-          right:25px;
+          right:30px;
           bottom:2px;
+          cursor:pointer;
+          color:#999;
         }
         
         > .repeatableLabel {
@@ -221,9 +229,10 @@
           .icon-only;
 
           left: auto;
-          right: 5px;
+          right: 8px;
           top:auto;
           bottom:2px;
+          color:#999;
         }
 
         .inputLabel {
@@ -275,7 +284,7 @@
           top:10px;
           right:10px;
           padding:4px;
-          background:rgba(0,0,0,0.7);
+          background:rgba(64,64,64,0.7);
           border:2px solid white;
           border-radius:50%;
           color:white;
@@ -295,6 +304,34 @@
       margin: 0 10px 0 0;
     }
   }
+}
+
+.repeatablePreviewControls {
+
+  margin-bottom:.5em;
+  
+  .action-upload {
+    margin-right:1em;
+  }
+  
+}
+
+.view-switcher {
+  float:right;
+}
+
+.view-switcher-active {
+    font-weight:bold;
+    color:black;
+
+    &:hover {
+        text-decoration: none;
+        color:black;
+    }
+}
+
+.carousel-target {
+  margin-top:1em;
 }
 
 .repeatableForm > ol > li.collapsed > .frame,
@@ -388,6 +425,19 @@
     .addButtonContainer {
       display: none;
     }
+  }
+}
+
+.addButtonContainer {
+  margin-top: 5px;
+
+  > .addButton {
+    &:extend(.link all);
+
+    .icon;
+    .icon-plus;
+
+    margin-right: 15px;
   }
 }
 
