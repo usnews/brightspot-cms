@@ -12,119 +12,119 @@
 
 .carousel-wrapper {
     // see .carousel-bottom-content for the bottom border and active arrow
-    clear: both;
-    position: relative;
-    border-bottom:0; 
-    background:@carousel-background-color;
+  clear: both;
+  position: relative;
+  border-bottom:0; 
+  background:@carousel-background-color;
 
     // Padding leaves room on the left and right for the navigation controls
-    padding: @carousel-padding (@carousel-padding + @carousel-nav-width + @carousel-margin-between-tiles);
+  padding: @carousel-padding (@carousel-padding + @carousel-nav-width + @carousel-margin-between-tiles);
 }
 
 .carousel-nav {
-    position: absolute;
-    top: @carousel-padding;
-    width: @carousel-nav-width;
-    height: @carousel-tile-height;
-    background: #aaa;
-    border: 1px solid @carousel-border-color;
+  position: absolute;
+  top: @carousel-padding;
+  width: @carousel-nav-width;
+  height: @carousel-tile-height;
+  background: #aaa;
+  border: 1px solid @carousel-border-color;
 
-    &.carousel-nav-hide {
-        background: #e8e8e8;
-    }
+  &.carousel-nav-hide {
+    background: #e8e8e8;
+  }
 
-    a {
-        display:none;
-    }
+  a {
+    display:none;
+  }
 }
 
 .carousel-nav-previous {
-    left:@carousel-padding;
+  left:@carousel-padding;
 }
 
 .carousel-nav-next {
-    right:@carousel-padding;
+  right:@carousel-padding;
 }
 
 .carousel-viewport {
-    width:100%;
-    white-space: nowrap;
-    overflow-x:hidden;
+  width:100%;
+  white-space: nowrap;
+  overflow-x:hidden;
 }
 
 .carousel-tiles {
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-    list-style-type: none;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  list-style-type: none;
 
     // This is needed to get correct width within the overflow hidden viewport
-    display:inline-block;
+  display:inline-block;
 
     // Animation for the tiles moving left and right
-    transition: margin-left 900ms ease-in-out;        
+  transition: margin-left 900ms ease-in-out;        
     // TODO: use a mixin so we can add transition prefixes for other browsers?
 
     // For a numbered carousel create a CSS counter
-    counter-reset: @carousel-counter;
+  counter-reset: @carousel-counter;
 
     // Styles for individual tiles (the LI element)
-    > .carousel-tile {
-        display: inline-block;
-        white-space: normal;
-        padding: 0;
-        width: @carousel-tile-width;
-        height: @carousel-tile-height;
-        background-color: #eee;
-        cursor: pointer;
-        counter-increment: @carousel-counter;
+  > .carousel-tile {
+    display: inline-block;
+    white-space: normal;
+    padding: 0;
+    width: @carousel-tile-width;
+    height: @carousel-tile-height;
+    background-color: #eee;
+    cursor: pointer;
+    counter-increment: @carousel-counter;
 
         // Use position relative so we can position counter
-        position: relative;
+    position: relative;
 
         // Margin between each tile
-        &:not(:last-child) {
-            margin-right: @carousel-margin-between-tiles;
-        }
+    &:not(:last-child) {
+      margin-right: @carousel-margin-between-tiles;
+    }
 
         // Border for the tile
-        border:1px solid #ddd;
+    border:1px solid #ddd;
 
         // Inset shadow for the active tile.
         // Not using a border here because I don't want the active tile to change size
         // and affect the rest of the carousel.
-        &.carousel-active {
+    &.carousel-active {
             // TODO: use a mixin for box shadow?
-            -webkit-box-shadow:inset 0px 0px 0px 4px #ddd;
-            -moz-box-shadow:inset 0px 0px 0px 4px #ddd;
-            box-shadow:inset 0px 0px 0px 4px #ddd;
-        }
-
-        .carousel-numbered &:before {
-            content: counter(@carousel-counter);
-            position:absolute;
-            top:3px;
-            right:3px;
-            padding:4px;
-            background:rgba(64,64,64,0.7);
-            border:2px solid white;
-            border-radius:50%;
-            color:white;
-            min-width:12px;
-            text-align:center;
-            line-height:1;
-            font-size:12px;
-            font-weight:bold;
-        }
+      -webkit-box-shadow:inset 0px 0px 0px 4px #ddd;
+      -moz-box-shadow:inset 0px 0px 0px 4px #ddd;
+      box-shadow:inset 0px 0px 0px 4px #ddd;
     }
+
+    .carousel-numbered &:before {
+      content: counter(@carousel-counter);
+      position:absolute;
+      top:3px;
+      right:3px;
+      padding:4px;
+      background:rgba(64,64,64,0.7);
+      border:2px solid white;
+      border-radius:50%;
+      color:white;
+      min-width:12px;
+      text-align:center;
+      line-height:1;
+      font-size:12px;
+      font-weight:bold;
+    }
+  }
 }
 
 // The bottom viewport contains the bottom border and the active arrow
 // This is necessary to make the active arrow line up with the active tile
 .carousel-bottom-viewport {
-    height:@carousel-arrow-height;
-    position:relative;
-    overflow-x:hidden;
+  height:@carousel-arrow-height;
+  position:relative;
+  overflow-x:hidden;
 }
 
 .carousel-bottom-content {
@@ -133,104 +133,103 @@
     // using javascript, so the active arrow will align with the active tile
 
     // Set to position relative so the arrow will be based off the left side
-    border-top: @carousel-border-width solid @carousel-border-color;
-    position:relative;
+  border-top: @carousel-border-width solid @carousel-border-color;
+  position:relative;
 
-    width:100%;
+  width:100%;
 }
 
 // Arrow at bottom of active tile
 .carousel-arrow {
 
     // Start by hiding the arrow, will be revealed using javascript
-    display:none;
+  display:none;
 
-    position:absolute;
-    top:-@carousel-border-width;
-    left: 100px; // will be updated using javascript to position arrow under the active tile
+  position:absolute;
+  top:-@carousel-border-width;
+  left: 100px; // will be updated using javascript to position arrow under the active tile
 
     // Note we set width here although we don't need it for style
     // we will use javascript to get the width for various calculations.
     // This lets us avoid having to hard-code the width in both the javascript and the CSS.
-    width: @carousel-arrow-width;
+  width: @carousel-arrow-width;
 
-    &:before, &:after {
-        content:'';
-        border-style: solid;
-        border-width: @carousel-arrow-width;
-        height:0;
-        width:0;
-        margin-left: @carousel-arrow-width / 2;
+  &:before, &:after {
+    content:'';
+    border-style: solid;
+    border-width: @carousel-arrow-width;
+    height:0;
+    width:0;
+    margin-left: @carousel-arrow-width / 2;
 
         // will be positioned relative to .carousel-arrow so always use 0,0
-        position:absolute;
-        top:0;
-        left:0;
-    }
+    position:absolute;
+    top:0;
+    left:0;
+  }
 
-    &:before {
+  &:before {
 
         // Color for the inside of the arrow
-        border-color: @carousel-background-color transparent transparent transparent;
+    border-color: @carousel-background-color transparent transparent transparent;
 
         // Make sure the inside color sits on top of the :after color
-        z-index: 1;
+    z-index: 1;
 
         // Adjust the :before a little bit above the 
-        top:-@carousel-border-width;
-    }
+    top:-@carousel-border-width;
+  }
 
-    &:after {
+  &:after {
         // Color of the border for the arrow
-        border-color: @carousel-border-color transparent transparent transparent;
-    }
+    border-color: @carousel-border-color transparent transparent transparent;
+  }
 }
 
 // Carousel tile content
 .carousel-tile-content {
-    text-align: center;
-    width: @carousel-tile-width;
-    height: @carousel-tile-height;
-    overflow:hidden;
+  text-align: center;
+  width: @carousel-tile-width;
+  height: @carousel-tile-height;
+  overflow:hidden;
 
-    &.toBeRemoved {
-        opacity:0.5;
-    }
+  &.toBeRemoved {
+    opacity:0.5;
+  }
 
 }
 .carousel-tile-content-image {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
     // Resize the image so it's largest dimension fills the tile completely
     // and keeps the correct aspect ratio. Any extra 
-    object-fit: cover;
+  object-fit: cover;
 }
 .carousel-tile-content-label {
-    text-align: left;
-    position:absolute;
-    bottom:0;
-    left:0;
-    font-size:80%;
-    background-color:rgba(255,255,255,0.8);
-    padding:2px 4px;
-    width: @carousel-tile-width - 8px;
+  text-align: left;
+  position:absolute;
+  bottom:0;
+  left:0;
+  font-size:80%;
+  background-color:rgba(255,255,255,0.8);
+  padding:2px 4px;
+  width: @carousel-tile-width - 8px;
 
     // Make the text end in ellipsis if it is too long to fit
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow: ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
 
     // Hide by default but show on hover or active tile
-    opacity:0;
-    .carousel-active &, .carousel-tile-content:hover & {
-        opacity:1;
-    }
-    transition:opacity 200ms ease-in-out 200ms;
+  opacity:0;
+  .carousel-active &, .carousel-tile-content:hover & {
+    opacity:1;
+  }
+  transition:opacity 200ms ease-in-out 200ms;
 
-    .toBeRemoved & {
-        color:red;
-        text-decoration: line-through;
-        opacity:1; // always show label for deleted tiles
-    }
+  .toBeRemoved & {
+    color:red;
+    text-decoration: line-through;
+    opacity:1; // always show label for deleted tiles
+  }
 }
-
