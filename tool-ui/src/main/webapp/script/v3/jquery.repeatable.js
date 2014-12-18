@@ -1063,7 +1063,7 @@ The HTML within the repeatable element must conform to these standards:
                 self.dom.$viewGrid = $viewGrid; // save for later
 
                 // For the carousel view, create a new placeholder but hide it initially
-                $viewCarousel = $('<div/>', { 'class': 'inputLarge viewCarousel' }).insertAfter(self.dom.$list).hide();
+                $viewCarousel = $('<div/>', { 'class': 'viewCarousel' }).insertAfter(self.dom.$list).hide();
                 self.dom.$viewCarousel = $viewCarousel; // save for later
 
                 $carouselContainer = $('<div/>', {'class': 'carousel-container'}).appendTo($viewCarousel);
@@ -1159,17 +1159,23 @@ The HTML within the repeatable element must conform to these standards:
                     'class': 'previewable-image',
                     src: imageUrl,
                     alt: ''
+                }).on('click', function(){
+                    self.modePreviewEdit($item);
+                    return false;
                 }).appendTo($item);
                 
                 // Add the title of the slide here
-                $label = $('<div class="previewable-label"><span class="previewable-label-prefix">Title: </span></div>');
-                $('<span/>', {
+                $label = $('<div class="previewable-label"><span class="previewable-label-prefix">Title: </span></div>').appendTo($item);
+                $('<a/>', {
+                    href: '#',
                     text: labelText,
                     // Set up some parameters so the label text will dynamically update based on the input field
                     'data-object-id': itemId,
                     'data-dynamic-text': '${content.label}'
+                }).on('click', function(){
+                    self.modePreviewEdit($item);
+                    return false;
                 }).appendTo($label);
-                $label.appendTo($item);
                
                 // Add controls at bottom of preview image:
                 // - Set as cover
@@ -1181,10 +1187,12 @@ The HTML within the repeatable element must conform to these standards:
                 }).appendTo($item);
 
                 // Add control to set cover
+                // TODO: will need some back-end changes to support this
+                
                 // Add control to edit image
                 $('<span/>', {
                     'class': 'previewable-control-edit',
-                    text: 'Edit'
+                    text: ''
                 }).on('click', function(event) {
                     self.modePreviewEdit($item);
                     return false;
@@ -1297,6 +1305,7 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(item);
                 var $editContainer;
+                var newPosition;
 
                 if (!self.modeIsPreview()) {
                     return;
@@ -1315,7 +1324,16 @@ The HTML within the repeatable element must conform to these standards:
                     self.carousel.setActive( $item.index() + 1 );
 
                     if (goToActiveTile !== false) {
+                        
                         self.carousel.goToActiveTile();
+                        
+                        // TODO: this doesn't work so well since there is a header div
+                        // at the top of the page that obscures the content, so leaving
+                        // this out for now.
+                        
+                        // Also scroll the page so we can see the carousel
+                        // newPosition = self.$element.offset();
+                        // window.scrollTo(0, newPosition.top);
                     }
                     
                     // Hide all the other slide edit forms
