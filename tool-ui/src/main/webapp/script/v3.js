@@ -657,23 +657,44 @@ function() {
 
       $nav.find('> li').each(function() {
         var $item = $(this);
-        var $sub = $item.find('> ul');
 
-        $right.append($sub);
-        $sub.hide();
+        if ($item.is(':first-child')) {
+          $item.find('> ul > li').each(function() {
+            var $subItem = $(this).find('> a');
 
-        $left.append($('<li/>', {
-          'text': $item.text(),
-          'mouseover': function() {
-            $left.find('> li').removeClass('state-hover');
-            $(this).addClass('state-hover');
-            $right.find('> ul').hide();
-            $sub.show();
-          }
-        }));
+            $left.append($('<li/>', {
+              'html': $('<a/>', {
+                'href': $subItem.attr('href'),
+                'text': $subItem.text(),
+              }),
+
+              'mouseover': function() {
+                $left.find('> li').removeClass('state-hover');
+                $(this).addClass('state-hover');
+                $right.hide();
+              }
+            }));
+          });
+
+        } else {
+          var $sub = $item.find('> ul');
+
+          $right.append($sub);
+          $sub.hide();
+
+          $left.append($('<li/>', {
+            'class': 'toolNav-splitLeft-nested',
+            'text': $item.text(),
+            'mouseover': function() {
+              $left.find('> li').removeClass('state-hover');
+              $(this).addClass('state-hover');
+              $right.show();
+              $right.find('> ul').hide();
+              $sub.show();
+            }
+          }));
+        }
       });
-
-      $left.find('> li:first-child').trigger('mouseover');
 
       var $toggle = $('<div/>', {
         'class': 'toolNav-toggle',
@@ -683,6 +704,7 @@ function() {
 
           } else {
             $split.popup('open');
+            $left.find('> li:first-child').trigger('mouseover');
           }
         }
       });
