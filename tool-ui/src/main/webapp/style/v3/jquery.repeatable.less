@@ -125,7 +125,10 @@
         }
 
         .previewable-image {
-          opacity:0.5;
+          opacity: 0.5;
+        }
+        .previewable-label {
+          text-decoration: line-through;
         }
       }
     }
@@ -185,6 +188,9 @@
           // Resize the image so it's largest dimension fills the tile completely
           // and keeps the correct aspect ratio.
           object-fit: cover;
+
+          // In case src is blank set a background color
+          background-color:#ddd;
         }
 
         .previewable-label {
@@ -321,7 +327,7 @@
 }
 
 .view-switcher-active {
-    font-weight:bold;
+
     color:black;
 
     &:hover {
