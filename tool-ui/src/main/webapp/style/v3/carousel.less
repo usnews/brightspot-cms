@@ -1,6 +1,7 @@
 @carousel-tile-width: 140px;
 @carousel-tile-height: 105px;
-@carousel-nav-width: 20px;
+@carousel-nav-width: 30px;
+@carousel-nav-height: 50px;
 @carousel-padding: 4px;
 @carousel-margin-between-tiles: 6px;
 @carousel-counter: carousel-counter;
@@ -10,6 +11,7 @@
 @carousel-arrow-width: 10px;
 @carousel-arrow-height: @carousel-arrow-width;
 @carousel-background-color: white;
+@carousel-nav-background-color: #34b4df;
 
 .carousel-wrapper {
   // see .carousel-bottom-content for the bottom border and active arrow
@@ -19,19 +21,27 @@
   background:@carousel-background-color;
 
   // Padding leaves room on the left and right for the navigation controls
-  padding: @carousel-padding (@carousel-padding + @carousel-nav-width + @carousel-margin-between-tiles);
+  //padding: @carousel-padding (@carousel-padding + @carousel-nav-width + @carousel-margin-between-tiles);
+  padding: @carousel-padding;
 }
 
 .carousel-nav {
+  .icon;
   position: absolute;
-  top: @carousel-padding;
+  top: (@carousel-tile-height - @carousel-nav-height) / 2;
   width: @carousel-nav-width;
-  height: @carousel-tile-height;
-  background: #aaa;
-  border: 1px solid @carousel-border-color;
-
+  height: @carousel-nav-height;
+  line-height: @carousel-nav-height;
+  background-color: @carousel-nav-background-color;
+  color:white;
+  text-align:center;
+  cursor:pointer;
+  opacity: 0.9;
+  
   &.carousel-nav-hide {
     background: #e8e8e8;
+    cursor:auto;
+    display:none;
   }
 
   a {
@@ -41,10 +51,12 @@
 
 .carousel-nav-previous {
   left:@carousel-padding;
+  .icon-chevron-left;
 }
 
 .carousel-nav-next {
   right:@carousel-padding;
+  .icon-chevron-right;
 }
 
 .carousel-viewport {
