@@ -1153,7 +1153,7 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Check for the preview image or use a placeholder image
                 // TODO: update the placeholder image
-                imageUrl = $item.attr('data-preview') || 'slideshow-placeholder.png';
+                imageUrl = $item.attr('data-preview') || '';
 
                 $('<img/>', {
                     'class': 'previewable-image',
@@ -1198,8 +1198,6 @@ The HTML within the repeatable element must conform to these standards:
                     return false;
                 }).appendTo($controls);
                 
-                // Add control to remove slide
-
                 // Add the item to the carousel
                 self.modePreviewInitItemCarousel($item);
             },
@@ -1228,7 +1226,7 @@ The HTML within the repeatable element must conform to these standards:
                 // If there is no thumbnail image use a placeholder image.
                 $('<img/>', {
                     'class': 'carousel-tile-content-image',
-                    src: preview || 'about:blank',
+                    src: preview || '',
                     alt: ''
                 }).appendTo($carouselTile);
                 
@@ -1305,7 +1303,6 @@ The HTML within the repeatable element must conform to these standards:
                 var self = this;
                 var $item = $(item);
                 var $editContainer;
-                var newPosition;
 
                 if (!self.modeIsPreview()) {
                     return;
@@ -1317,6 +1314,10 @@ The HTML within the repeatable element must conform to these standards:
                 // Load the item into the edit container
                 self.itemLoad($item, $editContainer).always(function(){
 
+                    var editPosition;
+                    var headerHeight;
+                    var scrollPosition;
+                    
                     // Switch to the carousel view
                     self.modePreviewShowCarousel();
 
@@ -1332,8 +1333,23 @@ The HTML within the repeatable element must conform to these standards:
                         // this out for now.
                         
                         // Also scroll the page so we can see the carousel
-                        // newPosition = self.$element.offset();
-                        // window.scrollTo(0, newPosition.top);
+                        editPosition = self.$element.closest('.inputContainer').offset();
+                        scrollPosition = editPosition.top;
+
+                        console.log(scrollPosition);
+                        
+                        // Check if the header is overlaying at the top
+                        // so we can scroll a little more to account for it
+                        headerHeight = $('.toolHeader').height();
+                        if (headerHeight) {
+                            scrollPosition = scrollPosition - headerHeight - 6;
+                            console.log(scrollPosition);
+                        }
+
+                        // Only scroll up, never down
+                        if (scrollPosition < $(window).scrollTop()) {
+                            window.scrollTo(0, scrollPosition);
+                        }
                     }
                     
                     // Hide all the other slide edit forms
@@ -1364,6 +1380,14 @@ The HTML within the repeatable element must conform to these standards:
                 if (!$editContainer) {
                     $editContainer = $('<div/>', {
                         'class': 'itemEdit'
+                    }).on('change', function(event) {
+                        // If a change is made to the preview image
+                        // update the thumbnail image in the carousel
+                        // and in the grid view
+                        var imageUrl = $(event.target).attr('data-preview');
+                        if (imageUrl) {
+                            self.modePreviewSetThumbnail($item, imageUrl);
+                        }
                     }).appendTo(self.dom.$carouselTarget);
                     $item.data('editContainer', $editContainer);
                 }
@@ -1421,10 +1445,24 @@ The HTML within the repeatable element must conform to these standards:
                 if (self.carousel) {
                     self.carousel.update();
                 }
+            },
+
+
+            /**
+             * Update the thumbnail preview image.
+             * This updates both the grid view and the carousel view thumbnail.
+             */
+            modePreviewSetThumbnail: function(item, imageUrl) {
+                var $item = $(item);
+                var $thumbnails = $item.find('.previewable-image');
+                var $carouselTile = $(item).data('carouselTile');
+
+                if ($carouselTile) {
+                    $thumbnails = $thumbnails.add($carouselTile.find('.carousel-tile-content-image'));
+                }
+
+                $thumbnails.attr('src', imageUrl);
             }
-
-            
-
             
         } // END repeatableUtility
         
