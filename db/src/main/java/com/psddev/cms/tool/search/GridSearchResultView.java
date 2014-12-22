@@ -14,6 +14,11 @@ public class GridSearchResultView extends ListSearchResultView {
     }
 
     @Override
+    public boolean isInfiniteScroll(Search search) {
+        return true;
+    }
+
+    @Override
     public String getDisplayName() {
         return "Grid";
     }

@@ -95,11 +95,13 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
         writeFieldsHtml();
         writeSortsHtml();
-        writePaginationHtml(result);
 
-        page.writeStart("div", "class", "searchResult-list");
+        boolean isInfiniteScroll = isInfiniteScroll(search);
+
+        page.writeStart("div", "class", "searchResult-list " + (isInfiniteScroll ? "infiniteScroll" : ""));
             if (result.hasPages()) {
                 writeItemsHtml(result.getItems());
+                writePaginationHtml(result);
 
             } else {
                 writeEmptyHtml();

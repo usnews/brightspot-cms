@@ -31,6 +31,13 @@ public interface SearchResultView {
     public boolean isPreferred(Search search);
 
     /**
+     * Returns {@code true} if this view type allows infinite scroll
+     *
+     * @param search Can't be {@code null}
+     */
+    public boolean isInfiniteScroll(Search search);
+
+    /**
      * @param search Can't be {@code null}.
      * @param page Can't be {@code null}.
      * @param itemWriter Can't be {@code null}.
