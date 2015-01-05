@@ -9,7 +9,9 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           nextSelector             : 'li.next a',
           previousSelector         : 'li.prev a',
           itemsContainerSelector   : '.searchResult-images',
-          scrollBuffer             : 100
+          itemSelector             : 'a figure',
+          scrollBuffer             : 100,
+          prefill                  : true
         };
 
         var settings = $.extend({}, defaults, {state : {}});
@@ -17,6 +19,16 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var $scrollable = $(scrollable);
         var $itemContainer = $scrollable.find(settings.itemsContainerSelector);
         var $nav = $scrollable.find(settings.navSelector);
+
+        if (settings.prefill) {
+          var $items = $itemContainer.find(settings.itemSelector);
+          var containerArea = $itemContainer.outerWidth() * $itemContainer.outerHeight();
+          var itemArea = $items.first().outerWidth() * $items.first().outerHeight();
+          if (containerArea > itemArea * $items.size()) {
+            doFetchAndAppend();
+          }
+        }
+
         $scrollable.scroll(bsp_utils.throttle(100, onScroll));
 
         function onScroll() {
