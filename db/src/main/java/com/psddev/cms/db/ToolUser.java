@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -21,14 +22,16 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
-import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.Settings;
+import com.psddev.dari.util.StorageItem;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -55,6 +58,8 @@ public class ToolUser extends Record implements ToolEntity {
     private String password;
 
     private StorageItem avatar;
+
+    private Dashboard dashboard;
 
     @ToolUi.Hidden
     private Date passwordChangedDate;
@@ -133,6 +138,15 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
 
+    @ToolUi.Hidden
+    private SearchResultSelection currentSearchResultSelection;
+
+    @ToolUi.Hidden
+    private Map<String, String> searchViews;
+
+    @ToolUi.Hidden
+    private Map<String, List<String>> searchResultFieldsByTypeId;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -192,6 +206,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setAvatar(StorageItem avatar) {
         this.avatar = avatar;
+    }
+
+    public Dashboard getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(Dashboard dashboard) {
+        this.dashboard = dashboard;
     }
 
     /**
@@ -643,6 +665,36 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public SearchResultSelection getCurrentSearchResultSelection() {
+        return currentSearchResultSelection;
+    }
+
+    public void setCurrentSearchResultSelection(SearchResultSelection currentSearchResultSelection) {
+        this.currentSearchResultSelection = currentSearchResultSelection;
+    }
+
+    public Map<String, String> getSearchViews() {
+        if (searchViews == null) {
+            searchViews = new CompactMap<>();
+        }
+        return searchViews;
+    }
+
+    public void setSearchViews(Map<String, String> searchViews) {
+        this.searchViews = searchViews;
+    }
+
+    public Map<String, List<String>> getSearchResultFieldsByTypeId() {
+        if (searchResultFieldsByTypeId == null) {
+            searchResultFieldsByTypeId = new CompactMap<>();
+        }
+        return searchResultFieldsByTypeId;
+    }
+
+    public void setSearchResultFieldsByTypeId(Map<String, List<String>> searchResultFieldsByTypeId) {
+        this.searchResultFieldsByTypeId = searchResultFieldsByTypeId;
     }
 
     public void updatePassword(Password password) {

@@ -61,6 +61,7 @@
   line-height: @-lineHeight;
   margin: 0;
   padding: @-paddingTop 20px (@-paddingTB - @-paddingTop) 20px;
+  text-align: center;
   transition: background-color @time-fast;
   vertical-align: middle;
 
@@ -75,6 +76,37 @@
   font-size: 19.5px;
   height: 39px;
   line-height: 29px;
+}
+
+.button-group {
+  &:extend(.inputLike);
+
+  display: inline-block;
+  list-style-type: none;
+  margin-bottom: 5px;
+  margin-left: 0;
+  overflow: hidden;
+  //extend inputLike is overriding padding?
+  padding: 0 !important;
+  text-align: right;
+
+  li {
+    float: left;
+    height: @length-inputHeight;
+    line-height: @length-inputHeight;
+    padding: 0 10px;
+    white-space: nowrap;
+    &:not(:last-child) {
+      border-right: 1px solid @color-border;
+    }
+    &.selected {
+      background: @color-separator;
+      a {
+        font-weight: bold;
+        color: black;
+      }
+    }
+  }
 }
 
 .actions,
@@ -142,6 +174,101 @@
 
       .calendarCell {
         margin-left: (@width-day + @padding-cell);
+      }
+    }
+  }
+  &.calendar-month {
+    overflow: hidden;
+    .calendarRow {
+      @width-day: 14.28%;
+      clear:both;
+
+      .calendarDay {
+        float: left;
+        width: @width-day;
+        height: 100px;
+        border-radius: 1px;
+        border-left: 1px solid @color-border;
+        border-top: 1px solid @color-border;
+        //border: 0 0 1px 1px solid @color-border;
+        box-sizing: border-box;
+        padding: 8px;
+        position: relative;
+
+        &:last-child {
+          border-right: 1px solid @color-border;
+        }
+      }
+
+      &:first-child {
+        .calendarDay {
+          border-top: 1px solid @color-border;
+          &:first-child {
+            border-radius: 2px 0 0 0;
+          }
+          &:last-child {
+            border-radius: 0 2px 0 0;
+          }
+        }
+      }
+
+      &:last-child {
+        .calendarDay {
+          border-bottom: 1px solid @color-border;
+          border-top: 0px;
+          &:first-child {
+            border-radius: 0 0 0 2px;
+          }
+          &:last-child {
+            border-radius: 0 0 2px 0;
+          }
+        }
+      }
+
+      &:nth-last-child(2) {
+        .calendarDay {
+          border-bottom: 1px solid @color-border;
+        }
+      }
+
+      .calendarDayOfWeek {
+        float: left;
+        opacity: 0.28;
+      }
+      .calendarDayOfMonth {
+        float: right;
+      }
+
+      .calendarEventsContainer {
+        clear:both;
+        padding: 0 8px 8px 8px;
+      }
+
+      .calendarEvents {
+        bottom: 4px;
+        border-radius: 50%;
+        background: @color-focus;
+        color: white;
+        text-align: center;
+        width: 100%;
+        padding-top: 100%;
+
+        .count, .label {
+          position: absolute;
+        }
+
+        .count {
+          left: 50%;
+          transform: translate(-50%, 0);
+          top: 40px;
+          font-size: 24px;
+        }
+
+        .label {
+          left: 50%;
+          transform: translate(-50%, 0);
+          bottom:16px;
+        }
       }
     }
   }
@@ -928,6 +1055,11 @@ table.links,
 table.links.table-striped {
   overflow: hidden;
 
+  input[type='checkbox'] {
+    position: relative;
+    z-index: 1;
+  }
+
   .link {
     position: relative;
 
@@ -1169,6 +1301,12 @@ table.links.table-striped {
 
   &.selected {
     .strong;
+
+    .link {
+      .strong;
+
+      color: @color-text;
+    }
   }
 }
 

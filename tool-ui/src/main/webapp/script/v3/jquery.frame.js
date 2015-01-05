@@ -31,7 +31,7 @@ $.plugin2('frame', {
     // Finds the target frame, creating one if necessary.
     findTargetFrame = function(element, callback) {
       var $element = $(element),
-          target = $element.attr('target'),
+          target = $element.attr('data-frame-target') || $element.attr('target'),
           $frame;
 
       // Standard HTML elements that can handle the target.
@@ -135,6 +135,16 @@ $.plugin2('frame', {
       return findTargetFrame(this, function($anchor, $frame) {
         loadPage($frame, $anchor, 'get', $anchor.attr('href'), null, event);
         return false;
+      });
+    });
+
+    $caller.on('change', ':checkbox[data-frame-target]', function(event) {
+      return findTargetFrame(this, function($checkbox, $frame) {
+        var href = $checkbox.prop('checked') ?
+            $checkbox.attr('data-frame-check') :
+            $checkbox.attr('data-frame-uncheck');
+
+        loadPage($frame, $checkbox, 'get', href, null, event);
       });
     });
 

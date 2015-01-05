@@ -299,7 +299,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                             if (history != null) {
                                 wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
                                     wp.writeStart("h2").writeHtml("History").writeEnd();
-                                    wp.writeFormFields(editing);
+                                    wp.writeSomeFormFields(editing, true, null, null);
                                 wp.writeEnd();
                             }
 
@@ -308,7 +308,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
 
                                 wp.writeStart("div", "class", "contentDiffCurrent " + (history != null ? "contentDiffRight" : "contentDiffLeft"));
                                     wp.writeStart("h2").writeHtml("Current").writeEnd();
-                                    wp.writeFormFields(original.getOriginalObject());
+                                    wp.writeSomeFormFields(original.getOriginalObject(), true, null, null);
                                 wp.writeEnd();
 
                             } finally {
@@ -318,17 +318,17 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                             if (draft != null) {
                                 wp.writeStart("div", "class", "contentDiffNew contentDiffRight");
                                     wp.writeStart("h2").writeHtml("Draft").writeEnd();
-                                    wp.writeFormFields(editing);
+                                    wp.writeSomeFormFields(editing, true, null, null);
                                 wp.writeEnd();
                             }
                         wp.writeEnd();
 
                     } else {
-                        wp.writeFormFields(editing);
+                        wp.writeSomeFormFields(editing, true, null, null);
                     }
 
                 } else {
-                    wp.writeFormFields(editing);
+                    wp.writeSomeFormFields(editing, true, null, null);
                 }
                 %>
             </div>
