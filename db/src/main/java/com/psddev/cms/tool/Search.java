@@ -30,6 +30,7 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
+import com.psddev.cms.tool.search.CarouselSearchResultView;
 import com.psddev.cms.tool.search.ListSearchResultView;
 import com.psddev.dari.db.CompoundPredicate;
 import com.psddev.dari.db.Database;
@@ -101,6 +102,7 @@ public class Search extends Record {
     private boolean suggestions;
     private long offset;
     private int limit;
+    private boolean showCarousel;
 
     public Search() {
     }
@@ -175,6 +177,7 @@ public class Search extends Record {
         setSuggestions(page.param(boolean.class, SUGGESTIONS_PARAMETER));
         setOffset(page.param(long.class, OFFSET_PARAMETER));
         setLimit(page.paramOrDefault(int.class, LIMIT_PARAMETER, 10));
+        setShowCarousel(ObjectUtils.equals(CarouselSearchResultView.class.getName(), page.param(String.class, "view")));
 
         for (Tool tool : Query.from(Tool.class).selectAll()) {
             tool.initializeSearch(this, page);
@@ -347,6 +350,14 @@ public class Search extends Record {
 
     public void setLimit(int limit) {
         this.limit = limit;
+    }
+
+    public boolean isShowCarousel() {
+        return showCarousel;
+    }
+
+    public void setShowCarousel(boolean showCarousel) {
+        this.showCarousel = showCarousel;
     }
 
     public Set<ObjectType> findValidTypes() {
@@ -1045,8 +1056,9 @@ public class Search extends Record {
         }
 
         page.writeStart("div", "class", "searchResult-container");
-            page.writeStart("div", "class", "searchResult-views");
-                page.writeStart("ul", "class", "piped");
+            if (selectedView.displayViews()) {
+                page.writeStart("div", "class", "searchResult-views");
+                    page.writeStart("ul", "class", "piped");
                     for (SearchResultView view : views) {
                         page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
                             page.writeStart("a",
@@ -1056,19 +1068,22 @@ public class Search extends Record {
                             page.writeEnd();
                         page.writeEnd();
                     }
+                    page.writeEnd();
                 page.writeEnd();
-            page.writeEnd();
+            }
 
             page.writeStart("div", "class", "searchResult-view");
                 selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
             page.writeEnd();
 
-            page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
-                page.writeStart("a",
-                        "href", page.toolUrl(CmsTool.class, "/searchResultActions",
-                                "search", ObjectUtils.toJson(getState().getSimpleValues())));
+            if (selectedView.displayActions()) {
+                page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
+                    page.writeStart("a",
+                            "href", page.toolUrl(CmsTool.class, "/searchResultActions",
+                                    "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                    page.writeEnd();
                 page.writeEnd();
-            page.writeEnd();
+            }
         page.writeEnd();
     }
 

@@ -53,7 +53,7 @@ java.util.Set,
 java.util.UUID,
 
 org.joda.time.DateTime
-" %><%
+, com.psddev.cms.tool.search.CarouselSearchResultView, com.psddev.cms.tool.widget.CarouselSearchWidget" %><%
 
 // --- Logic ---
 
@@ -169,8 +169,13 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
 
 // --- Presentation ---
 
-%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
+%><%
 
+wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null);
+
+new CarouselSearchWidget().writeHtml(wp, null);
+
+%>
 <div class="content-edit">
     <form class="contentForm contentLock"
             method="post"

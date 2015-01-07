@@ -100,6 +100,7 @@ function($, bsp_utils) {
         // Event when reach the end of a carousel
         // For example, you can listen for this event then dynamically add more tiles
         eventEnd: 'carousel.end',
+        eventBegin: 'carousel.begin',
 
         /**
          * HTML template for the carousel
@@ -234,6 +235,18 @@ function($, bsp_utils) {
             var self = this;
 
             var tile = $('<li/>', {'class': 'carousel-tile'}).append(content).appendTo(self.dom.tiles);
+        },
+
+        /**
+         * Prepends new tile to beginning of carousel
+         * @param {String|jQueryObject} content
+         * HTML content (or a jQuery object) to prepend to the carousel.
+         * Note this will be enclosed in an <LI> element.
+         */
+        prependTile: function(content) {
+            var self = this;
+
+            var tile = $('<li/>', {'class': 'carousel-tile'}).append(content).prependTo(self.dom.tiles);
         },
 
 
@@ -624,6 +637,10 @@ function($, bsp_utils) {
                     carousel: self
                 });
 
+            } else if (layout.atMin) {
+                self.element.trigger(self.eventBegin, {
+                    carousel: self
+                });
             }
         },
 

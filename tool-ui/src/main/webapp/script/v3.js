@@ -60,6 +60,7 @@ require([
   'jquery.pagethumbnails',
   'v3/jquery.repeatable',
   'jquery.sortable',
+  'v3/searchcarousel',
   'jquery.tabbed',
   'jquery.toggleable',
   'jquery.widthaware',

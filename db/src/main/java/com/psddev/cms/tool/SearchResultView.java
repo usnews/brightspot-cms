@@ -30,6 +30,14 @@ public interface SearchResultView {
      */
     public boolean isPreferred(Search search);
 
+    public default boolean displayViews() {
+        return true;
+    }
+
+    public default boolean displayActions() {
+        return true;
+    }
+
     /**
      * @param search Can't be {@code null}.
      * @param page Can't be {@code null}.
