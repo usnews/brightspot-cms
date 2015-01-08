@@ -164,6 +164,15 @@
   // This lets us avoid having to hard-code the width in both the javascript and the CSS.
   width: @carousel-arrow-width;
 
+  // Needs to have a z-index so the border will appear above the next div
+  z-index:1;
+
+  // When the carousel is being scrolled to a different position we add the "moving" class
+  // to the arrow so it can be hidden temporarily
+  &.moving {
+    visibility:hidden;
+  }
+  
   &:before, &:after {
     content:'';
     border-style: solid;

@@ -337,7 +337,48 @@
 }
 
 .carousel-target {
-  margin-top:1em;
+  background:#eee;
+  position:relative;
+  display:table;
+  width:100%;
+  margin-top:-9px;
+}
+
+.carousel-target-items {
+  display:table-cell;
+  padding:1em;
+}
+
+@carousel-target-nav-width: 30px;
+@carousel-target-nav-background-color-active: @carousel-nav-background-color;
+@carousel-target-nav-background-color-inactive: #ddd;
+
+.carousel-target-nav {
+  .icon;
+  display:table-cell;
+  width: @carousel-target-nav-width !important;
+  background-color: @carousel-target-nav-background-color-inactive;
+  color:white;
+  text-align:center;
+  vertical-align:middle;
+  
+  .active& {
+    background-color: @carousel-target-nav-background-color-active;
+    cursor:pointer;
+  }
+  
+  a {
+    display:none;
+  }
+
+}
+
+.carousel-target-prev {
+  .icon-chevron-left;
+}
+
+.carousel-target-next {
+  .icon-chevron-right;
 }
 
 .repeatableForm > ol > li.collapsed > .frame,

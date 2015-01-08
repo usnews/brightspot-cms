@@ -411,17 +411,23 @@ function($, bsp_utils) {
          * The pixel position to move the carousel (should be a positive number).
          */
         _moveTo: function(offset) {
+            
             var self = this;
 
             // Hide the active arrow, it will be shown again after calling update()
-            self.dom.arrow.hide();
+            // Note we use visibility here because of timing issues with other code
+            // and animations, we don't want others revealing the arrow until we're done moving
+            self.dom.arrow.addClass('moving');
+            //self.dom.arrow.css('visibility', 'hidden');
 
             // Set the left offset to move the tiles to the left within the viewport
             self.dom.tiles.css('margin-left', '-' + offset + 'px');
 
-            // Update the nav links etc but wait enough time for the animation to complete
+            // Update the nav links etc but wait enough time for the move animation to complete
+            // so the arrow will be positioned correctly below the active tile
             setTimeout(function(){
                 self.update();
+                self.dom.arrow.removeClass('moving');
             }, 1100);
         },
 

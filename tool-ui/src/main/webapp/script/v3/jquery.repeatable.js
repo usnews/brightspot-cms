@@ -148,7 +148,17 @@ The HTML within the repeatable element must conform to these standards:
              */
             defaults: repeatableDefaults,
 
-                
+
+            /**
+             */
+            templateEdit:
+            '<div class="carousel-target">' +
+                '<div class="carousel-target-nav carousel-target-prev"><a href="#">Previous</a></div>' +
+                '<div class="carousel-target-items"></div>' +
+                '<div class="carousel-target-nav carousel-target-next"><a href="#">Next</a></div>' +
+            '</div>',
+
+            
             /**
              * Initialize the object and set up the user interface.
              *
@@ -1058,7 +1068,7 @@ The HTML within the repeatable element must conform to these standards:
                 
                 self.dom.$viewSwitcher = $viewSwitcher; // Save for later
 
-                // The grid view will the existing UL or OL
+                // The grid view will use the existing UL or OL
                 $viewGrid = self.dom.$list;
                 self.dom.$viewGrid = $viewGrid; // save for later
 
@@ -1068,10 +1078,24 @@ The HTML within the repeatable element must conform to these standards:
 
                 $carouselContainer = $('<div/>', {'class': 'carousel-container'}).appendTo($viewCarousel);
 
-                // Also create a placeholder where we can edit each item
-                $carouselTarget = $('<div/>', {'class': 'carousel-target'}).appendTo($viewCarousel);
+                // Also create a placeholder where we can edit each item and hide it initially
+                $carouselTarget = $(self.templateEdit).appendTo($viewCarousel).hide();
+                
+                // Save for later so we have a place to insert the edit forms
                 self.dom.$carouselTarget = $carouselTarget;
+                self.dom.$carouselTargetItems = $carouselTarget.find('.carousel-target-items');
 
+                // Set up the next/previous buttons on the edit form
+                self.dom.$carouselTargetPrev = $carouselTarget.find('.carousel-target-prev').on('click', function(event){
+                    event.preventDefault();
+                    self.modePreviewEditNext(-1);
+                });
+                
+                self.dom.$carouselTargetNext = $carouselTarget.find('.carousel-target-next').on('click', function(event){
+                    event.preventDefault();
+                    self.modePreviewEditNext();
+                });
+                
                 // Now create the carousel object, initialize it, and save it for later use
                 carousel = Object.create(carouselUtility);
                 carousel.init($carouselContainer, {numbered:true});
@@ -1308,6 +1332,8 @@ The HTML within the repeatable element must conform to these standards:
                     return;
                 }
                 
+                self.dom.$carouselTarget.show();
+                
                 // If necessary create the container for editing this item
                 $editContainer = self.modePreviewCreateEditContainer($item);
 
@@ -1328,22 +1354,15 @@ The HTML within the repeatable element must conform to these standards:
                         
                         self.carousel.goToActiveTile();
                         
-                        // TODO: this doesn't work so well since there is a header div
-                        // at the top of the page that obscures the content, so leaving
-                        // this out for now.
-                        
                         // Also scroll the page so we can see the carousel
                         editPosition = self.$element.closest('.inputContainer').offset();
                         scrollPosition = editPosition.top;
 
-                        console.log(scrollPosition);
-                        
                         // Check if the header is overlaying at the top
                         // so we can scroll a little more to account for it
                         headerHeight = $('.toolHeader').height();
                         if (headerHeight) {
                             scrollPosition = scrollPosition - headerHeight - 6;
-                            console.log(scrollPosition);
                         }
 
                         // Only scroll up, never down
@@ -1354,8 +1373,52 @@ The HTML within the repeatable element must conform to these standards:
                     
                     // Hide all the other slide edit forms
                     self.dom.$carouselTarget.find('.itemEdit').hide();
+
+                    // Update the next/previous buttons within the edit form
+                    self.modePreviewUpdateEditContainer();
+
+                    // Show the current edit form
                     $editContainer.show();
                 });
+            },
+
+
+            /**
+             * Start editing the next or previous tile.
+             *
+             * @param Number direction
+             * If a negative number edit the previous tile.
+             * Othersize edit the next tile.
+             */
+            modePreviewEditNext: function(direction) {
+
+                var self = this;
+                var tileIndex;
+
+                if (direction && direction < 0) {
+                    direction = -1;
+                } else {
+                    direction = 1;
+                }
+                
+                // Determine which is the next item to edit
+                tileIndex = self.carousel.getActive() + direction;
+
+                // Bail if that's not a valid item
+                if (tileIndex < 1 || tileIndex > self.dom.$list.find('> li').length) {
+                    return;
+                }
+
+                // Go to the tile in the carousel
+                self.carousel.setActive(tileIndex);
+                self.carousel.goToActiveTile();
+
+                // Activate the tile in the carousel, which will in turn
+                // start editing the active item
+                self.carousel.doTile(tileIndex);
+
+                // After moving the carousel update the next/previous buttons on the edit form
+                self.modePreviewUpdateEditContainer();
             },
 
             
@@ -1388,11 +1451,26 @@ The HTML within the repeatable element must conform to these standards:
                         if (imageUrl) {
                             self.modePreviewSetThumbnail($item, imageUrl);
                         }
-                    }).appendTo(self.dom.$carouselTarget);
+                    }).appendTo(self.dom.$carouselTargetItems);
                     $item.data('editContainer', $editContainer);
                 }
 
                 return $editContainer;
+            },
+
+
+            /**
+             * Update the previous/next buttons in the edit container,
+             * to show or hide the buttons based on which item is currently being edited.
+             */
+            modePreviewUpdateEditContainer: function() {
+                
+                var self = this;
+                var tileIndex = self.carousel.getActive();
+                var total = self.dom.$list.find('> li').length;
+                
+                self.dom.$carouselTargetPrev.toggleClass('active', tileIndex > 1);
+                self.dom.$carouselTargetNext.toggleClass('active', tileIndex < total);
             },
 
             
@@ -1433,6 +1511,13 @@ The HTML within the repeatable element must conform to these standards:
                 // so we'll call update whenever we show the carousel to ensure
                 // it is displaying everything correctly
                 self.carousel.update();
+
+                // After showing the carousel update the next/previous buttons on the edit form
+                // This might be needed in case the tiles were reordered or something like that
+                self.modePreviewUpdateEditContainer();
+
+                // After showing the carousel center the active tile in the carousel
+                self.carousel.goToActiveTile();
             },
 
             
