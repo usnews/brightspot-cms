@@ -58,7 +58,8 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
         // Adds tiles to carousel
         $.each($tiles, function(i, elem) {
           var $elem = $(elem);
-
+          var index;
+            
           if (isPrepend) {
             carousel.prependTile($elem);
           } else {
@@ -67,7 +68,8 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
 
           // Sets active carousel item
           if ($elem.find('.carousel-tile-content-active').size() > 0) {
-            $elem.closest('.carousel-tile').addClass('carousel-active');
+              index = ($elem.closest('.carousel-tile').index() + 1) || 0;
+              carousel.setActive(index);
           }
         });
       }
