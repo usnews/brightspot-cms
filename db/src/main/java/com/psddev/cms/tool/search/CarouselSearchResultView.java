@@ -5,6 +5,7 @@ import com.psddev.cms.tool.Search;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.PaginatedResult;
+import com.psddev.dari.util.StorageItem;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -31,35 +32,50 @@ public class CarouselSearchResultView extends ListSearchResultView {
             "data-next-page", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()),
             "data-prev-page", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
         for (Object item : items) {
+
+            State itemState = State.getInstance(item);
+            UUID itemId = itemState.getId();
+
             itemWriter.writeBeforeHtml(page, search, item);
-            UUID itemId = State.getInstance(item).getId();
 
             page.writeStart("div", "class", "carousel-tile-content " + (ObjectUtils.equals(currentContentId, itemId) ? "carousel-tile-content-active" : ""));
-            page.writeElement("img",
-                    "class", "carousel-tile-content-image",
-                    "src", page.getPreviewThumbnailUrl(item),
-                    "alt", (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +
-                            (showTypeLabel ? page.getTypeLabel(item) + ": " : "") +
-                            page.getObjectLabel(item));
-
-            page.writeStart("figcaption");
-            if (showSiteLabel) {
-                page.writeObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner());
-                page.writeHtml(": ");
-            }
-
-            if (showTypeLabel) {
-                page.writeTypeLabel(item);
-                page.writeHtml(": ");
-            }
-
-            page.writeObjectLabel(item);
-            page.writeEnd();
+                writeContentPreview(item);
             page.writeEnd();
 
             itemWriter.writeAfterHtml(page, search, item);
         }
         page.writeEnd();
+    }
+
+    private void writeContentPreview(Object item) throws IOException {
+
+        StorageItem preview = State.getInstance(item).getPreview();
+
+        if (preview != null) {
+            String previewContentType = preview.getContentType();
+            if (previewContentType != null && previewContentType.startsWith("image/")) {
+                page.writeElement("img",
+                        "class", "carousel-tile-content-image",
+                        "src", page.getPreviewThumbnailUrl(item),
+                        "alt", (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +
+                                (showTypeLabel ? page.getTypeLabel(item) + ": " : "") +
+                                page.getObjectLabel(item));
+            }
+            //TODO: handle video preview
+
+            page.writeStart("div", "class", "carousel-tile-content-label");
+                page.writeObjectLabel(item);
+            page.writeEnd();
+        } else {
+            page.writeStart("div", "class", "carousel-tile-content-text");
+                page.writeStart("div");
+                    page.writeObjectLabel(item);
+                page.writeEnd();
+                page.writeStart("div", "class", "text");
+                    page.writeTypeLabel(item);
+                page.writeEnd();
+            page.writeEnd();
+        }
     }
 
     @Override
