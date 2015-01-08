@@ -218,8 +218,6 @@ function($, bsp_utils) {
             
                 // Do the action for the tile
                 self.doTile(n);
-
-                return false;
             });
         },
 
