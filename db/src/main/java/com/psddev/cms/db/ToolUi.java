@@ -483,9 +483,13 @@ public class ToolUi extends Modification<Object> {
 
         if (concreteTypes != null) {
             for (ObjectType t : concreteTypes) {
-                if (t.getObjectClass() != null &&
-                        !t.as(ToolUi.class).isHidden()) {
-                    displayTypes.add(t);
+                if (!t.as(ToolUi.class).isHidden()) {
+                    if (t.getObjectClassName() == null) {
+                        displayTypes.add(t);
+
+                    } else if (t.getObjectClass() != null) {
+                        displayTypes.add(t);
+                    }
                 }
             }
         }
