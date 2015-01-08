@@ -223,7 +223,7 @@ figure,
     font-weight: normal;
     padding-right: 0.25em;
     text-align: center;
-    width: 1em;
+    width: 14px;
 
     &:hover {
       text-decoration: none !important;
@@ -235,10 +235,10 @@ figure,
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
-  width: @length-fontSize;
+  width: 14px;
 
   &:before {
-    padding-right: 1.1em;
+    padding-right: 14px;
   }
 }
 
@@ -461,6 +461,10 @@ figure,
 .icon-umbrella { &:before { content: '\f0e9'; } }
 .icon-paste { &:before { content: '\f0ea'; } }
 .icon-exchange { &:before { content: '\f0ec'; } }
+.icon-double-angle-left { &:before { content: '\f100'; } }
+.icon-double-angle-right { &:before { content: '\f101'; } }
+.icon-double-angle-up { &:before { content: '\f102'; } }
+.icon-double-angle-down { &:before { content: '\f103'; } }
 .icon-angle-left { &:before { content: '\f104'; } }
 .icon-angle-right { &:before { content: '\f105'; } }
 .icon-angle-up { &:before { content: '\f106'; } }
@@ -661,7 +665,7 @@ figure,
 }
 
 .inputLargeLike {
-  padding: 10px 0 10px 30px;
+  padding: 10px 0 10px 41px;
 }
 
 .inputLarge {
@@ -673,12 +677,13 @@ figure,
   z-index: 0;
 
   &:before {
-    bottom: 25px;
+    bottom: 20px;
     border-color: @color-heading;
     border-style: solid;
     border-width: 0 0 1px 1px;
+    border-bottom-left-radius: 2px;
     content: '';
-    left: 15px;
+    left: 20px;
     position: absolute;
     width: 7.5px;
     top: 0;
@@ -1115,7 +1120,7 @@ table.links.table-striped {
 .paginationFirst {
   .link {
     .icon;
-    .icon-backward;
+    .icon-double-angle-left;
     .icon-only;
   }
 }
@@ -1124,7 +1129,7 @@ table.links.table-striped {
 .paginationPrevious {
   .link {
     .icon;
-    .icon-caret-left;
+    .icon-angle-left;
     .icon-only;
   }
 }
@@ -1133,7 +1138,7 @@ table.links.table-striped {
 .paginationNext {
   .link {
     .icon;
-    .icon-caret-right;
+    .icon-angle-right;
     .icon-only;
   }
 }
@@ -1142,7 +1147,7 @@ table.links.table-striped {
 .paginationLast {
   .link {
     .icon;
-    .icon-forward;
+    .icon-double-angle-right;
     .icon-only;
   }
 }
@@ -1397,11 +1402,17 @@ table.links.table-striped {
 }
 
 .visibilityLabel {
+  @-paddingTopBottom: 2px;
+  @-fontSize: (@length-fontSize - (@-paddingTopBottom * 2));
+
   .background-flat(@color-placeholder);
-  border-radius: 3px;
-  font-size: (@length-fontSize - 4);
-  padding: 2px 3px;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: @-fontSize;
+  line-height: round(@-fontSize * (@length-lineHeight / @length-fontSize));
+  padding: @-paddingTopBottom (@-paddingTopBottom * 1.5);
   text-transform: uppercase;
+  vertical-align: top;
 }
 
 .widget {
