@@ -29,8 +29,8 @@ public class CarouselSearchResultView extends ListSearchResultView {
         UUID currentContentId = page.param(UUID.class, "id");
 
         page.writeStart("div", "class", "searchResult-carousel",
-            "data-next-page", page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()),
-            "data-prev-page", page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()));
+            "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
+            "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "");
         for (Object item : items) {
 
             State itemState = State.getInstance(item);
