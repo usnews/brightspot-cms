@@ -571,7 +571,7 @@ if (typeof jQuery !== 'undefined') (function($, win, undef) {
                  if (minX > itemMinX) {
                      minX = itemMinX;
                  }
-                 if (maxX < itmMaxX) {
+                 if (maxX < itemMaxX) {
                      maxX = itemMaxX;
                  }
                  if (minY > itemMinY) {
