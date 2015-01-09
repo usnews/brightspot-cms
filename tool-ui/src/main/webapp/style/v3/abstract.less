@@ -698,6 +698,45 @@ figure,
   }
 }
 
+.inputLayout-wrapper {
+  background-color: @color-heading;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  width: 300px;
+}
+
+.inputLayout-constrain {
+  position: relative;
+}
+
+.inputLayout-container {
+  bottom: 5px;
+  left: 5px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.inputLayout-element {
+  position: absolute;
+}
+
+.inputLayout-label {
+  .background-flat(@color-separator);
+  border-radius: 2px;
+  bottom: 5px;
+  cursor: pointer;
+  left: 5px;
+  padding: 5px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  &.inputLayout-label-selected {
+    .background-flat(@color-focus);
+  }
+}
+
 .inputNote {
   display: block;
   margin-bottom: 5px;

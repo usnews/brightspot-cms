@@ -621,6 +621,46 @@ figure,
     }
 }
 
+.inputLayout-wrapper {
+    background-color: @color-note-lighter;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+
+.inputLayout-constrain {
+    position: relative;
+}
+
+.inputLayout-container {
+    bottom: 5px;
+    left: 5px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.inputLayout-element {
+    position: absolute;
+}
+
+.inputLayout-label {
+    background-color: @color-note;
+    border-radius: 2px;
+    bottom: 5px;
+    cursor: pointer;
+    left: 5px;
+    padding: 5px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+
+    &.inputLayout-label-selected {
+        background-color: @color-link;
+        color: white;
+    }
+}
+
 .inputVariationControls {
     line-height: 26px;
     margin-left: 146px;

@@ -69,6 +69,7 @@ require([
   'content/diff',
   'content/lock',
   'v3/content/publish',
+  'content/layout-element',
   'content/state' ],
 
 function() {

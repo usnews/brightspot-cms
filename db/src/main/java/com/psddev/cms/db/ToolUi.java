@@ -50,6 +50,7 @@ public class ToolUi extends Modification<Object> {
     private String inputSearcherPath;
     private String storagePreviewProcessorApplication;
     private String storagePreviewProcessorPath;
+    private ToolUiLayoutElement layoutElement;
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
@@ -252,6 +253,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setStoragePreviewProcessorApplication(String storagePreviewProcessorApplication) {
         this.storagePreviewProcessorApplication = storagePreviewProcessorApplication;
+    }
+
+    public ToolUiLayoutElement getLayoutElement() {
+        return layoutElement;
+    }
+
+    public void setLayoutElement(ToolUiLayoutElement layoutElement) {
+        this.layoutElement = layoutElement;
     }
 
     public String getNoteHtml() {
@@ -819,6 +828,33 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, InputSearcherPath annotation) {
             field.as(ToolUi.class).setInputSearcherPath(annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(LayoutElementProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface LayoutElement {
+
+        public int left();
+        public int top();
+        public int width();
+        public int height();
+    }
+
+    private static class LayoutElementProcessor implements ObjectField.AnnotationProcessor<LayoutElement> {
+
+        @Override
+        public void process(ObjectType type, ObjectField field, LayoutElement annotation) {
+            ToolUiLayoutElement element = new ToolUiLayoutElement();
+
+            element.setLeft(annotation.left());
+            element.setTop(annotation.top());
+            element.setWidth(annotation.width());
+            element.setHeight(annotation.height());
+
+            field.as(ToolUi.class).setLayoutElement(element);
         }
     }
 

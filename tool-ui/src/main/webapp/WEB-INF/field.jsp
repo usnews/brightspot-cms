@@ -3,20 +3,19 @@
 com.psddev.cms.db.AbVariation,
 com.psddev.cms.db.AbVariationField,
 com.psddev.cms.db.AbVariationObject,
-com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
-com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUiLayoutElement,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.page.ContentEditBulk,
 
-com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.RoutingFilter,
@@ -26,10 +25,8 @@ java.io.IOException,
 java.io.Writer,
 java.net.MalformedURLException,
 java.net.URL,
-java.util.ArrayList,
 java.util.List,
 java.util.Map,
-java.util.Set,
 java.util.UUID,
 
 javax.servlet.ServletException
@@ -155,6 +152,21 @@ try {
 
         wp.write("\" data-tab=\"");
         wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
+
+        ToolUiLayoutElement layoutElement = ui.getLayoutElement();
+
+        if (layoutElement != null) {
+            Map<String, Integer> dims = new CompactMap<String, Integer>();
+
+            dims.put("left", layoutElement.getLeft());
+            dims.put("top", layoutElement.getTop());
+            dims.put("width", layoutElement.getWidth());
+            dims.put("height", layoutElement.getHeight());
+
+            wp.write("\" data-layout-element=\"");
+            wp.writeHtml(ObjectUtils.toJson(dims));
+        }
+
         wp.write("\">");
 
         String heading = ui.getHeading();
