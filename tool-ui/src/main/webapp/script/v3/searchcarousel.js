@@ -24,13 +24,17 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
 
         var isEndEvent = e.namespace === 'end';
         var dataAttr = isEndEvent ? settings.nextAttr : settings.prevAttr;
-
+        var url = $container.data(dataAttr);
+        if (!url) { return; }
+          
         $.ajax({
           'method' : 'get',
           'url'    : $container.data(dataAttr),
           'cache'  : false
         }).done(function(html) {
           var $searchCarousel = $(html).find(settings.containerSelector).first();
+
+          // Update the data attribute with the URL to fetch the next set of results
           $container.data(dataAttr, $searchCarousel.data(dataAttr));
           addTiles($searchCarousel.children(settings.itemsSelector), !isEndEvent);
           data.carousel.update();

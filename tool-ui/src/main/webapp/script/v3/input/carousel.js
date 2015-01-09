@@ -242,9 +242,29 @@ function($, bsp_utils) {
          * Note this will be enclosed in an <LI> element.
          */
         prependTile: function(content) {
+            
             var self = this;
+            var tile;
 
-            var tile = $('<li/>', {'class': 'carousel-tile'}).append(content).prependTo(self.dom.tiles);
+            // First get some information about where we are currently scrolled
+            var layout = self._getLayout();
+
+            // Adjust the viewport position to account for a new tile at the beginning
+            var offset = layout.tilesOffset + layout.tileWidth;
+            
+            // Turn off transitions for the offset temporarily.
+            // When carousel.update() is called again transitions will turn on again.
+            // This is necessary because adding a tile to the beginning of the carousel
+            // would push all the other tiles to the right, but we will shift everything
+            // back to the left so the carousel remains at the same spot.
+            // While doing this we don't want any animation occurring.
+            self.dom.tiles.addClass('no-transition');
+            
+            self._setOffset(offset);
+
+            // Add new tile to the beginning
+            tile = $('<li/>', {'class': 'carousel-tile'}).append(content).prependTo(self.dom.tiles);
+            
         },
 
 
@@ -418,10 +438,9 @@ function($, bsp_utils) {
             // Note we use visibility here because of timing issues with other code
             // and animations, we don't want others revealing the arrow until we're done moving
             self.dom.arrow.addClass('moving');
-            //self.dom.arrow.css('visibility', 'hidden');
 
             // Set the left offset to move the tiles to the left within the viewport
-            self.dom.tiles.css('margin-left', '-' + offset + 'px');
+            self._setOffset(offset);
 
             // Update the nav links etc but wait enough time for the move animation to complete
             // so the arrow will be positioned correctly below the active tile
@@ -429,6 +448,19 @@ function($, bsp_utils) {
                 self.update();
                 self.dom.arrow.removeClass('moving');
             }, 1100);
+        },
+
+        
+        /**
+         * Set the left offset for the content within the viewport
+         * (without doing anything else).
+         */
+        _setOffset: function(offset) {
+            
+            var self = this;
+            
+            // Set the left offset to move the tiles to the left within the viewport
+            self.dom.tiles.css('margin-left', '-' + offset + 'px');
         },
 
         
@@ -625,6 +657,9 @@ function($, bsp_utils) {
 
             var layout = self._getLayout();
 
+            // Enable transitions, in case they were disabled by the prependTile function.
+            self.dom.tiles.removeClass('no-transition');
+
             // Determine if we should show the next/previous buttons
             // Note the actual showing/hiding is done via CSS rules
             self.dom.previous.toggleClass(self.classNavHide, layout.atMin);
@@ -642,6 +677,7 @@ function($, bsp_utils) {
                 });
 
             } else if (layout.atMin) {
+
                 self.element.trigger(self.eventBegin, {
                     carousel: self
                 });
