@@ -4,10 +4,10 @@ com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUiLayoutElement,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,
 
-com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -19,8 +19,8 @@ java.util.ArrayList,
 java.util.Collection,
 java.util.Date,
 java.util.Iterator,
-java.util.HashSet,
-java.util.List
+java.util.List,
+java.util.Map
 " %><%
 
 // --- Logic ---
@@ -42,12 +42,26 @@ try {
         request.setAttribute("containerObject", object);
     }
 
+    List<ToolUiLayoutElement> layoutPlaceholders = type.as(ToolUi.class).getLayoutPlaceholders();
+    String layoutPlaceholdersJson = null;
+
+    if (!layoutPlaceholders.isEmpty()) {
+        List<Map<String, Object>> jsons = new ArrayList<Map<String ,Object>>();
+
+        for (ToolUiLayoutElement element : layoutPlaceholders) {
+            jsons.add(element.toMap());
+        }
+
+        layoutPlaceholdersJson = ObjectUtils.toJson(jsons);
+    }
+
     wp.writeStart("div",
             "class", "objectInputs",
             "data-type", type != null ? type.getInternalName() : null,
             "data-id", state.getId(),
             "data-object-id", state.getId(),
-            "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }");
+            "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }",
+            "data-layout-placeholders", layoutPlaceholdersJson);
 
         Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
 

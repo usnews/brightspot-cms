@@ -1,19 +1,20 @@
 define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
   bsp_utils.onDomInsert(document, '.objectInputs', {
     'insert': function(inputs) {
-      var $elements = $(inputs).find('> .inputContainer[data-layout-element]');
+      var $inputs = $(inputs);
+      var placeholders = $.parseJSON($inputs.attr('data-layout-placeholders')) || [ ];
+      var $fields = $inputs.find('> .inputContainer[data-layout-field]');
 
-      if ($elements.length === 0) {
+      if (placeholders.length === 0 && $fields.length === 0) {
         return;
       }
 
       var maxRight = 0;
       var maxBottom = 0;
 
-      $elements.each(function() {
-        var dim = $.parseJSON($(this).attr('data-layout-element'));
-        var right = dim.left + dim.width;
-        var bottom = dim.top + dim.height;
+      function setMaxes(element) {
+        var right = element.left + element.width;
+        var bottom = element.top + element.height;
 
         if (maxRight < right) {
           maxRight = right;
@@ -22,9 +23,17 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         if (maxBottom < bottom) {
           maxBottom = bottom;
         }
+      }
+
+      $.each(placeholders, function(i, placeholder) {
+        setMaxes(placeholder);
+      })
+
+      $fields.each(function() {
+        setMaxes($.parseJSON($(this).attr('data-layout-field')));
       });
 
-      var $firstElement = $elements.eq(0);
+      var $firstField = $fields.eq(0);
 
       var $wrapper = $('<div/>', {
         'class': 'inputLayout-wrapper'
@@ -41,41 +50,52 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         'class': 'inputLayout-container'
       });
 
-      $elements.each(function() {
-        var $element = $(this);
-        var dim = $.parseJSON($element.attr('data-layout-element'));
-
+      function addElement(element, $field) {
         $container.append($('<div/>', {
-          'class': 'inputLayout-element',
+          'class': 'inputLayout-element ' + ($field ? 'inputLayout-element-field' : 'inputLayout-element-placeholder'),
 
           'css': {
-            'height': (dim.height / maxBottom * 100) + '%',
-            'left': (dim.left / maxRight * 100) + '%',
-            'top': (dim.top / maxBottom * 100) + '%',
-            'width': (dim.width / maxRight * 100) + '%'
+            'height': (element.height / maxBottom * 100) + '%',
+            'left': (element.left / maxRight * 100) + '%',
+            'top': (element.top / maxBottom * 100) + '%',
+            'width': (element.width / maxRight * 100) + '%'
           },
 
           'html': $('<div/>', {
-            'class': 'inputLayout-label',
-            'text': $element.find('> .inputLabel > label').text(),
+            'class': 'inputLayout-label' + ($field ? '' : ' inputLayout-label-placeholder'),
+            'text': $field ? $field.find('> .inputLabel > label').text() : element.name,
             'click': function() {
+              if (!$field) {
+                return;
+              }
+
               var $label = $(this);
 
               $label.closest('.inputLayout-container').find('.inputLayout-label').removeClass('inputLayout-label-selected');
-              $elements.hide();
+              $fields.hide();
               $label.addClass('inputLayout-label-selected');
-              $element.show();
+              $field.show();
             }
           })
         }))
+      }
+
+      $.each(placeholders, function(i, placeholder) {
+        addElement(placeholder);
+      });
+
+      $fields.each(function() {
+        var $field = $(this);
+
+        addElement($.parseJSON($field.attr('data-layout-field')), $field);
       });
 
       $wrapper.append($constrain);
       $constrain.append($container);
-      $firstElement.before($wrapper);
-      $elements.hide();
-      $container.find('.inputLayout-element').eq(0).find('.inputLayout-label').addClass('inputLayout-label-selected');
-      $firstElement.show();
+      $firstField.before($wrapper);
+      $fields.hide();
+      $container.find('.inputLayout-element-field').eq(0).find('.inputLayout-label').addClass('inputLayout-label-selected');
+      $firstField.show();
     }
   });
 });

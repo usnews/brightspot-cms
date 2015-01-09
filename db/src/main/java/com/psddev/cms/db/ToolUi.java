@@ -50,7 +50,8 @@ public class ToolUi extends Modification<Object> {
     private String inputSearcherPath;
     private String storagePreviewProcessorApplication;
     private String storagePreviewProcessorPath;
-    private ToolUiLayoutElement layoutElement;
+    private ToolUiLayoutElement layoutField;
+    private List<ToolUiLayoutElement> layoutPlaceholders;
     private String noteHtml;
     private String noteRendererClassName;
     private String placeholder;
@@ -255,12 +256,23 @@ public class ToolUi extends Modification<Object> {
         this.storagePreviewProcessorApplication = storagePreviewProcessorApplication;
     }
 
-    public ToolUiLayoutElement getLayoutElement() {
-        return layoutElement;
+    public ToolUiLayoutElement getLayoutField() {
+        return layoutField;
     }
 
-    public void setLayoutElement(ToolUiLayoutElement layoutElement) {
-        this.layoutElement = layoutElement;
+    public void setLayoutField(ToolUiLayoutElement layoutField) {
+        this.layoutField = layoutField;
+    }
+
+    public List<ToolUiLayoutElement> getLayoutPlaceholders() {
+        if (layoutPlaceholders == null) {
+            layoutPlaceholders = new ArrayList<ToolUiLayoutElement>();
+        }
+        return layoutPlaceholders;
+    }
+
+    public void setLayoutPlaceholders(List<ToolUiLayoutElement> layoutPlaceholders) {
+        this.layoutPlaceholders = layoutPlaceholders;
     }
 
     public String getNoteHtml() {
@@ -832,10 +844,10 @@ public class ToolUi extends Modification<Object> {
     }
 
     @Documented
-    @ObjectField.AnnotationProcessorClass(LayoutElementProcessor.class)
+    @ObjectField.AnnotationProcessorClass(LayoutFieldProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    public @interface LayoutElement {
+    public @interface LayoutField {
 
         public int left();
         public int top();
@@ -843,10 +855,10 @@ public class ToolUi extends Modification<Object> {
         public int height();
     }
 
-    private static class LayoutElementProcessor implements ObjectField.AnnotationProcessor<LayoutElement> {
+    private static class LayoutFieldProcessor implements ObjectField.AnnotationProcessor<LayoutField> {
 
         @Override
-        public void process(ObjectType type, ObjectField field, LayoutElement annotation) {
+        public void process(ObjectType type, ObjectField field, LayoutField annotation) {
             ToolUiLayoutElement element = new ToolUiLayoutElement();
 
             element.setLeft(annotation.left());
@@ -854,7 +866,46 @@ public class ToolUi extends Modification<Object> {
             element.setWidth(annotation.width());
             element.setHeight(annotation.height());
 
-            field.as(ToolUi.class).setLayoutElement(element);
+            field.as(ToolUi.class).setLayoutField(element);
+        }
+    }
+
+    @Documented
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface LayoutPlaceholder {
+
+        public String name();
+        public int left();
+        public int top();
+        public int width();
+        public int height();
+    }
+
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(LayoutPlaceholdersProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface LayoutPlaceholders {
+
+        public LayoutPlaceholder[] value();
+    }
+
+    private static class LayoutPlaceholdersProcessor implements ObjectType.AnnotationProcessor<LayoutPlaceholders> {
+
+        @Override
+        public void process(ObjectType type, LayoutPlaceholders annotation) {
+            for (LayoutPlaceholder placeholder : annotation.value()) {
+                ToolUiLayoutElement element = new ToolUiLayoutElement();
+
+                element.setName(placeholder.name());
+                element.setLeft(placeholder.left());
+                element.setTop(placeholder.top());
+                element.setWidth(placeholder.width());
+                element.setHeight(placeholder.height());
+
+                type.as(ToolUi.class).getLayoutPlaceholders().add(element);
+            }
         }
     }
 

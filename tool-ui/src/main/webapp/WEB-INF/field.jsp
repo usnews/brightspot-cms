@@ -15,7 +15,6 @@ com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
-com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.RoutingFilter,
@@ -153,18 +152,11 @@ try {
         wp.write("\" data-tab=\"");
         wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
 
-        ToolUiLayoutElement layoutElement = ui.getLayoutElement();
+        ToolUiLayoutElement layoutField = ui.getLayoutField();
 
-        if (layoutElement != null) {
-            Map<String, Integer> dims = new CompactMap<String, Integer>();
-
-            dims.put("left", layoutElement.getLeft());
-            dims.put("top", layoutElement.getTop());
-            dims.put("width", layoutElement.getWidth());
-            dims.put("height", layoutElement.getHeight());
-
-            wp.write("\" data-layout-element=\"");
-            wp.writeHtml(ObjectUtils.toJson(dims));
+        if (layoutField != null) {
+            wp.write("\" data-layout-field=\"");
+            wp.writeHtml(ObjectUtils.toJson(layoutField.toMap()));
         }
 
         wp.write("\">");
