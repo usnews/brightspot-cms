@@ -18,7 +18,8 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
       carousel.init($container, {numbered:false});
 
       addTiles($container.children(settings.itemsSelector), false);
-
+      carousel.update();
+        
       // Add more tiles via ajax when carousel ends
       $container.on('carousel.end carousel.begin', function(e, data) {
 
