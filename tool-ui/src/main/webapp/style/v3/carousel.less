@@ -39,8 +39,6 @@
   opacity: 0.9;
   
   &.carousel-nav-hide {
-    background: #e8e8e8;
-    cursor:auto;
     display:none;
   }
 
@@ -274,6 +272,22 @@
   }
   .carousel-bottom-viewport {
     overflow-y: hidden;
+  }
+
+  // Always display the carousel nav links unless there are no more results to fetch
+  .carousel-nav {
+    
+    &.carousel-nav-hide {
+      display:block;
+    }
+  }
+
+  // Hide the next or previous nav links if we are at the start or end of the carousel
+  // and if there are no more results to fetch
+  .searchResult-carousel[data-next-page=""] .carousel-nav-next.carousel-nav-hide,
+  .searchResult-carousel[data-prev-page=""] .carousel-nav-previous.carousel-nav-hide {
+    background-color:#aaa;
+    opacity: 0.3;
   }
 
 }

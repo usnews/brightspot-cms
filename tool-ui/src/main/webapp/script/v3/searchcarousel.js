@@ -33,12 +33,17 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
           'url'    : $container.data(dataAttr),
           'cache'  : false
         }).done(function(html) {
-          var $searchCarousel = $(html).find(settings.containerSelector).first();
+            
+            var $searchCarousel = $(html).find(settings.containerSelector).first();
+            var url = $searchCarousel.data(dataAttr);
 
-          // Update the data attribute with the URL to fetch the next set of results
-          $container.data(dataAttr, $searchCarousel.data(dataAttr));
-          addTiles($searchCarousel.children(settings.itemsSelector), !isEndEvent);
-          data.carousel.update();
+            // Update the data attribute with the URL to fetch the next set of results
+            // Note we use jQuery.data() to set the data,
+            // but we also change the data- attribute on the elment so it can be used by CSS.
+            $container.data(dataAttr, url).attr('data-' + dataAttr, url);
+
+            addTiles($searchCarousel.children(settings.itemsSelector), !isEndEvent);
+            data.carousel.update();
         });
 
       });
