@@ -102,6 +102,12 @@ function($, bsp_utils) {
         eventEnd: 'carousel.end',
         eventBegin: 'carousel.begin',
 
+        // Events for when user clicks next or previous buttons
+        // Note these events will be called even if the carousel does not move
+        // due to already being at the beginning or end of the tiles.
+        eventNext: 'carousel.next',
+        eventPrevious: 'carousel.previous',
+        
         /**
          * HTML template for the carousel
          *
@@ -190,12 +196,22 @@ function($, bsp_utils) {
 
             // Previous button
             self.dom.previous.on('click', function(e) {
+                
+                self.element.trigger(self.eventPrevious, {
+                    carousel: self
+                });
+                
                 self.previousPage();
                 return false;
             });
 
             // Next button
             self.dom.next.on('click', function(e) {
+                
+                self.element.trigger(self.eventNext, {
+                    carousel: self
+                });
+
                 self.nextPage();
                 return false;
             });
@@ -387,6 +403,7 @@ function($, bsp_utils) {
 
             // If all tiles fit within the viewport then no movement needed
             if (layout.tilesWidth <= layout.viewportWidth) {
+                self.update();
                 return;
             }
 
@@ -418,9 +435,7 @@ function($, bsp_utils) {
                 newOffset = layout.tilesOffset;
             }
 
-            if (newOffset !== layout.tilesOffset) {
-                self._moveTo(newOffset);
-            }
+            self._moveTo(newOffset);
         },
 
 

@@ -19,6 +19,10 @@ define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, ca
 
       addTiles($container.children(settings.itemsSelector), false);
       carousel.update();
+
+      // In case the active tile is not within the window we should center it
+      // (note this might trigger even more tiles to load)
+      carousel.goToActiveTile();
         
       // Add more tiles via ajax when carousel ends
       $container.on('carousel.end carousel.begin', function(e, data) {
