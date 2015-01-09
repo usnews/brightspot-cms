@@ -20,6 +20,7 @@ import java.util.UUID;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectMethod;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Reference;
 import com.psddev.dari.util.ObjectUtils;
@@ -298,6 +299,9 @@ public class ToolUi extends Modification<Object> {
         if (readOnly == null) {
             readOnly = ObjectUtils.to(Boolean.class, getState().get("cms.ui.isReadOnly"));
         }
+        if (getOriginalObject() instanceof ObjectMethod) {
+            return true;
+        }
         return readOnly != null ? readOnly : false;
     }
 
@@ -479,9 +483,13 @@ public class ToolUi extends Modification<Object> {
 
         if (concreteTypes != null) {
             for (ObjectType t : concreteTypes) {
-                if (t.getObjectClass() != null &&
-                        !t.as(ToolUi.class).isHidden()) {
-                    displayTypes.add(t);
+                if (!t.as(ToolUi.class).isHidden()) {
+                    if (t.getObjectClassName() == null) {
+                        displayTypes.add(t);
+
+                    } else if (t.getObjectClass() != null) {
+                        displayTypes.add(t);
+                    }
                 }
             }
         }
@@ -517,7 +525,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(CodeTypeProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface CodeType {
         String value();
     }
@@ -557,7 +565,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(CssClassProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface CssClass {
         String value();
     }
@@ -577,7 +585,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(DisplayFirstProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface DisplayFirst {
         boolean value() default true;
     }
@@ -597,7 +605,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(DisplayLastProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface DisplayLast {
         boolean value() default true;
     }
@@ -658,7 +666,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(FilterableProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Filterable {
         boolean value() default true;
     }
@@ -679,7 +687,7 @@ public class ToolUi extends Modification<Object> {
     @Inherited
     @ObjectType.AnnotationProcessorClass(GlobalFilterProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
     public @interface GlobalFilter {
         boolean value() default true;
     }
@@ -696,7 +704,7 @@ public class ToolUi extends Modification<Object> {
     @Inherited
     @ObjectField.AnnotationProcessorClass(HeadingProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Heading {
         String value();
     }
@@ -714,7 +722,7 @@ public class ToolUi extends Modification<Object> {
     @ObjectField.AnnotationProcessorClass(HiddenProcessor.class)
     @ObjectType.AnnotationProcessorClass(HiddenProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD, ElementType.TYPE })
+    @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD })
     public @interface Hidden {
         boolean value() default true;
     }
@@ -759,7 +767,7 @@ public class ToolUi extends Modification<Object> {
     @Inherited
     @ObjectField.AnnotationProcessorClass(InputProcessorPathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface InputProcessorPath {
         String application() default "";
         String value();
@@ -780,7 +788,7 @@ public class ToolUi extends Modification<Object> {
     @Inherited
     @ObjectField.AnnotationProcessorClass(StoragePreviewProcessorPathProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface StoragePreviewProcessorPath {
         String application() default "";
         String value();
@@ -820,7 +828,7 @@ public class ToolUi extends Modification<Object> {
     @ObjectField.AnnotationProcessorClass(NoteProcessor.class)
     @ObjectType.AnnotationProcessorClass(NoteProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD, ElementType.TYPE })
+    @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD })
     public @interface Note {
         String value();
     }
@@ -856,7 +864,7 @@ public class ToolUi extends Modification<Object> {
     @ObjectField.AnnotationProcessorClass(NoteRendererClassProcessor.class)
     @ObjectType.AnnotationProcessorClass(NoteRendererClassProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD, ElementType.TYPE })
+    @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD })
     public @interface NoteRendererClass {
         Class<? extends NoteRenderer> value();
     }
@@ -885,7 +893,7 @@ public class ToolUi extends Modification<Object> {
     @ObjectField.AnnotationProcessorClass(NoteHtmlProcessor.class)
     @ObjectType.AnnotationProcessorClass(NoteHtmlProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.FIELD, ElementType.TYPE })
+    @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD })
     public @interface NoteHtml {
         String value();
     }
@@ -911,7 +919,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(PlaceholderProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Placeholder {
 
         /**
@@ -1005,7 +1013,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(RichTextProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface RichText {
         boolean value() default true;
     }
@@ -1024,7 +1032,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(SecretProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Secret {
         boolean value() default true;
     }
@@ -1044,7 +1052,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(SortableProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Sortable {
         boolean value() default true;
     }
@@ -1136,7 +1144,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(TabProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface Tab {
         String value();
     }
@@ -1232,7 +1240,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(FieldDisplayTypeProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface FieldDisplayType {
 
         String value();

@@ -142,14 +142,12 @@ public class ScheduledEvents extends PageServlet {
                     page.writeEnd();
                 }
 
-                if (begin.isAfter(today) || end.isBefore(today)) {
-                    page.writeStart("li");
-                        page.writeStart("a",
-                                "href", page.url("", "date", System.currentTimeMillis()));
-                            page.writeHtml("Today");
-                        page.writeEnd();
+                page.writeStart("li");
+                    page.writeStart("a",
+                            "href", page.url("", "date", System.currentTimeMillis()));
+                        page.writeHtml("Today");
                     page.writeEnd();
-                }
+                page.writeEnd();
 
                 page.writeStart("li", "class", "next");
                     page.writeStart("a",

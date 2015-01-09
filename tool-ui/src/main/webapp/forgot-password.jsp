@@ -54,15 +54,20 @@ if (wp.isFormPost()) {
         if (StringUtils.isBlank(email) || email.indexOf("@") < 1) {
             throw new PasswordException("Oops! No email with that username");
         }
+        if (!user.isAllowedToRequestForgotPassword(Settings.getOrDefault(Long.class, "cms/tool/forgotPasswordIntervalInMinutes", 5L))) {
+            throw new PasswordException("Email regarding password reset has already been sent. Please check your inbox before requesting again.");
+        }
         String baseUrl = Settings.get(String.class, ToolPageContext.TOOL_URL_PREFIX_SETTING);
         if (StringUtils.isBlank(baseUrl)) {
             baseUrl = JspUtils.getAbsoluteUrl(request, "/");
         }
+        if (!baseUrl.startsWith("https") && JspUtils.isSecure(request)) {
+            baseUrl = baseUrl.replace("http", "https");
+        }
 
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(baseUrl);
-        urlBuilder.append(RoutingFilter.Static.getApplicationPath(Application.Static.getInstance(CmsTool.class).getApplicationName()));
-        urlBuilder.append(StringUtils.ensureStart("reset-password.jsp", "/"));
+        urlBuilder.append(wp.cmsUrl("/reset-password.jsp"));
         String changePasswordToken = StringUtils.hex(StringUtils.hash("SHA-256", UUID.randomUUID().toString()));
 
         String url = urlBuilder.toString();

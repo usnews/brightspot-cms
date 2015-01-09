@@ -270,7 +270,7 @@ public class Directory extends Record {
 
         public Path(Site site, String path, PathType type) {
             this.site = site;
-            this.path = path;
+            this.path = path != null ? path.trim() : null;
             this.type = type != null ? type : PathType.PERMALINK;
         }
 
@@ -279,7 +279,7 @@ public class Directory extends Record {
         }
 
         public String getPath() {
-            return path;
+            return path != null ? path.trim() : null;
         }
 
         public PathType getType() {

@@ -38,7 +38,7 @@ public class WorkStreams extends PageServlet {
         }
 
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("div", "class", "widget p-workStreams");
                 page.writeStart("h1", "class", "icon icon-object-workStream").writeHtml("Work Streams").writeEnd();
 
                 if (workStreams.isEmpty()) {
@@ -49,12 +49,14 @@ public class WorkStreams extends PageServlet {
                 } else {
                     for (WorkStream workStream : workStreams) {
                         List<ToolUser> users = workStream.getUsers();
-                        long incomplete = workStream.countIncomplete();
-                        long total = workStream.getQuery().count();
+                        long skipped = workStream.countSkipped(user);
+                        long complete = workStream.countComplete();
+                        long incomplete = workStream.countIncomplete() - skipped;
+                        long total = complete + incomplete + skipped;
                         boolean working = workStream.isWorking(user);
 
                         page.writeStart("div",
-                                "class", "block",
+                                "class", "block " + (working ? "p-workStreams-working" : "p-workStreams-notWorking"),
                                 "style", page.cssString(
                                         "padding-right", working ? "165px" : "75px",
                                         "position", "relative"));
@@ -80,7 +82,7 @@ public class WorkStreams extends PageServlet {
 
                             if (working) {
                                 page.writeStart("a",
-                                        "class", "button",
+                                        "class", "button p-workStreams-continue",
                                         "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId(), "_", System.currentTimeMillis()),
                                         "target", "_top",
                                         "style", page.cssString(
@@ -93,7 +95,7 @@ public class WorkStreams extends PageServlet {
                                 page.writeEnd();
 
                                 page.writeStart("a",
-                                        "class", "button",
+                                        "class", "button p-workStreams-stop",
                                         "href", page.url("", "stop", workStream.getId()),
                                         "style", page.cssString(
                                                 "bottom", 0,
@@ -106,7 +108,7 @@ public class WorkStreams extends PageServlet {
 
                             } else {
                                 page.writeStart("a",
-                                        "class", "button",
+                                        "class", "button p-workStreams-start",
                                         "href", page.url("/content/edit.jsp", "workStreamId", workStream.getId(), "_", System.currentTimeMillis()),
                                         "target", "_top",
                                         "style", page.cssString(
@@ -133,7 +135,36 @@ public class WorkStreams extends PageServlet {
                                     page.writeHtml(total);
                                 page.writeEnd();
 
-                                page.writeHtml(" left");
+                                page.writeHtml(" left ");
+
+                                if (complete > 0L || skipped > 0L) {
+                                    page.writeHtml("(");
+                                }
+
+                                if (complete > 0L) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(complete);
+                                    page.writeEnd();
+
+                                    page.writeHtml(" complete");
+
+                                    if (skipped > 0L) {
+                                        page.writeHtml(", ");
+                                    }
+                                }
+
+                                if (skipped > 0L) {
+                                    page.writeStart("strong");
+                                        page.writeHtml(skipped);
+                                    page.writeEnd();
+
+                                    page.writeHtml(" skipped");
+                                }
+
+                                if (complete > 0L || skipped > 0L) {
+                                    page.writeHtml(")");
+                                }
+
                             page.writeEnd();
                         page.writeEnd();
                     }

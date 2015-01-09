@@ -9,6 +9,7 @@ requirejs.config({
         'leaflet.draw': [ 'leaflet' ],
         'l.control.geosearch': [ 'leaflet' ],
         'l.geosearch.provider.openstreetmap': [ 'l.control.geosearch' ],
+        'L.Control.Locate': [ 'leaflet' ],
         'nv.d3': [ 'd3' ],
         'pixastic/actions/blurfast': [ 'pixastic/pixastic.core' ],
         'pixastic/actions/brightness': [ 'pixastic/pixastic.core' ],

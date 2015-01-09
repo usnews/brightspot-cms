@@ -40,8 +40,9 @@ module.exports = function(grunt) {
                     'diff.js'
                 ],
 
-                'leaflet-dist': [
+                'leaflet': [
                     {
+                        cwd: 'dist',
                         dest: 'leaflet',
                         expand: true,
                         src: [
@@ -52,7 +53,7 @@ module.exports = function(grunt) {
 
                     {
                         dest: 'leaflet.js',
-                        src: 'leaflet-src.js'
+                        src: 'dist/leaflet-src.js'
                     }
                 ],
 
@@ -86,12 +87,28 @@ module.exports = function(grunt) {
                         expand: true,
                         src: '**/*.js'
                     }
+                ],
+
+                'leaflet.locatecontrol': [
+                    {
+                        cwd: 'dist',
+                        dest: 'leaflet',
+                        expand: true,
+                        src: '*.css'
+                    },
+
+                    {
+                        cwd: 'src',
+                        expand: true,
+                        src: '*.js'
+                    }
                 ]
+
             },
 
             styles: {
                 dir: 'style',
-                less: 'cms.less'
+                less: [ 'cms.less', 'v3.less' ]
             },
 
             scripts: {
@@ -99,9 +116,20 @@ module.exports = function(grunt) {
                 rjsModules: [
                     {
                         name: 'cms'
+                    },
+                    {
+                        name: 'v3'
                     }
                 ]
             }
-        }
+        },
+
+        less: {
+            compile: {
+                options: {
+                    relativeUrls: true
+                }
+            }
+        },
     });
 };

@@ -128,6 +128,11 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private long changePasswordTokenTime;
 
+    @ToolUi.Placeholder("Default")
+    @ToolUi.Tab("Advanced")
+    @ToolUi.Values({ "v2", "v3" })
+    private String theme;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -632,6 +637,14 @@ public class ToolUser extends Record implements ToolEntity {
         this.changePasswordTokenTime = changePasswordToken == null ? 0L : System.currentTimeMillis();
     }
 
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
     public void updatePassword(Password password) {
         setPassword(password);
         setChangePasswordToken(null);
@@ -644,6 +657,14 @@ public class ToolUser extends Record implements ToolEntity {
     public boolean hasPermission(String permissionId) {
         ToolRole role = getRole();
         return role != null ? role.hasPermission(permissionId) : true;
+    }
+
+    /**
+     * Returns {@code true} if forgot paassword email was never sent
+     * or was sent before the given {@code interval} in minutes.
+     */
+    public boolean isAllowedToRequestForgotPassword(long interval) {
+        return changePasswordTokenTime + interval * 60L * 1000L < System.currentTimeMillis();
     }
 
     @Override
