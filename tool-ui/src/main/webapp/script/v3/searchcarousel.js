@@ -1,7 +1,7 @@
 define([ 'jquery', 'bsp-utils', 'v3/input/carousel' ], function($, bsp_utils, carouselUtility) {
 
   var settings  = {
-    containerSelector         : '.searchResult-carousel',
+    containerSelector         : '.widget-searchCarousel',
     nextAttr                  : 'next-page',
     prevAttr                  : 'prev-page',
     itemsSelector             : 'a'
