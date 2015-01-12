@@ -203,14 +203,6 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
 
-                    if (search != null) {
-                        wp.writeStart("span", "class", "breadcrumbItem frame");
-                            wp.writeStart("a", "href", StringUtils.addQueryParameters(search, "widget", true));
-                                wp.writeHtml("Search Result");
-                            wp.writeEnd();
-                        wp.writeEnd();
-                    }
-
                     wp.writeStart("span", "class", "breadcrumbItem icon icon-object");
                         wp.writeHtml(state.isNew() ? "New " : "Edit ");
 
