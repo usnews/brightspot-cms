@@ -19,7 +19,7 @@ public class CarouselSearchWidget extends DashboardWidget {
             return;
         }
 
-        page.writeStart("div", "class", "widget widget-carousel");
+        page.writeStart("div", "class", "widget-carousel");
             page.writeStart("div", "class", "frame");
 
                 page.writeStart("a", "href", StringUtils.addQueryParameters(searchUrl, "view", CarouselSearchResultView.class.getName(), "id", page.param(String.class, "id")));
