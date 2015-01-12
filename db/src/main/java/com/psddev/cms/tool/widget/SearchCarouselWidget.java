@@ -28,7 +28,8 @@ public class SearchCarouselWidget extends DashboardWidget {
 
         page.writeStart("div", "class", "widget-searchCarousel",
                 "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
-                "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "");
+                "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "",
+                "data-start-index", search.getOffset());
             writeItemsHtml();
         page.writeEnd();
     }
