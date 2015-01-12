@@ -53,7 +53,7 @@ java.util.Set,
 java.util.UUID,
 
 org.joda.time.DateTime
-, com.psddev.cms.tool.search.CarouselSearchResultView, com.psddev.cms.tool.widget.CarouselSearchWidget" %><%
+" %><%
 
 // --- Logic ---
 
@@ -173,8 +173,14 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
 
 wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null);
 
-new CarouselSearchWidget().writeHtml(wp, null);
+    String search = wp.param(String.class, "search");
 
+    if (search != null) {
+        wp.writeStart("div", "class", "frame");
+            wp.writeStart("a", "href", StringUtils.addQueryParameters(search.replace("misc/searchResult.jsp", "searchCarousel"), "id", wp.param(String.class, "id")));
+            wp.writeEnd();
+        wp.writeEnd();
+    }
 %>
 <div class="content-edit">
     <form class="contentForm contentLock"
@@ -196,7 +202,6 @@ new CarouselSearchWidget().writeHtml(wp, null);
         <div class="contentForm-main">
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
-                    String search = wp.param(String.class, "search");
 
                     if (search != null) {
                         wp.writeStart("span", "class", "breadcrumbItem frame");
