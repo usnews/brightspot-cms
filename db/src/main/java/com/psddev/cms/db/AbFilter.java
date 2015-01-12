@@ -45,7 +45,9 @@ public class AbFilter extends AbstractFilter implements AbstractFilter.Auto {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (!Query.from(CmsTool.class).first().isEnableAbTesting()) {
+        CmsTool cms = Query.from(CmsTool.class).first();
+
+        if (cms == null || !cms.isEnableAbTesting()) {
             chain.doFilter(request, response);
             return;
         }
