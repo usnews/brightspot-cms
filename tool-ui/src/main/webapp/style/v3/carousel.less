@@ -265,11 +265,8 @@
 }
 
 //Styling specific to search result carousel
-.widget-carousel {
+.widget-searchCarousel {
 
-  .searchResult-container {
-    padding: 0px;
-  }
   .carousel-bottom-viewport {
     overflow-y: hidden;
   }
@@ -284,8 +281,8 @@
 
   // Hide the next or previous nav links if we are at the start or end of the carousel
   // and if there are no more results to fetch
-  .searchResult-carousel[data-next-page=""] .carousel-nav-next.carousel-nav-hide,
-  .searchResult-carousel[data-prev-page=""] .carousel-nav-previous.carousel-nav-hide {
+  &[data-next-page=""] .carousel-nav-next.carousel-nav-hide,
+  &[data-prev-page=""] .carousel-nav-previous.carousel-nav-hide {
     background-color:#aaa;
     opacity: 0.3;
   }
