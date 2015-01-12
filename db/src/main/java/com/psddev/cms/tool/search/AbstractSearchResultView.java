@@ -39,11 +39,6 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     @Override
-    public boolean isInfiniteScroll(Search search) {
-        return false;
-    }
-
-    @Override
     public final void writeHtml(
             Search search,
             ToolPageContext page,
@@ -193,7 +188,7 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     protected void writePaginationHtml(PaginatedResult<?> result) throws IOException {
-        page.writeStart("div", "class", "searchResult-pagination", "style", isInfiniteScroll(search) ? "display: none" : "");
+        page.writeStart("div", "class", "searchResult-pagination");
             page.writeStart("ul", "class", "pagination");
                 if (result.hasPrevious()) {
                     page.writeStart("li", "class", "previous");
