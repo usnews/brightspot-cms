@@ -55,9 +55,13 @@ if (ct != null) {
             break;
         }
     }
+}
 
-} else {
+if (ObjectUtils.isBlank(tab)) {
     tab = ui.getTab();
+}
+
+if (ObjectUtils.isBlank(label)) {
     label = field.getLabel();
 }
 
