@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
+import com.psddev.cms.db.ToolUiLayoutElement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -2225,12 +2226,26 @@ public class ToolPageContext extends WebPageContext {
                 request.setAttribute("containerObject", object);
             }
 
+            List<ToolUiLayoutElement> layoutPlaceholders = type.as(ToolUi.class).getLayoutPlaceholders();
+            String layoutPlaceholdersJson = null;
+
+            if (!layoutPlaceholders.isEmpty()) {
+                List<Map<String, Object>> jsons = new ArrayList<Map<String, Object>>();
+
+                for (ToolUiLayoutElement element : layoutPlaceholders) {
+                    jsons.add(element.toMap());
+                }
+
+                layoutPlaceholdersJson = ObjectUtils.toJson(jsons);
+            }
+
             writeStart("div",
                     "class", "objectInputs",
                     "data-type", type != null ? type.getInternalName() : null,
                     "data-id", state.getId(),
                     "data-object-id", state.getId(),
-                    "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }");
+                    "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }",
+                    "data-layout-placeholders", layoutPlaceholdersJson);
 
                 Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
 

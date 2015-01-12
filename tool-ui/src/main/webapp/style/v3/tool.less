@@ -3,9 +3,9 @@
   .message-error;
 
   border-radius: 0;
-  height: 25px;
+  height: @length-toolBroadcast-height;
   left: 0;
-  line-height: 25px;
+  line-height: @length-toolBroadcast-height;
   overflow: hidden;
   padding: 0 20px 0 40px;
   position: fixed;
@@ -16,9 +16,9 @@
   z-index: 100;
 
   &:before {
-    height: 25px;
+    height: @length-toolBroadcast-height;
     left: 20px;
-    line-height: 25px;
+    line-height: @length-toolBroadcast-height;
     top: 0;
   }
 }
@@ -27,7 +27,7 @@
   margin-top: 100px;
 
   .toolHeader {
-    top: 25px;
+    top: @length-toolBroadcast-height;
   }
 
   .contentPreview {
@@ -246,33 +246,37 @@
     &.state-hover {
       background-color: fade(@color-focus, 10%);
     }
+
+    .link {
+      display: block;
+    }
   }
 }
 
 .toolNav-splitLeft {
-  border-right: 1px solid @color-separator;
   float: left;
   min-width: (@length-toolTitle-width + 40px);
 
   li {
-    .icon;
-    .icon-angle-right;
-
     position: relative;
 
-    &:before {
-      padding-right: 0;
-      position: absolute;
-      right: 20px;
-      width: auto;
+    &.toolNav-splitLeft-nested {
+      .icon;
+      .icon-angle-right;
+
+      &:before {
+        padding-right: 0;
+        position: absolute;
+        right: 20px;
+        width: auto;
+      }
     }
   }
 }
 
 .toolNav-splitRight {
-  border-left: 1px solid @color-separator;
+  border-left: 2px solid @color-separator;
   float: left;
-  margin-left: -1px;
 
   ul {
     min-width: (@length-toolTitle-width + 40px);
@@ -280,7 +284,7 @@
 }
 
 .toolNav-toggle {
-  @-size: 25px;
+  @-size: 30px;
 
   .icon;
   .icon-reorder;
@@ -313,8 +317,16 @@
   width: auto !important;
   z-index: 101 !important;
 
+  .hasToolBroadcast & {
+    top: (@length-toolBroadcast-height + @length-toolHeader-height - 14) !important;
+  }
+
   &:before {
     top: @length-toolHeader-height !important;
+
+    .hasToolBroadcast & {
+      top: (@length-toolBroadcast-height + @length-toolHeader-height) !important;
+    }
   }
 
   > .content {
@@ -329,64 +341,6 @@
     }
   }
 }
-/*
-.toolNav {
-  border-top: 2px solid @color-separator;
-  display: none;
-  left: 0;
-  list-style-type: none;
-  margin: 0;
-  overflow: hidden;
-  padding: 20px 30px 30px 20px;
-  position: fixed;
-  top: (@length-toolHeader-height - 1px);
-
-  &:before {
-    background-color: black;
-    bottom: 0;
-    content: '';
-    left: 0;
-    opacity: 0.2;
-    position: fixed;
-    transform: translateZ(0);
-    top: 0;
-    right: 0;
-  }
-
-  &:after {
-    background-color: white;
-    bottom: 10px;
-    box-shadow: 0 0 10px fade(black, 20%);
-    content: '';
-    left: 0;
-    position: absolute;
-    right: 10px;
-    top: 0;
-    z-index: -1;
-  }
-
-  > li {
-    float: left;
-    margin-right: 40px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    > .link {
-      &:extend(h2 all);
-
-      color: @color-text;
-    }
-
-    > ul {
-      &:extend(ul.links all);
-
-      margin: 0;
-    }
-  }
-}
-*/
 
 .toolContent {
   background: darken(white, 20%);
@@ -435,11 +389,14 @@
 }
 
 .searchControls {
-  border-right: 2px solid @color-separator;
+  @-borderWidth: 2px;
+  @-padding: 20px;
+
+  border-right: @-borderWidth solid @color-separator;
   box-sizing: border-box;
   float: left;
-  padding-right: 20px;
-  width: (@length-searchControlsWidth + 20);
+  padding-right: @-padding;
+  width: (@length-searchControlsWidth + @-padding + @-borderWidth);
 
   input[type=text],
   select {
@@ -558,13 +515,13 @@
     position: relative;
 
     input[type='text'] {
-      padding-right: 25px;
+      padding-right: @length-inputHeight;
     }
 
     .icon-action-edit {
-      bottom: ((@length-inputHeight - @length-iconSize) / 2);
+      bottom: ((@length-inputHeight - @length-lineHeight) / 2);
       position: absolute;
-      right: 5px;
+      right: ((@length-inputHeight - @length-iconSize) / 2);
     }
   }
 }
@@ -605,7 +562,7 @@
 }
 
 .searchResult {
-  margin-left: (@length-searchControlsWidth + 40);
+  margin-left: (@length-searchControlsWidth + 42);
   position: relative;
 }
 

@@ -66,9 +66,11 @@ require([
   'nv.d3',
 
   'dashboard',
+  'v3/constrainedscroll',
   'content/diff',
   'content/lock',
   'v3/content/publish',
+  'content/layout-element',
   'content/state' ],
 
 function() {
@@ -313,73 +315,6 @@ function() {
         }
       }));
     });
-  })();
-
-  // Make sure that most elements are always in view.
-  (function() {
-      var lastScrollTop = $win.scrollTop();
-
-      $win.scroll($.throttle(100, function() {
-          var scrollTop = $win.scrollTop();
-
-          $('.leftNav, .withLeftNav > .main, .contentForm-aside').each(function() {
-              var $element = $(this),
-                      elementTop = $element.offset().top,
-                      initialElementTop = $element.data('initialElementTop'),
-                      windowHeight,
-                      elementHeight,
-                      alignToTop;
-
-              if ($element.closest('.popup').length > 0) {
-                  return;
-              }
-
-              if (!initialElementTop) {
-                  initialElementTop = elementTop;
-                  $element.data('initialElementTop', initialElementTop);
-                  $element.css({
-                      'position': 'relative',
-                      'top': 0
-                  });
-              }
-
-              windowHeight = $win.height();
-              elementHeight = $element.outerHeight();
-              alignToTop = function() {
-                  $element.stop(true);
-                  $element.animate({
-                      'top': Math.max(scrollTop, 0)
-                  }, 'fast');
-              };
-
-              // The element height is less than the window height,
-              // so there's no need to account for the bottom alignment.
-              if (initialElementTop + elementHeight < windowHeight) {
-                  alignToTop();
-
-              // The user is scrolling down.
-              } else {
-                  if (lastScrollTop < scrollTop) {
-                      var windowBottom = scrollTop + windowHeight;
-                      var elementBottom = elementTop + elementHeight;
-                      if (windowBottom > elementBottom) {
-                          $element.stop(true);
-                          $element.animate({
-                              'top': Math.min(windowBottom, $('body').height()) - elementHeight - initialElementTop
-                          }, 'fast');
-                      }
-
-                  // The user is scrolling up.
-                  } else if (lastScrollTop > scrollTop) {
-                      if (elementTop > scrollTop + initialElementTop) {
-                          alignToTop();
-                      }
-                  }
-              }
-          });
-
-          lastScrollTop = scrollTop;
-      }));
   })();
 
   // Handle file uploads from drag-and-drop.
@@ -665,6 +600,8 @@ function() {
     var $publishing = $frame.find('.widget-publishing');
 
     if ($publishing.length > 0) {
+      $publishing.addClass('widget-publishing-hasClose');
+
       $publishing.append($('<a/>', {
         'class': 'widget-publishing-close',
         'click': function(event) {
@@ -672,9 +609,6 @@ function() {
           return false;
         }
       }));
-
-      $publishing.addClass('widget-publishing-hasClose');
-      $frame.popup('container').find('> .content > .closeButton').hide();
     }
 
     // Scroll the frame into view.
@@ -693,13 +627,15 @@ function() {
     var oldScrollTop = $.data($source[0], 'oldScrollTop');
 
     if (oldScrollTop) {
+      $source.closest('.popup, .toolContent').removeClass('under');
+
       $('html, body').animate({
         'scrollTop': oldScrollTop
+
+      }, 300, 'swing', function() {
+        $win.resize();
       });
     }
-
-    $source.closest('.popup, .toolContent').removeClass('under');
-    $win.resize();
   });
 
   $doc.ready(function() {
@@ -723,23 +659,44 @@ function() {
 
       $nav.find('> li').each(function() {
         var $item = $(this);
-        var $sub = $item.find('> ul');
 
-        $right.append($sub);
-        $sub.hide();
+        if ($item.is(':first-child')) {
+          $item.find('> ul > li').each(function() {
+            var $subItem = $(this).find('> a');
 
-        $left.append($('<li/>', {
-          'text': $item.text(),
-          'mouseover': function() {
-            $left.find('> li').removeClass('state-hover');
-            $(this).addClass('state-hover');
-            $right.find('> ul').hide();
-            $sub.show();
-          }
-        }));
+            $left.append($('<li/>', {
+              'html': $('<a/>', {
+                'href': $subItem.attr('href'),
+                'text': $subItem.text(),
+              }),
+
+              'mouseover': function() {
+                $left.find('> li').removeClass('state-hover');
+                $(this).addClass('state-hover');
+                $right.hide();
+              }
+            }));
+          });
+
+        } else {
+          var $sub = $item.find('> ul');
+
+          $right.append($sub);
+          $sub.hide();
+
+          $left.append($('<li/>', {
+            'class': 'toolNav-splitLeft-nested',
+            'text': $item.text(),
+            'mouseover': function() {
+              $left.find('> li').removeClass('state-hover');
+              $(this).addClass('state-hover');
+              $right.show();
+              $right.find('> ul').hide();
+              $sub.show();
+            }
+          }));
+        }
       });
-
-      $left.find('> li:first-child').trigger('mouseover');
 
       var $toggle = $('<div/>', {
         'class': 'toolNav-toggle',
@@ -749,6 +706,7 @@ function() {
 
           } else {
             $split.popup('open');
+            $left.find('> li:first-child').trigger('mouseover');
           }
         }
       });
