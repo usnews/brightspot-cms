@@ -7,15 +7,20 @@
     margin-left: 0;
 
     > li {
-      background-color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 6px;
+      border: 1px solid @color-heading;
+      border-radius: 2px;
+      margin-bottom: 10px;
+      padding: 10px;
       position: relative;
 
       > .repeatableLabel {
         &:extend(.inputLabelLike all);
 
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
         cursor: pointer;
         left: 0;
+        margin: -10px -10px 10px -10px;
         padding-left: 35px;
         padding-right: 45px;
         position: relative;
@@ -45,26 +50,6 @@
         max-width: 100%;
       }
 
-      > .objectInputs {
-        &:extend(.inputLargeLike all);
-
-        &:before {
-          bottom: 15px;
-          border-color: @color-heading;
-          border-style: solid;
-          border-width: 0 0 1px 1px;
-          content: '';
-          left: 15px;
-          position: absolute;
-          width: 7.5px;
-          top: 0;
-        }
-
-        &.state-focus:before {
-          border-color: @color-focus;
-        }
-      }
-
       > .removeButton {
         .icon;
         .icon-remove;
@@ -73,8 +58,8 @@
 
         color: @color-remove;
         position: absolute;
-        right: 5px;
-        top: 4px;
+        right: ((@length-inputHeight - @length-iconSize) / 2);
+        top: ((@length-inputHeight - @length-lineHeight) / 2);
       }
 
       .inputContainer:first-child {
@@ -82,6 +67,8 @@
       }
 
       &.state-focus {
+        border-color: @color-focus;
+
         > .repeatableLabel {
           .background-flat(@color-focus);
         }
@@ -582,8 +569,6 @@
 }
 
 .repeatableText {
-  @-length-buttonOffset: (@length-inputHeight - @length-iconSize) / 2;
-
   > ol, > ul {
     margin-bottom: 0;
 
@@ -603,9 +588,10 @@
 
         color: @color-remove;
         position: absolute;
-        right: @-length-buttonOffset;
-        top: @-length-buttonOffset;
+        right: ((@length-inputHeight - @length-iconSize) / 2);
+        top: ((@length-inputHeight - @length-lineHeight) / 2);
         user-select: none;
+        width: @length-iconSize;
       }
 
       &.toBeRemoved {
@@ -659,8 +645,9 @@
       .icon-plus;
 
       position: absolute;
-      right: @-length-buttonOffset;
-      top: @-length-buttonOffset;
+      right: ((@length-inputHeight - @length-iconSize) / 2);
+      top: ((@length-inputHeight - @length-lineHeight) / 2);
+      width: @length-iconSize;
     }
   }
 

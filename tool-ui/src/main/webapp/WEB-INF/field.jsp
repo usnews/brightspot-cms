@@ -3,16 +3,14 @@
 com.psddev.cms.db.AbVariation,
 com.psddev.cms.db.AbVariationField,
 com.psddev.cms.db.AbVariationObject,
-com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentField,
 com.psddev.cms.db.ContentType,
-com.psddev.cms.db.GuideType,
 com.psddev.cms.db.ToolUi,
+com.psddev.cms.db.ToolUiLayoutElement,
 com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.page.ContentEditBulk,
 
-com.psddev.dari.db.Modification,
 com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
@@ -26,10 +24,8 @@ java.io.IOException,
 java.io.Writer,
 java.net.MalformedURLException,
 java.net.URL,
-java.util.ArrayList,
 java.util.List,
 java.util.Map,
-java.util.Set,
 java.util.UUID,
 
 javax.servlet.ServletException
@@ -59,9 +55,13 @@ if (ct != null) {
             break;
         }
     }
+}
 
-} else {
+if (ObjectUtils.isBlank(tab)) {
     tab = ui.getTab();
+}
+
+if (ObjectUtils.isBlank(label)) {
     label = field.getLabel();
 }
 
@@ -155,6 +155,14 @@ try {
 
         wp.write("\" data-tab=\"");
         wp.writeHtml(ObjectUtils.isBlank(tab) ? "Main" : tab);
+
+        ToolUiLayoutElement layoutField = ui.getLayoutField();
+
+        if (layoutField != null) {
+            wp.write("\" data-layout-field=\"");
+            wp.writeHtml(ObjectUtils.toJson(layoutField.toMap()));
+        }
+
         wp.write("\">");
 
         String heading = ui.getHeading();
