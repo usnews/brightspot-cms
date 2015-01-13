@@ -14,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.primitives.Longs;
 import com.psddev.cms.tool.AuthenticationFilter;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.ObjectUtils;
@@ -42,6 +44,13 @@ public class AbFilter extends AbstractFilter implements AbstractFilter.Auto {
             HttpServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
+
+        CmsTool cms = Query.from(CmsTool.class).first();
+
+        if (cms == null || !cms.isEnableAbTesting()) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         if (AuthenticationFilter.Static.isAuthenticated(request)) {
             chain.doFilter(request, response);

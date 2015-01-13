@@ -9,6 +9,7 @@
 
   > .popup-content > .frame > .widget,
   > .content > .frame > .widget {
+    border-style: none;
     margin: -20px;
   }
 
@@ -27,6 +28,7 @@
 
 .popup-content {
   background-color: white;
+  border: 1px solid white;
   border-radius: 2px;
   box-shadow: 0 0 20px fade(black, 10%);
   padding: 20px;
@@ -124,6 +126,7 @@
 
   > .content {
     background-color: transparent;
+    border-style: none;
     box-shadow: none;
     padding-top: 0;
 
@@ -143,8 +146,16 @@
   top: (@length-toolHeader-height - 14) !important;
   width: auto !important;
 
+  .hasToolBroadcast & {
+    top: (@length-toolBroadcast-height + @length-toolHeader-height - 14) !important;
+  }
+
   &:before {
     top: @length-toolHeader-height;
+
+    .hasToolBroadcast & {
+      top: (@length-toolBroadcast-height + @length-toolHeader-height);
+    }
   }
 
   > .content {
