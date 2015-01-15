@@ -110,6 +110,13 @@
           .icon-plus;
           color: @color-link-dark;
         }
+
+        .previewable-image {
+          opacity: 0.5;
+        }
+        .previewable-label {
+          text-decoration: line-through;
+        }
       }
     }
   }
@@ -137,21 +144,72 @@
   }
 
   &.repeatableForm-previewable {
+    @preview-counter: preview-counter;
+    
     > ol,
     > ul {
       overflow: hidden;
+      
+      // For a numbered carousel create a CSS counter
+      counter-reset: @preview-counter;
 
       > li {
         background: white;
         box-sizing: border-box;
         float: left;
-        margin-right: 1%;
-        width: 24%;
+        margin-right: 10px;
+        width: 210px;
+        padding:4px;
+        padding-bottom:22px;
+        border:1px solid #ccc;
+        border-radius:2px;
+        min-height:170px;
+        
+        counter-increment: @preview-counter;
 
-        &:nth-child(4n+1) {
-          clear: left;
+        .previewable-image {
+          width: 200px;
+          height:150px;
+          cursor: pointer;
+          
+          // Resize the image so it's largest dimension fills the tile completely
+          // and keeps the correct aspect ratio.
+          object-fit: cover;
+
+          // In case src is blank set a background color
+          background-color:#ddd;
         }
 
+        .previewable-label {
+          margin:2px 4px 8px;
+          height:2.5em;
+          overflow:hidden;
+        }
+        
+        .previewable-label-prefix {
+          font-weight:bold;
+        }
+
+        .previewable-controls {
+          height:22px;
+          position:absolute;
+          width:208px;
+          left:0;
+          bottom:0;
+          background-color:#f8f8f8;
+        }
+
+        .previewable-control-edit {
+          .icon;
+          .icon-pencil;
+          .icon-only;
+          position:absolute;
+          right:30px;
+          bottom:2px;
+          cursor:pointer;
+          color:#999;
+        }
+        
         > .repeatableLabel {
           box-sizing: border-box;
           overflow: hidden;
@@ -164,7 +222,10 @@
           .icon-only;
 
           left: auto;
-          right: 5px;
+          right: 8px;
+          top:auto;
+          bottom:2px;
+          color:#999;
         }
 
         .inputLabel {
@@ -209,6 +270,24 @@
             }
           }
         }
+
+        &:before {
+          content: counter(@preview-counter);
+          position:absolute;
+          top:10px;
+          right:10px;
+          padding:4px;
+          background:rgba(64,64,64,0.7);
+          border:2px solid white;
+          border-radius:50%;
+          color:white;
+          min-width:12px;
+          text-align:center;
+          line-height:1;
+          font-size:12px;
+          font-weight:bold;
+        }
+
       }
     }
 
@@ -218,6 +297,75 @@
       margin: 0 10px 0 0;
     }
   }
+}
+
+.repeatablePreviewControls {
+
+  margin-bottom:.5em;
+  
+  .action-upload {
+    margin-right:1em;
+  }
+  
+}
+
+.view-switcher {
+  float:right;
+}
+
+.view-switcher-active {
+
+    color:black;
+
+    &:hover {
+        text-decoration: none;
+        color:black;
+    }
+}
+
+.carousel-target {
+  background:#eee;
+  position:relative;
+  display:table;
+  width:100%;
+  margin-top:-9px;
+}
+
+.carousel-target-items {
+  display:table-cell;
+  padding:1em;
+}
+
+@carousel-target-nav-width: 30px;
+@carousel-target-nav-background-color-active: @carousel-nav-background-color;
+@carousel-target-nav-background-color-inactive: #ddd;
+
+.carousel-target-nav {
+  .icon;
+  display:table-cell;
+  width: @carousel-target-nav-width !important;
+  background-color: @carousel-target-nav-background-color-inactive;
+  color:white;
+  text-align:center;
+  vertical-align:middle;
+  
+  .active& {
+    background-color: @carousel-target-nav-background-color-active;
+    cursor:pointer;
+  }
+  
+  a {
+    display:none;
+  }
+
+}
+
+.carousel-target-prev {
+  .icon-chevron-left;
+}
+
+.carousel-target-next {
+  .icon-chevron-right;
 }
 
 .repeatableForm > ol > li.collapsed > .frame,
@@ -311,6 +459,19 @@
     .addButtonContainer {
       display: none;
     }
+  }
+}
+
+.addButtonContainer {
+  margin-top: 5px;
+
+  > .addButton {
+    &:extend(.link all);
+
+    .icon;
+    .icon-plus;
+
+    margin-right: 15px;
   }
 }
 

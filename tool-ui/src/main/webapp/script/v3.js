@@ -34,6 +34,7 @@ require([
   'jquery.mousewheel',
   'velocity',
 
+  'v3/input/carousel',
   'input/change',
   'input/code',
   'input/color',
@@ -60,6 +61,7 @@ require([
   'jquery.pagethumbnails',
   'v3/jquery.repeatable',
   'jquery.sortable',
+  'v3/searchcarousel',
   'jquery.tabbed',
   'jquery.toggleable',
   'jquery.widthaware',

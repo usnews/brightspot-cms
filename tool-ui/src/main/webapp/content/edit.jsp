@@ -169,8 +169,19 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
 
 // --- Presentation ---
 
-%><% wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null); %>
+%><%
 
+wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel() : null);
+
+    String search = wp.param(String.class, "search");
+
+    if (search != null) {
+        wp.writeStart("div", "class", "frame");
+            wp.writeStart("a", "href", StringUtils.addQueryParameters(search.replace("misc/searchResult.jsp", "searchCarousel"), "id", wp.param(String.class, "id")));
+            wp.writeEnd();
+        wp.writeEnd();
+    }
+%>
 <div class="content-edit">
     <form class="contentForm contentLock"
             method="post"
@@ -191,15 +202,6 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
         <div class="contentForm-main">
             <div class="widget widget-content">
                 <h1 class="breadcrumbs"><%
-                    String search = wp.param(String.class, "search");
-
-                    if (search != null) {
-                        wp.writeStart("span", "class", "breadcrumbItem frame");
-                            wp.writeStart("a", "href", StringUtils.addQueryParameters(search, "widget", true));
-                                wp.writeHtml("Search Result");
-                            wp.writeEnd();
-                        wp.writeEnd();
-                    }
 
                     wp.writeStart("span", "class", "breadcrumbItem icon icon-object");
                         wp.writeHtml(state.isNew() ? "New " : "Edit ");

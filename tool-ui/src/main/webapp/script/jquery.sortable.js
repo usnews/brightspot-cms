@@ -133,6 +133,9 @@ $.plugin2('sortable', {
                     $rte.show();
                     $inputContainer.trigger('create');
                 });
+
+                // Trigger an event so other code can act after sortable is done
+                $container.trigger('sortable.end', [this]);
             });
         });
     }
