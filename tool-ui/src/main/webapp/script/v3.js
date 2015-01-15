@@ -54,6 +54,7 @@ require([
   'jquery.popup',
   'jquery.fixedscrollable',
   'v3/jquery.frame',
+  'v3/infinitescroll',
   'jquery.lazyload',
   'jquery.pagelayout',
   'jquery.pagethumbnails',
