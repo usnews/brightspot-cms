@@ -1348,12 +1348,21 @@ table.links.table-striped {
   @-borderColor: @color-border;
   @-borderWidth: 1px;
 
-  border-bottom: 1px solid @-borderColor;
   font-weight: 700;
   list-style-type: none;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   margin-left: 0;
   position: relative;
+
+  &:before {
+    background: @-borderColor;
+    bottom: 0;
+    content: '';
+    height: 1px;
+    left: 0;
+    position: absolute;
+    right: 0;
+  }
 
   > li {
     @-paddingTB: @length-tabHeight - @length-lineHeight - @-borderWidth;
@@ -1367,7 +1376,7 @@ table.links.table-striped {
       border-radius: 2px 2px 0 0;
       border-style: solid;
       border-width: @-borderWidth;
-      bottom: -1px;
+      bottom: 0;
       content: '';
       left: 0;
       opacity: 0;
@@ -1406,6 +1415,80 @@ table.links.table-striped {
 
         color: @color-remove;
       }
+    }
+  }
+}
+
+.tabs-scroller-toLeft,
+.tabs-scroller-toRight {
+  .icon;
+
+  border-radius: 2px;
+  cursor: pointer;
+  display: none;
+  height: 34px;
+  position: absolute;
+  top: 0;
+  user-select: none;
+  width: 20px;
+  z-index: 1;
+
+  &:before {
+    height: 100%;
+    line-height: 35px;
+    padding: 0;
+  }
+
+  &.tabs-scroller-disable {
+    color: @color-placeholder;
+  }
+}
+
+.tabs-scroller-toLeft {
+  .icon-chevron-left;
+
+  background: linear-gradient(to right, white 0, white 14px, transparent 20px);
+  left: 0;
+}
+
+.tabs-scroller-toRight {
+  .icon-chevron-right;
+
+  background: linear-gradient(to left, white 0, white 14px, transparent 20px);
+  right: 0;
+  text-align: right;
+}
+
+.tabs-wrapper {
+  position: relative;
+
+  &:before {
+    background: @color-border;
+    bottom: 0;
+    content: '';
+    height: 1px;
+    left: 0;
+    position: absolute;
+    right: 0;
+  }
+
+  .tabs {
+    overflow: hidden;
+    white-space: nowrap;
+
+    &:before {
+      display: none;
+    }
+  }
+
+  &.tabs-wrapper-scrollable {
+    .tabs {
+      padding: 0 20px;
+    }
+
+    .tabs-scroller-toLeft,
+    .tabs-scroller-toRight {
+      display: block;
     }
   }
 }

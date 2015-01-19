@@ -70,7 +70,8 @@ require([
   'content/lock',
   'v3/content/publish',
   'content/layout-element',
-  'content/state' ],
+  'content/state',
+  'v3/tabs' ],
 
 function() {
   var $ = arguments[0];
