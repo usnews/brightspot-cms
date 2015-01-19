@@ -13,6 +13,7 @@ public class ToolUiLayoutElement extends Record {
     private int top;
     private int width;
     private int height;
+    private String dynamicText;
 
     public String getName() {
         return name;
@@ -54,6 +55,14 @@ public class ToolUiLayoutElement extends Record {
         this.height = height;
     }
 
+    public String getDynamicText() {
+        return dynamicText;
+    }
+
+    public void setDynamicText(String dynamicText) {
+        this.dynamicText = dynamicText;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new CompactMap<String, Object>();
 
@@ -62,6 +71,7 @@ public class ToolUiLayoutElement extends Record {
         map.put("top", getTop());
         map.put("width", getWidth());
         map.put("height", getHeight());
+        map.put("dynamicText", getDynamicText());
 
         return map;
     }

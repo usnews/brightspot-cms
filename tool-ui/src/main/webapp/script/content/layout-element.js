@@ -51,32 +51,44 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       });
 
       function addElement(element, $field) {
+        var $label = $('<div/>', {
+          'class': 'inputLayout-label' + ($field ? '' : ' inputLayout-label-placeholder'),
+          'click': function() {
+            if (!$field) {
+              return;
+            }
+
+            var $label = $(this);
+
+            $label.closest('.inputLayout-container').find('.inputLayout-label').removeClass('inputLayout-label-selected');
+            $fields.hide();
+            $label.addClass('inputLayout-label-selected');
+            $field.show();
+          }
+        });
+
+        if ($field) {
+          $label.text($field.find('> .inputLabel > label').text());
+
+        } else {
+          $label.text(element.name);
+        }
+
+        var dynamicText = element.dynamicText;
+
+        if (dynamicText) {
+          $label.attr('data-dynamic-text', dynamicText);
+        }
+
         $container.append($('<div/>', {
           'class': 'inputLayout-element ' + ($field ? 'inputLayout-element-field' : 'inputLayout-element-placeholder'),
-
+          'html': $label,
           'css': {
             'height': (element.height / maxBottom * 100) + '%',
             'left': (element.left / maxRight * 100) + '%',
             'top': (element.top / maxBottom * 100) + '%',
             'width': (element.width / maxRight * 100) + '%'
-          },
-
-          'html': $('<div/>', {
-            'class': 'inputLayout-label' + ($field ? '' : ' inputLayout-label-placeholder'),
-            'text': $field ? $field.find('> .inputLabel > label').text() : element.name,
-            'click': function() {
-              if (!$field) {
-                return;
-              }
-
-              var $label = $(this);
-
-              $label.closest('.inputLayout-container').find('.inputLayout-label').removeClass('inputLayout-label-selected');
-              $fields.hide();
-              $label.addClass('inputLayout-label-selected');
-              $field.show();
-            }
-          })
+          }
         }))
       }
 
@@ -96,6 +108,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       $fields.hide();
       $container.find('.inputLayout-element-field').eq(0).find('.inputLayout-label').addClass('inputLayout-label-selected');
       $firstField.show();
+      $firstField.trigger('input');
     }
   });
 });
