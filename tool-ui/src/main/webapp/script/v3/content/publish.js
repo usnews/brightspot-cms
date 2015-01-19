@@ -124,8 +124,11 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       $('.contentForm-aside').each(function() {
         var aside = this;
         var $aside = $(aside);
+        var asideTop = $aside.css('top');
 
+        $aside.css('top', '');
         $.data(aside, OFFSET_DATA_KEY, $aside.offset());
+        $aside.css('top', asideTop);
 
         var asideWidth = $aside.width();
         var $widget = $aside.find('.widget-publishing');
@@ -164,7 +167,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
         } else {
           $widgets.css({
-            'margin-top': '',
+            'margin-top': ''
           });
 
           $publishing.css({
