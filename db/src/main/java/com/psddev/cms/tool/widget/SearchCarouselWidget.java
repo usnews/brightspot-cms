@@ -56,7 +56,6 @@ public class SearchCarouselWidget extends DashboardWidget {
         }
     }
 
-
     private void writeContentPreview(Object item) throws IOException {
 
         StorageItem preview = State.getInstance(item).getPreview();
