@@ -28,6 +28,8 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
       function createScrollerClick(direction) {
         return function() {
+          (direction > 0 ? $toLeft : $toRight).removeClass('tabs-scroller-disable');
+
           $tabs.animate({
             'scrollLeft': $tabs.scrollLeft() + (direction * itemsWidth)
           }, {
