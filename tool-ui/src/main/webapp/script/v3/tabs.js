@@ -2,6 +2,11 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
   bsp_utils.onDomInsert(document, '.tabs', {
     'insert': function(tabs) {
       var $tabs = $(tabs);
+
+      if ($tabs.closest('.tabbed-vertical').length > 0) {
+        return;
+      }
+
       var $wrapper = $('<div/>', {
         'class': 'tabs-wrapper'
       });
