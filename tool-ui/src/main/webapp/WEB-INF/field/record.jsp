@@ -218,6 +218,7 @@ if (isEmbedded) {
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
             wp.writeStart("div",
+                    "class", "toggleable-form",
                     "data-form-fields-data", ObjectUtils.toJson(validState.getSimpleValues()),
                     "data-form-fields-url", wp.cmsUrl(
                             "/contentFormFields",
