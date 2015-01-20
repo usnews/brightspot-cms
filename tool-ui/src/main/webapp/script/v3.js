@@ -73,7 +73,8 @@ require([
   'content/lock',
   'v3/content/publish',
   'content/layout-element',
-  'content/state' ],
+  'content/state',
+  'v3/tabs' ],
 
 function() {
   var $ = arguments[0];
@@ -570,24 +571,28 @@ function() {
     var $popup = $(event.target);
     var $input = $popup.popup('source');
     var $container = $input;
-    var labels = '';
+    var fieldsLabel = '';
 
     while (true) {
       $container = $container.parent().closest('.inputContainer');
 
       if ($container.length > 0) {
-        labels = $container.find('> .inputLabel > label').text() + (labels ? ' \u2192 ' + labels : '');
+        fieldsLabel = $container.find('> .inputLabel > label').text() + (fieldsLabel ? ' \u2192 ' + fieldsLabel : '');
 
       } else {
         break;
       }
     }
 
-    $popup.find('> .content > .frame > h1').text(
-        'Select ' +
-        labels +
-        ' for ' +
-        $input.closest('.contentForm').attr('data-o-label'));
+    var label = 'Select ' + fieldsLabel;
+    var objectLabel = $input.closest('.contentForm').attr('data-o-label');
+
+    if (objectLabel) {
+      label += ' for ';
+      label += objectLabel;
+    }
+
+    $popup.find('> .content > .frame > h1').text(label);
   });
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {

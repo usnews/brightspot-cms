@@ -853,6 +853,7 @@ public class ToolUi extends Modification<Object> {
         public int top();
         public int width();
         public int height();
+        public String dynamicText() default "";
     }
 
     private static class LayoutFieldProcessor implements ObjectField.AnnotationProcessor<LayoutField> {
@@ -865,6 +866,7 @@ public class ToolUi extends Modification<Object> {
             element.setTop(annotation.top());
             element.setWidth(annotation.width());
             element.setHeight(annotation.height());
+            element.setDynamicText(annotation.dynamicText());
 
             field.as(ToolUi.class).setLayoutField(element);
         }
@@ -879,6 +881,7 @@ public class ToolUi extends Modification<Object> {
         public int top();
         public int width();
         public int height();
+        public String dynamicText() default "";
     }
 
     @Documented
@@ -903,6 +906,7 @@ public class ToolUi extends Modification<Object> {
                 element.setTop(placeholder.top());
                 element.setWidth(placeholder.width());
                 element.setHeight(placeholder.height());
+                element.setDynamicText(placeholder.dynamicText());
 
                 type.as(ToolUi.class).getLayoutPlaceholders().add(element);
             }
