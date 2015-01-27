@@ -84,25 +84,6 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       }
     });
 
-    // Hide the right rail widgets when under the publishing widget.
-    $('.contentForm-aside').each(function() {
-      var $aside = $(this);
-      var $widgets = $aside.find('> .contentWidgets');
-      var clipPathTop = (windowScrollTop + 10) + 'px';
-      var clipPath = 'polygon(0 ' + clipPathTop + ', 100% ' + clipPathTop + ', 100% 100%, 0 100%)';
-      var maskImage = 'linear-gradient(to bottom, transparent 0, black 10px, black 100%)';
-      var maskPosition = 'center ' + (windowScrollTop - 10 - (parseInt($aside.css('top'), 10) || 0)) + 'px';
-
-      $widgets.css({
-        '-webkit-clip-path': clipPath,
-        'clip-path': clipPath,
-        '-webkit-mask-image': maskImage,
-        'mask-image': maskImage,
-        '-webkit-mask-position': maskPosition,
-        'mask-position': maskPosition
-      });
-    });
-
     lastWindowScrollTop = windowScrollTop;
   });
 });

@@ -155,7 +155,9 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var publishing = $publishing[0];
 
         if (asideOffset.top - windowScrollTop <= toolHeaderHeight) {
-          $widgets.css('margin-top', $.data(publishing, HEIGHT_DATA_KEY));
+          $widgets.css({
+            'padding-top': $.data(publishing, HEIGHT_DATA_KEY)
+          });
 
           $publishing.css({
             'left': asideOffset.left,
@@ -167,7 +169,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
         } else {
           $widgets.css({
-            'margin-top': ''
+            'padding-top': ''
           });
 
           $publishing.css({
@@ -178,6 +180,15 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
             'z-index': ''
           });
         }
+
+        // Hide the right rail widgets when under the publishing widget.
+        var clipPathTop = (windowScrollTop - asideOffset.top + toolHeaderHeight + 20) + 'px';
+        var clipPath = 'inset(' + clipPathTop + ' 0 0 0)';
+
+        $widgets.css({
+          '-webkit-clip-path': clipPath,
+          'clip-path': clipPath
+        });
       });
     }
 
