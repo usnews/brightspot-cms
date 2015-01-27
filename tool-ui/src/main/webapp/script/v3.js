@@ -50,7 +50,7 @@ require([
   'input/workflow',
 
   'jquery.calendar',
-  'jquery.dropdown',
+  'v3/jquery.dropdown',
   'jquery.editableplaceholder',
   'jquery.popup',
   'jquery.fixedscrollable',
