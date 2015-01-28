@@ -1,3 +1,5 @@
+@import 'variables';
+
 .block {
   display: block;
   margin: 0 0 20px 0;
@@ -111,8 +113,8 @@
 
 .actions,
 .buttons {
-  border-top: 1px solid fade(black, 20%);
-  margin: 0 0 20px 0;
+  border-top: 1px solid @color-border;
+  margin: 20px 0;
   overflow: hidden;
   padding: 20px 0 0 0;
 
@@ -346,15 +348,12 @@ figure,
     display: inline-block;
     font-family: 'FontAwesome';
     -webkit-font-smoothing: antialiased;
-    font-size: 14px;
+    font-size: @length-iconSize;
     font-weight: normal;
-    padding-right: 0.25em;
+    margin-right: 2px;
     text-align: center;
-    width: 14px;
-
-    &:hover {
-      text-decoration: none !important;
-    }
+    text-decoration: none !important;
+    width: @length-lineHeight;
   }
 }
 
@@ -622,10 +621,8 @@ figure,
   @-paddingTop: floor(@-paddingTB / 2);
 
   .background-flat(white);
-  border-color: @color-border;
+  border: @-borderWidth solid @color-border;
   border-radius: 2px;
-  border-style: solid;
-  border-width: @-borderWidth;
   box-sizing: border-box;
   min-height: @length-inputHeight;
   padding: @-paddingTop 6px (@-paddingTB - @-paddingTop) 6px;
@@ -1006,25 +1003,29 @@ figure,
   }
 }
 
-.link {
-  background-color: transparent;
+button.link {
+  background: transparent;
   border-radius: 0;
   border-style: none;
-  box-shadow: none;
-  cursor: pointer;
   display: inline;
-  font-family: inherit;
-  font-size: 100%;
-  font-weight: normal;
+  font-weight: inherit;
   height: auto;
   line-height: inherit;
   margin: 0;
   min-height: 0;
   padding: 0;
-  text-transform: inherit;
+  vertical-align: inherit;
 
+  &,
   &:hover {
     background-color: transparent;
+  }
+}
+
+.link {
+  cursor: pointer;
+
+  &:hover {
     text-decoration: underline;
   }
 
@@ -1138,7 +1139,7 @@ table.links.table-striped {
     }
 
     &.selected {
-      .background-flat(@color-select);
+      .background-flat(@color-focus);
 
       .link {
         color: white;
@@ -1308,7 +1309,7 @@ table.links.table-striped {
 .paginationPrevious {
   .link {
     .icon;
-    .icon-chevron-left;
+    .icon-angle-left;
     .icon-only;
   }
 }
@@ -1317,7 +1318,7 @@ table.links.table-striped {
 .paginationNext {
   .link {
     .icon;
-    .icon-chevron-right;
+    .icon-angle-right;
     .icon-only;
   }
 }

@@ -221,6 +221,7 @@
 
 .toolNav-split {
   overflow: hidden;
+  position: relative;
 
   .link {
     &, &:hover {
@@ -276,8 +277,17 @@
 }
 
 .toolNav-splitRight {
-  border-left: 2px solid @color-separator;
   float: left;
+
+  &:before {
+    background-color: @color-separator;
+    bottom: 0;
+    content: '';
+    left: (@length-toolTitle-width + 39px);
+    position: absolute;
+    top: 0;
+    width: 2px;
+  }
 
   ul {
     min-width: (@length-toolTitle-width + 40px);
@@ -332,6 +342,7 @@
   > .content {
     border-radius: 0 !important;
     border-bottom-right-radius: 2px !important;
+    border-style: none !important;
     border-top: 2px solid @color-separator !important;
     box-shadow: 0 40px 80px -40px black !important;
     padding: 0 !important;

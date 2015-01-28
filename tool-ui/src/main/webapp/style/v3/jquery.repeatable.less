@@ -1,3 +1,6 @@
+@import 'variables';
+@import 'abstract';
+
 .repeatableForm {
   > ol,
   > ul {
@@ -64,10 +67,6 @@
         position: absolute;
         right: ((@length-inputHeight - @length-iconSize) / 2);
         top: ((@length-inputHeight - @length-lineHeight) / 2);
-      }
-
-      .inputContainer:first-child {
-        margin-top: 6px;
       }
 
       &.state-focus {
@@ -163,8 +162,7 @@
         float: left;
         margin-right: 10px;
         width: 210px;
-        padding:4px;
-        padding-bottom:22px;
+        padding: 4px 4px 22px 4px;
         border:1px solid #ccc;
         border-radius:2px;
         min-height:170px;
@@ -463,19 +461,6 @@
     .addButtonContainer {
       display: none;
     }
-  }
-}
-
-.addButtonContainer {
-  margin-top: 5px;
-
-  > .addButton {
-    &:extend(.link all);
-
-    .icon;
-    .icon-plus;
-
-    margin-right: 15px;
   }
 }
 
@@ -808,6 +793,7 @@
 
       .icon;
       .icon-plus;
+      .icon-only;
 
       position: absolute;
       right: ((@length-inputHeight - @length-iconSize) / 2);
