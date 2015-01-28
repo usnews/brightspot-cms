@@ -1,10 +1,15 @@
-* {
+@import 'variables';
+@import 'abstract';
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
   font-family: inherit;
   font-size: 100%;
   font-style: inherit;
   font-weight: inherit;
   text-decoration: inherit;
-  vertical-align: inherit;
 
   &:focus {
     outline-style: none;
@@ -103,6 +108,10 @@ h2 {
   font-weight: 700;
   margin: 0 0 10px 0;
   padding: 0;
+}
+
+html {
+  box-sizing: border-box;
 }
 
 hr {
@@ -253,7 +262,8 @@ table {
 }
 
 textarea {
-  .input;
+  &:extend(.input all);
+
   display: block;
   height: 4em;
   resize: none;

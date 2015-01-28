@@ -9,7 +9,6 @@
 @color-publish: #85bd43;
 @color-remove: #fb1a41;
 @color-schedule: #f5d449;
-@color-select: black;
 @color-separator: darken(white, 14%);
 @color-text: darken(white, 85%);
 
@@ -26,7 +25,7 @@
 @length-inputHeight: 30px;
 @length-inputLabel-marginRight: 5px;
 @length-inputLabel-width: 140px;
-@length-lineHeight: 17px;
+@length-lineHeight: 18px;
 @length-searchControlsWidth: 200px;
 @length-toolBroadcast-height: 25px;
 @length-toolHeader-height: 70px;
@@ -61,7 +60,7 @@
   color: contrast(@color, @color-text, white);
 
   .link {
-    .color-hover-darken(contrast(@color, @color-link-dark, @color-link-light));
+    color: contrast(@color, @color-link-dark, @color-link-light);
   }
 }
 
