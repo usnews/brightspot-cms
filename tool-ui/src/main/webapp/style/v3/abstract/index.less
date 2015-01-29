@@ -1,11 +1,9 @@
-@import 'variables';
-
 .block {
   display: block;
   margin: 0 0 20px 0;
   padding: 0;
 
-  > :last-child {
+  > .block:last-child {
     margin-bottom: 0;
   }
 }
@@ -1247,90 +1245,7 @@ table.links.table-striped {
   }
 }
 
-.pagination {
-  &:extend(.inputLike all);
-
-  display: inline-block;
-  list-style-type: none;
-  margin-bottom: 5px;
-  margin-left: 0;
-  overflow: hidden;
-  padding: 0;
-  text-align: right;
-
-  > li {
-    .paginationItem;
-  }
-}
-
-.paginationItem {
-  float: left;
-  height: @length-inputHeight;
-  line-height: @length-inputHeight;
-  padding: 0 10px;
-  white-space: nowrap;
-
-  &:not(:last-child) {
-    border-right: 1px solid darken(white, 20%);
-  }
-
-  .select {
-    border: none;
-    margin-right: -5px;
-    padding-bottom: 0;
-    padding-left: 0;
-    padding-top: 0;
-  }
-}
-
-.pagination-first,
-.paginationFirst,
-.pagination-previous,
-.paginationPrevious,
-.pagination-next,
-.paginationNext,
-.pagination-last,
-.paginationLast {
-  padding: 0;
-  text-align: center;
-  width: 25px;
-}
-
-.pagination-first,
-.paginationFirst {
-  .link {
-    .icon;
-    .icon-double-angle-left;
-    .icon-only;
-  }
-}
-
-.pagination-previous,
-.paginationPrevious {
-  .link {
-    .icon;
-    .icon-angle-left;
-    .icon-only;
-  }
-}
-
-.pagination-next,
-.paginationNext {
-  .link {
-    .icon;
-    .icon-angle-right;
-    .icon-only;
-  }
-}
-
-.pagination-last,
-.paginationLast {
-  .link {
-    .icon;
-    .icon-double-angle-right;
-    .icon-only;
-  }
-}
+@import 'pagination';
 
 .piped {
   list-style-type: none;
@@ -1439,7 +1354,7 @@ table.links.table-striped {
   &:extend(.input all);
 
   -webkit-appearance: none;
-  background-image: url(icon/select-arrow.png);
+  background-image: url(../icon/select-arrow.png);
   background-position: right -2px;
   background-repeat: no-repeat;
   cursor: pointer;
@@ -1688,53 +1603,7 @@ table.links.table-striped {
   vertical-align: top;
 }
 
-.widget {
-  background-color: white;
-  border: 1px solid white;
-  border-radius: 2px;
-  box-shadow: 0 2px 0 fade(black, 10%);
-  margin-bottom: 10px;
-  padding: 20px;
-  position: relative;
-
-  > h1 {
-    .widgetHeading;
-  }
-
-  > :last-child {
-    margin-bottom: 0;
-  }
-}
-
-.widgetHeading {
-  @-length-height: @length-lineHeight * 2;
-
-  background: @color-heading;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  color: @color-text;
-  font-family: @fontFamily-label;
-  font-size: 100%;
-  font-weight: 700;
-  height: @-length-height;
-  line-height: @-length-height;
-  margin: -20px -20px 20px -20px;
-  overflow: hidden;
-  padding: 0 20px;
-  text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  &:before {
-    display: none !important;
-  }
-}
-
-.widgetControls {
-  position: absolute;
-  right: 10px;
-  top: 6px;
-}
+@import 'widget';
 
 // Standard CMS objects.
 .icon-object { .icon-file; }

@@ -1,0 +1,84 @@
+.pagination {
+  &:extend(.inputLike all);
+
+  display: inline-block;
+  list-style-type: none;
+  margin-bottom: 20px;
+  margin-left: 0;
+  overflow: hidden;
+  padding: 0;
+  text-align: right;
+
+  > li {
+    .paginationItem;
+  }
+}
+
+.paginationItem {
+  float: left;
+  height: @length-inputHeight;
+  line-height: @length-inputHeight;
+  padding: 0 10px;
+  white-space: nowrap;
+
+  &:not(:last-child) {
+    border-right: 1px solid darken(white, 20%);
+  }
+
+  .select {
+    border: none;
+    margin-right: -5px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-top: 0;
+  }
+}
+
+.pagination-first,
+.paginationFirst,
+.pagination-previous,
+.paginationPrevious,
+.pagination-next,
+.paginationNext,
+.pagination-last,
+.paginationLast {
+  padding: 0;
+  text-align: center;
+  width: 25px;
+}
+
+.pagination-first,
+.paginationFirst {
+  .link {
+    .icon;
+    .icon-double-angle-left;
+    .icon-only;
+  }
+}
+
+.pagination-previous,
+.paginationPrevious {
+  .link {
+    .icon;
+    .icon-angle-left;
+    .icon-only;
+  }
+}
+
+.pagination-next,
+.paginationNext {
+  .link {
+    .icon;
+    .icon-angle-right;
+    .icon-only;
+  }
+}
+
+.pagination-last,
+.paginationLast {
+  .link {
+    .icon;
+    .icon-double-angle-right;
+    .icon-only;
+  }
+}
