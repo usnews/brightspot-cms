@@ -13,31 +13,35 @@ import com.psddev.dari.util.StorageItem;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public class SearchCarouselWidget extends DashboardWidget {
 
     private transient ToolPageContext page;
-    private transient PaginatedResult<?> result;
+    private transient List<?> items;
 
     @Override
     public void writeHtml(ToolPageContext page, Dashboard dashboard) throws IOException, ServletException {
         this.page = page;
         Search search = new Search(page);
-        result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
+        PaginatedResult<?> result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
+        items = result.getItems();
 
-        page.writeStart("div", "class", "widget-searchCarousel",
-                "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
-                "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "",
-                "data-start-index", search.getOffset());
-            writeItemsHtml();
-        page.writeEnd();
+        if (items.size() > 1) {
+            page.writeStart("div", "class", "widget-searchCarousel",
+                    "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
+                    "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "",
+                    "data-start-index", search.getOffset());
+                writeItemsHtml();
+            page.writeEnd();
+        }
     }
 
     protected void writeItemsHtml() throws IOException {
         UUID currentContentId = page.param(UUID.class, "id");
 
-        for (Object item : result.getItems()) {
+        for (Object item : items) {
             State itemState = State.getInstance(item);
             UUID itemId = itemState.getId();
 
