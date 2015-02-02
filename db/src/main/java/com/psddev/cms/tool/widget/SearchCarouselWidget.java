@@ -28,14 +28,16 @@ public class SearchCarouselWidget extends DashboardWidget {
         PaginatedResult<?> result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
         items = result.getItems();
 
-        if (items.size() > 1) {
-            page.writeStart("div", "class", "widget-searchCarousel",
-                    "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
-                    "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "",
-                    "data-start-index", search.getOffset());
-                writeItemsHtml();
-            page.writeEnd();
+        if (items.size() <= 1 && !result.hasPrevious()) {
+            return;
         }
+
+        page.writeStart("div", "class", "widget-searchCarousel",
+                "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
+                "data-prev-page", result.hasPrevious() ? page.url("", Search.OFFSET_PARAMETER, result.getPreviousOffset()) : "",
+                "data-start-index", search.getOffset());
+            writeItemsHtml();
+        page.writeEnd();
     }
 
     protected void writeItemsHtml() throws IOException {
