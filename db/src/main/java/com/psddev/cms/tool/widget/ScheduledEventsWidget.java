@@ -144,12 +144,12 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
                     page.writeEnd();
                 }
 
-//                page.writeStart("li");
-//                    page.writeStart("a",
-//                            "href", page.url("", "date", System.currentTimeMillis()));
-//                        page.writeHtml("Today");
-//                    page.writeEnd();
-//                page.writeEnd();
+                page.writeStart("li");
+                    page.writeStart("a",
+                            "href", page.url("", "date", System.currentTimeMillis()));
+                        page.writeHtml("Today");
+                    page.writeEnd();
+                page.writeEnd();
 
                 page.writeStart("li", "class", "next");
                     page.writeStart("a",
