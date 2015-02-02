@@ -93,15 +93,15 @@ define([
 
             self.initEdit();
             self.initScrollFix();
-
-            // Process all adjustments on the image (just once)
-            // However, if user opens the edit popup then
-            // we will start a timer to process the image repeatedly
-            self.adjustmentProcess();
-
             self.initCover();
             self.initSizes();
-            self.initSizeBox();
+            self.initText();
+
+            // Process all current adjustments on the image
+            self.adjustmentProcess();
+
+            // Automatically select the first size group if there is only one
+            self.sizesSelectSingle()
         },
 
         
@@ -140,9 +140,7 @@ define([
             }
             self.scale = scale;
 
-            //
             dom.$aside = $el.find('> .imageEditor-aside');
-
             dom.$tools = $el.find('.imageEditor-tools ul');
             dom.$edit = $el.find('.imageEditor-edit');
 
@@ -670,6 +668,7 @@ define([
             });
         },
 
+        
         //--------------------------------------------------
         // COVER
         // Used to indicate the crop area for a particular size.
@@ -701,7 +700,8 @@ define([
             self.dom.$coverLeft = $cover.clone(true);
             self.dom.$coverRight = $cover.clone(true);
             self.dom.$coverBottom = $cover.clone(true);
-            self.dom.$covers = $().add(self.dom.$coverTop).add(self.dom.$coverLeft).add(self.dom.$coverRight).add(self.dom.$coverBottom).appendTo(self.$element);
+            self.dom.$covers = $().add(self.dom.$coverTop).add(self.dom.$coverLeft).add(self.dom.$coverRight)
+                .add(self.dom.$coverBottom).appendTo(self.$element);
         },
 
         
@@ -850,11 +850,16 @@ define([
                         self.sizesSelect(groupName);
                     }
                 });
+
+                // Create a size box for the group (initially hidden)
+                self.initSizeBox(groupName);
+
             });
 
             // Now add the size selector to the dom,
             // and hide the table that contained all the size inputs
             self.dom.$sizes.before(self.dom.$sizeSelectors).hide();
+
         },
 
         
@@ -896,7 +901,8 @@ define([
             // From there we can get to the other information about the size.
             self.dom.$sizes.find('th').each(function(){
                 
-                var group, independent, inputs, sizeAspectRatio, sizeAspectRatioApproximate, sizeDescription, sizeHeight, sizeInfo, sizeName, sizeWidth, $th, $tr;
+                var group, independent, inputs, sizeAspectRatio, sizeAspectRatioApproximate,
+                    sizeDescription, sizeHeight, sizeInfo, sizeName, sizeWidth, sizes, $source, $th, $tr;
 
                 $th = $(this);
                 $tr = $th.closest('tr');
@@ -906,6 +912,19 @@ define([
                 sizeWidth = parseFloat($tr.attr('data-size-width'));
                 sizeHeight = parseFloat($tr.attr('data-size-height'));
                 sizeAspectRatio = sizeWidth / sizeHeight;
+
+                // If we are inside a popup, only make this size selectable
+                // if it a "standard image size" for the page it is on.
+                $source = $th.popup('source');
+                if ($source) {
+                    var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
+                    if (sizes) {
+                        if ($.inArray(sizeName, sizes.split(' ')) < 0) {
+                            // skip this and continue with the next item in the each loop
+                            return;
+                        }
+                    }
+                }
 
                 // Get all the hidden inputs for the size
                 inputs = { };
@@ -1001,7 +1020,7 @@ define([
 
             self.sizeBoxHide();
 
-            // Remove the text overlays
+            // Remove the "Add Text" button
             self.textUnselect();
         },
 
@@ -1022,7 +1041,22 @@ define([
             return self.sizeGroups[groupName].$element.hasClass('imageEditor-sizeSelected');
         },
 
+        
+        /**
+         * If there is only a single size group, select it.
+         */
+        sizesSelectSingle: function() {
+            var self;
+            self = this;
+            if (self.sizeGroups.length === 1) {
+                $.each(self.sizeGroups, function(groupName) {
+                    self.sizesSelect(groupName);
+                    return false;
+                });
+            }
+        },
 
+        
         /**
          * Determine which size group is currently selected.
          *
@@ -1226,47 +1260,41 @@ define([
         /**
          * Create the size box that shows the cropped area of an image,
          * and lets the user edit the cropped area.
+         *
+         * @param String groupName
+         * The name of the group from self.sizeGroups for this size box.
          */
-        initSizeBox: function() {
+        initSizeBox: function(groupName) {
             
-            var self;
+            var groupInfo, self, $sizeBox, $sizeBoxTopLeft, $sizeBoxBottomRight;
 
             self = this;
 
+            groupInfo = self.sizeGroups[groupName];
+            
             // Create the sizebox
-            self.dom.$sizeBox = $('<div/>', {
+            $sizeBox = $('<div/>', {
                 'class': 'imageEditor-sizeBox',
                 'css': { 'position': 'absolute' }
             }).hide().appendTo(self.$element);
 
+            // Save the size box along with the group info so we can access it later
+            groupInfo.$sizeBox = $sizeBox;
+            
             // Create the top/left sizebox handle
-            self.dom.$sizeBoxTopLeft = $('<div/>', {
+            $sizeBoxTopLeft = $('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-topLeft',
-                // 'mousedown': updateSizeBox(function(event, original, delta) {
-                //     return {
-                //         'left': original.left + delta.constrainedX,
-                //         'top': original.top + delta.constrainedY,
-                //         'width': original.width - delta.constrainedX,
-                //         'height': original.height - delta.constrainedY
-                //     };
-                // })
-            }).appendTo(self.dom.$sizeBox);
+            }).appendTo($sizeBox);
 
             // Create the top/right sizebox handle
-            self.dom.$sizeBoxBottomRight = $('<div/>', {
+            $sizeBoxBottomRight = $('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
-                // 'mousedown': updateSizeBox(function(event, original, delta) {
-                //     return {
-                //         'width': original.width + delta.constrainedX,
-                //         'height': original.height + delta.constrainedY
-                //     };
-                // })
-            }).appendTo(self.dom.$sizeBox);
+            }).appendTo($sizeBox);
 
             // Set up  event handlers
             
             // Event handler to support dragging the left/top handle
-            self.dom.$sizeBoxTopLeft.on('mousedown', self.sizeBoxMousedownDragHandler(function(event, original, delta){
+            $sizeBoxTopLeft.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
                 
                 // When user drags the top left handle,
                 // adjust the top and left position of the size box,
@@ -1280,7 +1308,7 @@ define([
             }));
 
             // Event handler to support dragging the bottom/right handle
-            self.dom.$sizeBoxBottomRight.on('mousedown', self.sizeBoxMousedownDragHandler(function(event, original, delta){
+            $sizeBoxBottomRight.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
                 
                 // When user drags the bottom right handle, adjust the width and height of the size box
                 return {
@@ -1290,7 +1318,7 @@ define([
             }));
 
             // Event handler to support moving the size box
-            self.dom.$sizeBox.on('mousedown', self.sizeBoxMousedownDragHandler(function(event, original, delta) {
+            $sizeBox.on('mousedown', self.sizeBoxMousedownDragHandler(groupName, function(event, original, delta) {
                 
                 // Set the "moving" parameter to prevent the size box from being moved
                 // outside the bounds of the image, and adjust the left and top position
@@ -1325,8 +1353,9 @@ define([
             self.coverUpdate(bounds);
             self.coverShow();
             
-            self.sizeBoxUpdate(bounds);
-            self.dom.$sizeBox.show();
+            self.sizeBoxUpdate(groupName, bounds);
+
+            self.sizeGroups[groupName].$sizeBox.show();
         },
 
 
@@ -1339,27 +1368,32 @@ define([
          * @param Object width
          * @param Object height
          */
-        sizeBoxUpdate: function(bounds) {
+        sizeBoxUpdate: function(groupName, bounds) {
             var self;
             self = this;
-            self.dom.$sizeBox.css(bounds);
+            self.sizeGroups[groupName].$sizeBox.css(bounds);
         },
 
         
         /**
-         * Hide the size box.
+         * Hide all the size boxes.
          */
         sizeBoxHide: function() {
             var self;
             self = this;
-            self.dom.$sizeBox.hide();
             self.coverHide();
+            $.each(self.sizeGroups, function(groupName, groupInfo) {
+                groupInfo.$sizeBox.hide();
+            });
         },
 
         
         /**
          * Create a mousedown handler function that lets the user drag the size box
          * or the size box handles.
+         *
+         * @param String groupName
+         * Name of the size group that we are modifying.
          *
          * @param Function filterBoundsFunction(event, original, delta)
          * A function that will modify the bounds of the size box,
@@ -1369,33 +1403,25 @@ define([
          * Also the function can set moving:true in the bounds object if
          * the entire size box is being moved (instead of resizing the size box).
          *
-         * @param String groupName
-         * Name of the size group that we are modifying.The aspect ratio that the size box should maintain
          */
-        sizeBoxMousedownDragHandler: function(filterBoundsFunction) {
+        sizeBoxMousedownDragHandler: function(groupName, filterBoundsFunction) {
 
-            var mousedownHandler, self;
+            var mousedownHandler, self, $sizeBox;
 
             self = this;
 
+            $sizeBox = self.sizeGroups[groupName].$sizeBox;
+            
             mousedownHandler = function(mousedownEvent) {
 
-                var aspectRatio, element, groupName, imageWidth, imageHeight, original, $sizeBox, sizeBoxPosition;
+                var aspectRatio, element, imageWidth, imageHeight, original, sizeBoxPosition;
 
                 // The element that was dragged
                 element = this;
 
-                // Determine which group we are editing so we can get the aspect ratio
-                groupName = self.sizesGetSelected();
-                if (!groupName) {
-                    return;
-                }
-
                 // Get the aspect ratio for this group
                 aspectRatio = self.sizesGetGroupAspectRatio(groupName);
 
-                $sizeBox = self.dom.$sizeBox; // shortcut variable
-                
                 sizeBoxPosition = $sizeBox.position();
                 
                 original = {
@@ -1509,21 +1535,18 @@ define([
                     // Now that the bounds have been sanitized,
                     // update the sizebox display
                     self.coverUpdate(bounds);
-                    self.sizeBoxUpdate(bounds);
+                    self.sizeBoxUpdate(groupName, bounds);
 
-                    // TODO: change this to a more generic resize event and make the text overlays listen for that
-                    // instead of having the sizebox have to know about textoverlays within it.
-                    $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
+                    // Trigger an event to tell others the size box has changed size
+                    if (!bounds.moving) {
+                        $sizeBox.trigger('sizeBoxResize');
+                    }
 
                 }, function() {
 
                     // .drag() end callback
 
                     // Now that we're done dragging, update the size box
-                    
-                    var $sizeBox;
-
-                    $sizeBox = self.dom.$sizeBox;
                     
                     var sizeBoxPosition = $sizeBox.position();
                     var sizeBoxWidth = $sizeBox.width();
@@ -1540,10 +1563,8 @@ define([
                     // Update the preview image thumbnail so it will match the new crop values
                     self.sizesUpdatePreview(groupName);
 
-                    // TODO: change this to a more generic resize event and make the text overlays listen for that
-                    // instead of having the sizebox have to know about textoverlays within it.
-                    // ??? is this needed here?
-                    $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
+                    // Trigger an event to tell others the size box has changed size
+                    $sizeBox.trigger('sizeBoxResize');
                 });
 
                 return false;
@@ -1561,34 +1582,62 @@ define([
         // SIZES - TEXT OVERLAYS
         //--------------------------------------------------
 
+        /**
+         * Initialize all the text overlays.
+         */
+        initText: function() {
+
+            var self;
+
+            self = this;
+            
+            // Create text overlays within the size box for each group
+            $.each(self.sizeGroups, function(groupName, groupInfo) {
+
+                // Get the text info from the hidden inputs
+                groupInfo.textInfos = self.textGetTextInfo(groupName);
+
+                // Create the text overlays
+                $.each(groupInfo.textInfos, function(textKey) {
+                    self.textOverlayAdd(groupName, textKey);
+                });
+
+                // Set up resize listeners on the sizebox
+                // to resize the text overlays if the sizebox changes
+                groupInfo.$sizeBox.on('sizeBoxResize', function(){
+                    self.textOverlaySetFont(groupName);
+                });
+            });
+
+            // Set up a form submit handler to copy all the rich text editor content back into the hidden variables
+            self.dom.$form.submit(function() {
+                $.each(self.sizeGroups, function(groupName, groupInfo) {
+                    self.textSetTextInfo(groupName);
+                });
+            });
+
+        },
+
+        
         textSelectGroup: function(groupName) {
 
             var self, textInfo;
 
             self = this;
 
-            // First remove any existing text overlays
-            self.textUnselect();
-
             // Create the "Add Text" button within the group
             self.textButtonCreate(groupName);
-        
-            // Get the textInfo for the group and save it as the selected text
-            self.selectedGroup = groupName;
-            self.selectedGroupTextInfo = self.textGetGroupInfo(groupName);
 
-            // Create text box for each existing text
-            $.each(self.selectedGroupTextInfo, function(textKey, textData) {
-                self.textOverlayAdd(textKey);
-            });
+            // Resize the texts within the group
+            self.textOverlaySetFont(groupName);
         },
 
 
         /**
-         * Unselect text overlays. Removes the "Add Text" link from within all groups.
-         * Removes all the text overlays.
+         * Removes the "Add Text" link from within all groups.
          */
         textUnselect: function() {
+            
             var self;
 
             self = this;
@@ -1596,10 +1645,6 @@ define([
             // Remove the "Add Text" link
             self.textButtonRemove();
             
-            // Remove all text overlays
-            
-            // Clear the array of selected texts
-            self.textInfo = [];
         },
 
         
@@ -1620,9 +1665,9 @@ define([
             $('<a/>', {
                 'class': 'imageEditor-addTextOverlay',
                 'text': 'Add Text',
-                'click': function(event) {
-                    event.preventDefault();
+                'click': function() {
                     self.textAdd(groupName);
+                    return false;
                 }
             }).appendTo($element);
         },
@@ -1653,7 +1698,7 @@ define([
          * @returns Number textInfo[n].width
          * @returns Number textInfo[n].size
          */
-        textGetGroupInfo: function(groupName) {
+        textGetTextInfo: function(groupName) {
 
             var groupInfo, self, sizeInfo, textInfo;
 
@@ -1671,7 +1716,7 @@ define([
             texts = sizeInfo.inputs.texts.val().split(self.textDelimiter);
             textXs = sizeInfo.inputs.textXs.val().split(self.textDelimiter);
             textYs = sizeInfo.inputs.textYs.val().split(self.textDelimiter);
-            textWidths = sizeInfo.inputs.textYs.val().split(self.textDelimiter);
+            textWidths = sizeInfo.inputs.textWidths.val().split(self.textDelimiter);
             textSizes = sizeInfo.inputs.textSizes.val().split(self.textDelimiter);
 
             textInfo = {};
@@ -1708,18 +1753,9 @@ define([
          * Save text information into the hidden variables for all the sizes within a group.
          *
          * @param String groupName
-         * Name of the sizes group that contains the text.
-         *
-         * @param Array textInfos
-         * @param Object textInfos[n]
-         * @returns String textInfos[n].text
-         * @returns Number textInfos[n].x
-         * @returns Number textInfos[n].y
-         * @returns Number textInfos[n].width
-         * @returns Number textInfos[n].size
-         * 
+         * Name of the sizes group to update.
          */
-        textSetGroupInfo: function(groupName, textInfos) {
+        textSetTextInfo: function(groupName) {
             
             var self;
 
@@ -1730,9 +1766,24 @@ define([
             $.each(self.sizeGroups[groupName].sizeInfos, function(sizeName, sizeInfo) {
 
                 var texts, textXs, textYs, textWidths, textSizes;
+
+                texts = '';
+                textXs = '';
+                textYs = '';
+                textWidths = '';
+                textSizes = '';
                 
-                // Loop  through all the text blocks
-                $.each(textInfos, function(textInfoKey, textInfo) {
+                // Loop  through all the text blocks within this group
+                $.each(self.sizeGroups[groupName].textInfos, function(textInfoKey, textInfo) {
+
+                    var $rteInput;
+
+                    // Update the text from the rich text editor
+                    $rteInput = textInfo.$textOverlay.find('.imageEditor-textOverlayInput');
+                    if ($rteInput.length) {
+                        textInfo.text = $rteInput.val();
+                    }
+                    
                     texts += self.textDelimiter + textInfo.text;
                     textXs += self.textDelimiter + textInfo.x;
                     textYs += self.textDelimiter + textInfo.y;
@@ -1745,23 +1796,28 @@ define([
                 sizeInfo.inputs.textXs.val(textXs || '');
                 sizeInfo.inputs.textYs.val(textYs || '');
                 sizeInfo.inputs.textWidths.val(textWidths || '');
-                sizeInfo.inputs.textWidths.val(textSizes || '');
+                sizeInfo.inputs.textSizes.val(textSizes || '');
             });
         },
 
         
         /**
-         * Create a new text for the selected group.
+         * Create a new text for a size group.
+         *
+         * @param String groupName
          */
-        textAdd: function() {
+        textAdd: function(groupName) {
 
-            var self, textInfoKey;
+            var groupInfo, self, textInfoKey;
 
             self = this;
+
+            groupInfo = self.sizeGroups[groupName];
             
             // Create a new text object
             textInfoKey = self.textInfoIndex++;
-            self.selectedGroupTextInfo[textInfoKey] = {
+            
+            groupInfo.textInfos[textInfoKey] = {
                 text:'',
                 x:0,
                 y:0,
@@ -1769,16 +1825,19 @@ define([
                 size:0
             };
 
-            // Update the hidden variables so the new text will be saved
-            self.textSetGroupInfo(self.selectedGroup, self.selectedGroupTextInfo);
-
             // Create a new text overlay and focus on it
-            self.textOverlayAdd(textInfoKey, true);
+            self.textOverlayAdd(groupName, textInfoKey, true);
+            
+            // Update the hidden variables so the new text will be saved
+            self.textSetTextInfo(groupName, groupInfo.textInfos);
         },
 
 
         /**
          * Create a new text overlay on top of the image.
+         *
+         * @param String groupName
+         * The size group to which the text belongs.
          *
          * @param String textInfoKey
          * The key that indexes into the selectedGroupTextInfo object to give the textInfo.
@@ -1786,17 +1845,22 @@ define([
          * @param Boolean focus
          * Set to true if we should focus on the text input after creating the text.
          */
-        textOverlayAdd: function(textInfoKey, focus) {
 
-            var self, $textOverlay, $textOverlayInput, $textOverlayLabel;
+        textOverlayAdd: function(groupName, textInfoKey, focus) {
+
+            var groupInfo, self, $sizeBox, $textOverlay, $textOverlayInput, $textOverlayLabel;
 
             self = this;
 
-            textInfo = self.selectedGroupTextInfo[textInfoKey];
+            groupInfo = self.sizeGroups[groupName];
+
+            textInfo = groupInfo.textInfos[textInfoKey];
             if (!textInfo) {
                 return;
             }
 
+            $sizeBox = groupInfo.$sizeBox;
+            
             $textOverlay = $('<div/>', {
                 'class': 'imageEditor-textOverlay',
                 'css': {
@@ -1806,12 +1870,16 @@ define([
                     'width': ((textInfo.width || 0.50) * 100) + '%',
                     'z-index': 1
                 }
-            }).appendTo(self.dom.$sizeBox);
+            }).appendTo($sizeBox);
 
-            // Add the textInfoKey to the overlay element,
-            // so it can be used later in event handlers
+            // Add some data to the overlay element so it can be used later in event handlers
             // to update the text info.
             $textOverlay.data('textInfoKey', textInfoKey)
+            $textOverlay.data('groupName', groupName);
+
+            // Also save the overlay element within the data for the textInfo,
+            // so we can retrieve the new value later
+            textInfo.$textOverlay = $textOverlay;
             
             // Add the label to drag the text overlay
             $textOverlayLabel = $('<div/>', {
@@ -1825,7 +1893,7 @@ define([
                 };
             })).appendTo($textOverlay);
 
-            // Add resize handle to increase width left
+            // Add resize handle to change the left border
             $('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-left',
                 'mousedown': self.textMousedownDragHandler(function(event, original, delta) {
@@ -1836,7 +1904,7 @@ define([
                 })
             }).appendTo($textOverlay);
 
-            // Add resize handle to increase width to the right
+            // Add resize handle to change the right border.
             $('<div/>', {
                 'class': 'imageEditor-resizer imageEditor-resizer-right',
                 'mousedown': self.textMousedownDragHandler(function(event, original, delta) {
@@ -1851,9 +1919,9 @@ define([
             $textOverlayRemove = $('<div/>', {
                 'class': 'imageEditor-textOverlayRemove',
                 'text': 'Remove',
-                'click': function() {
+                'click': function(event) {
                     $textOverlay.remove();
-                    self.textOverlayRemove(textInfoKey);
+                    self.textOverlayRemove(groupName, textInfoKey);
                     return false;
                 }
             }).appendTo($textOverlay);
@@ -1865,16 +1933,18 @@ define([
                 'value': textInfo.text || ''
             }).appendTo($textOverlay);
 
+            // Activate rich text editor on the input
             $textOverlayInput.rte({
                 'initImmediately': true,
                 'useLineBreaks': true
             });
 
-            // Move the RTE controls to on top of the image
-            // TODO: there appears to be a but here where multiple text inputs
-            // cause multiple toolbars to appear
+            // Move the rich text toolbacr controls to on top of the image
+            // TODO: there appears to be a bug here where multiple text inputs
+            // cause multiple toolbars to appear.
+            // Need to find a way to show the toolbar only when the RTE has focus.
             self.$element.before($textOverlay.find('.rte-toolbar-container'));
-
+            
             // Try to set the font size after the rich text editor loads
             // TODO: need a better way to do this, such as a ready event that the RTE fires
             var wait = 5000;
@@ -1883,7 +1953,7 @@ define([
                 
                 var $body = $( $textOverlay.find('.rte-container iframe')[0].contentDocument.body );
                 if ($body.is('.rte-loaded')) {
-                    self.textOverlaySetFont(textInfoKey);
+                    self.textOverlaySetFont(groupName, textInfoKey);
                 } else {
                     // The RTE isn't loaded.
                     // Try again after a delay, but give up after a certain number of tries.
@@ -1912,21 +1982,24 @@ define([
          * Optionally provide the textInfoKey for a single text info,
          * and it will be the only one that is resized.
          */
-        textOverlaySetFont: function(singleTextInfoKey) {
+        textOverlaySetFont: function(groupName, singleTextInfoKey) {
 
-            var self;
+            var groupInfo, self, $sizeBox;
 
             self = this;
 
+            groupInfo = self.sizeGroups[groupName];
+            $sizeBox = groupInfo.$sizeBox;
+            
             // Don't do anything if the size box is not visible
-            if (!self.dom.$sizeBox.is(':visible')) {
+            if (!$sizeBox.is(':visible')) {
                 return;
             }
 
             var textSizes = '';
 
             // Loop through each text overlay within the sizebox
-            self.dom.$sizeBox.find('.imageEditor-textOverlay').each(function() {
+            $sizeBox.find('.imageEditor-textOverlay').each(function() {
 
                 var newFontSize, originalFontSize, $rteBody, sizeHeight, $textOverlay, textInfoKey, textInfo, textSize;
 
@@ -1939,10 +2012,10 @@ define([
                     return;
                 }
                 
-                textInfo = self.selectedGroupTextInfo[ textInfoKey ];
+                textInfo = groupInfo.textInfos[ textInfoKey ];
 
                 // Get the height of the selected group
-                sizeHeight = self.sizesGetGroupFirstSizeInfo(self.selectedGroup).height;
+                sizeHeight = self.sizesGetGroupFirstSizeInfo(groupName).height;
                 
                 // Check to see if we previously saved a font size
                 originalFontSize = $textOverlay.data('imageEditor-originalFontSize');
@@ -1958,18 +2031,26 @@ define([
                 if (originalFontSize > 0) {
                     textSize = 1 / sizeHeight * originalFontSize;
                     textInfo.size = textSize;
-                    $rteBody.css('font-size', self.dom.$sizeBox.height() * textSize);
+                    $rteBody.css('font-size', $sizeBox.height() * textSize);
                 }
             });
 
             // Update the hiden variables
-            self.textSetGroupInfo(self.selectedGroup, self.selectedGroupTextInfo);
+            self.textSetTextInfo(groupName);
         },
 
         
-        textOverlayRemove: function(textInfoKey) {
-        },
+        textOverlayRemove: function(groupName, textInfoKey) {
+            
+            var self;
+            
+            self = this;
 
+            delete self.sizeGroups[groupName].textInfos[textInfoKey];
+            
+            // Update the hidden variables
+            self.textSetTextInfo(groupName);
+        },
         
         
         textMousedownDragHandler: function(filterBoundsFunction) {
@@ -1980,14 +2061,20 @@ define([
             
             mousedownHandler = function(mousedownEvent) {
 
-                var element, textOverlayPosition, original, $textOverlay, textInfoKey, sizeBoxWidth, sizeBoxHeight;
+                var element, groupInfo, groupName, textOverlayPosition, original, $textOverlay, textInfoKey, $sizeBox, sizeBoxWidth, sizeBoxHeight;
 
                 // The element that was dragged and the text overlay that contains it
                 element = this;
                 $textOverlay = $(element).closest('.imageEditor-textOverlay');
 
                 // Get the data attribute for the textInfoKey so we can update the text info
+                groupName = $textOverlay.data('groupName') || '';
                 textInfoKey = $textOverlay.data('textInfoKey') || '';
+
+                groupInfo = self.sizeGroups[groupName];
+                $sizeBox = groupInfo.$sizeBox;
+                
+                textInfo = groupInfo.textInfos[textInfoKey];
                 
                 //resizeTextOverlayFont();
 
@@ -1996,8 +2083,8 @@ define([
                 // so we can constrain how much we allow it to be dragged.
                 
                 textOverlayPosition = $textOverlay.position();
-                sizeBoxWidth = self.dom.$sizeBox.width();
-                sizeBoxHeight = self.dom.$sizeBox.height();
+                sizeBoxWidth = $sizeBox.width();
+                sizeBoxHeight = $sizeBox.height();
                 
                 var original = {
                     'left': textOverlayPosition.left,
@@ -2033,13 +2120,42 @@ define([
                     // Fill out the missing bounds
                     bounds = $.extend({}, original, bounds);
 
-                    // Save the new bounds to the hidden inputs ???
+                    // Prevent from moving outside the size box
+
+                    if (bounds.left < 0) {
+                        bounds.left = 0;
+                    }
+
+                    if (bounds.top < 0) {
+                        bounds.top = 0;
+                    }
+
+                    if (bounds.top + original.height > sizeBoxHeight) {
+                        bounds.top = sizeBoxHeight - original.height;
+                    }
                     
+                    if (bounds.moving) {
+                        if (bounds.left + bounds.width > sizeBoxWidth) {
+                            bounds.left = sizeBoxWidth - bounds.width;
+                        }
+                    } else {
+                        
+                        if (bounds.left + bounds.width > sizeBoxWidth) {
+                            bounds.width = sizeBoxWidth - bounds.left;
+                        }
+                    }
+
+                    // Save the bounds to the textInfo object
+                    textInfo.x = bounds.left / sizeBoxWidth;
+                    textInfo.y = bounds.top / sizeBoxHeight;
+                    textInfo.width = bounds.width / sizeBoxWidth;
+
                     // Convert the bounds to percentage values and update the position of the text overlay
-                    bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
-                    bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
-                    bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
+                    bounds.left = (textInfo.x * 100) + '%';
+                    bounds.top = (textInfo.y * 100) + '%';
+                    bounds.width = (textInfo.width * 100) + '%';
                     bounds.height = 'auto';
+                    
                     $textOverlay.css(bounds);
 
                 }, function() {
@@ -2048,6 +2164,7 @@ define([
                     
                     // Now that we're done dragging, update the textInfo for this text,
                     // then update the hidden variables
+                    self.textSetTextInfo(groupName, groupInfo.textInfos);
                     
                 });
 
@@ -3141,21 +3258,20 @@ define([
             //     var sizeName = $tr.attr('data-size-name');
 
 
-//TODO
-                // Check if we are inside a popup
-                var $source = $th.popup('source');
-                if ($source) {
-                    // Yes we are in a popup
-                    // Check if this size is considered a "standard image size"
-                    // If it is a standard image size then we won't add it to the list
-                    var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
-                    if (sizes) {
-                        if ($.inArray(sizeName, sizes.split(' ')) < 0) {
-                            // continue with the next item in the each loop
-                            return;
-                        }
-                    }
-                }
+                // // Check if we are inside a popup
+                // var $source = $th.popup('source');
+                // if ($source) {
+                //     // Yes we are in a popup
+                //     // Check if this size is considered a "standard image size"
+                //     // If it is a standard image size then we won't add it to the list
+                //     var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
+                //     if (sizes) {
+                //         if ($.inArray(sizeName, sizes.split(' ')) < 0) {
+                //             // continue with the next item in the each loop
+                //             return;
+                //         }
+                //     }
+                // }
 
                 // var independent = $tr.attr('data-size-independent') === 'true';
                 // var sizeWidth = parseFloat($tr.attr('data-size-width'));
@@ -3271,28 +3387,28 @@ define([
                         // $sizeBox.css(bounds);
                         // $sizeBox.show();
 
-                        $sizeBox.find('.imageEditor-textOverlay').each(function(index) {
-                            var $textOverlay = $(this);
+                        // $sizeBox.find('.imageEditor-textOverlay').each(function(index) {
+                        //     var $textOverlay = $(this);
 
-                            $textOverlay.trigger('resizeTextOverlayFont');
+                            // $textOverlay.trigger('resizeTextOverlayFont');
 
-                            var textWidth = parseFloat($input.textWidths.val().split(DELIMITER)[index + 1]) || 0.0;
+                //             var textWidth = parseFloat($input.textWidths.val().split(DELIMITER)[index + 1]) || 0.0;
 
-                            if (textWidth !== 0.0) {
-                                var textX = parseFloat($input.textXs.val().split(DELIMITER)[index + 1]) || 0.0;
-                                var textY = parseFloat($input.textYs.val().split(DELIMITER)[index + 1]) || 0.0;
+                //             if (textWidth !== 0.0) {
+                //                 var textX = parseFloat($input.textXs.val().split(DELIMITER)[index + 1]) || 0.0;
+                //                 var textY = parseFloat($input.textYs.val().split(DELIMITER)[index + 1]) || 0.0;
 
-                                $textOverlay.css({
-                                    'left': (textX * 100) + '%',
-                                    'top': (textY * 100) + '%',
-                                    'width': (textWidth * 100) + '%'
-                                });
-                            }
-                        });
+                //                 $textOverlay.css({
+                //                     'left': (textX * 100) + '%',
+                //                     'top': (textY * 100) + '%',
+                //                     'width': (textWidth * 100) + '%'
+                //                 });
+                //             }
+                //         });
 
-                        return false;
-                    }
-                });
+                //         return false;
+                //     }
+                // });
 
                 // $sizeSelectors.append($sizeButton);
 
@@ -3538,8 +3654,7 @@ define([
                 //         };
 
 
-//TODO
-                        $textOverlay.bind('resizeTextOverlayFont', resizeTextOverlayFont);
+                        // $textOverlay.bind('resizeTextOverlayFont', resizeTextOverlayFont);
 
 
 
@@ -3689,15 +3804,15 @@ define([
                         // On submit of the form, update the values for the text overlays that are showing
                         // ??? What if you update a text overlay, then move to a different group then submit the form?
                         // Need to save the current text values before removing the text overlays
-                        $form.submit(function() {
-                            var texts = '';
+                        // $form.submit(function() {
+                        //     var texts = '';
 
-                            $sizeBox.find('.imageEditor-textOverlay').each(function() {
-                                texts += DELIMITER + $(this).find('.imageEditor-textOverlayInput').val();
-                            });
+                        //     $sizeBox.find('.imageEditor-textOverlay').each(function() {
+                        //         texts += DELIMITER + $(this).find('.imageEditor-textOverlayInput').val();
+                        //     });
 
-                            $input.texts.val(texts);
-                        });
+                        //     $input.texts.val(texts);
+                        // });
 
                         // if (!init) {
                         //     var sizeBoxWidth = $sizeBox.width();
