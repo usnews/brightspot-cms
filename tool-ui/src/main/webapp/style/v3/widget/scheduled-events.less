@@ -1,0 +1,54 @@
+.scheduledEvents-modes {
+  &:extend(.button-group all);
+
+  position: absolute;
+  top: -7px;
+  right: 0;
+}
+
+.scheduledEvents-controls {
+  padding-bottom:14px;
+  position:relative;
+
+  .piped {
+    margin-bottom: 0px;
+  }
+
+  .pagination {
+    position: absolute;
+    right: 0;
+    top: 6px;
+  }
+}
+
+.scheduledEvents-dateRange {
+  font-size: 120%;
+  padding-top: 14px;
+}
+
+.scheduledEvents-separator {
+  margin: 0 -20px 0 -20px;
+  border: none;
+  height: 1px;
+  background: @color-separator;
+}
+
+.widget-scheduledEvents-empty {
+  position: relative;
+
+  &:before {
+    content: ' ' !important;
+  }
+
+  .calendar {
+    &:before {
+      content: 'No Scheduled Events';
+      font-size: 3em;
+      left: 1.5em;
+      opacity: 0.1;
+      position: absolute;
+      top: 7.5em;
+      transform: rotate(-50deg);
+    }
+  }
+}

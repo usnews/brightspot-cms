@@ -72,92 +72,98 @@ public class ScheduledEventsWidget extends DefaultDashboardWidget {
 
             page.writeEnd();
 
-            page.writeStart("ul", "class", "piped");
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "icon icon-action-create",
-                            "href", page.cmsUrl("/scheduleEdit"),
-                            "target", "scheduleEdit");
-                        page.writeHtml("New Schedule");
-                    page.writeEnd();
-                page.writeEnd();
-
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "icon icon-action-search",
-                            "href", page.cmsUrl("/scheduleList"),
-                            "target", "scheduleList");
-                        page.writeHtml("Available Schedules");
-                    page.writeEnd();
-                page.writeEnd();
-            page.writeEnd();
-
-            page.writeStart("ul", "class", "button-group");
-                for (Mode m : Mode.values()) {
-                    page.writeStart("li", "class", (m.equals(mode) ? "selected" : ""));
+            page.writeStart("div", "class", "scheduledEvents-controls");
+                page.writeStart("ul", "class", "piped");
+                    page.writeStart("li");
                         page.writeStart("a",
-                                "href", page.url("", "mode", m.name()));
-                            page.writeHtml(m.displayName);
+                                "class", "icon icon-action-create",
+                                "href", page.cmsUrl("/scheduleEdit"),
+                                "target", "scheduleEdit");
+                            page.writeHtml("New Schedule");
                         page.writeEnd();
                     page.writeEnd();
-                }
+
+                    page.writeStart("li");
+                        page.writeStart("a",
+                                "class", "icon icon-action-search",
+                                "href", page.cmsUrl("/scheduleList"),
+                                "target", "scheduleList");
+                            page.writeHtml("Available Schedules");
+                        page.writeEnd();
+                    page.writeEnd();
+                page.writeEnd();
+
+                page.writeStart("ul", "class", "scheduledEvents-modes");
+                    for (Mode m : Mode.values()) {
+                        page.writeStart("li", "class", (m.equals(mode) ? "selected" : ""));
+                            page.writeStart("a",
+                                    "href", page.url("", "mode", m.name()));
+                                page.writeHtml(m.displayName);
+                            page.writeEnd();
+                        page.writeEnd();
+                    }
+                page.writeEnd();
             page.writeEnd();
+
+            page.writeTag("hr", "class", "scheduledEvents-separator");
 
             String beginMonth = begin.monthOfYear().getAsText();
             int beginYear = begin.year().get();
             String endMonth = end.monthOfYear().getAsText();
             int endYear = end.year().get();
 
-            page.writeStart("div");
-                page.writeHtml(beginMonth);
-                page.writeHtml(" ");
-                page.writeHtml(begin.dayOfMonth().get());
-
-                if (beginYear != endYear) {
-                    page.writeHtml(", ");
-                    page.writeHtml(beginYear);
-                }
-
-                page.writeHtml(" - ");
-
-                if (!endMonth.equals(beginMonth)) {
-                    page.writeHtml(endMonth);
+            page.writeStart("div", "class", "scheduledEvents-controls");
+                page.writeStart("div", "class", "scheduledEvents-dateRange");
+                    page.writeHtml(beginMonth);
                     page.writeHtml(" ");
-                }
+                    page.writeHtml(begin.dayOfMonth().get());
 
-                page.writeHtml(end.dayOfMonth().get());
-                page.writeHtml(", ");
-                page.writeHtml(endYear);
-            page.writeEnd();
+                    if (beginYear != endYear) {
+                        page.writeHtml(", ");
+                        page.writeHtml(beginYear);
+                    }
 
-            page.writeStart("ul", "class", "pagination");
+                    page.writeHtml(" - ");
 
-                DateTime previous = mode.getPrevious(date);
-                DateTime today = new DateTime(null, page.getUserDateTimeZone()).toDateMidnight().toDateTime();
+                    if (!endMonth.equals(beginMonth)) {
+                        page.writeHtml(endMonth);
+                        page.writeHtml(" ");
+                    }
 
-                if (!previous.isBefore(today)) {
-                    page.writeStart("li", "class", "previous");
+                    page.writeHtml(end.dayOfMonth().get());
+                    page.writeHtml(", ");
+                    page.writeHtml(endYear);
+                page.writeEnd();
+
+                page.writeStart("ul", "class", "pagination");
+
+                    DateTime previous = mode.getPrevious(date);
+                    DateTime today = new DateTime(null, page.getUserDateTimeZone()).toDateMidnight().toDateTime();
+
+                    if (!previous.isBefore(today)) {
+                        page.writeStart("li", "class", "previous");
+                            page.writeStart("a",
+                                    "href", page.url("", "date", previous.getMillis()));
+                                page.writeHtml("Previous ").writeHtml(mode);
+                            page.writeEnd();
+                        page.writeEnd();
+                    }
+
+                    page.writeStart("li");
                         page.writeStart("a",
-                                "href", page.url("", "date", previous.getMillis()));
-                            page.writeHtml("Previous ").writeHtml(mode);
+                                "href", page.url("", "date", System.currentTimeMillis()));
+                            page.writeHtml("Today");
                         page.writeEnd();
                     page.writeEnd();
-                }
 
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "href", page.url("", "date", System.currentTimeMillis()));
-                        page.writeHtml("Today");
+                    page.writeStart("li", "class", "next");
+                        page.writeStart("a",
+                                "href", page.url("", "date", mode.getNext(date).getMillis()));
+                            page.writeHtml("Next ").writeHtml(mode);
+                        page.writeEnd();
                     page.writeEnd();
-                page.writeEnd();
 
-                page.writeStart("li", "class", "next");
-                    page.writeStart("a",
-                            "href", page.url("", "date", mode.getNext(date).getMillis()));
-                        page.writeHtml("Next ").writeHtml(mode);
-                    page.writeEnd();
                 page.writeEnd();
-
             page.writeEnd();
 
             mode.display(page, schedulesByDate);
