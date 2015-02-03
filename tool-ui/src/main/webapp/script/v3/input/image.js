@@ -807,6 +807,9 @@ define([
                 groupLabel = $('<span/>', {
                     'class': 'imageEditor-sizeLabel'
                 }).appendTo($groupElement);
+                
+                // Save the group label so we can use it later when creating the "Add Text" link
+                groupInfo.$groupLabel = groupLabel;
 
                 // Loop through all the individual sizes within the group
                 $.each(groupInfo.sizeInfos, function(sizeName, sizeInfo) {
@@ -1656,11 +1659,9 @@ define([
          */
         textButtonCreate: function(groupName) {
             
-            var $element, self;
+            var self;
 
             self = this;
-
-            $element = self.sizeGroups[groupName].$element;
 
             $('<a/>', {
                 'class': 'imageEditor-addTextOverlay',
@@ -1669,7 +1670,7 @@ define([
                     self.textAdd(groupName);
                     return false;
                 }
-            }).appendTo($element);
+            }).insertAfter( self.sizeGroups[groupName].$groupLabel );
         },
 
         
@@ -2688,7 +2689,7 @@ define([
                             'left': original.left + delta.x,
                             'width': original.width - delta.x
                         };
-                    })
+                    }) 
                 }));
                 $blurOverlayBox.append($('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-right',
