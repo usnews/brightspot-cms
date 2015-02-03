@@ -1873,6 +1873,7 @@ public class ToolPageContext extends WebPageContext {
             writeStart("select",
                     "data-searchable", "true",
                     "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
+                    "data-dynamic-field-name", field.getInternalName(),
                     attributes);
                 writeStart("option", "value", "");
                     writeHtml(placeholder);
@@ -1907,6 +1908,7 @@ public class ToolPageContext extends WebPageContext {
                     "data-additional-query", field.getPredicate(),
                     "data-generic-argument-index", field.getGenericArgumentIndex(),
                     "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
+                    "data-dynamic-field-name", field.getInternalName(),
                     "data-label", value != null ? getObjectLabel(value) : null,
                     "data-pathed", ToolUi.isOnlyPathed(field),
                     "data-preview", getPreviewThumbnailUrl(value),

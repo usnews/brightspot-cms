@@ -51,7 +51,8 @@ function($, bsp_utils) {
                 $dynamicTexts = $form.find(
                         '[data-dynamic-text][data-dynamic-text != ""],' +
                         '[data-dynamic-html][data-dynamic-html != ""],' +
-                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
+                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""],' +
+                        '[data-dynamic-field-name][data-dynamic-field-name != ""]');
 
                 $dynamicTexts = $dynamicTexts.filter(function() {
                     return $(this).closest('.collapsed').length === 0;
@@ -67,10 +68,11 @@ function($, bsp_utils) {
                         var $element = $(this);
 
                         return '&_dti=' + ($element.closest('[data-object-id]').attr('data-object-id') || '') +
-                                '&_dtt=' + ($element.attr('data-dynamic-text') ||
+                                '&_dtt=' + (($element.attr('data-dynamic-text') ||
                                 $element.attr('data-dynamic-html') ||
                                 $element.attr('data-dynamic-placeholder') ||
-                                '');
+                                '')) +
+                                '&_dtf=' + $element.attr('data-dynamic-field-name') || '';
                     }).get().join(''),
 
                     'success': function(data) {
