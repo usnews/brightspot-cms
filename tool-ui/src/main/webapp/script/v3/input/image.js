@@ -1759,12 +1759,10 @@ define([
                 }
 
                 // Go through all sizes to get the aspect ratio of each
-                $.each(self.sizeGroups, function(groupName, groupInfo) {
+                $.each(self.sizeGroups, function(groupName) {
 
                     var aspect, crop, sizeInfo;
 
-                    console.log('\nGroup name:', groupName);
-                    
                     // Get the aspect ratio values for this size group
                     sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
                     aspect = {
@@ -1778,11 +1776,6 @@ define([
                         y: focus.yPercent
                     }, originalAspect, aspect);
 
-                    console.log('focus =', focus);
-                    console.log('originalAspect:', originalAspect);
-                    console.log('aspect:', aspect);
-                    console.log('crop:', crop);
-                    
                     // Set the cropping for this size group
                     self.sizesSetGroupBounds(groupName, crop);
                     self.sizesUpdatePreview(groupName);
@@ -1855,9 +1848,6 @@ define([
             originalAspect = originalSize.width / originalSize.height;
             targetAspect = targetSize.width / targetSize.height;
 
-            console.log('original aspect ratio =', originalAspect);
-            console.log('target aspect ratio =', targetAspect);
-                                    
             if (originalAspect > targetAspect) {
                 
                 // We need to crop the WIDTH because the target aspect ratio has less width
