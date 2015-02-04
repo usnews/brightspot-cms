@@ -104,6 +104,7 @@ define([
             self.sizesInit();
             self.textInit();
             self.hotspotInit();
+            self.focusInit();
         },
 
         
@@ -1718,9 +1719,205 @@ define([
 
         
         //--------------------------------------------------
-        // SIZES - SET FOCUS FOR CROPPING
+        // FOCUS FOR CROPPING
         //--------------------------------------------------
-        
+
+        /**
+         * Initialize the "click to set focus" functionality.
+         */
+        focusInit: function() {
+
+            var self;
+
+            self = this;
+            
+            // Add click event to the main image
+            
+            // Note: since it appears other code might remove the image and clone it,
+            // need to check if this click event will be removed in that case.
+            // Might need to add the click event to the parent element instead.
+
+            self.dom.$image.on('click', function(event) {
+
+                var focus, $image, originalAspect, originalHeight, originalWidth;
+
+                $image = $(this);
+
+                // Figure out the original aspect ratio of the image
+                originalWidth = $image.width();
+                originalHeight = $image.height();
+                originalAspect = {
+                    width: originalWidth,
+                    height: originalHeight
+                };
+
+                // Get the position that was clicked
+                focus = self.getClickPositionInElement($image, event);
+
+                if (!window.confirm('Set all sizes to this focus point?')) {
+                    return;
+                }
+
+                // Go through all sizes to get the aspect ratio of each
+                $.each(self.sizeGroups, function(groupName, groupInfo) {
+
+                    var aspect, crop, sizeInfo;
+
+                    console.log('\nGroup name:', groupName);
+                    
+                    // Get the aspect ratio values for this size group
+                    sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
+                    aspect = {
+                        'width': sizeInfo.width,
+                        'height': sizeInfo.height
+                    };
+
+                    // Calculate the crop for this aspect ratio
+                    crop = self.focusGetCrop({
+                        x: focus.xPercent,
+                        y: focus.yPercent
+                    }, originalAspect, aspect);
+
+                    console.log('focus =', focus);
+                    console.log('originalAspect:', originalAspect);
+                    console.log('aspect:', aspect);
+                    console.log('crop:', crop);
+                    
+                    // Set the cropping for this size group
+                    self.sizesSetGroupBounds(groupName, crop);
+                    self.sizesUpdatePreview(groupName);
+                });
+            });
+        },
+
+
+        /**
+         * Return cropping data based on a centering focus point in an image, and a target image size.
+         *
+         * @param Object focusPoint
+         *
+         * @param Number focusPoint.x
+         * Value between 0 and 1 to indicate where on the original image the focus point was set.
+         *
+         * @param Number focusPoint.y
+         * Value between 0 and 1 to indicate where on the original image the focus point was set.
+         *
+         * @param Object originalSize
+         *
+         * @param Number originalSize.width
+         * The width of the original image.
+         *
+         * @param Number originalSize.height
+         * The height of the original image.
+         *
+         * @param Object targetSize
+         *
+         * @param Number targetSize.width
+         * The width of the target image.
+         *
+         * @param Number targetSize.height
+         * The height of the target image.
+         *
+         * @returns Object crop
+         *
+         * @returns Number crop.x
+         * Value between 0 and 1 to indicate the top left point for the crop.
+         *
+         * @returns Number crop.y
+         * Value between 0 and 1 to indicate the top left point for the crop.
+         *
+         * @returns Number crop.width
+         * Value between 0 and 1 to indicate the width of the crop (in relation to the original image).
+         *
+         * @returns Number crop.height
+         * Value between 0 and 1 to indicate the height of the crop (in relation to the original image).
+         */
+        focusGetCrop: function(focusPoint, originalSize, targetSize) {
+
+            var originalAspect;
+            var targetAspect;
+            var crop;
+            var adjustedValue;
+            var adjustedDifference;
+            var adjustedPercentage;
+            var focusDifference;
+            
+            // Set up crop return value
+            crop = {
+                x: 0,
+                y: 0,
+                width: 1,
+                height: 1
+            };
+
+            // Get the aspect ratio of both the original and target images
+            // so we can determine which part of the image needs to be cropped.
+            originalAspect = originalSize.width / originalSize.height;
+            targetAspect = targetSize.width / targetSize.height;
+
+            console.log('original aspect ratio =', originalAspect);
+            console.log('target aspect ratio =', targetAspect);
+                                    
+            if (originalAspect > targetAspect) {
+                
+                // We need to crop the WIDTH because the target aspect ratio has less width
+
+                // Determine what the width should be to maintain the aspect ratio
+                adjustedValue = originalSize.height * targetAspect;
+
+                // Determine how much we would need to crop to maintain the aspect radio
+                adjustedDifference = originalSize.width - adjustedValue;
+
+                // Now convert that into a percentage of the original image size,
+                // a number between 0 and 1
+                adjustedPercentage = adjustedDifference / originalSize.width;
+
+                crop.width = 1 - adjustedPercentage;
+                crop.x = adjustedPercentage / 2;
+
+                // Adjust the crop position so it is centered on the focus point
+                focusDifference = crop.x - (0.5 - focusPoint.x);
+
+                if (focusDifference < 0) {
+                    focusDifference = 0;
+                } else if (focusDifference + crop.width > 1) {
+                    focusDifference = 1 - crop.width;
+                }
+
+                crop.x = focusDifference;
+                
+            } else if (originalAspect < targetAspect) {
+                
+                // We need to crop the HEIGHT because the target aspect ratio has less height
+                
+                // Determine what the width should be to maintain the same aspect ratio
+                adjustedValue = originalSize.width / targetAspect;
+
+                // Determine how much we would need to shave off each side to maintain the aspect radio
+                adjustedDifference = originalSize.height - adjustedValue;
+
+                // Now convert that into a percentage of the original image size,
+                // a number between 0 and 1
+                adjustedPercentage = adjustedDifference / originalSize.height;
+
+                crop.height = 1 - adjustedPercentage;
+                crop.y = adjustedPercentage / 2;
+
+                // Adjust the crop position so it is centered on the focus point
+                focusDifference = crop.y - (0.5 - focusPoint.y);
+
+                if (focusDifference < 0) {
+                    focusDifference = 0;
+                } else if (focusDifference + crop.height > 1) {
+                    focusDifference = 1 - crop.height;
+                }
+
+                crop.y = focusDifference;
+            }
+            
+            return crop;
+        },
+
         //--------------------------------------------------
         // SIZES - TEXT OVERLAYS
         //--------------------------------------------------
@@ -3091,6 +3288,52 @@ define([
             
             value = self.dom.$image.parent().find('canvas').height();
             return value;
+        },
+
+
+        /**
+         * Assuming a click event occurred on an element, this function
+         * returns the position within the element that was clicked.
+         *
+         * @param Element element
+         * The element that was clicked.
+         *
+         * @param Event clickEvent
+         * The click event from your on click handler.
+         *
+         * @returns Object position
+         * @returns Number position.x The x position in pixels.
+         * @returns Number position.y The y position in pixels.
+         * @returns Number position.xPercent The x position in percent (between 0 and 1).
+         * @returns Number position.yPercent The y position in percent (between 0 and 1).
+         * @returns Number position.width The width of the element that was clicked.
+         * @returns Number position.height The height of the element that was clicked.
+         */
+        getClickPositionInElement: function(element, clickEvent) {
+            
+            var $element, height, offset, width, x, y;
+            
+            $element = $(element);
+            width = $element.width();
+            height = $element.height();
+            offset = $element.offset();
+            x = Math.ceil(clickEvent.pageX - offset.left) || 1;
+            y = Math.ceil(clickEvent.pageY - offset.top) || 1;
+            
+            // Just in case something weird happens check for boundaries
+            if (x <= 0) { x = 1; }
+            if (y <= 0) { y = 1; }
+
+            return {
+                'x': x,
+                'y': y,
+
+                'xPercent': x / width,
+                'yPercent': y / height,
+
+                'width': width,
+                'height': height
+            };
         }
 
     }; // END imageEditorUtilty object
