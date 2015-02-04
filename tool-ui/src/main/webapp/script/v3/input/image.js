@@ -1,3 +1,6 @@
+/* jshint browser:true, jquery:true, unused:true, undef:true */
+/* global Pixastic, define */
+
 define([
     'jquery',
     'bsp-utils',
@@ -88,20 +91,19 @@ define([
             // Save the main element for future use
             self.$element = $(element);
 
+            // Add any settings to the object
+            if (settings) {
+                $.extend(self, settings);
+            }
+
             // Get other stuff from the DOM
             self.initDOM();
 
-            self.initEdit();
-            self.initScrollFix();
-            self.initCover();
-            self.initSizes();
-            self.initText();
-
-            // Process all current adjustments on the image
-            self.adjustmentProcess();
-
-            // Automatically select the first size group if there is only one
-            self.sizesSelectSingle()
+            self.editInit();
+            self.scrollFix();
+            self.sizesInit();
+            self.textInit();
+            self.hotspotInit();
         },
 
         
@@ -109,13 +111,15 @@ define([
          * Find stuff on the page and save it for future reference.
          */
         initDOM: function() {
-            
-            var self = this;
-            var $el = self.$element;
-            var dom = {};
-            var scale;
 
+            var dom, $el, scale, self;
+            
+            self = this;
+            
+            $el = self.$element;
+            
             // Set up an object to hold all dom information
+            dom = {};
             self.dom = dom;
 
             dom.$form = $el.closest('form');
@@ -123,7 +127,7 @@ define([
             // Find the image. Note this will be removed from the DOM and
             // replaced by an adjusted image.
             dom.$image = $el.find('.imageEditor-image img');
-            dom.imageSrc = dom.$image.attr('src'),
+            dom.imageSrc = dom.$image.attr('src');
 
             // Save a copy of the original image so we will always have
             // it after adjustments are made.
@@ -133,7 +137,7 @@ define([
             dom.$imageClone = dom.$image.clone();
             dom.imageClone = dom.$imageClone[0];
 
-            // Get the data-scale attribute to use for ???
+            // Get the data-scale attribute to use for hotspot
             scale = dom.$image.attr('data-scale');
             if (scale === undefined || scale === '') {
                 scale = 1.0;
@@ -150,24 +154,46 @@ define([
             self.dataName = $el.closest('.inputContainer').attr('data-name');
         },
 
-
+        
+        //--------------------------------------------------
+        // IMAGE ADJUSTMENTS
+        //--------------------------------------------------
+        
         /**
          * Sets up the "Edit Image" controls for modifying image adjustments.
          */
-        initEdit: function() {
+        editInit: function() {
             var self;
 
             self = this;
             
-            self.initEditButton();
-            self.initEditInputs();
+            self.editInitButton();
+            self.editInitInputs();
+
+            // Trigger events whenever the adjustments are changed
+            // so other code can listen for changes
+            self.dom.$edit.on('change', ':input', function(){
+
+                var inputName;
+                
+                // Get the name of the input without all the extra crud
+                inputName = $(this).attr('name').replace(/.*\./, '');
+                
+                // Trigger an event and pass the input element
+                // and the name of the input (like 'rotate' or 'flipH')
+                self.$element.trigger('imageAdjustment', [this, inputName]);
+            });
+
+            
+            // Process all current adjustments on the image
+            self.adjustmentProcess();
         },
 
         
         /**
          * Adds the "Edit Image" button to pop up the image adjustments.
          */
-        initEditButton: function() {
+        editInitButton: function() {
 
             var self;
             
@@ -178,7 +204,7 @@ define([
                 html: $('<a/>', {
                     'class': 'action-image-edit',
                     'text': 'Edit Image',
-                    'click': function(event) {
+                    'click': function() {
                         self.editOpenAdjustments(this);
                         return false;
                     }
@@ -214,10 +240,6 @@ define([
         },
 
         
-        //--------------------------------------------------
-        // IMAGE ADJUSTMENTS
-        //--------------------------------------------------
-        
         /**
          * Creates a place to store some additional hidden inputs for the edit controls.
          * These additional inputs will be destroyed and rewritten each time we change the image adjustments.
@@ -226,7 +248,7 @@ define([
          * Other adjustments are ranges (<input type="range">) in which case an additional hidden input
          * is created to hold the actual value.
          */
-        initEditInputs: function() {
+        editInitInputs: function() {
             
             var self;
 
@@ -373,7 +395,7 @@ define([
          */
         adjustmentProcessExecuteAll: function() {
 
-            var promise, operationKeys, self;
+            var promise, self;
 
             self = this;
             
@@ -505,7 +527,8 @@ define([
         
         /**
          * Get the Pixastic operations needed for the image adjustment.
-         * @return Object
+         *
+         * @returns Object
          * An object with multiple operations that should be performed by Pixastic.
          * This object is also saved in this.operations.
          */
@@ -522,7 +545,7 @@ define([
             // and add operations for each one
             self.dom.$edit.find(":input").each(function(){
                 
-                var $input, name, value, processFunction, processFunctionName;
+                var $input, name, value, processFunctionName;
                 
                 $input = $(this);
                 
@@ -560,7 +583,12 @@ define([
             // but we'll go ahead and pass them as a return value
             return self.operations;
         },
-        
+
+
+        /**
+         * Add operations for changing image brightness.
+         * @param Number value
+         */
         adjustmentGetOperation_brightness: function(value) {
             var operations, self;
             self = this;
@@ -569,7 +597,12 @@ define([
             operations.brightness.brightness = value * 150;
             operations.brightness.legacy = true;
         },
+
         
+        /**
+         * Add operations for changing image contrast.
+         * @param Number value
+         */
         adjustmentGetOperation_contrast: function(value) {
             var operations, self;
             self = this;
@@ -577,7 +610,11 @@ define([
             operations.brightness = operations.brightness || { };
             operations.brightness.contrast = value < 0 ? value : value * 3;
         },
-        
+
+
+        /**
+         * Add operations for flipping the image horizontally.
+         */
         adjustmentGetOperation_flipH: function() {
             var operations, self;
             self = this;
@@ -585,34 +622,56 @@ define([
             operations.fliph = operations.fliph || { };
         },
         
+
+        /**
+         * Add operations for flipping the image vertically.
+         */
         adjustmentGetOperation_flipV: function() {
             var operations, self;
             self = this;
             operations = self.operations;
             operations.flipv = operations.flipv || { };
         },
+
         
+        /**
+         * Add operations for changing image to grayscale.
+         */
         adjustmentGetOperation_grayscale: function() {
             var operations, self;
             self = this;
             operations = self.operations;
             operations.desaturate = operations.desaturate || { };
         },
+
         
+        /**
+         * Add operations for changing image to sepia.
+         */
         adjustmentGetOperation_sepia: function() {
             var operations, self;
             self = this;
             operations = self.operations;
             operations.sepia = operations.sepia || { };
         },
+
         
+        /**
+         * Add operations for inverting the image.
+         */
         adjustmentGetOperation_invert: function() {
             var operations, self;
             self = this;
             operations = self.operations;
             operations.invert = operations.desaturate || { };
         },
+
         
+        /**
+         * Add operations for rotating the image.
+         * @param Number value
+         * Rotation amount: 90, 0, -90
+         */
         adjustmentGetOperation_rotate: function(value) {
             var operations, self;
             self = this;
@@ -621,6 +680,11 @@ define([
             operations.rotate.angle = -value;
         },
         
+
+        /**
+         * Add operations for sharpening the image.
+         * @param Number value
+         */
         adjustmentGetOperation_sharpen: function(value) {
             var operations, self;
             self = this;
@@ -628,7 +692,14 @@ define([
             operations.sharpen = operations.sharpen || { };
             operations.sharpen.amount = value;
         },
+
         
+        /**
+         * Add operations for bluring a region of the image.
+         * @param String value
+         * The region to blur, a string concatenated with the 'x' character:
+         * [left]x[top]x[width]x[height
+         */
         adjustmentGetOperation_blur: function(value) {
             var operations, rect, self, values;
             self = this;
@@ -637,7 +708,7 @@ define([
                 count: 0,
                 data: []
             };
-            values = $input.val().split("x");
+            values = value.split("x");
             rect = {
                 left: values[0],
                 top: values[1],
@@ -648,11 +719,63 @@ define([
             operations.blurfast.count++;
         },
 
+
+        /**
+         * Returns the current value of the rotate adjustment.
+         * @returns Number
+         * 90, -90, 0
+         */
+        adjustmentRotateGet: function() {
+
+            var self, value;
+
+            self = this;
+
+            value = parseInt( self.dom.$edit.find(":input[name$='.rotate']").val() || 0, 10 );
+            
+            return value;
+        },
+
+
+        /**
+         * Determines if the "flipH" adjustment is checked.
+         * @returns Boolean
+         */
+        adjustmentFlipHGet: function() {
+            
+            var self, value;
+
+            self = this;
+
+            value = self.dom.$edit.find(":input[name$='.flipH']").is(':checked');
+            
+            return value;
+        },
+
+        
+        /**
+         * Determines if the "flipV" adjustment is checked.
+         * @returns Boolean
+         */
+        adjustmentFlipVGet: function() {
+            
+            var self, value;
+
+            self = this;
+
+            value = self.dom.$edit.find(":input[name$='.flipV']").is(':checked');
+            
+            return value;
+        },
+        
         
         //--------------------------------------------------
         // BLUR ADJUSTMENT
         //--------------------------------------------------
-        
+
+        /**
+         * TODO
+         */
         adjustmentBlurShow: function() {
 
             var self;
@@ -662,111 +785,11 @@ define([
             // Check if there are hidden inputs with ".blur", which will contain
             // dimensions for an overlay box to blur part of the image
             self.dom.$edit.find("input[name=\'" + self.dataName + ".blur\']").each(function(){
-                var attributes = $(this).val().split("x");
+                var attributes;
+                attributes = $(this).val().split("x");
                 // TODO: change addSizeBox
-                addSizeBox(this, attributes[0], attributes[1], attributes[2], attributes[3]);
+                //addSizeBox(this, attributes[0], attributes[1], attributes[2], attributes[3]);
             });
-        },
-
-        
-        //--------------------------------------------------
-        // COVER
-        // Used to indicate the crop area for a particular size.
-        // These divs darken the outside of the crop area.
-        // There is only one set of cover divs, which are readjusted each time
-        // a size group is selected.
-        //--------------------------------------------------
-
-        /**
-         * Create the cover divs.
-         */
-        initCover: function() {
-
-            var $cover, self;
-
-            self = this;
-            
-            $cover = $('<div/>', {
-                'class': 'imageEditor-cover',
-                'css': {
-                    'display': 'none',
-                    'left': '0',
-                    'position': 'absolute',
-                    'top': '0'
-                }
-            });
-
-            self.dom.$coverTop = $cover;
-            self.dom.$coverLeft = $cover.clone(true);
-            self.dom.$coverRight = $cover.clone(true);
-            self.dom.$coverBottom = $cover.clone(true);
-            self.dom.$covers = $().add(self.dom.$coverTop).add(self.dom.$coverLeft).add(self.dom.$coverRight)
-                .add(self.dom.$coverBottom).appendTo(self.$element);
-        },
-
-        
-        /**
-         * Update the size and position of the cover.
-         *
-         * @param Object bounds
-         * @param Number bounds.top
-         * @param Number bounds.left
-         * @param Number bounds.width
-         * @param Number bounds.height
-         */
-        coverUpdate: function(bounds) {
-            
-            var self, imageWidth, imageHeight, boundsRight, boundsBottom;
-
-            self = this;
-            
-            imageWidth = self.dom.$image.width();
-            imageHeight = self.dom.$image.height();
-            boundsRight = bounds.left + bounds.width;
-            boundsBottom = bounds.top + bounds.height;
-
-            self.dom.$coverTop.css({
-                'height': bounds.top,
-                'width': imageWidth
-            });
-            self.dom.$coverLeft.css({
-                'height': bounds.height,
-                'top': bounds.top,
-                'width': bounds.left
-            });
-            self.dom.$coverRight.css({
-                'height': bounds.height,
-                'left': boundsRight,
-                'top': bounds.top,
-                'width': imageWidth - boundsRight
-            });
-            self.dom.$coverBottom.css({
-                'height': imageHeight - boundsBottom,
-                'top': boundsBottom,
-                'width': imageWidth
-            });
-
-            self.coverShow();
-        },
-
-        
-        /**
-         * Hide the cover.
-         */
-        coverHide: function() {
-            var self;
-            self = this;
-            self.dom.$covers.hide();
-        },
-
-        
-        /**
-         * Show the cover.
-         */
-        coverShow: function() {
-            var self;
-            self = this;
-            self.dom.$covers.show();
         },
 
         
@@ -774,12 +797,19 @@ define([
         // SIZES
         //--------------------------------------------------
 
-        initSizes: function() {
+        /**
+         * Initialize the size selector interface, which lets the user select a group of sizes
+         * then adjust the cropping on the image.
+         */
+        sizesInit: function() {
             
             var self;
 
             self = this;
 
+            // Set up the "cover" divs that mask off the cropped areas of the image
+            self.coverInit();
+            
             // Extract all the info about sizes from the DOM
             // After this self.sizeInfos and self.sizeGroups should be available
             self.sizesGetSizeInfo();
@@ -844,7 +874,7 @@ define([
                 }).appendTo($groupElement);
 
                 // Add click event to the size group
-                $groupElement.on('click', function(event) {
+                $groupElement.on('click', function() {
 
                     // Toggle the selected state for the size group
                     if (self.sizesIsSelected(groupName)) {
@@ -852,10 +882,12 @@ define([
                     } else {
                         self.sizesSelect(groupName);
                     }
+
+                    return false;
                 });
 
                 // Create a size box for the group (initially hidden)
-                self.initSizeBox(groupName);
+                self.sizeBoxInit(groupName);
 
             });
 
@@ -863,6 +895,8 @@ define([
             // and hide the table that contained all the size inputs
             self.dom.$sizes.before(self.dom.$sizeSelectors).hide();
 
+            // Automatically select the first size group if there is only one
+            self.sizesSelectSingle();
         },
 
         
@@ -920,7 +954,7 @@ define([
                 // if it a "standard image size" for the page it is on.
                 $source = $th.popup('source');
                 if ($source) {
-                    var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
+                    sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
                     if (sizes) {
                         if ($.inArray(sizeName, sizes.split(' ')) < 0) {
                             // skip this and continue with the next item in the each loop
@@ -1086,10 +1120,10 @@ define([
 
             self = this;
 
-            return self.sizeGroups[groupName] = {
+            return(self.sizeGroups[groupName] = {
                 $element: $(),
                 sizeInfos: {}
-            };
+            });
         },
 
 
@@ -1251,7 +1285,109 @@ define([
 
         
         //--------------------------------------------------
-        // SIZEBOX - showing and setting the cropped area of an image.
+        // COVER
+        // Used to indicate the crop area for a particular size.
+        // These divs darken the outside of the crop area.
+        // There is only one set of cover divs, which are readjusted each time
+        // a size group is selected.
+        //--------------------------------------------------
+
+        /**
+         * Create the cover divs.
+         */
+        coverInit: function() {
+
+            var $cover, self;
+
+            self = this;
+            
+            $cover = $('<div/>', {
+                'class': 'imageEditor-cover',
+                'css': {
+                    'display': 'none',
+                    'left': '0',
+                    'position': 'absolute',
+                    'top': '0'
+                }
+            });
+
+            self.dom.$coverTop = $cover;
+            self.dom.$coverLeft = $cover.clone(true);
+            self.dom.$coverRight = $cover.clone(true);
+            self.dom.$coverBottom = $cover.clone(true);
+            self.dom.$covers = $().add(self.dom.$coverTop).add(self.dom.$coverLeft).add(self.dom.$coverRight)
+                .add(self.dom.$coverBottom).appendTo(self.$element);
+        },
+
+        
+        /**
+         * Update the size and position of the cover.
+         *
+         * @param Object bounds
+         * @param Number bounds.top
+         * @param Number bounds.left
+         * @param Number bounds.width
+         * @param Number bounds.height
+         */
+        coverUpdate: function(bounds) {
+            
+            var self, imageWidth, imageHeight, boundsRight, boundsBottom;
+
+            self = this;
+            
+            imageWidth = self.dom.$image.width();
+            imageHeight = self.dom.$image.height();
+            boundsRight = bounds.left + bounds.width;
+            boundsBottom = bounds.top + bounds.height;
+
+            self.dom.$coverTop.css({
+                'height': bounds.top,
+                'width': imageWidth
+            });
+            self.dom.$coverLeft.css({
+                'height': bounds.height,
+                'top': bounds.top,
+                'width': bounds.left
+            });
+            self.dom.$coverRight.css({
+                'height': bounds.height,
+                'left': boundsRight,
+                'top': bounds.top,
+                'width': imageWidth - boundsRight
+            });
+            self.dom.$coverBottom.css({
+                'height': imageHeight - boundsBottom,
+                'top': boundsBottom,
+                'width': imageWidth
+            });
+
+            self.coverShow();
+        },
+
+        
+        /**
+         * Hide the cover.
+         */
+        coverHide: function() {
+            var self;
+            self = this;
+            self.dom.$covers.hide();
+        },
+
+        
+        /**
+         * Show the cover.
+         */
+        coverShow: function() {
+            var self;
+            self = this;
+            self.dom.$covers.show();
+        },
+
+        
+        //--------------------------------------------------
+        // SIZEBOX
+        // Showing and setting the cropped area of an image.
         // The sizebox cgan be dragged by clicking the box,
         // or resized by clicking the left/top handle
         // or the bottom/right handle.
@@ -1267,7 +1403,7 @@ define([
          * @param String groupName
          * The name of the group from self.sizeGroups for this size box.
          */
-        initSizeBox: function(groupName) {
+        sizeBoxInit: function(groupName) {
             
             var groupInfo, self, $sizeBox, $sizeBoxTopLeft, $sizeBoxBottomRight;
 
@@ -1364,6 +1500,9 @@ define([
 
         /**
          * Set the bounds for the size box.
+         *
+         * @param String groupName
+         *
          * @param Object bounds
          * Object that contains CSS settings for the size box:
          * @param Object top
@@ -1443,7 +1582,7 @@ define([
                 // On mousedown, let the user start dragging the element
                 // The .drag() function takes the following parameters:
                 // (element, event, startCallback, moveCallback, endCallback)
-                $.drag(element, mousedownEvent, function(dragEvent) {
+                $.drag(element, mousedownEvent, function() {
                     
                     // This is the start callback for .drag()
                     
@@ -1547,13 +1686,14 @@ define([
 
                 }, function() {
 
+                    var sizeBoxPosition, sizeBoxWidth;
+                    
                     // .drag() end callback
 
                     // Now that we're done dragging, update the size box
                     
-                    var sizeBoxPosition = $sizeBox.position();
-                    var sizeBoxWidth = $sizeBox.width();
-                    var sizeBoxHeight = $sizeBox.height();
+                    sizeBoxPosition = $sizeBox.position();
+                    sizeBoxWidth = $sizeBox.width();
 
                     // Set the hidden inputs to the current bounds.
                     self.sizesSetGroupBounds(groupName, {
@@ -1588,7 +1728,7 @@ define([
         /**
          * Initialize all the text overlays.
          */
-        initText: function() {
+        textInit: function() {
 
             var self;
 
@@ -1614,7 +1754,7 @@ define([
 
             // Set up a form submit handler to copy all the rich text editor content back into the hidden variables
             self.dom.$form.submit(function() {
-                $.each(self.sizeGroups, function(groupName, groupInfo) {
+                $.each(self.sizeGroups, function(groupName) {
                     self.textSetTextInfo(groupName);
                 });
             });
@@ -1624,7 +1764,7 @@ define([
         
         textSelectGroup: function(groupName) {
 
-            var self, textInfo;
+            var self;
 
             self = this;
 
@@ -1701,7 +1841,7 @@ define([
          */
         textGetTextInfo: function(groupName) {
 
-            var groupInfo, self, sizeInfo, textInfo;
+            var groupInfo, self, sizeInfo, textInfo, texts, textSizes, textWidths, textXs, textYs;
 
             self = this;
 
@@ -1729,7 +1869,7 @@ define([
             }
             
             // Now loop through the individual arrays and add them to the textInfo object.
-            $.each(texts, function(index, text) {
+            $.each(texts, function(index) {
                 
                 // Skip the first item because the delimited string starts with the delimeter
                 // and we end up with an empty item as the first array item.
@@ -1849,7 +1989,7 @@ define([
 
         textOverlayAdd: function(groupName, textInfoKey, focus) {
 
-            var groupInfo, self, $sizeBox, $textOverlay, $textOverlayInput, $textOverlayLabel;
+            var groupInfo, self, $sizeBox, textInfo, $textOverlay, $textOverlayInput;
 
             self = this;
 
@@ -1875,7 +2015,7 @@ define([
 
             // Add some data to the overlay element so it can be used later in event handlers
             // to update the text info.
-            $textOverlay.data('textInfoKey', textInfoKey)
+            $textOverlay.data('textInfoKey', textInfoKey);
             $textOverlay.data('groupName', groupName);
 
             // Also save the overlay element within the data for the textInfo,
@@ -1883,7 +2023,7 @@ define([
             textInfo.$textOverlay = $textOverlay;
             
             // Add the label to drag the text overlay
-            $textOverlayLabel = $('<div/>', {
+            $('<div/>', {
                 'class': 'imageEditor-textOverlayLabel',
                 'text': 'Text #' + textInfoKey
             }).on('mousedown', self.textMousedownDragHandler(function(event, original, delta) {
@@ -1917,10 +2057,10 @@ define([
             }).appendTo($textOverlay);
 
             // Add the remove button
-            $textOverlayRemove = $('<div/>', {
+            $('<div/>', {
                 'class': 'imageEditor-textOverlayRemove',
                 'text': 'Remove',
-                'click': function(event) {
+                'click': function() {
                     $textOverlay.remove();
                     self.textOverlayRemove(groupName, textInfoKey);
                     return false;
@@ -1928,13 +2068,13 @@ define([
             }).appendTo($textOverlay);
             
             // Add the text input and rich text editor
+            // Activate rich text editor on the input
             $textOverlayInput = $('<input/>', {
                 'class': 'imageEditor-textOverlayInput',
                 'type': 'text',
                 'value': textInfo.text || ''
             }).appendTo($textOverlay);
 
-            // Activate rich text editor on the input
             $textOverlayInput.rte({
                 'initImmediately': true,
                 'useLineBreaks': true
@@ -1997,12 +2137,10 @@ define([
                 return;
             }
 
-            var textSizes = '';
-
             // Loop through each text overlay within the sizebox
             $sizeBox.find('.imageEditor-textOverlay').each(function() {
 
-                var newFontSize, originalFontSize, $rteBody, sizeHeight, $textOverlay, textInfoKey, textInfo, textSize;
+                var originalFontSize, $rteBody, sizeHeight, $textOverlay, textInfoKey, textInfo, textSize;
 
                 $textOverlay = $(this);
 
@@ -2062,7 +2200,7 @@ define([
             
             mousedownHandler = function(mousedownEvent) {
 
-                var element, groupInfo, groupName, textOverlayPosition, original, $textOverlay, textInfoKey, $sizeBox, sizeBoxWidth, sizeBoxHeight;
+                var element, groupInfo, groupName, textOverlayPosition, original, $textOverlay, textInfo, textInfoKey, $sizeBox, sizeBoxWidth, sizeBoxHeight;
 
                 // The element that was dragged and the text overlay that contains it
                 element = this;
@@ -2087,7 +2225,7 @@ define([
                 sizeBoxWidth = $sizeBox.width();
                 sizeBoxHeight = $sizeBox.height();
                 
-                var original = {
+                original = {
                     'left': textOverlayPosition.left,
                     'top': textOverlayPosition.top,
                     'width': $textOverlay.width(),
@@ -2098,7 +2236,7 @@ define([
 
                 mousedownEvent.dragImmediately = true;
 
-                $.drag(this, mousedownEvent, function(dragEvent) {
+                $.drag(this, mousedownEvent, function() {
 
                     // This is the start callback for .drag()
 
@@ -2178,8 +2316,688 @@ define([
         
         //--------------------------------------------------
         // HOTSPOTS
+        // Hotspots use a repeatableForm object on the page.
+        // We listen for create events to determine if a new hotspot is created on the page,
+        // then we wipe out all hotspots and add new ones.
+        // The user can also edit the individual form values (x/y/width/height) and the hotspots
+        // will automatically adjust to the new values.
+        // If the image is rotated or flipped, then the hotspots should also be updated.
         //--------------------------------------------------
+
+        hotspotInit: function() {
+
+            var self;
+
+            self = this;
+
+            // Get the hotspot form element
+            self.dom.$hotspots = self.$element.closest('.inputContainer').find('.hotSpots');
+            if (self.dom.$hotspots.length === 0) {
+                return;
+            }
+
+            // Set up all the hotspot overlays based on the form inputs
+            self.hotspotOverlayResetAll();
+
+            // Monitor the page so if the hotspot form inputs are modified we redisplay the hotspots
+            self.$element.closest('.inputContainer').on('create', function() {
+
+                // If a new hotspot was added it probably has blank values,
+                // so give it some reasonable default values instead
+                self.hotspotInputSetDefaults();
+                
+                // Recreate the hotspot overlays
+                self.hotspotOverlayResetAll();
+
+            });
+
+            // If the image is flipped or rotated recalculate the hotspots
+            self.$element.on('imageAdjustment', function(event, input, inputName) {
+
+                switch (inputName) {
+                case 'flipH':
+                case 'flipV':
+                case 'rotate':
+                    self.hotspotOverlayResetAll();
+                }
+            });
+        },
+
+
+        /**
+         * Set up all the hotspot overlays based on the form inputs.
+         * Remove any existing hotspot overlays before beginning.
+         */
+        hotspotOverlayResetAll: function() {
+
+            var self;
+
+            self = this;
+
+            // Remove any existing overlays so we can recreate them with new values
+            self.hotspotOverlayRemoveAll();
+
+            // Loop through all the hotspots
+            self.dom.$hotspots.find('.objectInputs').each(function(){
+                
+                var data, $objectInput;
+                
+                $objectInput = $(this);
+
+                // Skip this hotspot if it is marked to be removed
+                if ($objectInput.closest('li').hasClass('toBeRemoved')) {
+                    return;
+                }
+
+                // Get all the data for the hotspot from the inputs
+                data = self.hotspotInputGet($objectInput);
+
+                // Create the hotspot overlay
+                self.hotspotOverlayAdd($objectInput.parent(), data.x, data.y, data.width, data.height);
+
+            });
+        },
+
         
+        /**
+         * Returns the hotspot overlay information, adjusting based on image rotation and so forth.
+         *
+         * @param Element 
+         * @returns Object
+         * Object with x, y, width, height values for the hotspot overlay.
+         */
+        hotspotInputGet: function(input) {
+            
+            var data, $input, originalHeight, originalWidth, rotation, rotatedHotspot, scale, self;
+
+            self = this;
+
+            $input = $(input);
+            
+            data = {};
+
+            // Get the current image scale that was set on the image,
+            // then adjust it if the image is rotated
+            scale = self.scale;
+            rotation = self.adjustmentRotateGet();
+            if (scale < 1) {
+                if (rotation === 0) {
+                    scale = (self.getCanvasWidth() / 1000) * scale;
+                } else if (rotation === 90 || rotation === -90) {
+                    scale = (self.getCanvasHeight() / 1000) * scale;
+                }
+            }
+
+            // Get the form input values
+            data.x = parseInt($input.find(':input[name$="x"]').val());
+            data.y = parseInt($input.find(':input[name$="y"]').val());
+            data.width = parseInt($input.find(':input[name$="width"]').val());
+            data.height = parseInt($input.find(':input[name$="height"]').val());
+
+            // Check if we need to rotate the hotspots to match the image rotation
+            if (rotation !== 0) {
+                rotatedHotspot = self.hotspotRotate(rotation, data.x, data.y, data.width, data.height);
+                data.x = rotatedHotspot.x;
+                data.y = rotatedHotspot.y;
+                data.width = rotatedHotspot.width;
+                data.height = rotatedHotspot.height;
+            }
+
+            // Check if we need to flip the hotspots to match the flipH or flipV of the image
+            if (self.adjustmentFlipHGet()) {
+                originalWidth = self.dom.$image.width() / scale;
+                data.x = originalWidth - data.x - data.width;
+            }
+
+            if (self.adjustmentFlipVGet()) {
+                originalHeight = self.dom.$image.height() / scale;
+                data.y = originalHeight - data.y - data.height;
+            }
+                
+            data.x = data.x * scale;
+            data.y = data.y * scale;
+            data.width = data.width * scale;
+            data.height = data.height * scale;
+
+            return data;
+        },
+
+        
+        /**
+         * Saves the hotspot overlay information, adjusting based on image rotation and so forth.
+         */
+        hotspotInputSet: function(input, x, y, width, height) {
+
+            var $input, scale, self, rotation, originalHeight, originalWidth;
+
+            self = this;
+
+            $input = $(input);
+            
+            scale = self.scale;
+            rotation = self.adjustmentRotateGet();
+
+            if (scale < 1) {
+                if (rotation === 0) {
+                    scale = (self.getCanvasWidth() / 1000) * scale;
+                } else if (rotation === 90 || rotation === -90) {
+                    scale = (self.getCanvasHeight() / 1000) * scale;
+                }
+            }
+            scale = 1 / scale;
+
+            x = x * scale;
+            y = y * scale;
+
+            if (rotation === 0) {
+                width = width * scale;
+                height = height * scale;
+            } else if (rotation === 90 || rotation === -90) {
+                height = width * scale;
+                width = height * scale;
+            }
+            
+            if (rotation === '90') {
+                originalWidth = self.dom.$image.width() / scale;
+                y = originalWidth - x + height;
+                x = y * scale;
+            } else if (rotation === '-90') {
+                originalWidth = self.dom.$image.height() * scale;
+                x = originalWidth - (y * scale) - width;
+                y = x * scale;
+            }
+
+            if (self.adjustmentFlipHGet()) {
+                originalWidth = self.dom.$image.width() * scale;
+                x = originalWidth - x - width;
+            }
+
+            if (self.adjustmentFlipVGet()) {
+                originalHeight = self.dom.$image.height() * scale;
+                y = originalHeight - y - height;
+            }
+
+            $input.find(':input[name$="x"]').val( parseInt(x) );
+            $input.find(':input[name$="y"]').val( parseInt(y) );
+            $input.find(':input[name$="width"]').val( parseInt(width) );
+            $input.find(':input[name$="height"]').val( parseInt(height) );
+        },
+
+
+        /**
+         * If hotspot inputs are blank give them reasonable values.
+         */
+        hotspotInputSetDefaults: function() {
+            
+            var defaultX, defaultY, defaultWidth, defaultHeight, height, self, scale, width;
+
+            self = this;
+
+            scale = self.scale;
+            width = self.dom.$image.width() / scale;
+            height = self.dom.$image.height() / scale;
+                
+            // If a blank hotspot is added, set up a default size and position in the middle of the image
+            defaultX = parseInt(width / 2);
+            defaultY = parseInt(height / 2);
+            defaultWidth = parseInt(width / 2);
+            defaultHeight = parseInt(height  / 2);
+
+            self.dom.$hotspots.find('.objectInputs').each(function() {
+
+                var $hotspot;
+
+                $hotspot = $(this);
+
+                $hotspot.find(':input[name$="x"]').val(function(index, value) {
+                    return value === '' ? defaultX : value;
+                });
+                $hotspot.find(':input[name$="y"]').val(function(index, value) {
+                    return value === '' ? defaultY : value;
+                });
+                $hotspot.find(':input[name$="width"]').val(function(index, value) {
+                    return value === '' ? defaultWidth : value;
+                });
+                $hotspot.find(':input[name$="height"]').val(function(index, value) {
+                    return value === '' ? defaultHeight : value;
+                });
+            });
+        },
+
+
+        /**
+         * Add a single hotspot overlay to the image.
+         */
+        hotspotOverlayAdd: function(input, left, top, width, height) {
+
+            var $hotspotOverlay, $hotspotOverlayBox, $input, self;
+
+            self = this;
+            
+            $input = $(input);
+
+            $hotspotOverlay = $('<div/>', {
+                'class': 'imageEditor-hotSpotOverlay',
+                'css': {
+                    'height': height + 'px',
+                    'left': left  + 'px',
+                    'position': 'absolute',
+                    'top': top + 'px',
+                    'width': width + 'px',
+                    'z-index': 1
+                },
+                //'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val(),
+                'mousedown' : function() {
+                    // If you click on the overlay box, add class to make it appear selected.
+                    // Also select the input for the hotspot data.
+                    // TODO - this is a bit too overreaching
+                    self.$element.find('.imageEditor-hotSpotOverlay').removeClass("selected");
+                    self.$element.find('.state-focus').removeClass("state-focus");
+                    $input.addClass("state-focus");
+                    $hotspotOverlay.addClass("selected");
+                }
+            }).appendTo(self.$element);
+
+            
+            // Save the input value to the overlay so it can be used later
+            // to mark the input to be removed when revoving the overlay
+            $hotspotOverlay.data('hotspotInput', $input);
+
+            $hotspotOverlayBox = $('<div/>', {
+                'class': 'imageEditor-hotSpotOverlayBox',
+                'css': {
+                    'height': height + 'px',
+                    'position': 'absolute',
+                    'width': width + 'px',
+                    'z-index': 1
+                }
+            }).appendTo($hotspotOverlay);
+
+            // Label to move the hotspot
+            $('<div/>', {
+                'class': 'imageEditor-textOverlayLabel',
+                'text': 'HotSpot',
+                'mousedown' : self.hotspotMousedownDragHandler(function(event, original, delta) {
+                    $input.addClass("state-focus");
+                    $hotspotOverlay.addClass("selected");
+                    return {
+                        'moving': true,
+                        'left': original.left + delta.x,
+                        'top': original.top + delta.y
+                    };
+                })
+            }).appendTo($hotspotOverlay);
+
+            // Control to remove the hotspot
+            $('<div/>', {
+                'class': 'imageEditor-textOverlayRemove',
+                'text': 'Remove',
+                'click': function() {
+                    self.hotspotRemove($hotspotOverlay);
+                    return false;
+                }
+            }).appendTo($hotspotOverlay);
+
+            // Check if we are a single point or a region
+            if (isNaN(width)) {
+                
+                // This hotspot is a single point so make the box 10x10
+                
+                $hotspotOverlay.css("width", "10px");
+                $hotspotOverlay.css("height", "0px");
+                
+            } else {
+
+                // This hotspot is a region, so add more controls to resize the region
+                
+                $('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-left',
+                    'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotspotOverlay.addClass("selected");
+                        return {
+                            'left': original.left + delta.x,
+                            'width': original.width - delta.x
+                        };
+                    })
+                }).appendTo($hotspotOverlayBox);
+                
+                $('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-right',
+                    'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotspotOverlay.addClass("selected");
+                        return {
+                            'left': original.left,
+                            'width': original.width + delta.x
+                        };
+                    })
+                }).appendTo($hotspotOverlayBox);
+                
+                $('<div/>', {
+                    'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
+                    'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
+                        $input.addClass("state-focus");
+                        $hotspotOverlay.addClass("selected");
+                        return {
+                            'width': original.width + delta.constrainedX,
+                            'height': original.height + delta.constrainedY
+                        };
+                    })
+                }).appendTo($hotspotOverlayBox);
+                
+            }
+
+            // Adding a focus class to the input when we mouse over
+            
+            // TODO: since we are removing and adding hotspots whenever a change is made,
+            // there is a possibility that these events might get multiple handlers.
+            // Need to test to see how many times they fire in that case.
+            
+            $input.mouseover(function() {
+                $input.addClass("state-focus");
+                $hotspotOverlay.addClass("selected");
+            }).mouseleave(function() {
+                $input.removeClass("state-focus");
+                $hotspotOverlay.removeClass("selected");
+            });
+            self.$element.mouseleave(function() {
+                $input.removeClass("state-focus");
+                $hotspotOverlay.removeClass("selected");
+            });
+
+        },
+
+
+        /**
+         * Remove a single hotspot overlay.
+         *
+         * @param Element overlayElement
+         */
+        hotspotRemove: function(overlayElement) {
+
+            var height, $input, left, $overlay, self, top, width;
+
+            self = this;
+
+            $overlay = $(overlayElement);
+
+            // Check if there are any overlays of the exact size and position underneath,
+            // and if so remove them as well
+            left = $overlay.css("left");
+            top = $overlay.css("top");
+            width = $overlay.css("width");
+            height = $overlay.css("height");
+
+            self.$element.find('.imageEditor-hotSpotOverlay').each(function() {
+                var $input, $overlay;
+
+                $overlay = $(this);
+                
+                if ($overlay.css("left") === left &&
+                    $overlay.css("top") === top &&
+                    $overlay.css("width") === width &&
+                    $overlay.css("height") === height) {
+                    
+                    // We previously saved the hotspotInput data on the hotspot element.
+                    // We'll get it now so we can mark the input to be removed.
+                    $input = $overlay.data('hotspotInput');
+                    self.hotspotInputMarkToBeRemoved($input);
+
+                    $overlay.remove();
+                }
+            });
+
+            // We previously saved the hotspotInput data on the hotspot element.
+            // We'll get it now so we can mark the input to be removed.
+            $input = $overlay.data('hotspotInput');
+            self.hotspotInputMarkToBeRemoved($input);
+            
+            $overlay.remove();
+        },
+
+        
+        /**
+         * Mark a hotspot input to be removed.
+         *
+         * @param Element inputContainer
+         * The element that contains the inputs for a single hotspot.
+         */
+        hotspotInputMarkToBeRemoved: function(inputElement) {
+            var $input;
+            $input = $(inputElement);
+            $input.addClass("toBeRemoved");
+            $input.find("input").attr("disabled", "disabled");
+        },
+
+        
+        /**
+         * Remove all hotspot overlays (but do not modify the form inputs).
+         */
+        hotspotOverlayRemoveAll: function() {
+            var self;
+            self = this;
+            self.$element.find('.imageEditor-hotSpotOverlay').remove();
+        },
+
+
+        /**
+         * Rotate the hotspot coordinates
+         *
+         * @param Number angle
+         * @param Number x
+         * @param Number y
+         * @param Number width
+         * @param Number height
+         *
+         * @returns Object
+         * Object with x/y/width/height parameters adjusted for the rotation.
+         */
+        hotspotRotate: function(angle, x, y, width, height) {
+            
+            var originalHeight, originalWidth, rotatedHotspot, scale, self;
+
+            self = this;
+
+            rotatedHotspot = {};
+            
+            //angle = parseInt(angle);
+
+            scale = self.scale;
+            
+            if (scale < 1) {
+                scale = (self.getCanvasHeight() / 1000) * scale;
+            }
+            
+            if (angle === 90 ) {
+                
+                originalHeight = self.dom.$image.width() / scale;
+
+                rotatedHotspot.x = originalHeight - y - width;
+                rotatedHotspot.y = x;
+                rotatedHotspot.width = height;
+                rotatedHotspot.height = width;
+                
+            } else if (angle === -90 ) {
+                originalWidth = self.dom.$image.height() / scale;
+
+                rotatedHotspot.x = y;
+                rotatedHotspot.y = originalWidth - x - height;
+                rotatedHotspot.width = height;
+                rotatedHotspot.height = width;
+            }
+            
+            return rotatedHotspot;
+        },
+
+
+        /**
+         * Create a mousedown handler function that lets the user drag the hotspot box
+         * or the hotspot box handles.
+         *
+         * @param Function filterBoundsFunction
+         * A function that will modify the bounds of the overlay,
+         * and adjust it according to what is being dragged. For example,
+         * if the left/top handle is being dragged.
+         * Ths function must return a modified bounds object.
+         * Also the function can set moving:true in the bounds object if
+         * the entire size box is being moved (instead of resizing the size box).
+         *
+         * @returns Function
+         * Returns a function that can be used as a mousedown handler on a drag handle.
+         * The handler will update the hotspot overlay appropriately.
+         */
+        hotspotMousedownDragHandler: function(filterBoundsFunction) {
+
+            var mousedownHandler, self;
+
+            self = this;
+
+            mousedownHandler = function(mousedownEvent) {
+
+                var imageHeight, imageWidth, $input, $mousedownElement, original, $overlay, $overlayBox, overlayPosition, sizeAspectRatio;
+                
+                $mousedownElement = $(this);
+                $overlay = $mousedownElement.closest('.imageEditor-hotSpotOverlay');
+                $overlayBox = $overlay.find('.imageEditor-hotSpotOverlayBox');
+                $input = $overlay.data('hotspotInput');
+                
+                overlayPosition = $overlay.position();
+                
+                original = {
+                    'left': overlayPosition.left,
+                    'top': overlayPosition.top,
+                    'width': $overlayBox.width(),
+                    'height': $overlayBox.height(),
+                    'pageX': mousedownEvent.pageX,
+                    'pageY': mousedownEvent.pageY
+                };
+
+                imageWidth = self.dom.$image.width();
+                imageHeight = self.dom.$image.height();
+
+                // Get the aspect ratio of the hotspot overlay.
+                // If user resizes using the bottom/right handle we'll constrain
+                // the box to stay in the same aspect ratio.
+                sizeAspectRatio = original.width / original.height;
+                
+                // .drag(element, event, startCallback, moveCallback, endCallback)
+                $.drag(this, event, function() {
+                    
+                    // drag start callback
+                    
+                }, function(dragEvent) {
+                    
+                    // drag move callback
+
+                    var bounds, deltaX, deltaY, overflow;
+                    
+                    deltaX = dragEvent.pageX - original.pageX;
+                    deltaY = dragEvent.pageY - original.pageY;
+                    bounds = filterBoundsFunction(dragEvent, original, {
+                        'x': deltaX,
+                        'y': deltaY,
+                        'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
+                        'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
+                    });
+
+                    // Fill out the missing bounds
+                    bounds = $.extend({}, original, bounds);
+
+                    // When moving, don't let it go outside the image.
+                    if (bounds.moving) {
+                        
+                        // We're not resizing the box, we are moving it
+                        
+                        if (bounds.left < 0) {
+                            bounds.left = 0;
+                        }
+
+                        if (bounds.top < 0) {
+                            bounds.top = 0;
+                        }
+
+                        if (bounds.width === 0) {
+                            bounds.width = 10;
+                        }
+
+                        overflow = bounds.left + bounds.width - imageWidth;
+                        if (overflow > 0) {
+                            bounds.left -= overflow;
+                        }
+
+                        overflow = bounds.top + bounds.height - imageHeight;
+                        if (overflow > 0) {
+                            bounds.top -= overflow;
+                        }
+
+                    } else {
+
+                        // We're not moving the box, we are resizing it.
+
+                        if (bounds.width < 10 || bounds.height < 10) {
+                            
+                            if (sizeAspectRatio > 1.0) {
+                                bounds.width = sizeAspectRatio * 10;
+                                bounds.height = 10;
+                            } else {
+                                bounds.width = 10;
+                                bounds.height = 10 / sizeAspectRatio;
+                            }
+                        }
+
+                        if (bounds.left < 0) {
+                            bounds.width += bounds.left;
+                            bounds.height = bounds.width / sizeAspectRatio;
+                            bounds.top -= bounds.left / sizeAspectRatio;
+                            bounds.left = 0;
+                        }
+
+                        if (bounds.top < 0) {
+                            bounds.height += bounds.top;
+                            bounds.width = bounds.height * sizeAspectRatio;
+                            bounds.left -= bounds.top * sizeAspectRatio;
+                            bounds.top = 0;
+                        }
+
+                        overflow = bounds.left + bounds.width - imageWidth;
+                        if (overflow > 0) {
+                            bounds.width -= overflow;
+                            bounds.height = bounds.width / sizeAspectRatio;
+                        }
+
+                        overflow = bounds.top + bounds.height - imageHeight;
+                        if (overflow > 0) {
+                            bounds.height -= overflow;
+                            bounds.width = bounds.height * sizeAspectRatio;
+                        }
+                    }
+
+                    $overlay.css(bounds);
+                    $overlayBox.css('width', bounds.width);
+                    $overlayBox.css('height', bounds.height);
+
+                }, function() {
+                    
+                    // Drag end callback
+
+                    // Set the hidden inputs to the current bounds of the overlay
+
+                    var position;
+
+                    position = $overlay.position();
+
+                    self.hotspotInputSet($input, position.left, position.top, $overlayBox.width(), $overlayBox.height());
+                    
+                });
+
+                return false;
+            };
+
+            return mousedownHandler;
+        },
+
+
         //--------------------------------------------------
         // MISC SUPPORT FUNCTIONS
         //--------------------------------------------------
@@ -2189,7 +3007,7 @@ define([
          * If user is scrolling the area and reaches the top or bottom,
          * do not let the browser start scrolling the entire page.
          */
-        initScrollFix: function() {
+        scrollFix: function() {
 
             var self = this;
 
@@ -2246,6 +3064,33 @@ define([
             }
 
             return false;
+        },
+
+
+        /**
+         * Returns the width of the canvas.
+         */
+        getCanvasWidth: function() {
+            
+            var self, value;
+
+            self = this;
+            value = self.dom.$image.parent().find('canvas').width();
+            return value;
+        },
+
+        
+        /**
+         * Returns the width of the canvas.
+         */
+        getCanvasHeight: function() {
+            
+            var self, value;
+
+            self = this;
+            
+            value = self.dom.$image.parent().find('canvas').height();
+            return value;
         }
 
     }; // END imageEditorUtilty object
@@ -2280,242 +3125,9 @@ define([
 
 
 /***======================================================================
-    
-    //var INPUT_NAMES = 'x y width height texts textSizes textXs textYs textWidths'.split(' ');
-    //var DELIMITER = 'aaaf7c5a9e604daaa126f11e23e321d8';
 
-    bsp_utils.onDomInsert(document, '.imageEditor', {
-        'insert': function(element) {
-            // var $editor = $(element);
-            // var $form = $editor.closest('form');
-            // var $image = $editor.find('.imageEditor-image img');
-            // var imageSrc = $image.attr('src');
-            // var $imageReSizeScale = $image.attr('data-scale') !== undefined && $image.attr('data-scale') !== "" ? $image.attr('data-scale') : 1.0;
-            // var $originalImage = $image;
-            // var $imageClone = $image.clone();
-            // var imageClone = $imageClone[0];
 
-            // $editor.find('> .imageEditor-aside').bind('mousewheel', function(event, delta, deltaX, deltaY) {
-            //     var $aside = $(this),
-            //             maxScrollTop = $.data(this, 'imageEditor-maxScrollTop');
-
-            //     if (typeof maxScrollTop === 'undefined') {
-            //         maxScrollTop = $aside.prop('scrollHeight') - $aside.innerHeight();
-            //         $.data(this, 'imageEditor-maxScrollTop', maxScrollTop);
-            //     }
-
-            //     if ((deltaY > 0 && $aside.scrollTop() === 0) ||
-            //             (deltaY < 0 && $aside.scrollTop() >= maxScrollTop)) {
-            //         event.preventDefault();
-            //     }
-            // });
-
-            // var $tools = $editor.find('.imageEditor-tools ul');
-            // var $edit = $editor.find('.imageEditor-edit');
-            // var $dataName = $editor.parents('.inputContainer').attr('data-name');
-            
-            // var $editButton = $('<li/>', {
-            //     'html': $('<a/>', {
-            //         'class': 'action-image-edit',
-            //         'text': 'Edit Image',
-            //         'click': function() {
-            //             $edit.popup('source', $(this));
-            //             $edit.popup('open');
-                        
-            //             // Check if there is a hidden input with ".blur", which will contain
-            //             // dimensions for an overlay box ???
-            //             $(".imageEditor-edit input[name=\'" + $dataName + ".blur\']").each(function(){
-            //                 var attributes = $(this).val().split("x");
-            //                 addSizeBox(this, attributes[0], attributes[1], attributes[2], attributes[3]);
-            //             });
-            //             return false;
-            //         }
-            //     })
-            // });
-
-            // $tools.prepend($editButton);
-
-            // var $editInputs = $('<div/>');
-            // $editButton.append($editInputs);
-
-            // var previousOperations;
-            // var processImageTimer;
-
-            // var processImage = function() {
-            //     var operations = { };
-
-            //     var applyOperation = function($input) {
-                    // var value = $input.is(':checkbox') ? $input.is(':checked') : parseFloat($input.val());
-
-                    // if (value === false || isNaN(value)) {
-                    //     return;
-                    // }
-
-                    // var name = /.([^.]+)$/.exec($input.attr('name'));
-                    // name = name ? name[1] : null;
-
-                    // if (name === 'brightness') {
-                    //     operations.brightness = operations.brightness || { };
-                    //     operations.brightness.brightness = value * 150;
-                    //     operations.brightness.legacy = true;
-
-                    // } else if (name === 'contrast') {
-                    //     operations.brightness = operations.brightness || { };
-                    //     operations.brightness.contrast = value < 0 ? value : value * 3;
-
-                    // } else if (name === 'flipH') {
-                    //     operations.fliph = operations.fliph || { };
-
-                    // } else if (name === 'flipV') {
-                    //     operations.flipv = operations.flipv || { };
-
-                    // } else if (name === 'grayscale') {
-                    //     operations.desaturate = operations.desaturate || { };
-
-                    // } else if (name === 'invert') {
-                    //     operations.invert = operations.invert || { };
-
-                    // } else if (name === 'rotate') {
-                    //     operations.rotate = operations.rotate|| { };
-                    //     operations.rotate.angle = -value;
-
-                    // } else if (name === 'sepia') {
-                    //     operations.sepia = operations.sepia || { };
-
-                    // } else if (name === 'sharpen') {
-                    //     operations.sharpen = operations.sharpen || { };
-                    //     operations.sharpen.amount = value;
-
-                    // } else if (name === "blur") {
-                    //     operations.blurfast = operations.blurfast || {"count" : 0, "data" : []};
-                    //     var values = $input.val().split("x");
-                    //     var rect = {"left" : values[0], "top" : values[1], "width" : values[2], "height" : values[3]};
-                    //     operations.blurfast.data[operations.blurfast.count] = {"amount" : 1.0, "rect" :rect};
-                    //     operations.blurfast.count++;
-                    // }
-                }
-
-                
-                // ??? Not sure why there are two separate calls here
-                
-                // $edit.find(":input[name$='.rotate']").each(function() {
-                //     applyOperation($(this));
-                // });
-
-                // $edit.find(":input:not([name$='.rotate'])").each(function() {
-                //     applyOperation($(this));
-                // });
-
-                //var serialized = JSON.stringify(operations);
-
-                // if (serialized !== previousOperations) {
-                    
-                    // previousOperations = serialized;
-
-                    // $editInputs.empty();
-                    // $edit.find(':input').each(function() {
-                    //     var $input = $(this);
-
-                    //     if (!$input.is(':checkbox') || $input.is(':checked')) {
-                    //         $editInputs.append($('<input/>', {
-                    //             'type': 'hidden',
-                    //             'name': $input.attr('name'),
-                    //             'value': $input.val()
-                    //         }));
-                    //     }
-                    // });
-
-            //         var operationKeys = [ ];
-            //         var operationKeyIndex = 0;
-
-            //         for (var key in operations) {
-            //             if (operations.hasOwnProperty(key)) {
-            //                 operationKeys[operationKeys.length] = key;
-            //             }
-            //         }
-
-            //         var operateItem = function(processedImage, index, key, operations, operationIndex) {
-            //             if (operationIndex < operations.length) {
-            //                 Pixastic.process(processedImage, key, operations[operationIndex], function(newImage) {
-            //                     ++ operationIndex;
-            //                     operateItem(newImage, index, key, operations, operationIndex);
-            //                 });
-            //             } else {
-            //                 ++ index;
-            //                 operate(processedImage, index);
-            //             }
-            //         }
-
-            //         var operate = function(processedImage, index) {
-            //             if (index < operationKeys.length) {
-            //                 var key = operationKeys[index];
-
-            //                 if (operations[key].count !== undefined) {
-            //                     operateItem(processedImage, index, key, operations[key].data, 0);
-            //                 } else {
-            //                     Pixastic.process(processedImage, key, operations[key], function(newImage) {
-            //                         ++ index;
-            //                         operate(newImage, index);
-            //                     });
-            //                 }
-
-            //             } else {
-            //                 if ($image !== $originalImage) {
-            //                     $image.remove();
-            //                 }
-
-            //                 $originalImage.before(processedImage);
-            //                 $originalImage.hide();
-            //                 $image = $(processedImage);
-
-            //                 processImageTimer = setTimeout(processImage, 100);
-            //             }
-            //         };
-
-            //         operate(imageClone, 0);
-
-            //     } else {
-            //         processImageTimer = setTimeout(processImage, 100);
-            //     }
-            // };
-
-            // Process the image now so it will have the already applied adjustments
-            // Note this seems to run repeatedly until the edit pop-up appears and is removed.
-            // ??? It should probably just run the image adjustments once then quit instead of running constantly
-            // processImage();
-
-            // // Whenever edit adjustment popup is opened, process the image again
-            // $edit.popup('container').bind('open', function() {
-            //     processImage();
-            // });
-
-            // // Whenever edit adjustment popup is closed, cancel any processImage call that hasn't yet occurred
-            // $edit.popup('container').bind('close', function() {
-            //     if (processImageTimer) {
-            //         clearTimeout(processImageTimer);
-            //     }
-            // });
-
-            // var $resetButton = $('<button/>', {
-            //     'text': 'Reset',
-            //     'click': function() {
-            //         $edit.find(':input').each(function() {
-            //             var $input = $(this);
-
-            //             if ($input.is(':checkbox')) {
-            //                 $input.removeAttr('checked');
-
-            //             } else {
-            //                 $input.val(0);
-            //             }
-            //         });
-            //         $editor.find(".imageEditor-blurOverlay").remove();
-
-            //         processImage();
-
-            //         return false;
-            //     }
-            // });
+/// BLUR control
 
             var $blurOverlayIndex = 0;
             var addSizeBox = function(input, left, top, width, height) {
@@ -2766,1105 +3378,6 @@ define([
                 addSizeBox(null, left, top, width, height);
             });
 
-            var addHotSpot = function(input, left, top, width, height) {
-                var $input = $(input);
 
-                var $hotSpotOverlay = $('<div/>', {
-                    'class': 'imageEditor-hotSpotOverlay',
-                    'css': {
-                        'height': height + 'px',
-                        'left': left  + 'px',
-                        'position': 'absolute',
-                        'top': top + 'px',
-                        'width': width + 'px',
-                        'z-index': 1
-                    },
-                    'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val()
-                });
-
-                var $hotSpotOverlayBox = $('<div/>', {
-                    'class': 'imageEditor-hotSpotOverlayBox',
-                    'css': {
-                        'height': height + 'px',
-                        'position': 'absolute',
-                        'width': width + 'px',
-                        'z-index': 1
-                    }
-                });
-
-                var $hotSpotOverlayLabel = $('<div/>', {
-                    'class': 'imageEditor-textOverlayLabel',
-                    'text': 'HotSpot'
-                });
-
-                var sizeAspectRatio = width / height;
-                var updateSizeBox = function(callback) {
-                    return function(event) {
-                        var sizeBoxPosition = $hotSpotOverlayBox.parent().position();
-                        var original = {
-                            'left': sizeBoxPosition.left,
-                            'top': sizeBoxPosition.top,
-                            'width': $hotSpotOverlayBox.width(),
-                            'height': $hotSpotOverlayBox.height(),
-                            'pageX': event.pageX,
-                            'pageY': event.pageY
-                        };
-
-                        var imageWidth = $image.width();
-                        var imageHeight = $image.height();
-
-                        // .drag(element, event, startCallback, moveCallback, endCallback)
-                        $.drag(this, event, function(event) {
-                            // drag start callback
-                        }, function(event) {
-                            // drag move callback
-                            var deltaX = event.pageX - original.pageX;
-                            var deltaY = event.pageY - original.pageY;
-                            var bounds = callback(event, original, {
-                                'x': deltaX,
-                                'y': deltaY,
-                                'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
-                                'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
-                            });
-
-                            // Fill out the missing bounds.
-                            for (key in original) {
-                                bounds[key] = bounds[key] || original[key];
-                            }
-
-                            var overflow;
-
-                            // When moving, don't let it go outside the image.
-                            if (bounds.moving) {
-                                if (bounds.left < 0) {
-                                    bounds.left = 0;
-                                }
-
-                                if (bounds.top < 0) {
-                                    bounds.top = 0;
-                                }
-
-                                if (bounds.width === 0) {
-                                    bounds.width = 10;
-                                }
-
-                                overflow = bounds.left + bounds.width - imageWidth;
-                                if (overflow > 0) {
-                                    bounds.left -= overflow;
-                                }
-
-                                overflow = bounds.top + bounds.height - imageHeight;
-                                if (overflow > 0) {
-                                    bounds.top -= overflow;
-                                }
-
-                            // Resizing...
-                            } else {
-                                if (bounds.width < 10 || bounds.height < 10) {
-                                    if (sizeAspectRatio > 1.0) {
-                                        bounds.width = sizeAspectRatio * 10;
-                                        bounds.height = 10;
-                                    } else {
-                                        bounds.width = 10;
-                                        bounds.height = 10 / sizeAspectRatio;
-                                    }
-                                }
-
-                                if (bounds.left < 0) {
-                                    bounds.width += bounds.left;
-                                    bounds.height = bounds.width / sizeAspectRatio;
-                                    bounds.top -= bounds.left / sizeAspectRatio;
-                                    bounds.left = 0;
-                                }
-
-                                if (bounds.top < 0) {
-                                    bounds.height += bounds.top;
-                                    bounds.width = bounds.height * sizeAspectRatio;
-                                    bounds.left -= bounds.top * sizeAspectRatio;
-                                    bounds.top = 0;
-                                }
-
-                                overflow = bounds.left + bounds.width - imageWidth;
-                                if (overflow > 0) {
-                                    bounds.width -= overflow;
-                                    bounds.height = bounds.width / sizeAspectRatio;
-                                }
-
-                                overflow = bounds.top + bounds.height - imageHeight;
-                                if (overflow > 0) {
-                                    bounds.height -= overflow;
-                                    bounds.width = bounds.height * sizeAspectRatio;
-                                }
-                            }
-
-                            $hotSpotOverlay.css(bounds);
-                            $hotSpotOverlayBox.css('width', bounds.width);
-                            $hotSpotOverlayBox.css('height', bounds.height);
-
-                        // Set the hidden inputs to the current bounds.
-                        }, function() {
-                            // drag end callback
-                            var hotSpotOverlayBoxPosition = $hotSpotOverlayBox.parent().position();
-                            var scale = $imageReSizeScale;
-                            var rotation = $edit.find(":input[name$='.rotate']").first().val();
-
-                            if ($imageReSizeScale < 1) {
-                                if (rotation === '0') {
-                                    var cavnasWidth = $image.parent().find("canvas").width();
-                                    scale = (cavnasWidth / 1000) * scale;
-                                } else if (rotation === '90' || rotation === '-90') {
-                                    var cavnasHeight = $image.parent().find("canvas").height();
-                                    scale = (cavnasHeight / 1000) * scale;
-                                }
-                            }
-                            scale = 1 / scale;
-
-                            var x = parseInt(hotSpotOverlayBoxPosition.left * scale);
-                            var y = parseInt(hotSpotOverlayBoxPosition.top * scale);
-                            var width;
-                            var height;
-                            if (rotation === "0") {
-                                width = parseInt($hotSpotOverlayBox.width() * scale);
-                                height = parseInt($hotSpotOverlayBox.height() * scale);
-                            } else if (rotation === '90' || rotation === '-90') {
-                                height = parseInt($hotSpotOverlayBox.width() * scale);
-                                width = parseInt($hotSpotOverlayBox.height() * scale);
-
-                                if (rotation === '90') {
-                                    var originalWidth = $image.width() / scale;
-                                    y = originalWidth - x + height;
-                                    x = parseInt(hotSpotOverlayBoxPosition.top * scale);
-                                } else if (rotation === '-90') {
-                                    var originalWidth = $image.height() * scale;
-                                    x = originalWidth - parseInt(hotSpotOverlayBoxPosition.top * scale) - width;
-                                    y = parseInt(hotSpotOverlayBoxPosition.left * scale);
-                                }
-                            }
-
-                            if ($edit.find(":input[name$='.flipH']").first().prop('checked')) {
-                                var originalWidth = $image.width() * scale;
-                                x = originalWidth - x - width;
-                            }
-
-                            if ($edit.find(":input[name$='.flipV']").first().prop('checked')) {
-                                var originalHeight = $image.height() * scale;
-                                y = originalHeight - y - height;
-                            }
-
-                            $input.find(':input[name$="x"]').val(x);
-                            $input.find(':input[name$="y"]').val(y);
-                            $input.find(':input[name$="width"]').val(width);
-                            $input.find(':input[name$="height"]').val(height);
-                        });
-
-                        return false;
-                    };
-                };
-
-                if (isNaN(width)) {
-                    $hotSpotOverlay.css("width", "10px");
-                    $hotSpotOverlay.css("height", "0px");
-                } else {
-                    $hotSpotOverlayBox.append($('<div/>', {
-                        'class': 'imageEditor-resizer imageEditor-resizer-left',
-                        'mousedown': updateSizeBox(function(event, original, delta) {
-                            $input.addClass("state-focus");
-                            $hotSpotOverlay.addClass("selected");
-                            return {
-                                'left': original.left + delta.x,
-                                'width': original.width - delta.x
-                            };
-                        })
-                    }));
-                    $hotSpotOverlayBox.append($('<div/>', {
-                        'class': 'imageEditor-resizer imageEditor-resizer-right',
-                        'mousedown': updateSizeBox(function(event, original, delta) {
-                            $input.addClass("state-focus");
-                            $hotSpotOverlay.addClass("selected");
-                            return {
-                                'left': original.left,
-                                'width': original.width + delta.x
-                            };
-                        })
-                    }));
-                    $hotSpotOverlayBox.append($('<div/>', {
-                        'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
-                        'mousedown': updateSizeBox(function(event, original, delta) {
-                            $input.addClass("state-focus");
-                            $hotSpotOverlay.addClass("selected");
-                            return {
-                                'width': original.width + delta.constrainedX,
-                                'height': original.height + delta.constrainedY
-                            };
-                        })
-                    }));
-                }
-
-                $hotSpotOverlay.append($hotSpotOverlayBox);
-
-                $hotSpotOverlayLabel.mousedown(updateSizeBox(function(event, original, delta) {
-                    $input.addClass("state-focus");
-                    $hotSpotOverlay.addClass("selected");
-                    return {
-                        'moving': true,
-                        'left': original.left + delta.x,
-                        'top': original.top + delta.y
-                    };
-                }));
-
-                $hotSpotOverlay.mousedown(function() {
-                    $('.imageEditor-hotSpotOverlay').removeClass("selected");
-                    $('.state-focus').removeClass("state-focus");
-                    $input.addClass("state-focus");
-                    $hotSpotOverlay.addClass("selected");
-                });
-                $editor.mouseleave(function() {
-                    $input.removeClass("state-focus");
-                    $hotSpotOverlay.removeClass("selected");
-                });
-
-                $input.mouseover(function() {
-                    $input.addClass("state-focus");
-                    $hotSpotOverlay.addClass("selected");
-                });
-
-                $input.mouseleave(function() {
-                    $input.removeClass("state-focus");
-                    $hotSpotOverlay.removeClass("selected");
-                });
-
-                $hotSpotOverlay.append($hotSpotOverlayLabel);
-
-                var $hotSpotOverlayRemove = $('<div/>', {
-                    'class': 'imageEditor-textOverlayRemove',
-                    'text': 'Remove',
-                    'click': function() {
-                        var left = $hotSpotOverlay.css("left");
-                        var top = $hotSpotOverlay.css("top");
-                        var width = $hotSpotOverlay.css("width");
-                        var height = $hotSpotOverlay.css("height");
-
-                        $('.imageEditor-hotSpotOverlay').each(function() {
-                            var $overlay = $(this);
-                            if ($overlay.css("left") === left &&
-                                    $overlay.css("top") === top &&
-                                    $overlay.css("width") === width &&
-                                    $overlay.css("height") === height) {
-                                $overlay.remove();
-                            }
-                        });
-
-                        $input.addClass("toBeRemoved");
-                        $input.find("input").attr("disabled", "disabled");
-                        $hotSpotOverlay.remove();
-                        return false;
-                    }
-                });
-
-                $hotSpotOverlay.append($hotSpotOverlayRemove);
-                $editor.append($hotSpotOverlay);
-            };
-
-            var rotateHotSpot = function (angle, x, y, width, height) {
-                var $rotatedHotSpot = {};
-                angle = parseInt(angle);
-
-                var scale = $imageReSizeScale;
-                if ($imageReSizeScale < 1) {
-                    var cavnasHeight = $image.parent().find("canvas").height();
-                    scale = (cavnasHeight / 1000) * scale;
-                }
-                if (angle === 90 ) {
-                    var originalHeight = $image.width() / scale;
-
-                    $rotatedHotSpot.x = originalHeight - y - width;
-                    $rotatedHotSpot.y = x;
-                    $rotatedHotSpot.width = height;
-                    $rotatedHotSpot.height = width;
-                } else if (angle === -90 ) {
-                    var originalWidth = $image.height() / scale;
-
-                    $rotatedHotSpot.x = y;
-                    $rotatedHotSpot.y = originalWidth - x - height;
-                    $rotatedHotSpot.width = height;
-                    $rotatedHotSpot.height = width;
-                }
-                return $rotatedHotSpot;
-            };
-
-            var $initalizeHotSpots = function() {
-                $image.parents(".inputContainer").find('.imageEditor-hotSpotOverlay').remove();
-                var $hotSpots = $image.parents(".inputContainer").find('.hotSpots .objectInputs');
-                if ($hotSpots !== undefined && $hotSpots.length > 0) {
-                    var scale = $imageReSizeScale;
-                    var rotation = $edit.find(":input[name$='.rotate']").first().val();
-                    if ($imageReSizeScale < 1) {
-                        if (rotation === '0') {
-                            var cavnasWidth = $image.parent().find("canvas").width();
-                            scale = (cavnasWidth / 1000) * scale;
-                        } else if (rotation === '90' || rotation === '-90') {
-                            var cavnasHeight = $image.parent().find("canvas").height();
-                            scale = (cavnasHeight / 1000) * scale;
-                        }
-                    }
-
-                    $hotSpots.each(function() {
-                        var $this = $(this);
-                        if (!$this.parents('li').first().hasClass('toBeRemoved')) {
-                            var x = parseInt($this.find(':input[name$="x"]').val());
-                            var y = parseInt($this.find(':input[name$="y"]').val());
-                            var width = parseInt($this.find(':input[name$="width"]').val());
-                            var height = parseInt($this.find(':input[name$="height"]').val());
-
-                            if (rotation !== '0') {
-                                var $rotatedHotSpot = rotateHotSpot(rotation, x, y, width, height);
-                                x = $rotatedHotSpot.x;
-                                y = $rotatedHotSpot.y;
-                                width = $rotatedHotSpot.width;
-                                height = $rotatedHotSpot.height;
-                            }
-
-                            if ($edit.find(":input[name$='.flipH']").first().prop('checked')) {
-                                var originalWidth = $image.width() / scale;
-                                x = originalWidth - x - width;
-                            }
-
-                            if ($edit.find(":input[name$='.flipV']").first().prop('checked')) {
-                                var originalHeight = $image.height() / scale;
-                                y = originalHeight - y - height;
-                            }
-
-                            x = x * scale;
-                            y = y * scale;
-                            width = width * scale;
-                            height = height * scale;
-
-                            addHotSpot($this.parent(), x, y, width, height);
-                        }
-                    });
-
-                    $image.parents(".inputContainer").find(".hotSpots").unbind('change');
-                    $image.parents(".inputContainer").find(".hotSpots").bind('change', function() {
-                        $initalizeHotSpots();
-                    });
-                }
-            };
-
-            $initalizeHotSpots();
-
-            $editor.parents('.inputContainer').bind('create', function() {
-               var defaultX = parseInt(($image.width() / $imageReSizeScale) / 2);
-               var defaultY = parseInt(($image.height() / $imageReSizeScale) / 2);
-
-               $image.parents(".inputContainer").find('.hotSpots .objectInputs').each(function() {
-                   var $this = $(this);
-
-                   $this.find(':input[name$="x"]').val($this.find(':input[name$="x"]').val() === "" ? defaultX : $this.find(':input[name$="x"]').val());
-                   $this.find(':input[name$="y"]').val($this.find(':input[name$="y"]').val() === "" ? defaultY : $this.find(':input[name$="y"]').val());
-                   $this.find(':input[name$="width"]').val($this.find(':input[name$="width"]').val() === "" ? 100 : $this.find(':input[name$="width"]').val());
-                   $this.find(':input[name$="height"]').val($this.find(':input[name$="height"]').val() === "" ? 100 : $this.find(':input[name$="height"]').val());
-               });
-               $initalizeHotSpots();
-            });
-
-            $edit.find(":input[name$='.rotate']").change(function() {
-                setTimeout($initalizeHotSpots(), 250);
-            });
-            $edit.find(":input[name$='.flipH']").change(function() {
-                setTimeout($initalizeHotSpots(), 250);
-            });
-
-            $edit.find(":input[name$='.flipV']").change(function() {
-                setTimeout($initalizeHotSpots(), 250);
-            });
-
-            // END HOTSPOTS
-
-
-
-            // $edit.append($resetButton);
-
-            // $edit.popup();
-            // $edit.popup('container').addClass('imageEditor-editPopup');
-            // $edit.popup('close');
-
-            // var $coverTop = $('<div/>', {
-            //     'class': 'imageEditor-cover',
-            //     'css': {
-            //         'display': 'none',
-            //         'left': '0',
-            //         'position': 'absolute',
-            //         'top': '0'
-            //     }
-            // });
-
-            // var $coverLeft = $coverTop.clone(true);
-            // var $coverRight = $coverTop.clone(true);
-            // var $coverBottom = $coverTop.clone(true);
-
-            // $editor.append($coverTop);
-            // $editor.append($coverLeft);
-            // $editor.append($coverRight);
-            // $editor.append($coverBottom);
-
-            // var updateCover = function(bounds) {
-            //     var imageWidth = $image.width();
-            //     var imageHeight = $image.height();
-            //     var boundsRight = bounds.left + bounds.width;
-            //     var boundsBottom = bounds.top + bounds.height;
-
-            //     $coverTop.css({
-            //         'height': bounds.top,
-            //         'width': imageWidth
-            //     });
-            //     $coverLeft.css({
-            //         'height': bounds.height,
-            //         'top': bounds.top,
-            //         'width': bounds.left
-            //     });
-            //     $coverRight.css({
-            //         'height': bounds.height,
-            //         'left': boundsRight,
-            //         'top': bounds.top,
-            //         'width': imageWidth - boundsRight
-            //     });
-            //     $coverBottom.css({
-            //         'height': imageHeight - boundsBottom,
-            //         'top': boundsBottom,
-            //         'width': imageWidth
-            //     });
-
-            //     $coverTop.show();
-            //     $coverLeft.show();
-            //     $coverRight.show();
-            //     $coverBottom.show();
-            // };
-
-            // var $sizes = $editor.find('.imageEditor-sizes table');
-
-            // // Create new HTML to hold the size selectors
-            // var $sizeSelectors = $('<ul/>', { 'class': 'imageEditor-sizeSelectors' });
-
-            // // Object to hold a list of different aspect ratios.
-            // // key = an aspect ratio
-            // // value = the first input we found that matches that aspect ratio
-            // // Note there are multiple aspect ratios set for each input so we can easily group inputs together that are close to the same aspect ratio
-            // var $mainInputs = { };
-
-            // // Loop through the size names
-            // $sizes.find('th').each(function() {
-            //     var $th = $(this);
-            //     var $tr = $th.closest('tr');
-
-            //     var sizeName = $tr.attr('data-size-name');
-
-
-                // // Check if we are inside a popup
-                // var $source = $th.popup('source');
-                // if ($source) {
-                //     // Yes we are in a popup
-                //     // Check if this size is considered a "standard image size"
-                //     // If it is a standard image size then we won't add it to the list
-                //     var sizes = $source.closest('.inputContainer').attr('data-standard-image-sizes');
-                //     if (sizes) {
-                //         if ($.inArray(sizeName, sizes.split(' ')) < 0) {
-                //             // continue with the next item in the each loop
-                //             return;
-                //         }
-                //     }
-                // }
-
-                // var independent = $tr.attr('data-size-independent') === 'true';
-                // var sizeWidth = parseFloat($tr.attr('data-size-width'));
-                // var sizeHeight = parseFloat($tr.attr('data-size-height'));
-                // var sizeAspectRatio = sizeWidth / sizeHeight;
-
-                // var $input = { };
-
-                // $.each(INPUT_NAMES, function(index, name) {
-                //     $input[name] = $tr.find(':input[name$=".' + name + '"]');
-                // });
-
-                // var ratio = Math.floor(sizeAspectRatio * 100) / 100;
-                // var $mainInput = $mainInputs['' + ratio];
-
-                // if (!independent) {
-
-                //     if ($mainInput) {
-
-                //         // We already found an aspect ratio that exists, so just add 
-                //         $mainInput['$sizeLabel'].html(
-                //                 $mainInput['$sizeLabel'].html() +
-                //                 '<br><span title="' + $th.text() + '">' + $th.text() + '</span>');
-
-                //         // Also add pointers to the inputs for the current size to the first input we found,
-                //         // so they call all be adjusted at the same time
-                //         $.each(INPUT_NAMES, function(index, name) {
-                //             $mainInput[name] = $mainInput[name].add($input[name]);
-                //         });
-                //         return;
-
-                //     } else {
-                //         $mainInputs['' + (ratio - 0.02)] = $input;
-                //         $mainInputs['' + (ratio - 0.01)] = $input;
-                //         $mainInputs['' + ratio] = $input;
-                //         $mainInputs['' + (ratio + 0.01)] = $input;
-                //         $mainInputs['' + (ratio + 0.02)] = $input;
-                //     }
-                // }
-
-
-                // Box to adjust size of cropping
-
-                // var $sizeBox = $('<div/>', {
-                //     'class': 'imageEditor-sizeBox',
-                //     'css': { 'position': 'absolute' }
-                // });
-
-                // $sizeBox.hide();
-                // $editor.append($sizeBox);
-
-                // var getSizeBounds = function($image) {
-                //     var imageWidth = $image.width();
-                //     var imageHeight = $image.height();
-
-                //     var left = parseFloat($input.x.val()) || 0.0;
-                //     var top = parseFloat($input.y.val()) || 0.0;
-                //     var width = parseFloat($input.width.val()) || 0.0;
-                //     var height = parseFloat($input.height.val()) || 0.0;
-
-                //     if (width === 0.0 || height === 0.0) {
-                //         width = imageHeight * sizeAspectRatio;
-                //         height = imageWidth / sizeAspectRatio;
-
-                //         if (width > imageWidth) {
-                //             width = height * sizeAspectRatio;
-                //         } else {
-                //             height = width / sizeAspectRatio;
-                //         }
-
-                //         left = (imageWidth - width) / 2;
-                //         top = 0;
-
-                //     } else {
-                //         left *= imageWidth;
-                //         top *= imageHeight;
-                //         width *= imageWidth;
-                //         height *= imageHeight;
-                //     }
-
-                //     return {
-                //         'left': left,
-                //         'top': top,
-                //         'width': width,
-                //         'height': height
-                //     };
-                // };
-
-                // var $sizeButton = $('<li/>', {
-                //     'class': 'imageEditor-sizeButton',
-                    // 'click': function() {
-                    //     var $item = $(this).closest('li');
-
-                    //     if ($item.is('.imageEditor-sizeSelected')) {
-                    //         $item.removeClass('imageEditor-sizeSelected');
-                    //         $coverTop.hide();
-                    //         $coverLeft.hide();
-                    //         $coverRight.hide();
-                    //         $coverBottom.hide();
-                    //         $sizeBox.hide();
-                    //         return false;
-
-                    //     } else {
-                    //         $item.closest('ul').find('li').removeClass('imageEditor-sizeSelected');
-                    //         $item.addClass('imageEditor-sizeSelected');
-                    //     }
-
-                        // $editor.find('.imageEditor-sizeBox').hide();
-
-                        // var bounds = getSizeBounds($image);
-
-                        // updateCover(bounds);
-                        // $sizeBox.css(bounds);
-                        // $sizeBox.show();
-
-                        // $sizeBox.find('.imageEditor-textOverlay').each(function(index) {
-                        //     var $textOverlay = $(this);
-
-                            // $textOverlay.trigger('resizeTextOverlayFont');
-
-                //             var textWidth = parseFloat($input.textWidths.val().split(DELIMITER)[index + 1]) || 0.0;
-
-                //             if (textWidth !== 0.0) {
-                //                 var textX = parseFloat($input.textXs.val().split(DELIMITER)[index + 1]) || 0.0;
-                //                 var textY = parseFloat($input.textYs.val().split(DELIMITER)[index + 1]) || 0.0;
-
-                //                 $textOverlay.css({
-                //                     'left': (textX * 100) + '%',
-                //                     'top': (textY * 100) + '%',
-                //                     'width': (textWidth * 100) + '%'
-                //                 });
-                //             }
-                //         });
-
-                //         return false;
-                //     }
-                // });
-
-                // $sizeSelectors.append($sizeButton);
-
-                // var updatePreview = function() {
-                //     var $body = $(document.body);
-                //     $body.append($imageClone);
-                //     var bounds = getSizeBounds($imageClone);
-                //     $imageClone.remove();
-                //     Pixastic.process(imageClone, 'crop', bounds, function(newImage) {
-                //         var $preview = $sizeButton.find('.imageEditor-sizePreview');
-                //         $preview.empty();
-                //         $preview.append(newImage);
-                //     });
-                // };
-
-                // var updateSizeBox = function(callback) {
-                //     return function(event) {
-                //         var sizeBoxPosition = $sizeBox.position();
-                //         var original = {
-                //             'left': sizeBoxPosition.left,
-                //             'top': sizeBoxPosition.top,
-                //             'width': $sizeBox.width(),
-                //             'height': $sizeBox.height(),
-                //             'pageX': event.pageX,
-                //             'pageY': event.pageY
-                //         };
-
-                //         var imageWidth = $image.width();
-                //         var imageHeight = $image.height();
-
-                //         // .drag(element, event, startCallback, moveCallback, endCallback)
-                //         $.drag(this, event, function(event) {
-                //             // startCallback
-                //         }, function(event) {
-                //             // move callback
-                //             var deltaX = event.pageX - original.pageX;
-                //             var deltaY = event.pageY - original.pageY;
-                //             var bounds = callback(event, original, {
-                //                 'x': deltaX,
-                //                 'y': deltaY,
-                //                 'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
-                //                 'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
-                //             });
-
-                //             // Fill out the missing bounds.
-                //             for (key in original) {
-                //                 bounds[key] = bounds[key] || original[key];
-                //             }
-
-                //             var overflow;
-
-                //             // When moving, don't let it go outside the image.
-                //             if (bounds.moving) {
-                //                 if (bounds.left < 0) {
-                //                     bounds.left = 0;
-                //                 }
-
-                //                 if (bounds.top < 0) {
-                //                     bounds.top = 0;
-                //                 }
-
-                //                 overflow = bounds.left + bounds.width - imageWidth;
-                //                 if (overflow > 0) {
-                //                     bounds.left -= overflow;
-                //                 }
-
-                //                 overflow = bounds.top + bounds.height - imageHeight;
-                //                 if (overflow > 0) {
-                //                     bounds.top -= overflow;
-                //                 }
-
-                //             // Resizing...
-                //             } else {
-                //                 if (bounds.width < 10 || bounds.height < 10) {
-                //                     if (sizeAspectRatio > 1.0) {
-                //                         bounds.width = sizeAspectRatio * 10;
-                //                         bounds.height = 10;
-                //                     } else {
-                //                         bounds.width = 10;
-                //                         bounds.height = 10 / sizeAspectRatio;
-                //                     }
-                //                 }
-
-                //                 if (bounds.left < 0) {
-                //                     bounds.width += bounds.left;
-                //                     bounds.height = bounds.width / sizeAspectRatio;
-                //                     bounds.top -= bounds.left / sizeAspectRatio;
-                //                     bounds.left = 0;
-                //                 }
-
-                //                 if (bounds.top < 0) {
-                //                     bounds.height += bounds.top;
-                //                     bounds.width = bounds.height * sizeAspectRatio;
-                //                     bounds.left -= bounds.top * sizeAspectRatio;
-                //                     bounds.top = 0;
-                //                 }
-
-                //                 overflow = bounds.left + bounds.width - imageWidth;
-                //                 if (overflow > 0) {
-                //                     bounds.width -= overflow;
-                //                     bounds.height = bounds.width / sizeAspectRatio;
-                //                 }
-
-                //                 overflow = bounds.top + bounds.height - imageHeight;
-                //                 if (overflow > 0) {
-                //                     bounds.height -= overflow;
-                //                     bounds.width = bounds.height * sizeAspectRatio;
-                //                 }
-                //             }
-
-                //             updateCover(bounds);
-                //             $sizeBox.css(bounds);
-                //             $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
-
-                //         // Set the hidden inputs to the current bounds.
-                //         }, function() {
-                //             // end callback
-                //             var sizeBoxPosition = $sizeBox.position();
-                //             var sizeBoxWidth = $sizeBox.width();
-                //             var sizeBoxHeight = $sizeBox.height();
-
-                //             $input.x.val(sizeBoxPosition.left / imageWidth);
-                //             $input.y.val(sizeBoxPosition.top / imageHeight);
-                //             $input.width.val(sizeBoxWidth / imageWidth);
-                //             $input.height.val(sizeBoxWidth / sizeAspectRatio / imageHeight);
-
-                //             updatePreview();
-                //             $sizeBox.find('.imageEditor-textOverlay').trigger('resizeTextOverlayFont');
-                //         });
-
-                //         return false;
-                //     };
-                // };
-
-                // $sizeBox.mousedown(updateSizeBox(function(event, original, delta) {
-                //     return {
-                //         'moving': true,
-                //         'left': original.left + delta.x,
-                //         'top': original.top + delta.y
-                //     };
-                // }));
-
-                // $sizeBox.append($('<div/>', {
-                //     'class': 'imageEditor-resizer imageEditor-resizer-topLeft',
-                //     'mousedown': updateSizeBox(function(event, original, delta) {
-                //         return {
-                //             'left': original.left + delta.constrainedX,
-                //             'top': original.top + delta.constrainedY,
-                //             'width': original.width - delta.constrainedX,
-                //             'height': original.height - delta.constrainedY
-                //         };
-                //     })
-                // }));
-                // $sizeBox.append($('<div/>', {
-                //     'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
-                //     'mousedown': updateSizeBox(function(event, original, delta) {
-                //         return {
-                //             'width': original.width + delta.constrainedX,
-                //             'height': original.height + delta.constrainedY
-                //         };
-                //     })
-                // }));
-
-                // var $sizeLabel = $('<span/>', {
-                //     'class': 'imageEditor-sizeLabel',
-                //     'html': '<span title="' + $th.text() + '">' + $th.text() + '</span>'
-                // });
-
-                // $input['$sizeLabel'] = $sizeLabel;
-                // $sizeButton.append($sizeLabel);
-
-                // var $sizePreview = $('<div/>', {
-                //     'class': 'imageEditor-sizePreview',
-                //     'html': $('<img/>', {
-                //         'alt': $th.text(),
-                //         'src': imageSrc,
-                //         'load': function() {
-                //             updatePreview();
-                //         }
-                //     })
-                // });
-
-                // $sizeButton.append($sizePreview);
-
-
-                //  TEXT OVERLAYS
-
-                // var textOverlayIndex = 0;
-
-                // $sizeLabel.after($('<a/>', {
-                //     'class': 'imageEditor-addTextOverlay',
-                //     'text': 'Add Text',
-                //     'click': function(event, init) {
-                //         ++ textOverlayIndex;
-
-                //         var $textOverlay = $('<div/>', {
-                //             'class': 'imageEditor-textOverlay',
-                //             'css': {
-                //                 'left': (($input.textXs.val().split(DELIMITER)[textOverlayIndex] || 0.25) * 100) + '%',
-                //                 'position': 'absolute',
-                //                 'top': (($input.textYs.val().split(DELIMITER)[textOverlayIndex] || 0.25) * 100) + '%',
-                //                 'width': (($input.textWidths.val().split(DELIMITER)[textOverlayIndex] || 0.50) * 100) + '%',
-                //                 'z-index': 1
-                //             }
-                //         });
-
-                //         $sizeBox.append($textOverlay);
-
-                //         var $textOverlayLabel = $('<div/>', {
-                //             'class': 'imageEditor-textOverlayLabel',
-                //             'text': 'Text #' + textOverlayIndex
-                //         });
-
-                //         var resizeTextOverlayFont = function() {
-                //             if (!$sizeBox.is(':visible')) {
-                //                 return;
-                //             }
-
-                //             var textSizes = '';
-
-                //             $sizeBox.find('.imageEditor-textOverlay').each(function() {
-                //                 var $to = $(this),
-                //                         $body = $($to.find('.rte-container iframe')[0].contentDocument.body),
-                //                         originalFontSize = $.data(this, 'imageEditor-originalFontSize'),
-                //                         textSize,
-                //                         newFontSize;
-
-                //                 if (!originalFontSize && $body.is('.rte-loaded')) {
-                //                     originalFontSize = parseFloat($body.css('font-size'));
-                //                     $.data(this, 'imageEditor-originalFontSize', originalFontSize);
-                //                 }
-
-                //                 textSizes += DELIMITER;
-
-                //                 if (originalFontSize > 0) {
-                //                     textSize = 1 / sizeHeight * originalFontSize;
-                //                     textSizes += textSize;
-                //                     $body.css('font-size', $sizeBox.height() * textSize);
-                //                 }
-                //             });
-
-                //             $input.textSizes.val(textSizes);
-                //         };
-
-
-                        // $textOverlay.bind('resizeTextOverlayFont', resizeTextOverlayFont);
-
-
-
-                        // var updateTextOverlay = function(callback) {
-                        //     return function(event) {
-                        //         resizeTextOverlayFont();
-
-                        //         var textOverlayPosition = $textOverlay.position();
-                        //         var original = {
-                        //             'left': textOverlayPosition.left,
-                        //             'top': textOverlayPosition.top,
-                        //             'width': $textOverlay.width(),
-                        //             'height': $textOverlay.height(),
-                        //             'pageX': event.pageX,
-                        //             'pageY': event.pageY
-                        //         };
-
-                        //         var sizeBoxWidth = $sizeBox.width();
-                        //         var sizeBoxHeight = $sizeBox.height();
-
-                        //         event.dragImmediately = true;
-
-                        //         $.drag(this, event, function(event) {
-
-                        //         }, function(event) {
-                        //             var deltaX = event.pageX - original.pageX;
-                        //             var deltaY = event.pageY - original.pageY;
-                        //             var bounds = callback(event, original, {
-                        //                 'x': deltaX,
-                        //                 'y': deltaY
-                        //             });
-
-                        //             // Fill out the missing bounds.
-                        //             for (key in original) {
-                        //                 bounds[key] = bounds[key] || original[key];
-                        //             }
-
-                        //             bounds.left = ((bounds.left / sizeBoxWidth) * 100) + '%';
-                        //             bounds.top = ((bounds.top / sizeBoxHeight) * 100) + '%';
-                        //             bounds.width = ((bounds.width / sizeBoxWidth) * 100) + '%';
-                        //             bounds.height = 'auto';
-
-                        //             $textOverlay.css(bounds);
-
-                        //         // Set the hidden inputs to the current bounds.
-                        //         }, function() {
-                        //             var texts = '',
-                        //                     xs = '',
-                        //                     ys = '',
-                        //                     widths = '';
-
-                        //             $sizeBox.find('.imageEditor-textOverlay').each(function() {
-                        //                 var $to = $(this),
-                        //                         textOverlayPosition = $to.position(),
-                        //                         textOverlayWidth = $to.width(),
-                        //                         textOverlayHeight = $to.height();
-
-                        //                 texts += DELIMITER + ($to.find('.imageEditor-textOverlayInput').val());
-                        //                 xs += DELIMITER + (textOverlayPosition.left / sizeBoxWidth);
-                        //                 ys += DELIMITER + (textOverlayPosition.top / sizeBoxHeight);
-                        //                 widths += DELIMITER + (textOverlayWidth / sizeBoxWidth);
-                        //             });
-
-                        //             $input.texts.val(texts);
-                        //             $input.textXs.val(xs);
-                        //             $input.textYs.val(ys);
-                        //             $input.textWidths.val(widths);
-                        //         });
-
-                        //         return false;
-                        //     };
-                        // };
-
-                        // $textOverlayLabel.mousedown(updateTextOverlay(function(event, original, delta) {
-                        //     return {
-                        //         'moving': true,
-                        //         'left': original.left + delta.x,
-                        //         'top': original.top + delta.y
-                        //     };
-                        // }));
-
-                        // $textOverlay.append($textOverlayLabel);
-
-                        // var $textOverlayRemove = $('<div/>', {
-                        //     'class': 'imageEditor-textOverlayRemove',
-                        //     'text': 'Remove',
-                        //     'click': function() {
-                        //         $textOverlay.remove();
-                        //         return false;
-                        //     }
-                        // });
-
-                        // $textOverlay.append($textOverlayRemove);
-
-                        // $textOverlay.append($('<div/>', {
-                        //     'class': 'imageEditor-resizer imageEditor-resizer-left',
-                        //     'mousedown': updateTextOverlay(function(event, original, delta) {
-                        //         return {
-                        //             'left': original.left + delta.x,
-                        //             'width': original.width - delta.x
-                        //         };
-                        //     })
-                        // }));
-                        // $textOverlay.append($('<div/>', {
-                        //     'class': 'imageEditor-resizer imageEditor-resizer-right',
-                        //     'mousedown': updateTextOverlay(function(event, original, delta) {
-                        //         return {
-                        //             'left': original.left,
-                        //             'width': original.width + delta.x
-                        //         };
-                        //     })
-                        // }));
-
-                        // var $textOverlayInput = $('<input/>', {
-                        //     'class': 'imageEditor-textOverlayInput',
-                        //     'type': 'text',
-                        //     'value': $input.texts.val().split(DELIMITER)[textOverlayIndex] || ''
-                        // });
-
-                        // $textOverlay.append($textOverlayInput);
-                        // $textOverlayInput.rte({
-                        //     'initImmediately': true,
-                        //     'useLineBreaks': true
-                        // });
-
-                        // $editor.before($textOverlay.find('.rte-toolbar-container'));
-
-                        // if (!init) {
-                        //     $textOverlayInput.focus();
-                        // }
-
-                        // var wait = 5000;
-                        // var repeatResizeTextOverlayFont = function() {
-                        //     var $body = $($textOverlay.find('.rte-container iframe')[0].contentDocument.body);
-                        //     if ($body.is('.rte-loaded')) {
-                        //         resizeTextOverlayFont();
-                        //     } else {
-                        //         wait -= 100;
-                        //         if (wait > 0) {
-                        //             setTimeout(repeatResizeTextOverlayFont, 100);
-                        //         }
-                        //     }
-                        // };
-
-                        // repeatResizeTextOverlayFont();
-
-                        // On submit of the form, update the values for the text overlays that are showing
-                        // ??? What if you update a text overlay, then move to a different group then submit the form?
-                        // Need to save the current text values before removing the text overlays
-                        // $form.submit(function() {
-                        //     var texts = '';
-
-                        //     $sizeBox.find('.imageEditor-textOverlay').each(function() {
-                        //         texts += DELIMITER + $(this).find('.imageEditor-textOverlayInput').val();
-                        //     });
-
-                        //     $input.texts.val(texts);
-                        // });
-
-                        // if (!init) {
-                        //     var sizeBoxWidth = $sizeBox.width();
-                        //     var sizeBoxHeight = $sizeBox.height();
-                        //     var texts = '',
-                        //             xs = '',
-                        //             ys = '',
-                        //             widths = '';
-
-                        //     $sizeBox.find('.imageEditor-textOverlay').each(function() {
-                        //         var $to = $(this),
-                        //                 textOverlayPosition = $to.position(),
-                        //                 textOverlayWidth = $to.width(),
-                        //                 textOverlayHeight = $to.height();
-
-                        //         texts += DELIMITER + ($to.find('.imageEditor-textOverlayInput').val());
-                        //         xs += DELIMITER + (textOverlayPosition.left / sizeBoxWidth);
-                        //         ys += DELIMITER + (textOverlayPosition.top / sizeBoxHeight);
-                        //         widths += DELIMITER + (textOverlayWidth / sizeBoxWidth);
-                        //     });
-
-                        //     $input.texts.val(texts);
-                        //     $input.textXs.val(xs);
-                        //     $input.textYs.val(ys);
-                        //     $input.textWidths.val(widths);
-                        // }
-
-                        // return false;
-                    }
-                }));
-
-                // For each text in the group, simulate a click on the add text overlay button to create the overlay
-                // $.each($input.texts.val().split(DELIMITER), function(index, text) {
-                //     if (index > 0) {
-                //         $sizeButton.find('.imageEditor-addTextOverlay').trigger('click', true);
-                //     }
-                // });
-            });
-
-            // $sizes.before($sizeSelectors);
-            // $sizes.hide();
-
-            // Automatically select the first group if there is only one group
-            var $buttons = $sizeSelectors.find('.imageEditor-sizeButton');
-            if ($buttons.length == 1) {
-                $buttons.click();
-            }
-        }
-
-    });
-
-});
 
 ======================================================================***/
