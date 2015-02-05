@@ -336,7 +336,7 @@ public class CreateNewWidget extends DefaultDashboardWidget {
                         page.writeStart("h2").writeHtml("Edit Existing").writeEnd();
 
                         page.writeStart("ul", "class", "links pageThumbnails");
-                            for (Content content : editExistingContents) {
+                            for (Object content : editExistingContents) {
                                 page.writeStart("li");
                                     page.writeStart("a",
                                             "target", "_top",
