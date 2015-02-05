@@ -2211,6 +2211,11 @@ public class ToolPageContext extends WebPageContext {
         }
 
         if (includeGlobals && !fields.isEmpty()) {
+            writeElement("input",
+                    "type", "hidden",
+                    "name", state.getId() + "/_includeGlobals",
+                    "value", true);
+
             for (ObjectField field : state.getDatabase().getEnvironment().getFields()) {
                 if (Boolean.FALSE.equals(field.getState().get("cms.ui.hidden"))) {
                     fields.add(field);
