@@ -604,12 +604,10 @@ function() {
     var $frame = $(event.target);
 
     // Move the close button to the publishing widget.
-    var $publishing = $frame.find('.widget-publishing');
+    var $publishingControls = $frame.find('.widget-publishing > .widget-controls');
 
-    if ($publishing.length > 0) {
-      $publishing.addClass('widget-publishing-hasClose');
-
-      $publishing.append($('<a/>', {
+    if ($publishingControls.length > 0) {
+      $publishingControls.append($('<a/>', {
         'class': 'widget-publishing-close',
         'click': function(event) {
           $frame.popup('close');

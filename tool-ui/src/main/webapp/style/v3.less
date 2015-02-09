@@ -428,29 +428,21 @@
 .widget-publishing {
   margin-bottom: 10px;
 
-  .icon-wrench {
-    top: 6px;
-    position: absolute;
-    right: 10px;
-  }
-
-  &.widget-publishing-hasClose .icon-wrench {
-    right: 40px;
-  }
-
   [name='workflowComment'] {
     margin-bottom: 5px;
   }
 }
 
-.widget-publishing-close {
-  .icon;
-  .icon-remove;
+.widget-publishing-tools {
+  &:extend(.widget-controls-button all);
 
-  color: @color-text;
-  position: absolute;
-  right: 10px;
-  top: 6px;
+  .icon-wrench;
+}
+
+.widget-publishing-close {
+  &:extend(.widget-controls-button all);
+
+  .icon-remove;
 }
 
 .widget-publishingWorkflow {

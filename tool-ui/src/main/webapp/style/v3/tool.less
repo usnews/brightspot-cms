@@ -193,11 +193,11 @@
       color: @color-placeholder;
       font-style: italic;
       left: 0;
-      padding-left: 26px;
+      padding-left: @length-inputHeight;
     }
 
     input[type='text'] {
-      padding-left: 25px;
+      padding-left: @length-inputHeight;
       width: 100%;
     }
   }
@@ -448,6 +448,10 @@
   }
 }
 
+.searchFiltersRest-single {
+  margin-top: -30px;
+}
+
 .searchMissing {
   .icon;
   .icon-share-alt;
@@ -463,8 +467,8 @@
 
   &:before {
     position: absolute;
-    right: 4px;
-    top: 7px;
+    right: 0;
+    top: 6px;
     transform: rotate(90deg);
   }
 }
