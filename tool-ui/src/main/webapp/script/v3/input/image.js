@@ -73,7 +73,18 @@ define([
          */
         sizeGroups: {},
 
+        
+        /**
+         * Names for all the tabs.
+         */
+        tabNames: {
+            image: 'Image Focus',
+            edit: 'Edit Image',
+            sizes: 'Sizes and Text',
+            hotspots: 'Hotspots'
+        },
 
+        
         /**
          * Call to initialize the image editor.
          *
@@ -98,13 +109,16 @@ define([
 
             // Get other stuff from the DOM
             self.initDOM();
+            
+            self.tabsInit();
 
+            self.focusInit();
             self.editInit();
-            self.scrollFix();
             self.sizesInit();
             self.textInit();
             self.hotspotInit();
-            self.focusInit();
+
+            self.tabsReady();
         },
 
         
@@ -130,10 +144,6 @@ define([
             dom.$image = $el.find('.imageEditor-image img');
             dom.imageSrc = dom.$image.attr('src');
 
-            // Save a copy of the original image so we will always have
-            // it after adjustments are made.
-            dom.$originalImage = dom.$image;
-            
             // Create a clone of the image so we always have a copy of the original image.
             dom.$imageClone = dom.$image.clone();
             dom.imageClone = dom.$imageClone[0];
@@ -149,10 +159,70 @@ define([
             dom.$tools = $el.find('.imageEditor-tools ul');
             dom.$edit = $el.find('.imageEditor-edit');
 
-            dom.$sizes = $el.find('.imageEditor-sizes table');
+            dom.$sizes = $el.find('.imageEditor-sizes');
+            dom.$sizesTable = dom.$sizes.find('table');
             
             // The data-name attribute is used to create new hidden inputs when needed
             self.dataName = $el.closest('.inputContainer').attr('data-name');
+        },
+
+
+        //--------------------------------------------------
+        // TABS
+        //--------------------------------------------------
+
+        /**
+         */
+        tabsInit: function() {
+            
+            var self;
+
+            self = this;
+            
+            self.dom.tabs = {};
+        },
+
+        
+        /**
+         */
+        tabsCreate: function(tabKey) {
+            
+            var self;
+
+            self = this;
+
+            self.dom.tabs = self.dom.tabs || {};
+
+            // Make sure this tab is defined in the tabNames object
+            if (self.tabNames[tabKey]) {
+
+                // Create a div for the tab but don't add it to the DOM yet
+                self.dom.tabs[tabKey] = $('<div/>', {
+                    'data-tab': self.tabNames[tabKey],
+                    'style': 'position:relative'
+                });
+            }
+
+        },
+
+        
+        /**
+         * Call this after all tabs have been created and we're ready to go.
+         */
+        tabsReady: function() {
+            
+            var self;
+
+            self = this;
+            
+            // Now add all the tabs to the main element
+            $.each(self.dom.tabs, function(){
+                var $tab = $(this);
+                $tab.appendTo(self.$element);
+            });
+            
+            // Finally, add "tabber" class to the container to trigger the tab plugin to run
+            self.$element.addClass('tabbed');
         },
 
         
@@ -168,8 +238,39 @@ define([
 
             self = this;
             
-            self.editInitButton();
-            self.editInitInputs();
+            self.tabsCreate('edit');
+
+            // Create an image in the edit tab to show the image changes
+            self.dom.$editImage = self.dom.$imageClone.clone();
+
+            // Save a copy of the original image so we will always have
+            // it after adjustments are made and self.dom.$image is overwritten.
+            self.dom.$originalImage = self.dom.$editImage;
+
+            $('<div/>', {
+                'class': 'imageEditor-image',
+                'html': self.dom.$editImage
+            }).appendTo(self.dom.tabs.edit);
+
+            // Move the imageEditor-aside into this tab
+            self.dom.$aside.appendTo(self.dom.tabs.edit);
+            
+            // Create a place to put some hidden inputs
+            // TODO: not sure if we need this, put in self.dom.$edit instead?
+            self.dom.$editInputs = $('<div/>').appendTo(self.dom.$edit);
+
+            // Create the reset button
+            self.dom.$editResetButton = $('<button/>', {
+                'text': 'Reset',
+                'click': function() {
+                    self.editReset();
+                    return false;
+                }
+            }).appendTo(self.dom.$edit);
+
+            // Periodically check if edit inputs have changed
+            // TODO: need a way to turn this off as we might get multiple polling functions running when not needed
+            self.adjustmentProcessTimerStart();
 
             // Trigger events whenever the adjustments are changed
             // so other code can listen for changes
@@ -184,60 +285,9 @@ define([
                 // and the name of the input (like 'rotate' or 'flipH')
                 self.$element.trigger('imageAdjustment', [this, inputName]);
             });
-
             
             // Process all current adjustments on the image
-            self.adjustmentProcess();
-        },
-
-        
-        /**
-         * Adds the "Edit Image" button to pop up the image adjustments.
-         */
-        editInitButton: function() {
-
-            var self;
-            
-            self = this;
-            
-            // Create the edit button and add it to the page
-            self.dom.$editButton = $('<li/>', {
-                html: $('<a/>', {
-                    'class': 'action-image-edit',
-                    'text': 'Edit Image',
-                    'click': function() {
-                        self.editOpenAdjustments(this);
-                        return false;
-                    }
-                })
-            }).prependTo(self.dom.$tools);
-
-            // Create the reset button
-            self.dom.$editResetButton = $('<button/>', {
-                'text': 'Reset',
-                'click': function() {
-                    self.editReset();
-                    return false;
-                }
-            }).appendTo(self.dom.$edit);
-
-            // Set up the popup
-            self.dom.$edit.popup();
-            self.dom.$edit.popup('container').addClass('imageEditor-editPopup');
-            self.dom.$edit.popup('close');
-            
-            // Set up the adjustment popup so when the popup is open,
-            // the image is automatically updated to match the changes.
-            // When the popup is closed we stop automatically updating.
-            
-            self.dom.$edit.popup('container').bind('open', function() {
-                self.adjustmentProcessTimerStart();
-            });
-
-            self.dom.$edit.popup('container').bind('close', function() {
-                self.adjustmentProcessTimerStop();
-            });
-
+            // self.adjustmentProcess();
         },
 
         
@@ -354,7 +404,7 @@ define([
          */
         adjustmentProcess: function() {
             
-            var operations, operationsJson, self;
+            var operations, operationsJson, promise, self;
 
             self = this;
 
@@ -378,7 +428,28 @@ define([
 
                 // Now perform the operations and return a promise that can
                 // be used to run more code after the operations have completed
-                return self.adjustmentProcessExecuteAll();
+                promise = self.adjustmentProcessExecuteAll(operations);
+
+                // When all the adjustments are done replace the original image with the adjusted image
+                promise.done(function(){
+
+                    // Remove the old image from the dom unless this is the first time making an adjustment.
+                    // If this is the first time, then the original image will be hidden so we don't remove it.
+                    if (self.dom.$editImage !== self.dom.$originalImage) {
+                        self.dom.$editImage.remove();
+                    }
+
+                    // Add the adjusted image to the dom
+                    self.dom.$originalImage.hide().before( self.dom.processedImage );
+
+                    // Save the adjusted image for later comparison
+                    self.dom.$editImage = $( self.dom.processedImage );
+
+                    // Trigger an event so other code can tell when the image changed
+                    self.$element.trigger('imageUpdated', [self.dom.$editImage]);
+                    
+                });
+
             }
             
             // No operations have to be performed, so just return
@@ -394,7 +465,7 @@ define([
          * @returns Promise
          * Returns a promise that can be used to run additional code after the processing has completed.
          */
-        adjustmentProcessExecuteAll: function() {
+        adjustmentProcessExecuteAll: function(operations) {
 
             var promise, self;
 
@@ -408,7 +479,7 @@ define([
             self.dom.processedImage = self.dom.imageClone;
             
             // Loop through each of the operations and perform them sequentially
-            $.each(self.operations, function(name, value) {
+            $.each(operations, function(name, value) {
 
                 var data;
 
@@ -434,23 +505,6 @@ define([
                     });
                 });
 
-            });
-
-            // When all the adjustments are done replace the original image with the adjusted image
-            promise.done(function(){
-
-                // Remove the old image from the dom unless this is the first time making an adjustment.
-                // If this is the first time, then the original image will be hidden so we don't remove it.
-                if (self.dom.$image !== self.dom.$originalImage) {
-                    self.dom.$image.remove();
-                }
-
-                // Add the adjusted image to the dom
-                self.dom.$originalImage.hide().before( self.dom.processedImage );
-
-                // Save the adjusted image for later comparison
-                self.dom.$image = $( self.dom.processedImage );
-                
             });
             
             // Return a promise that can be used to run additional code
@@ -544,7 +598,7 @@ define([
 
             // Loop through all the inputs in the edit section
             // and add operations for each one
-            self.dom.$edit.find(":input").each(function(){
+            self.dom.$edit.find("table :input").each(function(){
                 
                 var $input, name, value, processFunctionName;
                 
@@ -559,7 +613,7 @@ define([
                 if (!name) {
                     return;
                 }
-                
+
                 // Get the value of the input
                 value = $input.is(':checkbox') ? $input.is(':checked') : parseFloat($input.val());
 
@@ -808,6 +862,19 @@ define([
 
             self = this;
 
+            self.tabsCreate('sizes');
+
+            // Move everything into the tab
+            self.$element.children().appendTo( self.dom.tabs.sizes );
+
+            // Create a sidebar to hold the size selector
+            self.dom.$sizesAside = $('<div/>', {
+                'class': 'imageEditor-aside'
+            }).appendTo(self.dom.tabs.sizes);
+
+            // Move the sizes into the sidebar
+            self.dom.$sizes.appendTo(self.dom.$sizesAside);
+            
             // Set up the "cover" divs that mask off the cropped areas of the image
             self.coverInit();
             
@@ -894,10 +961,59 @@ define([
 
             // Now add the size selector to the dom,
             // and hide the table that contained all the size inputs
-            self.dom.$sizes.before(self.dom.$sizeSelectors).hide();
+            self.dom.$sizesTable.before(self.dom.$sizeSelectors).hide();
 
             // Automatically select the first size group if there is only one
             self.sizesSelectSingle();
+
+            // Make sure scrolling within the "aside" area doesn't start scrolling the whole page
+            self.scrollFix( self.dom.$sizesAside );
+
+            // If the image is updated then update the sizes image
+            self.$element.on('imageUpdated', $.throttle(2000, function(event, $image) {
+
+                var groupName, $newImage;
+
+                $newImage = $( self.cloneCanvas($image.get(0)) );
+                
+                self.dom.$image.before($newImage);
+                self.dom.$image.remove();
+                self.dom.$image = $newImage;
+
+                // Set a flag so next time user switches to tab it will update the thumbnails
+                self.sizesNeedsUpdate = true;
+                
+            }));
+
+            // When user switches to the sizes tab, check if the image has been updated
+            // so we can update all the thumbnail images.
+            self.dom.tabs.sizes.on('tabbedShow', function(){
+
+                // For performance reasons only do this if we previously marked that the image has changed
+                if (self.sizesNeedsUpdate) {
+
+                    self.sizesNeedsUpdate = false;
+
+                    // For performance reasons, add a slight pause before updating,
+                    // wo the tabs have time to finish displaying
+                    setTimeout(function() {
+
+                        var groupName;
+                    
+                        // Update the cover dimensions
+                        groupName = self.sizesGetSelected();
+                        if (groupName) {
+                            self.sizesSelect(groupName);
+                        }
+
+                        // Update (and re-crop) all the thumbnail images
+                        self.sizesUpdatePreview();
+                        
+                    }, 100);
+                }
+
+            });
+
         },
 
         
@@ -937,7 +1053,7 @@ define([
             
             // Loop through all the TH elements. These are the names of the sizes.
             // From there we can get to the other information about the size.
-            self.dom.$sizes.find('th').each(function(){
+            self.dom.$sizesTable.find('th').each(function(){
                 
                 var group, independent, inputs, sizeAspectRatio, sizeAspectRatioApproximate,
                     sizeDescription, sizeHeight, sizeInfo, sizeName, sizeWidth, sizes, $source, $th, $tr;
@@ -995,7 +1111,7 @@ define([
                     sizeAspectRatioApproximate = Math.floor(sizeAspectRatio * 100) / 100;
 
                     // If there is not an existing group for this aspect ratio create a new group
-                    group = groupsApproximate[ sizeAspectRatioApproximate ];
+                    group = groupsApproximate['' + sizeAspectRatioApproximate ];
                     if (!group) {
 
                         // Create a new group for this aspect ratio
@@ -1131,38 +1247,61 @@ define([
         /**
          * Update the preview image for a single size group.
          *
-         * @param String groupName
+         * @param String [groupName]
          * The name of the group you are resizing.
+         * Leave this undefined to update all the previews.
          */
         sizesUpdatePreview: function(groupName) {
             
-            var bounds, groupInfo, $imageWrapper, self, sizeInfoFirst;
+            var groupInfos, operations, self;
 
             self = this;
 
-            // Get the group info from the group name
-            groupInfo = self.sizeGroups[groupName];
+            if (groupName) {
+                groupInfos = {};
+                groupInfos[groupName] = self.sizeGroups[groupName];
+            } else {
+                groupInfos = self.sizeGroups;
+            }
 
-            // Get the sizeInfo from the first size in the group
-            sizeInfoFirst = self.sizesGetGroupFirstSizeInfo(groupName);
-            
-            // Find the element wrapping the preview image
-            $imageWrapper = groupInfo.$element.find('.imageEditor-sizePreview');
-            
-            // Temporarily add the original image to the document because the image
-            // must be in the DOM for us to retrieve the size
-            self.dom.$imageClone.appendTo(document.body);
+            $.each(groupInfos, function(groupName, groupInfo) {
 
-            // Get the current crop dimensions for this group
-            bounds = self.sizesGetSizeBounds(self.dom.$imageClone, sizeInfoFirst);
+                var bounds, $imageWrapper, sizeInfoFirst;
 
-            // Now remove the temporary image from the document
-            self.dom.$imageClone.remove();
+                // Get the group info from the group name
+                // groupInfo = self.sizeGroups[groupName];
+
+                // Get the sizeInfo from the first size in the group
+                sizeInfoFirst = self.sizesGetGroupFirstSizeInfo(groupName);
             
-            // Crop the image based on the current crop dimension,
-            // then replace the thumbnail image with the newly cropped image
-            Pixastic.process(self.dom.imageClone, 'crop', bounds, function(newImage) {
-                $imageWrapper.empty().append(newImage);
+                // Find the element wrapping the preview image
+                $imageWrapper = groupInfo.$element.find('.imageEditor-sizePreview');
+            
+                // Temporarily add the original image to the document because the image
+                // must be in the DOM for us to retrieve the size
+                self.dom.$imageClone.appendTo(document.body);
+
+                // Get the current crop dimensions for this group
+                bounds = self.sizesGetSizeBounds(self.dom.$imageClone, sizeInfoFirst);
+
+                // Now remove the temporary image from the document
+                self.dom.$imageClone.remove();
+
+                // Crop the image based on the current crop dimension,
+                // then replace the thumbnail image with the newly cropped image
+
+                // Get the current image adjustments (rotation, etc.) so we can also use that when cropping
+                operations = self.adjustmentGetOperations();
+
+                // Add a crop operation
+                operations.crop = bounds;
+
+                // Perform all the operations and the crop
+                self.adjustmentProcessExecuteAll(operations).done(function(){
+                    $imageWrapper.empty().append( self.dom.processedImage );
+                });
+                
+
             });
         },
 
@@ -1317,7 +1456,7 @@ define([
             self.dom.$coverRight = $cover.clone(true);
             self.dom.$coverBottom = $cover.clone(true);
             self.dom.$covers = $().add(self.dom.$coverTop).add(self.dom.$coverLeft).add(self.dom.$coverRight)
-                .add(self.dom.$coverBottom).appendTo(self.$element);
+                .add(self.dom.$coverBottom).appendTo(self.dom.tabs.sizes);
         },
 
         
@@ -1416,7 +1555,7 @@ define([
             $sizeBox = $('<div/>', {
                 'class': 'imageEditor-sizeBox',
                 'css': { 'position': 'absolute' }
-            }).hide().appendTo(self.$element);
+            }).hide().appendTo(self.dom.tabs.sizes);
 
             // Save the size box along with the group info so we can access it later
             groupInfo.$sizeBox = $sizeBox;
@@ -1730,14 +1869,36 @@ define([
             var self;
 
             self = this;
-            
+
+            self.tabsCreate('image');
+
+            // Create an image in the hotspot tab to show the hotspots
+            // Note this image will need to be kept in sync with image changes
+            // to flip and rotate the original image
+            self.dom.$focusImage = self.dom.$imageClone.clone();
+            $('<div/>', {
+                'class': 'imageEditor-image',
+                'html': self.dom.$focusImage
+            }).appendTo(self.dom.tabs.image);
+
+            // If the image is updated then update the focus image
+            self.$element.on('imageUpdated', function(event, $image) {
+
+                var $newImage;
+
+                $newImage = $( self.cloneCanvas($image.get(0)) );
+                
+                self.dom.$focusImage.before($newImage);
+                self.dom.$focusImage.remove();
+                self.dom.$focusImage = $newImage;
+            });
+
             // Add click event to the main image
             
-            // Note: since it appears other code might remove the image and clone it,
-            // need to check if this click event will be removed in that case.
-            // Might need to add the click event to the parent element instead.
+            // The image might be removed and replaced, so we can't put a click event on the image itself.
+            // Add the click event on the element wrapping the image because that is not removed.
 
-            self.dom.$image.on('click', function(event) {
+            self.dom.$focusImage.parent().on('click', 'img,canvas', function(event) {
 
                 var focus, $image, originalAspect, originalHeight, originalWidth;
 
@@ -1754,7 +1915,7 @@ define([
                 // Get the position that was clicked
                 focus = self.getClickPositionInElement($image, event);
 
-                if (!window.confirm('Set all sizes to this focus point?')) {
+                if (!window.confirm('Set all sizes to focus on this point?')) {
                     return;
                 }
 
@@ -1780,6 +1941,9 @@ define([
                     self.sizesSetGroupBounds(groupName, crop);
                     self.sizesUpdatePreview(groupName);
                 });
+
+                // When switching to sizes tab, update the thumbnails
+                self.sizesNeedsUpdate = true;
             });
         },
 
@@ -1920,7 +2084,11 @@ define([
             var self;
 
             self = this;
-            
+
+            // Use a number as a unique key in the textInfo object.
+            // The items are not ordered because we need the flexibility to easily add and remove texts.
+            self.textInfoIndex = 1;
+
             // Create text overlays within the size box for each group
             $.each(self.sizeGroups, function(groupName, groupInfo) {
 
@@ -1948,7 +2116,9 @@ define([
 
         },
 
-        
+
+        /**
+         */
         textSelectGroup: function(groupName) {
 
             var self;
@@ -2048,12 +2218,6 @@ define([
             textSizes = sizeInfo.inputs.textSizes.val().split(self.textDelimiter);
 
             textInfo = {};
-
-            // Use a number as a unique key in the textInfo object.
-            // The items are not ordered because we need the flexibility to easily add and remove texts.
-            if (!self.textInfoIndex) {
-                self.textInfoIndex = 1;
-            }
             
             // Now loop through the individual arrays and add them to the textInfo object.
             $.each(texts, function(index) {
@@ -2523,6 +2687,21 @@ define([
                 return;
             }
 
+            // Create a tab for hotspots
+            self.tabsCreate('hotspots');
+            
+            // Create an image in the hotspot tab to show the hotspots
+            // Note this image will need to be kept in sync with image changes
+            // to flip and rotate the original image
+            self.dom.$hotspotImage = self.dom.$imageClone.clone();
+            $('<div/>', {
+                'class': 'imageEditor-image',
+                'html': self.dom.$hotspotImage
+            }).appendTo(self.dom.tabs.hotspots);
+            
+            // Move hotspot form into the hotspot tab so it only shows when that tab is active
+            self.dom.$hotspots.appendTo( self.dom.tabs.hotspots );
+            
             // Set up all the hotspot overlays based on the form inputs
             self.hotspotOverlayResetAll();
 
@@ -2532,22 +2711,32 @@ define([
                 // If a new hotspot was added it probably has blank values,
                 // so give it some reasonable default values instead
                 self.hotspotInputSetDefaults();
-                
+
                 // Recreate the hotspot overlays
                 self.hotspotOverlayResetAll();
 
             });
 
-            // If the image is flipped or rotated recalculate the hotspots
-            self.$element.on('imageAdjustment', function(event, input, inputName) {
+            // If the image is updated then update the hotspot image
+            self.$element.on('imageUpdated', function(event, $image) {
 
-                switch (inputName) {
-                case 'flipH':
-                case 'flipV':
-                case 'rotate':
-                    self.hotspotOverlayResetAll();
-                }
+                var $newImage;
+
+                $newImage = $( self.cloneCanvas($image.get(0)) );
+                
+                self.dom.$hotspotImage.before($newImage);
+                self.dom.$hotspotImage.remove();
+                self.dom.$hotspotImage = $newImage;
+                
+                self.hotspotOverlayResetAll();
             });
+
+            // When user switches to the hotspot tab, check if the image has been updated
+            // so we can update all the hotspots overlays
+            self.dom.tabs.hotspots.on('tabbedShow', function(){
+                self.hotspotOverlayResetAll();
+            });
+
         },
 
 
@@ -2609,9 +2798,9 @@ define([
             rotation = self.adjustmentRotateGet();
             if (scale < 1) {
                 if (rotation === 0) {
-                    scale = (self.getCanvasWidth() / 1000) * scale;
+                    scale = (self.dom.$hotspotImage.width() / 1000) * scale;
                 } else if (rotation === 90 || rotation === -90) {
-                    scale = (self.getCanvasHeight() / 1000) * scale;
+                    scale = (self.dom.$hotspotImage.height() / 1000) * scale;
                 }
             }
 
@@ -2632,15 +2821,15 @@ define([
 
             // Check if we need to flip the hotspots to match the flipH or flipV of the image
             if (self.adjustmentFlipHGet()) {
-                originalWidth = self.dom.$image.width() / scale;
+                originalWidth = self.dom.$hotspotImage.width() / scale;
                 data.x = originalWidth - data.x - data.width;
             }
 
             if (self.adjustmentFlipVGet()) {
-                originalHeight = self.dom.$image.height() / scale;
+                originalHeight = self.dom.$hotspotImage.height() / scale;
                 data.y = originalHeight - data.y - data.height;
             }
-                
+
             data.x = data.x * scale;
             data.y = data.y * scale;
             data.width = data.width * scale;
@@ -2666,9 +2855,9 @@ define([
 
             if (scale < 1) {
                 if (rotation === 0) {
-                    scale = (self.getCanvasWidth() / 1000) * scale;
+                    scale = (self.dom.$hotspotImage.width() / 1000) * scale;
                 } else if (rotation === 90 || rotation === -90) {
-                    scale = (self.getCanvasHeight() / 1000) * scale;
+                    scale = (self.dom.$hotspotImage.height() / 1000) * scale;
                 }
             }
             scale = 1 / scale;
@@ -2685,22 +2874,22 @@ define([
             }
             
             if (rotation === '90') {
-                originalWidth = self.dom.$image.width() / scale;
+                originalWidth = self.dom.$hotspotImage.width() / scale;
                 y = originalWidth - x + height;
                 x = y * scale;
             } else if (rotation === '-90') {
-                originalWidth = self.dom.$image.height() * scale;
+                originalWidth = self.dom.$hotspotImage.height() * scale;
                 x = originalWidth - (y * scale) - width;
                 y = x * scale;
             }
 
             if (self.adjustmentFlipHGet()) {
-                originalWidth = self.dom.$image.width() * scale;
+                originalWidth = self.dom.$hotspotImage.width() * scale;
                 x = originalWidth - x - width;
             }
 
             if (self.adjustmentFlipVGet()) {
-                originalHeight = self.dom.$image.height() * scale;
+                originalHeight = self.dom.$hotspotImage.height() * scale;
                 y = originalHeight - y - height;
             }
 
@@ -2721,8 +2910,8 @@ define([
             self = this;
 
             scale = self.scale;
-            width = self.dom.$image.width() / scale;
-            height = self.dom.$image.height() / scale;
+            width = self.dom.$hotspotImage.width() / scale;
+            height = self.dom.$hotspotImage.height() / scale;
                 
             // If a blank hotspot is added, set up a default size and position in the middle of the image
             defaultX = parseInt(width / 2);
@@ -2777,14 +2966,12 @@ define([
                 'mousedown' : function() {
                     // If you click on the overlay box, add class to make it appear selected.
                     // Also select the input for the hotspot data.
-                    // TODO - this is a bit too overreaching
                     self.$element.find('.imageEditor-hotSpotOverlay').removeClass("selected");
                     self.$element.find('.state-focus').removeClass("state-focus");
                     $input.addClass("state-focus");
                     $hotspotOverlay.addClass("selected");
                 }
-            }).appendTo(self.$element);
-
+            }).appendTo(self.dom.tabs.hotspots);
             
             // Save the input value to the overlay so it can be used later
             // to mark the input to be removed when revoving the overlay
@@ -2998,7 +3185,7 @@ define([
             
             if (angle === 90 ) {
                 
-                originalHeight = self.dom.$image.width() / scale;
+                originalHeight = self.dom.$hotspotImage.width() / scale;
 
                 rotatedHotspot.x = originalHeight - y - width;
                 rotatedHotspot.y = x;
@@ -3006,7 +3193,7 @@ define([
                 rotatedHotspot.height = width;
                 
             } else if (angle === -90 ) {
-                originalWidth = self.dom.$image.height() / scale;
+                originalWidth = self.dom.$hotspotImage.height() / scale;
 
                 rotatedHotspot.x = y;
                 rotatedHotspot.y = originalWidth - x - height;
@@ -3060,8 +3247,8 @@ define([
                     'pageY': mousedownEvent.pageY
                 };
 
-                imageWidth = self.dom.$image.width();
-                imageHeight = self.dom.$image.height();
+                imageWidth = self.dom.$hotspotImage.width();
+                imageHeight = self.dom.$hotspotImage.height();
 
                 // Get the aspect ratio of the hotspot overlay.
                 // If user resizes using the bottom/right handle we'll constrain
@@ -3194,11 +3381,13 @@ define([
          * If user is scrolling the area and reaches the top or bottom,
          * do not let the browser start scrolling the entire page.
          */
-        scrollFix: function() {
+        scrollFix: function(element) {
 
-            var self = this;
+            var self;
+            
+            self = this;
 
-            self.dom.$aside.bind('mouswheel', function(event, delta, deltaX, deltaY) {
+            $(element).bind('mouswheel', function(event, delta, deltaX, deltaY) {
                 if (self.elementIsScrolledToMax(this, deltaY)) {
                     event.preventDefault();
                 }
@@ -3324,6 +3513,35 @@ define([
                 'width': width,
                 'height': height
             };
+        },
+
+
+        /**
+         * Clone a canvas image.
+         * @returns Canvas
+         */
+        cloneCanvas: function(oldCanvas) {
+
+            var context, newCanvas;
+
+            if ($(oldCanvas).is('canvas')) {
+
+                //create a new canvas
+                newCanvas = document.createElement('canvas');
+                context = newCanvas.getContext('2d');
+
+                //set dimensions
+                newCanvas.width = oldCanvas.width;
+                newCanvas.height = oldCanvas.height;
+ 
+                //apply the old canvas to the new one
+                context.drawImage(oldCanvas, 0, 0);
+
+                //return the new canvas
+                return newCanvas;
+            } else {
+                return $(oldCanvas).clone();
+            }
         }
 
     }; // END imageEditorUtilty object
