@@ -177,7 +177,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
     if (search != null) {
         wp.writeStart("div", "class", "frame");
-            wp.writeStart("a", "href", StringUtils.addQueryParameters(search.replace("misc/searchResult.jsp", "searchCarousel"), "id", wp.param(String.class, "id")));
+            wp.writeStart("a", "href", wp.cmsUrl("/searchCarousel", "id", editingState.getId(), "search", search));
             wp.writeEnd();
         wp.writeEnd();
     }

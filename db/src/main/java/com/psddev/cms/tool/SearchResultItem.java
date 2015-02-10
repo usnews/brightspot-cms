@@ -26,7 +26,7 @@ public class SearchResultItem {
         page.writeStart("a",
                 "href", page.toolUrl(CmsTool.class, "/content/edit.jsp",
                         "id", State.getInstance(item).getId(),
-                        "search", page.url("", Search.NAME_PARAMETER, null)),
+                        "search", ObjectUtils.toJson(search.getState().getSimpleValues())),
                 "data-objectId", State.getInstance(item).getId(),
                 "target", "_top");
     }
