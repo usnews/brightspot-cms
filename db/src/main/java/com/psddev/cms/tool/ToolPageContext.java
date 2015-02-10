@@ -1293,10 +1293,7 @@ public class ToolPageContext extends WebPageContext {
                         String firstName = nameParts[0];
 
                         writeStart("div", "class", "toolUserDisplay");
-                            writeStart("a",
-                                    "href", cmsUrl("/toolUserDashboard"),
-                                    "target", "toolUserDashboard");
-
+                            writeStart("div", "class", "toolUserWelcome");
                                 writeHtml("Welcome, ");
 
                                 if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
@@ -1306,16 +1303,36 @@ public class ToolPageContext extends WebPageContext {
                                 } else {
                                     writeHtml(firstName);
                                 }
+                            writeEnd();
 
-                                writeStart("span", "class", "toolUserAvatar");
+                            writeStart("div", "class", "toolUserControls");
+                                writeStart("ul", "class", "piped");
+                                    writeStart("li");
+                                        writeStart("a",
+                                                "class", "icon icon-object-toolUser",
+                                                "href", cmsUrl("/toolUserDashboard"),
+                                                "target", "toolUserDashboard");
+                                            writeHtml("Profile");
+                                        writeEnd();
+                                    writeEnd();
+
+                                    writeStart("li");
+                                        writeStart("a",
+                                                "class", "icon icon-action-logOut",
+                                                "href", cmsUrl("/misc/logOut.jsp"));
+                                            writeHtml("Log Out");
+                                        writeEnd();
+                                    writeEnd();
+                                writeEnd();
+                            writeEnd();
+
+                            writeStart("span", "class", "toolUserAvatar");
+                                writeStart("a",
+                                        "href", cmsUrl("/toolUserDashboard"),
+                                        "target", "toolUserDashboard");
                                     if (avatar != null) {
-                                            writeTag("img",
-                                                    "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 100, 100).getPublicUrl());
-
-                                    } else {
-                                        for (String namePart : nameParts) {
-                                            writeHtml(namePart.substring(0, 1).toUpperCase(Locale.ENGLISH));
-                                        }
+                                        writeElement("img",
+                                                "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 100, 100).getPublicUrl());
                                     }
                                 writeEnd();
                             writeEnd();

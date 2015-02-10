@@ -108,47 +108,53 @@
 }
 
 .toolUserDisplay {
-  @-length-padding: 10px;
-  @-length-size: @length-toolHeader-height - (@-length-padding * 2);
+  @-padding: 10px;
+  @-avatar-size: @length-toolHeader-height - (@-padding * 2);
 
   display: block;
-  line-height: @-length-size;
   right: 20px;
-  overflow: hidden;
+  padding-right: (@-padding + @-avatar-size);
   position: absolute;
-  top: @-length-padding;
+  top: @-padding;
 
   .toolHeader-hasEnvironment & {
     right: 70px;
   }
 
-  .link {
-    color: @color-text;
+  .toolUserWelcome {
     font-weight: 700;
+    margin-top: floor((@-avatar-size / 2) - @length-lineHeight);
+    text-align: right;
+  }
 
-    &:hover {
-      color: @color-text;
-      text-decoration: none;
-    }
+  .toolUserControls {
+    font-size: floor(@length-fontSize * 0.8);
+    text-align: right;
   }
 
   .toolUserAvatar {
-    .background-flat(@color-heading);
-    border-radius: 100%;
+    background-image: url(icon/avatar.png);
+    background-size: @-avatar-size @-avatar-size;
+    border-radius: 50%;
     color: @color-border;
     display: inline-block;
-    height: @-length-size;
+    height: @-avatar-size;
     margin-left: 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
     text-align: center;
     vertical-align: middle;
-    width: @-length-size;
-
-    &:hover {
-      color: @color-border;
-    }
+    width: @-avatar-size;
 
     img {
       border-radius: 100%;
+      height: 100%;
+      width: 100%;
+    }
+
+    .link {
+      display: block;
       height: 100%;
       width: 100%;
     }
