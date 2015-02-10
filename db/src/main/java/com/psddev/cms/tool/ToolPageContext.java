@@ -736,7 +736,6 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-
         if (object == null) {
             Object draftObject = Query.fromAll().where("_id = ?", draftId).first();
 
