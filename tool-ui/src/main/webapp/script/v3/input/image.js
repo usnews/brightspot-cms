@@ -140,9 +140,6 @@ define([
 
             dom.$form = $el.closest('form');
 
-            // If we are in a popup we might not actually be in the main page body
-            dom.$body = $el.closest('body');
-
             // Find the image. Note this will be removed from the DOM and
             // replaced by an adjusted image.
             dom.$image = $el.find('.imageEditor-image img');
@@ -1290,15 +1287,8 @@ define([
                 // Find the element wrapping the preview image
                 $imageWrapper = groupInfo.$element.find('.imageEditor-sizePreview');
             
-                // Temporarily add the original image to the document because the image
-                // must be in the DOM for us to retrieve the size
-                self.dom.$imageClone.appendTo(self.dom.$body);
-
-                // Get the current crop dimensions for this group
-                bounds = self.sizesGetSizeBounds(self.dom.$imageClone, sizeInfoFirst);
-
-                // Now remove the temporary image from the document
-                self.dom.$imageClone.remove();
+                // Get the crop bounds for this group, based on the original image size
+                bounds = self.sizesGetSizeBounds(self.dom.imageCloneWidth, self.dom.imageCloneHeight, sizeInfoFirst);
 
                 // Crop the image based on the current crop dimension,
                 // then replace the thumbnail image with the newly cropped image
@@ -1313,17 +1303,21 @@ define([
                 self.adjustmentProcessExecuteAll(operations).done(function(){
                     $imageWrapper.empty().append( self.dom.processedImage );
                 });
-                
 
             });
+
+
         },
 
 
         /**
          * For an image and an individual size, get the current crop dimension information.
          *
-         * @param Element|jQuery image
-         * The image. Note this image must be in the DOM (or the image dimensions will be incorrect).
+         * @param Number imageWidth
+         * @param Number imageHeigth
+         *
+         * @param Object sizeInfo
+         * Information about this size, including all the size inputs.
          *
          * @returns Object bounds
          * An object of size bounds, consisting of the following parameters:
@@ -1332,15 +1326,15 @@ define([
          * @returns Number bounds.width
          * @returns Number bounds.height
          */
-        sizesGetSizeBounds: function(image, sizeInfo) {
+        sizesGetSizeBounds: function(imageWidth, imageHeight, sizeInfo) {
             
             var aspectRatio, height, $image, imageHeight, imageWidth, left, self, top, width;
 
             self = this;
 
-            $image = $(image);
-            imageWidth = $image.width();
-            imageHeight = $image.height();
+            // $image = $(image);
+            // imageWidth = $image.width();
+            // imageHeight = $image.height();
 
             left = parseFloat(sizeInfo.inputs.x.val()) || 0.0;
             top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
@@ -1638,8 +1632,8 @@ define([
             // Get the first sizeInfo object for this group
             sizeInfo = self.sizesGetGroupFirstSizeInfo(groupName);
 
-            // Resize the size box for this group
-            bounds = self.sizesGetSizeBounds(self.dom.$image, sizeInfo);
+            // Get the boundaries for the size box, based on the current image size on the page
+            bounds = self.sizesGetSizeBounds(self.dom.$image.width(), self.dom.$image.height(), sizeInfo);
             
             self.coverUpdate(bounds);
             self.coverShow();
