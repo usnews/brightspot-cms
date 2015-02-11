@@ -148,6 +148,14 @@ define([
             dom.$imageClone = dom.$image.clone();
             dom.imageClone = dom.$imageClone[0];
 
+            // Temporarily add the raw image to the end of the page
+            // so we can get the actual width and heighth of the image.
+            // Browser requires the image to be in the dom to get the width and height
+            self.dom.$imageClone.appendTo(document.body);
+            self.dom.imageCloneWidth = self.dom.$imageClone.width();
+            self.dom.imageCloneHeight = self.dom.$imageClone.height();
+            self.dom.$imageClone.remove();
+            
             // Get the data-scale attribute to use for hotspot
             scale = dom.$image.attr('data-scale');
             if (scale === undefined || scale === '') {
@@ -972,7 +980,7 @@ define([
             // If the image is updated then update the sizes image
             self.$element.on('imageUpdated', $.throttle(2000, function(event, $image) {
 
-                var groupName, $newImage;
+                var $newImage;
 
                 $newImage = $( self.cloneCanvas($image.get(0)) );
                 
@@ -1326,7 +1334,6 @@ define([
             self = this;
 
             $image = $(image);
-            
             imageWidth = $image.width();
             imageHeight = $image.height();
 
@@ -2694,8 +2701,9 @@ define([
             // Note this image will need to be kept in sync with image changes
             // to flip and rotate the original image
             self.dom.$hotspotImage = self.dom.$imageClone.clone();
-            $('<div/>', {
+            self.dom.$hotspotImageWrapper = $('<div/>', {
                 'class': 'imageEditor-image',
+                'style': 'position:relative',
                 'html': self.dom.$hotspotImage
             }).appendTo(self.dom.tabs.hotspots);
             
@@ -2753,7 +2761,7 @@ define([
             // Remove any existing overlays so we can recreate them with new values
             self.hotspotOverlayRemoveAll();
 
-            // Loop through all the hotspots
+            // Loop through all the hotspot inputs
             self.dom.$hotspots.find('.objectInputs').each(function(){
                 
                 var data, $objectInput;
@@ -2769,14 +2777,16 @@ define([
                 data = self.hotspotInputGet($objectInput);
 
                 // Create the hotspot overlay
-                self.hotspotOverlayAdd($objectInput.parent(), data.x, data.y, data.width, data.height);
+                self.hotspotOverlayAdd($objectInput.parent(), data);
 
             });
         },
 
         
         /**
-         * Returns the hotspot overlay information, adjusting based on image rotation and so forth.
+         * Returns the information for a single hotspot, adjusting based on image rotation and so forth.
+         * Note the numbers returned are based on the original image and not based on the image scale that
+         * was served to the page, nor on the CSS-styled image size on the page.
          *
          * @param Element 
          * @returns Object
@@ -2784,56 +2794,84 @@ define([
          */
         hotspotInputGet: function(input) {
             
-            var data, $input, originalHeight, originalWidth, rotation, rotatedHotspot, scale, self;
+            var heightAdjusted, widthAdjusted, data, heightOriginal, $input, rotation, self, widthOriginal;
 
             self = this;
 
             $input = $(input);
             
-            data = {};
+            // Get the image height and width and adjust for scale
+            widthOriginal = self.dom.imageCloneWidth / self.scale;
+            heightOriginal = self.dom.imageCloneHeight / self.scale;
 
-            // Get the current image scale that was set on the image,
-            // then adjust it if the image is rotated
-            scale = self.scale;
-            rotation = self.adjustmentRotateGet();
-            if (scale < 1) {
-                if (rotation === 0) {
-                    scale = (self.dom.$hotspotImage.width() / 1000) * scale;
-                } else if (rotation === 90 || rotation === -90) {
-                    scale = (self.dom.$hotspotImage.height() / 1000) * scale;
-                }
-            }
-
+            // In case we need to rotate and flip at the same time,
+            // keep track of the width and height after rotation
+            widthAdjusted = widthOriginal;
+            heightAdjusted = heightOriginal;
+            
             // Get the form input values
-            data.x = parseInt($input.find(':input[name$="x"]').val());
-            data.y = parseInt($input.find(':input[name$="y"]').val());
-            data.width = parseInt($input.find(':input[name$="width"]').val());
-            data.height = parseInt($input.find(':input[name$="height"]').val());
+            data = {
+                x: parseInt($input.find(':input[name$="x"]').val()) || 1,
+                y: parseInt($input.find(':input[name$="y"]').val()) || 1,
+                width: parseInt($input.find(':input[name$="width"]').val()) || 1,
+                height: parseInt($input.find(':input[name$="height"]').val()) || 1
+            };
 
-            // Check if we need to rotate the hotspots to match the image rotation
-            if (rotation !== 0) {
-                rotatedHotspot = self.hotspotRotate(rotation, data.x, data.y, data.width, data.height);
-                data.x = rotatedHotspot.x;
-                data.y = rotatedHotspot.y;
-                data.width = rotatedHotspot.width;
-                data.height = rotatedHotspot.height;
+            // Adjust for rotation
+            rotation = self.adjustmentRotateGet();
+            if (rotation === -90 ) {
+
+                // Adjust the hotspot data for 90 rotation (rotating to the left)
+
+                widthAdjusted = heightOriginal;
+                heightAdjusted = widthOriginal;
+
+                data = {
+                    width: data.height,
+                    height: data.width,
+                    x: data.y,
+                    y: widthOriginal - data.x - data.width
+                };
+                
+            } else if (rotation === 90 ) {
+                
+                // Adjust the hotspot data for 90 rotation (rotating to the right)
+                
+                widthAdjusted = heightOriginal;
+                heightAdjusted = widthOriginal;
+                
+                data = {
+                    width: data.height,
+                    height: data.width,
+                    x: heightOriginal - data.y - data.height,
+                    y: data.x
+                };
             }
 
             // Check if we need to flip the hotspots to match the flipH or flipV of the image
             if (self.adjustmentFlipHGet()) {
-                originalWidth = self.dom.$hotspotImage.width() / scale;
-                data.x = originalWidth - data.x - data.width;
+
+                if (rotation === 90 || rotation === -90) {
+                    data.y = heightAdjusted - data.y - data.height;
+                } else {
+                    data.x = widthAdjusted - data.x - data.width;
+                }
             }
 
             if (self.adjustmentFlipVGet()) {
-                originalHeight = self.dom.$hotspotImage.height() / scale;
-                data.y = originalHeight - data.y - data.height;
+
+                if (rotation === 90 || rotation === -90) {
+                    data.x = widthAdjusted - data.x - data.width;
+                } else {
+                    data.y = heightAdjusted - data.y - data.height;
+                }
             }
 
-            data.x = data.x * scale;
-            data.y = data.y * scale;
-            data.width = data.width * scale;
-            data.height = data.height * scale;
+            // Calculate percentages
+            data.widthPercent = (data.width / widthAdjusted) * 100;
+            data.heightPercent = (data.height / heightAdjusted) * 100;
+            data.xPercent = (data.x / widthAdjusted) * 100;
+            data.yPercent = (data.y / heightAdjusted) * 100;
 
             return data;
         },
@@ -2841,62 +2879,97 @@ define([
         
         /**
          * Saves the hotspot overlay information, adjusting based on image rotation and so forth.
+         * This is meant to be used after the user adjusts the hotspot position.
+         *
+         * Note: this function will onlhy work if self.dom.$hotspotImage is visible,
+         * because if it is hidden the browser will not return the correct width;
+         *
+         * @param Element input
+         * The DOM element that contains the hotspot inputs.
+         *
+         * @param Object data The position and size of the hotspot box.
+         * @param Object data.x The x position in pixels for the top left corner.
+         * @param Object data.y The y position in pixels for the top left corner.
+         * @param Object data.width The width in pixels.
+         * @param Object data.height The height in pixels.
          */
-        hotspotInputSet: function(input, x, y, width, height) {
+        hotspotInputSet: function(input, data) {
 
-            var $input, scale, self, rotation, originalHeight, originalWidth;
+            var heightAdjusted, heightOnPage, heightOriginal, $input, scaleOnPage, self, rotation, widthAdjusted, widthOnPage, widthOriginal;
 
             self = this;
 
             $input = $(input);
+
+            // Get the dimensions for the image that is on the page.
+            // The hotspot data is relative to this image
+            widthOnPage = self.dom.$hotspotImage.width();
+            heightOnPage = self.dom.$hotspotImage.height();
             
-            scale = self.scale;
+            // Get the dimensions of the original image on the backend.
+            // Our final hotspot coordinates must be relative to this image.
+            widthOriginal = self.dom.imageCloneWidth / self.scale;
+            heightOriginal = self.dom.imageCloneHeight / self.scale;
+
+            // In case we need to rotate and flip at the same time,
+            // keep track of the width and height after rotation
+            widthAdjusted = widthOriginal;
+            heightAdjusted = heightOriginal;
+
+            
+            // Calculate how much our page image differs from the original image
             rotation = self.adjustmentRotateGet();
-
-            if (scale < 1) {
-                if (rotation === 0) {
-                    scale = (self.dom.$hotspotImage.width() / 1000) * scale;
-                } else if (rotation === 90 || rotation === -90) {
-                    scale = (self.dom.$hotspotImage.height() / 1000) * scale;
-                }
+            if (rotation === 90 || rotation === -90) {
+                scaleOnPage = widthOnPage / heightOriginal;
+            } else {
+                scaleOnPage = widthOnPage / widthOriginal;
             }
-            scale = 1 / scale;
 
-            x = x * scale;
-            y = y * scale;
+            // Convert the pixels from page scale to original scale
+            $.each(data, function(name, value) {
+                data[name] = value / scaleOnPage;
+            });
 
-            if (rotation === 0) {
-                width = width * scale;
-                height = height * scale;
-            } else if (rotation === 90 || rotation === -90) {
-                height = width * scale;
-                width = height * scale;
-            }
+            // If the image is rotated we need to change the coordinates so they
+            // represent the unrotated state
             
-            if (rotation === '90') {
-                originalWidth = self.dom.$hotspotImage.width() / scale;
-                y = originalWidth - x + height;
-                x = y * scale;
-            } else if (rotation === '-90') {
-                originalWidth = self.dom.$hotspotImage.height() * scale;
-                x = originalWidth - (y * scale) - width;
-                y = x * scale;
+            if (rotation === 90) {
+                // Rotated to the right
+                widthAdjusted = heightOriginal;
+                heightAdjusted = widthOriginal;
+                data = {
+                    width: data.height,
+                    height: data.width,
+                    x: data.y,
+                    y: heightOriginal - data.x - data.width
+                };
+            } else if (rotation === -90) {
+                // Rotated to the left
+                widthAdjusted = heightOriginal;
+                heightAdjusted = widthOriginal;
+                data = {
+                    width: data.height,
+                    height: data.width,
+                    x: widthOriginal - data.y - data.height,
+                    y: data.x
+                };
             }
 
+            // Check if we need to flip the hotspots to match the flipH or flipV of the image
             if (self.adjustmentFlipHGet()) {
-                originalWidth = self.dom.$hotspotImage.width() * scale;
-                x = originalWidth - x - width;
+                data.x = widthAdjusted - data.x - data.width;
             }
 
             if (self.adjustmentFlipVGet()) {
-                originalHeight = self.dom.$hotspotImage.height() * scale;
-                y = originalHeight - y - height;
+                data.y = heightAdjusted - data.y - data.height;
             }
 
-            $input.find(':input[name$="x"]').val( parseInt(x) );
-            $input.find(':input[name$="y"]').val( parseInt(y) );
-            $input.find(':input[name$="width"]').val( parseInt(width) );
-            $input.find(':input[name$="height"]').val( parseInt(height) );
+            // Write the values back to the inputs
+            $input.find(':input[name$="x"]').val( parseInt(data.x) );
+            $input.find(':input[name$="y"]').val( parseInt(data.y) );
+            $input.find(':input[name$="width"]').val( parseInt(data.width) );
+            $input.find(':input[name$="height"]').val( parseInt(data.height) );
+
         },
 
 
@@ -2905,17 +2978,17 @@ define([
          */
         hotspotInputSetDefaults: function() {
             
-            var defaultX, defaultY, defaultWidth, defaultHeight, height, self, scale, width;
+            var defaultX, defaultY, defaultWidth, defaultHeight, height, self, width;
 
             self = this;
 
-            scale = self.scale;
-            width = self.dom.$hotspotImage.width() / scale;
-            height = self.dom.$hotspotImage.height() / scale;
+            // Get the width of the original image
+            width = self.dom.imageCloneWidth / self.scale;
+            height = self.dom.imageCloneHeight / self.scale;
                 
             // If a blank hotspot is added, set up a default size and position in the middle of the image
-            defaultX = parseInt(width / 2);
-            defaultY = parseInt(height / 2);
+            defaultX = parseInt(width / 4);
+            defaultY = parseInt(height / 4);
             defaultWidth = parseInt(width / 2);
             defaultHeight = parseInt(height  / 2);
 
@@ -2944,7 +3017,7 @@ define([
         /**
          * Add a single hotspot overlay to the image.
          */
-        hotspotOverlayAdd: function(input, left, top, width, height) {
+        hotspotOverlayAdd: function(input, data) {
 
             var $hotspotOverlay, $hotspotOverlayBox, $input, self;
 
@@ -2955,11 +3028,11 @@ define([
             $hotspotOverlay = $('<div/>', {
                 'class': 'imageEditor-hotSpotOverlay',
                 'css': {
-                    'height': height + 'px',
-                    'left': left  + 'px',
+                    'height': data.heightPercent + '%',
+                    'left': data.xPercent  + '%',
                     'position': 'absolute',
-                    'top': top + 'px',
-                    'width': width + 'px',
+                    'top': data.yPercent + '%',
+                    'width': data.widthPercent + '%',
                     'z-index': 1
                 },
                 //'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val(),
@@ -2971,18 +3044,18 @@ define([
                     $input.addClass("state-focus");
                     $hotspotOverlay.addClass("selected");
                 }
-            }).appendTo(self.dom.tabs.hotspots);
+            }).appendTo(self.dom.$hotspotImageWrapper);
             
             // Save the input value to the overlay so it can be used later
-            // to mark the input to be removed when revoving the overlay
+            // to mark the input to be removed when removing the overlay
             $hotspotOverlay.data('hotspotInput', $input);
 
             $hotspotOverlayBox = $('<div/>', {
                 'class': 'imageEditor-hotSpotOverlayBox',
                 'css': {
-                    'height': height + 'px',
+                    'height': '100%',
                     'position': 'absolute',
-                    'width': width + 'px',
+                    'width': '100%',
                     'z-index': 1
                 }
             }).appendTo($hotspotOverlay);
@@ -3013,7 +3086,7 @@ define([
             }).appendTo($hotspotOverlay);
 
             // Check if we are a single point or a region
-            if (isNaN(width)) {
+            if (isNaN(data.width)) {
                 
                 // This hotspot is a single point so make the box 10x10
                 
@@ -3152,56 +3225,6 @@ define([
             var self;
             self = this;
             self.$element.find('.imageEditor-hotSpotOverlay').remove();
-        },
-
-
-        /**
-         * Rotate the hotspot coordinates
-         *
-         * @param Number angle
-         * @param Number x
-         * @param Number y
-         * @param Number width
-         * @param Number height
-         *
-         * @returns Object
-         * Object with x/y/width/height parameters adjusted for the rotation.
-         */
-        hotspotRotate: function(angle, x, y, width, height) {
-            
-            var originalHeight, originalWidth, rotatedHotspot, scale, self;
-
-            self = this;
-
-            rotatedHotspot = {};
-            
-            //angle = parseInt(angle);
-
-            scale = self.scale;
-            
-            if (scale < 1) {
-                scale = (self.getCanvasHeight() / 1000) * scale;
-            }
-            
-            if (angle === 90 ) {
-                
-                originalHeight = self.dom.$hotspotImage.width() / scale;
-
-                rotatedHotspot.x = originalHeight - y - width;
-                rotatedHotspot.y = x;
-                rotatedHotspot.width = height;
-                rotatedHotspot.height = width;
-                
-            } else if (angle === -90 ) {
-                originalWidth = self.dom.$hotspotImage.height() / scale;
-
-                rotatedHotspot.x = y;
-                rotatedHotspot.y = originalWidth - x - height;
-                rotatedHotspot.width = height;
-                rotatedHotspot.height = width;
-            }
-            
-            return rotatedHotspot;
         },
 
 
@@ -3361,7 +3384,12 @@ define([
 
                     position = $overlay.position();
 
-                    self.hotspotInputSet($input, position.left, position.top, $overlayBox.width(), $overlayBox.height());
+                    self.hotspotInputSet($input, {
+                        x: position.left,
+                        y: position.top,
+                        width: $overlayBox.width(),
+                        height: $overlayBox.height()
+                    });
                     
                 });
 
