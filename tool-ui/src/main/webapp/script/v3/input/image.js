@@ -108,17 +108,18 @@ define([
             }
 
             // Get other stuff from the DOM
-            self.initDOM();
+            self.initDOM().done(function() {
             
-            self.tabsInit();
+                self.tabsInit();
 
-            self.focusInit();
-            self.editInit();
-            self.sizesInit();
-            self.textInit();
-            self.hotspotInit();
+                self.focusInit();
+                self.editInit();
+                self.sizesInit();
+                self.textInit();
+                self.hotspotInit();
 
-            self.tabsReady();
+                self.tabsReady();
+            });
         },
 
         
@@ -139,6 +140,9 @@ define([
 
             dom.$form = $el.closest('form');
 
+            // If we are in a popup we might not actually be in the main page body
+            dom.$body = $el.closest('body');
+
             // Find the image. Note this will be removed from the DOM and
             // replaced by an adjusted image.
             dom.$image = $el.find('.imageEditor-image img');
@@ -148,14 +152,6 @@ define([
             dom.$imageClone = dom.$image.clone();
             dom.imageClone = dom.$imageClone[0];
 
-            // Temporarily add the raw image to the end of the page
-            // so we can get the actual width and heighth of the image.
-            // Browser requires the image to be in the dom to get the width and height
-            self.dom.$imageClone.appendTo(document.body);
-            self.dom.imageCloneWidth = self.dom.$imageClone.width();
-            self.dom.imageCloneHeight = self.dom.$imageClone.height();
-            self.dom.$imageClone.remove();
-            
             // Get the data-scale attribute to use for hotspot
             scale = dom.$image.attr('data-scale');
             if (scale === undefined || scale === '') {
@@ -172,9 +168,15 @@ define([
             
             // The data-name attribute is used to create new hidden inputs when needed
             self.dataName = $el.closest('.inputContainer').attr('data-name');
+
+            // Return a promise that can be used to run more code after the image size is determined
+            return self.getImageSize(dom.$image).done(function(width, height) {
+                self.dom.imageCloneWidth = width;
+                self.dom.imageCloneHeight = height;
+            });
         },
 
-
+        
         //--------------------------------------------------
         // TABS
         //--------------------------------------------------
@@ -231,6 +233,9 @@ define([
             
             // Finally, add "tabber" class to the container to trigger the tab plugin to run
             self.$element.addClass('tabbed');
+
+            // Immediately run the tabbed plugin because it doesn't seem to run when in a popup
+            self.$element.tabbed();
         },
 
         
@@ -1287,7 +1292,7 @@ define([
             
                 // Temporarily add the original image to the document because the image
                 // must be in the DOM for us to retrieve the size
-                self.dom.$imageClone.appendTo(document.body);
+                self.dom.$imageClone.appendTo(self.dom.$body);
 
                 // Get the current crop dimensions for this group
                 bounds = self.sizesGetSizeBounds(self.dom.$imageClone, sizeInfoFirst);
@@ -2450,8 +2455,13 @@ define([
             
             var repeatResizeTextOverlayFont = function() {
                 
-                var $body = $( $textOverlay.find('.rte-container iframe')[0].contentDocument.body );
-                if ($body.is('.rte-loaded')) {
+                var contentDocument, iframe, loaded;
+
+                iframe = $textOverlay.find('.rte-container iframe')[0] || {};
+                contentDocument = iframe.contentDocument || {};
+                loaded = $(contentDocument.body).is('.rte-loaded');
+                
+                if (loaded) {
                     self.textOverlaySetFont(groupName, textInfoKey);
                 } else {
                     // The RTE isn't loaded.
@@ -3570,6 +3580,72 @@ define([
             } else {
                 return $(oldCanvas).clone();
             }
+        },
+
+        
+        /**
+         * Get the natural width and height of an image.
+         *
+         * @returns Promise
+         * A promise that can be used to continue running after the image size is retrieved.
+         *
+         * @example
+         * self.getImageSize(myimage).done(function(width, height) {
+         *   alert('Image width is ' + width);
+         * });
+         */
+        getImageSize: function(imageElement) {
+
+            var deferred, height, $img, width;
+
+            // Create a deferred object that we can return.
+            // We will resolve it after we figure out the width and height.
+            deferred = $.Deferred();
+
+            // Try to get the naturalWidth and naturalHeight properties
+            // (if the image is already loaded and those properties are supported)
+            $img = $(imageElement);
+            width = $img.prop('naturalWidth');
+            height = $img.prop('naturalHeight');
+
+            if (width || height) {
+                
+                // Resolve the deferred object to say we are ready
+                deferred.resolve(width, height);
+                
+            } else {
+
+                // We couldn't get the naturalWidth or naturalHeight
+                // Maybe image has not finished loading,
+                // or maybe those properties are not supported.
+                
+                // Create a new image with a load event
+                $('<img/>').on('load', function() {
+                    
+                    // After the image finishes loading try to get the width and height again
+                    var height, $img, width;
+                    $img = $(this);
+                    width = $img.prop('naturalWidth') || $img.prop('width') || 0;
+                    height = $img.prop('naturalHeight') || $img.prop('height') || 0;
+                    deferred.resolve(width, height);
+                    
+                }).on('error', function() {
+
+                    // If there was some kind of problem loading the image,
+                    // resolve the deferred so other code can continue
+                    deferred.resolve(0,0);
+                    
+                }).attr('src', $img.attr('src'));
+
+                // Just in case something goes wrong like the image taking too long,
+                // resolve the deferred, so the other code can continue
+                setTimeout(function(){
+                    deferred.resolve(0,0);
+                }, 10000);
+            }
+
+            // Return a promise that can be used to continue running other code
+            return deferred.promise();
         }
 
     }; // END imageEditorUtilty object
