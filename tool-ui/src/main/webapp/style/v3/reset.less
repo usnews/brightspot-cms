@@ -1,10 +1,12 @@
-* {
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
   font-family: inherit;
   font-size: 100%;
   font-style: inherit;
   font-weight: inherit;
   text-decoration: inherit;
-  vertical-align: inherit;
 
   &:focus {
     outline-style: none;
@@ -80,7 +82,7 @@ h1 {
 
   font-size: 120%;
   line-height: (@length-lineHeight * 1.2);
-  margin: 0 0 10px 0;
+  margin: 0 0 20px 0;
   padding: 0;
 
   select {
@@ -101,8 +103,12 @@ h2 {
 
   font-family: @fontFamily-label;
   font-weight: 700;
-  margin: 0 0 10px 0;
+  margin: 0 0 20px 0;
   padding: 0;
+}
+
+html {
+  box-sizing: border-box;
 }
 
 hr {
@@ -176,7 +182,7 @@ select {
   word-wrap: normal;
 
   &[multiple] {
-    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -253,7 +259,8 @@ table {
 }
 
 textarea {
-  .input;
+  &:extend(.input all);
+
   display: block;
   height: 4em;
   resize: none;

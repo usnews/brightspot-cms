@@ -3,7 +3,7 @@
   margin: 0 0 20px 0;
   padding: 0;
 
-  > :last-child {
+  > .block:last-child {
     margin-bottom: 0;
   }
 }
@@ -31,105 +31,7 @@
   }
 }
 
-.button-color(@color) {
-  .background-flat(@color);
-
-  border-color: @color;
-  font-weight: 600;
-  font-size: 15px;
-
-  &:hover {
-    background-color: darken(@color, 5%);
-  }
-}
-
-.button {
-  @-borderWidth: 1px;
-  @-lineHeight: 20px;
-  @-paddingTB: @length-inputHeight - @-lineHeight - (@-borderWidth * 2);
-  @-paddingTop: floor(@-paddingTB / 2);
-
-  .background-flat(white);
-  border: @-borderWidth solid @color-border;
-  border-radius: 2px;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: inline-block;
-  font-weight: 700;
-  max-width: 100%;
-  min-height: @length-inputHeight;
-  line-height: @-lineHeight;
-  margin: 0;
-  padding: @-paddingTop 20px (@-paddingTB - @-paddingTop) 20px;
-  text-align: center;
-  transition: background-color @time-fast;
-  vertical-align: middle;
-
-  &:hover {
-    background-color: darken(white, 5%);
-    text-decoration: none;
-    transition: none;
-  }
-}
-
-.button-extraLarge {
-  font-size: 19.5px;
-  height: 39px;
-  line-height: 29px;
-}
-
-.button-group {
-  &:extend(.inputLike);
-
-  display: inline-block;
-  list-style-type: none;
-  margin-bottom: 5px;
-  margin-left: 0;
-  overflow: hidden;
-  //extend inputLike is overriding padding?
-  padding: 0 !important;
-  text-align: right;
-
-  li {
-    float: left;
-    height: @length-inputHeight;
-    line-height: @length-inputHeight;
-    padding: 0 10px;
-    white-space: nowrap;
-    &:not(:last-child) {
-      border-right: 1px solid @color-border;
-    }
-    &.selected {
-      background: @color-separator;
-      a {
-        font-weight: bold;
-        color: black;
-      }
-    }
-  }
-}
-
-.actions,
-.buttons {
-  border-top: 1px solid fade(black, 20%);
-  margin: 0 0 20px 0;
-  overflow: hidden;
-  padding: 20px 0 0 0;
-
-  .action,
-  .button,
-  .link,
-  button {
-    margin-right: 10px;
-    white-space: nowrap;
-  }
-
-  .action-pullRight {
-    float: right;
-    margin-left: 10px;
-    margin-right: 0;
-  }
-}
+@import 'form';
 
 .calendar {
   &.calendar-week {
@@ -331,6 +233,10 @@ figure,
     text-overflow: ellipsis;
     width: 100%;
     white-space: nowrap;
+
+    input[type='checkbox'] {
+      margin-right: 5px;
+    }
   }
 
   &:hover {
@@ -346,15 +252,12 @@ figure,
     display: inline-block;
     font-family: 'FontAwesome';
     -webkit-font-smoothing: antialiased;
-    font-size: 14px;
+    font-size: @length-iconSize;
     font-weight: normal;
-    padding-right: 0.25em;
+    margin-right: 2px;
     text-align: center;
-    width: 14px;
-
-    &:hover {
-      text-decoration: none !important;
-    }
+    text-decoration: none !important;
+    width: @length-lineHeight;
   }
 }
 
@@ -616,415 +519,29 @@ figure,
 .icon-tumblr { &:before { content: '\f173'; } }
 .icon-user-md { &:before { content: '\f200'; } }
 
-.inputLike {
-  @-borderWidth: 1px;
-  @-paddingTB: @length-inputHeight - @length-lineHeight - (@-borderWidth * 2);
-  @-paddingTop: floor(@-paddingTB / 2);
-
-  .background-flat(white);
-  border-color: @color-border;
-  border-radius: 2px;
-  border-style: solid;
-  border-width: @-borderWidth;
-  box-sizing: border-box;
-  min-height: @length-inputHeight;
-  padding: @-paddingTop 6px (@-paddingTB - @-paddingTop) 6px;
-  transition: border-color @time-fast, box-shadow @time-fast;
-
-  &:hover,
-  &.state-hover {
-    background-color: white;
-  }
-
-  &:focus,
-  &.state-focus {
-    background-color: mix(@color-focus, white, 10%);
-    border-color: mix(@color-focus, white, 50%);
-    transition: none;
-
-    .noToolUser & {
-      background-color: white;
-    }
-  }
-
-  &[disabled],
-  &.state-disabled {
-    border-color: @color-placeholder;
-  }
-}
-
-.input {
-  &:extend(.inputLike all);
-
-  display: inline-block;
-  line-height: @length-lineHeight;
-  margin: 0;
-  vertical-align: middle;
-  white-space: pre-wrap;
-}
-
-.inputContainer {
-  margin: 0 0 10px 0;
-  min-height: 30px;
-  overflow: hidden;
-  position: relative;
-
-  &:before {
-    background-color: @color-heading;
-    border-radius: 2px;
-    bottom: 0;
-    content: '';
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 140px;
-
-    .noToolUser & {
-      display: none;
-    }
-  }
-
-  .message {
-    margin-bottom: 5px;
-  }
-
-  .message-error {
-    margin-left: 145px;
-
-    .objectInputs-small & {
-      margin-left: 0;
-    }
-  }
-
-  &.state-changed {
-    &:before, & > .inputLabel {
-      .background-flat(@color-change);
-    }
-  }
-
-  &.state-focus {
-    &:before, & > .inputLabel {
-      .background-flat(@color-focus);
-    }
-  }
-
-  // Soft validation based on suggested sizes.
-  &[data-wc-message]:after {
-    border-radius: 3px;
-    bottom: 6px;
-    position: absolute;
-    right: 6px;
-  }
-
-  > h2 {
-    background-color: white;
-    margin: 0 !important;
-    padding: 20px 0 10px 0;
-    position: relative;
-  }
-
-  .objectInputs-small &:before {
-    display: none;
-  }
-}
-
-.inputLabelLike {
-  .background-flat(@color-heading);
-  border-radius: 2px;
-  box-sizing: border-box;
-  color: darken(white, 70%);
-  min-height: @length-inputHeight;
-  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
-}
-
-.inputLabel {
-  &:extend(.inputLabelLike all);
-
-  float: left;
-  position: relative;
-  width: @length-inputLabel-width;
-
-  > label {
-    display: block;
-    height: 100%;
-    width: 100%;
-  }
-
-  .objectInputs-small & {
-    display: block;
-    float: none;
-    margin: 0 0 5px 0;
-    padding: 5px;
-    width: auto;
-  }
-}
-
-.inputContainer-error {
-  margin-left: 145px;
-}
-
-.inputContentEditBulkOperation {
-  margin-left: 140px;
-  padding: 2px 2px 2px 6px;
-
-  .objectInputs-small & {
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding-left: 2px;
-  }
-}
-
-.inputSmall {
-  margin-left: (@length-inputLabel-width + @length-inputLabel-marginRight);
-  position: relative;
-
-  > input[type='password'],
-  > input[type='text'],
-  > textarea {
-    display: block;
-    width: 100%;
-  }
-
-  .objectInputs-small & {
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding-left: 2px;
-  }
-}
-
-.inputLargeLike {
-  padding: 10px 0 10px 41px;
-}
-
-.inputLarge {
-  &:extend(.inputLargeLike all);
-
-  background-color: white;
-  clear: left;
-  position: relative;
-  z-index: 0;
-
-  &:before {
-    bottom: 20px;
-    border-color: @color-heading;
-    border-style: solid;
-    border-width: 0 0 1px 1px;
-    border-bottom-left-radius: 2px;
-    content: '';
-    left: 20px;
-    position: absolute;
-    width: 7.5px;
-    top: 0;
-  }
-
-  .inputContainer.state-changed > &:before {
-    border-color: @color-change;
-  }
-
-  .inputContainer.state-focus > &:before {
-    border-color: @color-focus;
-  }
-}
-
-.inputLayout-wrapper {
-  background-color: @color-heading;
-  border-radius: 2px;
-  margin-bottom: 10px;
-  width: 300px;
-}
-
-.inputLayout-constrain {
-  position: relative;
-}
-
-.inputLayout-container {
-  bottom: 5px;
-  left: 5px;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-}
-
-.inputLayout-element {
-  position: absolute;
-}
-
-.inputLayout-label {
-  .background-flat(@color-separator);
-  border-radius: 2px;
-  bottom: 5px;
-  cursor: pointer;
-  left: 5px;
-  overflow: hidden;
-  padding: 5px;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-
-  &.inputLayout-label-placeholder {
-    .background-striped(@color-separator);
-    cursor: default;
-  }
-
-  &.inputLayout-label-selected {
-    .background-flat(@color-focus);
-  }
-}
-
-.inputNote {
-  display: block;
-  margin-bottom: 5px;
-  margin-left: (@length-inputLabel-width + @length-inputLabel-marginRight);
-
-  .objectInputs-small & {
-    margin-left: 2px;
-  }
-}
-
-.inputLabel > .icon-beaker {
-  float: right;
-  color: fade(@color-text, 25%);
-
-  &:hover {
-    color: fade(@color-text, 40%);
-  }
-}
-
-.inputVariationControls {
-  line-height: 26px;
-  margin-left: 146px;
-  position: relative;
-
-  select {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-}
-
-.inputVariation {
-  margin-left: 146px;
-  padding-right: 55px;
-  position: relative;
-}
-
-.inputVariationLabel {
-  .icon;
-  .icon-beaker;
-
-  left: 0;
-  line-height: 26px;
-  position: absolute;
-  top: 0;
-
-  input[type='range'] {
-    margin-left: 5px;
-    vertical-align: middle;
-    width: 80px;
-  }
-
-  output {
-    font-size: 10px;
-    margin-left: 2px;
-    vertical-align: middle;
-
-    &:after {
-      content: '%';
-    }
-  }
-}
-
-.inputVariationConversion {
-  .icon;
-  .icon-ok;
-
-  line-height: 26px;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.inputContainer-listLayoutItemContainer {
-  height: 100%;
-  overflow: hidden;
-
-  &.inputContainer-listLayoutItemContainer-embedded {
-    position: relative;
-
-    > .inputContainer-listLayoutItem > .inputLarge {
-      bottom: 5px;
-      left: 5px;
-      overflow: auto;
-      position: absolute;
-      right: 5px;
-      top: 36px;
-    }
-  }
-
-  &.inputContainer-listLayoutItemContainer-embedded-expanded {
-    box-shadow: 0 0 20px fade(@color-text, 50%);
-    position: absolute;
-  }
-}
-
-.inputContainer-listLayoutItemContainer_expand {
-  .icon;
-  .icon-resize-full;
-
-  color: @color-note;
-  cursor: pointer;
-  position: absolute;
-  right: 0;
-  top: 8px;
-
-  &:hover {
-    color: @color-text;
-  }
-
-  .inputContainer-listLayoutItemContainer-embedded-expanded & {
-    .icon-resize-small;
-  }
-}
-
-.inputContainer-listLayoutItem {
-  .background-flat(@color-alt);
-  margin-bottom: -30000px;
-  padding: 5px 5px 30005px 5px;
-
-  .objectId,
-  .objectId-select {
-    width: 100%;
-  }
-
-  > .inputSmall {
-    margin: 0;
-    padding: 0 0 5px 0;
-  }
-
-  > .inputLarge {
-    padding: 5px;
-  }
-}
-
-.link {
-  background-color: transparent;
+button.link {
+  background: transparent;
   border-radius: 0;
   border-style: none;
-  box-shadow: none;
-  cursor: pointer;
   display: inline;
-  font-family: inherit;
-  font-size: 100%;
-  font-weight: normal;
+  font-weight: inherit;
   height: auto;
   line-height: inherit;
   margin: 0;
   min-height: 0;
   padding: 0;
-  text-transform: inherit;
+  vertical-align: inherit;
 
+  &,
   &:hover {
     background-color: transparent;
+  }
+}
+
+.link {
+  cursor: pointer;
+
+  &:hover {
     text-decoration: underline;
   }
 
@@ -1138,7 +655,7 @@ table.links.table-striped {
     }
 
     &.selected {
-      .background-flat(@color-select);
+      .background-flat(@color-focus);
 
       .link {
         color: white;
@@ -1169,6 +686,9 @@ table.links.table-striped {
 
 .message,
 .message-info {
+  @-message-padding: 10px;
+  @-message-paddingLeft: @-message-padding + @length-lineHeight + 5px;
+
   .background-flat(@color-heading);
   .icon;
   .icon-info-sign;
@@ -1177,7 +697,7 @@ table.links.table-striped {
   border-radius: 2px;
   margin-bottom: 20px;
   min-height: 20px;
-  padding: 10px 10px 10px 33px;
+  padding: @-message-padding @-message-padding @-message-padding @-message-paddingLeft;
   position: relative;
 
   > *:last-child {
@@ -1187,8 +707,8 @@ table.links.table-striped {
   .actions,
   .buttons {
     background: transparent;
-    margin: 0 0 0 -23px;
-    padding: 0;
+    margin: @-message-padding 0 0 (@-message-padding - @-message-paddingLeft);
+    padding: @-message-padding 0 0 0;
 
     .action,
     .button,
@@ -1246,90 +766,7 @@ table.links.table-striped {
   }
 }
 
-.pagination {
-  &:extend(.inputLike all);
-
-  display: inline-block;
-  list-style-type: none;
-  margin-bottom: 5px;
-  margin-left: 0;
-  overflow: hidden;
-  padding: 0;
-  text-align: right;
-
-  > li {
-    .paginationItem;
-  }
-}
-
-.paginationItem {
-  float: left;
-  height: @length-inputHeight;
-  line-height: @length-inputHeight;
-  padding: 0 10px;
-  white-space: nowrap;
-
-  &:not(:last-child) {
-    border-right: 1px solid darken(white, 20%);
-  }
-
-  .select {
-    border: none;
-    margin-right: -5px;
-    padding-bottom: 0;
-    padding-left: 0;
-    padding-top: 0;
-  }
-}
-
-.pagination-first,
-.paginationFirst,
-.pagination-previous,
-.paginationPrevious,
-.pagination-next,
-.paginationNext,
-.pagination-last,
-.paginationLast {
-  padding: 0;
-  text-align: center;
-  width: 25px;
-}
-
-.pagination-first,
-.paginationFirst {
-  .link {
-    .icon;
-    .icon-double-angle-left;
-    .icon-only;
-  }
-}
-
-.pagination-previous,
-.paginationPrevious {
-  .link {
-    .icon;
-    .icon-chevron-left;
-    .icon-only;
-  }
-}
-
-.pagination-next,
-.paginationNext {
-  .link {
-    .icon;
-    .icon-chevron-right;
-    .icon-only;
-  }
-}
-
-.pagination-last,
-.paginationLast {
-  .link {
-    .icon;
-    .icon-double-angle-right;
-    .icon-only;
-  }
-}
+@import 'pagination';
 
 .piped {
   list-style-type: none;
@@ -1347,8 +784,8 @@ table.links.table-striped {
   &:not(:last-child):after {
     border-right: 1px solid @color-separator;
     content: '';
-    margin-right: 10px;
-    padding-right: 10px;
+    margin-right: 0.7em;
+    padding-right: 0.7em;
   }
 
   &.selected {
@@ -1387,96 +824,6 @@ table.links.table-striped {
   z-index: -1;
 }
 
-.searchInput {
-  display: inline-block;
-  position: relative;
-  white-space: nowrap;
-
-  > label {
-    color: @color-note;
-    left: 0.7em;
-    line-height: 1;
-    margin-top: -0.5em;
-    padding: 0 0 0 2px;
-    position: absolute;
-    top: 50%;
-  }
-
-  > input[type=text] {
-    padding-left: 0.7em;
-    padding-right: 24px;
-  }
-
-  > input[type=submit] {
-    display: none;
-  }
-
-  > button {
-    .icon;
-    .icon-search;
-    .icon-only;
-
-    background: transparent;
-    border-style: none;
-    height: 100%;
-    padding: 0;
-    position: absolute;
-    right: 0.7em;
-    top: 0;
-    width: 1em;
-
-    &:hover {
-      background: transparent;
-    }
-  }
-}
-
-@select-markerMargin: 2px;
-@select-markerSize: (@length-fontSize + 2 * (@size-input-padding + @length-inputBorderWidth - @select-markerMargin));
-
-.select {
-  &:extend(.input all);
-
-  -webkit-appearance: none;
-  background-image: url(icon/select-arrow.png);
-  background-position: right -2px;
-  background-repeat: no-repeat;
-  cursor: pointer;
-  display: inline-block;
-  height: (@length-lineHeight + 2 * (@size-input-padding + @length-inputBorderWidth));
-  max-width: 100%;
-  padding-right: 26px;
-  position: relative;
-  user-select: none;
-
-  img {
-    display: block;
-    max-width: 100%;
-  }
-
-  &:hover {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  &.state-disabled:before {
-    display: none;
-  }
-
-  &.toBeRemoved {
-    color: @color-remove;
-    text-decoration: line-through;
-
-    img {
-      opacity: 0.5;
-    }
-
-    &:before {
-      visibility: hidden !important;
-    }
-  }
-}
-
 .small {
   color: @color-note;
   font-size: 90%;
@@ -1495,6 +842,10 @@ table.links.table-striped {
   margin-bottom: 20px;
   margin-left: 0;
   position: relative;
+
+  .inputLarge & {
+    margin-bottom: 10px;
+  }
 
   &:before {
     background: @-borderColor;
@@ -1591,14 +942,14 @@ table.links.table-striped {
 .tabs-scroller-toLeft {
   .icon-chevron-left;
 
-  background: linear-gradient(to right, white 0, white 20px, transparent 50px);
+  background-image: linear-gradient(to right, white 0, white 20px, fade(white, 0%) 50px);
   left: 0;
 }
 
 .tabs-scroller-toRight {
   .icon-chevron-right;
 
-  background: linear-gradient(to left, white 0, white 20px, transparent 50px);
+  background-image: linear-gradient(to left, white 0, white 20px, fade(white, 0%) 50px);
   right: 0;
   text-align: right;
 }
@@ -1687,53 +1038,7 @@ table.links.table-striped {
   vertical-align: top;
 }
 
-.widget {
-  background-color: white;
-  border: 1px solid white;
-  border-radius: 2px;
-  box-shadow: 0 2px 0 fade(black, 10%);
-  margin-bottom: 10px;
-  padding: 20px;
-  position: relative;
-
-  > h1 {
-    .widgetHeading;
-  }
-
-  > :last-child {
-    margin-bottom: 0;
-  }
-}
-
-.widgetHeading {
-  @-length-height: @length-lineHeight * 2;
-
-  background: @color-heading;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  color: @color-text;
-  font-family: @fontFamily-label;
-  font-size: 100%;
-  font-weight: 700;
-  height: @-length-height;
-  line-height: @-length-height;
-  margin: -20px -20px 20px -20px;
-  overflow: hidden;
-  padding: 0 20px;
-  text-shadow: rgba(255, 255, 255, 1) 1px 1px 1px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  &:before {
-    display: none !important;
-  }
-}
-
-.widgetControls {
-  position: absolute;
-  right: 10px;
-  top: 6px;
-}
+@import 'widget';
 
 // Standard CMS objects.
 .icon-object { .icon-file; }

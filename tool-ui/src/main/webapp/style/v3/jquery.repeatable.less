@@ -66,10 +66,6 @@
         top: ((@length-inputHeight - @length-lineHeight) / 2);
       }
 
-      .inputContainer:first-child {
-        margin-top: 6px;
-      }
-
       &.state-focus {
         border-color: @color-focus;
 
@@ -83,6 +79,7 @@
 
         > .repeatableLabel {
           border-bottom-style: none;
+          margin-bottom: 0;
 
           &:before {
             content: '\25ba';
@@ -163,8 +160,7 @@
         float: left;
         margin-right: 10px;
         width: 210px;
-        padding:4px;
-        padding-bottom:22px;
+        padding: 4px 4px 22px 4px;
         border:1px solid #ccc;
         border-radius:2px;
         min-height:170px;
@@ -279,17 +275,15 @@
           content: counter(@preview-counter);
           position:absolute;
           top:10px;
-          right:10px;
-          padding:4px;
+          left:10px;
           background:rgba(64,64,64,0.7);
           border:2px solid white;
           border-radius:50%;
           color:white;
-          min-width:12px;
+          height: 20px;
+          width:20px;
           text-align:center;
-          line-height:1;
-          font-size:12px;
-          font-weight:bold;
+          line-height:16px;
         }
 
       }
@@ -325,51 +319,6 @@
         text-decoration: none;
         color:black;
     }
-}
-
-.carousel-target {
-  background:#eee;
-  position:relative;
-  display:table;
-  width:100%;
-  margin-top:-9px;
-}
-
-.carousel-target-items {
-  display:table-cell;
-  padding:1em;
-}
-
-@carousel-target-nav-width: 30px;
-@carousel-target-nav-background-color-active: @carousel-nav-background-color;
-@carousel-target-nav-background-color-inactive: #ddd;
-
-.carousel-target-nav {
-  .icon;
-  display:table-cell;
-  width: @carousel-target-nav-width !important;
-  background-color: @carousel-target-nav-background-color-inactive;
-  color:white;
-  text-align:center;
-  vertical-align:middle;
-  
-  .active& {
-    background-color: @carousel-target-nav-background-color-active;
-    cursor:pointer;
-  }
-  
-  a {
-    display:none;
-  }
-
-}
-
-.carousel-target-prev {
-  .icon-chevron-left;
-}
-
-.carousel-target-next {
-  .icon-chevron-right;
 }
 
 .repeatableForm > ol > li.collapsed > .frame,
@@ -463,19 +412,6 @@
     .addButtonContainer {
       display: none;
     }
-  }
-}
-
-.addButtonContainer {
-  margin-top: 5px;
-
-  > .addButton {
-    &:extend(.link all);
-
-    .icon;
-    .icon-plus;
-
-    margin-right: 15px;
   }
 }
 
@@ -715,7 +651,7 @@
           height: @length-size;
           line-height: @length-size;
           position: absolute;
-          right: 10px;
+          left: 10px;
           text-align: center;
           top: 10px;
           width: @length-size;
@@ -808,6 +744,7 @@
 
       .icon;
       .icon-plus;
+      .icon-only;
 
       position: absolute;
       right: ((@length-inputHeight - @length-iconSize) / 2);

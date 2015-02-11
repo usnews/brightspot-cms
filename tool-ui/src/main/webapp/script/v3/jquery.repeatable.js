@@ -1062,8 +1062,8 @@ The HTML within the repeatable element must conform to these standards:
 
                 // Create buttons to switch between grid view and gallery view
                 $viewSwitcher = $('<span class="view-switcher">' +
-                                  '<a href="#" class="view-switcher-active view-switcher-grid">Grid View</a> | ' +
-                                  '<a href="#" class="view-switcher-gallery">Gallery View</a>' +
+                                  '<a href="#" class="view-switcher-active view-switcher-grid">Grid</a> | ' +
+                                  '<a href="#" class="view-switcher-gallery">Gallery</a>' +
                                   '</span>').appendTo($topButtonContainer);
                 
                 self.dom.$viewSwitcher = $viewSwitcher; // Save for later
@@ -1244,8 +1244,8 @@ The HTML within the repeatable element must conform to these standards:
                     return;
                 }
                 
-                $carouselTile = $('<div class="carousel-tile-content"/>');
-                
+                $carouselTile = $('<figure/>');
+
                 // Add the thumbnail image.
                 // If there is no thumbnail image use a placeholder image.
                 $('<img/>', {
@@ -1255,8 +1255,7 @@ The HTML within the repeatable element must conform to these standards:
                 }).appendTo($carouselTile);
                 
                 // Add the text label
-                $('<div/>', {
-                    'class': 'carousel-tile-content-label',
+                $('<figcaption/>', {
                     text: label || '[Empty Tile]',
 
                     // Set up some parameters so the label text will dynamically update based on the input field
@@ -1469,8 +1468,8 @@ The HTML within the repeatable element must conform to these standards:
                 var tileIndex = self.carousel.getActive();
                 var total = self.dom.$list.find('> li').length;
                 
-                self.dom.$carouselTargetPrev.toggleClass('active', tileIndex > 1);
-                self.dom.$carouselTargetNext.toggleClass('active', tileIndex < total);
+                self.dom.$carouselTargetPrev.toggleClass('carousel-target-nav-hide', !(tileIndex > 1));
+                self.dom.$carouselTargetNext.toggleClass('carousel-target-nav-hide', !(tileIndex < total));
             },
 
             

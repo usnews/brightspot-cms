@@ -177,7 +177,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
     if (search != null) {
         wp.writeStart("div", "class", "frame");
-            wp.writeStart("a", "href", StringUtils.addQueryParameters(search.replace("misc/searchResult.jsp", "searchCarousel"), "id", wp.param(String.class, "id")));
+            wp.writeStart("a", "href", wp.cmsUrl("/searchCarousel", "id", editingState.getId(), "search", search));
             wp.writeEnd();
         wp.writeEnd();
     }
@@ -343,11 +343,13 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <h1 class="icon icon-action-publish">Publishing</h1>
 
                 <%
-                wp.writeStart("a",
-                        "class", "icon icon-wrench icon-only",
-                        "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
-                        "target", "contentTools");
-                    wp.writeHtml("Tools");
+                wp.writeStart("div", "class", "widget-controls");
+                    wp.writeStart("a",
+                            "class", "widget-publishing-tools",
+                            "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
+                            "target", "contentTools");
+                        wp.writeHtml("Tools");
+                    wp.writeEnd();
                 wp.writeEnd();
 
                 if (workStream != null) {

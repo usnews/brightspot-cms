@@ -53,7 +53,7 @@ require([
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
   'jquery.popup',
-  'jquery.fixedscrollable',
+  'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
   'v3/infinitescroll',
   'jquery.lazyload',
@@ -122,7 +122,8 @@ function() {
   $doc.calendar('live', ':text.date');
   $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
   $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
-  $doc.fixedScrollable('live', '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
+
+  bsp_fixedScrollable.live(document, '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
 
   $doc.frame({
     'frameClassName': 'frame',
@@ -604,12 +605,10 @@ function() {
     var $frame = $(event.target);
 
     // Move the close button to the publishing widget.
-    var $publishing = $frame.find('.widget-publishing');
+    var $publishingControls = $frame.find('.widget-publishing > .widget-controls');
 
-    if ($publishing.length > 0) {
-      $publishing.addClass('widget-publishing-hasClose');
-
-      $publishing.append($('<a/>', {
+    if ($publishingControls.length > 0) {
+      $publishingControls.append($('<a/>', {
         'class': 'widget-publishing-close',
         'click': function(event) {
           $frame.popup('close');
