@@ -53,7 +53,7 @@ require([
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
   'jquery.popup',
-  'jquery.fixedscrollable',
+  'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
   'v3/infinitescroll',
   'jquery.lazyload',
@@ -122,7 +122,8 @@ function() {
   $doc.calendar('live', ':text.date');
   $doc.dropDown('live', 'select[multiple], select[data-searchable="true"]');
   $doc.editablePlaceholder('live', ':input[data-editable-placeholder]');
-  $doc.fixedScrollable('live', '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
+
+  bsp_fixedScrollable.live(document, '.fixedScrollable, .searchResult-list, .popup[name="miscSearch"] .searchFiltersRest');
 
   $doc.frame({
     'frameClassName': 'frame',
