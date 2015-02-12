@@ -1,4 +1,5 @@
 .popup {
+  display: none;
   left: 50%;
   margin-left: -20%;
   max-width: 600px;
@@ -6,6 +7,10 @@
   top: 95px;
   width: 40%;
   z-index: 50;
+
+  &.popup-show {
+    display: block;
+  }
 
   > .popup-content > .frame > .widget,
   > .content > .frame > .widget {
@@ -203,6 +208,18 @@
   }
 }
 
+.popup[data-popup-source-class~="objectId-edit"] {
+  display: block;
+
+  &.popup-objectId-edit-hiding:before {
+    display: none;
+  }
+
+  &.popup-objectId-edit-hide {
+    display: none;
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -246,8 +263,8 @@
 .popup-objectId-edit-heading {
   font-size: 18px;
   font-weight: normal;
-  height: 20px;
-  line-height: 20px;
-  margin: 0 0 20px 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: -20px 0 10px 20px;
   padding: 0;
 }
