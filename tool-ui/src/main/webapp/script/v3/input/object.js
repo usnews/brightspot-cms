@@ -1,7 +1,7 @@
 define([
   'jquery',
   'jquery.extra',
-  'jquery.popup' ],
+  'v3/plugin/popup' ],
 
 function($) {
   var refresh,

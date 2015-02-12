@@ -167,8 +167,20 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
             'z-index': 1
           });
 
+          // Hide the right rail widgets when under the publishing widget.
+          var asideTop = $aside.closest('.popup').length > 0 ? parseInt($aside.css('top'), 10) || 0 : 0;
+          var clipPathTop = (windowScrollTop - asideOffset.top - asideTop + toolHeaderHeight + 20) + 'px';
+          var clipPath = 'inset(' + clipPathTop + ' 0 0 0)';
+
+          $widgets.css({
+            '-webkit-clip-path': clipPath,
+            'clip-path': clipPath
+          });
+
         } else {
           $widgets.css({
+            '-webkit-clip-path': '',
+            'clip-path': '',
             'padding-top': ''
           });
 
@@ -180,15 +192,6 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
             'z-index': ''
           });
         }
-
-        // Hide the right rail widgets when under the publishing widget.
-        var clipPathTop = (windowScrollTop - asideOffset.top + toolHeaderHeight + 20) + 'px';
-        var clipPath = 'inset(' + clipPathTop + ' 0 0 0)';
-
-        $widgets.css({
-          '-webkit-clip-path': clipPath,
-          'clip-path': clipPath
-        });
       });
     }
 
