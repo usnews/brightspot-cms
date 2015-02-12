@@ -289,7 +289,7 @@ define([
                 var inputName;
                 
                 // Get the name of the input without all the extra crud
-                inputName = $(this).attr('name').replace(/.*\./, '');
+                inputName = self.editParseName($(this).attr('name'));
                 
                 // Trigger an event and pass the input element
                 // and the name of the input (like 'rotate' or 'flipH')
@@ -348,12 +348,28 @@ define([
             // Clear all the checkboxes and inputs for the adjustments
             self.dom.$edit.find(':input').each(function() {
                 
-                var $input = $(this);
+                var $input, name, value;
+                
+                $input = $(this);
 
+                value = 0;
+                
                 if ($input.is(':checkbox')) {
+                    value = 1;
                     $input.removeAttr('checked');
                 } else {
+                    value = parseInt($input.val());
                     $input.val(0);
+                }
+
+                if (value !== 0) {
+
+                    name = self.editParseName($input.attr('name'));
+                    
+                    // Trigger an event and pass the input element
+                    // and the name of the input (like 'rotate' or 'flipH')
+                    // This is used so other code can learn when the image is rotated.
+                    self.$element.trigger('imageAdjustment', [$input.get(0), name]);
                 }
             });
 
@@ -364,6 +380,23 @@ define([
 
             // Reprocess the image to remove the adjustments
             self.adjustmentProcess();
+        },
+
+
+
+        /**
+         * Given in an input name like '00000149-821b-d7b5-aded-fbff734f0000/file.brightness',
+         * this function returns the last part after the "." character, like 'brightness'.
+         *
+         * @param String name
+         * The name of an input like '00000149-821b-d7b5-aded-fbff734f0000/file.brightness'
+         *
+         * @returns String
+         * The part of the name after the last "." character, like 'brightness'
+         */
+        editParseName: function(name) {
+            name = name || '';
+            return name.replace(/.*\./, '')
         },
 
         
@@ -377,16 +410,27 @@ define([
 
             // Kill any existing timer just in case
             self.adjustmentProcessTimerStop();
-            
-            // Run the image adjustments, then when they are done delay a bit
-            // and run them again. Continue until the timer is killed.
-            self.adjustmentProcess().always(function(){
 
-                self.adjustmentProcessTimer = setTimeout(function(){
-                    self.adjustmentProcessTimerStart();
-                }, 100);
-                
-            });
+            // Make sure we are still in the DOM.
+            // If not we can stop looping.
+            // This is used in case we are running in a popup
+            // and the popup gets removed so we don't end up with multiple
+            // timers running when they are no longer needed.
+            if (self.$element.closest('body').length) {
+
+                // Run the image adjustments, then when they are done delay a bit
+                // and run them again. Continue until the timer is killed.
+                self.adjustmentProcess().always(function(){
+
+                    self.adjustmentProcessTimer = setTimeout(function(){
+                        self.adjustmentProcessTimerStart();
+                    }, 100);
+                });
+
+            } else {
+                // We are no longer in the DOM,
+                // so we can stop looping.
+            }
         },
 
         
@@ -537,6 +581,7 @@ define([
          * Also puts the processed image into self.dom.processedImage.
          */
         adjustmentProcessExecuteSingle: function(operationName, operationValue) {
+            
             var deferred, self;
 
             self = this;
@@ -552,7 +597,7 @@ define([
                 // Resolve the deferred object to indicate it is done
                 deferred.resolve();
             });
-
+            
             // Return a promise so additional code can run after the processing is done
             // to let us chain one operation after another
             return deferred.promise();
@@ -616,9 +661,9 @@ define([
                 
                 // Get the name of the input and remove the extra junk
                 // to just get the part at the end like "brightness"
-                name = $input.attr('name') || '';
-                name = /([^.]+)$/.exec(name);
-                name = name ? name[1] : '';
+                name = self.editParseName($input.attr('name'));
+                //name = /([^.]+)$/.exec(name);
+                //name = name ? name[1] : '';
 
                 if (!name) {
                     return;
@@ -979,6 +1024,13 @@ define([
             // Make sure scrolling within the "aside" area doesn't start scrolling the whole page
             self.scrollFix( self.dom.$sizesAside );
 
+            // If the image is rotated, clear all the crops because the aspect ratio will be incorrect
+            self.$element.on('imageAdjustment', function(event, image, adjustment){
+                if (adjustment === 'rotate') {
+                    self.sizesResetAll();
+                }
+            });
+
             // If the image is updated then update the sizes image
             self.$element.on('imageUpdated', $.throttle(2000, function(event, $image) {
 
@@ -1005,17 +1057,17 @@ define([
                     self.sizesNeedsUpdate = false;
 
                     // For performance reasons, add a slight pause before updating,
-                    // wo the tabs have time to finish displaying
+                    // so the tabs have time to finish displaying
                     setTimeout(function() {
 
                         var groupName;
                     
-                        // Update the cover dimensions
+                        // Re-select the selected group to update the display
                         groupName = self.sizesGetSelected();
                         if (groupName) {
                             self.sizesSelect(groupName);
                         }
-
+                        
                         // Update (and re-crop) all the thumbnail images
                         self.sizesUpdatePreview();
                         
@@ -1077,6 +1129,15 @@ define([
                 sizeHeight = parseFloat($tr.attr('data-size-height'));
                 sizeAspectRatio = sizeWidth / sizeHeight;
 
+                // If the width or height is zero, then this is a special case
+                // and there is no fixed aspect ratio.
+                // Instead the other dimension specifies the size, and the
+                // width or height should be adjusted automatically.
+                if (sizeWidth === 0 || sizeHeight === 0) {
+                    sizeAspectRatio = 0;
+                    independent = true;
+                }
+                
                 // If we are inside a popup, only make this size selectable
                 // if it a "standard image size" for the page it is on.
                 $source = $th.popup('source');
@@ -1276,7 +1337,7 @@ define([
 
             $.each(groupInfos, function(groupName, groupInfo) {
 
-                var bounds, $imageWrapper, sizeInfoFirst;
+                var bounds, height, $imageWrapper, rotation, sizeInfoFirst, width;
 
                 // Get the group info from the group name
                 // groupInfo = self.sizeGroups[groupName];
@@ -1286,9 +1347,19 @@ define([
             
                 // Find the element wrapping the preview image
                 $imageWrapper = groupInfo.$element.find('.imageEditor-sizePreview');
-            
+
                 // Get the crop bounds for this group, based on the original image size
-                bounds = self.sizesGetSizeBounds(self.dom.imageCloneWidth, self.dom.imageCloneHeight, sizeInfoFirst);
+                // But adjusted if we will be rotating the image
+                rotation = self.adjustmentRotateGet();
+                if (rotation === 90 || rotation === -90) {
+                    width = self.dom.imageCloneHeight;
+                    height = self.dom.imageCloneWidth;
+                } else {
+                    width = self.dom.imageCloneWidth;
+                    height = self.dom.imageCloneHeight;
+                }
+
+                bounds = self.sizesGetSizeBounds(width, height, sizeInfoFirst);
 
                 // Crop the image based on the current crop dimension,
                 // then replace the thumbnail image with the newly cropped image
@@ -1312,6 +1383,8 @@ define([
 
         /**
          * For an image and an individual size, get the current crop dimension information.
+         * This converts the crop information which is in percentages (0 - 1)
+         * into actual pixel values.
          *
          * @param Number imageWidth
          * @param Number imageHeigth
@@ -1332,42 +1405,56 @@ define([
 
             self = this;
 
-            // $image = $(image);
-            // imageWidth = $image.width();
-            // imageHeight = $image.height();
-
             left = parseFloat(sizeInfo.inputs.x.val()) || 0.0;
             top = parseFloat(sizeInfo.inputs.y.val()) || 0.0;
             width = parseFloat(sizeInfo.inputs.width.val()) || 0.0;
             height = parseFloat(sizeInfo.inputs.height.val()) || 0.0;
             aspectRatio = sizeInfo.aspectRatio;
-            
-            if (width === 0.0 || height === 0.0) {
-                
-                width = imageHeight * sizeInfo.aspectRatio;
-                height = imageWidth / sizeInfo.aspectRatio;
 
-                if (width > imageWidth) {
-                    width = height * aspectRatio;
+            // Check if cropping values have been previously set
+            if (width === 0 || height === 0) {
+
+                // If no cropping values, and there is an aspect ratio for this size,
+                // make the crop area as big as possible while staying within the aspect ratio
+                if (aspectRatio) {
+                    
+                    width = imageHeight * aspectRatio;
+                    height = imageWidth / aspectRatio;
+
+                    if (width > imageWidth) {
+                        width = height * aspectRatio;
+                    } else {
+                        height = width / aspectRatio;
+                    }
+
+                    left = (imageWidth - width) / 2;
+                    top = 0;
+                    
                 } else {
-                    height = width / aspectRatio;
+
+                    // There is no aspect ratio so just select the whole image
+                    left = 0;
+                    top = 0;
+                    width = imageWidth;
+                    height = imageHeight;
                 }
 
-                left = (imageWidth - width) / 2;
-                top = 0;
-
             } else {
+
+                // There was a cropping value previously set,
+                // so just convert from percentages to pixels
                 left *= imageWidth;
                 top *= imageHeight;
                 width *= imageWidth;
                 height *= imageHeight;
             }
 
+            // Return as an object of pixel values
             return {
-                'left': left,
-                'top': top,
-                'width': width,
-                'height': height
+                left: left,
+                top: top,
+                width: width,
+                height: height
             };
         },
 
@@ -1400,6 +1487,44 @@ define([
             });
         },
 
+
+        /**
+         * Clear the cropping 
+         */
+        sizesResetAll: function() {
+            
+            var self;
+
+            self = this;
+
+            $.each(self.sizeGroups, function(groupName) {
+                self.sizesResetGroup(groupName);
+            });
+        },
+
+
+        /**
+         * Clear the cropping values for a single group.
+         */
+        sizesResetGroup: function(groupName) {
+            
+            var groupInfo, self;
+
+            self = this;
+            
+            groupInfo = self.sizeGroups[groupName];
+
+            $.each(groupInfo.sizeInfos, function() {
+                
+                var sizeInfo = this;
+
+                sizeInfo.inputs.x.val('0.0');
+                sizeInfo.inputs.y.val('0.0');
+                sizeInfo.inputs.width.val('0.0');
+                sizeInfo.inputs.height.val('0.0');
+            });
+        },
+        
         
         /**
          * Get the first sizeInfo object for a size group.
@@ -1724,7 +1849,6 @@ define([
                 imageWidth = self.dom.$image.width();
                 imageHeight = self.dom.$image.height();
 
-                // Get the aspect ratio 
                 // On mousedown, let the user start dragging the element
                 // The .drag() function takes the following parameters:
                 // (element, event, startCallback, moveCallback, endCallback)
@@ -1746,8 +1870,8 @@ define([
                     bounds = filterBoundsFunction(dragEvent, original, {
                         'x': deltaX,
                         'y': deltaY,
-                        'constrainedX': Math.max(deltaX, deltaY * aspectRatio),
-                        'constrainedY': Math.max(deltaY, deltaX / aspectRatio)
+                        'constrainedX': aspectRatio ? Math.max(deltaX, deltaY * aspectRatio) : deltaX,
+                        'constrainedY': aspectRatio ? Math.max(deltaY, deltaX / aspectRatio) : deltaY
                     });
 
                     // Fill out the missing bounds
@@ -1782,41 +1906,53 @@ define([
                         
                         // We're not moving the sizebox so we must be resizing.
                         // We still need to make sure we don't resize past the boundaries of the image.
-                        
+
                         if (bounds.width < 10 || bounds.height < 10) {
                             if (aspectRatio > 1.0) {
                                 bounds.width = aspectRatio * 10;
                                 bounds.height = 10;
                             } else {
                                 bounds.width = 10;
-                                bounds.height = 10 / aspectRatio;
+                                bounds.height = aspectRatio ? (10 / aspectRatio) : 10;
                             }
                         }
 
+                        // Check if the box extends past the left
                         if (bounds.left < 0) {
                             bounds.width += bounds.left;
-                            bounds.height = bounds.width / aspectRatio;
-                            bounds.top -= bounds.left / aspectRatio;
+                            if (aspectRatio) {
+                                bounds.height = bounds.width / aspectRatio;
+                                bounds.top -= bounds.left / aspectRatio;
+                            }
                             bounds.left = 0;
                         }
 
+                        // Check if the box extends above the top
                         if (bounds.top < 0) {
                             bounds.height += bounds.top;
-                            bounds.width = bounds.height * aspectRatio;
-                            bounds.left -= bounds.top * aspectRatio;
+                            if (aspectRatio) {
+                                bounds.width = bounds.height * aspectRatio;
+                                bounds.left -= bounds.top * aspectRatio;
+                            }
                             bounds.top = 0;
                         }
 
+                        // Check if the box extends past the right
                         overflow = bounds.left + bounds.width - imageWidth;
                         if (overflow > 0) {
                             bounds.width -= overflow;
-                            bounds.height = bounds.width / aspectRatio;
+                            if (aspectRatio) {
+                                bounds.height = bounds.width / aspectRatio;
+                            }
                         }
 
+                        // Check if the box extends past the bottom
                         overflow = bounds.top + bounds.height - imageHeight;
                         if (overflow > 0) {
                             bounds.height -= overflow;
-                            bounds.width = bounds.height * aspectRatio;
+                            if (aspectRatio) {
+                                bounds.width = bounds.height * aspectRatio;
+                            }
                         }
                     }
 
@@ -1832,7 +1968,7 @@ define([
 
                 }, function() {
 
-                    var sizeBoxPosition, sizeBoxWidth;
+                    var sizeBoxHeight, sizeBoxPosition, sizeBoxWidth, width;
                     
                     // .drag() end callback
 
@@ -1840,13 +1976,14 @@ define([
                     
                     sizeBoxPosition = $sizeBox.position();
                     sizeBoxWidth = $sizeBox.width();
+                    sizeBoxHeight = $sizeBox.height();
 
                     // Set the hidden inputs to the current bounds.
                     self.sizesSetGroupBounds(groupName, {
                         x: sizeBoxPosition.left / imageWidth,
                         y: sizeBoxPosition.top / imageHeight,
                         width: sizeBoxWidth / imageWidth,
-                        height: sizeBoxWidth / aspectRatio / imageHeight
+                        height: sizeBoxHeight / imageHeight // sizeBoxWidth / aspectRatio / imageHeight
                     });
                     
                     // Update the preview image thumbnail so it will match the new crop values
@@ -2016,9 +2153,18 @@ define([
             // Get the aspect ratio of both the original and target images
             // so we can determine which part of the image needs to be cropped.
             originalAspect = originalSize.width / originalSize.height;
-            targetAspect = targetSize.width / targetSize.height;
+            if (targetSize.width === 0 || targetSize.height === 0) {
+                targetAspect = 0;
+            } else {
+                targetAspect = targetSize.width / targetSize.height;
+            }
 
-            if (originalAspect > targetAspect) {
+            if (targetAspect === 0) {
+                
+                // There is no aspect ratio restraint,
+                // so leave the crop return value covering the whole image.
+                
+            } else if (originalAspect > targetAspect) {
                 
                 // We need to crop the WIDTH because the target aspect ratio has less width
 
@@ -2074,7 +2220,7 @@ define([
 
                 crop.y = focusDifference;
             }
-            
+
             return crop;
         },
 
@@ -2515,8 +2661,9 @@ define([
                 
                 textInfo = groupInfo.textInfos[ textInfoKey ];
 
-                // Get the height of the selected group
+                // Get the cropped dimensions of the selected group
                 sizeHeight = self.sizesGetGroupFirstSizeInfo(groupName).height;
+                sizeWidth = self.sizesGetGroupFirstSizeInfo(groupName).width;
                 
                 // Check to see if we previously saved a font size
                 originalFontSize = $textOverlay.data('imageEditor-originalFontSize');
@@ -2530,6 +2677,7 @@ define([
                 }
 
                 if (originalFontSize > 0) {
+                    
                     textSize = 1 / sizeHeight * originalFontSize;
                     textInfo.size = textSize;
                     $rteBody.css('font-size', $sizeBox.height() * textSize);
