@@ -597,12 +597,23 @@ function() {
   });
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    $(event.target).popup('source').closest('.popup, .toolContent').addClass('under');
+    $(event.target).popup('source').closest('.popup, .toolContent').addClass('popup-objectId-edit-loading');
     $win.resize();
   });
 
+  var scrollTops = [ ];
+
   $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
     var $frame = $(event.target);
+    var frameName = $frame.attr('name');
+
+    if (!frameName || frameName.indexOf('objectId-') !== 0) {
+      return;
+    }
+
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
+
+    $frame.css('opacity', 0);
 
     // Move the close button to the publishing widget.
     var $publishingControls = $frame.find('.widget-publishing > .widget-controls');
@@ -610,7 +621,7 @@ function() {
     if ($publishingControls.length > 0) {
       $publishingControls.append($('<a/>', {
         'class': 'widget-publishing-close',
-        'click': function(event) {
+        'click': function() {
           $frame.popup('close');
           return false;
         }
@@ -623,17 +634,43 @@ function() {
 
     $.data($source[0], 'oldScrollTop', oldScrollTop);
 
-    $('html, body').animate({
-      'scrollTop': $source.offset().top - $('.toolHeader:visible').outerHeight(true)
-    });
+    setTimeout(function() {
+      $parent.removeClass('popup-objectId-edit-loading');
+      $parent.addClass('popup-objectId-edit-loaded');
+
+      $frame.prepend($('<div/>', {
+        'class': 'popup-objectId-edit-heading',
+        'text': $parent.find('.contentForm-main > .widget > h1').text()
+      }));
+
+      $frame.animate({
+        'opacity': 1
+      });
+
+      var scrollTop = $source.offset().top + $source.outerHeight(true) - $('.toolHeader:visible').outerHeight(true);
+
+      scrollTops.push(scrollTop);
+
+      $('html, body').animate({
+        'scrollTop': scrollTop
+
+      }, 300, 'swing');
+    }, 1000);
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
+    scrollTops.pop();
+
     var $source = $(event.target).popup('source');
+    var $parent = $source.closest('.popup, .toolContent');
+
+    $parent.removeClass('popup-objectId-edit-loading');
+    $parent.removeClass('popup-objectId-edit-loaded');
+
     var oldScrollTop = $.data($source[0], 'oldScrollTop');
 
     if (oldScrollTop) {
-      $source.closest('.popup, .toolContent').removeClass('under');
+      $.removeData($source[0], 'oldScrollTop');
 
       $('html, body').animate({
         'scrollTop': oldScrollTop
@@ -641,6 +678,16 @@ function() {
       }, 300, 'swing', function() {
         $win.resize();
       });
+    }
+  });
+
+  $win.on('mousewheel', function(event, delta, deltaX, deltaY) {
+    if (scrollTops.length === 0) {
+      return;
+    }
+
+    if (deltaY > 0 && $win.scrollTop() - deltaY < scrollTops[scrollTops.length - 1]) {
+      event.preventDefault();
     }
   });
 
