@@ -11,7 +11,6 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.SearchResultSelectionItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
