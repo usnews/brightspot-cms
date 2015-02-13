@@ -244,7 +244,8 @@ define([
          * Sets up the "Edit Image" controls for modifying image adjustments.
          */
         editInit: function() {
-            var self;
+            
+            var $brightness, $contrast, $filters, $rotateFlip, self;
 
             self = this;
             
@@ -262,25 +263,115 @@ define([
                 'html': self.dom.$editImage
             }).appendTo(self.dom.tabs.edit);
 
-            // Move the imageEditor-aside into this tab
+            // Move the imageEditor-aside element into this tab
             self.dom.$aside.appendTo(self.dom.tabs.edit);
             
             // Create a place to put some hidden inputs
-            // TODO: not sure if we need this, put in self.dom.$edit instead?
             self.dom.$editInputs = $('<div/>').appendTo(self.dom.$edit);
 
+            // Reformat the controls for editing the image
+
+            self.dom.$edit.find('table').hide();
+
+            $brightness = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Brightness <span class="imageEditor-value">0</span></div></div>').appendTo(self.dom.$edit);
+            self.dom.$editBrightnessValue = $brightness.find('.imageEditor-value');
+            self.dom.$editBrightness = self.dom.$edit.find('table :input[name$=".brightness"]')
+                .on('change input', function(){
+                    self.dom.$editBrightnessValue.text($(this).val());
+                })
+                .trigger('change')
+                .appendTo($brightness);
+
+            $contrast = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Contrast <span class="imageEditor-value">0</span></div></div>').appendTo(self.dom.$edit);
+            self.dom.$editContrastValue = $contrast.find('.imageEditor-value');
+            self.dom.$editContrast = self.dom.$edit.find('table :input[name$=".contrast"]')
+                .on('change input', function(){
+                    self.dom.$editContrastValue.text($(this).val());
+                })
+                .trigger('change')
+                .appendTo($contrast);
+
+            // Add rotate and flip controls
+            
+            $rotateFlip = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Rotate/Flip</div><ul></ul></div>')
+                .appendTo(self.dom.$edit)
+                .find('ul');
+
+            $('<li/>').append(
+                $('<a/>', {
+                    title: 'Rotate Left',
+                    text: 'Left',
+                    class: 'imageEditor-rotate-left'
+                }).on('click', function(){
+                    self.editRotateLeft();
+                    return false;
+                })
+            ).appendTo($rotateFlip);
+            
+            $('<li/>').append(
+                $('<a/>', {
+                    title: 'Rotate Right',
+                    text: 'Right',
+                    class: 'imageEditor-rotate-right'
+                }).on('click', function(){
+                    self.editRotateRight();
+                    return false;
+                })
+            ).appendTo($rotateFlip);
+
+            $('<li/>').append(
+                $('<a/>', {
+                    title: 'Flip Horizontally',
+                    text: 'FlipH',
+                    class: 'imageEditor-flip-h'
+                }).on('click', function(){
+                    self.editFlipH();
+                    return false;
+                })
+            ).appendTo($rotateFlip);
+            
+            $('<li/>').append(
+                $('<a/>', {
+                    title: 'Flip Vertically',
+                    text: 'FlipV',
+                    class: 'imageEditor-flip-v'
+                }).on('click', function(){
+                    self.editFlipV();
+                    return false;
+                })
+            ).appendTo($rotateFlip);
+
+            // Modify the rotation input so it allows values for 180 and 270 rotation
+            // (although later we will only go to 90 and 180)
+            self.dom.$edit.find('table :input[name$=".rotate"]').attr({
+                min: '-270',
+                max: '270',
+            });
+
+            // Add filter controls for invert, sepia, grayscale
+            
+            $filters = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Filters</div><ul></ul></div>')
+                .appendTo(self.dom.$edit)
+                .find('ul');
+            
+            self.dom.$editInvert = self.dom.$edit.find('table :input[name$=".invert"]');
+            $('<li>Invert</li>').prepend(self.dom.$editInvert).appendTo($filters);
+            
+            self.dom.$editSepia = self.dom.$edit.find('table :input[name$=".sepia"]');
+            $('<li>Sepia</li>').prepend(self.dom.$editSepia).appendTo($filters);
+
+            self.dom.$editGrayscale = self.dom.$edit.find('table :input[name$=".grayscale"]');
+            $('<li>Grayscale</li>').prepend(self.dom.$editGrayscale).appendTo($filters);
+            
             // Create the reset button
             self.dom.$editResetButton = $('<button/>', {
+                'type': 'button',
                 'text': 'Reset',
                 'click': function() {
                     self.editReset();
                     return false;
                 }
             }).appendTo(self.dom.$edit);
-
-            // Periodically check if edit inputs have changed
-            // TODO: need a way to turn this off as we might get multiple polling functions running when not needed
-            self.adjustmentProcessTimerStart();
 
             // Trigger events whenever the adjustments are changed
             // so other code can listen for changes
@@ -296,6 +387,10 @@ define([
                 self.$element.trigger('imageAdjustment', [this, inputName]);
             });
             
+            // Periodically check if edit inputs have changed
+            // TODO: need to turn this on only when the edit tab is selected.
+            self.adjustmentProcessTimerStart();
+
             // Process all current adjustments on the image
             // self.adjustmentProcess();
         },
@@ -346,7 +441,7 @@ define([
             self = this;
 
             // Clear all the checkboxes and inputs for the adjustments
-            self.dom.$edit.find(':input').each(function() {
+            self.dom.$edit.find(':input:not([type=button])').each(function() {
                 
                 var $input, name, value;
                 
@@ -358,13 +453,15 @@ define([
                     value = 1;
                     $input.removeAttr('checked');
                 } else {
-                    value = parseInt($input.val());
+                    value = parseFloat( $input.val() );
                     $input.val(0);
                 }
 
                 if (value !== 0) {
 
                     name = self.editParseName($input.attr('name'));
+
+                    $input.trigger('change');
                     
                     // Trigger an event and pass the input element
                     // and the name of the input (like 'rotate' or 'flipH')
@@ -383,7 +480,6 @@ define([
         },
 
 
-
         /**
          * Given in an input name like '00000149-821b-d7b5-aded-fbff734f0000/file.brightness',
          * this function returns the last part after the "." character, like 'brightness'.
@@ -396,7 +492,64 @@ define([
          */
         editParseName: function(name) {
             name = name || '';
-            return name.replace(/.*\./, '')
+            return name.replace(/.*\./, '');
+        },
+
+
+        editRotateLeft: function() {
+            var self;
+            self = this;
+            self.adjustmentRotateSet(self.adjustmentRotateGet() - 90);
+        },
+
+        
+        editRotateRight: function() {
+            var self;
+            self = this;
+            self.adjustmentRotateSet(self.adjustmentRotateGet() + 90);
+        },
+
+
+        /**
+         * Flip the current image horizontally.
+         * @param Boolean flag
+         */
+        editFlipH: function() {
+            
+            var rotation, self;
+
+            self = this;
+            
+            // Check the current rotation of the image.
+            // If it is not rotated, or rotated 180, we will flip horizontally.
+            // But if it is rotated on its side we will actually flip vertically.
+            rotation = Math.abs(self.adjustmentRotateGet());
+            if (rotation === 0 || rotation === 180) {
+                self.adjustmentFlipHToggle();
+            } else {
+                self.adjustmentFlipVToggle();
+            }
+        },
+
+        
+        /**
+         * Set or unset the "Flip Vertical" adjustment for the image.
+         * @param Boolean flag
+         */
+        editFlipV: function() {
+            var rotation, self;
+
+            self = this;
+            
+            // Check the current rotation of the image.
+            // If it is not rotated, or rotated 180, we will flip vertically.
+            // But if it is rotated on its side we will actually flip horizontally.
+            rotation = Math.abs(self.adjustmentRotateGet());
+            if (rotation === 0 || rotation === 180) {
+                self.adjustmentFlipVToggle();
+            } else {
+                self.adjustmentFlipHToggle();
+            }
         },
 
         
@@ -616,7 +769,7 @@ define([
             // Remove any of the previous hidden inputs for the adjustments
             self.dom.$editInputs.empty();
 
-            self.dom.$edit.find(':input').each(function() {
+            self.dom.$edit.find(':input:not([type=button])').each(function() {
                 
                 var $input = $(this);
 
@@ -653,7 +806,7 @@ define([
 
             // Loop through all the inputs in the edit section
             // and add operations for each one
-            self.dom.$edit.find("table :input").each(function(){
+            self.dom.$edit.find(":input:not([type=hidden])").each(function(){
                 
                 var $input, name, value, processFunctionName;
                 
@@ -848,6 +1001,39 @@ define([
 
 
         /**
+         * Sets a new value for rotate adjustment and triggers a change event.
+         * @param Number rotation
+         * Number between -360 and 360
+         */
+        adjustmentRotateSet: function(rotation) {
+
+            var self;
+
+            self = this;
+
+            // Don't go to 360, reset to zero
+            if (Math.abs(rotation) >= 360) {
+                rotation = 0;
+            }
+
+            // Instead of allowing -180, convert to 180 to keep things simple
+            if (rotation === -180) {
+                rotation = 180;
+            }
+            
+            // Instead of allowing rotation of 270 or -270,
+            // use -90 or 90
+            if (rotation === 270) {
+                rotation = -90;
+            } else if (rotation === -270) {
+                rotation = 90;
+            }
+
+            self.dom.$edit.find(":input[name$='.rotate']").val(rotation).trigger('change');
+        },
+
+
+        /**
          * Determines if the "flipH" adjustment is checked.
          * @returns Boolean
          */
@@ -860,6 +1046,27 @@ define([
             value = self.dom.$edit.find(":input[name$='.flipH']").is(':checked');
             
             return value;
+        },
+
+
+        /**
+         * Set or unset the FlipH value.
+         * @param Boolean flag
+         */
+        adjustmentFlipHSet: function(flag) {
+            var self;
+            self = this;
+            self.dom.$edit.find(":input[name$='.flipH']").prop('checked', flag);
+        },
+
+        
+        /**
+         * Toggle the the FlipH value.
+         */
+        adjustmentFlipHToggle: function() {
+            var self;
+            self = this;
+            self.adjustmentFlipHSet(!self.adjustmentFlipHGet());
         },
 
         
@@ -877,6 +1084,28 @@ define([
             
             return value;
         },
+
+        
+        /**
+         * Set or unset the FlipV value.
+         * @param Boolean flag
+         */
+        adjustmentFlipVSet: function(flag) {
+            var self;
+            self = this;
+            self.dom.$edit.find(":input[name$='.flipV']").prop('checked', flag);
+        },
+
+        
+        /**
+         * Toggle the the FlipH value.
+         */
+        adjustmentFlipVToggle: function() {
+            var self;
+            self = this;
+            self.adjustmentFlipVSet(!self.adjustmentFlipVGet());
+        },
+
         
         
         //--------------------------------------------------
@@ -1401,7 +1630,7 @@ define([
          */
         sizesGetSizeBounds: function(imageWidth, imageHeight, sizeInfo) {
             
-            var aspectRatio, height, $image, imageHeight, imageWidth, left, self, top, width;
+            var aspectRatio, height, left, self, top, width;
 
             self = this;
 
@@ -1968,7 +2197,7 @@ define([
 
                 }, function() {
 
-                    var sizeBoxHeight, sizeBoxPosition, sizeBoxWidth, width;
+                    var sizeBoxHeight, sizeBoxPosition, sizeBoxWidth;
                     
                     // .drag() end callback
 
@@ -2648,7 +2877,7 @@ define([
             // Loop through each text overlay within the sizebox
             $sizeBox.find('.imageEditor-textOverlay').each(function() {
 
-                var originalFontSize, $rteBody, sizeHeight, $textOverlay, textInfoKey, textInfo, textSize;
+                var originalFontSize, $rteBody, sizeHeight, sizeWidth, $textOverlay, textInfoKey, textInfo, textSize;
 
                 $textOverlay = $(this);
 
@@ -2971,7 +3200,11 @@ define([
 
             // Adjust for rotation
             rotation = self.adjustmentRotateGet();
-            if (rotation === -90 ) {
+
+            switch (rotation) {
+
+            case -90:
+            case 270:
 
                 // Adjust the hotspot data for 90 rotation (rotating to the left)
 
@@ -2984,8 +3217,11 @@ define([
                     x: data.y,
                     y: widthOriginal - data.x - data.width
                 };
-                
-            } else if (rotation === 90 ) {
+
+                break;
+
+            case 90:
+            case -270:
                 
                 // Adjust the hotspot data for 90 rotation (rotating to the right)
                 
@@ -2998,6 +3234,22 @@ define([
                     x: heightOriginal - data.y - data.height,
                     y: data.x
                 };
+
+                break;
+
+            case 180:
+            case -180:
+
+                // Adjust the hotspot data for 180 rotation
+                
+                data = {
+                    width: data.width,
+                    height: data.height,
+                    x: widthOriginal - data.x - data.width,
+                    y: heightOriginal - data.y - data.height
+                };
+
+                break;
             }
 
             // Check if we need to flip the hotspots to match the flipH or flipV of the image
