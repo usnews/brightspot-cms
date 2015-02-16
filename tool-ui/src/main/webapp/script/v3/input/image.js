@@ -192,7 +192,7 @@ define([
         
         /**
          */
-        tabsCreate: function(tabKey) {
+        tabsCreate: function(tabKey, className) {
             
             var self;
 
@@ -205,6 +205,7 @@ define([
 
                 // Create a div for the tab but don't add it to the DOM yet
                 self.dom.tabs[tabKey] = $('<div/>', {
+                    'class': className || '',
                     'data-tab': self.tabNames[tabKey],
                     'style': 'position:relative'
                 });
@@ -293,14 +294,14 @@ define([
 
             // Add rotate and flip controls
             
-            $rotateFlip = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Rotate/Flip</div><ul></ul></div>')
+            $rotateFlip = $('<div class="imageEditor-adjustment"><div class="imageEditor-adjustment-heading">Rotate/Flip</div><ul class="imageEditor-adjustment-icons"></ul></div>')
                 .appendTo(self.dom.$edit)
                 .find('ul');
 
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Rotate Left',
-                    text: 'Left',
+                    text: '',
                     class: 'imageEditor-rotate-left'
                 }).on('click', function(){
                     self.editRotateLeft();
@@ -311,7 +312,7 @@ define([
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Rotate Right',
-                    text: 'Right',
+                    text: '',
                     class: 'imageEditor-rotate-right'
                 }).on('click', function(){
                     self.editRotateRight();
@@ -322,7 +323,7 @@ define([
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Flip Horizontally',
-                    text: 'FlipH',
+                    text: '',
                     class: 'imageEditor-flip-h'
                 }).on('click', function(){
                     self.editFlipH();
@@ -333,7 +334,7 @@ define([
             $('<li/>').append(
                 $('<a/>', {
                     title: 'Flip Vertically',
-                    text: 'FlipV',
+                    text: '',
                     class: 'imageEditor-flip-v'
                 }).on('click', function(){
                     self.editFlipV();
@@ -355,13 +356,19 @@ define([
                 .find('ul');
             
             self.dom.$editInvert = self.dom.$edit.find('table :input[name$=".invert"]');
-            $('<li>Invert</li>').prepend(self.dom.$editInvert).appendTo($filters);
+            $('<li/>', {
+                html: $('<label>Invert</label>').prepend(self.dom.$editInvert)
+            }).appendTo($filters);
             
             self.dom.$editSepia = self.dom.$edit.find('table :input[name$=".sepia"]');
-            $('<li>Sepia</li>').prepend(self.dom.$editSepia).appendTo($filters);
+            $('<li/>', {
+                html: $('<label>Sepia</label>').prepend(self.dom.$editSepia)
+            }).appendTo($filters);
 
             self.dom.$editGrayscale = self.dom.$edit.find('table :input[name$=".grayscale"]');
-            $('<li>Grayscale</li>').prepend(self.dom.$editGrayscale).appendTo($filters);
+            $('<li/>', {
+                html: $('<label>Grayscale</label>').prepend(self.dom.$editGrayscale)
+            }).appendTo($filters);
             
             // Create the reset button
             self.dom.$editResetButton = $('<button/>', {
@@ -2242,7 +2249,7 @@ define([
 
             self = this;
 
-            self.tabsCreate('image');
+            self.tabsCreate('image', 'imageEditor-focus');
 
             // Create an image in the hotspot tab to show the hotspots
             // Note this image will need to be kept in sync with image changes

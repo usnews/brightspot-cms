@@ -106,6 +106,7 @@
 .imageEditor-sizeButton {
   cursor: pointer;
   overflow: hidden;
+  margin-bottom:1em;
 }
 
 .imageEditor-sizePreview {
@@ -162,6 +163,8 @@
   .icon-plus;
 
   display: none;
+  
+  font-size: 11px;
 
   .imageEditor-sizeSelected & {
     display: block;
@@ -243,4 +246,65 @@
   cursor: e-resize;
   right: -10px;
   top: 50%;
+}
+
+.imageEditor-edit > h2 {
+  display:none;
+}
+
+.imageEditor-tools > h2 {
+  display:none;
+}
+
+.imageEditor-sizes > h2 {
+  display:none;
+}
+
+.imageEditor-adjustment {
+
+  margin:1em 0;
+    
+  .imageEditor-value {
+    float:right
+  }
+
+  ul {
+    list-style-type: none;
+    margin:0;
+  }
+
+  input[type=checkbox] {
+    margin-right:0.5em;
+  }
+}
+
+.imageEditor-adjustment-icons {
+  list-style-type: none;
+  margin-left: 0;
+
+  li {
+    display:inline;
+    margin-right:0.5em;
+  }
+}
+
+.imageEditor-rotate-left {
+  .icon;
+  .icon-undo;
+}
+.imageEditor-rotate-right {
+  .icon;
+  .icon-repeat;
+}
+.imageEditor-flip-h {
+  .icon;
+  .icon-arrows-h;
+}
+.imageEditor-flip-v {
+  .icon;
+  .icon-arrows-v;
+}
+
+.imageEditor-focus .imageEditor-image {
+  cursor: crosshair;
 }
