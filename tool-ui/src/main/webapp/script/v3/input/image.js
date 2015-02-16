@@ -691,7 +691,7 @@ define([
             promise = $.Deferred().resolve().promise();
 
             // Create the processed image - start from a copy of the original image
-            self.dom.processedImage = self.dom.imageClone;
+            self.dom.processedImage = self.dom.$imageClone.clone().get(0);
             
             // Loop through each of the operations and perform them sequentially
             $.each(operations, function(name, value) {
@@ -719,7 +719,6 @@ define([
                         return self.adjustmentProcessExecuteSingle(name, value);
                     });
                 });
-
             });
             
             // Return a promise that can be used to run additional code
@@ -834,10 +833,10 @@ define([
                 value = $input.is(':checkbox') ? $input.is(':checked') : parseFloat($input.val());
 
                 // Skip this if the checkbox is not checked, or if the value was invalid
-                if (value === false || isNaN(value)) {
+                if (value === false || isNaN(value) || value === 0) {
                     return;
                 }
-
+                
                 // Get the function that will be used to process this adjustment
                 // such as self.adjustmentProcess_brightness
                 processFunctionName = 'adjustmentGetOperation_' + name;
