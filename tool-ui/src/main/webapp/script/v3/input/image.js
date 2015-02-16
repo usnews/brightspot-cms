@@ -118,7 +118,14 @@ define([
                 self.textInit();
                 self.hotspotInit();
 
+                // Process all current adjustments on the image
+                self.adjustmentProcess();
+
                 self.tabsReady();
+                
+                // Periodically check if edit inputs have changed
+                // TODO: need to turn this on only when the edit tab is selected?
+                self.adjustmentProcessTimerStart();
             });
         },
 
@@ -394,12 +401,6 @@ define([
                 self.$element.trigger('imageAdjustment', [this, inputName]);
             });
             
-            // Periodically check if edit inputs have changed
-            // TODO: need to turn this on only when the edit tab is selected.
-            self.adjustmentProcessTimerStart();
-
-            // Process all current adjustments on the image
-            // self.adjustmentProcess();
         },
 
         
