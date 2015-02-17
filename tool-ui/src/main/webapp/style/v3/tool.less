@@ -133,8 +133,11 @@
   }
 
   .toolUserAvatar {
-    background-image: url(icon/avatar.png);
-    background-size: @-avatar-size @-avatar-size;
+    background-color: @color-focus;
+    background-image: url(icon/avatar.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: (@-avatar-size - 15px);
     border-radius: 50%;
     color: @color-border;
     display: inline-block;

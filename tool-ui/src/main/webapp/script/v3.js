@@ -52,7 +52,7 @@ require([
   'jquery.calendar',
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
-  'jquery.popup',
+  'v3/plugin/popup',
   'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
   'v3/infinitescroll',
@@ -597,12 +597,26 @@ function() {
   });
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    $(event.target).popup('source').closest('.popup, .toolContent').addClass('under');
+    var $frame = $(event.target);
+
+    $frame.popup('source').closest('.popup, .toolContent').addClass('popup-objectId-edit-loading');
+    $frame.popup('container').removeClass('popup-objectId-edit-hide');
     $win.resize();
   });
 
+  var scrollTops = [ ];
+
   $doc.on('frame-load', '.popup[data-popup-source-class~="objectId-edit"] > .content > .frame', function(event) {
     var $frame = $(event.target);
+    var frameName = $frame.attr('name');
+
+    if (!frameName || frameName.indexOf('objectId-') !== 0) {
+      return;
+    }
+
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
+
+    $frame.css('opacity', 0);
 
     // Move the close button to the publishing widget.
     var $publishingControls = $frame.find('.widget-publishing > .widget-controls');
@@ -610,37 +624,117 @@ function() {
     if ($publishingControls.length > 0) {
       $publishingControls.append($('<a/>', {
         'class': 'widget-publishing-close',
-        'click': function(event) {
+        'click': function() {
           $frame.popup('close');
           return false;
         }
       }));
     }
 
-    // Scroll the frame into view.
-    var oldScrollTop = $win.scrollTop();
-    var $source = $frame.popup('source');
+    // Move the frame into view.
+    var scrollTop = $win.scrollTop();
 
-    $.data($source[0], 'oldScrollTop', oldScrollTop);
+    scrollTops.push(scrollTop);
 
-    $('html, body').animate({
-      'scrollTop': $source.offset().top - $('.toolHeader:visible').outerHeight(true)
-    });
+    scrollTop += $('.toolHeader').outerHeight(true);
+
+    setTimeout(function() {
+      var sourceOffset = $(event.target).popup('source').offset();
+
+      $frame.popup('container').css({
+        'top': scrollTop
+      });
+
+      $parent.removeClass('popup-objectId-edit-loading');
+      $parent.addClass('popup-objectId-edit-loaded');
+
+      $frame.prepend($('<div/>', {
+        'class': 'popup-objectId-edit-heading',
+        'text': $parent.find('.contentForm-main > .widget > h1').text()
+      }));
+
+      $frame.css({
+        'transform-origin': (sourceOffset.left / $win.width() * 100) + '% ' + ((sourceOffset.top - scrollTop) / $frame.outerHeight(true) * 100) + '%'
+      });
+
+      $frame.velocity({
+        'opacity': 0.5,
+        'scale': 0.01
+
+      }, {
+        'duration': 1,
+        'complete': function() {
+          $frame.velocity({
+            'opacity': 1,
+            'scale': 1
+
+          }, {
+            'duration': 300,
+            'easing': [ 0.175, 0.885, 0.32, 1.275 ],
+            'complete': function () {
+               $frame.css({
+                 'opacity': '',
+                 'transform': '',
+                 'transform-origin': ''
+               });
+            }
+          });
+        }
+      });
+    }, 1500);
   });
 
   $doc.on('close', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
-    var $source = $(event.target).popup('source');
-    var oldScrollTop = $.data($source[0], 'oldScrollTop');
+    scrollTops.pop();
 
-    if (oldScrollTop) {
-      $source.closest('.popup, .toolContent').removeClass('under');
+    var $frame = $(event.target);
+    var $source = $frame.popup('source');
+    var $popup = $frame.popup('container');
+    var sourceOffset = $source.offset();
+    var $parent = $source.closest('.popup, .toolContent');
 
-      $('html, body').animate({
-        'scrollTop': oldScrollTop
+    $popup.addClass('popup-objectId-edit-hiding');
+    $parent.removeClass('popup-objectId-edit-loading');
+    $parent.removeClass('popup-objectId-edit-loaded');
 
-      }, 300, 'swing', function() {
-        $win.resize();
-      });
+    $frame.css({
+      'transform-origin': (sourceOffset.left / $win.width() * 100) + '% ' + ((sourceOffset.top - $win.scrollTop() - $('.toolHeader').outerHeight(true)) / $frame.outerHeight(true) * 100) + '%'
+    });
+
+    $frame.velocity({
+      'scale': 1
+
+    }, {
+      'duration': 1,
+      'complete': function() {
+        $frame.velocity({
+          'opacity': 0.5,
+          'scale': 0.01
+
+        }, {
+          'duration': 300,
+          'easing': [ 0.6, -0.28, 0.735, 0.045 ],
+          'complete': function() {
+            $popup.removeClass('popup-objectId-edit-hiding');
+            $popup.addClass('popup-objectId-edit-hide');
+            $frame.css({
+              'opacity': '',
+              'transform': '',
+              'transform-origin': ''
+            })
+          }
+        })
+      }
+    })
+  });
+
+  $win.on('mousewheel', function(event, delta, deltaX, deltaY) {
+    if (scrollTops.length === 0) {
+      return;
+    }
+
+    if (deltaY > 0 && $win.scrollTop() - deltaY < scrollTops[scrollTops.length - 1]) {
+      event.preventDefault();
     }
   });
 

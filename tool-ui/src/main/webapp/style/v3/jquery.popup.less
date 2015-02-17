@@ -1,4 +1,5 @@
 .popup {
+  display: none;
   left: 50%;
   margin-left: -20%;
   max-width: 600px;
@@ -6,6 +7,10 @@
   top: 95px;
   width: 40%;
   z-index: 50;
+
+  &.popup-show {
+    display: block;
+  }
 
   > .popup-content > .frame > .widget,
   > .content > .frame > .widget {
@@ -201,4 +206,65 @@
   .searchInput {
     display: none;
   }
+}
+
+.popup[data-popup-source-class~="objectId-edit"] {
+  display: block;
+
+  &.popup-objectId-edit-hiding:before {
+    display: none;
+  }
+
+  &.popup-objectId-edit-hide {
+    display: none;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+.popup-objectId-edit-loading {
+  &:after {
+    @-size: (@length-iconSize * 3);
+    @-offset: (0 - (@-size / 2));
+
+    animation: spin 1s infinite steps(8);
+    content: '\f110';
+    display: inline-block;
+    font-family: 'FontAwesome';
+    -webkit-font-smoothing: antialiased;
+    font-size: @-size;
+    font-weight: normal;
+    height: @-size;
+    left: 50%;
+    line-height: @-size;
+    margin: @-offset 0 0 @-offset;
+    position: fixed;
+    text-align: center;
+    text-decoration: none !important;
+    top: 50%;
+    width: @-size;
+    z-index: 1;
+  }
+}
+
+.popup-objectId-edit-loaded {
+  opacity: 0.1;
+  transition: opacity @time-fast;
+}
+
+.popup-objectId-edit-heading {
+  font-size: 18px;
+  font-weight: normal;
+  height: 50px;
+  line-height: 50px;
+  margin: -20px 0 10px 20px;
+  padding: 0;
 }

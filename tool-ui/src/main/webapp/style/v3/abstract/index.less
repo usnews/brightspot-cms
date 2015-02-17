@@ -251,12 +251,15 @@ figure,
   &:before {
     display: inline-block;
     font-family: 'FontAwesome';
+    -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     font-size: @length-iconSize;
     font-weight: normal;
     margin-right: 2px;
     text-align: center;
     text-decoration: none !important;
+    text-rendering: auto;
+    transform: translate(0, 0);
     width: @length-lineHeight;
   }
 }
@@ -501,6 +504,7 @@ figure,
 .icon-angle-down { &:before { content: '\f107'; } }
 .icon-desktop { &:before { content: '\f108'; } }
 .icon-laptop { &:before { content: '\f109'; } }
+.icon-spinner { &:before { content: '\f110'; } }
 .icon-reply { &:before { content: '\f112'; } }
 .icon-terminal { &:before { content: '\f120'; } }
 .icon-crop { &:before { content: '\f125'; } }
@@ -1019,11 +1023,6 @@ table.links.table-striped {
   text-align: right;
   width: 55px;
   white-space: nowrap;
-}
-
-.under {
-  opacity: 0.05;
-  transition: all @time-fast;
 }
 
 .visibilityLabel {

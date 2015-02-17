@@ -59,6 +59,7 @@ public class ToolUser extends Record implements ToolEntity {
 
     private StorageItem avatar;
 
+    @ToolUi.Tab("Dashboard")
     private Dashboard dashboard;
 
     @ToolUi.Hidden
