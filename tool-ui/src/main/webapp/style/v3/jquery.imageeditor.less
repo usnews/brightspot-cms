@@ -87,7 +87,8 @@
 .imageEditor-image {
   margin-right: 160px;
   min-height: 150px;
-
+  position:relative;
+  
   canvas,
   img {
     width: 100%;
@@ -307,4 +308,25 @@
 
 .imageEditor-focus .imageEditor-image {
   cursor: crosshair;
+}
+.imageEditor-focus-tooltip {
+  background:white;
+  padding:1em;
+  border:1px solid #888;
+  border-radius:5px;
+  position:absolute;
+  z-index:999;
+  opacity:0.8;
+}
+.imageEditor-focus-point {
+  position:absolute;
+  width:12px;
+  height:12px;
+  border:1px solid #000;
+  background-color:@color-change;
+  border-radius:6px;
+  
+  // Adjust position to account for half the size of the div
+  margin-left:-6px;
+  margin-top:-6px;
 }

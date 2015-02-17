@@ -2245,7 +2245,7 @@ define([
          */
         focusInit: function() {
 
-            var self;
+            var self, focusMessage;
 
             self = this;
 
@@ -2259,6 +2259,17 @@ define([
                 'class': 'imageEditor-image',
                 'html': self.dom.$focusImage
             }).appendTo(self.dom.tabs.image);
+
+            // Create a sidebar to hold a message
+            self.dom.$focusAside = $('<div/>', {
+                'class': 'imageEditor-aside',
+            }).appendTo(self.dom.tabs.image);
+
+            focusMessage = '<p>Click inside the image to set a focus point for all image sizes.</p>';
+            self.dom.$focusMessage = $('<div/>', {
+                'class': 'imageEditor-focus-message',
+                'html': focusMessage
+            }).appendTo(self.dom.$focusAside);
 
             // If the image is updated then update the focus image
             self.$element.on('imageUpdated', function(event, $image) {
@@ -2294,9 +2305,9 @@ define([
                 // Get the position that was clicked
                 focus = self.getClickPositionInElement($image, event);
 
-                if (!window.confirm('Set all sizes to focus on this point?')) {
-                    return;
-                }
+                // if (!window.confirm('Set all sizes to focus on this point?')) {
+                //     return;
+                // }
 
                 // Go through all sizes to get the aspect ratio of each
                 $.each(self.sizeGroups, function(groupName) {
@@ -2323,7 +2334,33 @@ define([
 
                 // When switching to sizes tab, update the thumbnails
                 self.sizesNeedsUpdate = true;
+
+                self.dom.$focusMessage.html(focusMessage + '<p>All image sizes have been updated to focus on the point that you clicked.</p>');
+                if (!self.dom.$focusPoint) {
+                    self.dom.$focusPoint = $('<div/>', {'class':'imageEditor-focus-point'}).appendTo(self.dom.$focusImage.parent());
+                }
+                self.dom.$focusPoint.css({left:(focus.xPercent * 100) + '%', top:(focus.yPercent * 100) + '%'});
+
+                self.$element.trigger('change');
             });
+
+/***
+            // Add floating tooltip to display focus position
+            self.dom.$focusTooltip = $('<div/>', {
+                'class':'imageEditor-focus-tooltip',
+                'text': 'Click to focus all sizes on this point.'
+            }).hide().appendTo(document.body);
+
+            self.dom.$focusImage.parent().on('mouseover', function(){
+                self.dom.$focusTooltip.show();
+            }).mousemove(function(e) {
+                var position;
+                //position = self.getClickPositionInElement(this, e);
+                self.dom.$focusTooltip.css({left:e.pageX + 10, top: e.pageY + 10});
+            }).mouseout(function(){
+                self.dom.$focusTooltip.hide();
+            });
+**/            
         },
 
 
