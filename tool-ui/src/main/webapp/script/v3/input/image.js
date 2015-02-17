@@ -2900,6 +2900,8 @@ define([
          * Set the font on all text overlays that are visible,
          * or for a single text overlay.
          *
+         * @param String groupName
+         *
          * @param String [textInfoKey]
          * Optionally provide the textInfoKey for a single text info,
          * and it will be the only one that is resized.
@@ -2953,7 +2955,10 @@ define([
                     
                     textSize = 1 / sizeHeight * originalFontSize;
                     textInfo.size = textSize;
-                    $rteBody.css('font-size', $sizeBox.height() * textSize);
+                    $rteBody.css({
+                        'font-size': $sizeBox.height() * textSize,
+                        'line-height': 1.2
+                    });
                 }
             });
 
