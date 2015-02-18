@@ -171,7 +171,7 @@
   .message-error {
     margin-left: 145px;
 
-    .objectInputs-small & {
+    .objectInputs[max-width^='350px'] & {
       margin-left: 0;
     }
   }
@@ -203,7 +203,7 @@
     position: relative;
   }
 
-  .objectInputs-small &:before {
+  .objectInputs[max-width^='350px'] &:before {
     display: none;
   }
 }
@@ -230,7 +230,7 @@
     width: 100%;
   }
 
-  .objectInputs-small & {
+  .objectInputs[max-width^='350px'] & {
     display: block;
     float: none;
     margin: 0 0 5px 0;
@@ -247,7 +247,7 @@
   margin-left: 140px;
   padding: 2px 2px 2px 6px;
 
-  .objectInputs-small & {
+  .objectInputs[max-width^='350px'] & {
     margin-bottom: 5px;
     margin-left: 0;
     padding-left: 2px;
@@ -265,7 +265,7 @@
     width: 100%;
   }
 
-  .objectInputs-small & {
+  .objectInputs[max-width^='350px'] & {
     margin-bottom: 5px;
     margin-left: 0;
     padding-left: 2px;
@@ -356,7 +356,7 @@
   margin-bottom: 5px;
   margin-left: (@length-inputLabel-width + @length-inputLabel-marginRight);
 
-  .objectInputs-small & {
+  .objectInputs[max-width^='350px'] & {
     margin-left: 2px;
   }
 }

@@ -2255,7 +2255,6 @@ public class ToolPageContext extends WebPageContext {
                     "data-type", type != null ? type.getInternalName() : null,
                     "data-id", state.getId(),
                     "data-object-id", state.getId(),
-                    "data-widths", "{ \"objectInputs-small\": { \"<=\": 350 } }",
                     "data-layout-placeholders", layoutPlaceholdersJson);
 
                 Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
