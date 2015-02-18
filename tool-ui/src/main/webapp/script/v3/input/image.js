@@ -1213,7 +1213,7 @@ define([
                     }
 
                     $('<span/>', {
-                        title: sizeInfo.description,
+                        title: sizeInfo.description + ' (' + sizeInfo.width + ' x ' + sizeInfo.height + ')',
                         html: sizeInfo.description
                     }).appendTo(groupLabel);
 
@@ -2693,7 +2693,7 @@ define([
                 // Loop  through all the text blocks within this group
                 $.each(self.sizeGroups[groupName].textInfos, function(textInfoKey, textInfo) {
 
-                    var $rteInput;
+                    var fontSize, $rteInput;
 
                     // Update the text from the rich text editor
                     $rteInput = textInfo.$textOverlay.find('.imageEditor-textOverlayInput');
@@ -2702,10 +2702,18 @@ define([
                     }
                     
                     texts += self.textDelimiter + textInfo.text;
-                    textXs += self.textDelimiter + textInfo.x;
-                    textYs += self.textDelimiter + textInfo.y;
-                    textWidths += self.textDelimiter + textInfo.width;
-                    textSizes += self.textDelimiter + textInfo.size;
+                    textXs += self.textDelimiter + textInfo.x.toFixed(3);
+                    textYs += self.textDelimiter + textInfo.y.toFixed(3);
+                    textWidths += self.textDelimiter + textInfo.width.toFixed(3);
+
+                    // Get the font size for the text overlay CSS, but default to something reasonable if it wasn't found
+                    fontSize = textInfo.originalFontSize || 16;
+
+                    // Save the scaling factor for the font size based on the height of this size.
+                    // If height is zero then use the width instead.
+                    textInfo.size = fontSize / (sizeInfo.height ? sizeInfo.height : sizeInfo.width);
+
+                    textSizes += self.textDelimiter + textInfo.size.toFixed(3);
                 });
 
                 // Save the concatenated delimted strings to the hidden variables
@@ -2736,17 +2744,15 @@ define([
             
             groupInfo.textInfos[textInfoKey] = {
                 text:'',
-                x:0,
-                y:0,
-                width:0,
+                x:0.25,
+                y:0.25,
+                width:0.5,
                 size:0
             };
 
-            // Create a new text overlay and focus on it
+            // Create a new text overlay and focus on it.
+            // Note this will also update the hidden input values.
             self.textOverlayAdd(groupName, textInfoKey, true);
-            
-            // Update the hidden variables so the new text will be saved
-            self.textSetTextInfo(groupName, groupInfo.textInfos);
         },
 
 
@@ -2777,14 +2783,14 @@ define([
             }
 
             $sizeBox = groupInfo.$sizeBox;
-            
+
             $textOverlay = $('<div/>', {
                 'class': 'imageEditor-textOverlay',
                 'css': {
-                    'left': ((textInfo.x || 0.25) * 100) + '%',
+                    'left': (textInfo.x * 100) + '%',
                     'position': 'absolute',
-                    'top': ((textInfo.y || 0.25) * 100) + '%',
-                    'width': ((textInfo.width || 0.50) * 100) + '%',
+                    'top': (textInfo.y * 100) + '%',
+                    'width': (textInfo.width * 100) + '%',
                     'z-index': 1
                 }
             }).appendTo($sizeBox);
@@ -2856,7 +2862,7 @@ define([
                 'useLineBreaks': true
             });
 
-            // Move the rich text toolbacr controls to on top of the image
+            // Move the rich text toolbar controls to on top of the image
             // TODO: there appears to be a bug here where multiple text inputs
             // cause multiple toolbars to appear.
             // Need to find a way to show the toolbar only when the RTE has focus.
@@ -2908,13 +2914,31 @@ define([
          */
         textOverlaySetFont: function(groupName, singleTextInfoKey) {
 
-            var groupInfo, self, $sizeBox;
+            var groupInfo, groupSize, scaleBy, self, $sizeBox;
 
             self = this;
 
             groupInfo = self.sizeGroups[groupName];
             $sizeBox = groupInfo.$sizeBox;
-            
+
+            // Find a single height in the group so we can use it
+            // to determine the font size when displaying the text overlay.
+            // Note since each size will scale the font 
+            $.each(groupInfo.sizeInfos, function(sizeName, sizeInfo) {
+                
+                // Special case if there is a variable height, use the width to scale instead
+                if (sizeInfo.height === 0) {
+                    scaleBy = 'width';
+                    groupSize = sizeInfo.width;
+                    return false; // stop looping
+                }
+                
+                if (groupSize === undefined || sizeInfo.height > groupSize) {
+                    scaleBy = 'height';
+                    groupSize = sizeInfo.height;
+                }
+            });
+
             // Don't do anything if the size box is not visible
             if (!$sizeBox.is(':visible')) {
                 return;
@@ -2923,7 +2947,7 @@ define([
             // Loop through each text overlay within the sizebox
             $sizeBox.find('.imageEditor-textOverlay').each(function() {
 
-                var originalFontSize, $rteBody, sizeHeight, sizeWidth, $textOverlay, textInfoKey, textInfo, textSize;
+                var originalFontSize, $rteBody, sizeHeight, sizeWidth, $textOverlay, textInfoKey, textInfo;
 
                 $textOverlay = $(this);
 
@@ -2952,17 +2976,22 @@ define([
                 }
 
                 if (originalFontSize > 0) {
-                    
-                    textSize = 1 / sizeHeight * originalFontSize;
-                    textInfo.size = textSize;
+
+                    // Scale the text as it would appear on the cropped image
                     $rteBody.css({
-                        'font-size': $sizeBox.height() * textSize,
+                        'font-size': ((scaleBy === 'height') ? $sizeBox.height() : $sizeBox.width()) * (originalFontSize / groupSize),
                         'line-height': 1.2
                     });
+
+                    // Save the font size so we can use it later when updating the hidden inputs.
+                    // Each individual size needs to have a different textSize applied.
+                    textInfo.originalFontSize = originalFontSize;
                 }
+
             });
 
-            // Update the hiden variables
+            // Update the hiden variables with the new textSize values
+            // based on the font size and the sizes of the cropped image
             self.textSetTextInfo(groupName);
         },
 
