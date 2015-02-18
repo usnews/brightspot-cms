@@ -7,9 +7,8 @@
 }
 
 @import 'variables.less';
-@import 'abstract/index';
+@import 'element.less';
 @import 'reset.less';
-@import 'hacks.less';
 
 .repeatableForm > ol > li > .inputLabel > .inputSmall,
 .repeatableForm > ul > li > .inputLabel > .inputSmall {
@@ -18,39 +17,41 @@
   padding: 0 2px 0 6px;
 }
 
-@import 'tool.less';
+@import 'calendar.less';
+@import 'carousel.less';
+@import 'code-editor.less';
+@import 'common-content.less';
+@import 'content-diff.less';
+@import 'dashboard.less';
+@import 'drop-down.less';
+@import 'expandable.less';
+@import 'fixed-scrollable.less';
+@import 'frame.less';
 @import 'guide.less';
-@import 'inlineeditor.less';
-@import 'jquery.calendar.less';
-@import 'jquery.code.less';
-@import 'jquery.dropdown.less';
-@import 'jquery.expandable.less';
-@import 'jquery.fixedscrollable.less';
-@import 'jquery.frame.less';
+@import 'image-editor.less';
+@import 'inline-editor.less';
+@import 'object-id.less';
+@import 'page-layout.less';
+@import 'page-thumbnails.less';
+@import 'popup.less';
+@import 'repeatable.less';
+@import 'rte.less';
+@import 'scheduled-events.less';
+@import 'search.less';
+@import 'taxonomy.less';
+@import 'tool.less';
+@import 'tool-user-profile.less';
+@import 'work-streams.less';
+@import 'workflow.less';
+
+// From Bower.
 @import '../jquery.handsontable.full.css';
-@import 'jquery.imageeditor.less';
-@import 'jquery.objectid.less';
-@import 'jquery.pagelayout.less';
-@import 'jquery.pagethumbnails.less';
-@import 'jquery.popup.less';
-@import 'jquery.repeatable.less';
-@import 'jquery.rte.less';
-@import '../spectrum.css';
-@import 'jquery.taxonomy.less';
-@import 'jquery.workflow.less';
 @import '../leaflet/leaflet.css';
 @import '../leaflet/leaflet.draw.css';
 @import '../leaflet/l.geosearch.css';
 @import '../leaflet/L.Control.Locate.min.css';
 @import '../nv.d3.css';
-@import 'content/diff.less';
-@import 'dashboard';
-@import 'page/common-content';
-@import 'page/tool-user-profile';
-@import 'page/work-streams';
-@import 'carousel.less';
-@import 'widget/scheduled-events.less';
-@import 'search';
+@import '../spectrum.css';
 
 .locationMap, .regionMap {
   min-width: 500px;

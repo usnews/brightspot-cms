@@ -57,6 +57,14 @@ button {
   &:extend(.button all);
 }
 
+button,
+input {
+  &::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+  }
+}
+
 code {
   .code;
 }
@@ -150,6 +158,10 @@ input {
   &[type='submit'].link {
     .link;
   }
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 1000px white !important;
 }
 
 ol {
