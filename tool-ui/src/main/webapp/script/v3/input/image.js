@@ -3173,7 +3173,7 @@ define([
             self.hotspotOverlayResetAll();
 
             // Monitor the page so if the hotspot form inputs are modified we redisplay the hotspots
-            self.$element.closest('.inputContainer').on('create', function() {
+            self.$element.closest('.inputContainer').on('create change', function() {
 
                 // If a new hotspot was added it probably has blank values,
                 // so give it some reasonable default values instead
@@ -3270,10 +3270,10 @@ define([
             
             // Get the form input values
             data = {
-                x: parseInt($input.find(':input[name$="x"]').val()) || 1,
-                y: parseInt($input.find(':input[name$="y"]').val()) || 1,
-                width: parseInt($input.find(':input[name$="width"]').val()) || 0,
-                height: parseInt($input.find(':input[name$="height"]').val()) || 0
+                x: Math.abs(parseInt($input.find(':input[name$="x"]').val()) || 1),
+                y: Math.abs(parseInt($input.find(':input[name$="y"]').val()) || 1),
+                width: Math.abs(parseInt($input.find(':input[name$="width"]').val()) || 0),
+                height: Math.abs(parseInt($input.find(':input[name$="height"]').val()) || 0)
             };
 
             // Adjust for rotation
