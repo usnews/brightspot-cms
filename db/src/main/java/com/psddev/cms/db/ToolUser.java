@@ -134,6 +134,7 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private long changePasswordTokenTime;
 
+    @Deprecated
     @ToolUi.Placeholder("Default")
     @ToolUi.Tab("Advanced")
     @ToolUi.Values({ "v2", "v3" })
@@ -660,10 +661,12 @@ public class ToolUser extends Record implements ToolEntity {
         this.changePasswordTokenTime = changePasswordToken == null ? 0L : System.currentTimeMillis();
     }
 
+    @Deprecated
     public String getTheme() {
         return theme;
     }
 
+    @Deprecated
     public void setTheme(String theme) {
         this.theme = theme;
     }

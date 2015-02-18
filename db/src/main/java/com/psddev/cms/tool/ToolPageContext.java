@@ -1481,20 +1481,9 @@ public class ToolPageContext extends WebPageContext {
         }
 
         CmsTool cms = getCmsTool();
-        String companyName = cms.getCompanyName();
         String extraCss = cms.getExtraCss();
         String extraJavaScript = cms.getExtraJavaScript();
-
-        if (ObjectUtils.isBlank(companyName)) {
-            companyName = "Brightspot";
-        }
-
-        ToolUser user = getUser();
-        String theme = ObjectUtils.firstNonNull(user != null ? user.getTheme() : null, cms.getTheme(), "cms");
-
-        if ("v2".equals(theme)) {
-            theme = "cms";
-        }
+        String theme = "v3";
 
         if (getCmsTool().isUseNonMinifiedCss()) {
             writeElement("link", "rel", "stylesheet/less", "type", "text/less", "href", cmsResource("/style/" + theme + ".less"));
