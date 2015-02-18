@@ -51,8 +51,7 @@ function($, bsp_utils) {
                 $dynamicTexts = $form.find(
                         '[data-dynamic-text][data-dynamic-text != ""],' +
                         '[data-dynamic-html][data-dynamic-html != ""],' +
-                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""],' +
-                        '[data-dynamic-field-name][data-dynamic-field-name != ""]');
+                        '[data-dynamic-placeholder][data-dynamic-placeholder != ""]');
 
                 $dynamicTexts = $dynamicTexts.filter(function() {
                     return $(this).closest('.collapsed').length === 0;
