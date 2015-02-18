@@ -3272,8 +3272,8 @@ define([
             data = {
                 x: parseInt($input.find(':input[name$="x"]').val()) || 1,
                 y: parseInt($input.find(':input[name$="y"]').val()) || 1,
-                width: parseInt($input.find(':input[name$="width"]').val()) || 1,
-                height: parseInt($input.find(':input[name$="height"]').val()) || 1
+                width: parseInt($input.find(':input[name$="width"]').val()) || 0,
+                height: parseInt($input.find(':input[name$="height"]').val()) || 0
             };
 
             // Adjust for rotation
@@ -3350,10 +3350,19 @@ define([
             }
 
             // Calculate percentages
-            data.widthPercent = (data.width / widthAdjusted) * 100;
-            data.heightPercent = (data.height / heightAdjusted) * 100;
             data.xPercent = (data.x / widthAdjusted) * 100;
             data.yPercent = (data.y / heightAdjusted) * 100;
+            if (data.width === 0) {
+                data.widthPercent = 0;
+            } else {
+                data.widthPercent = data.width / widthAdjusted * 100;
+            }
+
+            if (data.height === 0) {
+                data.heightPercent = 0;
+            } else {
+                data.heightPercent = data.height / heightAdjusted * 100;
+            }
 
             return data;
         },
@@ -3397,7 +3406,6 @@ define([
             // keep track of the width and height after rotation
             widthAdjusted = widthOriginal;
             heightAdjusted = heightOriginal;
-
             
             // Calculate how much our page image differs from the original image
             rotation = self.adjustmentRotateGet();
@@ -3568,12 +3576,11 @@ define([
             }).appendTo($hotspotOverlay);
 
             // Check if we are a single point or a region
-            if (isNaN(data.width)) {
+            if (data.width === 0) {
                 
                 // This hotspot is a single point so make the box 10x10
-                
                 $hotspotOverlay.css("width", "10px");
-                $hotspotOverlay.css("height", "0px");
+                $hotspotOverlay.css("height", "10px");
                 
             } else {
 
