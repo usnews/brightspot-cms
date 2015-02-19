@@ -1277,7 +1277,12 @@ public class ToolPageContext extends WebPageContext {
                     writeStart("h1", "class", "toolTitle");
                         writeStart("a", "href", cmsUrl("/"));
                             if (companyLogo != null) {
-                                writeElement("img", "src", companyLogo.getPublicUrl(), "alt", companyName);
+                                writeElement("img",
+                                        "alt", companyName,
+                                        "src", JspUtils.isSecure(getRequest()) ?
+                                                companyLogo.getSecurePublicUrl() :
+                                                companyLogo.getPublicUrl());
+
                             } else {
                                 writeHtml(companyName);
                             }
