@@ -301,10 +301,7 @@ public class AuthenticationFilter extends AbstractFilter {
                     toolUser = null;
 
                 } else {
-                    toolUser = Query.
-                            from(ToolUser.class).
-                            where("_id = ?", ObjectUtils.to(UUID.class, cookieValue.substring(cookieName.length()))).
-                            first();
+                    toolUser = ToolUser.Static.getByToken(cookieValue.substring(cookieName.length()));
 
                     request.setAttribute(toolUserAttribute, toolUser);
                 }
