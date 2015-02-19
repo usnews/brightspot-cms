@@ -675,8 +675,14 @@ public class ToolPageContext extends WebPageContext {
         Object object;
         WorkStream workStream = Query.findById(WorkStream.class, param(UUID.class, "workStreamId"));
 
+        UUID draftId = param(UUID.class, DRAFT_ID_PARAMETER);
         if (!isFormPost() && workStream != null) {
             object = workStream.next(getUser());
+            if (object instanceof Draft) {
+                objectId = ((Draft) object).getObjectId();
+                draftId = ((Draft) object).getId();
+                object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
+            }
 
         } else {
             object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
@@ -732,8 +738,6 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
         }
-
-        UUID draftId = param(UUID.class, DRAFT_ID_PARAMETER);
 
         if (object == null) {
             Object draftObject = Query.fromAll().where("_id = ?", draftId).first();
