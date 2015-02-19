@@ -84,8 +84,10 @@
     }
 }
 
+@imageEditor-margin-right: 160px;
+
 .imageEditor-image {
-  margin-right: 160px;
+  margin-right: @imageEditor-margin-right;
   min-height: 150px;
   position:relative;
   
@@ -93,6 +95,10 @@
   img {
     width: 100%;
   }
+}
+
+.imageEditor-text-toolbar {
+  margin-right:@imageEditor-margin-right;
 }
 
 .imageEditor-cover {

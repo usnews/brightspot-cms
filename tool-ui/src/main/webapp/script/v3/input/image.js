@@ -2702,9 +2702,9 @@ define([
                     }
                     
                     texts += self.textDelimiter + textInfo.text;
-                    textXs += self.textDelimiter + textInfo.x.toFixed(3);
-                    textYs += self.textDelimiter + textInfo.y.toFixed(3);
-                    textWidths += self.textDelimiter + textInfo.width.toFixed(3);
+                    textXs += self.textDelimiter + parseFloat(textInfo.x).toFixed(3);
+                    textYs += self.textDelimiter + parseFloat(textInfo.y).toFixed(3);
+                    textWidths += self.textDelimiter + parseFloat(textInfo.width).toFixed(3);
 
                     // Get the font size for the text overlay CSS, but default to something reasonable if it wasn't found
                     fontSize = textInfo.originalFontSize || 16;
@@ -2771,7 +2771,7 @@ define([
 
         textOverlayAdd: function(groupName, textInfoKey, focus) {
 
-            var groupInfo, self, $sizeBox, textInfo, $textOverlay, $textOverlayInput;
+            var groupInfo, self, $sizeBox, textInfo, $textOverlay, $textOverlayInput, $textOverlayToolbar;
 
             self = this;
 
@@ -2861,13 +2861,31 @@ define([
                 'initImmediately': true,
                 'useLineBreaks': true
             });
-
-            // Move the rich text toolbar controls to on top of the image
-            // TODO: there appears to be a bug here where multiple text inputs
-            // cause multiple toolbars to appear.
-            // Need to find a way to show the toolbar only when the RTE has focus.
-            self.$element.before($textOverlay.find('.rte-toolbar-container'));
             
+            // Move the rich text toolbar controls to on top of the image.
+            // Note we need to wrap the toolbar inside another div,
+            // because the rte messes around with the styles on the toolbar,
+            // and we will need to hide and show the toolbar later.
+            
+            $textOverlayToolbar = $('<div/>', {'class':'imageEditor-text-toolbar'})
+                .hide()
+                .append( $textOverlay.find('.rte-toolbar-container') )
+                .appendTo(self.dom.tabs.sizes);
+            
+            $textOverlayInput.on('rtefocus', function(){
+                self.$element.find('.imageEditor-text-toolbar').hide();
+                $textOverlayToolbar.show();
+                return false;
+            });
+            
+            $textOverlayInput.on('rteblur', function(){
+                $textOverlayToolbar.hide();
+                return false;
+            });
+
+            // Save the toolbar so we can delete it later
+            textInfo.$toolbar = $textOverlayToolbar;
+        
             // Try to set the font size after the rich text editor loads
             // TODO: need a better way to do this, such as a ready event that the RTE fires
             var wait = 5000;
@@ -2897,6 +2915,7 @@ define([
             // Focus on the text input
             if (focus) {
                 $textOverlayInput.focus();
+                $textOverlayToolbar.show();
             }
 
         },
@@ -2998,11 +3017,15 @@ define([
         
         textOverlayRemove: function(groupName, textInfoKey) {
             
-            var self;
+            var self, textInfos;
             
             self = this;
 
-            delete self.sizeGroups[groupName].textInfos[textInfoKey];
+            textInfos = self.sizeGroups[groupName].textInfos;
+
+            textInfos[textInfoKey].$toolbar.remove();
+            
+            delete textInfos[textInfoKey];
             
             // Update the hidden variables
             self.textSetTextInfo(groupName);
