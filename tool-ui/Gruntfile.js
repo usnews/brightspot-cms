@@ -115,9 +115,6 @@ module.exports = function(grunt) {
                 dir: 'script',
                 rjsModules: [
                     {
-                        name: 'cms'
-                    },
-                    {
                         name: 'v3'
                     }
                 ]
