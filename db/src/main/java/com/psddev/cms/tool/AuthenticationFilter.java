@@ -217,11 +217,6 @@ public class AuthenticationFilter extends AbstractFilter {
             logOut(PageContextFilter.Static.getRequest(), response);
         }
 
-        @Deprecated
-        public static void logOut(HttpServletResponse response) {
-            logOut(null, response);
-        }
-
         /**
          * Returns {@code true} if a tool user is authenticated in the given
          * {@code request}.
