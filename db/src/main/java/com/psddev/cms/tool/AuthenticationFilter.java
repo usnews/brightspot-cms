@@ -319,11 +319,10 @@ public class AuthenticationFilter extends AbstractFilter {
                     toolUser = null;
 
                 } else {
-                    toolUser = Query.
-                            from(ToolUser.class).
-                            where("_id = ?", ObjectUtils.to(UUID.class, cookieValue.substring(cookieName.length()))).
-                            first();
+                    String token = cookieValue.substring(cookieName.length());
+                    toolUser = ToolUser.Static.getByToken(token);
 
+                    request.setAttribute(USER_TOKEN, token);
                     request.setAttribute(toolUserAttribute, toolUser);
                 }
 
