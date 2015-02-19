@@ -108,7 +108,7 @@ module.exports = function(grunt) {
 
             styles: {
                 dir: 'style',
-                less: [ 'cms.less', 'v3.less' ]
+                less: [ 'v3.less' ]
             },
 
             scripts: {
