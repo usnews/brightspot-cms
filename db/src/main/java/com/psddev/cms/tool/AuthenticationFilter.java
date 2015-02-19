@@ -41,6 +41,8 @@ public class AuthenticationFilter extends AbstractFilter {
     @Deprecated
     public static final String USER_ATTRIBUTE = ATTRIBUTE_PREFIX + "user";
 
+    public static final String USER_TOKEN = ATTRIBUTE_PREFIX + "token";
+
     /**
      * @deprecated Don't use this directly.
      */
@@ -169,11 +171,19 @@ public class AuthenticationFilter extends AbstractFilter {
          * @param user Can't be {@code null}.
          */
         public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user) {
-            String userId = user.getId().toString();
+            String token = (String) request.getAttribute(USER_TOKEN);
 
-            setSignedCookie(request, response, TOOL_USER_COOKIE, userId, -1, true);
-            setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, userId, -1, false);
+            if (token == null || (user != null && user.getId().toString().equals(token))) {
+                token = user.generateLoginToken();
+
+            } else {
+                user.refreshLoginToken(token);
+            }
+
+            setSignedCookie(request, response, TOOL_USER_COOKIE, token, -1, true);
+            setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, token, -1, false);
             request.setAttribute(USER_ATTRIBUTE, user);
+            request.setAttribute(USER_TOKEN, token);
             request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
         }
 
@@ -184,6 +194,13 @@ public class AuthenticationFilter extends AbstractFilter {
          * @param response Can't be {@code null}.
          */
         public static void logOut(HttpServletRequest request, HttpServletResponse response) {
+            if (request != null) {
+                ToolUser user = getUser(request);
+                String token = (String) request.getAttribute(USER_TOKEN);
+
+                user.removeLoginToken(token);
+            }
+
             setSignedCookie(request, response, TOOL_USER_COOKIE, "", 0, true);
             setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, "", 0, false);
         }
@@ -198,6 +215,11 @@ public class AuthenticationFilter extends AbstractFilter {
         @Deprecated
         public static void logOut(HttpServletResponse response) {
             logOut(PageContextFilter.Static.getRequest(), response);
+        }
+
+        @Deprecated
+        public static void logOut(HttpServletResponse response) {
+            logOut(null, response);
         }
 
         /**
