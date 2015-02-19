@@ -80,7 +80,25 @@ public class AuthenticationFilter extends AbstractFilter {
             if (token == null || (user != null && user.getId().toString().equals(token))) {
                 token = user.generateLoginToken();
             } else {
-                user.refreshLoginToken(token);
+                boolean refreshed = false;
+
+                for (java.util.Iterator<ToolUser.LoginToken> i = user.getLoginTokens().iterator(); i.hasNext();) {
+                    ToolUser.LoginToken loginToken = i.next();
+
+                    if (loginToken.getToken().equals(token)) {
+                        loginToken.refreshToken();
+                        refreshed = true;
+
+                    } else if (!loginToken.isValid()) {
+                        i.remove();
+                    }
+                }
+
+                if (!refreshed) {
+                    token = user.generateLoginToken();
+                }
+
+                user.save();
             }
 
             Cookie cookie = new Cookie(USER_COOKIE, token);
