@@ -301,8 +301,10 @@ public class AuthenticationFilter extends AbstractFilter {
                     toolUser = null;
 
                 } else {
-                    toolUser = ToolUser.Static.getByToken(cookieValue.substring(cookieName.length()));
+                    String token = cookieValue.substring(cookieName.length());
+                    toolUser = ToolUser.Static.getByToken(token);
 
+                    request.setAttribute(USER_TOKEN, token);
                     request.setAttribute(toolUserAttribute, toolUser);
                 }
 
