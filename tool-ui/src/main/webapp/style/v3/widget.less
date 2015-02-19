@@ -1,5 +1,5 @@
 @widget-borderRadius: 2px;
-@widget-headingHeight: @length-lineHeight * 2;
+@widget-headingHeight: @lineHeight-default * 2;
 @widget-controlsOffset: floor((@widget-headingHeight - @widget-buttonSize) / 2);
 @widget-buttonSize: 20px;
 @widget-padding: 20px;
@@ -23,7 +23,6 @@
   border-top-left-radius: @widget-borderRadius;
   border-top-right-radius: @widget-borderRadius;
   color: @color-text;
-  font-family: @fontFamily-label;
   font-size: 100%;
   font-weight: 700;
   height: @widget-headingHeight;

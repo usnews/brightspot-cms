@@ -47,7 +47,7 @@
   white-space: nowrap;
 
   &.state-placeholder {
-    color: @color-note;
+    color: @color-placeholder;
   }
 }
 
@@ -84,7 +84,7 @@ input[type="text"].dropDown-search {
   background-color: white;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
-  border: @length-inputBorderWidth solid @color-focus;
+  border: @input-borderWidth solid @color-focus;
   list-style-type: none;
   margin: 0 5px 0 0;
   max-height: 300px;
@@ -99,10 +99,10 @@ input[type="text"].dropDown-search {
 }
 
 .dropDown-listGroupLabel {
-  border-bottom: 1px solid @color-note;
-  color: @color-note;
+  border-bottom: 1px solid @color-placeholder;
+  color: @color-placeholder;
   font-size: 80%;
-  line-height: (@length-lineHeight * 0.8);
+  line-height: (@lineHeight-default * 0.8);
   text-transform: uppercase;
   margin: 10px 5px;
   padding: 0;
@@ -110,8 +110,8 @@ input[type="text"].dropDown-search {
 
 .dropDown-listItem {
   cursor: pointer;
-  height: @length-inputHeight;
-  line-height: @length-inputHeight;
+  height: @input-height;
+  line-height: @input-height;
   padding: 0px 15px 0px 25px;
   position: relative;
 

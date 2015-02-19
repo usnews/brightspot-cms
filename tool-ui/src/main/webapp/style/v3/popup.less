@@ -131,18 +131,18 @@
   margin-top: 4px !important;
   max-width: none !important;
   right: 0 !important;
-  top: (@length-toolHeader-height - 14) !important;
+  top: (@toolHeader-height - 14) !important;
   width: auto !important;
 
   .hasToolBroadcast & {
-    top: (@length-toolBroadcast-height + @length-toolHeader-height - 14) !important;
+    top: (@toolBroadcast-height + @toolHeader-height - 14) !important;
   }
 
   &:before {
-    top: @length-toolHeader-height;
+    top: @toolHeader-height;
 
     .hasToolBroadcast & {
-      top: (@length-toolBroadcast-height + @length-toolHeader-height);
+      top: (@toolBroadcast-height + @toolHeader-height);
     }
   }
 
@@ -232,7 +232,7 @@
 
 .popup-objectId-edit-loading {
   &:after {
-    @-size: (@length-iconSize * 3);
+    @-size: (@iconSize-default * 3);
     @-offset: (0 - (@-size / 2));
 
     animation: spin 1s infinite steps(8);

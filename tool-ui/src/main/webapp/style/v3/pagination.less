@@ -10,8 +10,8 @@
 }
 
 .pagination-item {
-  @-item-height: (@length-inputHeight - (@length-inputBorderWidth * 2));
-  @-select-paddingTB: @-item-height - @length-lineHeight;
+  @-item-height: (@input-height - (@input-borderWidth * 2));
+  @-select-paddingTB: @-item-height - @lineHeight-default;
   @-select-paddingTop: floor(@-select-paddingTB / 2);
 
   float: left;

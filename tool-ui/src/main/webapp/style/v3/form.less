@@ -13,7 +13,7 @@
 .button {
   @-borderWidth: 1px;
   @-lineHeight: 20px;
-  @-paddingTB: @length-inputHeight - @-lineHeight - (@-borderWidth * 2);
+  @-paddingTB: @input-height - @-lineHeight - (@-borderWidth * 2);
   @-paddingTop: floor(@-paddingTB / 2);
 
   .background-flat(white);
@@ -24,7 +24,7 @@
   display: inline-block;
   font-weight: 700;
   max-width: 100%;
-  min-height: @length-inputHeight;
+  min-height: @input-height;
   line-height: @-lineHeight;
   margin: 0;
   padding: @-paddingTop 20px (@-paddingTB - @-paddingTop) 20px;
@@ -59,8 +59,8 @@
 
   li {
     float: left;
-    height: @length-inputHeight;
-    line-height: @length-inputHeight;
+    height: @input-height;
+    line-height: @input-height;
     padding: 0 10px;
     white-space: nowrap;
     &:not(:last-child) {
@@ -100,14 +100,14 @@
 
 .inputLike {
   @-borderWidth: 1px;
-  @-paddingTB: @length-inputHeight - @length-lineHeight - (@-borderWidth * 2);
+  @-paddingTB: @input-height - @lineHeight-default - (@-borderWidth * 2);
   @-paddingTop: floor(@-paddingTB / 2);
 
   .background-flat(white);
   border: @-borderWidth solid @color-border;
   border-radius: 2px;
   box-sizing: border-box;
-  min-height: @length-inputHeight;
+  min-height: @input-height;
   padding: @-paddingTop 6px (@-paddingTB - @-paddingTop) 6px;
   transition: border-color @time-fast, box-shadow @time-fast;
 
@@ -137,7 +137,7 @@
   &:extend(.inputLike all);
 
   display: inline-block;
-  line-height: @length-lineHeight;
+  line-height: @lineHeight-default;
   margin: 0;
   vertical-align: middle;
   white-space: pre-wrap;
@@ -213,8 +213,8 @@
   border-radius: 2px;
   box-sizing: border-box;
   color: darken(white, 70%);
-  min-height: @length-inputHeight;
-  padding: ((@length-inputHeight - @length-lineHeight) / 2) 10px;
+  min-height: @input-height;
+  padding: ((@input-height - @lineHeight-default) / 2) 10px;
 }
 
 .inputLabel {
@@ -222,7 +222,7 @@
 
   float: left;
   position: relative;
-  width: @length-inputLabel-width;
+  width: @inputLabel-width;
 
   > label {
     display: block;
@@ -255,7 +255,7 @@
 }
 
 .inputSmall {
-  margin-left: (@length-inputLabel-width + @length-inputLabel-marginRight);
+  margin-left: (@inputLabel-width + @inputLabel-marginRight);
   position: relative;
 
   > input[type='password'],
@@ -354,7 +354,7 @@
 .inputNote {
   display: block;
   margin-bottom: 5px;
-  margin-left: (@length-inputLabel-width + @length-inputLabel-marginRight);
+  margin-left: (@inputLabel-width + @inputLabel-marginRight);
 
   .objectInputs[max-width^='350px'] & {
     margin-left: 2px;
@@ -451,7 +451,7 @@
   .icon;
   .icon-resize-full;
 
-  color: @color-note;
+  color: @color-placeholder;
   cursor: pointer;
   position: absolute;
   right: 0;
@@ -467,7 +467,7 @@
 }
 
 .inputContainer-listLayoutItem {
-  .background-flat(@color-alt);
+  .background-flat(@color-heading);
   margin-bottom: -30000px;
   padding: 5px 5px 30005px 5px;
 
@@ -496,7 +496,7 @@
   white-space: nowrap;
 
   > label {
-    color: @color-note;
+    color: @color-placeholder;
     left: 0.7em;
     line-height: 1;
     margin-top: -0.5em;
@@ -535,7 +535,7 @@
 }
 
 @select-markerMargin: 2px;
-@select-markerSize: (@length-fontSize + 2 * (@size-input-padding + @length-inputBorderWidth - @select-markerMargin));
+@select-markerSize: (@fontSize-default + 2 * (@input-padding + @input-borderWidth - @select-markerMargin));
 
 .select {
   &:extend(.input all);
@@ -547,7 +547,7 @@
   background-repeat: no-repeat;
   cursor: pointer;
   display: inline-block;
-  height: (@length-lineHeight + 2 * (@size-input-padding + @length-inputBorderWidth));
+  height: (@lineHeight-default + 2 * (@input-padding + @input-borderWidth));
   max-width: 100%;
   padding-right: 26px;
   position: relative;

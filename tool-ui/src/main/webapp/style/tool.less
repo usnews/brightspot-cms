@@ -41,7 +41,7 @@
 
 .toolHeader {
     background-color: @color-note-lighter;
-    border-bottom: 1px solid @color-note;
+    border-bottom: 1px solid @color-placeholder;
     .box-shadow(@color-background 0 8px 15px);
     height: 59px;
     left: 0;
@@ -59,7 +59,7 @@
 
     a {
         color: @color-text;
-        font-family: @fontFamily-label;
+        font-family: @fontFamily-default;
         font-size: 30px;
         line-height: 30px;
         vertical-align: bottom;
@@ -107,13 +107,13 @@
         display: inline;
 
         &:before {
-            color: @color-note;
+            color: @color-placeholder;
             content: ' ( ';
             padding: 0 2px;
         }
 
         &:after {
-            color: @color-note;
+            color: @color-placeholder;
             content: ' ) ';
             padding: 0 2px;
         }
@@ -155,11 +155,11 @@
 
         > a {
             background-color: @color-background;
-            border: 1px solid @color-note;
+            border: 1px solid @color-placeholder;
             .border-top-left-radius(5px);
             .border-top-right-radius(5px);
             display: block;
-            font-family: @fontFamily-label;
+            font-family: @fontFamily-default;
             font-size: 15px;
             height: 35px;
             line-height: 35px;
@@ -325,7 +325,7 @@
     .icon-share-alt;
 
     color: @color-note-darker;
-    font-family: @fontFamily-label;
+    font-family: @fontFamily-default;
     font-size: 80%;
     line-height: (@lineHeight-default * 0.8);
     padding-right: 20px;
@@ -527,7 +527,7 @@
     .icon-only;
     .link;
 
-    color: @color-note;
+    color: @color-placeholder;
     position: absolute;
     right: 35px;
     top: 6px;
@@ -551,7 +551,7 @@
     .icon-only;
     .link;
 
-    color: @color-note;
+    color: @color-placeholder;
     position: absolute;
     right: 15px;
     top: 6px;

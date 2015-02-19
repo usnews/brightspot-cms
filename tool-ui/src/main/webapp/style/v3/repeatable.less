@@ -62,8 +62,8 @@
 
         color: @color-remove;
         position: absolute;
-        right: ((@length-inputHeight - @length-iconSize) / 2);
-        top: ((@length-inputHeight - @length-lineHeight) / 2);
+        right: ((@input-height - @iconSize-default) / 2);
+        top: ((@input-height - @lineHeight-default) / 2);
       }
 
       &.state-focus {
@@ -263,7 +263,7 @@
             @img-height: 100px;
 
             display: block;
-            height: (@img-height + 2 * (@size-input-padding + @length-inputBorderWidth));
+            height: (@img-height + 2 * (@input-padding + @input-borderWidth));
 
             img {
               height: @img-height;
@@ -372,7 +372,7 @@
 
     > li {
       background-color: white;
-      border-bottom: 1px solid @color-note;
+      border-bottom: 1px solid @color-placeholder;
       margin-bottom: 10px;
       position: relative;
 
@@ -424,13 +424,13 @@
 
     > li {
       background-color: rgba(255, 255, 255, 0.5);
-      border: 1px solid @color-alt;
+      border: 1px solid @color-heading;
       margin-bottom: 6px;
       padding: 0 6px;
       position: relative;
 
       > .repeatableLabel {
-        .background-flat(@color-alt);
+        .background-flat(@color-heading);
 
         cursor: pointer;
         left: 0;
@@ -679,7 +679,7 @@
       position: relative;
 
       > input[type=text] {
-        padding-right: @length-inputHeight;
+        padding-right: @input-height;
       }
 
       > .removeButton {
@@ -689,10 +689,10 @@
 
         color: @color-remove;
         position: absolute;
-        right: ((@length-inputHeight - @length-iconSize) / 2);
-        top: ((@length-inputHeight - @length-lineHeight) / 2);
+        right: ((@input-height - @iconSize-default) / 2);
+        top: ((@input-height - @lineHeight-default) / 2);
         user-select: none;
-        width: @length-iconSize;
+        width: @iconSize-default;
       }
 
       &.toBeRemoved {
@@ -747,9 +747,9 @@
       .icon-only;
 
       position: absolute;
-      right: ((@length-inputHeight - @length-iconSize) / 2);
-      top: ((@length-inputHeight - @length-lineHeight) / 2);
-      width: @length-iconSize;
+      right: ((@input-height - @iconSize-default) / 2);
+      top: ((@input-height - @lineHeight-default) / 2);
+      width: @iconSize-default;
     }
   }
 
