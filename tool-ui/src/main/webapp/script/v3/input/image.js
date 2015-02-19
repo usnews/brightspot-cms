@@ -3587,37 +3587,13 @@ define([
                 // This hotspot is a region, so add more controls to resize the region
                 
                 $('<div/>', {
-                    'class': 'imageEditor-resizer imageEditor-resizer-left',
-                    'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
-                        $input.addClass("state-focus");
-                        $hotspotOverlay.addClass("selected");
-                        return {
-                            'left': original.left + delta.x,
-                            'width': original.width - delta.x
-                        };
-                    })
-                }).appendTo($hotspotOverlayBox);
-                
-                $('<div/>', {
-                    'class': 'imageEditor-resizer imageEditor-resizer-right',
-                    'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
-                        $input.addClass("state-focus");
-                        $hotspotOverlay.addClass("selected");
-                        return {
-                            'left': original.left,
-                            'width': original.width + delta.x
-                        };
-                    })
-                }).appendTo($hotspotOverlayBox);
-                
-                $('<div/>', {
                     'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
                     'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
                         $input.addClass("state-focus");
                         $hotspotOverlay.addClass("selected");
                         return {
-                            'width': original.width + delta.constrainedX,
-                            'height': original.height + delta.constrainedY
+                            'width': original.width + delta.x,
+                            'height': original.height + delta.y
                         };
                     })
                 }).appendTo($hotspotOverlayBox);
@@ -3741,7 +3717,7 @@ define([
 
             mousedownHandler = function(mousedownEvent) {
 
-                var imageHeight, imageWidth, $input, $mousedownElement, original, $overlay, $overlayBox, overlayPosition, sizeAspectRatio;
+                var imageHeight, imageWidth, $input, $mousedownElement, original, $overlay, $overlayBox, overlayPosition;
                 
                 $mousedownElement = $(this);
                 $overlay = $mousedownElement.closest('.imageEditor-hotSpotOverlay');
@@ -3762,11 +3738,6 @@ define([
                 imageWidth = self.dom.$hotspotImage.width();
                 imageHeight = self.dom.$hotspotImage.height();
 
-                // Get the aspect ratio of the hotspot overlay.
-                // If user resizes using the bottom/right handle we'll constrain
-                // the box to stay in the same aspect ratio.
-                sizeAspectRatio = original.width / original.height;
-                
                 // .drag(element, event, startCallback, moveCallback, endCallback)
                 $.drag(this, event, function() {
                     
@@ -3782,9 +3753,7 @@ define([
                     deltaY = dragEvent.pageY - original.pageY;
                     bounds = filterBoundsFunction(dragEvent, original, {
                         'x': deltaX,
-                        'y': deltaY,
-                        'constrainedX': Math.max(deltaX, deltaY * sizeAspectRatio),
-                        'constrainedY': Math.max(deltaY, deltaX / sizeAspectRatio)
+                        'y': deltaY
                     });
 
                     // Fill out the missing bounds
@@ -3821,47 +3790,39 @@ define([
 
                         // We're not moving the box, we are resizing it.
 
-                        if (bounds.width < 10 || bounds.height < 10) {
-                            
-                            if (sizeAspectRatio > 1.0) {
-                                bounds.width = sizeAspectRatio * 10;
-                                bounds.height = 10;
-                            } else {
-                                bounds.width = 10;
-                                bounds.height = 10 / sizeAspectRatio;
-                            }
+                        // Don't let the hotspot get too small
+                        if (bounds.width < 10) {
+                            bounds.width = 10;
+                        }
+                        
+                        if (bounds.height < 10) {
+                            bounds.height = 10;
                         }
 
                         if (bounds.left < 0) {
                             bounds.width += bounds.left;
-                            bounds.height = bounds.width / sizeAspectRatio;
-                            bounds.top -= bounds.left / sizeAspectRatio;
                             bounds.left = 0;
                         }
 
                         if (bounds.top < 0) {
                             bounds.height += bounds.top;
-                            bounds.width = bounds.height * sizeAspectRatio;
-                            bounds.left -= bounds.top * sizeAspectRatio;
                             bounds.top = 0;
                         }
 
                         overflow = bounds.left + bounds.width - imageWidth;
                         if (overflow > 0) {
                             bounds.width -= overflow;
-                            bounds.height = bounds.width / sizeAspectRatio;
                         }
 
                         overflow = bounds.top + bounds.height - imageHeight;
                         if (overflow > 0) {
                             bounds.height -= overflow;
-                            bounds.width = bounds.height * sizeAspectRatio;
                         }
                     }
 
                     $overlay.css(bounds);
-                    $overlayBox.css('width', bounds.width);
-                    $overlayBox.css('height', bounds.height);
+                    //$overlayBox.css('width', bounds.width);
+                    //$overlayBox.css('height', bounds.height);
 
                 }, function() {
                     
