@@ -130,6 +130,7 @@ public class AuthenticationFilter extends AbstractFilter {
 
             Cookie c = new Cookie(name, name + value);
 
+            c.setHttpOnly(true);
             c.setMaxAge(maxAge);
             c.setSecure(secure && JspUtils.isSecure(request));
 
@@ -157,6 +158,7 @@ public class AuthenticationFilter extends AbstractFilter {
 
             Cookie dc = new Cookie(name, name + value);
 
+            dc.setHttpOnly(true);
             dc.setMaxAge(maxAge);
             dc.setSecure(secure && JspUtils.isSecure(request));
             dc.setPath("/");
