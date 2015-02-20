@@ -202,6 +202,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
             data-o-id="<%= State.getInstance(selected).getId() %>"
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
             data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
+            data-content-locked-out="<%= lockedOut && !editAnyway %>"
             data-content-id="<%= State.getInstance(editing).getId() %>">
         <div class="contentForm-main">
             <div class="widget widget-content">
