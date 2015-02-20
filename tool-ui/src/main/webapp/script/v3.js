@@ -34,6 +34,9 @@ require([
   'jquery.mousewheel',
   'velocity',
 
+  'ResizeSensor',
+  'ElementQueries',
+
   'v3/input/carousel',
   'input/change',
   'input/code',
@@ -64,7 +67,6 @@ require([
   'v3/searchcarousel',
   'jquery.tabbed',
   'jquery.toggleable',
-  'jquery.widthaware',
   'nv.d3',
 
   'dashboard',
@@ -151,7 +153,6 @@ function() {
   $doc.rte('live', '.richtext');
   $doc.tabbed('live', '.tabbed, .objectInputs');
   $doc.toggleable('live', '.toggleable');
-  $doc.widthAware('live', '[data-widths]');
 
   // Remove placeholder text over search input when there's text.
   $doc.onCreate('.searchInput', function() {
