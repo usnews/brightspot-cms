@@ -806,6 +806,7 @@ function() {
             $split.popup('close');
 
           } else {
+            $split.popup('source', $toggle);
             $split.popup('open');
             $left.find('> li:first-child').trigger('mouseover');
           }
