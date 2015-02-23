@@ -599,9 +599,10 @@ function() {
 
   $doc.on('open', '.popup[data-popup-source-class~="objectId-edit"]', function(event) {
     var $frame = $(event.target);
+    var $parent = $frame.popup('source').closest('.popup, .toolContent');
 
-    $frame.popup('source').closest('.popup, .toolContent').addClass('popup-objectId-edit-loading');
     $frame.popup('container').removeClass('popup-objectId-edit-hide');
+    $parent.addClass('popup-objectId-edit popup-objectId-edit-loading');
     $win.resize();
   });
 
@@ -649,9 +650,13 @@ function() {
       $parent.removeClass('popup-objectId-edit-loading');
       $parent.addClass('popup-objectId-edit-loaded');
 
-      $frame.prepend($('<div/>', {
+      $frame.prepend($('<a/>', {
         'class': 'popup-objectId-edit-heading',
-        'text': $parent.find('.contentForm-main > .widget > h1').text()
+        'text': 'Back to ' + $parent.find('.contentForm-main > .widget > h1').text(),
+        'click': function() {
+          $frame.popup('close');
+          return false;
+        }
       }));
 
       $frame.css({
