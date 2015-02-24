@@ -180,6 +180,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                     "data-searchable", "true",
                     "placeholder", placeholder,
                     "data-dynamic-placeholder", dynamicPlaceholder,
+                    "data-dynamic-field-name", field.getInternalName(),
                     "name", inputName);
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
