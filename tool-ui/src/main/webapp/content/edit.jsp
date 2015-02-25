@@ -1346,8 +1346,25 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                 pathsCanvas = $paths[0].getContext('2d');
 
-                $frame.contents().find('[data-name="' + name + '"]').each(function() {
-                    var $placeholder = $(this),
+                var PLACEHOLDER_PREFIX = 'brightspot.field-access '
+                var frameDocument = $frame[0].contentDocument;
+                var frameCommentWalker = frameDocument.createTreeWalker(frameDocument.body, NodeFilter.SHOW_COMMENT, null, null);
+
+                while (frameCommentWalker.nextNode()) {
+                    var placeholder = frameCommentWalker.currentNode;
+                    var placeholderValue = placeholder.nodeValue;
+
+                    if (placeholderValue.indexOf(PLACEHOLDER_PREFIX) !== 0) {
+                        continue;
+                    }
+
+                    var placeholderData = $.parseJSON(placeholderValue.substring(PLACEHOLDER_PREFIX.length));
+
+                    if (placeholderData.name !== name) {
+                        continue;
+                    }
+
+                    var $placeholder = $(frameCommentWalker.currentNode),
                             $target,
                             targetOffset,
                             pathSourceX, pathSourceY, pathSourceDirection,
@@ -1361,7 +1378,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             pathTargetControlY;
 
                     if ($placeholder.parent().is('body')) {
-                        return;
+                        continue;
                     }
 
                     $target = $placeholder.nextAll(':visible:first');
@@ -1371,7 +1388,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     }
 
                     if ($target.find('> * [data-name="' + name + '"]').length > 0) {
-                        return;
+                        continue;
                     }
 
                     targetOffset = $target.offset();
@@ -1452,7 +1469,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     pathsCanvas.lineTo(pathTargetX - 2 * arrowSize, pathTargetY + arrowSize);
                     pathsCanvas.closePath();
                     pathsCanvas.fill();
-                });
+                }
             });
 
             $edit.delegate('.inputContainer', 'click', function() {
