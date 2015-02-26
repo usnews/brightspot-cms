@@ -20,7 +20,6 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JspBufferFilter;
 import com.psddev.dari.util.LazyWriterResponse;
 import com.psddev.dari.util.ObjectUtils;
-import com.psddev.dari.util.StringUtils;
 
 /**
  * Internal filter that adds {@code <span data-field>} to the response
