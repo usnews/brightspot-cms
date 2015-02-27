@@ -298,13 +298,16 @@
 }
 
 .repeatablePreviewControls {
+  margin-bottom: @gap-medium;
 
-  margin-bottom:.5em;
-  
-  .action-upload {
-    margin-right:1em;
+  .addButton {
+    &:extend(.link all);
+
+    .icon;
+    .icon-action-add;
+
+    margin-left: @gap-medium;
   }
-  
 }
 
 .view-switcher {
