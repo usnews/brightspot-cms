@@ -167,6 +167,10 @@
           $newSourceParent = $newSource.parent();
         }
 
+        if (isFixedPosition) {
+          $container.addClass('popup-fixed');
+        }
+
         $container.css({
           'left': left,
           'margin': 0,

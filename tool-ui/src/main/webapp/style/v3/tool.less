@@ -327,42 +327,6 @@
   }
 }
 
-.toolNav-popup {
-  left: 0 !important;
-  margin: 4px 0 0 0 !important;
-  max-width: none !important;
-  position: fixed !important;
-  top: (@toolHeader-height - 14) !important;
-  width: auto !important;
-  z-index: 101 !important;
-
-  .hasToolBroadcast & {
-    top: (@toolBroadcast-height + @toolHeader-height - 14) !important;
-  }
-
-  &:before {
-    top: @toolHeader-height !important;
-
-    .hasToolBroadcast & {
-      top: (@toolBroadcast-height + @toolHeader-height) !important;
-    }
-  }
-
-  > .content {
-    border-radius: 0 !important;
-    border-bottom-right-radius: 2px !important;
-    border-style: none !important;
-    border-top: 2px solid @color-separator !important;
-    box-shadow: 0 40px 80px -40px black !important;
-    padding: 0 !important;
-
-    > .closeButton,
-    > .marker {
-      display: none;
-    }
-  }
-}
-
 .toolContent {
   background: @color-border;
   margin: (0 - @toolHeader-height) (0 - @toolContent-padding) 0 (0 - @toolContent-padding);
