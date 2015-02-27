@@ -1318,7 +1318,6 @@ public class ToolPageContext extends WebPageContext {
                                 writeStart("ul", "class", "piped");
                                     writeStart("li");
                                         writeStart("a",
-                                                "class", "icon icon-object-toolUser",
                                                 "href", cmsUrl("/toolUserDashboard"),
                                                 "target", "toolUserDashboard");
                                             writeHtml("Profile");
@@ -1327,7 +1326,6 @@ public class ToolPageContext extends WebPageContext {
 
                                     writeStart("li");
                                         writeStart("a",
-                                                "class", "icon icon-action-logOut",
                                                 "href", cmsUrl("/misc/logOut.jsp"));
                                             writeHtml("Log Out");
                                         writeEnd();
