@@ -862,7 +862,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 "onchange", "$('.widget-preview_controls').find('form').eq(0).find(':input[name=\"previewDate\"]').val($(this).val());");
 
                         wp.writeHtml(" ");
-                        wp.writeStart("select", "onchange",
+                        wp.writeStart("select", "class", "deviceWidthSelect", "onchange",
                                 "var $input = $(this)," +
                                         "$form = $input.closest('form');" +
                                 "$('iframe[name=\"' + $form.attr('target') + '\"]').css('width', $input.val() || '100%');" +
@@ -1161,7 +1161,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                         'margin': 0,
                                         'overflow': 'hidden',
                                         'padding': 0,
-                                        'width': $previewForm.find('[name="_deviceWidth"]').val() || '100%'
+                                        'width': $previewForm.find('select.deviceWidthSelect').val() || '100%'
                                     }
                                 });
                                 $previewWidget.append($previewTarget);
