@@ -122,8 +122,12 @@
       });
 
       $list.bind('dropDown-open', function() {
-        var offset = $input.offset(),
-            inputLarger = $input.outerWidth(true) > $listContainer.outerWidth(true);
+        var offset = $input.offset();
+        var inputWidth = $input.outerWidth(true);
+
+        if (inputWidth > $listContainer.outerWidth(true)) {
+          $listContainer.css('min-width', inputWidth + 20);
+        }
 
         offset.top += $input.outerHeight();
 
@@ -135,7 +139,6 @@
         $markerContainer.css(offset);
         $markerContainer.css('width', $input.outerWidth());
 
-        $input.add($marker).add($list).toggleClass(plugin.className('input-larger'), inputLarger);
         $input.addClass(plugin.className('list-open'));
 
         $list.find('.' + plugin.className('listItem')).removeClass('state-hover');
