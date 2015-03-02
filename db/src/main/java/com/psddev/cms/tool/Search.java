@@ -1060,7 +1060,15 @@ public class Search extends Record {
             page.writeEnd();
 
             page.writeStart("div", "class", "searchResult-view");
-                selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+                try {
+                    selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+
+                } catch (IllegalArgumentException | Query.NoFieldException error) {
+                    page.writeStart("div", "class", "message message-error");
+                        page.writeHtml("Invalid advanced query: ");
+                        page.writeHtml(error.getMessage());
+                    page.writeEnd();
+                }
             page.writeEnd();
 
             page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
