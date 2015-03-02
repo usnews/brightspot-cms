@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -15,7 +16,9 @@ import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.SearchResultSelectionItem;
+import com.psddev.cms.tool.SelectionGeneratable;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.page.CreateDraft;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -59,6 +62,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
 
             boolean multiple = itemIds.size() != 1;
             List<TypeAndField> creates = new ArrayList<>();
+            List<TypeAndComponents> generates = new ArrayList<>();
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
                 if (!type.isConcrete() ||
@@ -70,6 +74,13 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                         !Query.fromType(type).hasMoreThan(0))) {
 
                     continue;
+                }
+
+                if (type.getObjectClass() != null &&
+                        type.getGroups().contains(SelectionGeneratable.class.getName()) &&
+                        type.as(SelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
+
+                    generates.add(new TypeAndComponents(type, new ArrayList<ObjectType>(itemTypes)));
                 }
 
                 for (ObjectField field : type.getFields()) {
@@ -91,8 +102,9 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                 }
             }
 
-            if (!creates.isEmpty()) {
+            if (!creates.isEmpty() || !generates.isEmpty()) {
                 Collections.sort(creates);
+                Collections.sort(generates);
 
                 page.writeStart("div", "class", "searchResult-action-createContent");
                     page.writeStart("h2");
@@ -102,7 +114,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                     page.writeStart("form",
                             "method", "post",
                             "target", "_top",
-                            "action", page.toolUrl(CmsTool.class, "/createDraft"));
+                            "action", page.toolUrl(CmsTool.class, CreateDraft.PATH));
 
                         page.writeElement("input",
                                 "type", "hidden",
@@ -120,6 +132,25 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                                     page.writeHtml(')');
                                 page.writeEnd();
                             }
+
+                            for (TypeAndComponents generate : generates) {
+                                page.writeStart("option",
+                                        "value", generate.type.getId());
+
+                                page.writeObjectLabel(generate.type);
+                                page.writeHtml(" (");
+
+                                Iterator<ObjectType> componentTypesIt = generate.componentTypes.iterator();
+                                ObjectType componentType = componentTypesIt.next();
+                                page.writeObjectLabel(componentType);
+                                while (componentTypesIt.hasNext()) {
+                                    page.write(",");
+                                    componentType = componentTypesIt.next();
+                                    page.writeObjectLabel(componentType);
+                                }
+                                page.writeHtml(')');
+                                page.writeEnd();
+                            }
                         page.writeEnd();
 
                         page.writeStart("button");
@@ -128,6 +159,27 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                     page.writeEnd();
                 page.writeEnd();
             }
+        }
+    }
+
+    private static class TypeAndComponents implements Comparable<TypeAndComponents> {
+
+        public final ObjectType type;
+        public final List<ObjectType> componentTypes;
+
+        public TypeAndComponents(ObjectType type, List<ObjectType> componentTypes) {
+            this.type = type;
+            this.componentTypes = componentTypes;
+        }
+
+        @Override
+        public int compareTo(TypeAndComponents other) {
+
+            int typeCompare = type.compareTo(other.type);
+
+            int componentSizeCompare = (componentTypes.size() > other.componentTypes.size()) ? 1 : ((componentTypes.size() < other.componentTypes.size()) ? -1 : 0);
+
+            return typeCompare != 0 ? typeCompare : componentSizeCompare;
         }
     }
 
