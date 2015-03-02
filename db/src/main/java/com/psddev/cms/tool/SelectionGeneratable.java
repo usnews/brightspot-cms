@@ -9,7 +9,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public interface SelectionGeneratable extends Recordable {
@@ -30,10 +29,10 @@ public interface SelectionGeneratable extends Recordable {
 
             List<ObjectType> itemTypes = new ArrayList<ObjectType>();
 
-            for(Class<? extends Recordable> clazz : annotation.value()) {
+            for (Class<? extends Recordable> clazz : annotation.value()) {
 
                 ObjectType itemType = ObjectType.getInstance(clazz);
-                if(itemType != null) {
+                if (itemType != null) {
                     itemTypes.add(itemType);
                 }
             }
@@ -47,7 +46,7 @@ public interface SelectionGeneratable extends Recordable {
         private List<ObjectType> itemTypes;
 
         public List<ObjectType> getItemTypes() {
-            if(itemTypes == null) {
+            if (itemTypes == null) {
                 itemTypes = new ArrayList<ObjectType>();
             }
             return itemTypes;
