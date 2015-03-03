@@ -1781,6 +1781,14 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
+        for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
+            if (!type.as(ToolUi.class).isHidden() && !type.isConcrete()) {
+                if (typesList.containsAll(type.findConcreteTypes())) {
+                    typesList.add(type);
+                }
+            }
+        }
+
         Map<String, List<ObjectType>> typeGroups = new LinkedHashMap<String, List<ObjectType>>();
         List<ObjectType> mainTypes = Template.Static.findUsedTypes(getSite());
 
