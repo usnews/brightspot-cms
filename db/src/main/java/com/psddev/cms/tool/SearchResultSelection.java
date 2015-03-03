@@ -25,7 +25,7 @@ public class SearchResultSelection extends Record {
         this.entities = entities;
     }
 
-    public Query<Object> itemsQuery() {
+    public Query<Object> createItemsQuery() {
 
         Set<UUID> itemIds = new HashSet<>();
 

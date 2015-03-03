@@ -48,7 +48,7 @@ public class CreateDraft extends PageServlet {
 
         if (field != null) {
 
-            List<Object> items = selection.itemsQuery().
+            List<Object> items = selection.createItemsQuery().
                     referenceOnly().
                     selectAll();
 
