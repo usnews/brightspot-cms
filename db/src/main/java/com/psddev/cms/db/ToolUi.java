@@ -195,18 +195,12 @@ public class ToolUi extends Modification<Object> {
     public boolean isHidden() {
         if (hidden == null) {
             hidden = ObjectUtils.to(Boolean.class, getState().get("cms.ui.isHidden"));
-
-            if (hidden == null) {
-                Object originalObject = getOriginalObject();
-
-                if (originalObject instanceof ObjectType &&
-                        !((ObjectType) originalObject).isConcrete()) {
-                    return true;
-                }
-            }
         }
-
         return hidden != null ? hidden : false;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
     }
 
     public void setHidden(boolean hidden) {

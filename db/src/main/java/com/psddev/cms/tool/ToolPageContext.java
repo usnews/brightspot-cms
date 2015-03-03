@@ -1782,7 +1782,7 @@ public class ToolPageContext extends WebPageContext {
         }
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
-            if (!type.as(ToolUi.class).isHidden() && !type.isConcrete()) {
+            if (Boolean.FALSE.equals(type.as(ToolUi.class).getHidden()) && !type.isConcrete()) {
                 if (typesList.containsAll(type.findConcreteTypes())) {
                     typesList.add(type);
                 }
