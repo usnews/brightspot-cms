@@ -1452,7 +1452,6 @@ The HTML within the repeatable element must conform to these standards:
                         // update the thumbnail image in the carousel
                         // and in the grid view
                         var $target = $(event.target).closest('[data-preview]');
-                        console.log('TARGET', $target);
                         var imageUrl = $target.attr('data-preview');
                         if (imageUrl) {
                             self.modePreviewSetThumbnail($item, imageUrl);
