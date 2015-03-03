@@ -62,7 +62,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
 
             boolean multiple = itemIds.size() != 1;
             List<TypeAndField> creates = new ArrayList<>();
-            List<TypeAndComponents> generates = new ArrayList<>();
+            List<TypeAndItemTypes> generates = new ArrayList<>();
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
                 if (!type.isConcrete() ||
@@ -80,7 +80,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                         type.getGroups().contains(SelectionGeneratable.class.getName()) &&
                         type.as(SelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
 
-                    generates.add(new TypeAndComponents(type, new ArrayList<ObjectType>(itemTypes)));
+                    generates.add(new TypeAndItemTypes(type, new ArrayList<ObjectType>(itemTypes)));
                 }
 
                 for (ObjectField field : type.getFields()) {
@@ -133,7 +133,7 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                                 page.writeEnd();
                             }
 
-                            for (TypeAndComponents generate : generates) {
+                            for (TypeAndItemTypes generate : generates) {
                                 page.writeStart("option",
                                         "value", generate.type.getId());
 
@@ -162,18 +162,18 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
         }
     }
 
-    private static class TypeAndComponents implements Comparable<TypeAndComponents> {
+    private static class TypeAndItemTypes implements Comparable<TypeAndItemTypes> {
 
         public final ObjectType type;
         public final List<ObjectType> componentTypes;
 
-        public TypeAndComponents(ObjectType type, List<ObjectType> componentTypes) {
+        public TypeAndItemTypes(ObjectType type, List<ObjectType> componentTypes) {
             this.type = type;
             this.componentTypes = componentTypes;
         }
 
         @Override
-        public int compareTo(TypeAndComponents other) {
+        public int compareTo(TypeAndItemTypes other) {
 
             int typeCompare = type.compareTo(other.type);
 

@@ -56,8 +56,8 @@ public class CreateDraft extends PageServlet {
 
         } else if (draftObject instanceof SelectionGeneratable) {
 
-            // populate the new object using the SelectionGeneratable interface method, "fromCollection"
-            ((SelectionGeneratable) draftObject).fromCollection(Query.findById(SearchResultSelection.class, selectionId));
+            // populate the new object using the SelectionGeneratable interface method, "fromSelection"
+            ((SelectionGeneratable) draftObject).fromSelection(Query.findById(SearchResultSelection.class, selectionId));
         }
 
         state.as(Content.ObjectModification.class).setDraft(true);

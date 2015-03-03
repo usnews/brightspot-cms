@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface SelectionGeneratable extends Recordable {
 
-    public void fromCollection(SearchResultSelection selection);
+    public void fromSelection(SearchResultSelection selection);
 
     @ObjectType.AnnotationProcessorClass(ItemTypeProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
