@@ -4,7 +4,6 @@
   overflow: auto;
 
   ul {
-    border-right: 2px solid @color-separator;
     display: table-cell;
     list-style-type: none;
     margin-left: 0;
@@ -51,6 +50,10 @@
 
   .taxonChildren {
     display: table-cell;
+
+    &.loaded {
+      border-left: 2px solid @color-separator;
+    }
   }
 
   [name="miscSearch"] & {

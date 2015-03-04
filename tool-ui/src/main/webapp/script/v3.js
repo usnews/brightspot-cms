@@ -66,6 +66,7 @@ require([
   'jquery.sortable',
   'v3/searchcarousel',
   'jquery.tabbed',
+  'v3/taxonomy',
   'jquery.toggleable',
   'nv.d3',
 
