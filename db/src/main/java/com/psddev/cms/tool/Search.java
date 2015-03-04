@@ -1044,40 +1044,49 @@ public class Search extends Record {
             selectedView = new ListSearchResultView();
         }
 
-        page.writeStart("div", "class", "searchResult-container");
-            page.writeStart("div", "class", "searchResult-views");
-                page.writeStart("ul", "class", "piped");
-                    for (SearchResultView view : views) {
-                        page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
-                            page.writeStart("a",
-                                    "class", "icon icon-" + view.getIconName(),
-                                    "href", page.url("", "view", view.getClass().getName()));
-                                page.writeHtml(view.getDisplayName());
+        if (selectedView.isHtmlWrapped(this, page, itemWriter)) {
+            page.writeStart("div", "class", "searchResult-container");
+                page.writeStart("div", "class", "searchResult-views");
+                    page.writeStart("ul", "class", "piped");
+                        for (SearchResultView view : views) {
+                            page.writeStart("li", "class", view.equals(selectedView) ? "selected" : null);
+                                page.writeStart("a",
+                                        "class", "icon icon-" + view.getIconName(),
+                                        "href", page.url("", "view", view.getClass().getName()));
+                                    page.writeHtml(view.getDisplayName());
+                                page.writeEnd();
                             page.writeEnd();
-                        page.writeEnd();
-                    }
-                page.writeEnd();
-            page.writeEnd();
-
-            page.writeStart("div", "class", "searchResult-view");
-                try {
-                    selectedView.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
-
-                } catch (IllegalArgumentException | Query.NoFieldException error) {
-                    page.writeStart("div", "class", "message message-error");
-                        page.writeHtml("Invalid advanced query: ");
-                        page.writeHtml(error.getMessage());
+                        }
                     page.writeEnd();
-                }
-            page.writeEnd();
+                page.writeEnd();
 
-            page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
-                page.writeStart("a",
-                        "href", page.toolUrl(CmsTool.class, "/searchResultActions",
-                                "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                page.writeStart("div", "class", "searchResult-view");
+                    writeViewHtml(itemWriter, selectedView);
+                page.writeEnd();
+
+                page.writeStart("div", "class", "frame searchResult-actions", "name", "searchResultActions");
+                    page.writeStart("a",
+                            "href", page.toolUrl(CmsTool.class, "/searchResultActions",
+                                    "search", ObjectUtils.toJson(getState().getSimpleValues())));
+                    page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
-        page.writeEnd();
+
+        } else {
+            writeViewHtml(itemWriter, selectedView);
+        }
+    }
+
+    private void writeViewHtml(SearchResultItem itemWriter, SearchResultView view) throws IOException {
+        try {
+            view.writeHtml(this, page, itemWriter != null ? itemWriter : new SearchResultItem());
+
+        } catch (IllegalArgumentException | Query.NoFieldException error) {
+            page.writeStart("div", "class", "message message-error");
+            page.writeHtml("Invalid advanced query: ");
+            page.writeHtml(error.getMessage());
+            page.writeEnd();
+        }
     }
 
     /** @deprecated Use {@link #toQuery(Site)} instead. */

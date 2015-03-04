@@ -8,6 +8,8 @@ import java.util.UUID;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.Taxon;
 import com.psddev.cms.tool.Search;
+import com.psddev.cms.tool.SearchResultItem;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.PredicateParser;
@@ -43,6 +45,22 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
         return isSupported(search);
     }
 
+    private Taxon findParent(ToolPageContext page) {
+        return Query.
+                from(Taxon.class).
+                where("_id = ?", page.param(UUID.class, PARENT_ID_PARAMETER)).
+                first();
+    }
+
+    @Override
+    public boolean isHtmlWrapped(
+            Search search,
+            ToolPageContext page,
+            SearchResultItem itemWriter) {
+
+        return findParent(page) == null;
+    }
+
     @Override
     protected void doWriteHtml() throws IOException {
         search.setSuggestions(false);
@@ -50,10 +68,7 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
         Collection<? extends Taxon> items;
         Site site = page.getSite();
         Predicate predicate = search.toQuery(site).getPredicate();
-        Taxon parent = Query.
-                from(Taxon.class).
-                where("_id = ?", page.param(UUID.class, PARENT_ID_PARAMETER)).
-                first();
+        Taxon parent = findParent(page);
 
         if (parent == null) {
             @SuppressWarnings("unchecked")
@@ -78,8 +93,12 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
             String target = page.createId();
 
             page.writeStart("div", "class", "searchResultList");
-                page.writeStart("div", "class", "taxonomyContainer");
+
+                if (parent == null) {
+                    page.writeStart("div", "class", "taxonomyContainer");
                     page.writeStart("div", "class", "searchTaxonomy");
+                }
+
                         page.writeStart("ul", "class", "taxonomy");
                             for (Taxon item : items) {
                                 page.writeStart("li");
@@ -126,8 +145,12 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
                                 "class", "frame taxonChildren",
                                 "name", target);
                         page.writeEnd();
+
+                if (parent == null) {
                     page.writeEnd();
-                page.writeEnd();
+                    page.writeEnd();
+                }
+
             page.writeEnd();
         }
     }
