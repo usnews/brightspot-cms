@@ -105,6 +105,7 @@ $.plugin2('frame', {
         $frame.trigger('create');
         $frame.trigger('load');
         $frame.trigger('frame-load');
+        ElementQueries.update();
         $win.resize();
       }
     };

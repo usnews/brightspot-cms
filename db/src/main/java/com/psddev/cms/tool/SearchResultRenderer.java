@@ -333,17 +333,19 @@ public class SearchResultRenderer {
             if (sortField != null) {
                 page.writeHtml(" ");
 
-                page.writeElement("input",
-                        "id", page.createId(),
-                        "type", "checkbox",
-                        "name", Search.SHOW_MISSING_PARAMETER,
-                        "value", "true",
-                        "checked", search.isShowMissing() ? "checked" : null);
+                page.writeStart("div", "class", "searchShowMissing");
+                    page.writeElement("input",
+                            "id", page.createId(),
+                            "type", "checkbox",
+                            "name", Search.SHOW_MISSING_PARAMETER,
+                            "value", "true",
+                            "checked", search.isShowMissing() ? "checked" : null);
 
-                page.writeHtml(" ");
+                    page.writeHtml(" ");
 
-                page.writeStart("label", "for", page.getId());
-                    page.writeHtml("Show Missing");
+                    page.writeStart("label", "for", page.getId());
+                        page.writeHtml("Show Missing");
+                    page.writeEnd();
                 page.writeEnd();
             }
 
