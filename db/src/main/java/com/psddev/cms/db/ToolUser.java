@@ -25,6 +25,7 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -847,18 +848,18 @@ public class ToolUser extends Record implements ToolEntity {
         }
 
         public static ToolUser getByTotpToken(String totpToken) {
-            ToolUser user = Query.from(ToolUser.class).where("totpToken = ?", totpToken).first();
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("totpToken = ?", totpToken).first();
             return user != null && user.totpTokenTime + 60000 > System.currentTimeMillis() ? user : null;
         }
 
         public static ToolUser getByChangePasswordToken(String changePasswordToken) {
-            ToolUser user = Query.from(ToolUser.class).where("changePasswordToken = ?", changePasswordToken).first();
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("changePasswordToken = ?", changePasswordToken).first();
             long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L) * 60L * 60L * 1000L;
             return user != null && user.changePasswordTokenTime + expiration > System.currentTimeMillis() ? user : null;
         }
 
         public static ToolUser getByToken(String token) {
-            ToolUser user = Query.from(ToolUser.class).where("loginTokens/token = ?", token).first();
+            ToolUser user = Query.from(ToolUser.class).option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true).where("loginTokens/token = ?", token).first();
             return user != null && user.getLoginToken(token) != null ? user : null;
         }
     }
