@@ -55,7 +55,9 @@ org.apache.commons.fileupload.FileItem,
 
 org.slf4j.Logger,
 org.slf4j.LoggerFactory
-" %><%!
+" %>
+<%@ page import="com.psddev.dari.util.DimsImageEditor" %>
+<%!
 
 private static final Logger LOGGER = LoggerFactory.getLogger(ToolPageContext.class);
 %><%
@@ -652,10 +654,15 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                             </tbody></table>
                         </div>
 
-                        <% if (!crops.isEmpty()) { %>
+                        <%
+                        ImageEditor defaultImageEditor = ImageEditor.Static.getDefault();
+                        boolean centerCrop = !(defaultImageEditor instanceof DimsImageEditor) || ((DimsImageEditor) defaultImageEditor).isUseLegacyThumbnail();
+
+                        if (!crops.isEmpty()) {
+                        %>
                             <div class="imageEditor-sizes">
                                 <h2>Standard Sizes</h2>
-                                <table><tbody>
+                                <table data-crop-center="<%= centerCrop %>"><tbody>
                                     <%
                                     for (Map.Entry<String, ImageCrop> e : crops.entrySet()) {
                                         String cropId = e.getKey();
