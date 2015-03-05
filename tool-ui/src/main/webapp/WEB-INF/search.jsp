@@ -257,21 +257,23 @@ writer.start("div", "class", "searchForm");
                     writer.end();
                 }
 
-                if (selectedType != null) {
-                    if (selectedType.getGroups().contains(ColorImage.class.getName())) {
-                        writer.writeElement("input",
-                                "type", "text",
-                                "class", "color",
-                                "name", Search.COLOR_PARAMETER,
-                                "value", search.getColor());
-                    }
-                }
-
                 writer.start("div", "class", "searchFiltersLocal");
                     if (!fieldFilters.isEmpty()) {
                         writer.start("div", "class", "searchMissing");
                             writer.html("Missing?");
                         writer.end();
+                    }
+
+                    if (selectedType != null) {
+                        if (selectedType.getGroups().contains(ColorImage.class.getName())) {
+                            writer.writeStart("div", "class", "searchFilter");
+                                writer.writeElement("input",
+                                        "type", "text",
+                                        "class", "color",
+                                        "name", Search.COLOR_PARAMETER,
+                                        "value", search.getColor());
+                            writer.writeEnd();
+                        }
                     }
 
                     for (Map.Entry<String, ObjectField> entry : fieldFilters.entrySet()) {
