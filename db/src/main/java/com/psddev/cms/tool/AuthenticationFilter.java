@@ -275,7 +275,7 @@ public class AuthenticationFilter extends AbstractFilter {
                 ForwardingDatabase db = new ForwardingDatabase() {
                     @Override
                     protected <T> Query<T> filterQuery(Query<T> query) {
-                        return query.clone().master().resolveInvisible().option(Database.DISABLE_FUNNEL_CACHE_QUERY_OPTION, true);
+                        return query.clone().master().resolveInvisible();
                     }
                 };
 
