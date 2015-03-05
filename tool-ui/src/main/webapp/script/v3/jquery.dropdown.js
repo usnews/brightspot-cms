@@ -52,7 +52,7 @@
           'margin-right': $original.css('margin-right'),
           'margin-top': $original.css('margin-top'),
           'position': 'relative',
-          'width': $original.outerWidth()
+          'width': isMultiple ? 'auto' : $original.outerWidth()
         }
       });
 
