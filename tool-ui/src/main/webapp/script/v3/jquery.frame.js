@@ -105,7 +105,18 @@ $.plugin2('frame', {
         $frame.trigger('create');
         $frame.trigger('load');
         $frame.trigger('frame-load');
-        ElementQueries.update();
+
+        function updateElementQueries() {
+          if (ElementQueries.instance) {
+            ElementQueries.update();
+
+          } else {
+            setTimeout(updateElementQueries, 10);
+          }
+        }
+
+        updateElementQueries();
+
         $win.resize();
       }
     };
