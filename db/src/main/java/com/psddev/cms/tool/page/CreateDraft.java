@@ -10,7 +10,7 @@ import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultSelection;
-import com.psddev.cms.tool.SelectionGeneratable;
+import com.psddev.cms.tool.SearchResultSelectionGeneratable;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -54,10 +54,10 @@ public class CreateDraft extends PageServlet {
 
             state.put(field.getInternalName(), items.size() == 1 ? items.get(0) : items);
 
-        } else if (draftObject instanceof SelectionGeneratable) {
+        } else if (draftObject instanceof SearchResultSelectionGeneratable) {
 
             // populate the new object using the SelectionGeneratable interface method, "fromSelection"
-            ((SelectionGeneratable) draftObject).fromSelection(Query.findById(SearchResultSelection.class, selectionId));
+            ((SearchResultSelectionGeneratable) draftObject).fromSelection(Query.findById(SearchResultSelection.class, selectionId));
         }
 
         state.as(Content.ObjectModification.class).setDraft(true);

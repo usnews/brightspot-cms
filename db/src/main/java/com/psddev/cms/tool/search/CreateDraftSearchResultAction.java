@@ -16,7 +16,7 @@ import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.SearchResultSelectionItem;
-import com.psddev.cms.tool.SelectionGeneratable;
+import com.psddev.cms.tool.SearchResultSelectionGeneratable;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.page.CreateDraft;
 import com.psddev.dari.db.Database;
@@ -77,8 +77,8 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                 }
 
                 if (type.getObjectClass() != null &&
-                        type.getGroups().contains(SelectionGeneratable.class.getName()) &&
-                        type.as(SelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
+                        type.getGroups().contains(SearchResultSelectionGeneratable.class.getName()) &&
+                        type.as(SearchResultSelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
 
                     generates.add(new TypeAndItemTypes(type, new ArrayList<ObjectType>(itemTypes)));
                 }

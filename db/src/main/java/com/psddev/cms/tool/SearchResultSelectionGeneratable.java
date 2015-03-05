@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface SelectionGeneratable extends Recordable {
+public interface SearchResultSelectionGeneratable extends Recordable {
 
     public void fromSelection(SearchResultSelection selection);
 
