@@ -560,12 +560,31 @@ public class Search extends Record {
         boolean isAllSearchable = true;
 
         if (selectedType != null) {
-            isAllSearchable = Content.Static.isSearchableType(selectedType);
+            if (selectedType.isAbstract()) {
+                for (ObjectType t : selectedType.findConcreteTypes()) {
+                    if (!Content.Static.isSearchableType(t)) {
+                        isAllSearchable = false;
+                        break;
+                    }
+                }
+
+            } else {
+                isAllSearchable = Content.Static.isSearchableType(selectedType);
+            }
+
             query = Query.fromType(selectedType);
 
         } else {
             for (ObjectType type : validTypes) {
-                if (!Content.Static.isSearchableType(type)) {
+                if (type.isAbstract()) {
+                    for (ObjectType t : type.findConcreteTypes()) {
+                        if (!Content.Static.isSearchableType(t)) {
+                            isAllSearchable = false;
+                            break;
+                        }
+                    }
+
+                } if (!Content.Static.isSearchableType(type)) {
                     isAllSearchable = false;
                 }
             }
