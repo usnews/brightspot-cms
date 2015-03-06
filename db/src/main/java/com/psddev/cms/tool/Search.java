@@ -584,7 +584,7 @@ public class Search extends Record {
                         }
                     }
 
-                } if (!Content.Static.isSearchableType(type)) {
+                } else if (!Content.Static.isSearchableType(type)) {
                     isAllSearchable = false;
                 }
             }
