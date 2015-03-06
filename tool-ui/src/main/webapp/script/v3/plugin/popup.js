@@ -50,7 +50,8 @@
       });
 
       $container.bind('close.popup', function() {
-        if ($container.find('.contentForm .inputContainer.state-changed').length > 0 &&
+        if ($container.is(':visible') &&
+            $container.find('.contentForm .inputContainer.state-changed').length > 0 &&
             confirm('Are you sure you want to close this popup and discard the unsaved changes?')) {
           return;
         }
