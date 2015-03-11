@@ -34,10 +34,20 @@ public class TaxonomySearchResultView extends AbstractSearchResultView {
     public boolean isSupported(Search search) {
         ObjectType selectedType = search.getSelectedType();
 
-        return selectedType != null &&
+        if (selectedType != null &&
                 selectedType.getGroups().contains(Taxon.class.getName()) &&
                 ObjectUtils.isBlank(search.getQueryString()) &&
-                search.getVisibilities().isEmpty();
+                search.getVisibilities().isEmpty()) {
+
+            @SuppressWarnings("unchecked")
+            Class<? extends Taxon> taxonClass = (Class<? extends Taxon>) search.getSelectedType().getObjectClass();
+
+            if (!Taxon.Static.getRoots(taxonClass).isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
