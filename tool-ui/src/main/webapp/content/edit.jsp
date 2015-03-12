@@ -1097,6 +1097,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         // $edit.find('.inputContainer').trigger('fieldPreview-disable');
 
                         if ($previewWidget.is('.widget-expanded')) {
+                            $('.queryField_frames').show();
                             $previewWidget.removeClass('widget-expanded');
                             $preview.animate({ 'left': editLeft + $edit.outerWidth() + 10 }, 300, 'easeOutBack');
                             $preview.css('width', '');
@@ -1108,6 +1109,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             });
 
                         } else {
+                            $('.queryField_frames').hide();
                             $previewWidget.addClass('widget-expanded');
                             $preview.animate({ 'left': editLeft + PEEK_WIDTH }, 300, 'easeOutBack');
                             $preview.css('width', $win.width() - PEEK_WIDTH - 30);
