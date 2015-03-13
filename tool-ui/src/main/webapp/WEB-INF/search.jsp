@@ -103,6 +103,52 @@ addFieldFilters(fieldFilters, "", environment);
 
 if (selectedType != null) {
     addFieldFilters(fieldFilters, "", selectedType);
+
+    if (selectedType.isAbstract()) {
+        Map<String, List<ObjectField>> commonFieldsByName = new LinkedHashMap<>();
+
+        for (ObjectType t : selectedType.as(ToolUi.class).findDisplayTypes()) {
+            Map<String, ObjectField> ff = new LinkedHashMap<>();
+
+            addFieldFilters(ff, "", t);
+
+            for (Map.Entry<String, ObjectField> entry : ff.entrySet()) {
+                String n = entry.getKey();
+                List<ObjectField> commonFields = commonFieldsByName.get(n);
+
+                if (commonFields == null) {
+                    commonFields = new ArrayList<>();
+                    commonFieldsByName.put(n, commonFields);
+                }
+
+                commonFields.add(entry.getValue());
+            }
+        }
+
+        for (Map.Entry<String, List<ObjectField>> entry : commonFieldsByName.entrySet()) {
+            List<ObjectField> commonFields = entry.getValue();
+
+            if (commonFields.size() > 1) {
+                ObjectField first = commonFields.get(0);
+                String declaringClassName = first.getJavaDeclaringClassName();
+
+                if (declaringClassName != null) {
+                    boolean same = true;
+
+                    for (ObjectField f : commonFields) {
+                        if (!declaringClassName.equals(f.getJavaDeclaringClassName())) {
+                            same = false;
+                            break;
+                        }
+                    }
+
+                    if (same) {
+                        fieldFilters.put(declaringClassName + "/" + entry.getKey(), first);
+                    }
+                }
+            }
+        }
+    }
 }
 
 if (wp.isFormPost()) {

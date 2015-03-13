@@ -785,9 +785,11 @@ public class Search extends Record {
                 continue;
             }
 
-            String fieldName = selectedType != null ?
-                    selectedType.getInternalName() + "/" + entry.getKey() :
-                    entry.getKey();
+            String fieldName = entry.getKey();
+
+            if (selectedType != null && !fieldName.contains("/")) {
+                fieldName = selectedType.getInternalName() + "/" + fieldName;
+            }
 
             if (ObjectUtils.to(boolean.class, value.get("m"))) {
                 query.and(fieldName + " = missing");
