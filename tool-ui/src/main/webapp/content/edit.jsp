@@ -164,11 +164,25 @@ ToolUser user = wp.getUser();
 ContentLock contentLock = null;
 boolean lockedOut = false;
 boolean editAnyway = wp.param(boolean.class, "editAnyway");
+boolean optInLock = wp.param(boolean.class, "lock");
 
-if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
+if (!wp.getCmsTool().isDisableContentLocking() &&
         wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
-    contentLock = ContentLock.Static.lock(editing, null, user);
-    lockedOut = !user.equals(contentLock.getOwner());
+
+    if (wp.getCmsTool().isOptInContentLocking()) {
+        if (optInLock) {
+            contentLock = ContentLock.Static.lock(editing, null, user);
+            lockedOut = !user.equals(contentLock.getOwner());
+
+        } else {
+            contentLock = ContentLock.Static.findLock(editing, null);
+            lockedOut = contentLock != null && !user.equals(contentLock.getOwner());
+        }
+
+    } else {
+        contentLock = ContentLock.Static.lock(editing, null, user);
+        lockedOut = !user.equals(contentLock.getOwner());
+    }
 }
 
 // --- Presentation ---
@@ -257,7 +271,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                 <div class="widgetControls">
                     <a class="icon icon-action-edit widgetControlsEditInFull" target="_blank" href="<%= wp.url("") %>">Edit In Full</a>
-                    <% if (Query.from(CmsTool.class).first().isEnableAbTesting()) { %>
+                    <% if (wp.getCmsTool().isEnableAbTesting()) { %>
                         <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
                     <% } %>
                     <%
@@ -350,6 +364,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                 <%
                 wp.writeStart("div", "class", "widget-controls");
+                    if (!lockedOut && wp.getCmsTool().isOptInContentLocking()) {
+                        wp.writeStart("a",
+                                "class", "icon icon-only icon-" + (optInLock ? "lock" : "unlock"),
+                                "href", wp.url("", "lock", !optInLock));
+                            wp.writeHtml("Lock");
+                        wp.writeEnd();
+                    }
+
                     wp.writeStart("a",
                             "class", "widget-publishing-tools",
                             "href", wp.objectUrl("/contentTools", editing, "returnUrl", wp.url("")),
@@ -575,7 +597,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeHtml(".");
                             wp.writeEnd();
 
-                            if (!editAnyway) {
+                            if (!editAnyway && !wp.getCmsTool().isOptInContentLocking()) {
                                 wp.writeStart("div", "class", "actions");
                                     wp.writeStart("a",
                                             "class", "icon icon-unlock",
