@@ -199,6 +199,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                     "action-trash", null,
                     "published", null) %>"
             autocomplete="off"
+            data-new="<%= State.getInstance(editing).isNew() %>"
             data-o-id="<%= State.getInstance(selected).getId() %>"
             data-o-label="<%= wp.h(State.getInstance(selected).getLabel()) %>"
             data-o-preview="<%= wp.h(wp.getPreviewThumbnailUrl(selected)) %>"
