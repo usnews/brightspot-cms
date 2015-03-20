@@ -166,11 +166,9 @@ boolean lockedOut = false;
 boolean editAnyway = wp.param(boolean.class, "editAnyway");
 boolean optInLock = wp.param(boolean.class, "lock");
 
-if (!wp.getCmsTool().isDisableContentLocking() &&
-        wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
-
+if (!wp.getCmsTool().isDisableContentLocking()) {
     if (wp.getCmsTool().isOptInContentLocking()) {
-        if (optInLock) {
+        if (optInLock && wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
             contentLock = ContentLock.Static.lock(editing, null, user);
             lockedOut = !user.equals(contentLock.getOwner());
 
@@ -179,7 +177,7 @@ if (!wp.getCmsTool().isDisableContentLocking() &&
             lockedOut = contentLock != null && !user.equals(contentLock.getOwner());
         }
 
-    } else {
+    } else if (wp.hasPermission("type/" + editingState.getTypeId() + "/write")) {
         contentLock = ContentLock.Static.lock(editing, null, user);
         lockedOut = !user.equals(contentLock.getOwner());
     }
