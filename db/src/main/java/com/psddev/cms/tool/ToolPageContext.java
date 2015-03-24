@@ -2383,24 +2383,6 @@ public class ToolPageContext extends WebPageContext {
                             request.setAttribute("finalDraft", null);
                         }
                     }
-
-                } else {
-                    writeStart("div", "class", "inputContainer");
-                        writeStart("div", "class", "inputLabel");
-                            writeStart("label", "for", createId());
-                                writeHtml("Data");
-                            writeEnd();
-                        writeEnd();
-
-                        writeStart("div", "class", "inputSmall");
-                            writeStart("textarea",
-                                    "data-code-type", "text/json",
-                                    "id", getId(),
-                                    "name", "data");
-                                writeHtml(ObjectUtils.toJson(state.getSimpleValues(), true));
-                            writeEnd();
-                        writeEnd();
-                    writeEnd();
                 }
             writeEnd();
 
