@@ -215,10 +215,11 @@ function($) {
         var $position = $createToolbarGroup('Position');
         $toolbar.append($position);
 
-        $position.append($createEnhancementAction('Move Left', 'moveLeft'));
         $position.append($createEnhancementAction('Move Up', 'moveUp'));
-        $position.append($createEnhancementAction('Move Center', 'moveCenter'));
         $position.append($createEnhancementAction('Move Down', 'moveDown'));
+
+        $position.append($createEnhancementAction('Move Left', 'moveLeft'));
+        $position.append($createEnhancementAction('Move Center', 'moveCenter'));
         $position.append($createEnhancementAction('Move Right', 'moveRight'));
 
         var $imageSize = $createToolbarGroup('Image Size');
