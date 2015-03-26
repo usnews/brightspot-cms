@@ -697,6 +697,11 @@ function() {
     var $frame = $(event.target);
     var $source = $frame.popup('source');
     var $popup = $frame.popup('container');
+
+    if ($.data($popup[0], 'popup-close-cancelled')) {
+      return;
+    }
+
     var sourceOffset = $source.offset();
     var $parent = $source.closest('.popup, .toolContent');
 
