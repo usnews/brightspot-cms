@@ -100,7 +100,7 @@ String cropsFieldName = fieldName + ".crops";
 String action = wp.param(actionName);
 
 Map<String, Object> fieldValueMetadata = null;
-if (fieldValue != null && ((Boolean) request.getAttribute("isFormPost")) && "keep".equals(action)) {
+if (fieldValue != null && (!((Boolean) request.getAttribute("isFormPost")) || "keep".equals(action))) {
     fieldValueMetadata = fieldValue.getMetadata();
 }
 
