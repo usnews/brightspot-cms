@@ -494,7 +494,7 @@ public class SearchResultRenderer {
 
             if (sortField != null &&
                     ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
-                DateTime dateTime = page.toUserDateTime(itemState.get(sortField.getInternalName()));
+                DateTime dateTime = page.toUserDateTime(itemState.getByPath(sortField.getInternalName()));
 
                 if (dateTime == null) {
                     page.writeStart("td", "colspan", 2);
@@ -538,7 +538,7 @@ public class SearchResultRenderer {
             if (sortField != null &&
                     !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
                 String sortFieldName = sortField.getInternalName();
-                Object value = itemState.get(sortFieldName);
+                Object value = itemState.getByPath(sortFieldName);
 
                 page.writeStart("td");
                     if (value instanceof Metric) {
