@@ -11,9 +11,11 @@ import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.util.StorageItem;
 
 /**
- * Production Guide class to hold information about Pages and Templates (objects with layouts)
+ * Production Guide class to hold information about Pages and Templates (objects
+ * with layouts)
  *
  */
+
 @Record.LabelFields({ "name" })
 @Record.BootstrapPackages("Production Guides")
 public class GuidePage extends Record {
@@ -113,11 +115,19 @@ public class GuidePage extends Record {
         this.samplePageSnapshot = samplePageSnapshot;
     }
 
+    @Override
+    public void beforeSave() {
+        // beforeSave() override left in here for backward compatibility
+        super.beforeSave();
+    }
+
     /**
-     * Return a boolean as to whether the basic information expected for this production guide is available.
+     * Return a boolean as to whether the basic information expected for this
+     * production guide is available.
      */
     public boolean isIncomplete() {
-        if (this.getSamplePage() == null || this.getSamplePage().getPermalink() == null) {
+        if (this.getSamplePage() == null ||
+                this.getSamplePage().getPermalink() == null) {
             return true;
         }
         if (this.getDescription() == null || this.getDescription().isEmpty()) {
@@ -126,9 +136,46 @@ public class GuidePage extends Record {
         return false;
     }
 
+    @Deprecated
+    public ReferentialText getSectionDescription(Section section) {
+        return null;
+    }
+
+    @Deprecated
+    public ReferentialText getSectionTips(Section section) {
+        return null;
+    }
+
+    /**
+     * Return the GuideSection entry that matches the given {@code section} of
+     * the template associated with this guide object. If none exists, create
+     * one.
+     * @deprecated template section guides no lnoger supported
+     */
+    @Deprecated
+    public GuideSection findOrCreateSectionGuide(Section section) {
+        return null;
+    }
+
+    /**
+     * Create a GuideSection entry in the sectionList for all sections in the
+     * object's referenced page/template.
+     * @deprecated template section guides no lnoger supported
+     */
+    @Deprecated
+    public void generateSectionDescriptionList() {
+    }
 
     /** Static utility methods. */
     public static final class Static {
+        /**
+         * - * Generate any missing guides for existing templates -
+         * @deprecated template guides no longer automatically created
+         */
+        @Deprecated
+        public static void createDefaultTemplateGuides() {
+            return;
+        }
 
     }
 
