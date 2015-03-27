@@ -150,7 +150,7 @@ public class GuidePage extends Record {
      * Return the GuideSection entry that matches the given {@code section} of
      * the template associated with this guide object. If none exists, create
      * one.
-     * @deprecated template section guides no lnoger supported
+     * @deprecated template section guides no longer automatically created
      */
     @Deprecated
     public GuideSection findOrCreateSectionGuide(Section section) {
@@ -160,7 +160,7 @@ public class GuidePage extends Record {
     /**
      * Create a GuideSection entry in the sectionList for all sections in the
      * object's referenced page/template.
-     * @deprecated template section guides no lnoger supported
+     * @deprecated template section guides no longer automatically created
      */
     @Deprecated
     public void generateSectionDescriptionList() {
