@@ -672,8 +672,14 @@ public class ToolPageContext extends WebPageContext {
         Object object;
         WorkStream workStream = Query.findById(WorkStream.class, param(UUID.class, "workStreamId"));
 
+        UUID draftId = param(UUID.class, DRAFT_ID_PARAMETER);
         if (!isFormPost() && workStream != null) {
             object = workStream.next(getUser());
+            if (object instanceof Draft) {
+                objectId = ((Draft) object).getObjectId();
+                draftId = ((Draft) object).getId();
+                object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
+            }
 
         } else {
             object = Query.fromAll().where("_id = ?", objectId).resolveInvisible().first();
@@ -729,8 +735,6 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
         }
-
-        UUID draftId = param(UUID.class, DRAFT_ID_PARAMETER);
 
         if (object == null) {
             Object draftObject = Query.fromAll().where("_id = ?", draftId).first();
@@ -1827,6 +1831,24 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
+    public List<?> findDropDownItems(ObjectField field, Search dropDownSearch) {
+        List<?> items;
+        if (field.getTypes().contains(ObjectType.getInstance(ObjectType.class))) {
+            List<ObjectType> types = new ArrayList<ObjectType>();
+            Predicate predicate = dropDownSearch.toQuery(getSite()).getPredicate();
+
+            for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
+                if (t.is(predicate)) {
+                    types.add(t);
+                }
+            }
+            items = new ArrayList<Object>(types);
+        } else {
+            items = dropDownSearch.toQuery(getSite()).selectAll();
+        }
+        return items;
+    }
+
     /**
      * Writes a {@code <select>} or {@code <input>} tag that allows the user
      * to pick a content.
@@ -1850,20 +1872,7 @@ public class ToolPageContext extends WebPageContext {
             dropDownSearch.setParentId(param(UUID.class, OBJECT_ID_PARAMETER));
             dropDownSearch.setParentTypeId(param(UUID.class, TYPE_ID_PARAMETER));
 
-            List<?> items;
-            if (field.getTypes().contains(ObjectType.getInstance(ObjectType.class))) {
-                List<ObjectType> types = new ArrayList<ObjectType>();
-                Predicate predicate = dropDownSearch.toQuery(getSite()).getPredicate();
-
-                for (ObjectType t : Database.Static.getDefault().getEnvironment().getTypes()) {
-                    if (t.is(predicate)) {
-                        types.add(t);
-                    }
-                }
-                items = new ArrayList<Object>(types);
-            } else {
-                items = dropDownSearch.toQuery(getSite()).selectAll();
-            }
+            List<?> items = findDropDownItems(field, dropDownSearch);
 
             Collections.sort(items, new ObjectFieldComparator("_label", false));
 

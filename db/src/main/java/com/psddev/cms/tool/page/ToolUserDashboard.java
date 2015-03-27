@@ -146,7 +146,7 @@ public class ToolUserDashboard extends PageServlet {
                     page.writeHtml("Log Out");
                 page.writeEnd();
 
-                page.writeStart("div", "class", "tabbed");
+                page.writeStart("div", "class", "tabbed tabbed-vertical");
 
                     // Site.
                     if (Query.from(Site.class).hasMoreThan(0)) {

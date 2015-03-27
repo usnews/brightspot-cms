@@ -118,8 +118,8 @@ public class SearchAdvancedFullResult extends PageServlet {
             page.write("\r\n");
 
             Iterator<?> queryIterator = ids.isEmpty() ?
-                    query.iterable(0).iterator() :
-                    Query.fromAll().where("_id = ?", ids).selectAll().iterator();
+                    query.noCache().iterable(0).iterator() :
+                    Query.fromAll().noCache().where("_id = ?", ids).selectAll().iterator();
 
             try {
                 while (queryIterator.hasNext()) {
@@ -151,7 +151,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
         } else if (page.param(String.class, "action-trash") != null) {
             Iterator<?> queryIterator = ids.isEmpty() ?
-                    query.iterable(0).iterator() :
+                    query.noCache().iterable(0).iterator() :
                     Query.fromAll().where("_id = ?", ids).selectAll().iterator();
 
             try {
@@ -568,7 +568,7 @@ public class SearchAdvancedFullResult extends PageServlet {
             });
 
             try {
-                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
+                for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(getInternalName())).iterator(); i.hasNext();) {
                     Object value = i.next();
 
                     html.writeObject(value);
@@ -587,7 +587,7 @@ public class SearchAdvancedFullResult extends PageServlet {
 
         @Override
         public void writeCell(State itemState, HtmlWriter writer) throws IOException {
-            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(getInternalName())).iterator(); i.hasNext();) {
+            for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(getInternalName())).iterator(); i.hasNext();) {
                 Object value = i.next();
 
                 writer.writeObject(value);

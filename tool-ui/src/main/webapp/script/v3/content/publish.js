@@ -124,8 +124,11 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       $('.contentForm-aside').each(function() {
         var aside = this;
         var $aside = $(aside);
+        var asideTop = $aside.css('top');
 
+        $aside.css('top', '');
         $.data(aside, OFFSET_DATA_KEY, $aside.offset());
+        $aside.css('top', asideTop);
 
         var asideWidth = $aside.width();
         var $widget = $aside.find('.widget-publishing');
@@ -147,26 +150,27 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         var aside = this;
         var $aside = $(aside);
         var asideOffset = $.data(aside, OFFSET_DATA_KEY);
-        var $widget = $aside.find('.widget-publishing');
-        var widget = $widget[0];
+        var $widgets = $aside.find('> .contentWidgets');
+        var $publishing = $aside.find('> .widget-publishing');
+        var publishing = $publishing[0];
 
         if (asideOffset.top - windowScrollTop <= toolHeaderHeight) {
-          $aside.css('padding-top', $.data(widget, HEIGHT_DATA_KEY));
+          $widgets.css('margin-top', $.data(publishing, HEIGHT_DATA_KEY));
 
-          $widget.css({
+          $publishing.css({
             'left': asideOffset.left,
             'position': 'fixed',
             'top': toolHeaderHeight,
-            'width': $.data(widget, WIDTH_DATA_KEY),
+            'width': $.data(publishing, WIDTH_DATA_KEY),
             'z-index': 1
           });
 
         } else {
-          $aside.css({
-            'padding-top': '',
+          $widgets.css({
+            'margin-top': ''
           });
 
-          $widget.css({
+          $publishing.css({
             'left': '',
             'position': '',
             'top': '',

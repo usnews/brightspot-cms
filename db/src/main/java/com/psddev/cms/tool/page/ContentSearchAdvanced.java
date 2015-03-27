@@ -134,7 +134,7 @@ public class ContentSearchAdvanced extends PageServlet {
 
             page.write("\r\n");
 
-            for (Object item : query.iterable(0)) {
+            for (Object item : query.noCache().iterable(0)) {
                 State itemState = State.getInstance(item);
 
                 if (!ids.isEmpty() && !ids.contains(itemState.getId())) {
@@ -166,7 +166,7 @@ public class ContentSearchAdvanced extends PageServlet {
                         }
 
                     } else {
-                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
+                        for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(field.getInternalName())).iterator(); i.hasNext();) {
                             Object value = i.next();
                             page.writeObject(value);
                             if (i.hasNext()) {
@@ -184,7 +184,7 @@ public class ContentSearchAdvanced extends PageServlet {
             return;
 
         } else if (page.param(String.class, "action-trash") != null) {
-            Iterator<Object> queryIterator = query.iterable(0).iterator();
+            Iterator<Object> queryIterator = query.noCache().iterable(0).iterator();
 
             try {
                 while (queryIterator.hasNext()) {
@@ -486,7 +486,7 @@ public class ContentSearchAdvanced extends PageServlet {
                                                     }
 
                                                 } else {
-                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.get(field.getInternalName())).iterator(); i.hasNext();) {
+                                                    for (Iterator<Object> i = CollectionUtils.recursiveIterable(itemState.getByPath(field.getInternalName())).iterator(); i.hasNext();) {
                                                         Object value = i.next();
                                                         page.writeObject(value);
                                                         if (i.hasNext()) {

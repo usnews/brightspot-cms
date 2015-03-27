@@ -3,6 +3,7 @@ package com.psddev.cms.db;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +37,8 @@ import com.psddev.dari.util.Settings;
 @Record.BootstrapPackages("Users and Roles")
 @Record.BootstrapTypeMappable(groups = Content.class, uniqueKey = "email")
 public class ToolUser extends Record implements ToolEntity {
+
+    private static final long TOKEN_CHECK_EXPIRE_MILLISECONDS = 30000L;
 
     @Indexed
     @ToolUi.Note("If left blank, the user will have full access to everything.")
@@ -132,6 +136,11 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Advanced")
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
+
+    @Indexed
+    @Embedded
+    @ToolUi.Hidden
+    private List<LoginToken> loginTokens;
 
     /** Returns the role. */
     public ToolRole getRole() {
@@ -688,6 +697,115 @@ public class ToolUser extends Record implements ToolEntity {
         return Collections.singleton(this);
     }
 
+    public String generateLoginToken() {
+        LoginToken loginToken = new LoginToken();
+        getLoginTokens().add(loginToken);
+        save();
+
+        return loginToken.getToken();
+    }
+
+    public void refreshLoginToken(String token) {
+        Iterator<LoginToken> iter = getLoginTokens().iterator();
+        while (iter.hasNext()) {
+            LoginToken loginToken = iter.next();
+            if (loginToken.getToken().equals(token)) {
+                loginToken.refreshToken();
+            } else if (!loginToken.isValid()) {
+                iter.remove();
+            }
+        }
+
+        save();
+    }
+
+    public void removeLoginToken(String token) {
+        LoginToken loginToken = getLoginToken(token);
+        if (loginToken != null) {
+            getLoginTokens().remove(loginToken);
+            save();
+        }
+    }
+
+    public LoginToken getLoginToken(String token) {
+        for (LoginToken loginToken : getLoginTokens()) {
+            if (loginToken.getToken().equals(token) && loginToken.isValid()) {
+                return loginToken;
+            }
+        }
+
+        return null;
+    }
+
+    public List<LoginToken> getLoginTokens() {
+        if (loginTokens == null) {
+            loginTokens = new ArrayList<LoginToken>();
+        }
+
+        return loginTokens;
+    }
+
+    public void setLoginTokens(List<LoginToken> loginTokens) {
+        this.loginTokens = loginTokens;
+    }
+
+    public static class LoginToken extends Record {
+
+        @Indexed
+        private String token;
+        private Long expireTimestamp;
+
+        public LoginToken() {
+            this.token = UUID.randomUUID().toString();
+
+            refreshToken();
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public Long getExpireTimestamp() {
+            return expireTimestamp;
+        }
+
+        public void refreshToken() {
+            refreshTokenIfNecessary();
+        }
+
+        public boolean refreshTokenIfNecessary() {
+            long sessionTimeout = Settings.getOrDefault(long.class, "cms/tool/sessionTimeout", 0L);
+
+            if (sessionTimeout == 0L && (this.expireTimestamp == null || this.expireTimestamp != 0L)) {
+                this.expireTimestamp = 0L;
+                return true;
+            }
+
+            // Only refresh if the expireTimestamp is empty or token was issued over TOKEN_CHECK_EXPIRE_MILLISECONDS ago.
+            if (sessionTimeout != 0L &&
+                    (this.expireTimestamp == null ||
+                            this.expireTimestamp == 0L ||
+                            (this.expireTimestamp - sessionTimeout) + TOKEN_CHECK_EXPIRE_MILLISECONDS < System.currentTimeMillis())) {
+                this.expireTimestamp = System.currentTimeMillis() + sessionTimeout;
+                return true;
+            }
+
+            return false;
+        }
+
+        public boolean isValid() {
+            if (getExpireTimestamp() == null) {
+                return false;
+            }
+
+            if (getExpireTimestamp() == 0L) {
+                return true;
+            }
+
+            return getExpireTimestamp() > System.currentTimeMillis();
+        }
+    }
+
     public static final class Static {
 
         private Static() {
@@ -702,6 +820,11 @@ public class ToolUser extends Record implements ToolEntity {
             ToolUser user = Query.from(ToolUser.class).where("changePasswordToken = ?", changePasswordToken).first();
             long expiration = Settings.getOrDefault(long.class, "cms/tool/changePasswordTokenExpirationInHours", 24L) * 60L * 60L * 1000L;
             return user != null && user.changePasswordTokenTime + expiration > System.currentTimeMillis() ? user : null;
+        }
+
+        public static ToolUser getByToken(String token) {
+            ToolUser user = Query.from(ToolUser.class).where("loginTokens/token = ?", token).first();
+            return user != null && user.getLoginToken(token) != null ? user : null;
         }
     }
 

@@ -40,24 +40,28 @@
 @media-tablet: ~'only screen and (max-width: 979px)';
 @media-phone: ~'only screen and (max-width: 767px)';
 
-.background-flat(@color, @text: contrast(@color, @color-text, white)) {
-  background-color: @color;
-  color: @text;
+.color-hover-darken(@color) {
+  color: @color;
 
   &:hover {
-    color: @text;
+    color: darken(@color, 5%);
   }
+}
+
+.color-hover-lighten(@color) {
+  color: @color;
+
+  &:hover {
+    color: lighten(@color, 5%);
+  }
+}
+
+.background-flat(@color) {
+  background-color: @color;
+  color: contrast(@color, @color-text, white);
 
   .link {
-    @link: contrast(@color, @color-link-dark, @color-link-light);
-
-    color: @link;
-    transition: color @time-fast;
-
-    &:hover {
-      color: darken(@link, 5%);
-      transition: none;
-    }
+    .color-hover-darken(contrast(@color, @color-link-dark, @color-link-light));
   }
 }
 

@@ -2,7 +2,8 @@ define([
     'content/diff',
     'content/lock',
     'content/publish',
-    'content/state' ],
+    'content/state',
+    'content/layout-element' ],
 
 function() {
 });

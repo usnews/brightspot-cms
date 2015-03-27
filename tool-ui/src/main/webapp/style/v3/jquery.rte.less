@@ -89,11 +89,11 @@ body.rte-fullscreen {
 }
 
 .rte-group-label {
+  background: white;
   display: none;
-  font-size: 60%;
-  line-height: 8px;
-  margin: 2px 0 3px 3px;
-  text-transform: uppercase;
+  font-size: 80%;
+  height: 20px;
+  line-height: 20px;
 }
 
 .rte-group-buttons {
@@ -133,19 +133,24 @@ body.rte-fullscreen {
 }
 
 .rte-group-dropDown {
+  height: 20px;
   overflow: hidden;
 
   .rte-group-label {
     .icon;
     .icon-caret-right;
 
-    &:before {
-      width: 5px;
-    }
+    cursor: pointer;
+    display: block;
   }
 
   .rte-button {
     display: block;
+    margin-right: 0;
+
+    &:hover {
+      box-shadow: none;
+    }
   }
 
   &:hover {
@@ -158,16 +163,7 @@ body.rte-fullscreen {
     }
 
     .rte-group-buttons {
-      background-color: @color-text;
-      border-radius: 3px;
-      box-shadow: 0 0 2px @color-text;
-      margin-right: -3px;
-      padding-bottom: 3px;
-      padding-right: 3px;
-    }
-
-    .rte-button {
-      margin: 3px 0 0 3px;
+      box-shadow: 0 1px 2px fade(black, 20%);
     }
   }
 }

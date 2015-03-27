@@ -54,10 +54,8 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       var elementTop = $element.offset().top;
 
       function moveToTop() {
-        window.requestAnimationFrame(function() {
-          $element.css({
-            'top': Math.max(windowScrollTop, 0)
-          });
+        $element.css({
+          'top': Math.max(windowScrollTop, 0)
         });
       }
 
@@ -72,10 +70,8 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
         // The bottom of the element is about to be hidden, so move it up.
         if (windowBottom > elementTop + elementHeight) {
-          window.requestAnimationFrame(function() {
-            $element.css({
-              'top': Math.max(Math.min(windowBottom - elementHeight - elementTopOriginal, bodyHeight - elementHeight - elementTopOriginal), 0)
-            });
+          $element.css({
+            'top': Math.max(Math.min(windowBottom - elementHeight - elementTopOriginal, bodyHeight - elementHeight - elementTopOriginal), 0)
           });
         }
 
@@ -86,6 +82,25 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
 
         moveToTop();
       }
+    });
+
+    // Hide the right rail widgets when under the publishing widget.
+    $('.contentForm-aside').each(function() {
+      var $aside = $(this);
+      var $widgets = $aside.find('> .contentWidgets');
+      var clipPathTop = (windowScrollTop + 10) + 'px';
+      var clipPath = 'polygon(0 ' + clipPathTop + ', 100% ' + clipPathTop + ', 100% 100%, 0 100%)';
+      var maskImage = 'linear-gradient(to bottom, transparent 0, black 10px, black 100%)';
+      var maskPosition = 'center ' + (windowScrollTop - 10 - (parseInt($aside.css('top'), 10) || 0)) + 'px';
+
+      $widgets.css({
+        '-webkit-clip-path': clipPath,
+        'clip-path': clipPath,
+        '-webkit-mask-image': maskImage,
+        'mask-image': maskImage,
+        '-webkit-mask-position': maskPosition,
+        'mask-position': maskPosition
+      });
     });
 
     lastWindowScrollTop = windowScrollTop;
