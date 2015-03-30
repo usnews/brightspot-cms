@@ -358,9 +358,27 @@ public final class Seo {
     @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class TypeModification extends Modification<ObjectType> {
 
+        private List<String> titleFields;
         private List<String> descriptionFields;
         private List<String> keywordsFields;
         private String openGraphType;
+
+        /**
+         * @return Never {@code null}. Mutable.
+         */
+        public List<String> getTitleFields() {
+            if (titleFields == null) {
+                titleFields = new ArrayList<String>();
+            }
+            return titleFields;
+        }
+
+        /**
+         * @param titleFields May be {@code null} to clear the list.
+         */
+        public void setTitleFields(List<String> titleFields) {
+            this.titleFields = titleFields;
+        }
 
         /**
          * @return Never {@code null}. Mutable.
@@ -402,6 +420,28 @@ public final class Seo {
 
         public void setOpenGraphType(String openGraphType) {
             this.openGraphType = openGraphType;
+        }
+    }
+
+    /**
+     * Specifies an array of field paths that are checked to find the page
+     * title from an instance of the target type.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(TitleFieldsProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface TitleFields {
+        String[] value();
+    }
+
+    private static class TitleFieldsProcessor implements ObjectType.AnnotationProcessor<TitleFields> {
+        @Override
+        public void process(ObjectType type, TitleFields annotation) {
+            Collections.addAll(
+                      type.as(TypeModification.class).getTitleFields(),
+                      annotation.value());
         }
     }
 
