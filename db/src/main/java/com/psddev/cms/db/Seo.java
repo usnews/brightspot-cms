@@ -211,7 +211,28 @@ public final class Seo {
         public String findTitle() {
             String title = getTitle();
 
-            return ObjectUtils.isBlank(title) ? getState().getLabel() : title;
+            if (!ObjectUtils.isBlank(title)) {
+                return title;
+            }
+
+            State state = getState();
+            ObjectType type = state.getType();
+
+            if (type != null) {
+                for (String field : type.as(TypeModification.class).getTitleFields()) {
+                    Object fieldTitle = state.getByPath(field);
+
+                    if (fieldTitle != null) {
+                        title = toMetaTagString(fieldTitle);
+
+                        if (title != null) {
+                            return title;
+                        }
+                    }
+                }
+            }
+
+            return getState().getLabel();
         }
 
         // Converts the given object into a plain string that's usable
