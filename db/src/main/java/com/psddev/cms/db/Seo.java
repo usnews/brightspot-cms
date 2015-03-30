@@ -132,15 +132,17 @@ public final class Seo {
     /**
      * Object modification for specifying SEO-related overrides.
      */
+    @Recordable.BeanProperty("cmsseo")
     @Modification.FieldInternalNamePrefix("cms.seo.")
     public static final class ObjectModification extends Modification<Object> {
 
         @ToolUi.Hidden(false)
-        @ToolUi.Placeholder(dynamicText = "${content.label}", editable = true)
+        @ToolUi.Placeholder(dynamicText = "${content.cmsseo.findTitle()}", editable = true)
         @ToolUi.Tab("SEO")
         private String title;
 
         @ToolUi.Hidden(false)
+        @ToolUi.Placeholder(dynamicText = "${content.cmsseo.findDescription()}", editable = true)
         @ToolUi.Tab("SEO")
         private String description;
 
