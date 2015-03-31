@@ -18,9 +18,11 @@ import com.psddev.cms.db.ToolUserDevice;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.TypeDefinition;
 
 @RoutingFilter.Path(application = "cms", value = "toolUserDashboard")
 @SuppressWarnings("serial")
@@ -270,6 +272,15 @@ public class ToolUserDashboard extends PageServlet {
                             page.writeEnd();
                         }
                     page.writeEnd();
+
+                    for (Class<? extends ToolUserDashboardWidget> widgetClass : ClassFinder.Static.findClasses(ToolUserDashboardWidget.class)) {
+                        ToolUserDashboardWidget widget = TypeDefinition.getInstance(widgetClass).newInstance();
+                        page.writeStart("div",
+                                "class", "p-tud-custom tabbed",
+                                "data-tab", widget.getTabName());
+                            widget.doService(page);
+                        page.writeEnd();
+                    }
                 page.writeEnd();
             page.writeEnd();
         page.writeFooter();
