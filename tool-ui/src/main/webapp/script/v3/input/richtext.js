@@ -896,6 +896,7 @@ function($) {
                 textarea.element.className += ' rte-source';
 
                 this.on('focus', function() {
+
                     $(textarea.element).parentsUntil('form').addClass('state-focus');
 
                     for (var i = 0, length = rtes.length; i < length; ++ i) {
@@ -911,6 +912,17 @@ function($) {
                     keepToolbarInView();
                 });
 
+                // When we focus or blur the rich text editor, trigger an event on the textarea
+                // so we can notify the caller
+                
+                this.on('focus', function(){
+                    $(textarea.element).trigger('rtefocus');
+                });
+                
+                this.on('blur', function(){
+                    $(textarea.element).trigger('rteblur');
+                });
+                
                 // Hack to make sure that the proper focus fires when clicking
                 // on an 'empty' region.
                 $(composer.iframe.contentWindow).on('focus', function() {

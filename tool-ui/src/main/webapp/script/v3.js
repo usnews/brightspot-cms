@@ -43,7 +43,7 @@ require([
   'input/color',
   'input/focus',
   'input/grid',
-  'input/image',
+  'v3/input/image',
   'input/location',
   'v3/input/object',
   'input/query',
