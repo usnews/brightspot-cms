@@ -32,11 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
-import com.psddev.cms.db.ToolUiLayoutElement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
-
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.ContentField;
@@ -54,6 +52,7 @@ import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.Template;
 import com.psddev.cms.db.ToolFormWriter;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.db.ToolUiLayoutElement;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Trash;
 import com.psddev.cms.db.Variation;
@@ -1318,8 +1317,8 @@ public class ToolPageContext extends WebPageContext {
                                 writeStart("ul", "class", "piped");
                                     writeStart("li");
                                         writeStart("a",
-                                                "href", cmsUrl("/toolUserDashboard"),
-                                                "target", "toolUserDashboard");
+                                                "href", cmsUrl("/profilePanel"),
+                                                "target", "profilePanel");
                                             writeHtml("Profile");
                                         writeEnd();
                                     writeEnd();
@@ -1335,8 +1334,8 @@ public class ToolPageContext extends WebPageContext {
 
                             writeStart("span", "class", "toolUserAvatar");
                                 writeStart("a",
-                                        "href", cmsUrl("/toolUserDashboard"),
-                                        "target", "toolUserDashboard");
+                                        "href", cmsUrl("/profilePanel"),
+                                        "target", "profilePanel");
                                     if (avatar != null) {
                                         writeElement("img",
                                                 "src", ImageEditor.Static.resize(ImageEditor.Static.getDefault(), avatar, null, 100, 100).getPublicUrl());
