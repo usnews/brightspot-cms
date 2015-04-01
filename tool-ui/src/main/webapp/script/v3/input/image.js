@@ -78,9 +78,9 @@ define([
          * Names for all the tabs.
          */
         tabNames: {
-            image: 'Image Focus',
-            edit: 'Edit Image',
-            sizes: 'Sizes and Text',
+            image: 'Focus',
+            edit: 'Edit',
+            sizes: 'Sizes & Texts',
             hotspots: 'Hotspots'
         },
 
@@ -2335,7 +2335,6 @@ define([
                 // When switching to sizes tab, update the thumbnails
                 self.sizesNeedsUpdate = true;
 
-                self.dom.$focusMessage.html(focusMessage + '<p>All image sizes have been updated to focus on the point that you clicked.</p>');
                 if (!self.dom.$focusPoint) {
                     self.dom.$focusPoint = $('<div/>', {'class':'imageEditor-focus-point'}).appendTo(self.dom.$focusImage.parent());
                 }

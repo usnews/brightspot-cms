@@ -1,12 +1,15 @@
 .filePreview {
-  margin-top: 5px;
+  margin-top: @gap-medium;
 }
 
 .imageEditor {
   display: inline-block;
   max-width: 100%;
-  min-height: 300px;
   position: relative;
+
+  .tabs {
+    margin-bottom: @gap-medium;
+  }
 }
 
 .imageEditor-aside {
@@ -93,6 +96,7 @@
   
   canvas,
   img {
+    display: block;
     width: 100%;
   }
 }
@@ -268,11 +272,12 @@
 }
 
 .imageEditor-adjustment {
+  margin: @gap-medium 0;
 
-  margin:1em 0;
-    
   .imageEditor-value {
-    float:right
+    float: right;
+    position: relative;
+    top: @lineHeight-default;
   }
 
   ul {
@@ -282,6 +287,10 @@
 
   input[type=checkbox] {
     margin-right:0.5em;
+  }
+
+  input[type=range] {
+    width: 75%;
   }
 }
 
@@ -312,9 +321,33 @@
   .icon-arrows-v;
 }
 
-.imageEditor-focus .imageEditor-image {
-  cursor: crosshair;
+.imageEditor-focus {
+  .imageEditor-image {
+    cursor: crosshair;
+  }
+
+  .imageEditor-aside {
+    background-color: @color-heading;
+    border-radius: 2px;
+    padding: @gap-medium;
+  }
+
+  &:before {
+    @-size: @gap-small;
+    @-double: @-size * 2;
+
+    border-color: transparent @color-heading transparent transparent;
+    border-style: solid;
+    border-width: @-size;
+    content: '';
+    height: @-double;
+    position: absolute;
+    right: 150px;
+    top: @-double;
+    width: @-double;
+  }
 }
+
 .imageEditor-focus-tooltip {
   background:white;
   padding:1em;
@@ -331,7 +364,7 @@
   border:1px solid #000;
   background-color:@color-change;
   border-radius:6px;
-  
+
   // Adjust position to account for half the size of the div
   margin-left:-6px;
   margin-top:-6px;
