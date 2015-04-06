@@ -851,6 +851,7 @@ public class CmsTool extends Tool {
             this.file = file;
         }
 
+        @Override
         public String getUrl() {
             StorageItem file = getFile();
             return file != null ? file.getPublicUrl() : null;
