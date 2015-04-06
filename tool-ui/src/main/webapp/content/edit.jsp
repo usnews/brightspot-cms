@@ -362,7 +362,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                 <%
                 wp.writeStart("div", "class", "widget-controls");
-                    if (!lockedOut && wp.getCmsTool().isOptInContentLocking()) {
+                    if (!wp.getCmsTool().isDisableContentLocking() && !lockedOut && wp.getCmsTool().isOptInContentLocking()) {
                         wp.writeStart("a",
                                 "class", "icon icon-only icon-" + (optInLock ? "lock" : "unlock"),
                                 "href", wp.url("", "lock", !optInLock));
