@@ -76,7 +76,7 @@ require([
   'content/lock',
   'v3/content/publish',
   'content/layout-element',
-  'content/state',
+  'v3/content/state',
   'v3/tabs' ],
 
 function() {
