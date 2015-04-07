@@ -8,6 +8,7 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.QueryRestriction;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultItem;
 import com.psddev.cms.tool.SearchResultView;
@@ -65,6 +66,12 @@ public abstract class AbstractSearchResultView implements SearchResultView {
     }
 
     protected abstract void doWriteHtml() throws IOException;
+
+    protected void writeQueryRestrictionsHtml() throws IOException {
+        for (Class<? extends QueryRestriction> qrc : QueryRestriction.classIterable()) {
+            page.writeQueryRestrictionForm(qrc);
+        }
+    }
 
     protected void writeFieldsHtml() throws IOException {
         ObjectType type = search.getSelectedType();

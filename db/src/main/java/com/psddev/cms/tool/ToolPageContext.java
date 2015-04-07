@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 import com.psddev.cms.db.ToolUiLayoutElement;
+import com.psddev.dari.util.TypeDefinition;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -2526,6 +2527,19 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
             writeEnd();
         }
+    }
+
+    public void writeQueryRestrictionForm(Class<? extends QueryRestriction> queryRestrictionClass) throws IOException {
+        QueryRestriction qr = TypeDefinition.getInstance(queryRestrictionClass).newInstance();
+
+        writeStart("form",
+                "class", "queryRestrictions",
+                "data-bsp-autosubmit", "",
+                "method", "post",
+                "action", url(""));
+
+            qr.writeHtml(this);
+        writeEnd();
     }
 
     /**

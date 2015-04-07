@@ -959,6 +959,10 @@ public class Search extends Record {
             tool.updateSearchQuery(this, query);
         }
 
+        if (page != null) {
+            QueryRestriction.updateQueryUsingAll(query, page);
+        }
+
         return query;
     }
 

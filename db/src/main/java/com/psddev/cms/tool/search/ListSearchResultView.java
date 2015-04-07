@@ -93,6 +93,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
             result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
         }
 
+        writeQueryRestrictionsHtml();
         writeFieldsHtml();
         writeSortsHtml();
         writePaginationHtml(result);
