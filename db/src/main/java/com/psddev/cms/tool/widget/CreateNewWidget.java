@@ -57,7 +57,6 @@ public class CreateNewWidget extends DefaultDashboardWidget {
 
             if (role != null) {
                 settings = role.getRoleCommonContentSettings();
-                System.out.println("settings: " + settings);
             }
         }
 
