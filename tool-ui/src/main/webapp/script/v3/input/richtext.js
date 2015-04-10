@@ -705,6 +705,8 @@ function($) {
                     }
 
                     openLinkDialog($anchor);
+
+                    return false;
                 });
             })();
 
