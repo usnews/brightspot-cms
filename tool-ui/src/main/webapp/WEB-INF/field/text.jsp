@@ -34,10 +34,8 @@ if (field.isRequired()) {
     }
 }
 
-// Hack for Chrome since it can't detect placeholder attr change when the
-// initial value is an empty string.
 if (ObjectUtils.isBlank(placeholder)) {
-    placeholder = " ";
+    placeholder = "";
 }
 
 Number suggestedMinimum = ui.getSuggestedMinimum();
