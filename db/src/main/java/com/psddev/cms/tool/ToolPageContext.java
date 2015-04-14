@@ -2275,6 +2275,7 @@ public class ToolPageContext extends WebPageContext {
 
             writeStart("div",
                     "class", "objectInputs",
+                    "lang", type != null ? type.as(ToolUi.class).getLanguageTag() : null,
                     "data-type", type != null ? type.getInternalName() : null,
                     "data-id", state.getId(),
                     "data-object-id", state.getId(),
