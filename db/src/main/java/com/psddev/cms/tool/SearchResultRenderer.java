@@ -65,37 +65,22 @@ public class SearchResultRenderer {
         ToolUi ui = selectedType == null ? null : selectedType.as(ToolUi.class);
         PaginatedResult<?> result = null;
 
-        if (selectedType != null) {
-            if (search.getSort() != null) {
-                AuthenticationFilter.Static.putUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId(), search.getSort());
+        if (ui != null && ui.getDefaultSortField() != null) {
+            search.setSort(ui.getDefaultSortField());
+
+        } else if (!ObjectUtils.isBlank(search.getQueryString())) {
+            search.setSort(Search.RELEVANT_SORT_VALUE);
+
+        } else {
+            Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
+
+            if (f != null &&
+                    (f.get("") != null ||
+                    f.get("x") != null)) {
+                search.setSort("cms.content.publishDate");
 
             } else {
-                Object sortSetting = AuthenticationFilter.Static.getUserSetting(page.getRequest(), SORT_SETTING_PREFIX + selectedType.getId());
-
-                if (!ObjectUtils.isBlank(sortSetting)) {
-                    search.setSort(sortSetting.toString());
-                }
-            }
-        }
-
-        if (search.getSort() == null) {
-            if (ui != null && ui.getDefaultSortField() != null) {
-                search.setSort(ui.getDefaultSortField());
-
-            } else if (!ObjectUtils.isBlank(search.getQueryString())) {
-                search.setSort(Search.RELEVANT_SORT_VALUE);
-
-            } else {
-                Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
-
-                if (f != null &&
-                        (f.get("") != null ||
-                        f.get("x") != null)) {
-                    search.setSort("cms.content.publishDate");
-
-                } else {
-                    search.setSort("cms.content.updateDate");
-                }
+                search.setSort("cms.content.updateDate");
             }
         }
 
