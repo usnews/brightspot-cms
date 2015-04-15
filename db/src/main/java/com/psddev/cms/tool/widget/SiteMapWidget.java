@@ -15,7 +15,6 @@ import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardWidget;
-import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.AggregateQueryResult;
 import com.psddev.dari.db.Database;
