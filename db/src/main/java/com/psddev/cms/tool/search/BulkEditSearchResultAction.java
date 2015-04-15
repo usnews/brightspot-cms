@@ -60,7 +60,7 @@ public class BulkEditSearchResultAction implements SearchResultAction {
         } else if (search != null) {
             ObjectType type = search.getSelectedType();
 
-            if (type == null) {
+            if (type == null || type.isAbstract()) {
                 return;
 
             } else {
