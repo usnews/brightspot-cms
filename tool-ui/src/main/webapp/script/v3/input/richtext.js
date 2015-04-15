@@ -1469,15 +1469,25 @@ function($) {
     delete wysihtml5.commands.insertImage;
 
     var insertButton = function(composer, button) {
-        var $selected = $(composer.selection.getSelectedNode()),
-                precedings,
-                precedingsLength;
+        var selection = composer.selection;
+        var $selected = $(selection.getSelectedNode());
 
         if ($selected.is('body')) {
-            $($selected[0].childNodes[composer.selection.getRange().startOffset]).after(button);
+            $($selected[0].childNodes[selection.getRange().startOffset]).after(button);
 
         } else {
-            precedings = [ ];
+            var range = selection.getRange();
+
+            if (range.collapsed) {
+                var br = $selected[0].childNodes[range.startOffset];
+
+                if (br && $(br).is('br')) {
+                    selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
+                    $selected = $(selection.getSelectedNode());
+                }
+            }
+
+            var precedings = [ ];
 
             $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                 if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
@@ -1485,7 +1495,7 @@ function($) {
                 }
             });
 
-            precedingsLength = precedings.length;
+            var precedingsLength = precedings.length;
 
             if (precedingsLength >= 1) {
                 $(precedings[precedingsLength - 1]).after(button);
