@@ -49,8 +49,6 @@ public class BulkEditSearchResultAction implements SearchResultAction {
                 itemTypeIds.add(State.getInstance(item).getTypeId());
             }
 
-            System.out.println("itemTypeIds: " + itemTypeIds);
-
             if (itemTypeIds.size() != 1) {
                 return;
 
