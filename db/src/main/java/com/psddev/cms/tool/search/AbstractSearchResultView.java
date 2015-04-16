@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
-import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.QueryRestriction;
 import com.psddev.cms.tool.Search;
