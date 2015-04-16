@@ -162,6 +162,48 @@ public abstract class AbstractSearchResultView implements SearchResultView {
         page.writeEnd();
     }
 
+    protected void writeLimitsHtml(PaginatedResult<?> result) throws IOException {
+        int resultLimit = result.getLimit();
+
+        page.writeStart("div", "class", "searchResult-limits");
+        {
+            page.writeStart("form",
+                    "method", "get",
+                    "action", page.url(null));
+            {
+                for (String name : page.paramNamesList()) {
+                    if (Search.LIMIT_PARAMETER.equals(name)) {
+                        continue;
+                    }
+
+                    for (String value : page.params(String.class, name)) {
+                        page.writeElement("input",
+                                "type", "hidden",
+                                "name", name,
+                                "value", value);
+                    }
+                }
+
+                page.writeStart("select",
+                        "data-bsp-autosubmit", "",
+                        "name", Search.LIMIT_PARAMETER);
+                {
+                    for (int limit : new int[]{10, 20, 50}) {
+                        page.writeStart("option",
+                                "selected", limit == resultLimit ? "selected" : null,
+                                "value", limit);
+                        page.writeHtml("Show: ");
+                        page.writeHtml(limit);
+                        page.writeEnd();
+                    }
+                }
+                page.writeEnd();
+            }
+            page.writeEnd();
+        }
+        page.writeEnd();
+    }
+
     protected void writePaginationHtml(PaginatedResult<?> result) throws IOException {
         page.writeStart("div", "class", "searchResult-pagination");
             page.writeStart("ul", "class", "pagination");

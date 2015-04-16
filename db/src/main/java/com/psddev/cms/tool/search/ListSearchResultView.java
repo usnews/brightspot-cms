@@ -96,6 +96,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
         writeQueryRestrictionsHtml();
         writeFieldsHtml();
         writeSortsHtml();
+        writeLimitsHtml(result);
         writePaginationHtml(result);
 
         page.writeStart("div", "class", "searchResult-list");
