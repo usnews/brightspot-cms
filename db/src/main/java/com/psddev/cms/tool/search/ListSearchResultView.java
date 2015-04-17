@@ -96,6 +96,7 @@ public class ListSearchResultView extends AbstractSearchResultView {
         writeQueryRestrictionsHtml();
         writeFieldsHtml();
         writeSortsHtml();
+        writeLimitsHtml(result);
         writePaginationHtml(result);
 
         page.writeStart("div", "class", "searchResult-list");
@@ -150,6 +151,92 @@ public class ListSearchResultView extends AbstractSearchResultView {
         HttpServletRequest request = page.getRequest();
 
         page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
+            page.writeStart("thead");
+                page.writeStart("tr");
+                    page.writeStart("th");
+                        page.writeElement("input",
+                                "type", "checkbox",
+                                "class", "searchResult-checkAll");
+                    page.writeEnd();
+
+                    if (sortField != null &&
+                            ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+
+                        page.writeStart("th", "colspan", 2);
+                            page.writeHtml(sortField.getDisplayName());
+                        page.writeEnd();
+                    }
+
+                    if (showSiteLabel) {
+                        page.writeStart("th");
+                            page.writeHtml("Site");
+                        page.writeEnd();
+                    }
+
+                    if (showTypeLabel) {
+                        page.writeStart("th");
+                            page.writeHtml("Type");
+                        page.writeEnd();
+                    }
+
+                    page.writeStart("th");
+                        page.writeHtml("Label");
+                    page.writeEnd();
+
+                    if (sortField != null &&
+                            !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+
+                        page.writeStart("th");
+                            page.writeHtml(sortField.getDisplayName());
+                        page.writeEnd();
+                    }
+
+                    ToolUser user = page.getUser();
+
+                    if (user != null) {
+                        ObjectType selectedType = search.getSelectedType();
+                        List<String> fieldNames = user.getSearchResultFieldsByTypeId().get(selectedType != null ? selectedType.getId().toString() : "");
+
+                        if (fieldNames == null) {
+                            for (Class<? extends SearchResultField> c : ClassFinder.Static.findClasses(SearchResultField.class)) {
+                                if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
+                                    SearchResultField field = TypeDefinition.getInstance(c).newInstance();
+
+                                    if (field.isDefault(selectedType)) {
+                                        field.writeTableHeaderCellHtml(page);
+                                    }
+                                }
+                            }
+
+                        } else {
+                            for (String fieldName : fieldNames) {
+                                Class<?> fieldNameClass = ObjectUtils.getClassByName(fieldName);
+
+                                if (fieldNameClass != null && SearchResultField.class.isAssignableFrom(fieldNameClass)) {
+                                    @SuppressWarnings("unchecked")
+                                    SearchResultField field = TypeDefinition.getInstance((Class<? extends SearchResultField>) fieldNameClass).newInstance();
+
+                                    if (field.isSupported(selectedType)) {
+                                        field.writeTableHeaderCellHtml(page);
+                                    }
+
+                                } else {
+                                    page.writeStart("th");
+                                        if (selectedType != null) {
+                                            ObjectField field = selectedType.getField(fieldName);
+
+                                            if (field != null) {
+                                                page.writeHtml(field.getDisplayName());
+                                            }
+                                        }
+                                    page.writeEnd();
+                                }
+                            }
+                        }
+                    }
+                page.writeEnd();
+            page.writeEnd();
+
             page.writeStart("tbody");
                 for (Object item : items) {
                     State itemState = State.getInstance(item);
@@ -319,8 +406,6 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                 }
                             page.writeEnd();
                         }
-
-                        ToolUser user = page.getUser();
 
                         if (user != null) {
                             ObjectType selectedType = search.getSelectedType();
