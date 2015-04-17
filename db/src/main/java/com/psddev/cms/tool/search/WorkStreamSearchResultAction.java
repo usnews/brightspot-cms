@@ -25,8 +25,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
                 page.writeStart("div", "class", "searchResult-action-simple");
                 page.writeStart("a",
                         "class", "button",
-                        "href", page.toolUrl(
-                                CmsTool.class, CreateWorkStream.PATH,
+                        "href", page.cmsUrl(CreateWorkStream.PATH,
                                 "query", ObjectUtils.toJson(selection.createItemsQuery().getState().getSimpleValues()),
                                 "selectionId", selection.getId()),
                         "target", "newWorkStream");
@@ -48,7 +47,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
-                    "href", page.toolUrl(CmsTool.class, CreateWorkStream.PATH,
+                    "href", page.cmsUrl(CreateWorkStream.PATH,
                             "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                             "incompleteIfMatching", hasMissing),
                     "target", "newWorkStream");
