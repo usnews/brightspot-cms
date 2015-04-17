@@ -3045,9 +3045,20 @@ public class ToolPageContext extends WebPageContext {
      * user has asked for it in the current request.
      *
      * @param object Can't be {@code null}.
-     * @param {@code true} if the application of a workflow action is tried.
+     * @return {@code true} if the application of a workflow action is tried.
      */
     public boolean tryWorkflow(Object object) {
+        return tryWorkflow(object, true);
+    }
+
+    /**
+     * Tries to apply a workflow action to the given {@code object} if the
+     * user has asked for it in the current request.
+     * @param object Can't be {@code null}
+     * @param redirectOnSave whether to redirect the user after a successful workflow transition (default: true)
+     * @return {@code true} if the application of a workflow action is tried.
+     */
+    public boolean tryWorkflow(Object object, boolean redirectOnSave) {
         if (!isFormPost()) {
             return false;
         }
@@ -3096,7 +3107,10 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            redirectOnSave("", "id", state.getId());
+            if (redirectOnSave) {
+                redirectOnSave("", "id", state.getId());
+            }
+
             return true;
 
         } catch (Exception error) {
