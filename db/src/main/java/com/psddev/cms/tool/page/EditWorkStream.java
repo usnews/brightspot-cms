@@ -24,6 +24,8 @@ public class EditWorkStream extends PageServlet {
 
         if (page.isFormPost()) {
             doPost(page, object);
+
+            return;
         }
 
         page.writeFormHeading(object, "class", "icon icon-object-workStream");
@@ -65,8 +67,9 @@ public class EditWorkStream extends PageServlet {
         page.writeEnd();
     }
 
-    private static void doPost(ToolPageContext page, Object object) {
+    private void doPost(ToolPageContext page, WorkStream object) {
         try {
+
             if (page.param(String.class, "action-save") != null) {
                 page.updateUsingParameters(object);
                 page.publish(object);
