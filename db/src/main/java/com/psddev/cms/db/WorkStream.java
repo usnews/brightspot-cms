@@ -190,7 +190,10 @@ public class WorkStream extends Record {
 
         String userId = user.getId().toString();
         State next = currentItems != null ?
-                State.getInstance(Query.from(Object.class).where("_id = ?", currentItems.get(userId)).first()) :
+                State.getInstance(Query.from(Object.class)
+                        .where("_id = ?", currentItems.get(userId))
+                        .and(user.getCurrentSite().itemsPredicate())
+                        .first()) :
                 null;
 
         if (next != null &&
@@ -201,7 +204,8 @@ public class WorkStream extends Record {
 
         if (next == null) {
             Query<?> query = getQuery().clone().
-                    not("cms.workstream.completeIds ^= ?", getId().toString() + ",");
+                    not("cms.workstream.completeIds ^= ?", getId().toString() + ",")
+                    .and(user.getCurrentSite().itemsPredicate());
 
             if (currentItems != null) {
                 query.and("_id != ?", currentItems.values());
