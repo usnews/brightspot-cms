@@ -399,7 +399,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         wp.writeHtml(" working on ");
 
                         wp.writeStart("a",
-                                "href", wp.objectUrl("/content/workStreamEdit.jsp", workStream),
+                                "href", wp.objectUrl("/content/editWorkStream", workStream),
                                 "target", "workStream");
                             wp.writeObjectLabel(workStream);
                         wp.writeEnd();
