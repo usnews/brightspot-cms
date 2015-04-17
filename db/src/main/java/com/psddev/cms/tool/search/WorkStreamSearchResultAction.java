@@ -3,7 +3,6 @@ package com.psddev.cms.tool.search;
 import java.io.IOException;
 import java.util.Map;
 
-import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;

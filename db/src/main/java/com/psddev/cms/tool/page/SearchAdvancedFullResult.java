@@ -14,7 +14,6 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import com.psddev.cms.tool.CmsTool;
 import org.joda.time.DateTime;
 
 import com.psddev.cms.db.Content;
