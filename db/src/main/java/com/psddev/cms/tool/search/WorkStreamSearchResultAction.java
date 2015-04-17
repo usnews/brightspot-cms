@@ -3,10 +3,12 @@ package com.psddev.cms.tool.search;
 import java.io.IOException;
 import java.util.Map;
 
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.page.CreateWorkStream;
 import com.psddev.dari.util.ObjectUtils;
 
 public class WorkStreamSearchResultAction implements SearchResultAction {
@@ -18,7 +20,19 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
             SearchResultSelection selection)
             throws IOException {
 
-        if (selection != null) {
+        if (selection != null && selection.createItemsQuery().hasMoreThan(0)) {
+
+                page.writeStart("div", "class", "searchResult-action-simple");
+                page.writeStart("a",
+                        "class", "button",
+                        "href", page.toolUrl(
+                                CmsTool.class, CreateWorkStream.PATH,
+                                "query", ObjectUtils.toJson(selection.createItemsQuery().getState().getSimpleValues()),
+                                "selectionId", selection.getId()),
+                        "target", "newWorkStream");
+                page.writeHtml("New Work Stream");
+                page.writeEnd();
+                page.writeEnd();
             return;
         }
 
@@ -34,7 +48,7 @@ public class WorkStreamSearchResultAction implements SearchResultAction {
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
-                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                    "href", page.toolUrl(CmsTool.class, CreateWorkStream.PATH,
                             "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                             "incompleteIfMatching", hasMissing),
                     "target", "newWorkStream");

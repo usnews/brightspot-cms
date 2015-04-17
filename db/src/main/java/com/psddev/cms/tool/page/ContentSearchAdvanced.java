@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
+import com.psddev.cms.tool.CmsTool;
 import org.joda.time.DateTime;
 
 import com.psddev.cms.db.Content;
@@ -520,7 +521,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeStart("a",
                                     "class", "action button icon icon-object-workStream",
                                     "target", "workStreamCreate",
-                                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                    "href", page.toolUrl(CmsTool.class, "/createWorkStream",
                                             "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
                                 page.writeHtml("New Work Stream");
                             page.writeEnd();
