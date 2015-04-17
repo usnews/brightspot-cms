@@ -2,8 +2,10 @@
 
 com.psddev.cms.db.Content,
 com.psddev.cms.db.ContentLock,
+com.psddev.cms.db.ContentSection,
 com.psddev.cms.db.Directory,
 com.psddev.cms.db.Draft,
+com.psddev.cms.db.DraftStatus,
 com.psddev.cms.db.Guide,
 com.psddev.cms.db.GuidePage,
 com.psddev.cms.db.History,
@@ -11,8 +13,10 @@ com.psddev.cms.db.Page,
 com.psddev.cms.db.PageFilter,
 com.psddev.cms.db.Renderer,
 com.psddev.cms.db.Schedule,
+com.psddev.cms.db.Section,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
+com.psddev.cms.db.ToolSearch,
 com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.db.Variation,
@@ -30,16 +34,20 @@ com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
 com.psddev.dari.db.Singleton,
 com.psddev.dari.db.State,
+com.psddev.dari.util.DateUtils,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
 com.psddev.dari.util.ObjectUtils,
+com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.StringUtils,
 
 java.io.StringWriter,
 java.util.ArrayList,
 java.util.Date,
 java.util.LinkedHashMap,
+java.util.LinkedHashSet,
 java.util.List,
+java.util.ListIterator,
 java.util.Map,
 java.util.Set,
 java.util.UUID,
@@ -1529,7 +1537,7 @@ private static void renderWidgets(ToolPageContext wp, Object object, String posi
                 String displayHtml;
 
                 try {
-                    displayHtml = widget.createDisplayHtml(wp, object);tH
+                    displayHtml = widget.createDisplayHtml(wp, object);
 
                 } catch (Exception ex) {
                     StringWriter sw = new StringWriter();
