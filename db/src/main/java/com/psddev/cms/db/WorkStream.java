@@ -204,7 +204,7 @@ public class WorkStream extends Record {
                     .where("_id = ?", currentItems.get(userId));
 
             if (siteItemsPredicate != null) {
-                query.and(siteItemsPredicate);
+                nextQuery.and(siteItemsPredicate);
             }
 
             next = State.getInstance(nextQuery.first());
