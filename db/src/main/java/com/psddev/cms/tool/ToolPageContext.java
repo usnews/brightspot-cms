@@ -1689,10 +1689,12 @@ public class ToolPageContext extends WebPageContext {
 
                     ToolUser user = getUser();
                     String userId = user != null ? user.getId().toString() : UUID.randomUUID().toString();
-                    String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId));
+                    String token = (String) getRequest().getAttribute(AuthenticationFilter.USER_TOKEN);
+                    String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId + token));
                     String cookiePath = StringUtils.addQueryParameters(
                             cmsUrl("/inlineEditorCookie"),
                             "userId", userId,
+                            "token", token,
                             "signature", signature).
                             substring(1);
 
