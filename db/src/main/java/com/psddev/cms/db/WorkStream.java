@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
+import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -189,12 +190,25 @@ public class WorkStream extends Record {
         ErrorUtils.errorIfNull(user, "user");
 
         String userId = user.getId().toString();
-        State next = currentItems != null ?
-                State.getInstance(Query.from(Object.class)
-                        .where("_id = ?", currentItems.get(userId))
-                        .and(user.getCurrentSite().itemsPredicate())
-                        .first()) :
-                null;
+        Site site = user.getCurrentSite();
+        Predicate siteItemsPredicate = null;
+
+        if (site != null) {
+            siteItemsPredicate = site.itemsPredicate();
+        }
+
+        State next = null;
+
+        if (currentItems != null) {
+            Query nextQuery = Query.from(Object.class)
+                    .where("_id = ?", currentItems.get(userId));
+
+            if (siteItemsPredicate != null) {
+                query.and(siteItemsPredicate);
+            }
+
+            next = State.getInstance(nextQuery.first());
+        }
 
         if (next != null &&
                 (next.as(Data.class).isComplete(this) ||
@@ -204,8 +218,11 @@ public class WorkStream extends Record {
 
         if (next == null) {
             Query<?> query = getQuery().clone().
-                    not("cms.workstream.completeIds ^= ?", getId().toString() + ",")
-                    .and(user.getCurrentSite().itemsPredicate());
+                    not("cms.workstream.completeIds ^= ?", getId().toString() + ",");
+
+            if (siteItemsPredicate != null) {
+                query.and(siteItemsPredicate);
+            }
 
             if (currentItems != null) {
                 query.and("_id != ?", currentItems.values());
