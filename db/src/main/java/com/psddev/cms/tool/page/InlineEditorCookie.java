@@ -28,9 +28,10 @@ public class InlineEditorCookie extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String userId = request.getParameter("userId");
+        String token = request.getParameter("token");
 
         if (userId != null) {
-            String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId));
+            String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId + token));
 
             if (signature.equals(request.getParameter("signature"))) {
                 ToolUser user = Query.
@@ -39,7 +40,7 @@ public class InlineEditorCookie extends HttpServlet {
                         first();
 
                 if (user != null) {
-                    AuthenticationFilter.Static.logIn(request, response, user);
+                    AuthenticationFilter.Static.logIn(request, response, user, token);
 
                 } else {
                     AuthenticationFilter.Static.logOut(request, response);
