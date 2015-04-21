@@ -1,4 +1,4 @@
-package com.psddev.cms.tool.page;
+package com.psddev.cms.tool.file;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -9,6 +9,7 @@ import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;

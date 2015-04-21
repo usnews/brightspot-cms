@@ -1,4 +1,4 @@
-package com.psddev.cms.tool.page;
+package com.psddev.cms.tool;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -6,7 +6,6 @@ import java.lang.reflect.Modifier;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 
-import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.StorageItem;

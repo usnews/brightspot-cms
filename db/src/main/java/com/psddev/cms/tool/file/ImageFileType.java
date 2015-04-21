@@ -1,4 +1,4 @@
-package com.psddev.cms.tool.page;
+package com.psddev.cms.tool.file;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ImageTextOverlay;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.StandardImageSize;
+import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ColorDistribution;
 import com.psddev.dari.db.ObjectField;
