@@ -159,7 +159,7 @@ public class StorageItemField extends PageServlet {
 
         } finally {
             if (file != null && file.exists()) {
-                //file.delete();
+                file.delete();
             }
         }
 
