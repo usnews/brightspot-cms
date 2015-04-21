@@ -152,7 +152,7 @@ public class ToolUserDashboard extends PageServlet {
                             }
                         }
 
-                        if (sites.size() > 1) {
+                        if (sites.size() > 1 || (!sites.isEmpty() && page.hasPermission("site/global"))) {
                             page.writeStart("div",
                                     "class", "p-tud-site",
                                     "data-tab", "Site: " + (currentSite != null ? currentSite.getLabel() : "Global"));
