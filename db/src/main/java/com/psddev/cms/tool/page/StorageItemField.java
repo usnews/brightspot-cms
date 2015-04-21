@@ -315,7 +315,7 @@ public class StorageItemField extends PageServlet {
                     filePart.getContentType());
         }
 
-        if (state != null && field != null) {
+        if (state != null && field != null && !StringUtils.isBlank(errorMessage)) {
             state.addError(field, errorMessage);
         } else {
             page.getErrors().add(new IllegalArgumentException(errorMessage));
