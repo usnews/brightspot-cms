@@ -161,6 +161,7 @@ public class StorageItemField extends PageServlet {
                 //file.delete();
             }
         }
+
     }
 
     public static void writeFileSelector(ToolPageContext page) throws IOException, ServletException {
@@ -283,6 +284,8 @@ public class StorageItemField extends PageServlet {
         item.setContentType(contentType);
         item.getMetadata().put("http.headers", httpHeaders);
         item.getMetadata().put("originalFilename", fileName);
+
+        //InputStream inputStream = new BufferedInputStream(filePart.getInputStream());
         item.setData(filePart.getInputStream());
 
         if (contentType != null && contentType.startsWith("image/")) {
