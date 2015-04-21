@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class ImageFileType implements FileContentType {
     }
 
     @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
+    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException {
         HttpServletRequest request = page.getRequest();
 
         ObjectField field = (ObjectField) request.getAttribute("field");
@@ -207,8 +208,14 @@ public class ImageFileType implements FileContentType {
         fieldValueMetadata.put("cms.edits", edits);
 
         // Automatic image metadata extraction.
+        InputStream itemData = null;
         if (fieldValue != null && !"keep".equals(action)) {
-            InputStream itemData = fieldValue.getData();
+
+            if (filePart != null) {
+                itemData = filePart.getInputStream();
+            } else {
+                itemData = fieldValue.getData();
+            }
 
             String contentType = fieldValue.getContentType();
 

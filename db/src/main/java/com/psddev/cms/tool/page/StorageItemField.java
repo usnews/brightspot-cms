@@ -25,8 +25,6 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.AggregateException;
-import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
@@ -50,7 +48,7 @@ public class StorageItemField extends PageServlet {
 
         if (page.isFormPost()) {
             doFormPost(page);
-            return;
+            //return;
         }
 
         HttpServletRequest request = page.getRequest();
@@ -62,12 +60,14 @@ public class StorageItemField extends PageServlet {
         StorageItem fieldValue = (StorageItem) state.getValue(fieldName);
 
         page.writeStart("div", "class", "inputSmall");
-            writeFileSelector(page);
-        page.writeEnd();
 
-        if (fieldValue != null) {
-            FilePreview.reallyDoService(page);
-        }
+            writeFileSelector(page);
+
+            if (fieldValue != null) {
+                FilePreview.reallyDoService(page);
+            }
+
+        page.writeEnd();
     }
 
     public static void doFormPost(ToolPageContext page) throws IOException, ServletException {
@@ -95,6 +95,7 @@ public class StorageItemField extends PageServlet {
 
         File file = null;
         Part filePart = request.getPart(fileName);
+        InputStream newItemData = null;
 
         try {
             String action = page.param(actionName);
@@ -146,7 +147,7 @@ public class StorageItemField extends PageServlet {
                 newItem = StorageItem.Static.createUrl(page.param(String.class, urlName));
             }
 
-            FilePreview.setMetadata(page, state, newItem);
+            FilePreview.setMetadata(page, state, newItem, filePart);
 
             if (newItem != null &&
                     ("newUpload".equals(action) ||
@@ -264,49 +265,26 @@ public class StorageItemField extends PageServlet {
     }
 
     public static StorageItem createStorageItemFromPart(ToolPageContext page, Part filePart, ObjectField field, State state)throws ServletException, IOException {
-
         if (!StorageItemField.checkFileContent(filePart, page, state, field)) {
             return null;
         }
 
         String fileName = filePart.getSubmittedFileName();
         String contentType = filePart.getContentType();
+
         Map<String, List<String>> httpHeaders = new LinkedHashMap<>();
 
         httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
         httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(filePart.getSize())));
         httpHeaders.put("Content-Type", Collections.singletonList(contentType));
 
-        String storageSetting = field.as(ToolUi.class).getStorageSetting();
-        StorageItem item = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
-
+        StorageItem item = StorageItem.Static.createIn(getStorageSetting(field));
         item.setPath(createStorageItemPath(fileName, null));
         item.setContentType(contentType);
-        item.getMetadata().put("http.headers", httpHeaders);
-        item.getMetadata().put("originalFilename", fileName);
-
-        //InputStream inputStream = new BufferedInputStream(filePart.getInputStream());
         item.setData(filePart.getInputStream());
 
-        if (contentType != null && contentType.startsWith("image/")) {
-            InputStream fileInput = filePart.getInputStream();
-
-            try {
-                ImageMetadataMap metadata = new ImageMetadataMap(fileInput);
-                List<Throwable> errors = metadata.getErrors();
-
-                item.getMetadata().putAll(metadata);
-
-                if (!errors.isEmpty()) {
-                    LOGGER.info("Can't read image metadata!", new AggregateException(errors));
-                }
-
-            } finally {
-                IoUtils.closeQuietly(fileInput);
-            }
-        }
-
-        //item.save();
+        item.getMetadata().put("http.headers", httpHeaders);
+        item.getMetadata().put("originalFilename", fileName);
 
         return item;
     }
