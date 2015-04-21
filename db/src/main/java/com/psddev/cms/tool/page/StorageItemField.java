@@ -94,13 +94,7 @@ public class StorageItemField extends PageServlet {
         String contentTypeName = inputName + ".contentType";
 
         File file = null;
-
-        LOGGER.info("FILE NAME " + fileName);
-        LOGGER.info("REQUEST ATTR " + request.getAttribute(fileName));
-
         Part filePart = request.getPart(fileName);
-
-        LOGGER.info("REQUEST PART : " + filePart);
 
         try {
             String action = page.param(actionName);
@@ -144,7 +138,7 @@ public class StorageItemField extends PageServlet {
                     }
 
                 } else if (filePart != null) {
-                    filePart.write(file.getName());
+                    filePart.write(file.getAbsolutePath());
                     newItem = StorageItemField.createStorageItemFromPart(page, filePart, field, state);
                 }
 
@@ -164,7 +158,7 @@ public class StorageItemField extends PageServlet {
 
         } finally {
             if (file != null && file.exists()) {
-                file.delete();
+                //file.delete();
             }
         }
     }
@@ -274,9 +268,9 @@ public class StorageItemField extends PageServlet {
             return null;
         }
 
-        String fileName = filePart.getName();
+        String fileName = filePart.getSubmittedFileName();
         String contentType = filePart.getContentType();
-        Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
+        Map<String, List<String>> httpHeaders = new LinkedHashMap<>();
 
         httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
         httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(filePart.getSize())));
@@ -285,7 +279,7 @@ public class StorageItemField extends PageServlet {
         String storageSetting = field.as(ToolUi.class).getStorageSetting();
         StorageItem item = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
 
-        item.setPath(createStorageItemPath(filePart.getName(), null));
+        item.setPath(createStorageItemPath(fileName, null));
         item.setContentType(contentType);
         item.getMetadata().put("http.headers", httpHeaders);
         item.getMetadata().put("originalFilename", fileName);
@@ -309,7 +303,7 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        item.save();
+        //item.save();
 
         return item;
     }
