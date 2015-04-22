@@ -153,16 +153,44 @@ public class ImageFileType implements FileContentType {
         Map<String, Object> edits = new HashMap<>();
         String inputName = (String) page.getRequest().getAttribute("inputName");
 
+        double brightness = page.param(double.class, inputName + ".brightness");
+        double contrast = page.param(double.class, inputName + ".contrast");
+        boolean flipH = page.param(boolean.class, inputName + ".flipH");
+        boolean flipV = page.param(boolean.class, inputName + ".flipV");
+        boolean grayscale = page.param(boolean.class, inputName + ".grayscale");
+        boolean invert = page.param(boolean.class, inputName + ".invert");
+        int rotate = page.param(int.class, inputName + ".rotate");
+        boolean sepia = page.param(boolean.class, inputName + ".sepia");
+        int sharpen = page.param(int.class, inputName + ".sharpen");
+
         //setting image adjustments
-        edits.put("brightness", page.paramOrDefault(Double.class, inputName + ".brightness", 0.0));
-        edits.put("contrast", page.paramOrDefault(Double.class, inputName + ".contrast", 0.0));
-        edits.put("flipH", page.paramOrDefault(Boolean.class, inputName + ".flipH", false));
-        edits.put("flipV", page.paramOrDefault(Boolean.class, inputName + ".flipV", false));
-        edits.put("grayscale", page.paramOrDefault(Boolean.class, inputName + ".grayscale", false));
-        edits.put("invert", page.paramOrDefault(Boolean.class, inputName + ".invert", false));
-        edits.put("rotate", page.paramOrDefault(Integer.class, inputName + ".rotate", 0));
-        edits.put("sepia", page.paramOrDefault(Boolean.class, inputName + ".sepia", false));
-        edits.put("sharpen", page.paramOrDefault(Integer.class, inputName + ".sharpen", 0));
+        if (brightness != 0.0) {
+            edits.put("brightness", brightness);
+        }
+        if (contrast != 0.0) {
+            edits.put("contrast", contrast);
+        }
+        if (flipH) {
+            edits.put("flipH", flipH);
+        }
+        if (flipV) {
+            edits.put("flipV", flipV);
+        }
+        if (invert) {
+            edits.put("invert", invert);
+        }
+        if (rotate != 0) {
+            edits.put("rotate", rotate);
+        }
+        if (grayscale) {
+            edits.put("grayscale", grayscale);
+        }
+        if (sepia) {
+            edits.put("sepia", sepia);
+        }
+        if (sharpen != 0) {
+            edits.put("sharpen", sharpen);
+        }
 
         //setting blurs
         String blurName = inputName + ".blur";
