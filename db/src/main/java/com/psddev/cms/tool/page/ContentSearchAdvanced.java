@@ -520,7 +520,7 @@ public class ContentSearchAdvanced extends PageServlet {
                             page.writeStart("a",
                                     "class", "action button icon icon-object-workStream",
                                     "target", "workStreamCreate",
-                                    "href", page.cmsUrl("/content/newWorkStream.jsp",
+                                    "href", page.cmsUrl("/createWorkStream",
                                             "query", ObjectUtils.toJson(query.getState().getSimpleValues())));
                                 page.writeHtml("New Work Stream");
                             page.writeEnd();
