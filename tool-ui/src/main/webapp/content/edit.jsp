@@ -273,9 +273,9 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                         <a class="icon icon-beaker" href="<%= wp.url("", "ab", !wp.param(boolean.class, "ab")) %>">A/B</a>
                     <% } %>
                     <%
-                    GuidePage guide = Guide.Static.getPageProductionGuide(template);
+                    GuidePage guide = Guide.Static.getPageTypeProductionGuide(state.getType());
                     if (guide != null && guide.getDescription() != null && !guide.getDescription().isEmpty()) {
-                        wp.write("<a class=\"icon icon-object-guide\" target=\"guideType\" href=\"", wp.objectUrl("/content/guideType.jsp", selected, "templateId", template.getId(), "variationId", wp.uuidParam("variationId"), "popup", true), "\">PG</a>");
+                        wp.write("<a class=\"icon icon-object-guide\" target=\"guideType\" href=\"", wp.objectUrl("/content/guideType.jsp", selected, "pageGuideId", guide.getId(),  "popup", true), "\">PG</a>");
                     }
                     %>
                 </div>
@@ -362,7 +362,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                 <%
                 wp.writeStart("div", "class", "widget-controls");
-                    if (!lockedOut && wp.getCmsTool().isOptInContentLocking()) {
+                    if (!wp.getCmsTool().isDisableContentLocking() && !lockedOut && wp.getCmsTool().isOptInContentLocking()) {
                         wp.writeStart("a",
                                 "class", "icon icon-only icon-" + (optInLock ? "lock" : "unlock"),
                                 "href", wp.url("", "lock", !optInLock));

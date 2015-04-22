@@ -54,14 +54,17 @@
 .toolTitle {
   @-height: @toolHeader-height - 20px;
 
-  font-size: @-height;
+  font-size: (@-height / 2);
   font-weight: bold;
   height: @-height;
   left: 65px;
   line-height: @-height;
+  overflow: hidden;
   position: absolute;
+  text-overflow: ellipsis;
   text-transform: uppercase;
   top: ((@toolHeader-height - @-height) / 2);
+  white-space: nowrap;
   width: (@length-toolTitle-width - 40px);
 
   .link {

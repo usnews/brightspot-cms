@@ -705,6 +705,8 @@ function($) {
                     }
 
                     openLinkDialog($anchor);
+
+                    return false;
                 });
             })();
 
@@ -896,6 +898,7 @@ function($) {
                 textarea.element.className += ' rte-source';
 
                 this.on('focus', function() {
+
                     $(textarea.element).parentsUntil('form').addClass('state-focus');
 
                     for (var i = 0, length = rtes.length; i < length; ++ i) {
@@ -911,6 +914,17 @@ function($) {
                     keepToolbarInView();
                 });
 
+                // When we focus or blur the rich text editor, trigger an event on the textarea
+                // so we can notify the caller
+                
+                this.on('focus', function(){
+                    $(textarea.element).trigger('rtefocus');
+                });
+                
+                this.on('blur', function(){
+                    $(textarea.element).trigger('rteblur');
+                });
+                
                 // Hack to make sure that the proper focus fires when clicking
                 // on an 'empty' region.
                 $(composer.iframe.contentWindow).on('focus', function() {
@@ -1455,15 +1469,25 @@ function($) {
     delete wysihtml5.commands.insertImage;
 
     var insertButton = function(composer, button) {
-        var $selected = $(composer.selection.getSelectedNode()),
-                precedings,
-                precedingsLength;
+        var selection = composer.selection;
+        var $selected = $(selection.getSelectedNode());
 
         if ($selected.is('body')) {
-            $($selected[0].childNodes[composer.selection.getRange().startOffset]).after(button);
+            $($selected[0].childNodes[selection.getRange().startOffset]).after(button);
 
         } else {
-            precedings = [ ];
+            var range = selection.getRange();
+
+            if (range.collapsed) {
+                var br = $selected[0].childNodes[range.startOffset];
+
+                if (br && $(br).is('br')) {
+                    selection.getSelection().nativeSelection.modify('move', 'forward', 'character');
+                    $selected = $(selection.getSelectedNode());
+                }
+            }
+
+            var precedings = [ ];
 
             $selected.closest('body').find('br + br, h1, h2, h3, h4, h5, h6, p, button').each(function() {
                 if ($selected[0].compareDocumentPosition(this) & Node.DOCUMENT_POSITION_PRECEDING) {
@@ -1471,7 +1495,7 @@ function($) {
                 }
             });
 
-            precedingsLength = precedings.length;
+            var precedingsLength = precedings.length;
 
             if (precedingsLength >= 1) {
                 $(precedings[precedingsLength - 1]).after(button);

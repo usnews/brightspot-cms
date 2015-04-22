@@ -43,7 +43,7 @@ require([
   'input/color',
   'input/focus',
   'input/grid',
-  'input/image',
+  'v3/input/image',
   'input/location',
   'v3/input/object',
   'input/query',
@@ -76,7 +76,8 @@ require([
   'content/lock',
   'v3/content/publish',
   'content/layout-element',
-  'content/state',
+  'v3/content/state',
+  'v3/search-result-check-all',
   'v3/tabs' ],
 
 function() {

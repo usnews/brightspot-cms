@@ -88,6 +88,7 @@ import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.Utf8Filter;
 import com.psddev.dari.util.WebPageContext;
@@ -1687,10 +1688,12 @@ public class ToolPageContext extends WebPageContext {
 
                     ToolUser user = getUser();
                     String userId = user != null ? user.getId().toString() : UUID.randomUUID().toString();
-                    String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId));
+                    String token = (String) getRequest().getAttribute(AuthenticationFilter.USER_TOKEN);
+                    String signature = StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), userId + token));
                     String cookiePath = StringUtils.addQueryParameters(
                             cmsUrl("/inlineEditorCookie"),
                             "userId", userId,
+                            "token", token,
                             "signature", signature).
                             substring(1);
 
@@ -2273,6 +2276,7 @@ public class ToolPageContext extends WebPageContext {
 
             writeStart("div",
                     "class", "objectInputs",
+                    "lang", type != null ? type.as(ToolUi.class).getLanguageTag() : null,
                     "data-type", type != null ? type.getInternalName() : null,
                     "data-id", state.getId(),
                     "data-object-id", state.getId(),
@@ -2525,6 +2529,19 @@ public class ToolPageContext extends WebPageContext {
                 writeEnd();
             writeEnd();
         }
+    }
+
+    public void writeQueryRestrictionForm(Class<? extends QueryRestriction> queryRestrictionClass) throws IOException {
+        QueryRestriction qr = TypeDefinition.getInstance(queryRestrictionClass).newInstance();
+
+        writeStart("form",
+                "class", "queryRestrictions",
+                "data-bsp-autosubmit", "",
+                "method", "post",
+                "action", url(""));
+
+            qr.writeHtml(this);
+        writeEnd();
     }
 
     /**
