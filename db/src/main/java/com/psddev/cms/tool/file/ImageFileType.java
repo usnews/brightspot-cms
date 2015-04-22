@@ -45,7 +45,7 @@ import com.psddev.dari.util.TypeReference;
 
 public class ImageFileType implements FileContentType {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToolPageContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageFileType.class);
 
     @Override
     public boolean isSupported(StorageItem storageItem) {
@@ -65,6 +65,7 @@ public class ImageFileType implements FileContentType {
 
     @Override
     public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException {
+
         HttpServletRequest request = page.getRequest();
 
         ObjectField field = (ObjectField) request.getAttribute("field");
@@ -240,15 +241,16 @@ public class ImageFileType implements FileContentType {
         for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
             Map.Entry<String, ImageCrop> e = i.next();
             String cropId = e.getKey();
-            double x = page.doubleParam(cropsName + cropId + ".x");
-            double y = page.doubleParam(cropsName + cropId + ".y");
-            double width = page.doubleParam(cropsName + cropId + ".width");
-            double height = page.doubleParam(cropsName + cropId + ".height");
-            String texts = page.param(cropsName + cropId + ".texts");
-            String textSizes = page.param(cropsName + cropId + ".textSizes");
-            String textXs = page.param(cropsName + cropId + ".textXs");
-            String textYs = page.param(cropsName + cropId + ".textYs");
-            String textWidths = page.param(cropsName + cropId + ".textWidths");
+            System.out.println("CROP IS " + cropsName + cropId + ".x");
+            double x = page.param(double.class, cropsName + cropId + ".x");
+            double y = page.param(double.class, cropsName + cropId + ".y");
+            double width = page.param(double.class, cropsName + cropId + ".width");
+            double height = page.param(double.class, cropsName + cropId + ".height");
+            String texts = page.param(String.class, cropsName + cropId + ".texts");
+            String textSizes = page.param(String.class, cropsName + cropId + ".textSizes");
+            String textXs = page.param(String.class, cropsName + cropId + ".textXs");
+            String textYs = page.param(String.class, cropsName + cropId + ".textYs");
+            String textWidths = page.param(String.class, cropsName + cropId + ".textWidths");
             if (x != 0.0 || y != 0.0 || width != 0.0 || height != 0.0 || !ObjectUtils.isBlank(texts)) {
                 ImageCrop crop = e.getValue();
                 crop.setX(x);
@@ -348,7 +350,7 @@ public class ImageFileType implements FileContentType {
         }
 
         page.writeStart("div", "class", "imageEditor");
-            writeImageEditorAside(page, fieldValue, state, id, fieldName);
+            writeImageEditorAside(page, fieldValue, state, id, inputName);
             writeImageEditorImage(page, fieldValue);
         page.writeEnd();
 
@@ -357,7 +359,7 @@ public class ImageFileType implements FileContentType {
         }
     }
 
-    private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state, UUID id, String fieldName) throws IOException {
+    private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state, UUID id, String inputName) throws IOException {
 
         Map<String, Object> fieldValueMetadata = null;
         if (fieldValue != null) {
@@ -369,13 +371,13 @@ public class ImageFileType implements FileContentType {
         }
 
         page.writeStart("div", "class", "imageEditor-aside");
-            writeImageEditorTools(page, fieldValue, state, id, fieldName);
+            writeImageEditorTools(page, fieldValue, state, id);
             writeImageEditorEdit(page, fieldValueMetadata);
-            writeImageEditorSizes(page, state, fieldName, fieldValueMetadata);
+            writeImageEditorSizes(page, state, inputName, fieldValueMetadata);
         page.writeEnd();
     }
 
-    private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state, UUID id, String fieldName) throws IOException {
+    private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state, UUID id) throws IOException {
 
         page.writeStart("div", "class", "imageEditor-tools");
             page.writeStart("h2");
@@ -505,9 +507,9 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
-    private void writeImageEditorSizes(ToolPageContext page, State state, String fieldName, Map<String, Object> fieldValueMetadata) throws IOException {
+    private void writeImageEditorSizes(ToolPageContext page, State state, String inputName, Map<String, Object> fieldValueMetadata) throws IOException {
 
-        String cropsFieldName = fieldName + ".crops";
+        String cropsFieldName = inputName + ".crops";
 
         Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() {
         }, fieldValueMetadata.get("cms.crops"));
