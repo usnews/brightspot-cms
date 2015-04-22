@@ -66,6 +66,10 @@ public class ImageFileType implements FileContentType {
     @Override
     public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException {
 
+        if (fieldValue == null) {
+            return;
+        }
+
         HttpServletRequest request = page.getRequest();
 
         ObjectField field = (ObjectField) request.getAttribute("field");
@@ -73,26 +77,13 @@ public class ImageFileType implements FileContentType {
 
         String inputName = (String) request.getAttribute("inputName");
         String actionName = inputName + ".action";
-        String cropsName = inputName + ".crops.";
-
-        String brightnessName = inputName + ".brightness";
-        String contrastName = inputName + ".contrast";
-        String flipHName = inputName + ".flipH";
-        String flipVName = inputName + ".flipV";
-        String grayscaleName = inputName + ".grayscale";
-        String invertName = inputName + ".invert";
-        String rotateName = inputName + ".rotate";
-        String sepiaName = inputName + ".sepia";
-        String sharpenName = inputName + ".sharpen";
-        String blurName = inputName + ".blur";
 
         String metadataFieldName = fieldName + ".metadata";
-        String cropsFieldName = fieldName + ".crops";
 
         String action = page.param(actionName);
 
         Map<String, Object> fieldValueMetadata = null;
-        if (fieldValue != null && (!((Boolean) request.getAttribute("isFormPost")) || "keep".equals(action))) {
+        if ((!((Boolean) request.getAttribute("isFormPost")) || "keep".equals(action))) {
             fieldValueMetadata = fieldValue.getMetadata();
         }
 
@@ -107,16 +98,74 @@ public class ImageFileType implements FileContentType {
             fieldValueMetadata.put("cms.edits", edits);
         }
 
-        double brightness = ObjectUtils.to(double.class, edits.get("brightness"));
-        double contrast = ObjectUtils.to(double.class, edits.get("contrast"));
-        boolean flipH = ObjectUtils.to(boolean.class, edits.get("flipH"));
-        boolean flipV = ObjectUtils.to(boolean.class, edits.get("flipV"));
-        boolean grayscale = ObjectUtils.to(boolean.class, edits.get("grayscale"));
-        boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
-        int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
-        boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
-        int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
+        //should only extract metadata on intitial save
+        if (!"keep".equals(action)) {
+            setExtractedMetaData(filePart, fieldValue, action, fieldValueMetadata);
+        }
 
+        setEdits(page, fieldValueMetadata);
+        setCrops(page, fieldValueMetadata, state);
+
+
+        // Transfers legacy metadata over to it's new location within the StorageItem object
+        Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
+        if (legacyMetadata != null && !legacyMetadata.isEmpty()) {
+            for (Map.Entry<String, Object> entry : legacyMetadata.entrySet()) {
+                if (!fieldValueMetadata.containsKey(entry.getKey())) {
+                    fieldValueMetadata.put(entry.getKey(), entry.getValue());
+                }
+            }
+            state.remove(metadataFieldName);
+        }
+
+        fieldValue.setMetadata(fieldValueMetadata);
+    }
+
+    private void setExtractedMetaData(Part filePart, StorageItem fieldValue, String action, Map<String, Object> fieldValueMetadata) throws IOException {
+        // Automatic image metadata extraction.
+        InputStream itemData = null;
+        if (filePart != null) {
+            itemData = filePart.getInputStream();
+        } else {
+            itemData = fieldValue.getData();
+        }
+
+        String contentType = fieldValue.getContentType();
+
+        if (contentType != null && contentType.startsWith("image/")) {
+            try {
+                ImageMetadataMap metadata = new ImageMetadataMap(itemData);
+                fieldValueMetadata.putAll(metadata);
+
+                List<Throwable> errors = metadata.getErrors();
+                if (!errors.isEmpty()) {
+                    LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
+                }
+
+            } finally {
+                IoUtils.closeQuietly(itemData);
+            }
+        }
+    }
+
+    private void setEdits(ToolPageContext page, Map<String, Object> fieldValueMetadata) {
+
+        Map<String, Object> edits = new HashMap<>();
+        String inputName = (String) page.getRequest().getAttribute("inputName");
+
+        //setting image adjustments
+        edits.put("brightness", page.paramOrDefault(Double.class, inputName + ".brightness", 0.0));
+        edits.put("contrast", page.paramOrDefault(Double.class, inputName + ".contrast", 0.0));
+        edits.put("flipH", page.paramOrDefault(Boolean.class, inputName + ".flipH", false));
+        edits.put("flipV", page.paramOrDefault(Boolean.class, inputName + ".flipV", false));
+        edits.put("grayscale", page.paramOrDefault(Boolean.class, inputName + ".grayscale", false));
+        edits.put("invert", page.paramOrDefault(Boolean.class, inputName + ".invert", false));
+        edits.put("rotate", page.paramOrDefault(Integer.class, inputName + ".rotate", 0));
+        edits.put("sepia", page.paramOrDefault(Boolean.class, inputName + ".sepia", false));
+        edits.put("sharpen", page.paramOrDefault(Integer.class, inputName + ".sharpen", 0));
+
+        //setting blurs
+        String blurName = inputName + ".blur";
         List<String> blurs = new ArrayList<String>();
         if (!ObjectUtils.isBlank(edits.get("blur"))) {
             Object blur = edits.get("blur");
@@ -131,6 +180,32 @@ public class ImageFileType implements FileContentType {
                 }
             }
         }
+
+         if (!ObjectUtils.isBlank(page.params(String.class, blurName))) {
+            blurs = new ArrayList<String>();
+            for (String blur : page.params(String.class, blurName)) {
+                if (!blurs.contains(blur)) {
+                    blurs.add(blur);
+                }
+            }
+
+            if (blurs.size() == 1) {
+                edits.put("blur", blurs.get(0));
+            } else {
+                edits.put("blur", blurs);
+            }
+        }
+
+        fieldValueMetadata.put("cms.edits", edits);
+    }
+
+    private void setCrops(ToolPageContext page, Map<String, Object> fieldValueMetadata, State state) {
+        ObjectField field = (ObjectField) page.getRequest().getAttribute("field");
+        String fieldName = field.getInternalName();
+        String cropsFieldName = fieldName + ".crops";
+
+        String inputName = (String) page.getRequest().getAttribute("inputName");
+        String cropsName = inputName + ".crops.";
 
         Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, fieldValueMetadata.get("cms.crops"));
         if (crops == null) {
@@ -152,96 +227,10 @@ public class ImageFileType implements FileContentType {
             }
         }
 
-        brightness = page.param(double.class, brightnessName);
-        contrast = page.param(double.class, contrastName);
-        flipH = page.param(boolean.class, flipHName);
-        flipV = page.param(boolean.class, flipVName);
-        grayscale = page.param(boolean.class, grayscaleName);
-        invert = page.param(boolean.class, invertName);
-        rotate = page.param(int.class, rotateName);
-        sepia = page.param(boolean.class, sepiaName);
-        sharpen = page.param(int.class, sharpenName);
-
-        edits = new HashMap<String, Object>();
-
-        if (brightness != 0.0) {
-            edits.put("brightness", brightness);
-        }
-        if (contrast != 0.0) {
-            edits.put("contrast", contrast);
-        }
-        if (flipH) {
-            edits.put("flipH", flipH);
-        }
-        if (flipV) {
-            edits.put("flipV", flipV);
-        }
-        if (invert) {
-            edits.put("invert", invert);
-        }
-        if (rotate != 0) {
-            edits.put("rotate", rotate);
-        }
-        if (grayscale) {
-            edits.put("grayscale", grayscale);
-        }
-        if (sepia) {
-            edits.put("sepia", sepia);
-        }
-        if (sharpen != 0) {
-            edits.put("sharpen", sharpen);
-        }
-
-        if (!ObjectUtils.isBlank(page.params(String.class, blurName))) {
-            blurs = new ArrayList<String>();
-            for (String blur : page.params(String.class, blurName)) {
-                if (!blurs.contains(blur)) {
-                    blurs.add(blur);
-                }
-            }
-
-            if (blurs.size() == 1) {
-                edits.put("blur", blurs.get(0));
-            } else {
-                edits.put("blur", blurs);
-            }
-        }
-
-        fieldValueMetadata.put("cms.edits", edits);
-
-        // Automatic image metadata extraction.
-        InputStream itemData = null;
-        if (fieldValue != null && !"keep".equals(action)) {
-
-            if (filePart != null) {
-                itemData = filePart.getInputStream();
-            } else {
-                itemData = fieldValue.getData();
-            }
-
-            String contentType = fieldValue.getContentType();
-
-            if (contentType != null && contentType.startsWith("image/")) {
-                try {
-                    ImageMetadataMap metadata = new ImageMetadataMap(itemData);
-                    fieldValueMetadata.putAll(metadata);
-
-                    List<Throwable> errors = metadata.getErrors();
-                    if (!errors.isEmpty()) {
-                        LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
-                    }
-
-                } finally {
-                    IoUtils.closeQuietly(itemData);
-                }
-            }
-        }
-
         // Standard sizes.
         for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
             Map.Entry<String, ImageCrop> e = i.next();
             String cropId = e.getKey();
-            System.out.println("CROP IS " + cropsName + cropId + ".x");
             double x = page.param(double.class, cropsName + cropId + ".x");
             double y = page.param(double.class, cropsName + cropId + ".y");
             double width = page.param(double.class, cropsName + cropId + ".width");
@@ -291,25 +280,11 @@ public class ImageFileType implements FileContentType {
                 i.remove();
             }
         }
+
         fieldValueMetadata.put("cms.crops", crops);
         // Removes legacy cropping information
         if (state.getValue(cropsFieldName) != null) {
             state.remove(cropsFieldName);
-        }
-
-        // Transfers legacy metadata over to it's new location within the StorageItem object
-        Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
-        if (legacyMetadata != null && !legacyMetadata.isEmpty()) {
-            for (Map.Entry<String, Object> entry : legacyMetadata.entrySet()) {
-                if (!fieldValueMetadata.containsKey(entry.getKey())) {
-                    fieldValueMetadata.put(entry.getKey(), entry.getValue());
-                }
-            }
-            state.remove(metadataFieldName);
-        }
-
-        if (fieldValue != null) {
-            fieldValue.setMetadata(fieldValueMetadata);
         }
     }
 
@@ -488,13 +463,17 @@ public class ImageFileType implements FileContentType {
                             page.writeEnd();
                             page.writeStart("td");
                             if (!adj.javaImageEditorOnly || useJavaImageEditor) {
+                                boolean isCheckbox = adj.inputType.equals("checkbox");
+                                boolean isChecked = isCheckbox && ObjectUtils.equals(edits.get(adj.title), true);
                                 page.writeTag("input",
                                         "type", adj.inputType,
                                         "name", inputName + "." + adj.title,
                                         adj.inputType.equals("range") ? "min" : "", adj.inputType.equals("range") ? adj.min : "",
                                         adj.inputType.equals("range") ? "max" : "", adj.inputType.equals("range") ? adj.max : "",
                                         adj.inputType.equals("range") ? "step" : "", adj.inputType.equals("range") ? adj.step : "",
-                                        "value", ObjectUtils.to(adj.valueType, edits.get(adj.title)));
+                                        "value", ObjectUtils.to(adj.valueType, isCheckbox ? true : edits.get(adj.title)),
+                                        isChecked ? "checked" : "",
+                                        isChecked ? "true" : "");
                             }
 
                             page.writeEnd();
