@@ -44,7 +44,7 @@ public class StorageItemField extends PageServlet {
     public static final String FILE_SELECTOR_NEW_UPLOAD_CLASS = "fileSelectorNewUpload";
     public static final String FILE_SELECTOR_DROPBOX_CLASS = "fileSelectorDropbox";
 
-    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
+    public static void processField(ToolPageContext page) throws IOException, ServletException {
 
         if (page.isFormPost()) {
             doFormPost(page);
@@ -445,6 +445,6 @@ public class StorageItemField extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        reallyDoService(page);
+        processField(page);
     }
 }
