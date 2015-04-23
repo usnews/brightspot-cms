@@ -3050,17 +3050,6 @@ public class ToolPageContext extends WebPageContext {
      * @return {@code true} if the application of a workflow action is tried.
      */
     public boolean tryWorkflow(Object object) {
-        return tryWorkflow(object, true);
-    }
-
-    /**
-     * Tries to apply a workflow action to the given {@code object} if the
-     * user has asked for it in the current request.
-     * @param object Can't be {@code null}
-     * @param redirectOnSave whether to redirect the user after a successful workflow transition (default: true)
-     * @return {@code true} if the application of a workflow action is tried.
-     */
-    public boolean tryWorkflow(Object object, boolean redirectOnSave) {
         if (!isFormPost()) {
             return false;
         }
@@ -3109,9 +3098,7 @@ public class ToolPageContext extends WebPageContext {
                 }
             }
 
-            if (redirectOnSave) {
-                redirectOnSave("", "id", state.getId());
-            }
+            redirectOnSave("", "id", state.getId());
 
             return true;
 
@@ -3120,6 +3107,59 @@ public class ToolPageContext extends WebPageContext {
                 draft.as(Workflow.Data.class).revertState(oldWorkflowState);
             }
 
+            workflowData.revertState(oldWorkflowState);
+            getErrors().add(error);
+            return false;
+
+        } finally {
+            state.endWrites();
+        }
+    }
+
+    /**
+     * Tries to apply a workflow action to the given {@code object} if the
+     * user has asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @param {@code true} if the application of a workflow action is tried.
+     */
+    public boolean tryWorkflowOnly(Object object) {
+        if (!isFormPost()) {
+            return false;
+        }
+
+        String action = param(String.class, "action-workflow");
+
+        if (ObjectUtils.isBlank(action)) {
+            return false;
+        }
+
+        State state = State.getInstance(object);
+        Workflow.Data workflowData = state.as(Workflow.Data.class);
+        String oldWorkflowState = workflowData.getCurrentState();
+
+        try {
+            state.beginWrites();
+
+            Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
+
+            if (workflow != null) {
+                WorkflowTransition transition = workflow.getTransitions().get(action);
+
+                if (transition != null) {
+                    WorkflowLog log = new WorkflowLog();
+
+                    state.as(Content.ObjectModification.class).setDraft(false);
+                    log.getState().setId(param(UUID.class, "workflowLogId"));
+                    workflowData.changeState(transition, getUser(), log);
+                    publish(object);
+                    state.commitWrites();
+                }
+            }
+
+            return true;
+
+        } catch (Exception error) {
             workflowData.revertState(oldWorkflowState);
             getErrors().add(error);
             return false;
