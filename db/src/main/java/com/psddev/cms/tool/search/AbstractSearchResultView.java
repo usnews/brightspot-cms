@@ -95,22 +95,24 @@ public abstract class AbstractSearchResultView implements SearchResultView {
         ObjectType selectedType = search.getSelectedType();
         ToolUi ui = selectedType == null ? null : selectedType.as(ToolUi.class);
 
-        if (ui != null && ui.getDefaultSortField() != null) {
-            search.setSort(ui.getDefaultSortField());
+        if (search.getSort() == null) {
+            if (ui != null && ui.getDefaultSortField() != null) {
+                search.setSort(ui.getDefaultSortField());
 
-        } else if (!ObjectUtils.isBlank(search.getQueryString())) {
-            search.setSort(Search.RELEVANT_SORT_VALUE);
-
-        } else {
-            Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
-
-            if (f != null &&
-                    (f.get("") != null ||
-                    f.get("x") != null)) {
-                search.setSort("cms.content.publishDate");
+            } else if (!ObjectUtils.isBlank(search.getQueryString())) {
+                search.setSort(Search.RELEVANT_SORT_VALUE);
 
             } else {
-                search.setSort("cms.content.updateDate");
+                Map<String, String> f = search.getFieldFilters().get("cms.content.publishDate");
+
+                if (f != null &&
+                        (f.get("") != null ||
+                        f.get("x") != null)) {
+                    search.setSort("cms.content.publishDate");
+
+                } else {
+                    search.setSort("cms.content.updateDate");
+                }
             }
         }
 
