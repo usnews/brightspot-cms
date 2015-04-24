@@ -34,9 +34,6 @@ require([
   'jquery.mousewheel',
   'velocity',
 
-  'ResizeSensor',
-  'ElementQueries',
-
   'v3/input/carousel',
   'input/change',
   'input/code',
