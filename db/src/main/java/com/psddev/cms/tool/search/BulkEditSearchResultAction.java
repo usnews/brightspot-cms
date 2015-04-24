@@ -60,12 +60,24 @@ public class BulkEditSearchResultAction implements SearchResultAction {
         } else if (search != null) {
             ObjectType type = search.getSelectedType();
 
-            if (type == null || type.isAbstract()) {
+            if (type == null) {
+                return;
+            }
+
+            if (type.isAbstract()) {
                 return;
 
             } else {
                 typeId = type.getId();
             }
+        }
+
+        String typePermissionId = "type/" + typeId;
+
+        // Do not allow editing of types for which the user does not have Bulk Edit permission
+        if (!page.hasPermission(typePermissionId + "/bulkEdit") ||
+                !page.hasPermission(typePermissionId + "/write")) {
+            return;
         }
 
         page.writeStart("div", "class", "searchResult-action-simple");
