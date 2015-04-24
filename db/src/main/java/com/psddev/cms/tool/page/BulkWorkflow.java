@@ -467,6 +467,8 @@ public class BulkWorkflow extends PageServlet {
 
                 for (ObjectType workflowType : workflowTypes(workflow)) {
 
+                    String typePermissionId = "type/" + workflowType.getId();
+
                     for (WorkflowState workflowState : workflowStates(workflow, workflowType)) {
 
                         Set<WorkflowTransition> availableTransitions = getAvailableTransitions(workflow, workflowType, workflowState);
@@ -562,7 +564,15 @@ public class BulkWorkflow extends PageServlet {
 
                         if (ObjectUtils.to(int.class, workflowStateCounts.get(workflowType).get(workflowState.getName())) > 0) {
 
-                            Map<String, WorkflowTransition> transitionsFrom = workflow.getTransitionsFrom(workflowState.getName());
+                            Map<String, WorkflowTransition> transitionsFrom = new HashMap<>();
+                            for (Map.Entry<String, WorkflowTransition> entry : workflow.getTransitionsFrom(workflowState.getName()).entrySet()) {
+
+                                String typePermissionId = "type/" + workflowType.getId();
+
+                                if (hasPermission(typePermissionId+ "/bulkWorkflow") && hasPermission(typePermissionId + "/" + entry.getKey())) {
+                                    transitionsFrom.put(entry.getKey(), entry.getValue());
+                                }
+                            }
 
                             if (transitionsFrom.size() > 0) {
                                 hasAnyTransitions = true;
@@ -592,6 +602,8 @@ public class BulkWorkflow extends PageServlet {
             if (selectedType == null) {
                 return;
             }
+
+            String typePermissionId = "type/" + selectedType.getId();
 
             workflowStateCounts.put(selectedType, new HashMap<>());
 
@@ -645,7 +657,13 @@ public class BulkWorkflow extends PageServlet {
 
                     if (stateCount > 0) {
 
-                        Map<String, WorkflowTransition> transitionsFrom = workflow.getTransitionsFrom(workflowState.getName());
+                        Map<String, WorkflowTransition> transitionsFrom = new HashMap<>();
+                        for (Map.Entry<String, WorkflowTransition> entry : workflow.getTransitionsFrom(workflowState.getName()).entrySet()) {
+
+                            if (hasPermission(typePermissionId + "/bulkWorkflow") && hasPermission(typePermissionId + "/" + entry.getKey())) {
+                                transitionsFrom.put(entry.getKey(), entry.getValue());
+                            }
+                        }
 
                         if (transitionsFrom.size() > 0) {
                             hasAnyTransitions = true;
