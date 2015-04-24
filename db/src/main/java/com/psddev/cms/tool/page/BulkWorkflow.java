@@ -154,12 +154,12 @@ public class BulkWorkflow extends PageServlet {
 
                 page.writeStart("tr");
                 page.writeStart("td").writeHtml("Current State").writeEnd();
-                page.writeStart("td").writeHtml(workflowStateName).writeEnd();
+                page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
                 page.writeEnd(); // end row
 
                 page.writeStart("tr");
                 page.writeStart("td").writeHtml("New State").writeEnd();
-                page.writeStart("td").writeHtml(workflowTransition.getTarget().getName()).writeEnd();
+                page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
                 page.writeEnd(); // end row
 
                 page.writeEnd(); // end table
