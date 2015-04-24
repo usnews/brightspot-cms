@@ -376,19 +376,13 @@ public class UploadFiles extends PageServlet {
                             "value", State.getInstance(common).getId());
 
                     ObjectField previewField = getPreviewField(type);
-                    HttpServletRequest request = page.getRequest();
-                    Object oldExcludes = request.getAttribute("excludeFields");
 
-                    try {
-                        if (previewField != null) {
-                            request.setAttribute("excludeFields", Arrays.asList(previewField.getInternalName()));
-                        }
-
-                        page.writeFormFields(common);
-
-                    } finally {
-                        request.setAttribute("excludeFields", oldExcludes);
+                    List<String> excludedFields = null;
+                    if (previewField != null) {
+                        excludedFields = Arrays.asList(previewField.getInternalName());
                     }
+
+                    page.writeSomeFormFields(common, false, null, excludedFields);
                 page.writeEnd();
             }
 

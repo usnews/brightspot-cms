@@ -135,9 +135,8 @@ if (object == null) {
 
         <%
         if (refFieldCount > 0) {
-            request.setAttribute("excludeFields", Arrays.asList("record"));
             wp.writeElement("input", "type", "hidden", "name", "refId", "value", ref.getId());
-            wp.writeFormFields(ref);
+            wp.writeSomeFormFields(ref, false, null, Arrays.asList("record"));
         }
         %>
 
@@ -165,7 +164,6 @@ if (object == null) {
             <a target="_top" class="action action-cancel" href="javascript:;">Cancel Editing</a>
         </p>
         <div id="<%= objectFormId %>" style="display:none;">
-            <% request.setAttribute("excludeFields", null); %>
             <% wp.writeFormFields(object); %>
         </div>
 
