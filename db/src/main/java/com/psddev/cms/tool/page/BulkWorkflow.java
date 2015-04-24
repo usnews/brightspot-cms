@@ -56,28 +56,28 @@ public class BulkWorkflow extends PageServlet {
 
     public void doService(ToolPageContext page, Search search, SearchResultSelection selection) throws IOException, ServletException {
 
-        LOGGER.info("doService, search: " + ObjectUtils.toJson(search));
-        LOGGER.info("doService, selection: " + ObjectUtils.toJson(selection));
+        LOGGER.debug("doService, search: " + ObjectUtils.toJson(search));
+        LOGGER.debug("doService, selection: " + ObjectUtils.toJson(selection));
 
         Context context = new Context(page, selection, search);
 
-        LOGGER.info("Finished building Context");
+        LOGGER.debug("Finished building Context");
         doService(context);
     }
 
     private void doService(Context page) throws IOException, ServletException {
 
-        LOGGER.info("doService, Context");
+        LOGGER.debug("doService, Context");
 
         if (!page.hasAnyTransitions()) {
             return;
         }
 
+        LOGGER.debug("page.getWidgetState(): " + page.getWidgetState());
+
         switch (page.getWidgetState()) {
 
         case BUTTON:
-
-            LOGGER.info("BUTTON");
 
             page.writeStart("div", "class", "widget media-widget");
             page.writeStart("h1", "class", "icon icon-object-workflow");
@@ -91,8 +91,6 @@ public class BulkWorkflow extends PageServlet {
             break;
 
         case POPUP:
-
-            LOGGER.info("POPUP");
 
             if (page.isFormPost()) {
 
@@ -112,8 +110,9 @@ public class BulkWorkflow extends PageServlet {
 
                     page.tryWorkflowOnly(item);
 
+                    // TODO: present Error dialog when workflow transition fails.
                     for (Throwable throwable : page.getErrors()) {
-                        LOGGER.info("ERROR", throwable);
+                        LOGGER.warn("Bulk Workflow Error: ", throwable);
                     }
 
                 }
@@ -180,8 +179,6 @@ public class BulkWorkflow extends PageServlet {
 
         default:
 
-            LOGGER.info("DEFAULT");
-
             page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
@@ -242,13 +239,13 @@ public class BulkWorkflow extends PageServlet {
             this.widgetState = ObjectUtils.firstNonNull(param(WidgetState.class, WIDGET_STATE_PARAMETER), WidgetState.DEFAULT);
 
             if (selection != null) {
-                LOGGER.info("Received SearchResultSelection constructor object: " + ObjectUtils.toJson(selection));
+                LOGGER.debug("Received SearchResultSelection constructor object: " + ObjectUtils.toJson(selection));
                 setSelection(selection);
             } else if (!ObjectUtils.isBlank(selectionId)) {
-                LOGGER.info("Found " + SELECTION_ID_PARAMETER + " query parameter with value: " + selectionId);
+                LOGGER.debug("Found " + SELECTION_ID_PARAMETER + " query parameter with value: " + selectionId);
                 SearchResultSelection queriedSelection = (SearchResultSelection) Query.fromAll().where("_id = ?", selectionId).first();
 
-                LOGGER.info("Queried SearchResultSelection by id: " + ObjectUtils.toJson(queriedSelection));
+                LOGGER.debug("Queried SearchResultSelection by id: " + ObjectUtils.toJson(queriedSelection));
 
                 if (queriedSelection == null) {
                     throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
@@ -257,20 +254,20 @@ public class BulkWorkflow extends PageServlet {
                 setSelection(queriedSelection);
             } else if (search != null) {
 
-                LOGGER.info("Received Search constructor object: " + ObjectUtils.toJson(search));
+                LOGGER.debug("Received Search constructor object: " + ObjectUtils.toJson(search));
                 setSearch(search);
             } else {
 
                 Search searchFromJson = searchFromJson();
 
-                LOGGER.info("Tried to obtain Search object from JSON query parameter: " + ObjectUtils.toJson(searchFromJson));
+                LOGGER.debug("Tried to obtain Search object from JSON query parameter: " + ObjectUtils.toJson(searchFromJson));
 
                 if (searchFromJson == null) {
 
-                    LOGGER.info("Could not objtain Search object from JSON query parameter");
+                    LOGGER.debug("Could not objtain Search object from JSON query parameter");
                     searchFromJson = new Search();
 
-                    LOGGER.info("Tried to obtain Search object from CMS query parameters: " + ObjectUtils.toJson(searchFromJson));
+                    LOGGER.debug("Tried to obtain Search object from CMS query parameters: " + ObjectUtils.toJson(searchFromJson));
                 }
 
                 setSearch(searchFromJson);
@@ -396,7 +393,7 @@ public class BulkWorkflow extends PageServlet {
         }
 
         public boolean hasAnyTransitions() {
-            LOGGER.info("hasAnyTransitions: " + hasAnyTransitions);
+            LOGGER.debug("hasAnyTransitions: " + hasAnyTransitions);
             return hasAnyTransitions;
         }
 
@@ -525,7 +522,7 @@ public class BulkWorkflow extends PageServlet {
             }
 
             for (ObjectType key : workflowStateCounts.keySet()) {
-                LOGGER.info("WSC for " + key.getDisplayName() + ": " + ObjectUtils.toJson(workflowStateCounts.get(key)));
+                LOGGER.debug("workflowStateCounts for " + key.getDisplayName() + ": " + ObjectUtils.toJson(workflowStateCounts.get(key)));
             }
 
             if (itemTypes.size() == 0) {
@@ -535,11 +532,11 @@ public class BulkWorkflow extends PageServlet {
 
             for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", itemTypes).selectAll()) {
 
-                LOGGER.info("Inspecting Workflow: " + workflow.getName());
+                LOGGER.debug("Inspecting Workflow: " + workflow.getName());
 
                 for (ObjectType workflowType : workflow.getContentTypes()) {
 
-                    LOGGER.info("Inspecting Workflow ObjectType: " + workflowType.getDisplayName());
+                    LOGGER.debug("Inspecting Workflow ObjectType: " + workflowType.getDisplayName());
 
                     Map<ObjectType, Map<WorkflowState, Map<String, WorkflowTransition>>> stateTransitionsByType = availableTransitionsMap.get(workflow);
                     if (stateTransitionsByType == null) {
@@ -549,7 +546,7 @@ public class BulkWorkflow extends PageServlet {
 
                     for (WorkflowState workflowState : workflow.getStates()) {
 
-                        LOGGER.info("Inspecting Workflow State: " + workflowState.getDisplayName());
+                        LOGGER.debug("Inspecting Workflow State: " + workflowState.getDisplayName());
 
                         Map<WorkflowState, Map<String, WorkflowTransition>> stateTransitions = stateTransitionsByType.get(workflowType);
                         if (stateTransitions == null) {
@@ -571,7 +568,7 @@ public class BulkWorkflow extends PageServlet {
                 }
             }
 
-            LOGGER.info("Finished building transition map");
+            LOGGER.debug("Finished building transition map");
         }
 
         private void buildTransitionMap(Search search) {
@@ -597,7 +594,7 @@ public class BulkWorkflow extends PageServlet {
                 return;
             }
 
-            LOGGER.info("search.getVisibilities(): " + ObjectUtils.toJson(search.getVisibilities()));
+            LOGGER.debug("search.getVisibilities(): " + ObjectUtils.toJson(search.getVisibilities()));
 
             Set<String> refinedStates = new HashSet<>();
 
@@ -609,11 +606,11 @@ public class BulkWorkflow extends PageServlet {
                 }
             }
 
-            LOGGER.info("Refined States: " + ObjectUtils.toJson(refinedStates));
+            LOGGER.debug("Refined States: " + ObjectUtils.toJson(refinedStates));
 
             for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", selectedType).selectAll()) {
 
-                LOGGER.info("Inspecting Workflow: " + workflow.getName());
+                LOGGER.debug("Inspecting Workflow: " + workflow.getName());
 
                 Map<ObjectType, Map<WorkflowState, Map<String, WorkflowTransition>>> stateTransitionsByType = availableTransitionsMap.get(workflow);
                 if (stateTransitionsByType == null) {
@@ -623,7 +620,7 @@ public class BulkWorkflow extends PageServlet {
 
                 for (WorkflowState workflowState : workflow.getStates()) {
 
-                    LOGGER.info("Inspecting Workflow State: " + workflowState.getDisplayName());
+                    LOGGER.debug("Inspecting Workflow State: " + workflowState.getDisplayName());
 
                     // skip workflow states that are not part of the current Search refinement
                     if (!refinedStates.contains(workflowState.getName()) && !refinedStates.contains("w")) {
