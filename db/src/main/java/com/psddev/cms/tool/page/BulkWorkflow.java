@@ -569,7 +569,7 @@ public class BulkWorkflow extends PageServlet {
 
                                 String typePermissionId = "type/" + workflowType.getId();
 
-                                if (hasPermission(typePermissionId+ "/bulkWorkflow") && hasPermission(typePermissionId + "/" + entry.getKey())) {
+                                if (hasPermission(typePermissionId + "/bulkWorkflow") && hasPermission(typePermissionId + "/" + entry.getKey())) {
                                     transitionsFrom.put(entry.getKey(), entry.getValue());
                                 }
                             }
