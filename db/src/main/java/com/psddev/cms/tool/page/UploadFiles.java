@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
