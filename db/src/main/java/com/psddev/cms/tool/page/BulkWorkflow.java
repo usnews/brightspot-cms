@@ -608,7 +608,7 @@ public class BulkWorkflow extends PageServlet {
             workflowStateCounts.put(selectedType, new HashMap<>());
 
             // check that a single visibility (workflow) has been refined
-            if (search.getVisibilities() == null || search.getVisibilities().size() == 1) {
+            if (search.getVisibilities() == null || search.getVisibilities().size() == 0) {
                 return;
             }
 
@@ -619,9 +619,12 @@ public class BulkWorkflow extends PageServlet {
             for (String currentState : search.getVisibilities()) {
                 if (currentState.startsWith("w.")) {
                     refinedStates.add(currentState.substring(2));
-                } else {
-                    refinedStates.add(currentState);
                 }
+                refinedStates.add(currentState);
+            }
+
+            if (refinedStates.size() == 0) {
+                return;
             }
 
             LOGGER.debug("Refined States: " + ObjectUtils.toJson(refinedStates));
