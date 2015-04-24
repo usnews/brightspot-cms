@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -94,9 +95,18 @@ public class BulkWorkflow extends PageServlet {
             LOGGER.info("POPUP");
 
             if (page.isFormPost()) {
+
                 Search search = page.getSearch();
-                search.getVisibilities().clear();
-                search.getVisibilities().add("w." + page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
+
+                if (search != null) {
+                    if (search.getVisibilities() != null) {
+                        search.getVisibilities().clear();
+                    } else {
+                        search.setVisibilities(new ArrayList<>());
+                    }
+
+                    search.getVisibilities().add("w." + page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
+                }
 
                 for (Object item : page.itemsQuery().selectAll()) {
 
