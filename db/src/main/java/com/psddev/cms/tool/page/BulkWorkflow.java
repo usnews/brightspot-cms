@@ -469,6 +469,12 @@ public class BulkWorkflow extends PageServlet {
 
                     for (WorkflowState workflowState : workflowStates(workflow, workflowType)) {
 
+                        Set<WorkflowTransition> availableTransitions = getAvailableTransitions(workflow, workflowType, workflowState);
+
+                        if (availableTransitions.size() == 0) {
+                            continue;
+                        }
+
                         writeStart("h3", "class", "media-workflowTransitionTitle");
                         writeHtml(getWorkflowStateCount(workflowType, workflowState.getName()) + " " + workflowType.getDisplayName() + " ");
                         writeStart("span", "class", "visibilityLabel");
