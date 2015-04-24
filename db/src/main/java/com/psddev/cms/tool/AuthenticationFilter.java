@@ -166,6 +166,27 @@ public class AuthenticationFilter extends AbstractFilter {
         }
 
         /**
+         * Logs in the given tool {@code user} with the given {@code token}.
+         *
+         * @param request Can't be {@code null}.
+         * @param response Can't be {@code null}.
+         * @param user Can't be {@code null}.
+         * @param token May be {@code null}.
+         */
+        public static void logIn(HttpServletRequest request, HttpServletResponse response, ToolUser user, String token) {
+            if (token == null) {
+                logIn(request, response, user);
+
+            } else {
+                setSignedCookie(request, response, TOOL_USER_COOKIE, token, -1, true);
+                setSignedCookie(request, response, INSECURE_TOOL_USER_COOKIE, token, -1, false);
+                request.setAttribute(USER_ATTRIBUTE, user);
+                request.setAttribute(USER_TOKEN, token);
+                request.setAttribute(USER_CHECKED_ATTRIBUTE, Boolean.TRUE);
+            }
+        }
+
+        /**
          * Logs in the given tool {@code user}.
          *
          * @param request Can't be {@code null}.
