@@ -164,7 +164,6 @@ if (object == null) {
             <a target="_top" class="action action-cancel" href="javascript:;">Cancel Editing</a>
         </p>
         <div id="<%= objectFormId %>" style="display:none;">
-            <% request.setAttribute("excludeFields", null); %>
             <% wp.writeFormFields(object); %>
         </div>
 
