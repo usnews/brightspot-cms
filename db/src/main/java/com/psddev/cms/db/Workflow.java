@@ -104,6 +104,7 @@ public class Workflow extends Record {
             for (Map<String, Object> s : rawStates) {
                 state = new WorkflowState();
                 state.setName((String) s.get("name"));
+                state.setDisplayName((String) s.get("displayName"));
                 states.put((String) s.get("id"), state);
             }
 
@@ -148,6 +149,7 @@ public class Workflow extends Record {
             for (Map<String, Object> s : rawStates) {
                 state = new WorkflowState();
                 state.setName((String) s.get("name"));
+                state.setDisplayName((String) s.get("displayName"));
                 states.put((String) s.get("id"), state);
             }
 
