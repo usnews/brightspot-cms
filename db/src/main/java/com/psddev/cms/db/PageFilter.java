@@ -407,9 +407,11 @@ public class PageFilter extends AbstractFilter {
             }
 
             if (isRedirect && redirectPath != null) {
+                String rp = StringUtils.removeEnd(redirectPath.getPath(), "*");
+
                 JspUtils.redirectPermanently(request, response, site != null ?
-                        site.getPrimaryUrl() + redirectPath.getPath() :
-                        redirectPath.getPath());
+                        site.getPrimaryUrl() + rp :
+                        rp);
                 return;
             }
 

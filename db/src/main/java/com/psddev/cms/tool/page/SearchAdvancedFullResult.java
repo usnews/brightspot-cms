@@ -426,7 +426,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                     page.writeStart("a",
                             "class", "action button icon icon-object-workStream",
                             "target", "workStreamCreate",
-                            "href", page.cmsUrl("/content/newWorkStream.jsp",
+                            "href", page.cmsUrl("/createWorkstream",
                                     "search", ObjectUtils.toJson(search.getState().getSimpleValues())));
 
                         page.writeHtml("New Work Stream");
