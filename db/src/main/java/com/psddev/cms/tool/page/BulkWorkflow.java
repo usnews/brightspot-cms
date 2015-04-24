@@ -347,9 +347,9 @@ public class BulkWorkflow extends PageServlet {
             return transitionMap;
         }
 
-        public Set<String> transitionNames(Workflow workflow, ObjectType workflowType, WorkflowState workflowState) {
+        public Set<WorkflowTransition> getAvailableTransitions(Workflow workflow, ObjectType workflowType, WorkflowState workflowState) {
 
-            return getTransitionMap(workflow, workflowType, workflowState).keySet();
+            return new HashSet<>(getTransitionMap(workflow, workflowType, workflowState).values());
         }
 
         public WorkflowTransition getWorkflowTransition(Workflow workflow, ObjectType workflowType, WorkflowState workflowState, String transitionName) {
@@ -409,7 +409,7 @@ public class BulkWorkflow extends PageServlet {
             throw new IllegalStateException("No Search or SearchResultsSelection populated.  Cannot create items Query.");
         }
 
-        private void writeTransitionButton(Workflow workflow, ObjectType workflowType, WorkflowState workflowState, String transitionName) throws IOException {
+        private void writeTransitionButton(Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WorkflowTransition transition) throws IOException {
 
             writeStart("div", "class", "media-workflowTransition");
             writeStart("form",
@@ -419,8 +419,8 @@ public class BulkWorkflow extends PageServlet {
                     "action", getButtonActionUrl(workflow, workflowType, workflowState, WidgetState.POPUP));
             writeStart("button",
                     "name", "action-workflow",
-                    "value", transitionName);
-            writeHtml(getWorkflowTransition(workflow, workflowType, workflowState, transitionName).getDisplayName());
+                    "value", transition.getName());
+            writeHtml(transition.getDisplayName());
             writeEnd(); // end button.action-workflow
             writeEnd(); // end form.media-workflowTransitionForm
             writeEnd(); // end div.media-workflowTransition
@@ -476,9 +476,9 @@ public class BulkWorkflow extends PageServlet {
                         writeEnd(); // end .visibilityLabel
                         writeEnd();
 
-                        for (String transitionName : transitionNames(workflow, workflowType, workflowState)) {
+                        for (WorkflowTransition transition : availableTransitions) {
 
-                            writeTransitionButton(workflow, workflowType, workflowState, transitionName);
+                            writeTransitionButton(workflow, workflowType, workflowState, transition);
                         }
                     }
 
