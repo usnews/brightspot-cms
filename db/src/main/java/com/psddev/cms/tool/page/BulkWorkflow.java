@@ -218,7 +218,12 @@ public class BulkWorkflow extends PageServlet {
 
                     for (WorkflowTransition transition : availableTransitions) {
 
-                        writeTransitionButton(page, workflow, workflowType, workflowState, transition);
+                        page.writeStart("a",
+                                "class", "button",
+                                "target", TARGET,
+                                "href", getButtonActionUrl(page, workflow, workflowType, workflowState, WidgetState.CONFIRM, "action-workflow", transition.getName()));
+                        page.writeHtml(transition.getDisplayName());
+                        page.writeEnd();
                     }
                 }
 
@@ -289,90 +294,6 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd();
 
         page.writeEnd();
-    }
-
-    private void writeTransitionButton(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WorkflowTransition transition) throws IOException {
-
-        page.writeStart("div", "class", "media-workflowTransition");
-
-        page.writeStart("a",
-                "class", "button",
-                "target", TARGET,
-                "href", getButtonActionUrl(page, workflow, workflowType, workflowState, WidgetState.CONFIRM, "action-workflow", transition.getName()));
-        page.writeHtml(transition.getDisplayName());
-        page.writeEnd();
-        page.writeEnd(); // end div.media-workflowTransition
-    }
-
-    public void writeWidgetActionInputs(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState) throws IOException {
-
-        if (page.getSearch() != null) {
-            // Search uses current page parameters
-
-            for (String paramName : page.paramNamesList()) {
-                if ("id".equals(paramName) ||
-
-                        paramName.startsWith(Context.SELECTION_ID_PARAMETER) ||
-                        paramName.startsWith(Context.WORKFLOW_ID_PARAMETER) ||
-                        paramName.startsWith(Context.TYPE_ID_PARAMETER) ||
-                        paramName.startsWith(Context.WORKFLOW_STATE_PARAMETER) ||
-                        paramName.startsWith(Context.WIDGET_STATE_PARAMETER) ||
-                        paramName.startsWith("action-")) {
-                    continue;
-                }
-
-                for (String value : page.params(String.class, paramName)) {
-                    page.writeElement("input",
-                            "type", "hidden",
-                            "name", paramName,
-                            "value", value);
-                }
-            }
-
-        } else if (page.getSelection() != null) {
-
-            // SearchResultSelection uses an ID parameter
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", Context.SELECTION_ID_PARAMETER,
-                    "value", page.getSelection().getId());
-        }
-
-        if (workflow != null) {
-
-            // SearchResultSelection uses an ID parameter
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", Context.WORKFLOW_ID_PARAMETER,
-                    "value", workflow.getId());
-        }
-
-        if (workflowType != null) {
-
-            // SearchResultSelection uses an ID parameter
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", Context.TYPE_ID_PARAMETER,
-                    "value", workflowType.getId());
-        }
-
-        if (workflowState != null) {
-
-            // SearchResultSelection uses an ID parameter
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", Context.WORKFLOW_STATE_PARAMETER,
-                    "value", workflowState.getName());
-        }
-
-        if (widgetState != null) {
-
-            // SearchResultSelection uses an ID parameter
-            page.writeElement("input",
-                    "type", "hidden",
-                    "name", Context.WIDGET_STATE_PARAMETER,
-                    "value", widgetState);
-        }
     }
 
     public String getButtonActionUrl(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState, Object... params) {
@@ -606,7 +527,7 @@ public class BulkWorkflow extends PageServlet {
 
         public ObjectType getRefinedWorkflowType() {
 
-            ObjectType refinedType = ObjectType.getInstance(param(String.class, TYPE_ID_PARAMETER));
+            ObjectType refinedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
 
             if (refinedType == null && getSearch() != null) {
 
