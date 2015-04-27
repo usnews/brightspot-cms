@@ -481,14 +481,6 @@ public class BulkWorkflow extends PageServlet {
             }
         }
 
-        public void reset() {
-            if (selection != null) {
-                buildTransitionMap(selection);
-            } else {
-                buildTransitionMap(search);
-            }
-        }
-
         public Search getSearch() {
             return search;
         }
