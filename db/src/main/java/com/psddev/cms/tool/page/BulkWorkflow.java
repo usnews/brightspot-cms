@@ -168,7 +168,7 @@ public class BulkWorkflow extends PageServlet {
                     page.setSelection(page.getSelection());
                 } else {
                     Search originalSearch = page.getSearch();
-                    if (originalSearch != null ) {
+                    if (originalSearch != null) {
                         originalSearch.setVisibilities(originalVisibilities);
                     }
                     page.setSearch(originalSearch);
@@ -398,9 +398,9 @@ public class BulkWorkflow extends PageServlet {
 
         urlBuilder.parameter(Context.WIDGET_STATE_PARAMETER, widgetState);
 
-        for (int i = 0; i < params.length/2; i++) {
+        for (int i = 0; i < params.length / 2; i++) {
 
-            urlBuilder.parameter(params[i], params[i+1]);
+            urlBuilder.parameter(params[i], params[i + 1]);
         }
 
         return urlBuilder.toString();
