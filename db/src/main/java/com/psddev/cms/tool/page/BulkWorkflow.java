@@ -1,6 +1,8 @@
 package com.psddev.cms.tool.page;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Workflow;
+import com.psddev.cms.db.WorkflowLog;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.db.WorkflowTransition;
 import com.psddev.cms.tool.CmsTool;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +40,7 @@ public class BulkWorkflow extends PageServlet {
 
     public static final String PATH = "/workflowBulk";
 
-    public static final String TARGET = "workflowBulk";
+    public static final String TARGET = "_top";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkWorkflow.class);
 
@@ -54,12 +57,14 @@ public class BulkWorkflow extends PageServlet {
         doService(new Context(page));
     }
 
-    public void doService(ToolPageContext page, Search search, SearchResultSelection selection) throws IOException, ServletException {
+    public void doService(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
 
         LOGGER.debug("doService, search: " + ObjectUtils.toJson(search));
         LOGGER.debug("doService, selection: " + ObjectUtils.toJson(selection));
 
         Context context = new Context(page, selection, search);
+
+        context.setWidgetState(widgetState);
 
         LOGGER.debug("Finished building Context");
         doService(context);
@@ -77,26 +82,50 @@ public class BulkWorkflow extends PageServlet {
 
         switch (page.getWidgetState()) {
 
+        // BUTTON state is used to display a button to invoke the bulk workflow detail page
         case BUTTON:
 
-            page.writeStart("div", "class", "widget media-widget");
-            page.writeStart("h1", "class", "icon icon-object-workflow");
-            page.writeHtml("Workflow Options");
+            page.writeStart("div", "class", "searchResult-action-simple");
+            page.writeStart("a",
+                    "class", "button",
+                    "target", TARGET,
+                    "href", getButtonActionUrl(page, null, null, null, WidgetState.DETAIL));
+            page.writeHtml("Bulk Workflow");
+            page.writeHtml(page.getSelection() != null ? " Selected" : "");
             page.writeEnd();
-
-            page.writeButtonHtml();
-
-            page.writeEnd(); // end .media-widget
+            page.writeEnd();
 
             break;
 
-        case POPUP:
+        // CONFIRM state is shown to the ToolUser before action is taken
+        case CONFIRM:
+
+            page.writeHeader();
+
+            writeConfirmStateHtml(page);
+
+            page.writeFooter();
+
+            break;
+
+        // DETAIL state shows all available bulk workflow transition options for the provided Search or SearchResultSelection.
+        // Transitions for which the ToolUser does not have permission are not displayed.
+        case DETAIL:
+
+        default:
+
+            page.writeHeader();
 
             if (page.isFormPost()) {
 
                 Search search = page.getSearch();
 
+                List<String> originalVisibilities = new ArrayList<>();
+
                 if (search != null) {
+
+                    originalVisibilities.addAll(search.getVisibilities());
+
                     if (search.getVisibilities() != null) {
                         search.getVisibilities().clear();
                     } else {
@@ -106,88 +135,49 @@ public class BulkWorkflow extends PageServlet {
                     search.getVisibilities().add("w." + page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
                 }
 
+                int workflowStateCount = page.getWorkflowStateCount(page.getRefinedWorkflowType(), page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
+
                 for (Object item : page.itemsQuery().selectAll()) {
 
                     page.tryWorkflowOnly(item);
 
                     // TODO: present Error dialog when workflow transition fails.
                     for (Throwable throwable : page.getErrors()) {
+
+                        page.writeObject(throwable);
                         LOGGER.warn("Bulk Workflow Error: ", throwable);
                     }
-
                 }
-                page.writeStart("script").writeHtml("window.location.href = window.location.href;").writeEnd();
-            } else {
 
-                ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
+                page.writeStart("div", "class", "message message-success");
+                page.writeHtml("Successfully transitioned ");
+                page.writeHtml(workflowStateCount);
+                page.writeHtml(" items. ");
 
-                String workflowStateName = page.param(String.class, Context.WORKFLOW_STATE_PARAMETER);
-                WorkflowState workflowState = null;
+                String returnUrl = page.param(String.class, "returnUrl");
 
-                Workflow workflow = Query.from(Workflow.class).where("_id = ?", page.param(String.class, Context.WORKFLOW_ID_PARAMETER)).first();
+                if (!ObjectUtils.isBlank(returnUrl)) {
+                    page.writeStart("a",
+                            "href", returnUrl);
+                    page.writeHtml("Return to search.");
+                    page.writeEnd();
+                }
+                page.writeEnd();
 
-                for (WorkflowState workflowStateValue : workflow.getStates()) {
-                    if (ObjectUtils.equals(workflowStateValue.getName(), workflowStateName)) {
-                        workflowState = workflowStateValue;
-                        break;
+                if (page.getSelection() != null) {
+                    page.setSelection(page.getSelection());
+                } else {
+                    Search originalSearch = page.getSearch();
+                    if (originalSearch != null ) {
+                        originalSearch.setVisibilities(originalVisibilities);
                     }
+                    page.setSearch(originalSearch);
                 }
-
-                WorkflowTransition workflowTransition = page.getWorkflowTransition(workflow, transitionSourceType, workflowState, page.param(String.class, "action-workflow"));
-
-                page.writeStart("p");
-                page.writeHtml("Click \"Confirm\" below to perform the following workflow update.");
-                page.writeEnd();
-
-                page.writeStart("table", "class", "table-striped");
-
-                page.writeStart("tr");
-                page.writeStart("td").writeHtml("Type").writeEnd();
-                page.writeStart("td").writeHtml(transitionSourceType.getDisplayName()).writeEnd();
-                page.writeEnd(); // end row
-
-                page.writeStart("tr");
-                page.writeStart("td").writeHtml("Count").writeEnd();
-                page.writeStart("td").writeHtml(page.getWorkflowStateCount(transitionSourceType, workflowStateName)).writeEnd();
-                page.writeEnd(); // end row
-
-                page.writeStart("tr");
-                page.writeStart("td").writeHtml("Current State").writeEnd();
-                page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
-                page.writeEnd(); // end row
-
-                page.writeStart("tr");
-                page.writeStart("td").writeHtml("New State").writeEnd();
-                page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
-                page.writeEnd(); // end row
-
-                page.writeEnd(); // end table
-
-                page.writeStart("form",
-                        "method", "post",
-                        "action", page.getButtonActionUrl(workflow, transitionSourceType, workflowState, WidgetState.POPUP));
-
-                page.writeStart("button", "name", "action-workflow", "value", workflowTransition.getName());
-                page.writeHtml("Confirm");
-                page.writeEnd();
-                page.writeEnd();
             }
 
-            break;
+            writeDetailStateHtml(page);
 
-        case DEFAULT:
-
-        default:
-
-            page.writeStart("div", "class", "searchResult-action-simple");
-            page.writeStart("a",
-                    "class", "button",
-                    "target", TARGET,
-                    "href", page.getButtonActionUrl(null, null, null, WidgetState.BUTTON));
-            page.writeHtml("Bulk Workflow ");
-            page.writeHtml(page.getSelection() != null ? "Selected" : "");
-            page.writeEnd();
-            page.writeEnd();
+            page.writeFooter();
 
             break;
         }
@@ -195,8 +185,225 @@ public class BulkWorkflow extends PageServlet {
 
     public static enum WidgetState {
         BUTTON,
-        POPUP,
+        DETAIL,
+        CONFIRM,
         DEFAULT
+    }
+
+    public void writeDetailStateHtml(Context page) throws IOException {
+
+        page.writeStart("div", "class", "widget");
+        page.writeStart("h1", "class", "icon icon-object-workflow");
+        page.writeHtml("Workflow Options");
+        page.writeEnd();
+
+        for (Workflow workflow : page.workflows()) {
+
+            for (ObjectType workflowType : page.workflowTypes(workflow)) {
+
+                for (WorkflowState workflowState : page.workflowStates(workflow, workflowType)) {
+
+                    Set<WorkflowTransition> availableTransitions = page.getAvailableTransitions(workflow, workflowType, workflowState);
+
+                    if (availableTransitions.size() == 0) {
+                        continue;
+                    }
+
+                    page.writeStart("h3");
+                    page.writeHtml(page.getWorkflowStateCount(workflowType, workflowState.getName()) + " " + workflowType.getDisplayName() + " ");
+                    page.writeStart("span", "class", "visibilityLabel");
+                    page.writeHtml(workflowState.getDisplayName());
+                    page.writeEnd(); // end .visibilityLabel
+                    page.writeEnd();
+
+                    for (WorkflowTransition transition : availableTransitions) {
+
+                        writeTransitionButton(page, workflow, workflowType, workflowState, transition);
+                    }
+                }
+
+            }
+        }
+
+        page.writeEnd(); // end .-widget
+    }
+
+    public void writeConfirmStateHtml(Context page) throws IOException {
+
+        page.writeStart("div", "class", "widget");
+        page.writeStart("h1");
+        page.writeHtml("Bulk Workflow");
+        page.writeEnd();
+
+        ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
+
+        String workflowStateName = page.param(String.class, Context.WORKFLOW_STATE_PARAMETER);
+        WorkflowState workflowState = null;
+
+        Workflow workflow = Query.from(Workflow.class).where("_id = ?", page.param(String.class, Context.WORKFLOW_ID_PARAMETER)).first();
+
+        for (WorkflowState workflowStateValue : workflow.getStates()) {
+            if (ObjectUtils.equals(workflowStateValue.getName(), workflowStateName)) {
+                workflowState = workflowStateValue;
+                break;
+            }
+        }
+
+        WorkflowTransition workflowTransition = page.getWorkflowTransition(workflow, transitionSourceType, workflowState, page.param(String.class, "action-workflow"));
+
+        page.writeStart("p");
+        page.writeHtml("Click \"Confirm\" below to perform the following workflow update.");
+        page.writeEnd();
+
+        page.writeStart("table", "class", "table-striped");
+
+        page.writeStart("tr");
+        page.writeStart("td").writeHtml("Type").writeEnd();
+        page.writeStart("td").writeHtml(transitionSourceType.getDisplayName()).writeEnd();
+        page.writeEnd(); // end row
+
+        page.writeStart("tr");
+        page.writeStart("td").writeHtml("Count").writeEnd();
+        page.writeStart("td").writeHtml(page.getWorkflowStateCount(transitionSourceType, workflowStateName)).writeEnd();
+        page.writeEnd(); // end row
+
+        page.writeStart("tr");
+        page.writeStart("td").writeHtml("Current State").writeEnd();
+        page.writeStart("td").writeHtml(workflowTransition.getSource().getDisplayName()).writeEnd();
+        page.writeEnd(); // end row
+
+        page.writeStart("tr");
+        page.writeStart("td").writeHtml("New State").writeEnd();
+        page.writeStart("td").writeHtml(workflowTransition.getTarget().getDisplayName()).writeEnd();
+        page.writeEnd(); // end row
+
+        page.writeEnd(); // end table
+
+        page.writeStart("form",
+                "method", "post",
+                "action", getButtonActionUrl(page, workflow, transitionSourceType, workflowState, WidgetState.DETAIL));
+
+        page.writeStart("button", "name", "action-workflow", "value", workflowTransition.getName());
+        page.writeHtml("Confirm");
+        page.writeEnd();
+        page.writeEnd();
+
+        page.writeEnd();
+    }
+
+    private void writeTransitionButton(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WorkflowTransition transition) throws IOException {
+
+        page.writeStart("div", "class", "media-workflowTransition");
+
+        page.writeStart("a",
+                "class", "button",
+                "target", TARGET,
+                "href", getButtonActionUrl(page, workflow, workflowType, workflowState, WidgetState.CONFIRM, "action-workflow", transition.getName()));
+        page.writeHtml(transition.getDisplayName());
+        page.writeEnd();
+        page.writeEnd(); // end div.media-workflowTransition
+    }
+
+    public void writeWidgetActionInputs(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState) throws IOException {
+
+        if (page.getSearch() != null) {
+            // Search uses current page parameters
+
+            for (String paramName : page.paramNamesList()) {
+                if ("id".equals(paramName) ||
+
+                        paramName.startsWith(Context.SELECTION_ID_PARAMETER) ||
+                        paramName.startsWith(Context.WORKFLOW_ID_PARAMETER) ||
+                        paramName.startsWith(Context.TYPE_ID_PARAMETER) ||
+                        paramName.startsWith(Context.WORKFLOW_STATE_PARAMETER) ||
+                        paramName.startsWith(Context.WIDGET_STATE_PARAMETER) ||
+                        paramName.startsWith("action-")) {
+                    continue;
+                }
+
+                for (String value : page.params(String.class, paramName)) {
+                    page.writeElement("input",
+                            "type", "hidden",
+                            "name", paramName,
+                            "value", value);
+                }
+            }
+
+        } else if (page.getSelection() != null) {
+
+            // SearchResultSelection uses an ID parameter
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", Context.SELECTION_ID_PARAMETER,
+                    "value", page.getSelection().getId());
+        }
+
+        if (workflow != null) {
+
+            // SearchResultSelection uses an ID parameter
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", Context.WORKFLOW_ID_PARAMETER,
+                    "value", workflow.getId());
+        }
+
+        if (workflowType != null) {
+
+            // SearchResultSelection uses an ID parameter
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", Context.TYPE_ID_PARAMETER,
+                    "value", workflowType.getId());
+        }
+
+        if (workflowState != null) {
+
+            // SearchResultSelection uses an ID parameter
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", Context.WORKFLOW_STATE_PARAMETER,
+                    "value", workflowState.getName());
+        }
+
+        if (widgetState != null) {
+
+            // SearchResultSelection uses an ID parameter
+            page.writeElement("input",
+                    "type", "hidden",
+                    "name", Context.WIDGET_STATE_PARAMETER,
+                    "value", widgetState);
+        }
+    }
+
+    public String getButtonActionUrl(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState, Object... params) {
+
+        UrlBuilder urlBuilder = new UrlBuilder(page.getRequest())
+                .absolutePath(page.toolUrl(CmsTool.class, PATH));
+
+        urlBuilder.parameter("action-workflow", null);
+
+        if (page.getSearch() != null) {
+            // Search uses current page parameters
+            urlBuilder.currentParameters();
+        }
+
+        // SearchResultSelection uses an ID parameter
+        urlBuilder.parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null);
+
+        urlBuilder.parameter(Context.WORKFLOW_ID_PARAMETER, workflow != null ? workflow.getId() : null);
+
+        urlBuilder.parameter(Context.TYPE_ID_PARAMETER, workflowType != null ? workflowType.getId() : null);
+
+        urlBuilder.parameter(Context.WORKFLOW_STATE_PARAMETER, workflowState != null ? workflowState.getName() : null);
+
+        urlBuilder.parameter(Context.WIDGET_STATE_PARAMETER, widgetState);
+
+        for (int i = 0; i < params.length/2; i++) {
+
+            urlBuilder.parameter(params[i], params[i+1]);
+        }
+
+        return urlBuilder.toString();
     }
 
     private static class Context extends ToolPageContext {
@@ -236,7 +443,7 @@ public class BulkWorkflow extends PageServlet {
 
             String selectionId = param(String.class, SELECTION_ID_PARAMETER);
 
-            this.widgetState = ObjectUtils.firstNonNull(param(WidgetState.class, WIDGET_STATE_PARAMETER), WidgetState.DEFAULT);
+            this.widgetState = ObjectUtils.firstNonNull(param(WidgetState.class, WIDGET_STATE_PARAMETER), WidgetState.DETAIL);
 
             if (selection != null) {
                 LOGGER.debug("Received SearchResultSelection constructor object: " + ObjectUtils.toJson(selection));
@@ -271,6 +478,14 @@ public class BulkWorkflow extends PageServlet {
                 }
 
                 setSearch(searchFromJson);
+            }
+        }
+
+        public void reset() {
+            if (selection != null) {
+                buildTransitionMap(selection);
+            } else {
+                buildTransitionMap(search);
             }
         }
 
@@ -357,7 +572,7 @@ public class BulkWorkflow extends PageServlet {
             return getTransitionMap(workflow, workflowType, workflowState).get(transitionName);
         }
 
-        public int getWorkflowStateCount(ObjectType workflowType, String workflowState) {
+        public int getWorkflowStateCount(ObjectType workflowType, String workflowStateName) {
 
             Map<String, Integer> countMap = workflowStateCounts.get(workflowType);
 
@@ -365,7 +580,7 @@ public class BulkWorkflow extends PageServlet {
                 return 0;
             }
 
-            return ObjectUtils.to(int.class, countMap.get(workflowState));
+            return ObjectUtils.to(int.class, countMap.get(workflowStateName));
         }
 
         public Search searchFromJson() {
@@ -397,6 +612,18 @@ public class BulkWorkflow extends PageServlet {
             return hasAnyTransitions;
         }
 
+        public ObjectType getRefinedWorkflowType() {
+
+            ObjectType refinedType = ObjectType.getInstance(param(String.class, TYPE_ID_PARAMETER));
+
+            if (refinedType == null && getSearch() != null) {
+
+                refinedType = getSearch().getSelectedType();
+            }
+
+            return refinedType;
+        }
+
         public Query itemsQuery() {
 
             if (getSearch() != null) {
@@ -409,92 +636,11 @@ public class BulkWorkflow extends PageServlet {
             throw new IllegalStateException("No Search or SearchResultsSelection populated.  Cannot create items Query.");
         }
 
-        private void writeTransitionButton(Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WorkflowTransition transition) throws IOException {
-
-            writeStart("div", "class", "media-workflowTransition");
-            writeStart("form",
-                    "class", "media-workflowTransitionForm",
-                    "method", "get",
-                    "target", "workflowBulk",
-                    "action", getButtonActionUrl(workflow, workflowType, workflowState, WidgetState.POPUP));
-            writeStart("button",
-                    "name", "action-workflow",
-                    "value", transition.getName());
-            writeHtml(transition.getDisplayName());
-            writeEnd(); // end button.action-workflow
-            writeEnd(); // end form.media-workflowTransitionForm
-            writeEnd(); // end div.media-workflowTransition
-        }
-
-        public String getButtonActionUrl(Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState) {
-
-            UrlBuilder urlBuilder = new UrlBuilder(getRequest())
-                    .absolutePath(toolUrl(CmsTool.class, PATH));
-
-            if (getSearch() != null) {
-                // Search uses current page parameters
-                urlBuilder.currentParameters();
-
-            } else if (getSelection() != null) {
-                // SearchResultSelection uses an ID parameter
-                urlBuilder.parameter(Context.SELECTION_ID_PARAMETER, getSelection().getId());
-            }
-
-            if (workflow != null) {
-                urlBuilder.parameter(Context.WORKFLOW_ID_PARAMETER, workflow.getId());
-            }
-
-            if (workflowType != null) {
-                urlBuilder.parameter(Context.TYPE_ID_PARAMETER, workflowType.getId());
-            }
-
-            if (workflowState != null) {
-                urlBuilder.parameter(Context.WORKFLOW_STATE_PARAMETER, workflowState.getName());
-            }
-
-            if (widgetState != null) {
-                urlBuilder.parameter(Context.WIDGET_STATE_PARAMETER, widgetState);
-            }
-
-            return urlBuilder.toString();
-        }
-
-        public void writeButtonHtml() throws IOException {
-
-            for (Workflow workflow : workflows()) {
-
-                writeStart("div", "class", "media-workflowTransitionList");
-
-                for (ObjectType workflowType : workflowTypes(workflow)) {
-
-                    for (WorkflowState workflowState : workflowStates(workflow, workflowType)) {
-
-                        Set<WorkflowTransition> availableTransitions = getAvailableTransitions(workflow, workflowType, workflowState);
-
-                        if (availableTransitions.size() == 0) {
-                            continue;
-                        }
-
-                        writeStart("h3", "class", "media-workflowTransitionTitle");
-                        writeHtml(getWorkflowStateCount(workflowType, workflowState.getName()) + " " + workflowType.getDisplayName() + " ");
-                        writeStart("span", "class", "visibilityLabel");
-                        writeHtml(workflowState.getDisplayName());
-                        writeEnd(); // end .visibilityLabel
-                        writeEnd();
-
-                        for (WorkflowTransition transition : availableTransitions) {
-
-                            writeTransitionButton(workflow, workflowType, workflowState, transition);
-                        }
-                    }
-
-                }
-
-                writeEnd(); // end .media-workflowTransitionList
-            }
-        }
-
         private void buildTransitionMap(SearchResultSelection selection) {
+
+            workflowStateCounts.clear();
+            availableTransitionsMap.clear();
+            hasAnyTransitions = false;
 
             if (selection == null) {
 
@@ -579,6 +725,10 @@ public class BulkWorkflow extends PageServlet {
 
         private void buildTransitionMap(Search search) {
 
+            workflowStateCounts.clear();
+            availableTransitionsMap.clear();
+            hasAnyTransitions = false;
+
             if (search == null) {
                 return;
             }
@@ -642,7 +792,7 @@ public class BulkWorkflow extends PageServlet {
                         stateTransitionsByType.put(selectedType, stateTransitions);
                     }
 
-                    long stateCount = Query.fromQuery(query).where("cms.workflow.currentState = ?", workflowState.getName()).count();
+                    long stateCount = Query.fromQuery(query).where("cms.workflow.currentState = ?", workflowState.getName()).noCache().count();
 
                     workflowStateCounts.get(selectedType).put(workflowState.getName(), ObjectUtils.to(Integer.class, stateCount));
 
@@ -657,6 +807,64 @@ public class BulkWorkflow extends PageServlet {
                         stateTransitions.put(workflowState, transitionsFrom);
                     }
                 }
+            }
+        }
+
+        /**
+         * Tries to apply a workflow action to the given {@code object} if the
+         * user has asked for it in the current request.
+         *
+         * @param object Can't be {@code null}.
+         * @param {@code true} if the application of a workflow action is tried.
+         */
+        public boolean tryWorkflowOnly(Object object) {
+            if (!isFormPost()) {
+                return false;
+            }
+
+            String action = param(String.class, "action-workflow");
+
+            if (ObjectUtils.isBlank(action)) {
+                return false;
+            }
+
+            State state = State.getInstance(object);
+            Workflow.Data workflowData = state.as(Workflow.Data.class);
+            String oldWorkflowState = workflowData.getCurrentState();
+
+            try {
+                state.beginWrites();
+
+                Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
+
+                if (workflow != null) {
+                    WorkflowTransition transition = workflow.getTransitions().get(action);
+
+                    if (transition != null) {
+
+                        if (!hasPermission("type/" + state.getTypeId() + "/bulkWorkflow") || !hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
+                            throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
+                        }
+
+                        WorkflowLog log = new WorkflowLog();
+
+                        state.as(Content.ObjectModification.class).setDraft(false);
+                        log.getState().setId(param(UUID.class, "workflowLogId"));
+                        workflowData.changeState(transition, getUser(), log);
+                        publish(object);
+                        state.commitWrites();
+                    }
+                }
+
+                return true;
+
+            } catch (Exception error) {
+                workflowData.revertState(oldWorkflowState);
+                getErrors().add(error);
+                return false;
+
+            } finally {
+                state.endWrites();
             }
         }
     }
