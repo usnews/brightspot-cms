@@ -3115,64 +3115,6 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
-    /**
-     * Tries to apply a workflow action to the given {@code object} if the
-     * user has asked for it in the current request.
-     *
-     * @param object Can't be {@code null}.
-     * @param {@code true} if the application of a workflow action is tried.
-     */
-    public boolean tryWorkflowOnly(Object object) {
-        if (!isFormPost()) {
-            return false;
-        }
-
-        String action = param(String.class, "action-workflow");
-
-        if (ObjectUtils.isBlank(action)) {
-            return false;
-        }
-
-        State state = State.getInstance(object);
-        Workflow.Data workflowData = state.as(Workflow.Data.class);
-        String oldWorkflowState = workflowData.getCurrentState();
-
-        try {
-            state.beginWrites();
-
-            Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", state.getType()).first();
-
-            if (workflow != null) {
-                WorkflowTransition transition = workflow.getTransitions().get(action);
-
-                if (transition != null) {
-
-                    if (!hasPermission("type/" + state.getTypeId() + "/bulkWorkflow") || !hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
-                        throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
-                    }
-
-                    WorkflowLog log = new WorkflowLog();
-
-                    state.as(Content.ObjectModification.class).setDraft(false);
-                    log.getState().setId(param(UUID.class, "workflowLogId"));
-                    workflowData.changeState(transition, getUser(), log);
-                    publish(object);
-                    state.commitWrites();
-                }
-            }
-
-            return true;
-
-        } catch (Exception error) {
-            workflowData.revertState(oldWorkflowState);
-            getErrors().add(error);
-            return false;
-
-        } finally {
-            state.endWrites();
-        }
-    }
-
     // --- AuthenticationFilter bridge ---
 
     /** @see AuthenticationFilter.Static#requireUser */
