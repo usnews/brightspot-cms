@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowLog;
 import com.psddev.cms.db.WorkflowState;
@@ -59,26 +60,18 @@ public class BulkWorkflow extends PageServlet {
 
     public void doService(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
 
-        LOGGER.debug("doService, search: " + ObjectUtils.toJson(search));
-        LOGGER.debug("doService, selection: " + ObjectUtils.toJson(selection));
-
         Context context = new Context(page, selection, search);
 
         context.setWidgetState(widgetState);
 
-        LOGGER.debug("Finished building Context");
         doService(context);
     }
 
     private void doService(Context page) throws IOException, ServletException {
 
-        LOGGER.debug("doService, Context");
-
         if (!page.hasAnyTransitions()) {
             return;
         }
-
-        LOGGER.debug("page.getWidgetState(): " + page.getWidgetState());
 
         switch (page.getWidgetState()) {
 
@@ -141,7 +134,6 @@ public class BulkWorkflow extends PageServlet {
 
                     page.tryWorkflowOnly(item);
 
-                    // TODO: present Error dialog when workflow transition fails.
                     for (Throwable throwable : page.getErrors()) {
 
                         page.writeObject(throwable);
@@ -190,7 +182,7 @@ public class BulkWorkflow extends PageServlet {
         DEFAULT
     }
 
-    public void writeDetailStateHtml(Context page) throws IOException {
+    public void writeDetailStateHtml(Context page) throws IOException, ServletException {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1", "class", "icon icon-object-workflow");
@@ -233,11 +225,11 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd(); // end .-widget
     }
 
-    public void writeConfirmStateHtml(Context page) throws IOException {
+    public void writeConfirmStateHtml(Context page) throws IOException, ServletException {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1");
-        page.writeHtml("Bulk Workflow");
+        page.writeHtml("Confirm Bulk Workflow");
         page.writeEnd();
 
         ObjectType transitionSourceType = ObjectType.getInstance(page.param(UUID.class, Context.TYPE_ID_PARAMETER));
@@ -256,9 +248,9 @@ public class BulkWorkflow extends PageServlet {
 
         WorkflowTransition workflowTransition = page.getWorkflowTransition(workflow, transitionSourceType, workflowState, page.param(String.class, "action-workflow"));
 
-        page.writeStart("p");
-        page.writeHtml("Click \"Confirm\" below to perform the following workflow update.");
-        page.writeEnd();
+        page.writeStart("form",
+                "method", "post",
+                "action", getButtonActionUrl(page, workflow, transitionSourceType, workflowState, WidgetState.DETAIL));
 
         page.writeStart("table", "class", "table-striped");
 
@@ -284,12 +276,19 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeEnd(); // end table
 
-        page.writeStart("form",
-                "method", "post",
-                "action", getButtonActionUrl(page, workflow, transitionSourceType, workflowState, WidgetState.DETAIL));
+        WorkflowLog log = new WorkflowLog();
+
+        page.writeStart("div", "class", "widget-publishingWorkflowLog");
+        page.writeElement("input",
+                "type", "hidden",
+                "name", "workflowLogId",
+                "value", log.getId());
+
+        page.writeFormFields(log);
+        page.writeEnd();
 
         page.writeStart("button", "name", "action-workflow", "value", workflowTransition.getName());
-        page.writeHtml("Confirm");
+        page.writeHtml("Confirm Bulk " + workflowTransition.getDisplayName());
         page.writeEnd();
         page.writeEnd();
 
@@ -367,13 +366,13 @@ public class BulkWorkflow extends PageServlet {
             this.widgetState = ObjectUtils.firstNonNull(param(WidgetState.class, WIDGET_STATE_PARAMETER), WidgetState.DETAIL);
 
             if (selection != null) {
-                LOGGER.debug("Received SearchResultSelection constructor object: " + ObjectUtils.toJson(selection));
+
                 setSelection(selection);
+
             } else if (!ObjectUtils.isBlank(selectionId)) {
+
                 LOGGER.debug("Found " + SELECTION_ID_PARAMETER + " query parameter with value: " + selectionId);
                 SearchResultSelection queriedSelection = (SearchResultSelection) Query.fromAll().where("_id = ?", selectionId).first();
-
-                LOGGER.debug("Queried SearchResultSelection by id: " + ObjectUtils.toJson(queriedSelection));
 
                 if (queriedSelection == null) {
                     throw new IllegalArgumentException("No SearchResultSelection exists for id " + selectionId);
@@ -382,20 +381,15 @@ public class BulkWorkflow extends PageServlet {
                 setSelection(queriedSelection);
             } else if (search != null) {
 
-                LOGGER.debug("Received Search constructor object: " + ObjectUtils.toJson(search));
                 setSearch(search);
             } else {
 
                 Search searchFromJson = searchFromJson();
 
-                LOGGER.debug("Tried to obtain Search object from JSON query parameter: " + ObjectUtils.toJson(searchFromJson));
-
                 if (searchFromJson == null) {
 
-                    LOGGER.debug("Could not objtain Search object from JSON query parameter");
+                    LOGGER.debug("Could not obtain Search object from JSON query parameter");
                     searchFromJson = new Search();
-
-                    LOGGER.debug("Tried to obtain Search object from CMS query parameters: " + ObjectUtils.toJson(searchFromJson));
                 }
 
                 setSearch(searchFromJson);
@@ -521,7 +515,7 @@ public class BulkWorkflow extends PageServlet {
         }
 
         public boolean hasAnyTransitions() {
-            LOGGER.debug("hasAnyTransitions: " + hasAnyTransitions);
+
             return hasAnyTransitions;
         }
 
@@ -586,10 +580,6 @@ public class BulkWorkflow extends PageServlet {
                 itemTypes.add(itemType);
             }
 
-            for (ObjectType key : workflowStateCounts.keySet()) {
-                LOGGER.debug("workflowStateCounts for " + key.getDisplayName() + ": " + ObjectUtils.toJson(workflowStateCounts.get(key)));
-            }
-
             if (itemTypes.size() == 0) {
 
                 return;
@@ -597,11 +587,7 @@ public class BulkWorkflow extends PageServlet {
 
             for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", itemTypes).selectAll()) {
 
-                LOGGER.debug("Inspecting Workflow: " + workflow.getName());
-
                 for (ObjectType workflowType : workflow.getContentTypes()) {
-
-                    LOGGER.debug("Inspecting Workflow ObjectType: " + workflowType.getDisplayName());
 
                     Map<ObjectType, Map<WorkflowState, Map<String, WorkflowTransition>>> stateTransitionsByType = availableTransitionsMap.get(workflow);
                     if (stateTransitionsByType == null) {
@@ -610,8 +596,6 @@ public class BulkWorkflow extends PageServlet {
                     }
 
                     for (WorkflowState workflowState : workflow.getStates()) {
-
-                        LOGGER.debug("Inspecting Workflow State: " + workflowState.getDisplayName());
 
                         Map<WorkflowState, Map<String, WorkflowTransition>> stateTransitions = stateTransitionsByType.get(workflowType);
                         if (stateTransitions == null) {
@@ -632,8 +616,6 @@ public class BulkWorkflow extends PageServlet {
                     }
                 }
             }
-
-            LOGGER.debug("Finished building transition map");
         }
 
         private void buildTransitionMap(Search search) {
@@ -650,8 +632,6 @@ public class BulkWorkflow extends PageServlet {
 
             ObjectType selectedType = search.getSelectedType();
 
-            LOGGER.debug("selectedType: " + (selectedType == null ? null : selectedType.getDisplayName()));
-
             if (selectedType == null) {
                 return;
             }
@@ -662,8 +642,6 @@ public class BulkWorkflow extends PageServlet {
             if (search.getVisibilities() == null || search.getVisibilities().size() == 0) {
                 return;
             }
-
-            LOGGER.debug("search.getVisibilities(): " + ObjectUtils.toJson(search.getVisibilities()));
 
             Set<String> refinedStates = new HashSet<>();
 
@@ -678,11 +656,7 @@ public class BulkWorkflow extends PageServlet {
                 return;
             }
 
-            LOGGER.debug("Refined States: " + ObjectUtils.toJson(refinedStates));
-
             for (Workflow workflow : Query.from(Workflow.class).where("contentTypes = ?", selectedType).selectAll()) {
-
-                LOGGER.debug("Inspecting Workflow: " + workflow.getName());
 
                 Map<ObjectType, Map<WorkflowState, Map<String, WorkflowTransition>>> stateTransitionsByType = availableTransitionsMap.get(workflow);
                 if (stateTransitionsByType == null) {
@@ -691,8 +665,6 @@ public class BulkWorkflow extends PageServlet {
                 }
 
                 for (WorkflowState workflowState : workflow.getStates()) {
-
-                    LOGGER.debug("Inspecting Workflow State: " + workflowState.getDisplayName());
 
                     // skip workflow states that are not part of the current Search refinement
                     if (!refinedStates.contains(workflowState.getName()) && !refinedStates.contains("w")) {
@@ -742,6 +714,7 @@ public class BulkWorkflow extends PageServlet {
             }
 
             State state = State.getInstance(object);
+            Draft draft = getOverlaidDraft(object);
             Workflow.Data workflowData = state.as(Workflow.Data.class);
             String oldWorkflowState = workflowData.getCurrentState();
 
@@ -761,10 +734,26 @@ public class BulkWorkflow extends PageServlet {
 
                         WorkflowLog log = new WorkflowLog();
 
+                        UUID logId = log.getId();
+
                         state.as(Content.ObjectModification.class).setDraft(false);
                         log.getState().setId(param(UUID.class, "workflowLogId"));
+                        updateUsingParameters(log);
+
+                        // keep unique ID
+                        log.getState().setId(logId);
+
                         workflowData.changeState(transition, getUser(), log);
-                        publish(object);
+
+                        if (draft == null) {
+                            publish(object);
+
+                        } else {
+                            draft.as(Workflow.Data.class).changeState(transition, getUser(), log);
+                            draft.setObject(object);
+                            publish(draft);
+                        }
+
                         state.commitWrites();
                     }
                 }
@@ -772,6 +761,11 @@ public class BulkWorkflow extends PageServlet {
                 return true;
 
             } catch (Exception error) {
+
+                if (draft != null) {
+                    draft.as(Workflow.Data.class).revertState(oldWorkflowState);
+                }
+
                 workflowData.revertState(oldWorkflowState);
                 getErrors().add(error);
                 return false;
