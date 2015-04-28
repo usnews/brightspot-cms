@@ -2,6 +2,9 @@ package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -111,13 +114,26 @@ public class SearchResultActions extends PageServlet {
             page.writeEnd();
         }
 
+        List<SearchResultAction> actionList = new ArrayList<>();
+
         for (Class<? extends SearchResultAction> c : ClassFinder.Static.findClasses(SearchResultAction.class)) {
             if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
-                TypeDefinition.
+
+                actionList.add(TypeDefinition.
                         getInstance(c).
-                        newInstance().
-                        writeHtml(page, search, count > 0 ? selection : null);
+                        newInstance());
             }
+        }
+
+        // Sort SearchResultActions first by getClass().getSimpleName(), then by getClass().getName() for tie-breaking.
+        Collections.sort(actionList,
+                (SearchResultAction a1, SearchResultAction a2) ->
+                        (a1.getClass().getSimpleName() + a1.getClass().getName()).compareToIgnoreCase(
+                        a2.getClass().getSimpleName() + a2.getClass().getName())
+        );
+
+        for (SearchResultAction searchResultAction: actionList) {
+            searchResultAction.writeHtml(page, search, count > 0 ? selection : null);
         }
     }
 }
