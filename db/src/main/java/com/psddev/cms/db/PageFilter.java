@@ -98,6 +98,9 @@ public class PageFilter extends AbstractFilter {
     public static final String SITE_CHECKED_ATTRIBUTE = ATTRIBUTE_PREFIX + ".siteChecked";
     public static final String SUBSTITUTIONS_ATTRIBUTE = ATTRIBUTE_PREFIX + ".substitutions";
 
+    public static final String MAIN_OBJECT_RENDERER_CONTEXT = "_main";
+    public static final String EMBED_OBJECT_RENDERER_CONTEXT = "_embed";
+
     /**
      * Returns {@code true} if rendering the given {@code request} has
      * been aborted.
@@ -606,9 +609,8 @@ public class PageFilter extends AbstractFilter {
             boolean rendered = false;
 
             try {
-                if (contextNotBlank) {
-                    ContextTag.Static.pushContext(request, context);
-                }
+                ContextTag.Static.pushContext(request, contextNotBlank ? context :
+                        (embed ? EMBED_OBJECT_RENDERER_CONTEXT : MAIN_OBJECT_RENDERER_CONTEXT));
 
                 if (!ObjectUtils.isBlank(layoutPath)) {
                     rendered = true;
@@ -634,9 +636,7 @@ public class PageFilter extends AbstractFilter {
                 }
 
             } finally {
-                if (contextNotBlank) {
-                    ContextTag.Static.popContext(request);
-                }
+                ContextTag.Static.popContext(request);
             }
 
             if (!rendered) {
