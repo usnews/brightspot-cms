@@ -18,6 +18,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       var $toRight;
       var tabsWidth;
       var itemsWidth;
+      var scrollerWidth;
 
       function updateScrollerStates() {
         var scrollLeft = $tabs.scrollLeft();
@@ -31,7 +32,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
           (direction > 0 ? $toLeft : $toRight).removeClass('tabs-scroller-disable');
 
           $tabs.animate({
-            'scrollLeft': $tabs.scrollLeft() + (direction * itemsWidth)
+            'scrollLeft': $tabs.scrollLeft() + (direction * (tabsWidth - scrollerWidth))
           }, {
             'complete': updateScrollerStates
           })
@@ -55,6 +56,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
       function initScrollers() {
         tabsWidth = $tabs.outerWidth();
         itemsWidth = 0;
+        scrollerWidth = $toLeft.outerWidth() + $toRight.outerWidth();
 
         $tabs.find('> li').each(function() {
           itemsWidth += $(this).outerWidth(true);

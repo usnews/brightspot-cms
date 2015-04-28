@@ -78,7 +78,7 @@ public class WorkStreamsWidget extends DefaultDashboardWidget {
                             page.writeHtml(" working on ");
 
                             page.writeStart("a",
-                                    "href", page.objectUrl("/content/workStreamEdit.jsp", workStream, "reload", true),
+                                    "href", page.objectUrl("/content/editWorkStream", workStream, "reload", true),
                                     "target", "workStream");
                                 page.writeObjectLabel(workStream);
                             page.writeEnd();
