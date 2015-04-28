@@ -3075,6 +3075,11 @@ public class ToolPageContext extends WebPageContext {
                 WorkflowTransition transition = workflow.getTransitions().get(action);
 
                 if (transition != null) {
+
+                    if (!hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
+                        throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
+                    }
+
                     WorkflowLog log = new WorkflowLog();
 
                     updateUsingParameters(object);
