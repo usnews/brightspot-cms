@@ -6,7 +6,6 @@ import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowLog;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.db.WorkflowTransition;
-import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultSelection;
@@ -16,6 +15,7 @@ import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeReference;
 import com.psddev.dari.util.UrlBuilder;
 import org.slf4j.Logger;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,11 +40,12 @@ import java.util.UUID;
 @RoutingFilter.Path(application = "cms", value = BulkWorkflow.PATH)
 public class BulkWorkflow extends PageServlet {
 
-    public static final String PATH = "/workflowBulk";
+    public static final String PATH = "bulkWorkflow";
 
     public static final String TARGET = "_top";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkWorkflow.class);
+    private static final String DEFAULT_ERROR_MESSAGE = "An error has occurred.";
 
     @Override
     protected String getPermissionId() {
@@ -82,7 +84,7 @@ public class BulkWorkflow extends PageServlet {
             page.writeStart("a",
                     "class", "button",
                     "target", TARGET,
-                    "href", getButtonActionUrl(page, null, null, null, WidgetState.DETAIL));
+                    "href", getActionUrl(page, null, null, null, WidgetState.DETAIL));
             page.writeHtml("Bulk Workflow");
             page.writeHtml(page.getSelection() != null ? " Selected" : "");
             page.writeEnd();
@@ -115,6 +117,8 @@ public class BulkWorkflow extends PageServlet {
 
                 List<String> originalVisibilities = new ArrayList<>();
 
+                // Ensure that the Search object only returns results with the specified workflow state.
+                // Store original visibilities to present a new DETAIL view after action is taken.
                 if (search != null) {
 
                     originalVisibilities.addAll(search.getVisibilities());
@@ -128,38 +132,82 @@ public class BulkWorkflow extends PageServlet {
                     search.getVisibilities().add("w." + page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
                 }
 
-                int workflowStateCount = page.getWorkflowStateCount(page.getRefinedWorkflowType(), page.param(String.class, Context.WORKFLOW_STATE_PARAMETER));
+                Map<String, Integer> messageMap = new LinkedHashMap<>();
+
+                int successCount = 0;
 
                 for (Object item : page.itemsQuery().selectAll()) {
 
+                    State itemState = State.getInstance(item);
+
+                    // Skip selected items or query results that aren't in the specified workflow state.
+                    if (!ObjectUtils.equals(page.param(String.class, Context.WORKFLOW_STATE_PARAMETER), itemState.as(Workflow.Data.class).getCurrentState())) {
+                        continue;
+                    }
+
                     page.tryWorkflowOnly(item);
 
-                    for (Throwable throwable : page.getErrors()) {
+                    // Build user notification String from errors' localized messages.
+                    // Stack repeat errors and track the counts of each type.
+                    if (page.getErrors().size() > 0) {
+                        Set<String> itemMessages = new LinkedHashSet<>();
 
-                        page.writeObject(throwable);
-                        LOGGER.warn("Bulk Workflow Error: ", throwable);
+                        for (Throwable throwable : page.getErrors()) {
+
+                            itemMessages.add(throwable.getLocalizedMessage() != null ? throwable.getLocalizedMessage() : DEFAULT_ERROR_MESSAGE);
+                            LOGGER.warn("Bulk Workflow Error: ", throwable);
+                        }
+
+                        for (String itemMessage : itemMessages) {
+
+                            int messageCount = ObjectUtils.to(int.class, messageMap.get(itemMessage));
+
+                            messageMap.put(itemMessage, messageCount + 1);
+                        }
+                    } else {
+                        successCount ++;
                     }
                 }
 
-                page.writeStart("div", "class", "message message-success");
-                page.writeHtml("Successfully transitioned ");
-                page.writeHtml(workflowStateCount);
-                page.writeHtml(" items. ");
+                List<String> errorMessages = new ArrayList<>();
 
-                String returnUrl = page.param(String.class, "returnUrl");
+                // Display error notifications.
+                if (messageMap.size() > 0) {
+                    for (Map.Entry<String, Integer> entry : messageMap.entrySet()) {
+                        errorMessages.add(entry.getKey() + (entry.getValue() > 1 ? " (" + entry.getValue() + ")" : ""));
+                    }
 
-                if (!ObjectUtils.isBlank(returnUrl)) {
-                    page.writeStart("a",
-                            "href", returnUrl);
-                    page.writeHtml("Return to search.");
-                    page.writeEnd();
+                    page.writeStart("div", "class", "message message-error");
+                    page.writeHtml(StringUtils.join(errorMessages, "<br>"));
+                    page.writeEnd(); // end .message-error
+
                 }
-                page.writeEnd();
 
+                // Display success notification.
+                if (successCount > 0) {
+
+                    page.writeStart("div", "class", "message message-success");
+                    page.writeHtml("Successfully transitioned ");
+                    page.writeHtml(successCount);
+                    page.writeHtml(" items. ");
+
+                    String returnUrl = page.param(String.class, "returnUrl");
+
+                    if (!ObjectUtils.isBlank(returnUrl)) {
+                        page.writeStart("a",
+                                "href", returnUrl);
+                        page.writeHtml("Return to search.");
+                        page.writeEnd();
+                    }
+                    page.writeEnd(); // end .message-success
+                }
+
+                // Trigger the Context to rebuild its internal data structure by re-setting the SearchResultSelection or Search.
                 if (page.getSelection() != null) {
                     page.setSelection(page.getSelection());
                 } else {
                     Search originalSearch = page.getSearch();
+                    // Reset the original visibilities that were set on the Search object.
                     if (originalSearch != null) {
                         originalSearch.setVisibilities(originalVisibilities);
                     }
@@ -182,7 +230,14 @@ public class BulkWorkflow extends PageServlet {
         DEFAULT
     }
 
-    public void writeDetailStateHtml(Context page) throws IOException, ServletException {
+    /**
+     * Writes the WidgetState.DETAIL view of the BulkWorkflow widget.  This view displays options for available workflow transitions
+     * based on the SearchResultSelection or Search and the user's bulk workflow and individual workflow transition permissions.
+     * @param page an instance of Context
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void writeDetailStateHtml(Context page) throws IOException, ServletException {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1", "class", "icon icon-object-workflow");
@@ -213,7 +268,7 @@ public class BulkWorkflow extends PageServlet {
                         page.writeStart("a",
                                 "class", "button",
                                 "target", TARGET,
-                                "href", getButtonActionUrl(page, workflow, workflowType, workflowState, WidgetState.CONFIRM, "action-workflow", transition.getName()));
+                                "href", getActionUrl(page, workflow, workflowType, workflowState, WidgetState.CONFIRM, "action-workflow", transition.getName()));
                         page.writeHtml(transition.getDisplayName());
                         page.writeEnd();
                     }
@@ -225,7 +280,14 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd(); // end .-widget
     }
 
-    public void writeConfirmStateHtml(Context page) throws IOException, ServletException {
+    /**
+     * Writes the WidgetState.CONFIRM view of the BulkWorkflow widget.  This view displays a summary of the requested workflow transition
+     * and prompts the user for confirmation to proceed.
+     * @param page an instance of Context
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void writeConfirmStateHtml(Context page) throws IOException, ServletException {
 
         page.writeStart("div", "class", "widget");
         page.writeStart("h1");
@@ -250,7 +312,7 @@ public class BulkWorkflow extends PageServlet {
 
         page.writeStart("form",
                 "method", "post",
-                "action", getButtonActionUrl(page, workflow, transitionSourceType, workflowState, WidgetState.DETAIL));
+                "action", getActionUrl(page, workflow, transitionSourceType, workflowState, WidgetState.DETAIL));
 
         page.writeStart("table", "class", "table-striped");
 
@@ -295,10 +357,20 @@ public class BulkWorkflow extends PageServlet {
         page.writeEnd();
     }
 
-    public String getButtonActionUrl(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState, Object... params) {
+    /**
+     * Helper method for generating a stateful BulkWorkflow servlet URL for forms and anchors.
+     * @param page an instance of Context
+     * @param workflow A Workflow for which to display or effect transitions.
+     * @param workflowType An ObjectType for which the workflow is specified.
+     * @param workflowState A WorkflowState of the specified workflow.
+     * @param widgetState A state of the BulkWorkflow servlet widget to render.
+     * @param params Additional query parameters to attach to the returned URL.
+     * @return the requested URL
+     */
+    private String getActionUrl(Context page, Workflow workflow, ObjectType workflowType, WorkflowState workflowState, WidgetState widgetState, Object... params) {
 
         UrlBuilder urlBuilder = new UrlBuilder(page.getRequest())
-                .absolutePath(page.toolUrl(CmsTool.class, PATH));
+                .absolutePath(page.cmsUrl(PATH));
 
         urlBuilder.parameter("action-workflow", null);
 
@@ -326,6 +398,9 @@ public class BulkWorkflow extends PageServlet {
         return urlBuilder.toString();
     }
 
+    /**
+     * A private extension of ToolPageContext for use only with the BulkWorkflow servlet widget.
+     */
     private static class Context extends ToolPageContext {
 
         public static final String WIDGET_STATE_PARAMETER = "bulkWorkflowState";
@@ -490,6 +565,10 @@ public class BulkWorkflow extends PageServlet {
             return ObjectUtils.to(int.class, countMap.get(workflowStateName));
         }
 
+        /**
+         * Produces a Search object from JSON and prevents errors when the same query parameter name is used for non-JSON Search representation.
+         * @return Search if a query parameter specifies valid Search JSON, null otherwise.
+         */
         public Search searchFromJson() {
 
             Search search = null;
@@ -519,18 +598,7 @@ public class BulkWorkflow extends PageServlet {
             return hasAnyTransitions;
         }
 
-        public ObjectType getRefinedWorkflowType() {
-
-            ObjectType refinedType = ObjectType.getInstance(param(UUID.class, TYPE_ID_PARAMETER));
-
-            if (refinedType == null && getSearch() != null) {
-
-                refinedType = getSearch().getSelectedType();
-            }
-
-            return refinedType;
-        }
-
+        // Produces a Query for objects to be bulk workflow transitioned.
         public Query itemsQuery() {
 
             if (getSearch() != null) {
@@ -543,6 +611,11 @@ public class BulkWorkflow extends PageServlet {
             throw new IllegalStateException("No Search or SearchResultsSelection populated.  Cannot create items Query.");
         }
 
+        /**
+         * Clears and sets the internal workflowStateCounts, availableTransitionsMap, and hasAnyTransitions state variables using the
+         * SearchResultSelection provided.
+         * @param selection a SearchResultSelection representing the objects to be analyzed for Workflow transition availability.
+         */
         private void buildTransitionMap(SearchResultSelection selection) {
 
             workflowStateCounts.clear();
@@ -618,6 +691,11 @@ public class BulkWorkflow extends PageServlet {
             }
         }
 
+        /**
+         * Clears and sets the internal workflowStateCounts, availableTransitionsMap, and hasAnyTransitions state variables using the
+         * Search provided.
+         * @param search a Search representing the objects to be analyzed for Workflow transition availability.
+         */
         private void buildTransitionMap(Search search) {
 
             workflowStateCounts.clear();
