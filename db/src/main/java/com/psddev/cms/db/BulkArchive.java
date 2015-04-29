@@ -77,7 +77,7 @@ public class BulkArchive extends PageServlet {
                 page.writeHtml("Click below to confirm bulk archive of " + availableDeleteCount + " items.");
                 page.writeEnd();
 
-                page.writeStart("button").writeHtml("Confirm Bulk Archive").writeEnd();
+                page.writeStart("button", "class", "link icon icon-action-trash").writeHtml("Confirm Bulk Archive").writeEnd();
                 page.writeEnd();
 
                 break;
@@ -161,7 +161,7 @@ public class BulkArchive extends PageServlet {
                 } else {
                     page.writeStart("div", "class", "searchResult-action-simple");
                     page.writeStart("a",
-                            "class", "button",
+                            "class", "button link icon icon-action-trash",
                             "target", TARGET,
                             "href", new UrlBuilder(page.getRequest())
                                     .absolutePath(page.cmsUrl(PATH))
