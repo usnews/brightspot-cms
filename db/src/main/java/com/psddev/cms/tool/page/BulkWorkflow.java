@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,7 +70,7 @@ public class BulkWorkflow extends PageServlet {
 
     private void doService(Context page) throws IOException, ServletException {
 
-        if (!page.hasAnyTransitions()) {
+        if (WidgetState.BUTTON.equals(page.getWidgetState()) && !page.hasAnyTransitions()) {
             return;
         }
 
@@ -146,27 +145,25 @@ public class BulkWorkflow extends PageServlet {
                     }
 
                     page.tryWorkflowOnly(item);
+                }
 
-                    // Build user notification String from errors' localized messages.
-                    // Stack repeat errors and track the counts of each type.
-                    if (page.getErrors().size() > 0) {
-                        Set<String> itemMessages = new LinkedHashSet<>();
+                // Build user notification String from errors' localized messages.
+                // Stack repeat errors and track the counts of each type.
+                if (page.getErrors().size() > 0) {
 
-                        for (Throwable throwable : page.getErrors()) {
+                    for (Throwable throwable : page.getErrors()) {
 
-                            itemMessages.add(throwable.getLocalizedMessage() != null ? throwable.getLocalizedMessage() : DEFAULT_ERROR_MESSAGE);
-                            LOGGER.warn("Bulk Workflow Error: ", throwable);
-                        }
+                        String message = throwable.getLocalizedMessage() != null ? throwable.getLocalizedMessage() : DEFAULT_ERROR_MESSAGE;
 
-                        for (String itemMessage : itemMessages) {
+                        int messageCount = ObjectUtils.to(int.class, messageMap.get(message));
 
-                            int messageCount = ObjectUtils.to(int.class, messageMap.get(itemMessage));
+                        messageMap.put(message, messageCount + 1);
 
-                            messageMap.put(itemMessage, messageCount + 1);
-                        }
-                    } else {
-                        successCount ++;
+                        LOGGER.warn("Bulk Workflow Error: ", throwable);
                     }
+
+                } else {
+                    successCount ++;
                 }
 
                 List<String> errorMessages = new ArrayList<>();
@@ -244,6 +241,12 @@ public class BulkWorkflow extends PageServlet {
         page.writeHtml("Workflow Options");
         page.writeEnd();
 
+        if (!page.hasAnyTransitions()) {
+            page.writeStart("p");
+            page.writeHtml("No workflow transitions are available for the specified " + (page.getSelection() != null ? "selection" : "search") + ".");
+            page.writeEnd();
+        }
+
         for (Workflow workflow : page.workflows()) {
 
             for (ObjectType workflowType : page.workflowTypes(workflow)) {
@@ -309,6 +312,10 @@ public class BulkWorkflow extends PageServlet {
         }
 
         WorkflowTransition workflowTransition = page.getWorkflowTransition(workflow, transitionSourceType, workflowState, page.param(String.class, "action-workflow"));
+
+        if (workflowTransition == null) {
+            return;
+        }
 
         page.writeStart("form",
                 "method", "post",
