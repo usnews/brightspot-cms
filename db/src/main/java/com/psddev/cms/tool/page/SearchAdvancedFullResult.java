@@ -277,7 +277,7 @@ public class SearchAdvancedFullResult extends PageServlet {
                         "multiple", "multiple",
                         "placeholder", "Fields");
 
-                    for (Display display: allDisplays) {
+                    for (Display display : allDisplays) {
                         if (display instanceof ObjectFieldDisplay &&
                                 ((ObjectFieldDisplay) display).getField().as(ToolUi.class).isHidden()) {
                             continue;

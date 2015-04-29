@@ -2,8 +2,10 @@ package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -111,13 +113,16 @@ public class SearchResultActions extends PageServlet {
             page.writeEnd();
         }
 
-        for (Class<? extends SearchResultAction> c : ClassFinder.Static.findClasses(SearchResultAction.class)) {
-            if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {
-                TypeDefinition.
-                        getInstance(c).
-                        newInstance().
-                        writeHtml(page, search, count > 0 ? selection : null);
-            }
+        // Sort SearchResultActions first by getClass().getSimpleName(), then by getClass().getName() for tie-breaking.
+        for (Class<? extends SearchResultAction> actionClass : ClassFinder.Static.findClasses(SearchResultAction.class).
+            stream().
+            filter(c -> !c.isInterface() && !Modifier.isAbstract(c.getModifiers())).
+            sorted(Comparator.
+                <Class<? extends SearchResultAction>, String>comparing(Class::getSimpleName).
+                thenComparing(Class::getName)).
+            collect(Collectors.toList())) {
+
+            TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? selection : null);
         }
     }
 }
