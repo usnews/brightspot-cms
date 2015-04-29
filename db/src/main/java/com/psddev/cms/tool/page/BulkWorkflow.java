@@ -829,7 +829,7 @@ public class BulkWorkflow extends PageServlet {
 
                     if (transition != null) {
 
-                        if (!hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
+                        if (!hasPermission("type/" + state.getTypeId() + "/bulkWorkflow") || !hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
                             throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
                         }
 
