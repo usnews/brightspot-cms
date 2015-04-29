@@ -98,6 +98,7 @@ public class BulkArchive extends PageServlet {
 
                             try {
                                 page.trash(queryIterator.next());
+                                successCount ++;
                             } catch (Exception e) {
                                 page.getErrors().add(e);
                             }
@@ -120,11 +121,9 @@ public class BulkArchive extends PageServlet {
 
                             messageMap.put(message, messageCount + 1);
 
-                            LOGGER.warn("Bulk Workflow Error: ", throwable);
+                            LOGGER.warn("BulkArchive Error: ", throwable);
                         }
 
-                    } else {
-                        successCount ++;
                     }
 
                     List<String> errorMessages = new ArrayList<>();
@@ -145,7 +144,7 @@ public class BulkArchive extends PageServlet {
                     if (successCount > 0) {
 
                         page.writeStart("div", "class", "message message-success");
-                        page.writeHtml("Successfully transitioned ");
+                        page.writeHtml("Successfully archived ");
                         page.writeHtml(successCount);
                         page.writeHtml(" items. ");
 
@@ -164,7 +163,11 @@ public class BulkArchive extends PageServlet {
                     page.writeStart("a",
                             "class", "button",
                             "target", TARGET,
-                            "href", new UrlBuilder(page.getRequest()).absolutePath(page.cmsUrl(PATH)).currentParameters().parameter("action-confirm", true));
+                            "href", new UrlBuilder(page.getRequest())
+                                    .absolutePath(page.cmsUrl(PATH))
+                                    .currentParameters()
+                                    .parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null)
+                                    .parameter("action-confirm", true));
                     page.writeHtml("Bulk Archive");
                     page.writeHtml(page.getSelection() != null ? " Selected" : " All");
                     page.writeEnd();
