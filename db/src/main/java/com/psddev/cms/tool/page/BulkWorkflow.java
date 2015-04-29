@@ -144,7 +144,9 @@ public class BulkWorkflow extends PageServlet {
                         continue;
                     }
 
-                    page.tryWorkflowOnly(item);
+                    if (page.tryWorkflowOnly(item)) {
+                        successCount ++;
+                    }
                 }
 
                 // Build user notification String from errors' localized messages.
@@ -162,8 +164,6 @@ public class BulkWorkflow extends PageServlet {
                         LOGGER.warn("Bulk Workflow Error: ", throwable);
                     }
 
-                } else {
-                    successCount ++;
                 }
 
                 List<String> errorMessages = new ArrayList<>();
@@ -813,7 +813,7 @@ public class BulkWorkflow extends PageServlet {
 
                     if (transition != null) {
 
-                        if (!hasPermission("type/" + state.getTypeId() + "/bulkWorkflow") || !hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
+                        if (!hasPermission("type/" + state.getTypeId() + "/" + transition.getName())) {
                             throw new IllegalAccessException("You do not have permission to " + transition.getDisplayName() + " " + state.getType().getDisplayName());
                         }
 
