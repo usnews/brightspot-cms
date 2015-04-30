@@ -1,11 +1,11 @@
 package com.psddev.cms.tool.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class VideoFileType implements FileContentType {
     }
 
     @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException {
+    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
 
     }
 }

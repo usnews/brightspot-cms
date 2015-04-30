@@ -1,10 +1,10 @@
 package com.psddev.cms.tool;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Part;
 
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
@@ -16,7 +16,7 @@ public interface FileContentType {
     public boolean isSupported(StorageItem storageItem);
     public boolean isPreferred(StorageItem storageItem);
     public void writePreview(ToolPageContext page) throws IOException, ServletException;
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException;
+    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException;
 
     public static class Static {
 

@@ -1,5 +1,7 @@
 package com.psddev.cms.tool.file;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class ImageFileType implements FileContentType {
     }
 
     @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part filePart) throws IOException, ServletException {
+    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
 
         if (fieldValue == null) {
             return;
@@ -100,12 +101,11 @@ public class ImageFileType implements FileContentType {
 
         //should only extract metadata on intitial save
         if (!"keep".equals(action)) {
-            setExtractedMetaData(filePart, fieldValue, action, fieldValueMetadata);
+            setExtractedMetaData(file, fieldValue, action, fieldValueMetadata);
         }
 
         setEdits(page, fieldValueMetadata);
         setCrops(page, fieldValueMetadata, state);
-
 
         // Transfers legacy metadata over to it's new location within the StorageItem object
         Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
@@ -121,11 +121,12 @@ public class ImageFileType implements FileContentType {
         fieldValue.setMetadata(fieldValueMetadata);
     }
 
-    private void setExtractedMetaData(Part filePart, StorageItem fieldValue, String action, Map<String, Object> fieldValueMetadata) throws IOException {
+    private void setExtractedMetaData(File file, StorageItem fieldValue, String action, Map<String, Object> fieldValueMetadata) throws IOException {
         // Automatic image metadata extraction.
+        LOGGER.info("GETTING METADATA");
         InputStream itemData = null;
-        if (filePart != null) {
-            itemData = filePart.getInputStream();
+        if (file != null) {
+            itemData = new FileInputStream(file);
         } else {
             itemData = fieldValue.getData();
         }

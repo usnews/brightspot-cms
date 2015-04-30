@@ -1,10 +1,10 @@
 package com.psddev.cms.tool.page;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.FileContentType;
@@ -77,7 +77,7 @@ public class FilePreview extends PageServlet {
         page.writeEnd();
     }
 
-    public static void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, Part fieldValueData) throws IOException, ServletException {
+    public static void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
 
         FileContentType fileContentType = FileContentType.Static.getFileFieldWriter(fieldValue);
 
@@ -85,7 +85,7 @@ public class FilePreview extends PageServlet {
             return;
         }
 
-        fileContentType.setMetadata(page, state, fieldValue, fieldValueData);
+        fileContentType.setMetadata(page, state, fieldValue, file);
     }
 
     @Override
