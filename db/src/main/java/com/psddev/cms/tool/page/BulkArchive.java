@@ -1,5 +1,6 @@
-package com.psddev.cms.db;
+package com.psddev.cms.tool.page;
 
+import com.psddev.cms.db.Content;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;

@@ -1,6 +1,6 @@
 package com.psddev.cms.tool.search;
 
-import com.psddev.cms.db.BulkArchive;
+import com.psddev.cms.tool.page.BulkArchive;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
