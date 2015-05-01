@@ -27,7 +27,6 @@ import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ColorDistribution;
 import com.psddev.dari.db.ObjectField;
-import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
@@ -60,8 +59,8 @@ public class ImageFileType implements FileContentType {
     }
 
     @Override
-    public void writePreview(ToolPageContext page) throws IOException, ServletException {
-        writeImageEditor(page);
+    public void writePreview(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
+        writeImageEditor(page, state, fieldValue);
     }
 
     /**
@@ -357,34 +356,7 @@ public class ImageFileType implements FileContentType {
      * @throws IOException
      * @throws ServletException
      */
-    public void writeImageEditor(ToolPageContext page) throws IOException, ServletException {
-
-        HttpServletRequest request = page.getRequest();
-        State state = State.getInstance(request.getAttribute("object"));
-
-        String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) request.getAttribute("inputName"));
-        String pathName = inputName + ".path";
-        String storageName = inputName + ".storage";
-        StorageItem fieldValue = null;
-
-        if (page.paramOrDefault(Boolean.class, "isNewUpload", false)) {
-
-            String storageItemPath = page.param(String.class, pathName);
-            if (!StringUtils.isBlank(storageItemPath)) {
-                StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
-                newItem.setPath(page.param(pathName));
-                //newItem.setContentType(page.param(contentTypeName));
-                fieldValue = newItem;
-            }
-            state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
-        }
-
-        UUID id = state.getId();
-        ObjectField field = (ObjectField) request.getAttribute("field");
-        String fieldName = field != null ? field.getInternalName() : page.paramOrDefault(String.class, "fieldName", "");
-        if (fieldValue == null) {
-            fieldValue = (StorageItem) state.getValue(fieldName);
-        }
+    public void writeImageEditor(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
 
         Class hotspotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
         boolean projectUsingBrightSpotImage = hotspotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(hotspotClass));
@@ -394,7 +366,7 @@ public class ImageFileType implements FileContentType {
         }
 
         page.writeStart("div", "class", "imageEditor");
-            writeImageEditorAside(page, fieldValue, state, id, inputName);
+            writeImageEditorAside(page, fieldValue, state);
             writeImageEditorImage(page, fieldValue);
         page.writeEnd();
 
@@ -405,17 +377,15 @@ public class ImageFileType implements FileContentType {
 
     /**
      * Wrapper for writing image editor tools via:
-     * {@link #writeImageEditorTools(ToolPageContext, StorageItem, State, UUID)}
+     * {@link #writeImageEditorTools(ToolPageContext, StorageItem, State)}
      * {@link #writeImageEditorEdit(ToolPageContext, Map)}
-     * {@link #writeImageEditorSizes(ToolPageContext, State, String, Map)}
+     * {@link #writeImageEditorSizes(ToolPageContext, State, Map)}
      * @param page
      * @param fieldValue
      * @param state
-     * @param id
-     * @param inputName
      * @throws IOException
      */
-    private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state, UUID id, String inputName) throws IOException {
+    private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state) throws IOException {
 
         Map<String, Object> fieldValueMetadata = null;
         if (fieldValue != null) {
@@ -427,9 +397,9 @@ public class ImageFileType implements FileContentType {
         }
 
         page.writeStart("div", "class", "imageEditor-aside");
-            writeImageEditorTools(page, fieldValue, state, id);
+            writeImageEditorTools(page, fieldValue, state);
             writeImageEditorEdit(page, fieldValueMetadata);
-            writeImageEditorSizes(page, state, inputName, fieldValueMetadata);
+            writeImageEditorSizes(page, state, fieldValueMetadata);
         page.writeEnd();
     }
 
@@ -439,10 +409,9 @@ public class ImageFileType implements FileContentType {
      * @param page
      * @param fieldValue
      * @param state
-     * @param id
      * @throws IOException
      */
-    private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state, UUID id) throws IOException {
+    private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state) throws IOException {
 
         page.writeStart("div", "class", "imageEditor-tools");
             page.writeStart("h2");
@@ -455,7 +424,7 @@ public class ImageFileType implements FileContentType {
                     page.writeStart("li");
                         page.writeStart("a",
                                 "class", "icon icon-tint",
-                                "href", page.h(page.cmsUrl("/contentColors", "id", id)),
+                                "href", page.h(page.cmsUrl("/contentColors", "id", state.getId())),
                                 "target", "contentColors");
                             page.write("Colors");
                         page.writeEnd();
@@ -588,12 +557,12 @@ public class ImageFileType implements FileContentType {
      * and edit their crops
      * @param page
      * @param state
-     * @param inputName
      * @param fieldValueMetadata
      * @throws IOException
      */
-    private void writeImageEditorSizes(ToolPageContext page, State state, String inputName, Map<String, Object> fieldValueMetadata) throws IOException {
+    private void writeImageEditorSizes(ToolPageContext page, State state, Map<String, Object> fieldValueMetadata) throws IOException {
 
+        String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"));
         String cropsFieldName = inputName + ".crops";
 
         Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() {

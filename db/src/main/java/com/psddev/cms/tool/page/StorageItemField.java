@@ -65,7 +65,7 @@ public class StorageItemField extends PageServlet {
             writeFileSelector(page);
 
             if (fieldValue != null) {
-                FilePreview.reallyDoService(page);
+                FilePreview.writePreview(page);
             }
 
         page.writeEnd();

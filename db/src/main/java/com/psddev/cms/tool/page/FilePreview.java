@@ -20,7 +20,7 @@ import com.psddev.dari.util.StringUtils;
 @RoutingFilter.Path(application = "cms", value = "filePreview")
 public class FilePreview extends PageServlet {
 
-    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
+    public static void writePreview(ToolPageContext page) throws IOException, ServletException {
 
         HttpServletRequest request = page.getRequest();
         State state = State.getInstance(request.getAttribute("object"));
@@ -36,8 +36,6 @@ public class FilePreview extends PageServlet {
         if (fieldValue == null) {
             return;
         }
-
-        String contentType = fieldValue.getContentType();
 
         page.writeStart("div",
                 "class", StorageItemField.FILE_SELECTOR_EXISTING_CLASS + " " + StorageItemField.FILE_SELECTOR_ITEM_CLASS + " filePreview");
@@ -62,17 +60,7 @@ public class FilePreview extends PageServlet {
                             StringUtils.ensureStart(processorPath, "/"));
                 }
             } else {
-
-                FileContentType fileContentType = FileContentType.Static.getFileFieldWriter(fieldValue);
-                if (fileContentType != null) {
-                    fileContentType.writePreview(page);
-                } else {
-                    page.writeStart("a",
-                            "href", page.h(fieldValue.getPublicUrl()),
-                            "target", "_blank");
-                        page.writeHtml(page.h(contentType) + ":" + page.h(fieldValue.getPath()));
-                    page.writeEnd();
-                }
+                FileContentType.Static.writePreview(page, fieldValue);
             }
         page.writeEnd();
     }
@@ -90,7 +78,7 @@ public class FilePreview extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-        reallyDoService(page);
+        writePreview(page);
     }
 
     @Override
