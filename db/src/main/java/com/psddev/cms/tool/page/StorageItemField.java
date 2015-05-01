@@ -132,7 +132,7 @@ public class StorageItemField extends PageServlet {
                     fileItem = mpRequest.getFileItem(fileName);
                     if (fileItem != null) {
                         fileItem.write(file);
-                        newItem = StorageItemField.createStorageItemFromFile(page, file, fileItem, field, state);
+                        newItem = StorageItemField.createStorageItemFromFile(page, field, file, fileItem);
                     }
                 }
 
@@ -257,7 +257,7 @@ public class StorageItemField extends PageServlet {
         page.writeEnd();
     }
 
-    public static StorageItem createStorageItemFromFile(ToolPageContext page, File file, FileItem fileItem, ObjectField field, State state)throws IOException {
+    public static StorageItem createStorageItemFromFile(ToolPageContext page, ObjectField field, File file, FileItem fileItem)throws IOException {
 
         String fileName = fileItem.getName();
 
