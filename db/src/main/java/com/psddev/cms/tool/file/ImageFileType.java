@@ -115,8 +115,11 @@ public class ImageFileType implements FileContentType {
             setExtractedMetaData(file, fieldValue, action, fieldValueMetadata);
         }
 
-        setEdits(page, fieldValueMetadata);
-        setCrops(page, fieldValueMetadata, state);
+        //only sets crops/edits if image has already been uploaded
+        if ("keep".equals(action)) {
+            setEdits(page, fieldValueMetadata);
+            setCrops(page, fieldValueMetadata, state);
+        }
 
         // Transfers legacy metadata over to it's new location within the StorageItem object
         Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
