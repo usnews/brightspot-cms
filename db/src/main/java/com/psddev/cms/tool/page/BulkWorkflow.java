@@ -51,24 +51,22 @@ public class BulkWorkflow extends PageServlet {
         return null;
     }
 
-    // default public constructor
-    public BulkWorkflow() { }
+    @Override
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
 
-    public void doService(ToolPageContext page) throws IOException, ServletException {
-
-        doService(new Context(page));
+        execute(new Context(page));
     }
 
-    public void doService(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
+    public void execute(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
 
         Context context = new Context(page, selection, search);
 
         context.setWidgetState(widgetState);
 
-        doService(context);
+        execute(context);
     }
 
-    private void doService(Context page) throws IOException, ServletException {
+    private void execute(Context page) throws IOException, ServletException {
 
         if (WidgetState.BUTTON.equals(page.getWidgetState()) && !page.hasAnyTransitions()) {
             return;
