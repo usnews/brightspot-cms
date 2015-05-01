@@ -106,7 +106,7 @@ public class StorageItemField extends PageServlet {
                 if (fieldValue != null) {
                     newItem = fieldValue;
                 } else {
-                    newItem = StorageItemField.createStorageItemFromPath(page.param(pathName), page.param(storageName));
+                    newItem = StorageItemField.createStorageItemFromPath(page, field, page.param(pathName), page.param(storageName));
                     newItem.setContentType(page.param(contentTypeName));
                 }
 
@@ -259,37 +259,39 @@ public class StorageItemField extends PageServlet {
 
     public static StorageItem createStorageItemFromFile(ToolPageContext page, File file, FileItem fileItem, ObjectField field, State state)throws IOException {
 
-        if (!StorageItemField.checkFileContent(fileItem, page, state, field)) {
+        String fileName = fileItem.getName();
+
+        return createStorageItem(page, field, file, fileName, fileItem.getContentType(), fileItem.getSize());
+    }
+
+    public static StorageItem createStorageItemFromPath(ToolPageContext page, ObjectField field, String path, String storageSetting) throws IOException {
+
+        StorageItem item = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
+        item.setPath(path);
+        item.setContentType(item.getContentType());
+
+        if (!StorageItemField.checkFileContent(page, field, item)) {
             return null;
         }
 
-        String fileName = fileItem.getName();
-
-        return createStorageItem(field, file, fileName, fileItem.getContentType(), fileItem.getSize());
-    }
-
-    public static StorageItem createStorageItemFromPath(String path, String storageSetting) {
-
-        StorageItem storageItem = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
-        storageItem.setPath(path);
-        storageItem.setContentType(storageItem.getContentType());
-
-        //TODO: validate file content here?
-
-        return storageItem;
+        return item;
     }
 
     public static StorageItem createStorageItemFromDropboxData(ToolPageContext page, ObjectField field, File file, Map<String, Object> fileData) throws IOException {
         String fileName = ObjectUtils.to(String.class, fileData.get("name"));
-        return createStorageItem(field, file, fileName, ObjectUtils.getContentType(fileName), ObjectUtils.to(long.class, fileData.get("bytes")));
+        return createStorageItem(page, field, file, fileName, ObjectUtils.getContentType(fileName), ObjectUtils.to(long.class, fileData.get("bytes")));
     }
 
-    private static StorageItem createStorageItem(ObjectField field, File file, String fileName, String contentType, long fileSize) throws IOException {
+    private static StorageItem createStorageItem(ToolPageContext page, ObjectField field, File file, String fileName, String contentType, long fileSize) throws IOException {
 
         StorageItem item = StorageItem.Static.createIn(getStorageSetting(field));
         item.setPath(createStorageItemPath(fileName, null));
         item.setContentType(contentType);
         item.setData(new FileInputStream(file));
+
+        if (!StorageItemField.checkFileContent(page, field, item)) {
+            return null;
+        }
 
         Map<String, List<String>> httpHeaders = new LinkedHashMap<>();
 
@@ -303,23 +305,23 @@ public class StorageItemField extends PageServlet {
         return item;
     }
 
-    public static boolean checkFileContent(FileItem fileItem, ToolPageContext page, State state, ObjectField field) throws IOException {
+    public static boolean checkFileContent(ToolPageContext page, ObjectField field, StorageItem storageItem) throws IOException {
 
         String errorMessage = null;
 
-        if (!isAcceptedContentType(fileItem)) {
+        if (!isAcceptedContentType(storageItem)) {
             errorMessage = String.format(
                     "Invalid content type [%s]. Must match the pattern [%s].",
-                    fileItem.getContentType(), getContentTypeGroups());
+                    storageItem.getContentType(), getContentTypeGroups());
 
-        } else if (isDisguisedHtml(fileItem)) {
+        } else if (isDisguisedHtml(storageItem)) {
             errorMessage = String.format(
                     "Can't upload [%s] file disguising as HTML!",
-                    fileItem.getContentType());
+                    storageItem.getContentType());
         }
 
-        if (state != null && field != null && !StringUtils.isBlank(errorMessage)) {
-            state.addError(field, errorMessage);
+        if (field != null && !StringUtils.isBlank(errorMessage)) {
+            field.getState().addError(field, errorMessage);
         } else {
             page.getErrors().add(new IllegalArgumentException(errorMessage));
         }
@@ -327,18 +329,17 @@ public class StorageItemField extends PageServlet {
         return StringUtils.isBlank(errorMessage);
     }
 
-    private static boolean isAcceptedContentType(FileItem fileItem) throws IOException {
-        String contentType = fileItem.getContentType();
-        return getContentTypeGroups().contains(contentType);
+    private static boolean isAcceptedContentType(StorageItem storageItem) throws IOException {
+        return getContentTypeGroups().contains(storageItem.getContentType());
     }
 
-    private static boolean isDisguisedHtml(FileItem fileItem) throws IOException {
+    private static boolean isDisguisedHtml(StorageItem storageItem) throws IOException {
         Set<String> contentTypeGroups = getContentTypeGroups();
 
         // Disallow HTML disguising as other content types per:
         // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
         if (!contentTypeGroups.contains("text/html")) {
-            InputStream input = fileItem.getInputStream();
+            InputStream input = storageItem.getData();
 
             try {
                 byte[] buffer = new byte[1024];
