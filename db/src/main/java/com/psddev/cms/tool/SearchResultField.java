@@ -21,7 +21,7 @@ public interface SearchResultField {
      * @param type Can't be {@code null}.
      * @return Never {@code null}.
      */
-    default public boolean isDefault(ObjectType type) {
+    public default boolean isDefault(ObjectType type) {
         return false;
     }
 
@@ -29,7 +29,7 @@ public interface SearchResultField {
      * @param page Can't be {@code null}.
      * @throws IOException if unable to write to the given {@code page}.
      */
-    default public void writeHeaderCellText(ToolPageContext page) throws IOException {
+    public default void writeHeaderCellText(ToolPageContext page) throws IOException {
         page.writeHtml(getDisplayName());
     }
 
@@ -37,7 +37,7 @@ public interface SearchResultField {
      * @param page Can't be {@code null}.
      * @throws IOException if unable to write to the given {@code page}.
      */
-    default public void writeTableHeaderCellHtml(ToolPageContext page) throws IOException {
+    public default void writeTableHeaderCellHtml(ToolPageContext page) throws IOException {
         page.writeStart("th");
         writeHeaderCellText(page);
         page.writeEnd();
@@ -55,7 +55,7 @@ public interface SearchResultField {
      * @param item Can't be {@code null}.
      * @throws IOException if unable to write to the given {@code page}.
      */
-    default public void writeTableDataCellHtml(ToolPageContext page, Object item) throws IOException {
+    public default void writeTableDataCellHtml(ToolPageContext page, Object item) throws IOException {
         page.writeStart("td");
         writeDataCellText(page, item);
         page.writeEnd();
