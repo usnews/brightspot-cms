@@ -200,19 +200,6 @@ public class ExportContent extends PageServlet {
             return search;
         }
 
-        // Produces a Query for objects to be bulk workflow transitioned.
-        public Query itemsQuery() {
-
-            if (getSearch() != null) {
-
-                return getSearch().toQuery(getSite());
-            } else if (getSelection() != null) {
-                return getSelection().createItemsQuery();
-            }
-
-            throw new IllegalStateException("No Search or SearchResultsSelection populated.  Cannot create items Query.");
-        }
-
         public void writeHeaderRow() throws IOException {
 
             if (getSearch() == null || getSearch().getSelectedType() == null || !hasPermission("type/" + search.getSelectedType().getId() + "/read")) {
