@@ -3046,7 +3046,7 @@ public class ToolPageContext extends WebPageContext {
      * user has asked for it in the current request.
      *
      * @param object Can't be {@code null}.
-     * @param {@code true} if the application of a workflow action is tried.
+     * @return {@code true} if the application of a workflow action is tried.
      */
     public boolean tryWorkflow(Object object) {
         if (!isFormPost()) {

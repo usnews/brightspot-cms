@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import com.psddev.cms.db.Draft;
 import com.psddev.cms.db.ToolUi;
@@ -43,24 +42,19 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                 where("selectionId = ?", selection.getId());
 
         if (!itemsQuery.hasMoreThan(100)) {
-            Set<UUID> itemIds = new HashSet<>();
-
-            for (SearchResultSelectionItem item : itemsQuery.selectAll()) {
-                itemIds.add(item.getItemId());
-            }
 
             Set<ObjectType> itemTypes = new HashSet<>();
 
-            for (Object item : Query.
-                    fromAll().
-                    where("_id = ?", itemIds).
-                    referenceOnly().
+            int count = 0;
+
+            for (Object item : selection.createItemsQuery().
                     selectAll()) {
 
                 itemTypes.add(State.getInstance(item).getType());
+                count += 1;
             }
 
-            boolean multiple = itemIds.size() != 1;
+            boolean multiple = count > 1;
             List<TypeAndField> creates = new ArrayList<>();
             List<TypeAndItemTypes> generates = new ArrayList<>();
 
