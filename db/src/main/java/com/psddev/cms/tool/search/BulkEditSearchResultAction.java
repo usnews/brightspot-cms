@@ -68,6 +68,14 @@ public class BulkEditSearchResultAction implements SearchResultAction {
             }
         }
 
+        String typePermissionId = "type/" + typeId;
+
+        // Do not allow editing of types for which the user does not have Bulk Edit permission
+        if (!page.hasPermission(typePermissionId + "/bulkEdit") ||
+                !page.hasPermission(typePermissionId + "/write")) {
+            return;
+        }
+
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
