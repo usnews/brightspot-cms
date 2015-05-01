@@ -64,6 +64,17 @@ public class ImageFileType implements FileContentType {
         writeImageEditor(page);
     }
 
+    /**
+     * Metadata for images includes:
+     * {@link ImageCrop}, {@link ImageAdjustment}, and
+     * automatically extracted Exif data via {@link #setExtractedMetaData(File, StorageItem, String, Map)}
+     * @param page
+     * @param state
+     * @param fieldValue
+     * @param file
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
 
@@ -121,9 +132,16 @@ public class ImageFileType implements FileContentType {
         fieldValue.setMetadata(fieldValueMetadata);
     }
 
+    /**
+     * Automatically extracts the metadata from the provided File or StorageItem.
+     * Only needs to be performed once.
+     * @param file
+     * @param fieldValue
+     * @param action
+     * @param fieldValueMetadata
+     * @throws IOException
+     */
     private void setExtractedMetaData(File file, StorageItem fieldValue, String action, Map<String, Object> fieldValueMetadata) throws IOException {
-        // Automatic image metadata extraction.
-        LOGGER.info("GETTING METADATA");
         InputStream itemData = null;
         if (file != null) {
             itemData = new FileInputStream(file);
@@ -142,13 +160,21 @@ public class ImageFileType implements FileContentType {
                 if (!errors.isEmpty()) {
                     LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
                 }
-
+            } catch (Exception e) {
+                LOGGER.error("Can't read image metadata!", e);
             } finally {
                 IoUtils.closeQuietly(itemData);
             }
         }
     }
 
+    /**
+     * Sets the image edits from Image editor form POST.
+     * Edits include: brightness, contrast, flip,
+     * rotation, grayscale, invert, sepia, sharpen, and blurs
+     * @param page
+     * @param fieldValueMetadata
+     */
     private void setEdits(ToolPageContext page, Map<String, Object> fieldValueMetadata) {
 
         Map<String, Object> edits = new HashMap<>();
@@ -228,6 +254,12 @@ public class ImageFileType implements FileContentType {
         fieldValueMetadata.put("cms.edits", edits);
     }
 
+    /**
+     * Sets the crops from the Image Editor form POST
+     * @param page
+     * @param fieldValueMetadata
+     * @param state
+     */
     private void setCrops(ToolPageContext page, Map<String, Object> fieldValueMetadata, State state) {
         ObjectField field = (ObjectField) page.getRequest().getAttribute("field");
         String fieldName = field.getInternalName();
@@ -317,6 +349,12 @@ public class ImageFileType implements FileContentType {
         }
     }
 
+    /**
+     * Writes the image editor for display in the CMS
+     * @param page
+     * @throws IOException
+     * @throws ServletException
+     */
     public void writeImageEditor(ToolPageContext page) throws IOException, ServletException {
 
         HttpServletRequest request = page.getRequest();
@@ -363,6 +401,18 @@ public class ImageFileType implements FileContentType {
         }
     }
 
+    /**
+     * Wrapper for writing image editor tools via:
+     * {@link #writeImageEditorTools(ToolPageContext, StorageItem, State, UUID)}
+     * {@link #writeImageEditorEdit(ToolPageContext, Map)}
+     * {@link #writeImageEditorSizes(ToolPageContext, State, String, Map)}
+     * @param page
+     * @param fieldValue
+     * @param state
+     * @param id
+     * @param inputName
+     * @throws IOException
+     */
     private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state, UUID id, String inputName) throws IOException {
 
         Map<String, Object> fieldValueMetadata = null;
@@ -381,6 +431,15 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
+    /**
+     * Writes some tools for the Image Editor, including:
+     * View Original link, View Resized Link and (Optional) {@link com.psddev.dari.db.ColorDistribution.Data}
+     * @param page
+     * @param fieldValue
+     * @param state
+     * @param id
+     * @throws IOException
+     */
     private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state, UUID id) throws IOException {
 
         page.writeStart("div", "class", "imageEditor-tools");
@@ -424,6 +483,13 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
+    /**
+     * Writes the inputs for image editing:
+     * blurs and all {@link com.psddev.cms.tool.file.ImageFileType.ImageAdjustment} types
+     * @param page
+     * @param fieldValueMetadata
+     * @throws IOException
+     */
     private void writeImageEditorEdit(ToolPageContext page, Map<String, Object> fieldValueMetadata) throws IOException {
         HttpServletRequest request = page.getRequest();
         String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"),  (String) request.getAttribute("inputName"));
@@ -515,6 +581,15 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
+    /**
+     * Writes the tools to allow editors to select from {@link StandardImageSize}s
+     * and edit their crops
+     * @param page
+     * @param state
+     * @param inputName
+     * @param fieldValueMetadata
+     * @throws IOException
+     */
     private void writeImageEditorSizes(ToolPageContext page, State state, String inputName, Map<String, Object> fieldValueMetadata) throws IOException {
 
         String cropsFieldName = inputName + ".crops";
@@ -637,6 +712,12 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
+    /**
+     * Writes the image preview
+     * @param page
+     * @param fieldValue
+     * @throws IOException
+     */
     private void writeImageEditorImage(ToolPageContext page, StorageItem fieldValue) throws IOException {
 
         String fieldValueUrl;
@@ -675,7 +756,7 @@ public class ImageFileType implements FileContentType {
         page.writeEnd();
     }
 
-    private static enum ImageAdjustment {
+    private enum ImageAdjustment {
 
         BRIGHTNESS("brightness", -1.0, 1.0, 0.01, double.class),
         CONTRAST("contrast", -1.0, 1.0, 0.01, double.class),
