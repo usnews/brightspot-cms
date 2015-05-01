@@ -22,7 +22,7 @@ public class ReferenceCountField implements SearchResultField {
     }
 
     @Override
-    public String getDataCellText(Object item) throws IOException {
+    public String createDataCellText(Object item) {
         return String.valueOf(getReferencesCount(item));
     }
 

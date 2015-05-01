@@ -25,10 +25,7 @@ public interface SearchResultField {
         return false;
     }
 
-    /**
-     * @throws IOException if unable to write to the given {@code page}.
-     */
-    public default String getHeaderCellText() throws IOException {
+    public default String createHeaderCellText() {
         return getDisplayName();
     }
 
@@ -38,15 +35,14 @@ public interface SearchResultField {
      */
     public default void writeTableHeaderCellHtml(ToolPageContext page) throws IOException {
         page.writeStart("th");
-        page.writeHtml(getHeaderCellText());
+        page.writeHtml(createHeaderCellText());
         page.writeEnd();
     }
 
     /**
      * @param item Can't be {@code null}.
-     * @throws IOException if unable to write to the given {@code page}.
      */
-    public String getDataCellText(Object item) throws IOException;
+    public String createDataCellText(Object item);
 
     /**
      * @param page Can't be {@code null}.
@@ -55,7 +51,7 @@ public interface SearchResultField {
      */
     public default void writeTableDataCellHtml(ToolPageContext page, Object item) throws IOException {
         page.writeStart("td");
-        page.writeHtml(getDataCellText(item));
+        page.writeHtml(createDataCellText(item));
         page.writeEnd();
     }
 }
