@@ -22,14 +22,14 @@ public class ReferenceCountField implements SearchResultField {
     }
 
     @Override
-    public String getDataCellText(Object item) throws IOException {
+    public String createDataCellText(Object item) {
         return String.valueOf(getReferencesCount(item));
     }
 
     @Override
     public void writeTableDataCellHtml(ToolPageContext page, Object item) throws IOException {
         page.writeStart("td");
-        page.writeHtml(String.format("%,d", getReferencesCount(State.getInstance(item))));
+        page.writeHtml(String.format("%,d", getReferencesCount(item)));
         page.writeEnd();
     }
 
