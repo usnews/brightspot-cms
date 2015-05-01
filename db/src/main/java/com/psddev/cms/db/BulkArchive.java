@@ -45,19 +45,19 @@ public class BulkArchive extends PageServlet {
     }
 
     @Override
-    public void doService(ToolPageContext page) throws IOException, ServletException {
+    protected void doService(ToolPageContext page) throws IOException, ServletException {
 
-        doService(new Context(page));
+        execute(new Context(page));
     }
 
-    public void doService(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
+    public void execute(ToolPageContext page, Search search, SearchResultSelection selection, WidgetState widgetState) throws IOException, ServletException {
 
         Context context = new Context(page, search, selection);
         context.setWidgetState(widgetState);
-        doService(context);
+        execute(context);
     }
 
-    public void doService(Context page) throws IOException, ServletException {
+    public void execute(Context page) throws IOException, ServletException {
 
         long availableDeleteCount = page.getAvailableDeleteCount();
 

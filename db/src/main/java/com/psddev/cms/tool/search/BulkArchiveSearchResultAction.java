@@ -15,7 +15,7 @@ public class BulkArchiveSearchResultAction implements SearchResultAction {
     public void writeHtml(ToolPageContext page, Search search, SearchResultSelection selection) throws IOException {
 
         try {
-            new BulkArchive().doService(page, search, selection, BulkArchive.WidgetState.BUTTON);
+            new BulkArchive().execute(page, search, selection, BulkArchive.WidgetState.BUTTON);
         } catch (ServletException e) {
             throw new IOException(e);
         }
