@@ -339,9 +339,8 @@ public class StorageItemField extends PageServlet {
         // Disallow HTML disguising as other content types per:
         // http://www.adambarth.com/papers/2009/barth-caballero-song.pdf
         if (!contentTypeGroups.contains("text/html")) {
-            InputStream input = storageItem.getData();
 
-            try {
+            try (InputStream input = storageItem.getData()) {
                 byte[] buffer = new byte[1024];
                 String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
                 String ptr = data.trim();
@@ -383,8 +382,6 @@ public class StorageItemField extends PageServlet {
                     return true;
                 }
 
-            } finally {
-                input.close();
             }
         }
         return false;
