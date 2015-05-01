@@ -3103,7 +3103,6 @@ public class ToolPageContext extends WebPageContext {
             }
 
             redirectOnSave("", "id", state.getId());
-
             return true;
 
         } catch (Exception error) {

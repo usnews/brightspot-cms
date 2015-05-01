@@ -15,7 +15,7 @@ public class BulkWorkflowSearchResultAction implements SearchResultAction {
     public void writeHtml(ToolPageContext page, Search search, SearchResultSelection selection) throws IOException {
 
         try {
-            new BulkWorkflow().doService(page, search, selection, BulkWorkflow.WidgetState.BUTTON);
+            new BulkWorkflow().execute(page, search, selection, BulkWorkflow.WidgetState.BUTTON);
         } catch (ServletException e) {
             throw new IOException(e);
         }
