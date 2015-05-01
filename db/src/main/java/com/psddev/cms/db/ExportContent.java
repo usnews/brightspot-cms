@@ -278,7 +278,7 @@ public class ExportContent extends PageServlet {
 
                         if (field.isDefault(selectedType)) {
                             writeRaw(CSV_DELIMITER).writeRaw(CSV_BOUNDARY);
-                            writeRaw(field.getHeaderCellText());
+                            writeRaw(field.createHeaderCellText());
                             writeRaw(CSV_BOUNDARY);
                         }
                     }
@@ -294,7 +294,7 @@ public class ExportContent extends PageServlet {
 
                         if (field.isSupported(selectedType)) {
                             writeRaw(CSV_DELIMITER).writeRaw(CSV_BOUNDARY);
-                            writeRaw(field.getHeaderCellText());
+                            writeRaw(field.createHeaderCellText());
                             writeRaw(CSV_BOUNDARY);
                         }
 
@@ -342,7 +342,7 @@ public class ExportContent extends PageServlet {
                         SearchResultField field = TypeDefinition.getInstance(c).newInstance();
 
                         if (field.isDefault(selectedType)) {
-                            writeRaw(field.getDataCellText(item));
+                            writeRaw(field.createDataCellText(item));
                         }
                     }
                 }
@@ -357,7 +357,7 @@ public class ExportContent extends PageServlet {
 
                         if (field.isSupported(selectedType)) {
                             writeRaw(CSV_DELIMITER).writeRaw(CSV_BOUNDARY);
-                            writeRaw(field.getDataCellText(item));
+                            writeRaw(field.createDataCellText(item));
                             writeRaw(CSV_BOUNDARY);
                         }
 
