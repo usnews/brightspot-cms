@@ -61,7 +61,7 @@ public class ExportContent extends PageServlet {
 
     private void execute(Context page) throws IOException, ServletException {
 
-        if (page.param(boolean.class, "action-download")) {
+        if (page.param(boolean.class, Context.ACTION_PARAMETER)) {
 
             HttpServletResponse response = page.getResponse();
 
@@ -70,31 +70,73 @@ public class ExportContent extends PageServlet {
 
             page.writeHeaderRow();
 
-            for (Object item : page.getSearch().toQuery(page.getSite()).iterable(0)) {
+            Query searchQuery = page.getSearch().toQuery(page.getSite());
+
+            if (page.getSelection() != null) {
+                searchQuery.where(page.getSelection().createItemsQuery().getPredicate());
+            }
+
+            for (Object item : searchQuery.iterable(0)) {
                 page.writeDataRow(item);
             }
 
         } else {
-            page.writeStart("div", "class", "searchResult-action-simple");
-            page.writeStart("a",
-                    "class", "button link icon icon-download-alt",
-                    "target", "_top",
-                    "href", new UrlBuilder(page.getRequest())
-                            .absolutePath(page.cmsUrl(PATH))
-                            .currentParameters()
-                            .parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null)
-                            .parameter("action-download", true));
-            page.writeHtml("Export");
-            page.writeHtml(page.getSelection() != null ? " Selected" : " All");
-            page.writeEnd();
-            page.writeEnd();
+
+            // Only display the button when a search has been refined to a single type
+            if (page.getSearch() != null && page.getSearch().getSelectedType() != null) {
+
+                page.writeStart("div", "class", "searchResult-action-simple");
+                page.writeStart("a",
+                        "class", "button link icon icon-download-alt",
+                        "target", "_top",
+                        "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
+                page.writeHtml("Export");
+                page.writeHtml(page.getSelection() != null ? " Selected" : " All");
+                page.writeEnd();
+                page.writeEnd();
+            }
         }
+    }
+
+    /**
+     * Helper method for generating a stateful ExportContent servlet URL for forms and anchors.
+     * @param page an instance of Context
+     * @param exportType An ObjectType for which the export is requested.
+     * @param params Additional query parameters to attach to the returned URL.
+     * @return the requested URL
+     */
+    private String getActionUrl(Context page, ObjectType exportType, Object... params) {
+
+        UrlBuilder urlBuilder = new UrlBuilder(page.getRequest())
+                .absolutePath(page.cmsUrl(PATH));
+
+        // reset action parameter
+        urlBuilder.parameter(Context.ACTION_PARAMETER, null);
+
+        if (page.getSearch() != null) {
+            // Search uses current page parameters
+            urlBuilder.currentParameters();
+        }
+
+        // SearchResultSelection uses an ID parameter
+        urlBuilder.parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null);
+
+        // SearchResultSelection export requires an ObjectType to be selected
+        urlBuilder.parameter(Context.TYPE_ID_PARAMETER, exportType != null ? exportType.getId() : null);
+
+        for (int i = 0; i < params.length / 2; i++) {
+
+            urlBuilder.parameter(params[i], params[i + 1]);
+        }
+
+        return urlBuilder.toString();
     }
 
     private static class Context extends ToolPageContext {
 
         public static final String SELECTION_ID_PARAMETER = "selectionId";
         public static final String SEARCH_PARAMETER = "search";
+        public static final String ACTION_PARAMETER = "action-download";
 
         private static final String CSV_LINE_TERMINATOR = "\r\n";
         private static final Character CSV_BOUNDARY = '\"';
@@ -139,7 +181,9 @@ public class ExportContent extends PageServlet {
                 }
 
                 setSelection(queriedSelection);
-            } else if (search != null) {
+            }
+
+            if (search != null) {
 
                 setSearch(search);
             } else {
@@ -364,6 +408,7 @@ public class ExportContent extends PageServlet {
                             writer.writeHtml(getObjectLabel(object))
             );
 
+            // Override Metric fields to output the total sum
             htmlWriter.putOverride(Metric.class, (HtmlWriter writer, Metric object) ->
                             writer.write(Double.toString(object.getSum()))
             );
