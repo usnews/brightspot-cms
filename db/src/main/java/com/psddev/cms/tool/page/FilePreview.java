@@ -60,14 +60,14 @@ public class FilePreview extends PageServlet {
                             StringUtils.ensureStart(processorPath, "/"));
                 }
             } else {
-                FileContentType.Static.writePreview(page, fieldValue);
+                FileContentType.writePreview(page, fieldValue);
             }
         page.writeEnd();
     }
 
     public static void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
 
-        FileContentType fileContentType = FileContentType.Static.getFileFieldWriter(fieldValue);
+        FileContentType fileContentType = FileContentType.getFileFieldWriter(fieldValue);
 
         if (fileContentType == null) {
             return;
