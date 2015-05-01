@@ -118,25 +118,14 @@ public class StorageItemField extends PageServlet {
                     Map<String, Object> fileData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, dropboxName));
 
                     if (fileData != null) {
-                        String name = ObjectUtils.to(String.class, fileData.get("name"));
-                        InputStream fileInput = new URL(ObjectUtils.to(String.class, fileData.get("link"))).openStream();
 
-                        try {
-                            FileOutputStream fileOutput = new FileOutputStream(file);
-
-                            try {
-                                IoUtils.copy(fileInput, fileOutput);
-
-                            } finally {
-                                fileOutput.close();
-                            }
-
-                        } finally {
-                            fileInput.close();
+                        //copy file to temp file on server
+                        try (InputStream fileInput = new URL(ObjectUtils.to(String.class, fileData.get("link"))).openStream();
+                             FileOutputStream fileOutput = new FileOutputStream(file)) {
+                            IoUtils.copy(fileInput, fileOutput);
                         }
 
-                        String storageSetting = field.as(ToolUi.class).getStorageSetting();
-                        newItem = createStorageItemFromPath(createStorageItemPath(name, state.getLabel()), storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
+                        newItem = StorageItemField.createStorageItemFromDropboxData(page, field, file, fileData);
                     }
 
                 } else if ((mpRequest = MultipartRequestFilter.Static.getInstance(request)) != null) {
@@ -268,30 +257,15 @@ public class StorageItemField extends PageServlet {
         page.writeEnd();
     }
 
-    public static StorageItem createStorageItemFromFile(ToolPageContext page, File file, FileItem fileItem, ObjectField field, State state)throws ServletException, IOException {
+    public static StorageItem createStorageItemFromFile(ToolPageContext page, File file, FileItem fileItem, ObjectField field, State state)throws IOException {
+
         if (!StorageItemField.checkFileContent(fileItem, page, state, field)) {
             return null;
         }
 
-        String fileName = file.getName();
+        String fileName = fileItem.getName();
 
-        String contentType = fileItem.getContentType();
-
-        Map<String, List<String>> httpHeaders = new LinkedHashMap<>();
-
-        httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
-        httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(fileItem.getSize())));
-        httpHeaders.put("Content-Type", Collections.singletonList(contentType));
-
-        StorageItem item = StorageItem.Static.createIn(getStorageSetting(field));
-        item.setPath(createStorageItemPath(fileName, null));
-        item.setContentType(contentType);
-        item.setData(new FileInputStream(file));
-
-        item.getMetadata().put("http.headers", httpHeaders);
-        item.getMetadata().put("originalFilename", fileName);
-
-        return item;
+        return createStorageItem(field, file, fileName, fileItem.getContentType(), fileItem.getSize());
     }
 
     public static StorageItem createStorageItemFromPath(String path, String storageSetting) {
@@ -303,6 +277,30 @@ public class StorageItemField extends PageServlet {
         //TODO: validate file content here?
 
         return storageItem;
+    }
+
+    public static StorageItem createStorageItemFromDropboxData(ToolPageContext page, ObjectField field, File file, Map<String, Object> fileData) throws IOException {
+        String fileName = ObjectUtils.to(String.class, fileData.get("name"));
+        return createStorageItem(field, file, fileName, ObjectUtils.getContentType(fileName), ObjectUtils.to(long.class, fileData.get("bytes")));
+    }
+
+    private static StorageItem createStorageItem(ObjectField field, File file, String fileName, String contentType, long fileSize) throws IOException {
+
+        StorageItem item = StorageItem.Static.createIn(getStorageSetting(field));
+        item.setPath(createStorageItemPath(fileName, null));
+        item.setContentType(contentType);
+        item.setData(new FileInputStream(file));
+
+        Map<String, List<String>> httpHeaders = new LinkedHashMap<>();
+
+        httpHeaders.put("Cache-Control", Collections.singletonList("public, max-age=31536000"));
+        httpHeaders.put("Content-Length", Collections.singletonList(String.valueOf(fileSize)));
+        httpHeaders.put("Content-Type", Collections.singletonList(contentType));
+
+        item.getMetadata().put("http.headers", httpHeaders);
+        item.getMetadata().put("originalFilename", fileName);
+
+        return item;
     }
 
     public static boolean checkFileContent(FileItem fileItem, ToolPageContext page, State state, ObjectField field) throws IOException {
