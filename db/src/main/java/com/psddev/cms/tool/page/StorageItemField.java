@@ -151,10 +151,7 @@ public class StorageItemField extends PageServlet {
                 newItem = StorageItem.Static.createUrl(page.param(String.class, urlName));
             }
 
-            if (file != null) {
-                FilePreview.setMetadata(page, state, newItem, file);
-            }
-
+            FilePreview.setMetadata(page, state, newItem, file);
             if (newItem != null &&
                     ("newUpload".equals(action) ||
                             "dropbox".equals(action))) {

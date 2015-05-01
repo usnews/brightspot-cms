@@ -77,7 +77,6 @@ public class ImageFileType implements FileContentType {
      */
     @Override
     public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
-
         if (fieldValue == null) {
             return;
         }
