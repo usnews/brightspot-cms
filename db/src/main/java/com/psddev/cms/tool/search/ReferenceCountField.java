@@ -22,8 +22,8 @@ public class ReferenceCountField implements SearchResultField {
     }
 
     @Override
-    public void writeDataCellText(ToolPageContext page, Object item) throws IOException {
-        page.write(String.valueOf(getReferencesCount(item)));
+    public String getDataCellText(Object item) throws IOException {
+        return String.valueOf(getReferencesCount(item));
     }
 
     @Override
