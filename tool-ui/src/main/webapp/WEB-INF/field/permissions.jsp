@@ -252,6 +252,10 @@ wp.writeStart("div", "class", "inputSmall permissions");
                                 writeChild(wp, permissions, "Bulk Workflow", typePermissionId + "/bulkWorkflow");
                             wp.writeEnd();
 
+                            wp.writeStart("li");
+                                writeChild(wp, permissions, "Bulk Archive", typePermissionId + "/bulkArchive");
+                            wp.writeEnd();
+
                             Workflow workflow = workflows.get(type);
 
                             if (workflow != null) {

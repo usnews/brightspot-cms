@@ -330,7 +330,9 @@ public class BulkArchive extends PageServlet {
                         State itemState = State.getInstance(item);
                         String typePermissionId = "type/" + itemState.getTypeId();
 
-                        if (!itemState.as(Content.ObjectModification.class).isTrash() && hasPermission(typePermissionId + "/write")) {
+                        if (!itemState.as(Content.ObjectModification.class).isTrash() &&
+                                hasPermission(typePermissionId + "/write") &&
+                                hasPermission(typePermissionId + "/bulkArchive")) {
 
                             count ++;
                         }
@@ -342,7 +344,14 @@ public class BulkArchive extends PageServlet {
 
                 ObjectType selectedType = getSearch().getSelectedType();
 
-                if (selectedType == null || !hasPermission("type/" + selectedType.getId() + "/write")) {
+                if (selectedType == null) {
+                    return 0;
+                }
+
+                String typePermissionId = "type/" + selectedType.getId();
+
+                if (!hasPermission(typePermissionId + "/write") ||
+                        !hasPermission(typePermissionId + "/bulkArchive")) {
                     return 0;
                 }
 
