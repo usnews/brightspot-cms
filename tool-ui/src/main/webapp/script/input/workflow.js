@@ -347,6 +347,10 @@ function($, bsp_utils) {
 
                 appendTransitionAdd($state);
                 $visual.css('height', 100 * $visual.find('.workflowState').length);
+                $arrows.attr({
+                    'width': $visual.width(),
+                    'height': $visual.height()
+                });
 
                 return $state;
             };
