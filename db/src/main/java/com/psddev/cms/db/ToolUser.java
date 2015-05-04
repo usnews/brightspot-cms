@@ -119,6 +119,10 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Search")
     private Map<String, String> savedSearches;
 
+    @ToolUi.FieldDisplayType("toolUserSavedSelections")
+    @ToolUi.Tab("Search")
+    private Map<String, String> savedSelectionIds;
+
     @ToolUi.Placeholder("All Contents")
     private InlineEditing inlineEditing;
 
@@ -621,6 +625,17 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setSavedSearches(Map<String, String> savedSearches) {
         this.savedSearches = savedSearches;
+    }
+
+    public Map<String, String> getSavedSelections() {
+        if (savedSelectionIds == null) {
+            savedSelectionIds = new CompactMap<>();
+        }
+        return savedSelectionIds;
+    }
+
+    public void setSavedSelections(Map<String, String> savedSelectionIds) {
+        this.savedSelectionIds = savedSelectionIds;
     }
 
     public InlineEditing getInlineEditing() {

@@ -2,12 +2,15 @@
 
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
+com.psddev.cms.tool.SearchResultSelection,
+com.psddev.cms.tool.Search,
 
 java.util.ArrayList,
 java.util.Collections,
 java.util.List,
-java.util.Map
-" %><%
+java.util.Map,
+
+com.psddev.dari.db.Query" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -46,6 +49,45 @@ wp.writeStart("div", "class", "toolSearchSaved");
             }
         wp.writeEnd();
     }
+
+    Map<String, String> savedSelectionIds = user.getSavedSelections();
+    wp.writeStart("h2");
+    wp.writeHtml("Saved Selections");
+    wp.writeEnd();
+
+    if (savedSelectionIds.isEmpty()) {
+        wp.writeStart("div", "class", "message");
+        wp.writeHtml("No saved selections yet.");
+        wp.writeEnd();
+
+    } else {
+        List<String> savedSelectionNames = new ArrayList<String>(savedSelectionIds.keySet());
+
+        Collections.sort(savedSelectionNames, String.CASE_INSENSITIVE_ORDER);
+
+        wp.writeStart("ul", "class", "links");
+        for (String savedSelectionName : savedSelectionNames) {
+            String savedSelectionId = savedSelectionIds.get(savedSelectionName);
+
+            SearchResultSelection selection = Query.from(SearchResultSelection.class).where("_id = ?", savedSelectionId).first();
+
+            if (selection == null) {
+                continue;
+            }
+
+            Search search = new Search();
+            search.setAdditionalPredicate(selection.createItemsQuery().getPredicate().toString());
+
+            wp.writeStart("li");
+            wp.writeStart("a",
+                    "href", wp.url(null) + "?" + search);
+            wp.writeHtml(savedSelectionName);
+            wp.writeEnd();
+            wp.writeEnd();
+        }
+        wp.writeEnd();
+    }
+
 wp.writeEnd();
 
 wp.include(
