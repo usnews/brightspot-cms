@@ -48,6 +48,10 @@ function($, bsp_utils) {
                 var sourcePosition = $source.position(),
                         sourceX = sourcePosition.left,
                         sourceY,
+                        sourceControlY,
+                        sourceControlX,
+                        targetControlY,
+                        targetControlX,
                         $target,
                         targetPosition,
                         sourceDirection,
@@ -124,7 +128,11 @@ function($, bsp_utils) {
             $arrows.bind('redraw', function(event, $source, targetX, targetY) {
                 var context = this.getContext('2d'),
                         width = $arrows.outerWidth(),
-                        height = $arrows.outerHeight();
+                        height = $arrows.outerHeight(),
+                        rightBoundary,
+                        bottomBoundary,
+                        sourceLeftOffset,
+                        sourceTopOffset;
 
                 definition = { 'states': [ ], 'transitions': [ ] };
                 context.clearRect(0, 0, $visual.width(), $visual.height());
@@ -137,13 +145,28 @@ function($, bsp_utils) {
 
                     if (!(sourceId === 'initial' ||
                             sourceId === 'final')) {
+
+                        sourceLeftOffset = parseFloat(sourcePosition.left / width);
+                        rightBoundary = parseFloat((width - $source.outerWidth()) / width);
+                        sourceTopOffset = parseFloat(sourcePosition.top / height);
+                        bottomBoundary = parseFloat((height - $source.outerHeight()) / height);
+
                         definition.states.push({
                             'id': sourceId,
                             'displayName': $source.find(':input[type="text"]').val(),
                             'name': $source.find(':input[type="hidden"]').val() || $source.find(':input[type="text"]').val(),
-                            'left': sourcePosition.left / width,
-                            'top': sourcePosition.top / height
+                            'left': sourceLeftOffset,
+                            'top': sourceTopOffset
                         });
+
+
+                        if (sourceLeftOffset > rightBoundary) {
+                            $source.css('left', rightBoundary * 100 + '%');
+                        }
+
+                        if (sourceTopOffset > bottomBoundary) {
+                            $source.css('top', bottomBoundary * 100 + '%');
+                        }
                     }
 
                     if (targets) {
@@ -300,8 +323,8 @@ function($, bsp_utils) {
                     'class': 'workflowState',
                     'data-id': stateData.id,
                     'css': {
-                        'left': (stateData.left * 100) + '%',
-                        'top': (stateData.top * 100) + '%'
+                        'left': Math.min((stateData.left * 100), 99.9) + '%',
+                        'top': Math.min((stateData.top * 100), 99.9) + '%'
                     },
                     'mousedown': function(event) {
                         $.drag(this, event, function(event, data) {
@@ -347,6 +370,10 @@ function($, bsp_utils) {
 
                 appendTransitionAdd($state);
                 $visual.css('height', 100 * $visual.find('.workflowState').length);
+                $arrows.attr({
+                    'width': $visual.width(),
+                    'height': $visual.height()
+                });
 
                 return $state;
             };
