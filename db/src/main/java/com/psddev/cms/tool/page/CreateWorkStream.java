@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -87,12 +88,11 @@ public class CreateWorkStream extends PageServlet {
 
                 UUID selectionId = page.param(UUID.class, "selectionId");
 
-                // delete the temporary selection after using it to create a workstream
                 if (selectionId != null) {
-                    Query.
-                            from(SearchResultSelection.class).
-                            where("_id = ?", selectionId).
-                            deleteAll();
+
+                    ToolUser user = page.getUser();
+
+                    user.deactivateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
                 }
             }
 
