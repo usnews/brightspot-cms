@@ -1,16 +1,16 @@
 <%@ page session="false" import="
 
+com.psddev.dari.db.Query,
+com.psddev.dari.util.UrlBuilder,
+
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
 com.psddev.cms.tool.SearchResultSelection,
-com.psddev.cms.tool.Search,
 
 java.util.ArrayList,
 java.util.Collections,
 java.util.List,
-java.util.Map,
-
-com.psddev.dari.db.Query" %><%
+java.util.Map, com.psddev.dari.util.ObjectUtils, com.psddev.cms.tool.Search, java.util.UUID, java.util.Set" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -22,6 +22,9 @@ ToolUser user = wp.getUser();
 Map<String, String> savedSearches = user.getSavedSearches();
 
 wp.writeStart("div", "class", "toolSearchSaved");
+
+    // Saved searches
+
     wp.writeStart("h2");
         wp.writeHtml("Saved Searches");
     wp.writeEnd();
@@ -50,38 +53,44 @@ wp.writeStart("div", "class", "toolSearchSaved");
         wp.writeEnd();
     }
 
-    Map<String, String> savedSelectionIds = user.getSavedSelections();
+    // Saved selections
+
+    Map<String, String> savedSelections = user.getSavedSelections();
     wp.writeStart("h2");
     wp.writeHtml("Saved Selections");
     wp.writeEnd();
 
-    if (savedSelectionIds.isEmpty()) {
+    if (savedSelections.isEmpty()) {
         wp.writeStart("div", "class", "message");
         wp.writeHtml("No saved selections yet.");
         wp.writeEnd();
 
     } else {
-        List<String> savedSelectionNames = new ArrayList<String>(savedSelectionIds.keySet());
+        List<String> selectionNames = new ArrayList<String>(savedSelections.keySet());
 
-        Collections.sort(savedSelectionNames, String.CASE_INSENSITIVE_ORDER);
+        Collections.sort(selectionNames, String.CASE_INSENSITIVE_ORDER);
 
         wp.writeStart("ul", "class", "links");
-        for (String savedSelectionName : savedSelectionNames) {
-            String savedSelectionId = savedSelectionIds.get(savedSelectionName);
+        for (String selectionName : selectionNames) {
+            String selectionId = savedSelections.get(selectionName);
 
-            SearchResultSelection selection = Query.from(SearchResultSelection.class).where("_id = ?", savedSelectionId).first();
+            SearchResultSelection selection = Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first();
 
             if (selection == null) {
                 continue;
             }
 
-            Search search = new Search();
-            search.setAdditionalPredicate(selection.createItemsQuery().getPredicate().toString());
-
             wp.writeStart("li");
             wp.writeStart("a",
-                    "href", wp.url(null) + "?" + search);
-            wp.writeHtml(savedSelectionName);
+                    "target", "searchResultActions",
+                    "href", new UrlBuilder(request).
+                            currentScheme().
+                            currentHost().
+                            path(wp.cmsUrl("/searchResultActions")).
+                            parameter("search", ObjectUtils.toJson(new Search(wp, (Set<UUID>) null).getState().getSimpleValues())).
+                            parameter("action", "activate").
+                            parameter("selectionId", selectionId));
+            wp.writeHtml(selectionName);
             wp.writeEnd();
             wp.writeEnd();
         }
