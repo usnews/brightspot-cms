@@ -14,7 +14,6 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
-import com.psddev.cms.tool.SearchResultSelectionItem;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ClassFinder;
@@ -87,9 +86,9 @@ public class SearchResultActions extends PageServlet {
             }
         }
 
-        long count = user.getCurrentSearchResultSelection() == null
-                    ? 0
-                    : user.getCurrentSearchResultSelection().size();
+        long count = user.getCurrentSearchResultSelection() == null ?
+                    0 :
+                    user.getCurrentSearchResultSelection().size();
 
         if (count > 0) {
             page.writeStart("h2");

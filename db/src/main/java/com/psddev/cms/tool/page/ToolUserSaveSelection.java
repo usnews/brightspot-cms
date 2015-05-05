@@ -10,7 +10,6 @@ import com.psddev.dari.util.RoutingFilter;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.util.UUID;
 
 @RoutingFilter.Path(application = "cms", value = "toolUserSaveSelection")
 public class ToolUserSaveSelection extends PageServlet {
