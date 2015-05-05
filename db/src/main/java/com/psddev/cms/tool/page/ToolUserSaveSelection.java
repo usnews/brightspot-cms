@@ -45,7 +45,6 @@ public class ToolUserSaveSelection extends PageServlet {
             }
 
             user.getSavedSelections().put(name, selectionId);
-            user.setCurrentSearchResultSelection(null);
             user.save();
 
             page.writeStart("div", "id", page.createId());
