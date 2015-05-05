@@ -1,20 +1,5 @@
 package com.psddev.cms.tool.page;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -27,6 +12,22 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+
+import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 @RoutingFilter.Path(application = "cms", value = "contentEditBulk")
 public class ContentEditBulk extends PageServlet {
@@ -71,6 +72,7 @@ public class ContentEditBulk extends PageServlet {
                     Map<String, Object> adds = new CompactMap<String, Object>();
                     Map<String, Object> removes = new CompactMap<String, Object>();
                     Set<String> clears = new HashSet<String>();
+                    Map<UUID, Object> failures = new LinkedHashMap<UUID, Object>();
 
                     for (ObjectField field : type.getFields()) {
                         String name = field.getInternalName();
@@ -162,6 +164,7 @@ public class ContentEditBulk extends PageServlet {
                             itemState.save();
 
                         } catch (Exception error) {
+                            failures.put(itemState.getId(), itemState);
                             LOGGER.warn(String.format(
                                     "Can't save [%s] as part of a bulk edit!", itemState.getId()),
                                     error);
@@ -170,10 +173,27 @@ public class ContentEditBulk extends PageServlet {
 
                     state.clear();
 
-                    page.writeStart("div", "class", "message message-success");
+                    long successes = count - failures.size();
+                    String cssClass = failures.size() == 0 ? "message-success" : failures.size() == count ? "message-error" : "message-warning";
+
+                    page.writeStart("div", "class", "message " + cssClass);
                         page.writeHtml("Successfully saved ");
-                        page.writeHtml(count);
-                        page.writeHtml(" items. ");
+                        page.writeHtml(count - failures.size());
+                        page.writeHtml(" item" + (successes != 1 ? "s" : "") + ". ");
+
+                        if (failures.size() > 0) {
+                            page.writeStart("br").writeEnd();
+                            page.writeHtml("Item" + (failures.size() != 1 ? "s" : "") + " which failed to save:");
+                            page.writeStart("ul");
+                            for (Map.Entry<UUID, Object> entry : failures.entrySet()) {
+                                page.writeStart("ul");
+                                    page.writeStart("a", "href", page.objectUrl("/content/edit.jsp", entry.getValue()));
+                                        page.writeHtml(State.getInstance(entry.getValue()).getLabel());
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+                            page.writeEnd();
+                        }
 
                         String returnUrl = page.param(String.class, "returnUrl");
 
