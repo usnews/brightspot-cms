@@ -597,6 +597,12 @@ public class ToolUser extends Record implements ToolEntity {
         }
     }
 
+    /**
+     * Sets the specified {@link SearchResultSelection} as the {@link ToolUser}'s current selection.  The current selection
+     * is used to provide contextual {@link com.psddev.cms.tool.SearchResultAction}s.  If the ToolUser already has a current selection,
+     * the selection will replaced and if the user has not saved the existing selection, it will be cleared and deleted.
+     * @param selection the {@link SearchResultSelection} to set as current for this {@link ToolUser}
+     */
     public void activateSelection(SearchResultSelection selection) {
 
         SearchResultSelection currentSelection = getCurrentSearchResultSelection();
@@ -614,11 +620,24 @@ public class ToolUser extends Record implements ToolEntity {
         save();
     }
 
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * @param selection the SearchResultSelection to deactivate
+     */
     public void deactivateSelection(SearchResultSelection selection) {
 
         deactivateSelection(selection, false);
     }
 
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * If checked is true, the specified SearchResultSelection must be the same as the ToolUser's current selection, otherwise an
+     * {@link IllegalStateException} will be thrown.
+     * @param selection the SearchResultSelection to deactivate
+     * @param checked indicates whether to require that the specified {@link SearchResultSelection} is the same as the {@link ToolUser}'s current selection.  default: {@code false}
+     */
     public void deactivateSelection(SearchResultSelection selection, boolean checked) {
 
         // Throw an exception if this is a checked invocation.
