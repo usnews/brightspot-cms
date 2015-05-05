@@ -42,40 +42,34 @@ public class SearchResultActions extends PageServlet {
 
         String action = page.param(String.class, "action");
         ToolUser user = page.getUser();
-        SearchResultSelection selection = user.getCurrentSearchResultSelection();
-
-        if (selection == null) {
-            throw new IllegalStateException();
-        }
 
         if ("item-add".equals(action)) {
-            UUID itemId = page.param(UUID.class, "id");
 
-            if (!Query.
-                    from(SearchResultSelectionItem.class).
-                    where("selectionId = ?", selection.getId()).
-                    and("itemId = ?", itemId).
-                    hasMoreThan(0)) {
-
-                SearchResultSelectionItem item = new SearchResultSelectionItem();
-
-                item.setSelectionId(selection.getId());
-                item.setItemId(itemId);
-                item.save();
+            if (user.getCurrentSearchResultSelection() == null) {
+                throw new IllegalStateException();
             }
 
+            UUID itemId = page.param(UUID.class, "id");
+
+            user.getCurrentSearchResultSelection().addItem(itemId);
+
         } else if ("item-remove".equals(action)) {
-            Query.
-                    from(SearchResultSelectionItem.class).
-                    where("selectionId = ?", selection.getId()).
-                    and("itemId = ?", page.param(UUID.class, "id")).
-                    deleteAll();
+
+            if (user.getCurrentSearchResultSelection() == null) {
+                throw new IllegalStateException();
+            }
+
+            UUID itemId = page.param(UUID.class, "id");
+
+            user.getCurrentSearchResultSelection().removeItem(itemId);
 
         } else if ("clear".equals(action)) {
-            Query.
-                    from(SearchResultSelectionItem.class).
-                    where("selectionId = ?", selection.getId()).
-                    deleteAll();
+
+            if (user.getCurrentSearchResultSelection() == null) {
+                throw new IllegalStateException();
+            }
+
+            user.deactivateSelection(user.getCurrentSearchResultSelection());
 
             page.writeStart("div", "id", page.createId());
             page.writeEnd();
@@ -83,12 +77,19 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
             page.writeEnd();
+        } else if ("activate".equals(action)) {
+
+            UUID selectionId = page.param(UUID.class, "selectionId");
+
+            if (selectionId != null) {
+
+                user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
+            }
         }
 
-        long count = Query.
-                from(SearchResultSelectionItem.class).
-                where("selectionId = ?", selection.getId()).
-                count();
+        long count = user.getCurrentSearchResultSelection() == null
+                    ? 0
+                    : user.getCurrentSearchResultSelection().size();
 
         if (count > 0) {
             page.writeStart("h2");
@@ -97,7 +98,7 @@ public class SearchResultActions extends PageServlet {
 
             page.writeStart("a",
                     "class", "action action-cancel",
-                    "href", page.url("", "action", "clear"));
+                    "href", page.url("", "action", "clear", "selectionId", null));
 
                 page.writeHtml("Clear");
             page.writeEnd();
@@ -122,7 +123,7 @@ public class SearchResultActions extends PageServlet {
                 thenComparing(Class::getName)).
             collect(Collectors.toList())) {
 
-            TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? selection : null);
+            TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? user.getCurrentSearchResultSelection() : null);
         }
     }
 }
