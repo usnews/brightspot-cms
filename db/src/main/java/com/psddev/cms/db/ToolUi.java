@@ -721,7 +721,7 @@ public class ToolUi extends Modification<Object> {
     @Inherited
     @ObjectType.AnnotationProcessorClass(GlobalFilterProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @Target({ ElementType.TYPE })
     public @interface GlobalFilter {
         boolean value() default true;
     }
