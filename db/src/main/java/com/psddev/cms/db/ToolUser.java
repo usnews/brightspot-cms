@@ -597,6 +597,48 @@ public class ToolUser extends Record implements ToolEntity {
         }
     }
 
+    public void activateSelection(SearchResultSelection selection) {
+
+        SearchResultSelection currentSelection = getCurrentSearchResultSelection();
+
+        // If the current selection is not saved, clear it.
+        if (currentSelection != null && !getSavedSelections().values().contains(currentSelection.getId().toString())) {
+
+            currentSelection.clear();
+            currentSelection.delete();
+        }
+
+        // Set the current selection
+        setCurrentSearchResultSelection(selection);
+
+        save();
+    }
+
+    public void deactivateSelection(SearchResultSelection selection) {
+
+        deactivateSelection(selection, false);
+    }
+
+    public void deactivateSelection(SearchResultSelection selection, boolean checked) {
+
+        // Throw an exception if this is a checked invocation.
+        if (checked && selection != null && getCurrentSearchResultSelection() != null && !selection.equals(getCurrentSearchResultSelection())) {
+            throw new IllegalStateException("The specified selection is not active for this user!");
+        }
+
+        // If the current selection isn't saved, clear it.  Otherwise, unset it as the current selection.
+        if (!getSavedSelections().values().contains(getCurrentSearchResultSelection().getId().toString())) {
+            getCurrentSearchResultSelection().clear();
+        } else {
+
+            SearchResultSelection newSelection = new SearchResultSelection();
+            newSelection.save();
+            setCurrentSearchResultSelection(newSelection);
+
+            save();
+        }
+    }
+
     public Set<UUID> getAutomaticallySavedDraftIds() {
         if (automaticallySavedDraftIds == null) {
             automaticallySavedDraftIds = new LinkedHashSet<UUID>();
