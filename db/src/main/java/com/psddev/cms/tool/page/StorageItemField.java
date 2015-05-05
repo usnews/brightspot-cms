@@ -178,7 +178,6 @@ public class StorageItemField extends PageServlet {
         page.writeStart("div", "class", "fileSelector");
 
             page.writeStart("select",
-                    "id", page.getId(),
                     "class", "toggleable",
                     "data-root", ".inputSmall",
                     "name", actionName);
