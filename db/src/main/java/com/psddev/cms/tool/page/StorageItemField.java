@@ -47,12 +47,13 @@ public class StorageItemField extends PageServlet {
 
     public static void processField(ToolPageContext page) throws IOException, ServletException {
 
-        if (page.isFormPost()) {
+        HttpServletRequest request = page.getRequest();
+
+        if ((Boolean) request.getAttribute("isFormPost")) {
             doFormPost(page);
-            //return;
+            return;
         }
 
-        HttpServletRequest request = page.getRequest();
         Object object = request.getAttribute("object");
         State state = State.getInstance(object);
 
