@@ -746,7 +746,7 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <img alt="" data-scale="<%=resizeScale%>" src="<%= wp.url("/misc/proxy.jsp",
                                 "url", fieldValueUrl,
                                 "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))) %>">
-                        <input name="<%=wp.h(inputName + ".focusX")%>" type="hidden" value="<%=wp.h(focusPoint != null && focusPoint.containsKey("y") ? focusPoint.get("x") : "")%>"/>
+                        <input name="<%=wp.h(inputName + ".focusX")%>" type="hidden" value="<%=wp.h(focusPoint != null && focusPoint.containsKey("x") ? focusPoint.get("x") : "")%>"/>
                         <input name="<%=wp.h(inputName + ".focusY")%>" type="hidden" value="<%=wp.h(focusPoint != null && focusPoint.containsKey("y") ? focusPoint.get("y") : "")%>"/>
                     </div>
 
