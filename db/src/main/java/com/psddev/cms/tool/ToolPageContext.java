@@ -1885,6 +1885,16 @@ public class ToolPageContext extends WebPageContext {
         writeObjectSelect(field, value, param(UUID.class, OBJECT_ID_PARAMETER), param(UUID.class, TYPE_ID_PARAMETER), attributes);
     }
 
+    /**
+     * Writes a {@code <select>} or {@code <input>} tag that allows the user
+     * to pick a content.
+     * @param field Can't be {@code null}.
+     * @param value Initial value. May be {@code null}.
+     * @param parentId ID of parent object. Will be obtained from query parameter {@code OBJECT_ID_PARAMETER} if {@code null}.
+     * @param parentTypeId ObjectType ID of parent object. Will be obtained from query parameter {@code TYPE_ID_PARAMETER} if {@code null}.
+     * @param attributes Extra attributes for the HTML tag.
+     * @throws IOException
+     */
     public void writeObjectSelect(ObjectField field, Object value, UUID parentId, UUID parentTypeId, Object... attributes) throws IOException {
         ErrorUtils.errorIfNull(field, "field");
 
