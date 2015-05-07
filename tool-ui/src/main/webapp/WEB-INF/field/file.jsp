@@ -727,6 +727,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <img alt="" data-scale="<%=resizeScale%>" src="<%= wp.url("/misc/proxy.jsp",
                                 "url", fieldValueUrl,
                                 "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))) %>">
+                        <input name="<%=wp.h(inputName + ".focusX")%>" type="hidden" value=""/>
+                        <input name="<%=wp.h(inputName + ".focusY")%>" type="hidden" value=""/>
                     </div>
 
                 </div>
