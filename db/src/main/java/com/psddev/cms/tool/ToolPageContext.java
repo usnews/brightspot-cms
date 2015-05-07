@@ -1906,9 +1906,9 @@ public class ToolPageContext extends WebPageContext {
                     "data-searchable", "true",
                     "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     "data-dynamic-field-name", field.getInternalName(),
+                    "placeholder", placeholder,
                     attributes);
                 writeStart("option", "value", "");
-                    writeHtml(placeholder);
                 writeEnd();
 
                 for (Object item : items) {
