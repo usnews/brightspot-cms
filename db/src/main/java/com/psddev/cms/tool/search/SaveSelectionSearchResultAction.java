@@ -26,7 +26,11 @@ public class SaveSelectionSearchResultAction implements SearchResultAction {
                     "target", "toolUserSaveSearch",
                     "href", page.cmsUrl("/toolUserSaveSelection",
                             "selectionId", selection.getId().toString()));
-                page.writeHtml("Save Selection");
+                if (page.getUser().isSavedSearchResultSelection(page.getUser().getCurrentSearchResultSelection())) {
+                    page.writeHtml("Edit Selection");
+                } else {
+                    page.writeHtml("Save Selection");
+                }
             page.writeEnd();
         page.writeEnd();
     }
