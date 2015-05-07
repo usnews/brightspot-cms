@@ -1896,7 +1896,10 @@ public class ToolPageContext extends WebPageContext {
 
             List<?> items = findDropDownItems(field, dropDownSearch);
 
-            String sortField = !StringUtils.isBlank(field.as(ToolUi.class).getDropDownSortField()) ? field.as(ToolUi.class).getDropDownSortField() : "_label";
+            String sortField = field.as(ToolUi.class).getDropDownSortField();
+            if (StringUtils.isBlank(sortField)) {
+                sortField = "_label";
+            }
             Collections.sort(items, new ObjectFieldComparator(sortField, false));
             if (field.as(ToolUi.class).isDropDownSortDescending()) {
                 Collections.reverse(items);
