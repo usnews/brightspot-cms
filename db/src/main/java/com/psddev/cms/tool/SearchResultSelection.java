@@ -37,7 +37,6 @@ public class SearchResultSelection extends Record {
     }
 
     public void setEntities(Set<ToolEntity> entities) {
-
         this.entities = entities;
     }
 
