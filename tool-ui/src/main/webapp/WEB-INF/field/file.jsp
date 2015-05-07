@@ -94,6 +94,9 @@ String sepiaName = inputName + ".sepia";
 String sharpenName = inputName + ".sharpen";
 String blurName = inputName + ".blur";
 
+String focusXName = inputName + ".focusX";
+String focusYName = inputName + ".focusY";
+
 String metadataFieldName = fieldName + ".metadata";
 String widthFieldName = fieldName + ".width";
 String heightFieldName = fieldName + ".height";
@@ -162,6 +165,12 @@ for (StandardImageSize size : StandardImageSize.findAll()) {
     }
 }
 
+Map<String, Double> focusPoint = ObjectUtils.to(new TypeReference<Map<String, Double>>() { }, fieldValueMetadata.get("cms.focus"));
+
+if (focusPoint == null) {
+    focusPoint = new HashMap<String, Double>();
+}
+
 Class HotSpotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
 boolean projectUsingBrightSpotImage = HotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(HotSpotClass));
 
@@ -181,6 +190,9 @@ if ((Boolean) request.getAttribute("isFormPost")) {
         rotate = wp.param(int.class, rotateName);
         sepia = wp.param(boolean.class, sepiaName);
         sharpen = wp.param(int.class, sharpenName);
+
+        Double focusX = wp.paramOrDefault(Double.class, focusXName, null);
+        Double focusY = wp.paramOrDefault(Double.class, focusYName, null);
 
         edits = new HashMap<String, Object>();
 
@@ -495,6 +507,13 @@ if ((Boolean) request.getAttribute("isFormPost")) {
             state.remove(cropsFieldName);
         }
 
+        // Set focus point
+        if (focusX != null && focusY != null) {
+            focusPoint.put("x", focusX);
+            focusPoint.put("y", focusY);
+        }
+        fieldValueMetadata.put("cms.focus", focusPoint);
+
         // Transfers legacy metadata over to it's new location within the StorageItem object
         Map<String, Object> legacyMetadata = ObjectUtils.to(new TypeReference<Map<String, Object>>() { }, state.getValue(metadataFieldName));
         if (legacyMetadata != null && !legacyMetadata.isEmpty()) {
@@ -727,8 +746,8 @@ if ((Boolean) request.getAttribute("isFormPost")) {
                         <img alt="" data-scale="<%=resizeScale%>" src="<%= wp.url("/misc/proxy.jsp",
                                 "url", fieldValueUrl,
                                 "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))) %>">
-                        <input name="<%=wp.h(inputName + ".focusX")%>" type="hidden" value=""/>
-                        <input name="<%=wp.h(inputName + ".focusY")%>" type="hidden" value=""/>
+                        <input name="<%=wp.h(inputName + ".focusX")%>" type="hidden" value="<%=wp.h(focusPoint != null && focusPoint.containsKey("y") ? focusPoint.get("x") : "")%>"/>
+                        <input name="<%=wp.h(inputName + ".focusY")%>" type="hidden" value="<%=wp.h(focusPoint != null && focusPoint.containsKey("y") ? focusPoint.get("y") : "")%>"/>
                     </div>
 
                 </div>
