@@ -2269,6 +2269,11 @@ define([
                 'class': 'imageEditor-aside',
             }).appendTo(self.dom.tabs.image);
 
+
+            if (self.dom.$focusInputX.val() !== '' && self.dom.$focusInputY.val() !== '') {
+                self.insertFocusPoint(self.dom.$focusImage, self.dom.$focusInputX.val(), self.dom.$focusInputY.val());
+            }
+
             focusMessage = '<p>Click inside the image to set a focus point for all image sizes.</p>';
             self.dom.$focusMessage = $('<div/>', {
                 'class': 'imageEditor-focus-message',
@@ -2342,9 +2347,7 @@ define([
                 self.dom.$focusInputX.val(focus.xPercent * 100);
                 self.dom.$focusInputY.val(focus.yPercent * 100);
 
-                if (!self.dom.$focusPoint) {
-                    self.dom.$focusPoint = $('<div/>', {'class':'imageEditor-focus-point'}).appendTo(self.dom.$focusImage.parent());
-                }
+                self.insertFocusPoint(self.dom.$focusImage, focus.xPercent * 100, focus.yPercent * 100);
                 self.dom.$focusPoint.css({left:(focus.xPercent * 100) + '%', top:(focus.yPercent * 100) + '%'});
 
                 self.$element.trigger('change');
@@ -2367,6 +2370,20 @@ define([
                 self.dom.$focusTooltip.hide();
             });
 **/            
+        },
+
+        /**
+         * Inserts a focus point element at the specified coordinates
+         * @param $image
+         * @param x
+         * @param y
+         */
+        insertFocusPoint: function ($image, x, y) {
+            var self = this;
+            if (!self.dom.$focusPoint) {
+                self.dom.$focusPoint = $('<div/>', {'class': 'imageEditor-focus-point'}).appendTo(self.dom.$focusImage.parent());
+            }
+            self.dom.$focusPoint.css({left: (x) + '%', top: (y) + '%'})
         },
 
 
