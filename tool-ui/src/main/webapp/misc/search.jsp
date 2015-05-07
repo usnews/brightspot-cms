@@ -2,10 +2,12 @@
 
 com.psddev.cms.db.ToolUser,
 com.psddev.cms.tool.ToolPageContext,
+
 java.util.ArrayList,
 java.util.Collections,
 java.util.List,
-java.util.Map" %><%
+java.util.Map
+" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 
@@ -17,9 +19,6 @@ ToolUser user = wp.getUser();
 Map<String, String> savedSearches = user.getSavedSearches();
 
 wp.writeStart("div", "class", "toolSearchSaved");
-
-    // Saved searches
-
     wp.writeStart("h2");
         wp.writeHtml("Saved Searches");
     wp.writeEnd();
@@ -47,7 +46,6 @@ wp.writeStart("div", "class", "toolSearchSaved");
             }
         wp.writeEnd();
     }
-
 wp.writeEnd();
 
 wp.include(
