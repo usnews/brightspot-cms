@@ -23,28 +23,25 @@ public class ToolUserSaveSelection extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+
+        ToolUser user = page.getUser();
+
+        String selectionId = page.param(String.class, "selectionId");
+
+        if (selectionId == null) {
+            throw new IllegalArgumentException("[selectionId] is required!");
+        }
+
+        SearchResultSelection selection = (SearchResultSelection) Query.fromAll().where("_id = ?", selectionId).first();
+
+        if (selection == null) {
+            throw new IllegalArgumentException("Could not find a SearchResultSelection for selectionId " + selectionId);
+        }
+
         if (page.isFormPost()) {
-            ToolUser user = page.getUser();
-            String name = page.param(String.class, "name");
 
-            if (ObjectUtils.isBlank(name)) {
-                throw new IllegalArgumentException("[Name] is required!");
-            }
-
-            String selectionId = page.param(String.class, "selectionId");
-
-            if (selectionId == null) {
-                throw new IllegalArgumentException("[selectionId] is required!");
-            }
-
-            SearchResultSelection selection = ObjectUtils.to(SearchResultSelection.class, Query.fromAll().where("_id = ?", selectionId).first());
-
-            if (selection == null) {
-                throw new IllegalArgumentException("Could not find a SearchResultSelection for selectionId " + selectionId);
-            }
-
-            user.getSavedSelections().put(name, selectionId);
-            user.save();
+            page.updateUsingParameters(selection);
+            selection.save();
 
             page.writeStart("div", "id", page.createId());
             page.writeEnd();
@@ -63,26 +60,13 @@ public class ToolUserSaveSelection extends PageServlet {
             page.writeStart("form",
                 "method", "post",
                 "action", page.url(""));
-                page.writeStart("div", "class", "inputContainer");
-                    page.writeStart("div", "class", "inputLabel");
-                        page.writeStart("label");
-                            page.writeHtml("Name");
-                        page.writeEnd();
-                    page.writeEnd();
 
-                    page.writeStart("div", "class", "inputSmall");
-                        page.writeElement("input",
-                            "type", "text",
-                            "name", "name",
-                            "placeholder", "(Required)");
-                        page.writeEnd();
-                    page.writeEnd();
+                page.writeFormFields(selection);
 
-                    page.writeStart("div", "class", "actions");
-                        page.writeStart("button",
-                            "class", "action icon icon-action-save");
-                            page.writeHtml("Save");
-                        page.writeEnd();
+                page.writeStart("div", "class", "actions");
+                    page.writeStart("button",
+                        "class", "action icon icon-action-save");
+                        page.writeHtml("Save");
                     page.writeEnd();
                 page.writeEnd();
             page.writeEnd();
