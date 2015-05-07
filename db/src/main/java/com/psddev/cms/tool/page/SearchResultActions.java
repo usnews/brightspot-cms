@@ -100,7 +100,7 @@ public class SearchResultActions extends PageServlet {
 
         if (own != null && own.size() > 0) {
 
-            page.writeStart("form", "method", "get", "action",page.cmsUrl("/searchResultActions"));
+            page.writeStart("form", "method", "get", "action", page.cmsUrl("/searchResultActions"));
                 page.writeTag("input", "type", "hidden", "name", "action", "value", "activate");
                 page.writeTag("input", "type", "hidden", "name", "search", "value", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()));
                 page.writeObjectSelect(
