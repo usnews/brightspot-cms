@@ -16,8 +16,8 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.SearchResultSelectionItem;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ObjectUtils;
@@ -51,7 +51,13 @@ public class SearchResultActions extends PageServlet {
             user.resetCurrentSelection();
         }
 
+        boolean isSaved = user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection());
+
+        UUID selectionId = page.param(UUID.class, "selectionId");
+
         if ("item-add".equals(action)) {
+
+            // add an item to the current selection
 
             UUID itemId = page.param(UUID.class, "id");
 
@@ -59,11 +65,25 @@ public class SearchResultActions extends PageServlet {
 
         } else if ("item-remove".equals(action)) {
 
+            // remove an item from the current selection
+
             UUID itemId = page.param(UUID.class, "id");
 
             user.getCurrentSearchResultSelection().removeItem(itemId);
 
-        } else if ("clear".equals(action)) {
+        } else if ("clear".equals(action) && isSaved) {
+
+            // delete the saved selection
+            SearchResultSelection selectionToDelete = user.getCurrentSearchResultSelection();
+            user.resetCurrentSelection();
+
+            Query.from(SearchResultSelectionItem.class).where("selectionId = ?", selectionToDelete.getId()).deleteAll();
+            selectionToDelete.delete();
+
+        } else if ("clear".equals(action) ||
+                ("activate".equals(action) && selectionId == null)) {
+
+            // deactivate the current selection
 
             user.deactivateSelection(user.getCurrentSearchResultSelection());
 
@@ -73,23 +93,12 @@ public class SearchResultActions extends PageServlet {
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
             page.writeEnd();
+
         } else if ("activate".equals(action)) {
 
-            UUID selectionId = page.param(UUID.class, "selectionId");
+            // activate the specified selection
 
-            if (selectionId != null) {
-
-                user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
-            } else {
-                user.deactivateSelection(user.getCurrentSearchResultSelection());
-
-                page.writeStart("div", "id", page.createId());
-                page.writeEnd();
-
-                page.writeStart("script", "type", "text/javascript");
-                page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
-                page.writeEnd();
-            }
+            user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
         }
 
         long count = user.getCurrentSearchResultSelection() == null ?
@@ -98,18 +107,34 @@ public class SearchResultActions extends PageServlet {
 
         List<SearchResultSelection> own = SearchResultSelection.findOwnSelections(user);
 
+        if (own != null && own.contains(user.getCurrentSearchResultSelection()) && !user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection())) {
+            own.remove(user.getCurrentSearchResultSelection());
+        }
+
         if (own != null && own.size() > 0) {
 
             page.writeStart("form", "method", "get", "action", page.cmsUrl("/searchResultActions"));
                 page.writeTag("input", "type", "hidden", "name", "action", "value", "activate");
                 page.writeTag("input", "type", "hidden", "name", "search", "value", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()));
-                page.writeObjectSelect(
-                        ObjectType.getInstance(ToolUser.class).getField("currentSearchResultSelection"),
-                        user.getCurrentSearchResultSelection(),
-                        user.getId(),
-                        user.getState().getTypeId(),
+
+                page.writeStart("select",
+                        "data-searchable", "true",
                         "data-bsp-autosubmit", "",
                         "name", SELECTION_ID_PARAMETER);
+
+                page.writeStart("option", "value", "");
+                    page.writeHtml("New Selection");
+                page.writeEnd();
+
+                for (SearchResultSelection ownSelection : own) {
+                    page.writeStart("option",
+                            "selected", ownSelection.equals(user.getCurrentSearchResultSelection()) ? "selected" : null,
+                            "value", ownSelection.getId());
+                    page.writeObjectLabel(ownSelection);
+                    page.writeEnd();
+                }
+
+                page.writeEnd();
             page.writeEnd();
 
         } else if (count > 0) {
@@ -121,12 +146,20 @@ public class SearchResultActions extends PageServlet {
 
         if (count > 0) {
 
-            page.writeStart("a",
-                    "class", "action action-cancel",
-                    "href", page.url("", "action", "clear", "selectionId", null));
+            if (user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection())) {
+                page.writeStart("a",
+                        "class", "action action-delete",
+                        "href", page.url("", "action", "clear", "selectionId", null));
+                page.writeHtml("Delete");
+                page.writeEnd();
 
+            } else {
+                page.writeStart("a",
+                        "class", "action action-cancel",
+                        "href", page.url("", "action", "clear", "selectionId", null));
                 page.writeHtml("Clear");
-            page.writeEnd();
+                page.writeEnd();
+            }
 
             page.writeStart("p");
                 page.writeHtml(count);
