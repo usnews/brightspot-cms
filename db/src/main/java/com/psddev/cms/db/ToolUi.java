@@ -39,6 +39,8 @@ public class ToolUi extends Modification<Object> {
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
+    private boolean dropDownSortDescending;
+    private String dropDownSortField;
     private Boolean expanded;
     private Boolean filterable;
     private boolean globalFilter;
@@ -126,6 +128,22 @@ public class ToolUi extends Modification<Object> {
 
     public void setDropDown(boolean dropDown) {
         this.dropDown = dropDown;
+    }
+
+    public boolean isDropDownSortDescending() {
+        return dropDownSortDescending;
+    }
+
+    public void setDropDownSortDescending(boolean dropDownSortDescending) {
+        this.dropDownSortDescending = dropDownSortDescending;
+    }
+
+    public String getDropDownSortField() {
+        return dropDownSortField;
+    }
+
+    public void setDropDownSortField(String dropDownSortField) {
+        this.dropDownSortField = dropDownSortField;
     }
 
     public boolean isExpanded() {
@@ -662,6 +680,8 @@ public class ToolUi extends Modification<Object> {
     @Target(ElementType.FIELD)
     public @interface DropDown {
         boolean value() default true;
+        String sortField() default "";
+        boolean sortDescending() default false;
     }
 
     private static class DropDownProcessor implements ObjectField.AnnotationProcessor<DropDown> {
@@ -669,6 +689,8 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, DropDown annotation) {
             field.as(ToolUi.class).setDropDown(annotation.value());
+            field.as(ToolUi.class).setDropDownSortField(StringUtils.isBlank(annotation.sortField()) ? null : annotation.sortField());
+            field.as(ToolUi.class).setDropDownSortDescending(annotation.sortDescending());
         }
     }
 
