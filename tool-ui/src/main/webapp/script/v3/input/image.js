@@ -149,7 +149,8 @@ define([
 
             // Find the image. Note this will be removed from the DOM and
             // replaced by an adjusted image.
-            dom.$image = $el.find('.imageEditor-image img');
+            dom.$imageContainer = $el.find('.imageEditor-image');
+            dom.$image = dom.$imageContainer.find('img');
             dom.imageSrc = dom.$image.attr('src');
 
             // Create a clone of the image so we always have a copy of the original image.
@@ -172,6 +173,9 @@ define([
             
             // The data-name attribute is used to create new hidden inputs when needed
             self.dataName = $el.closest('.inputContainer').attr('data-name');
+
+            dom.$focusInputX = dom.$imageContainer.find('input[name$=".focusX"]');
+            dom.$focusInputY = dom.$imageContainer.find('input[name$=".focusY"]');
 
             // Return a promise that can be used to run more code after the image size is determined
             return self.getImageSize(dom.$image).done(function(width, height) {
@@ -2334,6 +2338,9 @@ define([
 
                 // When switching to sizes tab, update the thumbnails
                 self.sizesNeedsUpdate = true;
+
+                self.dom.$focusInputX.val(focus.xPercent * 100);
+                self.dom.$focusInputY.val(focus.yPercent * 100);
 
                 if (!self.dom.$focusPoint) {
                     self.dom.$focusPoint = $('<div/>', {'class':'imageEditor-focus-point'}).appendTo(self.dom.$focusImage.parent());
