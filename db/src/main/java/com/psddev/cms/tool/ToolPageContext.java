@@ -1896,15 +1896,22 @@ public class ToolPageContext extends WebPageContext {
 
             List<?> items = findDropDownItems(field, dropDownSearch);
 
-            Collections.sort(items, new ObjectFieldComparator("_label", false));
+            String sortField = field.as(ToolUi.class).getDropDownSortField();
+            if (StringUtils.isBlank(sortField)) {
+                sortField = "_label";
+            }
+            Collections.sort(items, new ObjectFieldComparator(sortField, false));
+            if (field.as(ToolUi.class).isDropDownSortDescending()) {
+                Collections.reverse(items);
+            }
 
             writeStart("select",
                     "data-searchable", "true",
                     "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     "data-dynamic-field-name", field.getInternalName(),
+                    "placeholder", placeholder,
                     attributes);
                 writeStart("option", "value", "");
-                    writeHtml(placeholder);
                 writeEnd();
 
                 for (Object item : items) {

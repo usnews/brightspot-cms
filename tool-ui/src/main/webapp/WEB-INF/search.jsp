@@ -426,8 +426,8 @@ writer.start("div", "class", "searchForm");
                                             "value", "t");
 
                                 } else {
-                                    writer.writeStart("select", "name", inputName);
-                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
+                                    writer.writeStart("select", "name", inputName, "data-searchable", "true", "placeholder", displayName);
+                                        writer.writeStart("option", "value", "").writeEnd();
 
                                         for (ObjectField.Value v : field.getValues()) {
                                             writer.writeStart("option",
@@ -446,21 +446,14 @@ writer.start("div", "class", "searchForm");
                                         "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
 
                             } else {
-                                State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
-                                writer.writeElement("input",
-                                        "type", "text",
-                                        "class", "objectId",
+                                wp.writeObjectSelect(field, fieldValue,
                                         "name", inputName,
                                         "placeholder", displayName,
-                                        "data-additional-query", field.getPredicate(),
+                                        "data-dynamic-placeholder", "",
                                         "data-editable", false,
-                                        "data-label", fieldState != null ? fieldState.getLabel() : null,
-                                        "data-pathed", ToolUi.isOnlyPathed(field),
-                                        "data-restorable", false,
-                                        "data-searcher-path", fieldUi.getInputSearcherPath(),
-                                        "data-typeIds", fieldTypeIds,
-                                        "value", fieldValue);
+                                        "data-restorable", false);
+
                                 writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
