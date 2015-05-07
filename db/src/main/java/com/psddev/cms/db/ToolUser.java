@@ -119,10 +119,6 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Tab("Search")
     private Map<String, String> savedSearches;
 
-    @ToolUi.FieldDisplayType("toolUserSavedSelections")
-    @ToolUi.Tab("Search")
-    private Map<String, String> savedSelections;
-
     @ToolUi.Placeholder("All Contents")
     private InlineEditing inlineEditing;
 
@@ -148,7 +144,10 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
 
+    @ToolUi.DropDown
+    @ToolUi.Placeholder("New Selection")
     @ToolUi.Hidden
+    @Where("entities = ?/_id")
     private SearchResultSelection currentSearchResultSelection;
 
     @ToolUi.Hidden
@@ -608,7 +607,7 @@ public class ToolUser extends Record implements ToolEntity {
         SearchResultSelection currentSelection = getCurrentSearchResultSelection();
 
         // If the current selection is not saved, clear it.
-        if (currentSelection != null && !getSavedSelections().values().contains(currentSelection.getId().toString())) {
+        if (currentSelection != null && !isSavedSearchResultSelection(currentSelection)) {
 
             currentSelection.clear();
             currentSelection.delete();
@@ -645,17 +644,40 @@ public class ToolUser extends Record implements ToolEntity {
             throw new IllegalStateException("The specified selection is not active for this user!");
         }
 
-        // If the current selection isn't saved, clear it.  Otherwise, unset it as the current selection.
-        if (!getSavedSelections().values().contains(getCurrentSearchResultSelection().getId().toString())) {
+        // Reset the current selection.
+        resetCurrentSelection();
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     * @param selection the {@link SearchResultSelection} to check
+     * @return {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     */
+    public boolean isSavedSearchResultSelection(SearchResultSelection selection) {
+
+        return selection != null && !ObjectUtils.isBlank(selection.getName()) &&
+                (selection.getEntities().contains(this) ||
+                    (getRole() != null && selection.getEntities().contains(getRole())));
+    }
+
+    /**
+     * Clears the {@link ToolUser}'s current {@link SearchResultSelection} if it is not saved, otherwise creates a new one with
+     * this {@link ToolUser} as the default accessible {@link ToolEntity}.
+     * @return the {@link ToolUser}'s current {@link SearchResultSelection} after the reset has been performed.
+     */
+    public SearchResultSelection resetCurrentSelection() {
+
+        if (getCurrentSearchResultSelection() != null && !isSavedSearchResultSelection(getCurrentSearchResultSelection())) {
             getCurrentSearchResultSelection().clear();
         } else {
-
-            SearchResultSelection newSelection = new SearchResultSelection();
-            newSelection.save();
-            setCurrentSearchResultSelection(newSelection);
-
+            SearchResultSelection selection = new SearchResultSelection();
+            selection.getEntities().add(this);
+            selection.save();
+            setCurrentSearchResultSelection(selection);
             save();
         }
+
+        return getCurrentSearchResultSelection();
     }
 
     public Set<UUID> getAutomaticallySavedDraftIds() {
@@ -686,17 +708,6 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setSavedSearches(Map<String, String> savedSearches) {
         this.savedSearches = savedSearches;
-    }
-
-    public Map<String, String> getSavedSelections() {
-        if (savedSelections == null) {
-            savedSelections = new CompactMap<>();
-        }
-        return savedSelections;
-    }
-
-    public void setSavedSelections(Map<String, String> savedSelectionIds) {
-        this.savedSelections = savedSelectionIds;
     }
 
     public InlineEditing getInlineEditing() {

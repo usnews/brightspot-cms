@@ -12,15 +12,8 @@ public class SearchResultItem {
     public void writeCheckboxHtml(ToolPageContext page, Search search, Object item) throws IOException {
         ToolUser user = page.getUser();
 
-        if (user != null) {
-            SearchResultSelection selection = user.getCurrentSearchResultSelection();
-
-            if (selection == null) {
-                selection = new SearchResultSelection();
-                selection.save();
-                user.setCurrentSearchResultSelection(selection);
-                user.save();
-            }
+        if (user != null && user.getCurrentSearchResultSelection() == null) {
+            user.resetCurrentSelection();
         }
 
         String url = page.toolUrl(CmsTool.class, "/searchResultActions",
