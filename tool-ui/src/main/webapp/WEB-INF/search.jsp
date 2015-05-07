@@ -426,8 +426,8 @@ writer.start("div", "class", "searchForm");
                                             "value", "t");
 
                                 } else {
-                                    writer.writeStart("select", "name", inputName);
-                                        writer.writeStart("option", "value", "").writeHtml(displayName).writeEnd();
+                                    writer.writeStart("select", "name", inputName, "data-searchable", "true", "placeholder", displayName);
+                                        writer.writeStart("option", "value", "").writeEnd();
 
                                         for (ObjectField.Value v : field.getValues()) {
                                             writer.writeStart("option",
