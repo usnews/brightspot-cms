@@ -446,21 +446,14 @@ writer.start("div", "class", "searchForm");
                                         "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
 
                             } else {
-                                State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
-                                writer.writeElement("input",
-                                        "type", "text",
-                                        "class", "objectId",
+                                wp.writeObjectSelect(field, fieldValue,
                                         "name", inputName,
                                         "placeholder", displayName,
-                                        "data-additional-query", field.getPredicate(),
+                                        "data-dynamic-placeholder", "",
                                         "data-editable", false,
-                                        "data-label", fieldState != null ? fieldState.getLabel() : null,
-                                        "data-pathed", ToolUi.isOnlyPathed(field),
-                                        "data-restorable", false,
-                                        "data-searcher-path", fieldUi.getInputSearcherPath(),
-                                        "data-typeIds", fieldTypeIds,
-                                        "value", fieldValue);
+                                        "data-restorable", false);
+
                                 writer.writeElement("input",
                                         "type", "checkbox",
                                         "name", inputName + ".m",
