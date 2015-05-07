@@ -3,7 +3,9 @@ package com.psddev.cms.tool.page;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,7 @@ import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ObjectUtils;
@@ -25,6 +28,8 @@ import com.psddev.dari.util.TypeDefinition;
 public class SearchResultActions extends PageServlet {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String SELECTION_ID_PARAMETER = "selectionId";
 
     @Override
     protected String getPermissionId() {
@@ -42,11 +47,11 @@ public class SearchResultActions extends PageServlet {
         String action = page.param(String.class, "action");
         ToolUser user = page.getUser();
 
-        if ("item-add".equals(action)) {
+        if (user.getCurrentSearchResultSelection() == null) {
+            user.resetCurrentSelection();
+        }
 
-            if (user.getCurrentSearchResultSelection() == null) {
-                throw new IllegalStateException();
-            }
+        if ("item-add".equals(action)) {
 
             UUID itemId = page.param(UUID.class, "id");
 
@@ -54,19 +59,11 @@ public class SearchResultActions extends PageServlet {
 
         } else if ("item-remove".equals(action)) {
 
-            if (user.getCurrentSearchResultSelection() == null) {
-                throw new IllegalStateException();
-            }
-
             UUID itemId = page.param(UUID.class, "id");
 
             user.getCurrentSearchResultSelection().removeItem(itemId);
 
         } else if ("clear".equals(action)) {
-
-            if (user.getCurrentSearchResultSelection() == null) {
-                throw new IllegalStateException();
-            }
 
             user.deactivateSelection(user.getCurrentSearchResultSelection());
 
@@ -83,6 +80,15 @@ public class SearchResultActions extends PageServlet {
             if (selectionId != null) {
 
                 user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
+            } else {
+                user.deactivateSelection(user.getCurrentSearchResultSelection());
+
+                page.writeStart("div", "id", page.createId());
+                page.writeEnd();
+
+                page.writeStart("script", "type", "text/javascript");
+                page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
+                page.writeEnd();
             }
         }
 
@@ -90,10 +96,30 @@ public class SearchResultActions extends PageServlet {
                     0 :
                     user.getCurrentSearchResultSelection().size();
 
-        if (count > 0) {
-            page.writeStart("h2");
-                page.writeHtml("Selection");
+        List<SearchResultSelection> own = SearchResultSelection.findOwnSelections(user);
+
+        if (own != null && own.size() > 0) {
+
+            page.writeStart("form", "method", "get", "action",page.cmsUrl("/searchResultActions"));
+                page.writeTag("input", "type", "hidden", "name", "action", "value", "activate");
+                page.writeTag("input", "type", "hidden", "name", "search", "value", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()));
+                page.writeObjectSelect(
+                        ObjectType.getInstance(ToolUser.class).getField("currentSearchResultSelection"),
+                        user.getCurrentSearchResultSelection(),
+                        user.getId(),
+                        user.getState().getTypeId(),
+                        "data-bsp-autosubmit", "",
+                        "name", SELECTION_ID_PARAMETER);
             page.writeEnd();
+
+        } else if (count > 0) {
+
+            page.writeStart("h2");
+            page.writeHtml("Selection");
+            page.writeEnd();
+        }
+
+        if (count > 0) {
 
             page.writeStart("a",
                     "class", "action action-cancel",
