@@ -10,11 +10,8 @@ import com.psddev.cms.db.ToolEntity;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
-import com.psddev.dari.util.ObjectUtils;
 
 public class SearchResultSelection extends Record {
-
-    private static final String DEFAULT_LABEL = "New Selection";
 
     private String name;
 
@@ -164,10 +161,5 @@ public class SearchResultSelection extends Record {
         }
 
         return query.selectAll();
-    }
-
-    @Override
-    public String getLabel() {
-        return ObjectUtils.firstNonBlank(getName(), DEFAULT_LABEL);
     }
 }
