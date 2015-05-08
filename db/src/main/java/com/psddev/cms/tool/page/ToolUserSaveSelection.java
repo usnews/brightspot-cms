@@ -1,6 +1,5 @@
 package com.psddev.cms.tool.page;
 
-import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
@@ -22,8 +21,6 @@ public class ToolUserSaveSelection extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
-
-        ToolUser user = page.getUser();
 
         String selectionId = page.param(String.class, "selectionId");
 
