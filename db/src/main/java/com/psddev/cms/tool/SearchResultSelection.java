@@ -69,9 +69,13 @@ public class SearchResultSelection extends Record {
 
     /**
      * Adds the Object with itemId to this SearchResultSelection.
-     * @param itemId the id of the Object to be added.
+     * @param itemId the id of the Object to be added.  Cannot be {@code null}.
      */
     public boolean addItem(UUID itemId) {
+
+        if (itemId == null) {
+            throw new IllegalArgumentException("itemId cannot be null!");
+        }
 
         SearchResultSelectionItem item = Query.
                 from(SearchResultSelectionItem.class).
@@ -94,9 +98,13 @@ public class SearchResultSelection extends Record {
 
     /**
      * Removes the Object with itemId from this SearchResultSelection.
-     * @param itemId the id of the Object to be removed.
+     * @param itemId the id of the Object to be removed.  Cannot be {@code null}.
      */
     public boolean removeItem(UUID itemId) {
+
+        if (itemId == null) {
+            throw new IllegalArgumentException("itemId cannot be null!");
+        }
 
         SearchResultSelectionItem item = Query.
             from(SearchResultSelectionItem.class).
