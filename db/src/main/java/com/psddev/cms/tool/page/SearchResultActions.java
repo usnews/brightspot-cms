@@ -16,7 +16,6 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
-import com.psddev.cms.tool.SearchResultSelectionItem;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ClassFinder;
@@ -47,6 +46,15 @@ public class SearchResultActions extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+
+        ToolUser user = page.getUser();
+
+        SearchResultSelection currentSelection = user.getCurrentSearchResultSelection();
+
+        if (currentSelection == null) {
+            throw new IllegalArgumentException();
+        }
+
         Search search = new Search();
         @SuppressWarnings("unchecked")
         Map<String, Object> searchValues = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "search"));
@@ -54,44 +62,32 @@ public class SearchResultActions extends PageServlet {
         search.getState().setValues(searchValues);
 
         String action = page.param(String.class, ACTION_PARAMETER);
-        ToolUser user = page.getUser();
-
-        if (user.getCurrentSearchResultSelection() == null) {
-            user.resetCurrentSelection();
-        }
-
-        SearchResultSelection selection = user.getCurrentSearchResultSelection();
-
-
-        boolean isSaved = user.isSavedSearchResultSelection(selection);
 
         UUID selectionId = page.param(UUID.class, SELECTION_ID_PARAMETER);
 
         if (ACTION_ADD.equals(action)) {
 
             // add an item to the current selection
-            selection.addItem(page.param(UUID.class, ITEM_ID_PARAMETER));
+            currentSelection.addItem(page.param(UUID.class, ITEM_ID_PARAMETER));
 
         } else if (ACTION_REMOVE.equals(action)) {
 
             // remove an item from the current selection
-            selection.removeItem(page.param(UUID.class, ITEM_ID_PARAMETER));
+            currentSelection.removeItem(page.param(UUID.class, ITEM_ID_PARAMETER));
 
-        } else if (ACTION_CLEAR.equals(action) && isSaved) {
+        } else if (ACTION_CLEAR.equals(action) && user.isSavedSearchResultSelection(currentSelection)) {
 
             // delete the saved selection
-            SearchResultSelection selectionToDelete = user.getCurrentSearchResultSelection();
-            user.resetCurrentSelection();
+            currentSelection.delete();
 
-            Query.from(SearchResultSelectionItem.class).where("selectionId = ?", selectionToDelete.getId()).deleteAll();
-            selectionToDelete.delete();
+            // reset the current selection
+            currentSelection = user.resetCurrentSelection();
 
         } else if (ACTION_CLEAR.equals(action) ||
                 (ACTION_ACTIVATE.equals(action) && selectionId == null)) {
 
             // deactivate the current selection
-
-            user.deactivateSelection(user.getCurrentSearchResultSelection());
+            currentSelection = user.deactivateSelection(currentSelection);
 
             page.writeStart("div", "id", page.createId());
             page.writeEnd();
@@ -103,18 +99,15 @@ public class SearchResultActions extends PageServlet {
         } else if (ACTION_ACTIVATE.equals(action)) {
 
             // activate the specified selection
-
-            user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
+            currentSelection = user.activateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
         }
 
-        long count = user.getCurrentSearchResultSelection() == null ?
-                    0 :
-                    user.getCurrentSearchResultSelection().size();
+        long count = currentSelection.size();
 
         List<SearchResultSelection> own = SearchResultSelection.findOwnSelections(user);
 
-        if (own != null && own.contains(user.getCurrentSearchResultSelection()) && !user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection())) {
-            own.remove(user.getCurrentSearchResultSelection());
+        if (own != null && own.contains(currentSelection) && !user.isSavedSearchResultSelection(currentSelection)) {
+            own.remove(currentSelection);
         }
 
         if (own != null && own.size() > 0) {
@@ -134,7 +127,7 @@ public class SearchResultActions extends PageServlet {
 
                 for (SearchResultSelection ownSelection : own) {
                     page.writeStart("option",
-                            "selected", ownSelection.equals(user.getCurrentSearchResultSelection()) ? "selected" : null,
+                            "selected", ownSelection.equals(currentSelection) ? "selected" : null,
                             "value", ownSelection.getId());
                     page.writeObjectLabel(ownSelection);
                     page.writeEnd();
@@ -188,7 +181,7 @@ public class SearchResultActions extends PageServlet {
                 thenComparing(Class::getName)).
             collect(Collectors.toList())) {
 
-            TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? user.getCurrentSearchResultSelection() : null);
+            TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? currentSelection : null);
         }
     }
 
