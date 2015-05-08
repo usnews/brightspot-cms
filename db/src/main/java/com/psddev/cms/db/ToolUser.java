@@ -598,8 +598,9 @@ public class ToolUser extends Record implements ToolEntity {
      * is used to provide contextual {@link com.psddev.cms.tool.SearchResultAction}s.  If the ToolUser already has a current selection,
      * the selection will replaced and if the user has not saved the existing selection, it will be cleared and deleted.
      * @param selection the {@link SearchResultSelection} to set as current for this {@link ToolUser}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
      */
-    public void activateSelection(SearchResultSelection selection) {
+    public SearchResultSelection activateSelection(SearchResultSelection selection) {
 
         SearchResultSelection currentSelection = getCurrentSearchResultSelection();
 
@@ -614,16 +615,19 @@ public class ToolUser extends Record implements ToolEntity {
         setCurrentSearchResultSelection(selection);
 
         save();
+
+        return selection;
     }
 
     /**
      * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
      * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
      * @param selection the SearchResultSelection to deactivate
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
      */
-    public void deactivateSelection(SearchResultSelection selection) {
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection) {
 
-        deactivateSelection(selection, false);
+        return deactivateSelection(selection, false);
     }
 
     /**
@@ -633,8 +637,9 @@ public class ToolUser extends Record implements ToolEntity {
      * {@link IllegalStateException} will be thrown.
      * @param selection the SearchResultSelection to deactivate
      * @param checked indicates whether to require that the specified {@link SearchResultSelection} is the same as the {@link ToolUser}'s current selection.  default: {@code false}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
      */
-    public void deactivateSelection(SearchResultSelection selection, boolean checked) {
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection, boolean checked) {
 
         // Throw an exception if this is a checked invocation.
         if (checked && selection != null && getCurrentSearchResultSelection() != null && !selection.equals(getCurrentSearchResultSelection())) {
@@ -642,7 +647,7 @@ public class ToolUser extends Record implements ToolEntity {
         }
 
         // Reset the current selection.
-        resetCurrentSelection();
+        return resetCurrentSelection();
     }
 
     /**
