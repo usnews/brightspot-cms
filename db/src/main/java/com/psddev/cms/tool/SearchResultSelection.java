@@ -40,6 +40,11 @@ public class SearchResultSelection extends Record {
         this.entities = entities;
     }
 
+    /**
+     * Generates a {@link Query} for the items contained within this {@link SearchResultSelection}.  The returned
+     * Query is {@code .fromAll()} and includes visibility-restricted items.
+     * @return a {@link Query} for the items contained within this {@link SearchResultSelection}.
+     */
     public Query<Object> createItemsQuery() {
 
         Set<UUID> itemIds = new HashSet<>();
@@ -109,10 +114,19 @@ public class SearchResultSelection extends Record {
         return true;
     }
 
+    /**
+     * Calculates the size of the SearchResultSelection by counting its items {@link Query}.
+     * @return the size of the SearchResultSelection.
+     */
     public int size() {
         return Long.valueOf(createItemsQuery().count()).intValue();
     }
 
+    /**
+     * Returns SearchResultSelections that were created by the specified {@link ToolUser}.
+     * @param user the {@link ToolUser} for which SearchResultSelections should be returned.
+     * @return {@link SearchResultSelection}s that were created by the specified {@link ToolUser}.
+     */
     public static List<SearchResultSelection> findOwnSelections(ToolUser user) {
 
         if (user == null) {
@@ -122,6 +136,13 @@ public class SearchResultSelection extends Record {
         return Query.from(SearchResultSelection.class).where("entities = ?", user).selectAll();
     }
 
+    /**
+     * Returns SearchResultSelections that are accessible to the specified {@link ToolUser}, optionally excluding selections
+     * that were created by the user.
+     * @param user the {@link ToolUser} for which SearchResultSelections should be returned.
+     * @param excludeOwn excludes selections created by the specified {@link ToolUser} if true.
+     * @return accessible {@link SearchResultSelection}s for the specified {@link ToolUser}.
+     */
     public static List<SearchResultSelection> findAccessibleSelections(ToolUser user, boolean excludeOwn) {
 
         if (user == null) {
