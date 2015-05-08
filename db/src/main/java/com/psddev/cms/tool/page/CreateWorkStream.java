@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 
-import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.WorkStream;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -90,9 +89,7 @@ public class CreateWorkStream extends PageServlet {
 
                 if (selectionId != null) {
 
-                    ToolUser user = page.getUser();
-
-                    user.deactivateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
+                    page.getUser().deactivateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
                 }
             }
 
