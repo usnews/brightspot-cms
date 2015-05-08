@@ -170,4 +170,13 @@ public class SearchResultSelection extends Record {
 
         return query.selectAll();
     }
+
+    /**
+     * Delete all {@link SearchResultSelectionItem}s linking to this {@link SearchResultSelection}.
+     */
+    @Override
+    protected void afterDelete() {
+
+        Query.from(SearchResultSelectionItem.class).where("selectionId = ?", getId()).deleteAll();
+    }
 }
