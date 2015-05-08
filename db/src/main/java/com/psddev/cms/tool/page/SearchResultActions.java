@@ -23,6 +23,7 @@ import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.TypeDefinition;
+import com.psddev.dari.util.UrlBuilder;
 
 @RoutingFilter.Path(application = "cms", value = "/searchResultActions")
 public class SearchResultActions extends PageServlet {
@@ -135,31 +136,32 @@ public class SearchResultActions extends PageServlet {
                 }
 
                 page.writeEnd();
+
             page.writeEnd();
+
+            if (count > 0) {
+                page.writeStart("div", "class", "searchResult-action-simple");
+                writeDeleteAction(page);
+                page.writeEnd();
+            }
 
         } else if (count > 0) {
 
             page.writeStart("h2");
             page.writeHtml("Selection");
+            writeDeleteAction(page);
             page.writeEnd();
         }
 
+        page.writeStart("a",
+                "class", "reload",
+                "href", new UrlBuilder(page.getRequest()).
+                        currentScheme().
+                        currentHost().
+                        currentPath().
+                        parameter("search", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()))).writeEnd();
+
         if (count > 0) {
-
-            if (user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection())) {
-                page.writeStart("a",
-                        "class", "action action-delete",
-                        "href", page.url("", "action", "clear", "selectionId", null));
-                page.writeHtml("Delete");
-                page.writeEnd();
-
-            } else {
-                page.writeStart("a",
-                        "class", "action action-cancel",
-                        "href", page.url("", "action", "clear", "selectionId", null));
-                page.writeHtml("Clear");
-                page.writeEnd();
-            }
 
             page.writeStart("p");
                 page.writeHtml(count);
@@ -182,6 +184,23 @@ public class SearchResultActions extends PageServlet {
             collect(Collectors.toList())) {
 
             TypeDefinition.getInstance(actionClass).newInstance().writeHtml(page, search, count > 0 ? user.getCurrentSearchResultSelection() : null);
+        }
+    }
+
+    private void writeDeleteAction(ToolPageContext page) throws IOException {
+        if (page.getUser().isSavedSearchResultSelection(page.getUser().getCurrentSearchResultSelection())) {
+            page.writeStart("a",
+                    "class", "action action-delete",
+                    "href", page.url("", "action", "clear", "selectionId", null));
+            page.writeHtml("Delete");
+            page.writeEnd();
+
+        } else {
+            page.writeStart("a",
+                    "class", "action action-cancel",
+                    "href", page.url("", "action", "clear", "selectionId", null));
+            page.writeHtml("Clear");
+            page.writeEnd();
         }
     }
 }

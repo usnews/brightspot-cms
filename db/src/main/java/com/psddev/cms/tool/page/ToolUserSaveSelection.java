@@ -46,6 +46,7 @@ public class ToolUserSaveSelection extends PageServlet {
             page.writeEnd();
             page.writeStart("script", "type", "text/javascript");
                 page.writeRaw("$('#").writeRaw(page.getId()).writeRaw("').popup('close');");
+                page.writeRaw("$('#").writeRaw(page.getId()).writeRaw("').popup('source').closest('.frame').find('.reload').click();");
             page.writeEnd();
             return;
         }
