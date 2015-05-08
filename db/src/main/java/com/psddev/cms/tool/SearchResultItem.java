@@ -2,7 +2,7 @@ package com.psddev.cms.tool;
 
 import java.io.IOException;
 
-import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.page.SearchResultActions;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -10,11 +10,6 @@ import com.psddev.dari.util.StringUtils;
 public class SearchResultItem {
 
     public void writeCheckboxHtml(ToolPageContext page, Search search, Object item) throws IOException {
-        ToolUser user = page.getUser();
-
-        if (user != null && user.getCurrentSearchResultSelection() == null) {
-            user.resetCurrentSelection();
-        }
 
         String url = page.toolUrl(CmsTool.class, "/searchResultActions",
                 "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
