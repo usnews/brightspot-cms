@@ -143,6 +143,10 @@ public class CmsTool extends Tool {
     @ToolUi.Values({ "v3" })
     private String theme;
 
+    @ToolUi.Tab("Debug")
+    @ToolUi.Note("Restrict grid css file lookup to these paths")
+    private List<String> gridCssPaths;
+
     private boolean enableCrossDomainInlineEditing;
 
     @Embedded
@@ -670,6 +674,14 @@ public class CmsTool extends Tool {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public List<String> getGridCssPaths() {
+        return gridCssPaths;
+    }
+
+    public void setGridCssPaths(List<String> gridCssPaths) {
+        this.gridCssPaths = gridCssPaths;
     }
 
     public boolean isEnableCrossDomainInlineEditing() {
