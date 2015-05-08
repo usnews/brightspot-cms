@@ -144,10 +144,7 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Values({ "v2", "v3" })
     private String theme;
 
-    @ToolUi.DropDown
-    @ToolUi.Placeholder("New Selection")
     @ToolUi.Hidden
-    @Where("entities = ?/_id")
     private SearchResultSelection currentSearchResultSelection;
 
     @ToolUi.Hidden
