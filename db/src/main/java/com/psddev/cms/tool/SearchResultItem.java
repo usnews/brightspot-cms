@@ -18,15 +18,15 @@ public class SearchResultItem {
 
         String url = page.toolUrl(CmsTool.class, "/searchResultActions",
                 "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
-                "id", State.getInstance(item).getId());
+                SearchResultActions.ITEM_ID_PARAMETER, State.getInstance(item).getId());
 
         page.writeElement("input",
                 "type", "checkbox",
                 "name", "id",
                 "value", State.getInstance(item).getId(),
                 "data-frame-target", "searchResultActions",
-                "data-frame-check", StringUtils.addQueryParameters(url, "action", "item-add"),
-                "data-frame-uncheck", StringUtils.addQueryParameters(url, "action", "item-remove"));
+                "data-frame-check", StringUtils.addQueryParameters(url, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_ADD),
+                "data-frame-uncheck", StringUtils.addQueryParameters(url, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_REMOVE));
     }
 
     public void writeBeforeHtml(ToolPageContext page, Search search, Object item) throws IOException {

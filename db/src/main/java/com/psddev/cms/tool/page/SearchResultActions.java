@@ -31,6 +31,14 @@ public class SearchResultActions extends PageServlet {
     private static final long serialVersionUID = 1L;
 
     public static final String SELECTION_ID_PARAMETER = "selectionId";
+    public static final String ITEM_ID_PARAMETER = "id";
+
+    public static final String ACTION_PARAMETER = "action";
+
+    public static final String ACTION_ADD = "item-add";
+    public static final String ACTION_REMOVE = "item-remove";
+    public static final String ACTION_CLEAR = "clear";
+    public static final String ACTION_ACTIVATE = "activate";
 
     @Override
     protected String getPermissionId() {
@@ -45,34 +53,31 @@ public class SearchResultActions extends PageServlet {
 
         search.getState().setValues(searchValues);
 
-        String action = page.param(String.class, "action");
+        String action = page.param(String.class, ACTION_PARAMETER);
         ToolUser user = page.getUser();
 
         if (user.getCurrentSearchResultSelection() == null) {
             user.resetCurrentSelection();
         }
 
-        boolean isSaved = user.isSavedSearchResultSelection(user.getCurrentSearchResultSelection());
+        SearchResultSelection selection = user.getCurrentSearchResultSelection();
 
-        UUID selectionId = page.param(UUID.class, "selectionId");
 
-        if ("item-add".equals(action)) {
+        boolean isSaved = user.isSavedSearchResultSelection(selection);
+
+        UUID selectionId = page.param(UUID.class, SELECTION_ID_PARAMETER);
+
+        if (ACTION_ADD.equals(action)) {
 
             // add an item to the current selection
+            selection.addItem(page.param(UUID.class, ITEM_ID_PARAMETER));
 
-            UUID itemId = page.param(UUID.class, "id");
-
-            user.getCurrentSearchResultSelection().addItem(itemId);
-
-        } else if ("item-remove".equals(action)) {
+        } else if (ACTION_REMOVE.equals(action)) {
 
             // remove an item from the current selection
+            selection.removeItem(page.param(UUID.class, ITEM_ID_PARAMETER));
 
-            UUID itemId = page.param(UUID.class, "id");
-
-            user.getCurrentSearchResultSelection().removeItem(itemId);
-
-        } else if ("clear".equals(action) && isSaved) {
+        } else if (ACTION_CLEAR.equals(action) && isSaved) {
 
             // delete the saved selection
             SearchResultSelection selectionToDelete = user.getCurrentSearchResultSelection();
@@ -81,8 +86,8 @@ public class SearchResultActions extends PageServlet {
             Query.from(SearchResultSelectionItem.class).where("selectionId = ?", selectionToDelete.getId()).deleteAll();
             selectionToDelete.delete();
 
-        } else if ("clear".equals(action) ||
-                ("activate".equals(action) && selectionId == null)) {
+        } else if (ACTION_CLEAR.equals(action) ||
+                (ACTION_ACTIVATE.equals(action) && selectionId == null)) {
 
             // deactivate the current selection
 
@@ -95,7 +100,7 @@ public class SearchResultActions extends PageServlet {
                 page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
             page.writeEnd();
 
-        } else if ("activate".equals(action)) {
+        } else if (ACTION_ACTIVATE.equals(action)) {
 
             // activate the specified selection
 
@@ -115,7 +120,7 @@ public class SearchResultActions extends PageServlet {
         if (own != null && own.size() > 0) {
 
             page.writeStart("form", "method", "get", "action", page.cmsUrl("/searchResultActions"));
-                page.writeTag("input", "type", "hidden", "name", "action", "value", "activate");
+                page.writeTag("input", "type", "hidden", "name", ACTION_PARAMETER, "value", ACTION_ACTIVATE);
                 page.writeTag("input", "type", "hidden", "name", "search", "value", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()));
 
                 page.writeStart("select",
@@ -191,14 +196,14 @@ public class SearchResultActions extends PageServlet {
         if (page.getUser().isSavedSearchResultSelection(page.getUser().getCurrentSearchResultSelection())) {
             page.writeStart("a",
                     "class", "action action-delete",
-                    "href", page.url("", "action", "clear", "selectionId", null));
+                    "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
             page.writeHtml("Delete");
             page.writeEnd();
 
         } else {
             page.writeStart("a",
                     "class", "action action-cancel",
-                    "href", page.url("", "action", "clear", "selectionId", null));
+                    "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
             page.writeHtml("Clear");
             page.writeEnd();
         }
