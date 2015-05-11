@@ -53,11 +53,6 @@ import com.psddev.dari.util.TypeReference;
 public class StorageItemField extends PageServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageItemField.class);
-    public static final String FILE_SELECTOR_ITEM_CLASS = "fileSelectorItem";
-    public static final String FILE_SELECTOR_EXISTING_CLASS = "fileSelectorExisting";
-    public static final String FILE_SELECTOR_NEW_URL_CLASS = "fileSelectorNewUrl";
-    public static final String FILE_SELECTOR_NEW_UPLOAD_CLASS = "fileSelectorNewUpload";
-    public static final String FILE_SELECTOR_DROPBOX_CLASS = "fileSelectorDropbox";
 
     public static void processField(ToolPageContext page) throws IOException, ServletException {
 
