@@ -30,6 +30,7 @@ import com.psddev.cms.db.ImageTextOverlay;
 import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ColorDistribution;
@@ -1027,22 +1028,7 @@ public class StorageItemField extends PageServlet {
                         }
 
                     } else if (contentType != null && contentType.startsWith("video/")) {
-
-                        page.writeStart("div", "style", page.cssString("margin-bottom", "5px"));
-                            page.writeStart("a",
-                                    "class", "icon icon-action-preview",
-                                    "href", fieldValue.getPublicUrl(),
-                                    "target", "_blank");
-                                page.writeHtml("View Original");
-                            page.writeEnd();
-                        page.writeEnd();
-                        page.writeStart("video",
-                                    "controls", "controls",
-                                    "preload", "auto");
-                            page.writeElement("source",
-                                    "type", contentType,
-                                    "src", fieldValue.getPublicUrl());
-                        page.writeEnd();
+                        FileContentType.writeFilePreview(page, state, fieldValue);
                     } else {
                         page.writeStart("a", "href", page.h(fieldValue.getPublicUrl()), "target", "_blank");
                             page.write(page.h(contentType));
