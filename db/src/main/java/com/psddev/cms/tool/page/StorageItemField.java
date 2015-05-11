@@ -36,7 +36,6 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
-import com.psddev.dari.util.BrightcoveStorageItem;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
@@ -652,12 +651,6 @@ public class StorageItemField extends PageServlet {
                             page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication()) +
                                     StringUtils.ensureStart(processorPath, "/"));
                         }
-                    } else if (contentType != null && contentType.startsWith("image/")) {
-                        FileContentType.writeFilePreview(page, state, fieldValue);
-                    } else if (fieldValue instanceof BrightcoveStorageItem) {
-                        FileContentType.writeFilePreview(page, state, fieldValue);
-                    } else if (contentType != null && contentType.startsWith("video/")) {
-                        FileContentType.writeFilePreview(page, state, fieldValue);
                     } else {
                         FileContentType.writeFilePreview(page, state, fieldValue);
                     }
