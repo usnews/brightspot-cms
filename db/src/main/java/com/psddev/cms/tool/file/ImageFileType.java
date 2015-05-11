@@ -242,7 +242,7 @@ public class ImageFileType implements FileContentType {
                                     page.write("Flip H");
                                 page.writeEnd();
                                 page.writeStart("td");
-                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipHName), "value", page.h("true"), flipH ? "checked" : "");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipHName), "value", page.h("true"), flipH ? "checked" : "", "");
                                 page.writeEnd();
                             page.writeEnd();
 
@@ -252,7 +252,7 @@ public class ImageFileType implements FileContentType {
                                     page.write("Flip V");
                                 page.writeEnd();
                                 page.writeStart("td");
-                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipVName), "value", page.h("true"), flipV ? "checked" : "");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipVName), "value", page.h("true"), flipV ? "checked" : "", "");
                                 page.writeEnd();
                             page.writeEnd();
 
@@ -262,7 +262,7 @@ public class ImageFileType implements FileContentType {
                                     page.write("Invert");
                                 page.writeEnd();
                                 page.writeStart("td");
-                                    page.writeTag("input", "type", "checkbox", "name", page.h(invertName), "value", page.h("true"), invert ? "checked" : "");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(invertName), "value", page.h("true"), invert ? "checked" : "", "");
                                 page.writeEnd();
                             page.writeEnd();
 
@@ -272,7 +272,7 @@ public class ImageFileType implements FileContentType {
                                     page.write("Grayscale");
                                 page.writeEnd();
                                 page.writeStart("td");
-                                    page.writeTag("input", "type", "checkbox", "name", page.h(grayscaleName), "value", page.h("true"), grayscale ? "checked" : "");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(grayscaleName), "value", page.h("true"), grayscale ? "checked" : "", "");
                                 page.writeEnd();
                             page.writeEnd();
 
