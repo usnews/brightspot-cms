@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.psddev.cms.db.ToolEntity;
+import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -16,6 +17,7 @@ public class SearchResultSelection extends Record {
     private String name;
 
     @Indexed
+    @ToolUi.Hidden
     private Set<ToolEntity> entities;
 
     public String getName() {
