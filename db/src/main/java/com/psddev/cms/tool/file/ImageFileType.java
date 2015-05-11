@@ -21,6 +21,7 @@ import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ColorDistribution;
+import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CollectionUtils;
@@ -50,48 +51,45 @@ public class ImageFileType implements FileContentType {
 
     @Override
     public void writePreview(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
-        writeImageEditor(page, state, fieldValue);
-    }
 
-    /**
-     * Writes the image editor for display in the CMS
-     * @param page
-     * @throws IOException
-     * @throws ServletException
-     */
-    public void writeImageEditor(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException {
+        HttpServletRequest request = page.getRequest();
 
-        Class hotspotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
-        boolean projectUsingBrightSpotImage = hotspotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(hotspotClass));
+        ObjectField field = (ObjectField) request.getAttribute("field");
+        String fieldName = field.getInternalName();
 
-        if (projectUsingBrightSpotImage) {
-            page.include("set/hotSpot.jsp");
-        }
+        String inputName = (String) request.getAttribute("inputName");
+        String actionName = inputName + ".action";
+        String storageName = inputName + ".storage";
+        String pathName = inputName + ".path";
+        String contentTypeName = inputName + ".contentType";
+        String fileName = inputName + ".file";
+        String urlName = inputName + ".url";
+        String dropboxName = inputName + ".dropbox";
+        String cropsName = inputName + ".crops.";
 
-        page.writeStart("div", "class", "imageEditor");
-            writeImageEditorAside(page, fieldValue, state);
-            writeImageEditorImage(page, fieldValue);
-        page.writeEnd();
+        String brightnessName = inputName + ".brightness";
+        String contrastName = inputName + ".contrast";
+        String flipHName = inputName + ".flipH";
+        String flipVName = inputName + ".flipV";
+        String grayscaleName = inputName + ".grayscale";
+        String invertName = inputName + ".invert";
+        String rotateName = inputName + ".rotate";
+        String sepiaName = inputName + ".sepia";
+        String sharpenName = inputName + ".sharpen";
+        String blurName = inputName + ".blur";
 
-        if (projectUsingBrightSpotImage) {
-            page.include("set/hotSpot.jsp");
-        }
-    }
+        String focusXName = inputName + ".focusX";
+        String focusYName = inputName + ".focusY";
 
-    /**
-     * Wrapper for writing image editor tools via:
-     * {@link #writeImageEditorTools(ToolPageContext, StorageItem, State)}
-     * {@link #writeImageEditorEdit(ToolPageContext, Map)}
-     * {@link #writeImageEditorSizes(ToolPageContext, State, Map)}
-     * @param page
-     * @param fieldValue
-     * @param state
-     * @throws IOException
-     */
-    private void writeImageEditorAside(ToolPageContext page, StorageItem fieldValue, State state) throws IOException {
+        String metadataFieldName = fieldName + ".metadata";
+        String widthFieldName = fieldName + ".width";
+        String heightFieldName = fieldName + ".height";
+        String cropsFieldName = fieldName + ".crops";
+
+        String action = page.param(actionName);
 
         Map<String, Object> fieldValueMetadata = null;
-        if (fieldValue != null) {
+        if (fieldValue != null && (!((Boolean) request.getAttribute("isFormPost")) || "keep".equals(action))) {
             fieldValueMetadata = fieldValue.getMetadata();
         }
 
@@ -99,83 +97,22 @@ public class ImageFileType implements FileContentType {
             fieldValueMetadata = new LinkedHashMap<String, Object>();
         }
 
-        page.writeStart("div", "class", "imageEditor-aside");
-            writeImageEditorTools(page, fieldValue, state);
-            writeImageEditorEdit(page, fieldValueMetadata);
-            writeImageEditorSizes(page, state, fieldValueMetadata);
-        page.writeEnd();
-    }
-
-    /**
-     * Writes some tools for the Image Editor, including:
-     * View Original link, View Resized Link and (Optional) {@link com.psddev.dari.db.ColorDistribution.Data}
-     * @param page
-     * @param fieldValue
-     * @param state
-     * @throws IOException
-     */
-    private void writeImageEditorTools(ToolPageContext page, StorageItem fieldValue, State state) throws IOException {
-
-        page.writeStart("div", "class", "imageEditor-tools");
-            page.writeStart("h2");
-                page.write("Tools");
-            page.writeEnd();
-
-            page.writeStart("ul");
-
-                if (state.as(ColorDistribution.Data.class).getDistribution() != null) {
-                    page.writeStart("li");
-                        page.writeStart("a",
-                                "class", "icon icon-tint",
-                                "href", page.h(page.cmsUrl("/contentColors", "id", state.getId())),
-                                "target", "contentColors");
-                            page.write("Colors");
-                        page.writeEnd();
-                    page.writeEnd();
-                }
-
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "action-preview",
-                            "href", page.h(fieldValue.getPublicUrl()),
-                            "target", "_blank");
-                        page.write("View Original");
-                    page.writeEnd();
-                page.writeEnd();
-
-                page.writeStart("li");
-                    page.writeStart("a",
-                            "class", "icon icon-crop",
-                            "href", page.h(page.url("/contentImages", "data", ObjectUtils.toJson(fieldValue))),
-                            "target", "contentImages");
-                        page.write("View Resized");
-                    page.writeEnd();
-                page.writeEnd();
-
-            page.writeEnd();
-
-        page.writeEnd();
-    }
-
-    /**
-     * Writes the inputs for image editing:
-     * blurs and all {@link com.psddev.cms.tool.file.ImageFileType.ImageAdjustment} types
-     * @param page
-     * @param fieldValueMetadata
-     * @throws IOException
-     */
-    private void writeImageEditorEdit(ToolPageContext page, Map<String, Object> fieldValueMetadata) throws IOException {
-        HttpServletRequest request = page.getRequest();
-        String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"),  (String) request.getAttribute("inputName"));
-        boolean useJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
-        String blurName = inputName + ".blur";
-
         Map<String, Object> edits = (Map<String, Object>) fieldValueMetadata.get("cms.edits");
 
         if (edits == null) {
             edits = new HashMap<String, Object>();
             fieldValueMetadata.put("cms.edits", edits);
         }
+
+        double brightness = ObjectUtils.to(double.class, edits.get("brightness"));
+        double contrast = ObjectUtils.to(double.class, edits.get("contrast"));
+        boolean flipH = ObjectUtils.to(boolean.class, edits.get("flipH"));
+        boolean flipV = ObjectUtils.to(boolean.class, edits.get("flipV"));
+        boolean grayscale = ObjectUtils.to(boolean.class, edits.get("grayscale"));
+        boolean invert = ObjectUtils.to(boolean.class, edits.get("invert"));
+        int rotate = ObjectUtils.to(int.class, edits.get("rotate"));
+        boolean sepia = ObjectUtils.to(boolean.class, edits.get("sepia"));
+        int sharpen = ObjectUtils.to(int.class, edits.get("sharpen"));
 
         List<String> blurs = new ArrayList<String>();
         if (!ObjectUtils.isBlank(edits.get("blur"))) {
@@ -192,87 +129,12 @@ public class ImageFileType implements FileContentType {
             }
         }
 
-        page.writeStart("div", "class", "imageEditor-edit");
-
-            page.writeStart("h2");
-                page.write("Adjustments");
-            page.writeEnd();
-
-            page.writeStart("table");
-                page.writeStart("tbody");
-
-                    if (useJavaImageEditor) {
-                        page.writeStart("tr");
-                            page.writeStart("th");
-                                page.write("Blur");
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeStart("a",
-                                        "class", "imageEditor-addBlurOverlay");
-                                    page.write("Add Blur");
-                                page.writeEnd();
-                                page.writeTag("br");
-
-                                if (!ObjectUtils.isBlank(blurs)) {
-                                    for (String blur : blurs) {
-                                        page.writeTag("input",
-                                                "type", "hidden",
-                                                "name", page.h(blurName),
-                                                "value", blur);
-                                    }
-                                }
-                            page.writeEnd();
-                        page.writeEnd();
-                    }
-
-                    for (ImageAdjustment adj : ImageAdjustment.values()) {
-                        page.writeStart("tr");
-                            page.writeStart("th");
-                                page.writeHtml(page.h(StringUtils.toPascalCase(adj.title)));
-                            page.writeEnd();
-                            page.writeStart("td");
-                            if (!adj.javaImageEditorOnly || useJavaImageEditor) {
-                                boolean isCheckbox = adj.inputType.equals("checkbox");
-                                boolean isChecked = isCheckbox && ObjectUtils.equals(edits.get(adj.title), true);
-                                page.writeTag("input",
-                                        "type", adj.inputType,
-                                        "name", inputName + "." + adj.title,
-                                        adj.inputType.equals("range") ? "min" : "", adj.inputType.equals("range") ? adj.min : "",
-                                        adj.inputType.equals("range") ? "max" : "", adj.inputType.equals("range") ? adj.max : "",
-                                        adj.inputType.equals("range") ? "step" : "", adj.inputType.equals("range") ? adj.step : "",
-                                        "value", ObjectUtils.to(adj.valueType, isCheckbox ? true : edits.get(adj.title)),
-                                        isChecked ? "checked" : "",
-                                        isChecked ? "true" : "");
-                            }
-
-                            page.writeEnd();
-                        page.writeEnd();
-                    }
-
-                page.writeEnd();
-            page.writeEnd();
-
-        page.writeEnd();
-    }
-
-    /**
-     * Writes the tools to allow editors to select from {@link StandardImageSize}s
-     * and edit their crops
-     * @param page
-     * @param state
-     * @param fieldValueMetadata
-     * @throws IOException
-     */
-    private void writeImageEditorSizes(ToolPageContext page, State state, Map<String, Object> fieldValueMetadata) throws IOException {
-
-        String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"));
-        String cropsFieldName = inputName + ".crops";
-
         Map<String, ImageCrop> crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() {
         }, fieldValueMetadata.get("cms.crops"));
         if (crops == null) {
             // for backward compatibility
-            crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() { }, state.getValue(cropsFieldName));
+            crops = ObjectUtils.to(new TypeReference<Map<String, ImageCrop>>() {
+            }, state.getValue(cropsFieldName));
         }
         if (crops == null) {
             crops = new HashMap<String, ImageCrop>();
@@ -289,189 +151,313 @@ public class ImageFileType implements FileContentType {
             }
         }
 
-        ImageEditor defaultImageEditor = ImageEditor.Static.getDefault();
-        boolean centerCrop = !(defaultImageEditor instanceof DimsImageEditor) || ((DimsImageEditor) defaultImageEditor).isUseLegacyThumbnail();
+        Map<String, Double> focusPoint = ObjectUtils.to(new TypeReference<Map<String, Double>>() {
+        }, fieldValueMetadata.get("cms.focus"));
 
-        if (crops.isEmpty()) {
-            return;
+        if (focusPoint == null) {
+            focusPoint = new HashMap<String, Double>();
         }
 
-        page.writeStart("div", "class", "imageEditor-sizes");
-            page.writeStart("h2");
-                page.write("Standard Sizes");
-            page.writeEnd();
+        Class hotSpotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
+        boolean projectUsingBrightSpotImage = hotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(hotSpotClass));
 
-            page.writeStart("table", "data-crop-center", centerCrop);
-                page.writeStart("tbody");
-                    for (Map.Entry<String, ImageCrop> e : crops.entrySet()) {
-                        String cropId = e.getKey();
-                        ImageCrop crop = e.getValue();
-                        StandardImageSize size = sizes.get(cropId);
-                        if (size == null && ObjectUtils.to(UUID.class, cropId) != null) {
-                            continue;
-                        }
-                        if (size != null) {
-                            page.writeStart("tr",
-                                    "data-size-name", size.getInternalName(),
-                                    "data-size-independent", size.isIndependent(),
-                                    "data-size-width", size.getWidth(),
-                                    "data-size-height", size.getHeight());
-                                page.writeStart("th");
-                                    page.write(page.h(size.getDisplayName()));
+        page.writeStart("div",
+                "class", "imageEditor");
+            page.writeStart("div", "class", "imageEditor-aside");
+                page.writeStart("div", "class", "imageEditor-tools");
+
+                    page.writeStart("h2");
+                        page.write("Tools");
+                    page.writeEnd();
+
+                    page.writeStart("ul");
+                        if (state.as(ColorDistribution.Data.class).getDistribution() != null) {
+                            page.writeStart("li");
+                                page.writeStart("a",
+                                        "class", "icon icon-tint",
+                                        "href", page.h(page.cmsUrl("/contentColors", "id", state.getId())),
+                                        "target", "contentColors");
+                                    page.write("Colors");
                                 page.writeEnd();
-                        } else {
-                            page.writeStart("tr");
-                                page.writeStart("th");
-                                    page.write(page.h(cropId));
-                                page.writeEnd();
+                            page.writeEnd();
                         }
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".x"),
-                                        "type", "text",
-                                        "value", crop.getX());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".y"),
-                                        "type", "text",
-                                        "value", crop.getY());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".width"),
-                                        "type", "text",
-                                        "value", crop.getWidth());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".height"),
-                                        "type", "text",
-                                        "value", crop.getHeight());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".texts"),
-                                        "type", "text",
-                                        "value", crop.getTexts());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".textSizes"),
-                                        "type", "text",
-                                        "value", crop.getTextSizes());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".textXs"),
-                                        "type", "text",
-                                        "value", crop.getTextXs());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".textYs"),
-                                        "type", "text",
-                                        "value", crop.getTextYs());
-                            page.writeEnd();
-                            page.writeStart("td");
-                                page.writeTag("input",
-                                        "name", page.h(cropsFieldName + "." + cropId + ".textWidths"),
-                                        "type", "text",
-                                        "value", crop.getTextWidths());
+
+                        page.writeStart("li");
+                            page.writeStart("a",
+                                    "class", "action-preview",
+                                    "href", fieldValue.getPublicUrl(),
+                                    "target", "_blank");
+                                page.write("View Original");
                             page.writeEnd();
                         page.writeEnd();
-                    }
+
+                        page.writeStart("li");
+                            page.writeStart("a",
+                                    "class", "icon icon-crop",
+                                    "href", page.h(page.url("/contentImages", "data", ObjectUtils.toJson(fieldValue))),
+                                    "target", "contentImages");
+                                page.write("View Resized");
+                            page.writeEnd();
+                        page.writeEnd();
+                    page.writeEnd();
                 page.writeEnd();
+
+                page.writeStart("div", "class", "imageEditor-edit");
+                    page.writeStart("h2");
+                        page.write("Adjustments");
+                    page.writeEnd();
+
+                    boolean usingJavaImageEditor = ImageEditor.Static.getDefault() != null && (ImageEditor.Static.getDefault() instanceof JavaImageEditor);
+
+                    page.writeStart("table");
+                        page.writeStart("tbody");
+                            if (usingJavaImageEditor) {
+                                page.writeStart("tr");
+                                    page.writeStart("th");
+                                        page.write("Blur");
+                                    page.writeEnd();
+
+                                    page.writeStart("td");
+                                        page.writeStart("a", "class", "imageEditor-addBlurOverlay");
+                                            page.write("Add Blur");
+                                        page.writeEnd();
+                                        page.writeTag("br");
+
+                                        if (!ObjectUtils.isBlank(blurs)) {
+                                            for (String blur : blurs) {
+                                                page.writeTag("input", "type", "hidden", "name", page.h(blurName), "value", page.h(blur));
+                                            }
+                                        }
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+
+                            // Brightness
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Brightness");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "range", "name", page.h(brightnessName), "value", page.h(brightness), "min", "-1.0", "max", "1.0", "step", "0.01");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Contrast
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Contrast");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "range", "name", page.h(contrastName), "value", page.h(contrast), "min", "-1.0", "max", "1.0", "step", "0.01");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Flip H
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Flip H");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipHName), "value", page.h("true"), flipH ? "checked" : "");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Flip V
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Flip V");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(flipVName), "value", page.h("true"), flipV ? "checked" : "");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Invert
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Invert");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(invertName), "value", page.h("true"), invert ? "checked" : "");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Grayscale
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Grayscale");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(grayscaleName), "value", page.h("true"), grayscale ? "checked" : "");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Rotate
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Rotate");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "range", "name", page.h(rotateName), "value", page.h(rotate), "min", "-90", "max", "90", "step", "90");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            // Sepia
+                            page.writeStart("tr");
+                                page.writeStart("th");
+                                    page.write("Sepia");
+                                page.writeEnd();
+                                page.writeStart("td");
+                                    page.writeTag("input", "type", "checkbox", "name", page.h(sepiaName), "value", page.h("true"), sepia ? "checked" : "");
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            if (usingJavaImageEditor) {
+                                // Sharpen
+                                page.writeStart("tr");
+                                    page.writeStart("th");
+                                        page.write("Sharpen");
+                                    page.writeEnd();
+                                    page.writeStart("td");
+                                        page.writeTag("input", "type", "range", "name", page.h(sharpenName), "value", page.h(sharpen), "min", "0", "max", "10", "step", "1");
+                                    page.writeEnd();
+                                page.writeEnd();
+                            }
+
+                        page.writeEnd();
+                    page.writeEnd();
+                page.writeEnd();
+
+                ImageEditor defaultImageEditor = ImageEditor.Static.getDefault();
+                boolean centerCrop = !(defaultImageEditor instanceof DimsImageEditor) || ((DimsImageEditor) defaultImageEditor).isUseLegacyThumbnail();
+
+                if (!crops.isEmpty()) {
+                    page.writeStart("div", "class", "imageEditor-sizes");
+                        page.writeStart("h2");
+                            page.write("Standard Sizes");
+                        page.writeEnd();
+                        page.writeStart("table", "data-crop-center", page.h(centerCrop));
+                            page.writeStart("tbody");
+
+                                for (Map.Entry<String, ImageCrop> e : crops.entrySet()) {
+                                    String cropId = e.getKey();
+                                    ImageCrop crop = e.getValue();
+                                    StandardImageSize size = sizes.get(cropId);
+                                    if (size == null && ObjectUtils.to(UUID.class, cropId) != null) {
+                                        continue;
+                                    }
+
+                                    if (size != null) {
+                                        page.writeStart("tr",
+                                                "data-size-name", page.h(size.getInternalName()),
+                                                "data-size-independent", page.h(size.isIndependent()),
+                                                "data-size-width", page.h(size.getWidth()),
+                                                "data-size-height", page.h(size.getHeight()));
+                                            page.writeStart("th");
+                                                page.write(page.h(size.getDisplayName()));
+                                            page.writeEnd();
+                                    } else {
+                                        page.writeStart("tr");
+                                            page.writeStart("th");
+                                                page.write(page.h(cropId));
+                                            page.writeEnd();
+                                    }
+
+                                    // Crop X
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".x"), "type", "text", "value", crop.getX());
+                                    page.writeEnd();
+
+                                    // Crop Y
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".y"), "type", "text", "value", crop.getY());
+                                    page.writeEnd();
+
+                                    // Crop Width
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".width"), "type", "text", "value", crop.getWidth());
+                                    page.writeEnd();
+
+                                    // Crop Height
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".height"), "type", "text", "value", crop.getHeight());
+                                    page.writeEnd();
+
+                                    // Crop Texts
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".texts"), "type", "text", "value", page.h(crop.getTexts()));
+                                    page.writeEnd();
+
+                                    // Crop Texts Sizes
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".textSizes"), "type", "text", "value", page.h(crop.getTextSizes()));
+                                    page.writeEnd();
+
+                                    // Crop Texts Xs
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".textXs"), "type", "text", "value", crop.getTextXs());
+                                    page.writeEnd();
+
+                                    // Crop Texts Ys
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".textYs"), "type", "text", "value", crop.getTextYs());
+                                    page.writeEnd();
+
+                                    // Crop Texts Widths
+                                    page.writeStart("td");
+                                        page.writeTag("input", "name", page.h(cropsName + cropId + ".textWidths"), "type", "text", "value", crop.getTextWidths());
+                                    page.writeEnd();
+
+                                    //end tr
+                                    page.writeEnd();
+                                }
+                            page.writeEnd();
+                        page.writeEnd();
+                    page.writeEnd();
+                }
+            page.writeEnd();
+
+            page.writeStart("div", "class", "imageEditor-image");
+
+                String fieldValueUrl;
+                String resizeScale = "";
+                if (ImageEditor.Static.getDefault() != null) {
+                    ImageTag.Builder imageTagBuilder = new ImageTag.Builder(fieldValue).
+                            setWidth(1000).
+                            setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                            setEdits(false);
+                    Number originalWidth = null;
+                    if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"))) {
+                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
+                    } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"))) {
+                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth");
+                    } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width"))) {
+                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width");
+                    }
+                    if (originalWidth != null) {
+                        if (originalWidth.intValue() > 1000) {
+                            resizeScale = String.format("%.2f", (double) 1000 / originalWidth.intValue());
+                        }
+                    }
+                    fieldValueUrl = imageTagBuilder.toUrl();
+                } else {
+                    fieldValueUrl = fieldValue.getPublicUrl();
+                }
+                page.writeTag("img",
+                        "alt", "",
+                        "data-scale", resizeScale,
+                        "src", page.url("/misc/proxy.jsp",
+                                "url", fieldValueUrl,
+                                "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))));
+                page.writeTag("input",
+                        "type", "hidden",
+                        "name", page.h(inputName + ".focusX"),
+                        "value", page.h(focusPoint != null && focusPoint.containsKey("x") ? focusPoint.get("x") : ""));
+                page.writeTag("input",
+                        "type", "hidden",
+                        "name", page.h(inputName + ".focusY"),
+                        "value", page.h(focusPoint != null && focusPoint.containsKey("y") ? focusPoint.get("y") : ""));
             page.writeEnd();
         page.writeEnd();
-    }
-
-    /**
-     * Writes the image preview
-     * @param page
-     * @param fieldValue
-     * @throws IOException
-     */
-    private void writeImageEditorImage(ToolPageContext page, StorageItem fieldValue) throws IOException {
-
-        String fieldValueUrl;
-        String resizeScale = "";
-
-        if (ImageEditor.Static.getDefault() != null) {
-           ImageTag.Builder imageTagBuilder = new ImageTag.Builder(fieldValue)
-                   .setWidth(1000)
-                   .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
-                   .setEdits(false);
-            Number originalWidth = null;
-            if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"))) {
-                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
-            } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"))) {
-                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth");
-            } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width"))) {
-                originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width");
-            }
-            if (originalWidth != null) {
-                if (originalWidth.intValue() > 1000) {
-                    resizeScale = String.format("%.2f", (double) 1000 / originalWidth.intValue());
-                }
-            }
-            fieldValueUrl = imageTagBuilder.toUrl();
-        } else {
-            fieldValueUrl = fieldValue.getPublicUrl();
-        }
-
-        page.writeStart("div", "class", "imageEditor-image");
-            page.writeTag("img",
-                    "alt", "",
-                    "data-scale", resizeScale,
-                    "src", page.url("/misc/proxy.jsp",
-                            "url", fieldValueUrl,
-                            "hash", StringUtils.hex(StringUtils.hmacSha1(Settings.getSecret(), fieldValueUrl))));
-        page.writeEnd();
-    }
-
-    private enum ImageAdjustment {
-
-        BRIGHTNESS("brightness", -1.0, 1.0, 0.01, double.class),
-        CONTRAST("contrast", -1.0, 1.0, 0.01, double.class),
-        FLIP_H("flipH"),
-        FLIP_V("flipV"),
-        INVERT("invert"),
-        GRAYSCALE("grayscale"),
-        ROTATE("rotate", -90.0, 90.0, 90.0, int.class),
-        SEPIA("sepia"),
-        SHARPEN("sharpen", true),
-        BLUR("blur");
-
-        private String title;
-        private String inputType;
-        private Class valueType;
-        private boolean javaImageEditorOnly = false;
-        private double min;
-        private double max;
-        private double step;
-
-        ImageAdjustment(String title) {
-            this.title = title;
-            this.inputType = "checkbox";
-            this.valueType = boolean.class;
-            this.javaImageEditorOnly = false;
-        }
-
-        ImageAdjustment(String title, boolean javaImageEditorOnly) {
-            this.title = title;
-            this.inputType = "checkbox";
-            this.valueType = boolean.class;
-            this.javaImageEditorOnly = javaImageEditorOnly;
-        }
-
-        ImageAdjustment(String title, double min, double max, double step, Class valueType) {
-            this.title = title;
-            this.min = min;
-            this.max = max;
-            this.step = step;
-            this.inputType = "range";
-            this.valueType = valueType;
-        }
     }
 }
