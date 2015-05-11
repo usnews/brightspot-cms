@@ -1,6 +1,5 @@
 package com.psddev.cms.tool;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 
@@ -18,7 +17,6 @@ public interface FileContentType {
     boolean isSupported(StorageItem storageItem);
     boolean isPreferred(StorageItem storageItem);
     void writePreview(ToolPageContext page, State state, StorageItem fieldValue) throws IOException, ServletException;
-    void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException;
 
     static FileContentType getFileFieldWriter(StorageItem storageItem) {
 

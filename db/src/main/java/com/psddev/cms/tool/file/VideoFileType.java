@@ -50,9 +50,4 @@ public class VideoFileType implements FileContentType {
                     "src", fieldValue.getPublicUrl());
         page.writeEnd();
     }
-
-    @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
-
-    }
 }
