@@ -49,7 +49,9 @@ public interface FileContentType {
             page.writeStart("a",
                     "href", page.h(fieldValue.getPublicUrl()),
                     "target", "_blank");
-                page.writeHtml(page.h(fieldValue.getContentType()) + ":" + page.h(fieldValue.getPath()));
+                page.write(page.h(fieldValue.getContentType()));
+                page.write(": ");
+                page.write(page.h(fieldValue.getPath()));
             page.writeEnd();
         }
     }

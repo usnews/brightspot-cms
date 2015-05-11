@@ -962,11 +962,7 @@ public class StorageItemField extends PageServlet {
                     } else if (contentType != null && contentType.startsWith("video/")) {
                         FileContentType.writeFilePreview(page, state, fieldValue);
                     } else {
-                        page.writeStart("a", "href", page.h(fieldValue.getPublicUrl()), "target", "_blank");
-                            page.write(page.h(contentType));
-                            page.write(":");
-                            page.write(page.h(fieldValue.getPath()));
-                        page.writeEnd();
+                        FileContentType.writeFilePreview(page, state, fieldValue);
                     }
                 page.writeEnd();
             }
