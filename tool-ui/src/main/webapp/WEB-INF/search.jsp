@@ -446,8 +446,9 @@ writer.start("div", "class", "searchForm");
                                         "checked", filterValue != null && ObjectUtils.to(boolean.class, filterValue.get("m")) ? "checked" : null);
 
                             } else {
+                                State fieldState = State.getInstance(Query.from(Object.class).where("_id = ?", fieldValue).first());
 
-                                wp.writeObjectSelect(field, fieldValue,
+                                wp.writeObjectSelect(field, fieldState,
                                         "name", inputName,
                                         "placeholder", displayName,
                                         "data-dynamic-placeholder", "",

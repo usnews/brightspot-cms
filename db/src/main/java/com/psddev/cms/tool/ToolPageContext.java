@@ -81,6 +81,7 @@ import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.DebugFilter;
 import com.psddev.dari.util.DependencyResolver;
 import com.psddev.dari.util.ErrorUtils;
+import com.psddev.dari.util.HtmlGrid;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.JspUtils;
 import com.psddev.dari.util.ObjectUtils;
@@ -1206,6 +1207,8 @@ public class ToolPageContext extends WebPageContext {
         if (companyLogo == null) {
             companyLogo = cms.getCompanyLogo();
         }
+
+        HtmlGrid.Static.setRestrictGridPaths(cms.getGridCssPaths(), this.getServletContext());
 
         writeTag("!doctype html");
         writeTag("html", "class", site != null ? site.getCmsCssClass() : null);
