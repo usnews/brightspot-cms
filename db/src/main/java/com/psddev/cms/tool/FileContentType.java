@@ -42,31 +42,13 @@ public interface FileContentType {
         return fileContentType;
     }
 
-    static void writePreview(ToolPageContext page, StorageItem fieldValue) throws IOException, ServletException {
+    static void writeFilePreview(ToolPageContext page, StorageItem fieldValue) throws IOException, ServletException {
 
         HttpServletRequest request = page.getRequest();
         State state = State.getInstance(request.getAttribute("object"));
         ObjectField field = (ObjectField) request.getAttribute("field");
         String fieldName = field != null ? field.getInternalName() : page.paramOrDefault(String.class, "fieldName", "");
-
-//            TODO: to be used for front end uploader
-//            String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) request.getAttribute("inputName"));
-//            String pathName = inputName + ".path";
-//            String storageName = inputName + ".storage";
-
-//            if (page.paramOrDefault(Boolean.class, "isNewUpload", false)) {
-//
-//                String storageItemPath = page.param(String.class, pathName);
-//                if (!StringUtils.isBlank(storageItemPath)) {
-//                    StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
-//                    newItem.setPath(page.param(pathName));
-//                    //newItem.setContentType(page.param(contentTypeName));
-//                    fieldValue = newItem;
-//                }
-//                state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
-//            }
-
-        //TODO: is this still necessary?
+        
         if (fieldValue == null) {
             fieldValue = (StorageItem) state.getValue(fieldName);
         }
