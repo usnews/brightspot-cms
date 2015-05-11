@@ -23,7 +23,6 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ColorDistribution;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CollectionUtils;
 import com.psddev.dari.util.DimsImageEditor;
 import com.psddev.dari.util.ImageEditor;
@@ -59,12 +58,6 @@ public class ImageFileType implements FileContentType {
 
         String inputName = (String) request.getAttribute("inputName");
         String actionName = inputName + ".action";
-        String storageName = inputName + ".storage";
-        String pathName = inputName + ".path";
-        String contentTypeName = inputName + ".contentType";
-        String fileName = inputName + ".file";
-        String urlName = inputName + ".url";
-        String dropboxName = inputName + ".dropbox";
         String cropsName = inputName + ".crops.";
 
         String brightnessName = inputName + ".brightness";
@@ -78,12 +71,6 @@ public class ImageFileType implements FileContentType {
         String sharpenName = inputName + ".sharpen";
         String blurName = inputName + ".blur";
 
-        String focusXName = inputName + ".focusX";
-        String focusYName = inputName + ".focusY";
-
-        String metadataFieldName = fieldName + ".metadata";
-        String widthFieldName = fieldName + ".width";
-        String heightFieldName = fieldName + ".height";
         String cropsFieldName = fieldName + ".crops";
 
         String action = page.param(actionName);
@@ -157,9 +144,6 @@ public class ImageFileType implements FileContentType {
         if (focusPoint == null) {
             focusPoint = new HashMap<String, Double>();
         }
-
-        Class hotSpotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
-        boolean projectUsingBrightSpotImage = hotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(hotSpotClass));
 
         page.writeStart("div",
                 "class", "imageEditor");
