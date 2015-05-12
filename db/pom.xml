@@ -94,6 +94,10 @@
                                             <className>com/psddev/cms/tool/page/ToolUserDashboard</className>
                                             <differenceType>8001</differenceType>
                                         </difference>
+                                        <difference>
+                                            <className>com/psddev/cms/db/ExternalContentProvider$Storify</className>
+                                            <differenceType>8001</differenceType>
+                                        </difference>
                                     </ignored>
                                     <logResults>true</logResults>
                                 </configuration>
