@@ -45,7 +45,7 @@ require([
   'v3/input/object',
   'input/query',
   'input/region',
-  'v3/input/richtext',
+  //'v3/input/richtext',
   'v3/input/richtext2',
   'input/table',
   'input/workflow',

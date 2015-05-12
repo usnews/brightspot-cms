@@ -1,0 +1,173 @@
+.rte-toolbar {
+  
+  a {
+    background-color: white;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: @color-placeholder;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 80%;
+    height: 20px;
+    line-height: 20px;
+    margin: 0 5px 0 0;
+    overflow: hidden;
+    width: 20px;
+
+    &:before {
+      padding: 0 20px 1px 3px;
+    }
+
+    &.active {
+      background-color: @color-link-light;
+    }
+
+    .link {
+      color: @color-text;
+    }
+
+    &:hover {
+      box-shadow: 0 1px 2px fade(black, 20%);
+      color: @color-text;
+    }
+  }
+
+  .rte-toolbar-bold { .icon; .icon-bold; }
+  .rte-toolbar-italic { .icon; .icon-italic; }
+  .rte-toolbar-underline { .icon; .icon-underline; }
+  .rte-toolbar-strikethrough { .icon; .icon-strikethrough; }
+  .rte-toolbar-superscript { .icon; .icon-superscript; }
+  .rte-toolbar-subscript { .icon; .icon-subscript; }
+  .rte-toolbar-align-left { .icon; .icon-align-left; }
+  .rte-toolbar-align-center { .icon; .icon-align-center; }
+  .rte-toolbar-align-right { .icon; .icon-align-right; }
+  .rte-toolbar-ul { .icon; .icon-list-ul; }
+  .rte-toolbar-ol { .icon; .icon-list-ol; }
+  .rte-toolbar-outdent { .icon; .icon-indent-right; }
+  .rte-toolbar-indent { .icon; .icon-indent-left; }
+  .rte-toolbar-link { .icon; .icon-link; }
+  .rte-toolbar-quote { .icon; .icon-comment-alt; }
+  .rte-toolbar-quote-collapse { .icon; .icon-ellipsis-horizontal; }
+
+  .rte-toolbar-track-changes { width:auto; padding-left:0.5em; padding-right:0.5em; }
+  .rte-toolbar-track-changes-accept { .icon; .icon-ok; }
+  .rte-toolbar-track-changes-reject { .icon; .icon-remove; }
+  .rte-toolbar-track-changes-show-final { .icon; .icon-action-preview; }
+
+  .rte-toolbar-clear { width:auto; padding-left:0.5em; padding-right:0.5em; }
+
+  .rte-toolbar-fullscreen { .icon; .icon-fullscreen; }
+  .rte-toolbar-moveLeft { .icon; .icon-arrow-left; }
+  .rte-toolbar-moveUp { .icon; .icon-arrow-up; }
+  .rte-toolbar-moveCenter { .icon; .icon-resize-full; }
+  .rte-toolbar-moveDown { .icon; .icon-arrow-down; }
+  .rte-toolbar-moveRight { .icon; .icon-arrow-right; }
+  .rte-toolbar-enhancementSelect { .icon; .icon-random; }
+  .rte-toolbar-enhancementEdit { .icon; .icon-pencil; }
+  .rte-toolbar-remove { .icon; .icon-remove; color: @color-remove; }
+  .rte-toolbar-restore { .icon; .icon-undo; }
+  .rte-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
+}
+
+.rte-style-bold {
+  font-weight:bold;
+}
+.rte-style-italic {
+  font-style:italic;
+}
+.rte-style-underline {
+  text-decoration: underline;
+}
+.rte-style-strikethrough {
+  text-decoration:line-through;
+}
+.rte-style-subscript {
+  font-size: 0.83em;
+  vertical-align:sub;
+}
+.rte-style-superscript {
+  font-size: 0.83em;
+  vertical-align:super;
+}
+.rte-style-link {
+  color:blue;
+  text-decoration: underline;
+  cursor:pointer;
+}
+.rte-style-align-left {
+  text-align:left;
+}
+.rte-style-align-center {
+  text-align:center;
+}
+.rte-style-align-right {
+  text-align:right;
+}
+.rte-style-quote {
+  font-style:italic;
+  outline:1px solid #333;
+  padding:0.1em;
+}
+.rte-style-collapsed {
+  font-style:italic;
+  border:1px solid #333;
+  display:inline-block;
+  padding:0.1em 0.5em;
+  background-color:#ddd;
+}
+.rte-style-enhancement {
+  display:inline-block;
+  padding:2em;
+  background-color:#ddd;
+  border:1px solid #888;
+  float:left;
+  width:100%;
+  margin:1em 0;
+}
+.rte-style-enhancement-left {
+  float:left;
+  margin:0 1em 0 0;
+  width:400px;
+}
+.rte-style-enhancement-right {
+  float:right;
+  margin:0 0 0 1em;
+  width:400px;
+}
+.rte-style-track-delete {
+  background-color: rgba(255, 0, 0, 0.3);
+  color:white;
+  text-decoration: line-through;
+}
+.rte-style-track-display .rte-style-track-insert {
+  background-color: rgba(125, 255, 125, 0.3);
+  color:black;
+}
+
+.rte-wrapper {
+  
+  .CodeMirror {
+    
+    font-family:inherit;
+
+    pre {
+      font-family:inherit;
+      counter-reset: brightspot_ol_counter;
+    }
+    .rte-style-ul {
+      padding-left: 2em;
+    }
+    .rte-style-ul:before {
+      content: "* ";
+    }
+    .rte-style-ol {
+      counter-reset: none;
+      counter-increment: brightspot_ol_counter;
+      padding-left: 2em;
+    }
+    .rte-style-ol:before {
+      content: counter(brightspot_ol_counter) ". ";
+      margin-left: -1em;
+    }
+  }
+}
