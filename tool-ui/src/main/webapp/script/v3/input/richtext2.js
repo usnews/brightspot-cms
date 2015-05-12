@@ -302,7 +302,7 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             self = this;
 
             if (options) {
-                $.extend(self, options);
+                $.extend(true, self, options);
             }
 
             self.$el = $(element);
@@ -317,16 +317,40 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
          */
         initRte: function() {
             
-            var self;
+            var content, self;
             
             self = this;
-            
+
+            // Get the value from the textarea
+            content = self.$el.val() || '';
+
+            // Create the codemirror rich text editor object
             self.rte = Object.create(CodeMirrorRte);
 
             // Add our styles to the styles that are already built into the rich text editor
             self.rte.styles = $.extend(true, self.rte.styles, self.styles);
+
+            // Create a div under the text area to display the editor
+            self.$container = $('<div/>', {
+                'class': 'rte-wrapper'
+            }).insertAfter(self.$el);
+
+            // Hide the textarea
+            self.$el.hide();
+
+            // Set up a submit event on the form to copy the value back into the textarea
+            if (self.doOnSubmit) {
+                
+                self.$el.closest('form').on('submit', function(){
+                    self.$el.val(self.toHTML());
+                });
+            }
             
-            self.rte.init(self.$el);
+            // Initialize the editor
+            self.rte.init(self.$container);
+
+            // Set the content into the editor
+            self.rte.fromHTML(content);
         },
 
 
@@ -384,7 +408,7 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             });
 
             // Whenever the cursor moves, update the toolbar to show which styles are selected
-            self.$el.on("rteCursorActivity", function() {
+            self.$container.on("rteCursorActivity", function() {
                 self.toolbarUpdate();
             });
 
@@ -574,6 +598,33 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             self.toolbarUpdate();
         }
     };
+
+
+    // Expose as a jQuery plugin.
+    var $inputs = $();
+
+    $.plugin2('rte', {
+        
+        _defaultOptions: { },
+
+        _create: function(input) {
+            
+            var $input, options;
+            
+            options = this.option();
+
+            $.data(input, 'rte-options', $.extend(true, { }, options));
+
+            rte = Object.create(Rte);
+            rte.init(input, options);
+            return;
+        },
+
+        enable: function() {
+            return this;
+        }
+            
+    });
 
     return Rte;
 

@@ -1,9 +1,7 @@
-define(['jquery'], function($) {
-    // Note: assumes that CodeMirror is available
-    // TODO: determine if CodeMirror has an AMD module interface
+define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
     
     var CodeMirrorRte;
-    
+
     /**
      * @class
      * CodeMirrorRte
@@ -141,13 +139,24 @@ define(['jquery'], function($) {
 
             self = this;
 
+            if (options) {
+                $.extend(true, self, options);
+            }
+
             self.$el = $(element).first();
 
+            codeMirrorOptions = {
+                lineWrapping: true,
+                dragDrop: false,
+                mode:null
+            };
+            
             // Create the codemirror object
-            // ??? For now using a text area but we might not be able to use this,
-            // because it probably copies the raw text back into the textarea upon submitting
-            // the form.
-            self.codeMirror = CodeMirror.fromTextArea(self.$el[0], {lineWrapping: true, dragDrop: false});
+            if (self.$el.is('textarea')) {
+                self.codeMirror = CodeMirror.fromTextArea(self.$el[0], codeMirrorOptions);
+            } else {
+                self.codeMirror = CodeMirror(self.$el[0], codeMirrorOptions);
+            }
 
             // Create a mapping from self.styles so we can perform quick lookups on the classname
             self.classes = self.getClassNameMap();
@@ -2663,7 +2672,7 @@ define(['jquery'], function($) {
 
                 next = n.childNodes[0];
 
-                while (next !== null) {
+                while (next) {
 
                     // Check if we got a text node or an element
                     if (next.nodeType === 3) {
