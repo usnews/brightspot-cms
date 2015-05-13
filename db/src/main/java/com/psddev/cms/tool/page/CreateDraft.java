@@ -61,7 +61,8 @@ public class CreateDraft extends PageServlet {
         }
 
         state.as(Content.ObjectModification.class).setDraft(true);
-        state.saveUnsafely();
+
+        Content.Static.publish(state, page.getUser().getCurrentSite(), page.getUser());
 
             Query.
                     from(SearchResultSelection.class).
