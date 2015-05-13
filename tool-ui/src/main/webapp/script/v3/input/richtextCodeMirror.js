@@ -64,6 +64,19 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * it will clear the formatting styles like bold and italic, but not the internal
          * styles like trackInsert and trackDelete.
          * However, an internal style can still output HTML elements.
+         *
+         * Function [fromHTML($el, mark)]
+         * A function that extracts additional information from the HTML element
+         * and adds it to the mark object for future use.
+         *
+         * Function [toHTML(mark)]
+         * A function that reads additional information saved on the mark object,
+         * and uses it to ouput HTML for the style.
+         *
+         * Function [onClick(mark)]
+         * A function that handles clicks on the mark. It can read additional information
+         * saved on the mark, and modify that information.
+         * Note at this time an onClick can be used only for inline styles.
          */
         styles: {
 
@@ -270,6 +283,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
         /**
          * Set up listener for clicks.
+         * If a style has an onClick parameter, then when user clicks that
+         * style we will call the onClick function and pass it the mark.
          */
         initClickListener: function() {
 
@@ -282,14 +297,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Monitor the "mousedown" event so we can tell when 
             // user clicks on something in the editor.
             // CodeMirror doesn't have a click listener, so mousedown is the closest we can get.
-            editor.on('mousedown', function(instance, event) {
+            $(editor.getWrapperElement()).on('click', function(event) {
 
                 var $el, marks, pos;
 
-                $el = $(event.toElement);
-
                 // Figure out the line and character based on the mouse coord that was clicked
-                pos = editor.coordsChar({left:event.x, top:event.y});
+                pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
 
                 // Loop through all the marks for the clicked position
                 marks = editor.findMarksAt(pos);
@@ -297,10 +310,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     var styleObj;
                     styleObj = self.classes[mark.className];
                     if (styleObj && styleObj.onClick) {
-                        styleObj.onClick(mark);
+                        styleObj.onClick(event, mark);
                     }
                 });
             });
+
+
         }, // initClickListener
 
 
@@ -341,18 +356,19 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         toggleStyle: function(style, range) {
             
-            var self, styleObj;
+            var mark, self, styleObj;
 
             self = this;
             
             styleObj = self.styles[style];
             if (styleObj) {
                 if (styleObj.line) {
-                    self.blockToggleStyle(style, range);
+                    mark = self.blockToggleStyle(style, range);
                 } else {
-                    self.inlineToggleStyle(style, range);
+                    mark = self.inlineToggleStyle(style, range);
                 }
             }
+            return mark;
         },
 
         
@@ -368,7 +384,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         setStyle: function(style, range) {
             
-            var self, styleObj;
+            var mark, self, styleObj;
 
             self = this;
             
@@ -377,9 +393,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 if (styleObj.line) {
                     self.blockSetStyle(style, range);
                 } else {
-                    self.inlineSetStyle(style, range);
+                    mark = self.inlineSetStyle(style, range);
                 }
             }
+            
+            return mark;
         },
 
         
@@ -427,7 +445,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         inlineToggleStyle: function(styleKey, range) {
 
-            var self;
+            var mark, self;
 
             self = this;
 
@@ -436,8 +454,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             if (self.inlineIsStyle(styleKey, range)) {
                 self.inlineRemoveStyle(styleKey, range);
             } else {
-                self.inlineSetStyle(styleKey, range);
+                mark = self.inlineSetStyle(styleKey, range);
             }
+
+            return mark;
         },
 
         
@@ -515,6 +535,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             CodeMirror.signal(editor, "cursorActivity");
 
             return mark;
+            
         }, // initSetStyle
 
         
@@ -1241,7 +1262,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         blockToggleStyle: function(styleKey, range) {
             
-            var self;
+            var mark, self;
 
             self = this;
 
@@ -1250,8 +1271,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             if (self.blockIsStyle(styleKey, range)) {
                 self.blockRemoveStyle(styleKey, range);
             } else {
-                self.blockSetStyle(styleKey, range);
+                mark = self.blockSetStyle(styleKey, range);
             }
+            
+            return mark;
         },
 
         

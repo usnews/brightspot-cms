@@ -1,4 +1,4 @@
-define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
+define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($, CodeMirrorRte) {
     
     /**
      * @class
@@ -15,8 +15,11 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
      * rte = Object.create(Rte);
      * rte.init('#mytextarea');
      */
-    var Rte;
+    var CONTEXT_PATH, Rte;
 
+    // Global variable set by the CMS, typically "/cms/"
+    CONTEXT_PATH = window.CONTEXT_PATH || '';
+    
     Rte = {
 
         /**
@@ -69,15 +72,15 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
                         target: $el.attr('target'),
                         rel: $el.attr('rel'),
                         title: $el.attr('title'),
-                        'data-cms-id': $el.attr('data-cms-id'),
-                        'data-cms-href': $el.attr('data-cms-href')
+                        cmsId: $el.attr('data-cms-id'),
+                        cmsHref: $el.attr('data-cms-href')
                     };
                 },
                 
                 // Function to return the opening HTML element for a link
                 toHTML: function(mark) {
                     
-                    var $el, href, html, rel, target, title, cmsId, cmsHref;
+                    var $el, href, html, rel, target, title, cmsId;
                     
                     // For a link set the attributes on the element that were set on the mark
                     html = '<a';
@@ -87,32 +90,57 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
                         title = mark.attributes.title || '';
                         target = mark.attributes.target || '';
                         rel = mark.attributes.rel || '';
-                        cmsId = mark.attributes['data-cms-id'] || '';
-                        cmsHref = mark.attributes['data-cms-href'] || '';
+                        cmsId = mark.attributes.cmsId || '';
                     }
 
                     if (href) { html += ' href="' + href + '"'; }
                     if (title) { html += ' title="' + title + '"'; }
                     if (target) { html += ' target="' + target + '"'; }
                     if (rel) { html += ' rel="' + rel + '"'; }
-                    if (cmsId) { html += ' data-cms-id="' + cmsId + '"'; }
-                    if (cmsHref) { html += ' data-cms-href="' + cmsHref + '"'; }
+                    if (cmsId) {
+                        html += ' data-cms-id="' + cmsId + '"';
+                        html += ' data-cms-href="' + href + '"';
+                    }
                     
                     html += '>';
                     
                     return html;
                 },
 
-                onClick: function(mark) {
+                onClick: function(event, mark) {
 
-                    // TODO: replace this with an interface to prompt for link attributes
-                    alert('temporary onClick for links');
+                    var self;
+
+                    // Note this onClick function is called in such a way that "this"
+                    // refers to the Rte object, so we can access other functions in the object.
+                    self = this;
+
+                    // Stop the click from propagating up to the window
+                    // because if it did, it would close the popup we will be opening.
+                    if (event) {
+                        event.stopPropagation();
+                    }
                     
-                    mark.attributes = {
-                        href: 'http://cnn.com',
-                        target: '_blank',
-                        rel: 'nofollow'
-                    };
+                    // Let the user edit the link, and when that is done update the mark
+                    self.linkEdit(mark.attributes).done(function(attributes){
+                        
+                        if (attributes.remove || attributes.href === '' || attributes.href === 'http://') {
+                            // Remove the link
+                            mark.clear();
+                        } else {
+                            // Update the link attributes
+                            mark.attributes = mark.attributes || {};
+                            $.extend(mark.attributes, attributes);
+                        }
+                    }).fail(function(){
+
+                        // If the popup was closed without saving and there is no href already the link,
+                        // then remove the link.
+                        if (!mark.attributes) {
+                            mark.clear();
+                        }
+                        
+                    });
                 }
             },
             ol : {
@@ -242,6 +270,8 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             { style: 'ul', text: '&bull;', className: 'rte-toolbar-ul' },
             { style: 'ol', text: '1.', className: 'rte-toolbar-ol' },
             { separator:true },
+            { style: 'link', text: 'Link', className: 'rte-toolbar-link' },
+            { separator:true },
             { style: 'alignLeft', text: 'Left', className: 'rte-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'] },
             { style: 'alignCenter', text: 'Center', className: 'rte-toolbar-align-center' },
             { style: 'alignRight', text: 'Right', className: 'rte-toolbar-align-right' },
@@ -278,7 +308,7 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
          */
         doOnSubmit: true,
 
-        
+       
         /**
          * Initialize the rich text editor.
          *
@@ -307,8 +337,35 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
 
             self.$el = $(element);
 
+            self.initStyles();
             self.initRte();
             self.toolbarInit();
+            self.linkInit();
+        },
+
+
+        /**
+         * Determine which styles to support.
+         * Modify certain callback functions so the Rte object will be available via the "this" keyword.
+         */
+        initStyles: function() {
+
+            var self;
+
+            self = this;
+
+            // TODO: determine which styles should be for inline editor only
+            
+            // TODO: add customized styles from the CMS
+            
+            $.each(self.styles, function(i,styleObj) {
+
+                // Modify the onClick function so it is called in the context of our object,
+                // to allow the onclick function access to other functions
+                if (styleObj.onClick) {
+                    styleObj.onClick = $.proxy(styleObj.onClick, self);
+                }
+            });
         },
 
 
@@ -352,6 +409,7 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             // Set the content into the editor
             self.rte.fromHTML(content);
         },
+
 
 
         /*==================================================
@@ -402,7 +460,7 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
 
                     $item.on('click', function(event) {
                         event.preventDefault();
-                        self.toolbarHandleClick(item);
+                        self.toolbarHandleClick(item, event);
                     });
                 }
             });
@@ -424,10 +482,14 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
          *
          * @param {Object} item
          * An entry from the toolbarConfig object.
+         *
+         * @param {Object} [event]
+         * The click event that from the toolbar button.
+         * In case you need to stop the click from propagating.
          */
-        toolbarHandleClick: function(item) {
+        toolbarHandleClick: function(item, event) {
             
-            var rte, self, styleObj;
+            var mark, rte, self, styleObj;
 
             self = this;
 
@@ -467,10 +529,19 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
                 }
 
             } else if (item.style) {
-                
-                rte.toggleStyle(item.style);
+
+                if (styleObj.onClick) {
+                    
+                    mark = rte.inlineGetMark(item.style) || rte.setStyle(item.style);
+                    if (mark) {
+                        styleObj.onClick(event, mark);
+                    }
+                    
+                } else {
+                    mark = rte.toggleStyle(item.style);
+                }
             }
-            
+
             self.toolbarUpdate();
             
             self.focus();
@@ -575,6 +646,175 @@ define(['jquery', 'v3/input/richtextCodeMirror'], function($, CodeMirrorRte) {
             var self;
             self = this;
             self.$toolbar.hide();
+        },
+
+        
+        /*==================================================
+         * LINKS
+         *==================================================*/
+
+        /**
+         * Sets up the pop-up form that will be used to edit links.
+         */
+        linkInit: function() {
+
+            var self;
+
+            self = this;
+
+            // The pop-up dialog used to prompt for links
+            self.$linkDialog = $(
+                '<div>' +
+                    '<h2>Link</h2>' +
+                    '<div class="rte-dialogLine">' +
+                        '<input type="text" class="rte-dialogLinkHref">' +
+                        '<input type="hidden" class="rte-dialogLinkId">' +
+                        '<a class="rte-dialogLinkContent" target="linkById" href="' + CONTEXT_PATH + '/content/linkById.jsp?p=true">Content</a>' +
+                    '</div>' +
+                    '<div class="rte-dialogLine">' +
+                        '<select class="rte-dialogLinkTarget">' +
+                            '<option value="">Same Window</option>' +
+                            '<option value="_blank">New Window</option>' +
+                        '</select>' +
+                        '<select class="rte-dialogLinkRel">' +
+                            '<option value="">Relation</option>' +
+                            '<option value="nofollow">nofollow</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<a class="rte-dialogLinkSave">Save</a>' +
+                    '<a class="rte-dialogLinkOpen" target="_blank">Open</a>' +
+                    '<a class="rte-dialogLinkUnlink">Unlink</a>' +
+                '</div>'
+            ).on('click', '.rte-dialogLinkSave', function() {
+                // User clicked "Save" button to save the link
+                self.linkSave();
+                self.$linkDialog.popup('close');
+                return false;
+            }).on('click', '.rte-dialogLinkUnlink', function() {
+                // User clicked "Unlink" button to remove the link
+                self.linkUnlink();
+                self.$linkDialog.popup('close');
+                return false;
+            }).on('input', '.rte-dialogLinkHref', function(event) {
+                // User changed the link href, so update the href in the "Open" link
+                self.$linkDialog.find('.rte-dialogLinkOpen').attr('href', $(event.target).val() );
+            }).on('keydown', '.rte-dialogLinkHref', function(event) {
+                // If user presses enter key save the dialog
+                if (event.which === 13) {
+                    self.linkSave();
+                    self.$linkDialog.popup('close');
+                    return false;
+                }
+            }).appendTo(document.body)
+                .popup() // turn it into a popup
+                .popup('close') // but initially close the popup
+                .popup('container').on('close', function() {
+                    // If the popup is canceled with Esc or otherwise,
+                    // do some cleanup such as removing the link if no link was
+                    // previously selected
+                    self.linkClose();
+                });
+            
+        },
+
+        
+        /**
+         * Displays a pop-up form to let users choose or edit a link.
+         *
+         * @param {Object} [attributes]
+         * An object with key/value pairs for the link data.
+         * @param {String} [attributes.href]
+         * @param {String} [attributes.target]
+         * @param {String} [attributes.rel]
+         * @param {String} [attributes.title]
+         * @param {String} [attributes.cmsId]
+         * @param {String} [attributes.cmsHref]
+         *
+         * @returns {Promise}
+         * Returns a promise that will be resolved with the link data
+         * {Object} promise(attributes)
+         * @param {String} [attributes.href]
+         * @param {String} [attributes.target]
+         * @param {String} [attributes.rel]
+         * @param {String} [attributes.title]
+         * @param {String} [attributes.cmsId]
+         * @param {String} [attributes.cmsHref]
+         * @param {Boolean} [attributes.remove]
+         * If this is true, then remove the link.
+         */
+        linkEdit: function(attributes) {
+            
+            var deferred, $linkDialog, $href, self;
+
+            self = this;
+
+            attributes = attributes || {};
+
+            $linkDialog = self.$linkDialog;
+            
+            deferred = $.Deferred();
+
+            // Open the popup
+            $linkDialog.popup('open');
+            
+            // Add existing attributes to the popup form
+            $href = $linkDialog.find('.rte-dialogLinkHref');
+            $href.val(attributes.href || 'http://');
+            $linkDialog.find('.rte-dialogLinkId').val(attributes.cmsId || '');
+            $linkDialog.find('.rte-dialogLinkTarget').val(attributes.target || '');
+            $linkDialog.find('.rte-dialogLinkRel').val(attributes.rel || '');
+            $linkDialog.find('.rte-dialogLinkOpen').attr('href', $href.val());
+            $href.focus();
+
+            // Save the deferred object so we can resolve it later
+            self.linkDeferred = deferred;
+
+            return deferred.promise();
+        },
+
+
+        linkSave: function() {
+
+            var attributes, self;
+
+            self = this;
+
+            $linkDialog = self.$linkDialog;
+
+            attributes = {
+                href: $linkDialog.find('.rte-dialogLinkHref').val() || '',
+                target: $linkDialog.find('.rte-dialogLinkTarget').val() || '',
+                rel: $linkDialog.find('.rte-dialogLinkRel').val() || '',
+                cmsId: $linkDialog.find('.rte-dialogLinkId').val() || ''
+            };
+            
+            // Resolve the deferred object with the new attributes,
+            // so whoever called linkEdit will be notified with the final results.
+            self.linkDeferred.resolve(attributes);
+        },
+
+
+        linkUnlink: function() {
+            var self;
+            self = this;
+            self.linkDeferred.resolve({remove:true});
+        },
+
+        
+        /**
+         * This function is called when the edit popup closes
+         * whether from user input clicking outside the popup.
+         */
+        linkClose: function() {
+            
+            var self;
+
+            self = this;
+
+            // Reject the deferred object (if it hasn't already been resolved)
+            if (self.linkDeferred) {
+                self.linkDeferred.reject();
+            }
         },
 
         
