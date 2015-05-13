@@ -35,6 +35,7 @@ public class ContentFormFields extends PageServlet {
 
         if (data != null) {
             State.getInstance(object).putAll((Map<String, Object>) ObjectUtils.fromJson(data));
+            State.getInstance(object).validate();
         }
 
         page.writeFormFields(object);
