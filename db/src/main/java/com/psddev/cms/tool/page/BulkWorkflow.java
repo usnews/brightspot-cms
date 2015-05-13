@@ -681,7 +681,9 @@ public class BulkWorkflow extends PageServlet {
                             stateTransitionsByType.put(workflowType, stateTransitions);
                         }
 
-                        if (ObjectUtils.to(int.class, workflowStateCounts.get(workflowType).get(workflowState.getName())) > 0) {
+                        Map<String, Integer> counts = workflowStateCounts.get(workflowType);
+
+                        if (counts != null && ObjectUtils.to(int.class, counts.get(workflowState.getName())) > 0) {
 
                             Map<String, WorkflowTransition> transitionsFrom = new HashMap<>();
                             for (Map.Entry<String, WorkflowTransition> entry : workflow.getTransitionsFrom(workflowState.getName()).entrySet()) {

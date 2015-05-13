@@ -108,7 +108,7 @@ public class ExternalContent extends Content implements Renderer {
             }
 
             try {
-                for (Element link : getOrCreateDocument().select("link[rel=alternate][type=application/json+oembed]")) {
+                for (Element link : getOrCreateDocument().select("link[type=application/json+oembed]")) {
                     String oEmbedUrl = link.attr("href");
 
                     if (!ObjectUtils.isBlank(oEmbedUrl)) {
