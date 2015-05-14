@@ -13,7 +13,6 @@ com.psddev.dari.db.ObjectField,
 com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.State,
-com.psddev.dari.db.ValidationException,
 
 com.psddev.dari.util.CompactMap,
 com.psddev.dari.util.CssUnit,
@@ -584,13 +583,6 @@ if (!isValueExternal) {
             "foo", "bar",
             "data-generic-arguments", genericArgumentsString);
         wp.writeStart("ol");
-            StringBuilder errorStringBuilder = new StringBuilder();
-            for (Throwable error : wp.getErrors()) {
-                if (error instanceof ValidationException) {
-                    errorStringBuilder.append(' ').append(((ValidationException) error).getMessage());
-                }
-            }
-            String errorString = errorStringBuilder.toString();
             for (Object item : fieldValue) {
                 State itemState = State.getInstance(item);
                 ObjectType itemType = itemState.getType();
@@ -615,7 +607,7 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    if (!errorString.contains(itemState.getId().toString()) && ObjectUtils.isBlank(itemState.getErrorFields())) {
+                    if (!itemState.hasAnyErrors()) {
                         wp.writeElement("input",
                                 "type", "hidden",
                                 "name", dataName,

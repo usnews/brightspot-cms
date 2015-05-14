@@ -9,7 +9,6 @@ com.psddev.dari.db.ObjectFieldComparator,
 com.psddev.dari.db.State,
 com.psddev.dari.db.ObjectType,
 com.psddev.dari.db.Query,
-com.psddev.dari.db.ValidationException,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.PaginatedResult,
 com.psddev.dari.util.Settings,
@@ -212,20 +211,13 @@ if (isEmbedded) {
         wp.write("</select>");
         wp.write("</div>");
 
-        StringBuilder errorStringBuilder = new StringBuilder();
-        for (Throwable error : wp.getErrors()) {
-            if (error instanceof ValidationException) {
-                errorStringBuilder.append(' ').append(((ValidationException) error).getMessage());
-            }
-        }
-        String errorString = errorStringBuilder.toString();
         for (Object validObject : validObjects) {
             State validState = State.getInstance(validObject);
             Date validObjectPublishDate = validState.as(Content.ObjectModification.class).getPublishDate();
             wp.write("<div class=\"inputLarge ", validObjectClass, " ", showClasses.get(validState.getId()), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
-            if (!errorString.contains(validState.getId().toString()) && ObjectUtils.isBlank(validState.getErrorFields())) {
+            if (!validState.hasAnyErrors()) {
                 wp.writeStart("div",
                         "class", "toggleable-form",
                         "data-form-fields-data", ObjectUtils.toJson(validState.getSimpleValues()),
