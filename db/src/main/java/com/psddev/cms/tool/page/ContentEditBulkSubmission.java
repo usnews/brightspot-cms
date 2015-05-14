@@ -1,5 +1,7 @@
 package com.psddev.cms.tool.page;
 
+import com.psddev.cms.db.Content;
+import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -15,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class ContentEditBulkSubmission extends Record {
+
+    @Indexed
+    private Site submitSite;
 
     @Indexed
     private ToolUser submitUser;
@@ -33,6 +38,14 @@ public class ContentEditBulkSubmission extends Record {
 
     @Indexed
     private Date finishDate;
+
+    public Site getSubmitSite() {
+        return submitSite;
+    }
+
+    public void setSubmitSite(Site submitSite) {
+        this.submitSite = submitSite;
+    }
 
     public ToolUser getSubmitUser() {
         return submitUser;
@@ -149,13 +162,16 @@ public class ContentEditBulkSubmission extends Record {
         @SuppressWarnings("unchecked")
         protected void doTask() {
             try {
+                Site site = getSubmitSite();
+                ToolUser user = getSubmitUser();
                 Map<String, Object> replaces = getReplaces();
                 Map<String, Object> adds = getAdds();
                 Map<String, Object> removes = getRemoves();
                 Set<String> clears = getClears();
 
                 for (Iterator<?> i = getQuery().iterable(0).iterator(); shouldContinue() && i.hasNext();) {
-                    State itemState = State.getInstance(i.next());
+                    Object item = i.next();
+                    State itemState = State.getInstance(item);
 
                     itemState.putAll(replaces);
 
@@ -219,7 +235,7 @@ public class ContentEditBulkSubmission extends Record {
                     }
 
                     try {
-                        itemState.save();
+                        Content.Static.publish(item, site, user);
                         setSuccesses(getSuccesses() + 1);
 
                     } catch (Exception error) {
