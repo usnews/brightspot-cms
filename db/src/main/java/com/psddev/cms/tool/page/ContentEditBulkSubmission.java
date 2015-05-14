@@ -1,7 +1,6 @@
 package com.psddev.cms.tool.page;
 
 import com.psddev.cms.db.ToolUser;
-import com.psddev.dari.db.Metric;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.db.State;
@@ -155,7 +154,7 @@ public class ContentEditBulkSubmission extends Record {
                 Map<String, Object> removes = getRemoves();
                 Set<String> clears = getClears();
 
-                for (Iterator<?> i = getQuery().iterable(0).iterator(); shouldContinue() && i.hasNext(); ) {
+                for (Iterator<?> i = getQuery().iterable(0).iterator(); shouldContinue() && i.hasNext();) {
                     State itemState = State.getInstance(i.next());
 
                     itemState.putAll(replaces);

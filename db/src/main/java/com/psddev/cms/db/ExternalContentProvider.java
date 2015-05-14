@@ -97,37 +97,6 @@ public interface ExternalContentProvider {
 
     /**
      * {@link ExternalContentProvider} for
-     * <a href="http://instagram.com/">Instagram</a>.
-     */
-    public static class Instagram extends RichExternalContentProvider {
-
-        private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://instagr(?:\\.am|am\\.com)/p/([^/]+).*");
-
-        @Override
-        protected Pattern getUrlPattern() {
-            return URL_PATTERN;
-        }
-
-        @Override
-        protected void updateHtml(Matcher urlMatcher, HtmlWriter html) throws IOException {
-            html.writeStart("iframe",
-                    "src", "//instagram.com/p/" + urlMatcher.group(1) + "/embed/",
-                    "width", 640,
-                    "height", 640,
-                    "frameborder", 0,
-                    "scrolling", "no");
-            html.writeEnd();
-        }
-
-        @Override
-        protected void updateResponse(Map<String, Object> response) {
-            response.put("width", 640);
-            response.put("height", 640);
-        }
-    }
-
-    /**
-     * {@link ExternalContentProvider} for
      * <a href="https://pinterest.com/">Pinterest</a>.
      */
     public static class Pinterest extends RichExternalContentProvider {
