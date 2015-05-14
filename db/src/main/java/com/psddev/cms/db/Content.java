@@ -318,10 +318,11 @@ public abstract class Content extends Record {
 
             } else {
                 try {
-                    History history = new History(user, object);
-
                     state.beginWrites();
                     state.save();
+
+                    History history = new History(user, object);
+
                     history.save();
                     state.commitWrites();
                     return history;

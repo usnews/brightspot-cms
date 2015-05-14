@@ -132,6 +132,7 @@ public class ContentEditBulk extends PageServlet {
 
                     ContentEditBulkSubmission status = new ContentEditBulkSubmission();
 
+                    status.setSubmitSite(page.getSite());
                     status.setSubmitUser(page.getUser());
                     status.setSubmitDate(new Date());
                     status.setQuery(query);
