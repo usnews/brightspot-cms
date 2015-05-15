@@ -80,7 +80,7 @@ if (wp.tryStandardUpdate(selected)) {
     <div class="main">
 
         <div class="widget">
-            <% wp.writeStandardForm(selected); %>
+            <% wp.writeStandardForm(selected, false); %>
         </div>
 
     </div>
