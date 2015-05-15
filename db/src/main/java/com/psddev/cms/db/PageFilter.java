@@ -1388,6 +1388,14 @@ public class PageFilter extends AbstractFilter {
 
                         if (previewSite != null) {
                             setSite(request, previewSite);
+
+                        } else {
+                            for (Directory.Path p : dirData.getPaths()) {
+                                if (Directory.PathType.PERMALINK.equals(p.getType())) {
+                                    setSite(request, p.getSite());
+                                    break;
+                                }
+                            }
                         }
                     }
 
