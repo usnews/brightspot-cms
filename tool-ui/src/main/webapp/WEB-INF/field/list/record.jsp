@@ -607,7 +607,7 @@ if (!isValueExternal) {
                             "name", publishDateName,
                             "value", itemPublishDate != null ? itemPublishDate.getTime() : null);
 
-                    if (ObjectUtils.isBlank(itemState.getErrorFields())) {
+                    if (!itemState.hasAnyErrors()) {
                         wp.writeElement("input",
                                 "type", "hidden",
                                 "name", dataName,

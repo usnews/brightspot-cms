@@ -88,7 +88,7 @@ public class ExportContent extends PageServlet {
 
                 page.writeStart("div", "class", "searchResult-action-simple");
                 page.writeStart("a",
-                        "class", "button link icon icon-download-alt",
+                        "class", "button",
                         "target", "_top",
                         "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
                 page.writeHtml("Export");
