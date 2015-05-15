@@ -342,6 +342,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             self.initRte();
             self.toolbarInit();
             self.linkInit();
+            self.enhancementInit();
         },
 
 
@@ -853,10 +854,99 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         /**
          */
         enhancementInit: function() {
+
+            var self;
             
+            self = this;
+            
+            // Okay, this is a hack so prepare yourself.
+            // Set up a global click event to detect when user clicks on an enhancement in the popup.
+            // However, since there can be multiple enhancements in the editor,
+            // (and multiple rich text editors on the page) we must determine where the popup originated.
+            // If the popup did not originate in our rich text editor, we will ignore the event and let
+            // somebody else deal with it.
+            $(document.body).on('click', '[data-enhancement]', function(event) {
+                
+                var data, dataReference, $edit, editUrl, $enhancement, $placeholder, $popupTrigger, $select, selectUrl, $target;
+                
+                // The enhancement link that the user clicked
+                $target = $(this);
+
+                // Get the link that triggered the popup to appear.
+                // This link will be inside the enhancement that is being changed.
+                $popupTrigger = $target.popup('source');
+
+                // Determine if that link is inside our rich text editor
+                if (!self.$container.find($popupTrigger).length) {
+                    // Not in our editor - must be from some other editor so we will ignore
+                    return;
+                }
+                
+                // Get the enhancement that is being changed.
+                $enhancement = self.enhancementGetWrapper($popupTrigger);
+
+                // Get the data for the selected enhancement
+                // Note the .data() function will automatically convert from JSON string to a javacript object.
+                // For example, the link might look like this:
+                // <a data-enhancement='{"label":"Test Raw HTML","record":{"_ref":"0000014d-018f-da9a-a5cf-4fef59b30000",
+                // "_type":"0000014b-75ea-d559-a95f-fdffd32f005f"},"_id":"0000014d-590f-d32d-abed-fdef3ad50001",
+                // "_type":"0000014b-75ea-d559-a95f-fdffd3300055"}' href="#">Test Raw HTML</a>
+                data = $target.data('enhancement');
+
+                // Save the data on the enhancement so it can be used later
+                $enhancement.data('rte-enhancement', data);
+
+                // Modify the Select button in the toolbar
+                $select = $enhancement.find('.rte-enhancement-toolbar-change');
+                $select.text('Change');
+
+                // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
+                $edit = $enhancement.find('.rte-enhancement-toolbar-edit');
+                editUrl = $edit.attr('href') || '';
+                editUrl = $.addQueryParameters(editUrl, 'id', data.record._ref);
+                $edit.attr('href', editUrl);
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                $target.popup('close');
+                return false;
+            });
+
+            
+            // Set up a global close event to determine when the enhancement popup is closed
+            // so we can remove the enhancement if nothing was selected.
+            $(document).on('close', '.popup[name ^= "contentEnhancement-"]', function() {
+
+                var $enhancement, mark, $popupTrigger, $popup;
+
+                // The popup that was closed
+                $popup = $(this);
+
+                // Get the link that triggered the popup to appear.
+                // This link will be inside the enhancement that is being changed.
+                $popupTrigger = $popup.popup('source');
+
+                // Determine if that link is inside our rich text editor
+                if (!self.$container.find($popupTrigger).length) {
+                    // Not in our editor - must be from some other editor so we will ignore
+                    return;
+                }
+
+                // Get the enhancement that is being changed.
+                $enhancement = self.enhancementGetWrapper($popupTrigger);
+
+                // Update the enhancement to show a preview of the content.
+                // This will also remove the enhancement if it is empty.
+                self.enhancementUpdate($enhancement);
+
+            });
         },
 
-        enhancementCreate: function(html) {
+        
+        /**
+         * Create a new enhancement.
+         */
+        enhancementCreate: function(data) {
 
             var $button, $enhancement, mark, self;
 
@@ -867,21 +957,74 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 'class': 'rte-enhancement'
             }).append( self.enhancementToolbarCreate() );
 
-            // ???
             $('<div/>', {'class': 'rte-enhancement-label' }).appendTo($enhancement);
 
-            // Add the enhancement to the eidtor
+            // Add the enhancement to the editor
             mark = self.rte.enhancementAdd($enhancement[0], null, {block:true, toHTML:function(){
                 
                 // TODO: how does the enhancement export html?
+                return '';
                 
             }});
 
             // Save the mark so we can use it to modify the enhancement later
             self.enhancementSetMark($enhancement, mark);
+
+            // If the data for this enhancement was provided, save it as part of the enhancement
+            if (data) {
+                $enhancement.data('rte-enhancement', data);
+                self.enhancementUpdate($enhancement);
+            } else {
+                // No data was provided so this is a new enhancement.
+                // Pop up the selection form.
+                self.enhancementChange($enhancement);
+            }
+        },
+
+
+        /**
+         * Update the enhancement display, based on the enhancement data.
+         */
+        enhancementUpdate: function(el) {
+            
+            var $content, data, $enhancement, self;
+            
+            self = this;
+            $enhancement = self.enhancementGetWrapper(el);
+            $content = $enhancement.find('.rte-enhancement-label');
+            data = $enhancement.data('rte-enhancement');
+
+            if (!data) {
+                self.enhancementRemoveCompletely($enhancement);
+                return;
+            }
+
+            $content.empty();
+            
+            if (data.preview) {
+                
+                $('<figure/>', {
+                    html: [
+                        $('<img/>', {
+                            src: data.preview,
+                            title: data.label || ''
+                        }),
+                        $('<figcaption/>', {
+                            text: data.label || ''
+                        })
+                    ]
+                }).appendTo($content);
+                
+            } else {
+                $content.text(data.label || 'Empty Enhancement');
+            }
         },
 
         
+        /**
+         * @returns jQuery
+         * Returns a jQuery object containing the toolbar.
+         */
         enhancementToolbarCreate: function() {
 
             var self, $toolbar;
@@ -940,41 +1083,42 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // TODO: image size selector
             
             $('<a/>', {
-                href: '#',
-                text: 'Change',
+                href: CONTEXT_PATH + '/enhancementSelect',
+                target: self.enhancementGetTarget(),
+                text: 'Select', // Note this web be updated to "Change" once an enhancement is selected
                 'class': 'rte-enhancement-toolbar-change'
-            }).on('click', function(){
-                self.enhancementChange(this);
-                return false;
+            }).on('click', function(event){
             }).appendTo($toolbar);
             
             $('<a/>', {
-                href: '#',
+                href: CONTEXT_PATH + '/content/enhancement.jsp', // Note this url will be modified to add the enhancement id
+                target: self.enhancementGetTarget(),
                 text: 'Edit',
                 'class': 'rte-enhancement-toolbar-edit'
             }).on('click', function(){
-                self.enhancementEdit(this);
-                return false;
             }).appendTo($toolbar);
             
+            // CSS is used to hide this when the toBeRemoved class is set on the enhancement
             $('<a/>', {
                 href: '#',
                 text: 'Remove',
                 'class': 'rte-enhancement-toolbar-remove'
             }).on('click', function(){
-                self.enhancementRemove(this);
+                self.enhancementRemove(this); // Mark to be removed
                 return false;
             }).appendTo($toolbar);
-            
+
+            // CSS is used to hide this unless the toBeRemoved class is set on the enhancement
             $('<a/>', {
                 href: '#',
                 text: 'Restore',
                 'class': 'rte-enhancement-toolbar-restore'
             }).on('click', function(){
-                self.enhancementRestore(this, false);
+                self.enhancementRestore(this, false);  // Erase the to be removed mark
                 return false;
             }).appendTo($toolbar);
             
+            // CSS is used to hide this unless the toBeRemoved class is set on the enhancement
             $('<a/>', {
                 href: '#',
                 text: 'Remove Completely',
@@ -987,11 +1131,27 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             return $toolbar;
         },
 
-        
+
+        /**
+         * Pop up the enhancement selector form.
+         */
         enhancementChange: function(el) {
-            var mark, self;
+            var $enhancement, mark, self;
             self = this;
-            mark = self.enhancementGetMark(el);
+            $enhancement = self.enhancementGetWrapper(el);
+
+            // Okay this is a bit of a hack.
+            // We will simulate a click on the "Select Enhancement" toolbar button,
+            // because there is another click event on the page that will handle that
+            // and pop up the appropriate form to select the enhancement.
+
+            // Also for some reason the popup close event is triggering
+            // and killing the enhancement before the popup even appears.
+            // Using a timeout here seems to correct it but I'm not sure why.
+            // TODO: investigate why this is necessary.
+            setTimeout(function(){
+                $enhancement.find('.rte-enhancement-toolbar-change').trigger('click');
+            }, 1);
         },
 
         
@@ -1114,7 +1274,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             self.enhancementGetWrapper(el).data('mark', mark);
         },
 
+        
+        /**
+         * Generate a unique link target for enhancement toolbar links.
+         */
+        enhancementGetTargetCounter: 0,
+        enhancementGetTarget: function() {
+            var self;
+            self = this;
+            return 'contentEnhancement-' + self.enhancementGetTargetCounter++;
+        },
 
+        
         /*==================================================
          * Misc
          *==================================================*/
