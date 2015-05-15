@@ -98,6 +98,10 @@
                                             <className>com/psddev/cms/db/ExternalContentProvider$Instagram</className>
                                             <differenceType>8001</differenceType>
                                         </difference>
+                                        <difference>
+                                            <className>com/psddev/cms/db/ExternalContentProvider$Pinterest</className>
+                                            <differenceType>8001</differenceType>
+                                        </difference>
                                     </ignored>
                                     <logResults>true</logResults>
                                 </configuration>

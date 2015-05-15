@@ -1229,6 +1229,7 @@ public class ToolPageContext extends WebPageContext {
                     writeHtml(companyName);
                 writeEnd();
 
+                writeElement("meta", "name", "referrer", "content", "never");
                 writeElement("meta", "name", "robots", "content", "noindex");
                 writeElement("meta", "name", "viewport", "content", "width=device-width, initial-scale=1");
                 writeStylesAndScripts();
