@@ -1,9 +1,9 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,11 +103,10 @@ public class ContentEditBulk extends PageServlet {
                             "object", state.getOriginalObject());
 
                     Map<String, Object> values = state.getValues();
-                    Map<String, Object> replaces = new CompactMap<String, Object>();
-                    Map<String, Object> adds = new CompactMap<String, Object>();
-                    Map<String, Object> removes = new CompactMap<String, Object>();
-                    Set<String> clears = new HashSet<String>();
-                    Map<UUID, Object> failures = new LinkedHashMap<UUID, Object>();
+                    Map<String, Object> replaces = new CompactMap<>();
+                    Map<String, Object> adds = new CompactMap<>();
+                    Map<String, Object> removes = new CompactMap<>();
+                    Set<String> clears = new LinkedHashSet<>();
 
                     for (ObjectField field : type.getFields()) {
                         String name = field.getInternalName();
@@ -131,114 +130,24 @@ public class ContentEditBulk extends PageServlet {
                         }
                     }
 
-                    for (Object item : query.selectAll()) {
-                        State itemState = State.getInstance(item);
+                    ContentEditBulkSubmission status = new ContentEditBulkSubmission();
 
-                        itemState.putAll(replaces);
+                    status.setSubmitSite(page.getSite());
+                    status.setSubmitUser(page.getUser());
+                    status.setSubmitDate(new Date());
+                    status.setQuery(query);
+                    status.setCount(count);
+                    status.setReplaces(replaces);
+                    status.setAdds(adds);
+                    status.setRemoves(removes);
+                    status.setClears(clears);
+                    status.submitTask();
 
-                        for (Map.Entry<String, Object> entry : adds.entrySet()) {
-                            String fieldName = entry.getKey();
-                            Object newValue = entry.getValue();
-                            Object oldValue = itemState.get(fieldName);
-
-                            if (oldValue instanceof Map) {
-                                if (newValue instanceof Map) {
-                                    ((Map<Object, Object>) oldValue).putAll((Map<Object, Object>) newValue);
-
-                                } else if (newValue instanceof Collection) {
-                                    ((Map<Object, Object>) oldValue).keySet().addAll((Collection<Object>) newValue);
-                                }
-
-                            } else if (oldValue instanceof Collection) {
-                                if (newValue instanceof Map) {
-                                    ((Collection<Object>) oldValue).addAll(((Map<Object, Object>) newValue).values());
-
-                                } else if (newValue instanceof Collection) {
-                                    ((Collection<Object>) oldValue).addAll((Collection<Object>) newValue);
-
-                                } else {
-                                    ((Collection<Object>) oldValue).add(newValue);
-                                }
-
-                            } else {
-                                itemState.put(fieldName, newValue);
-                            }
-                        }
-
-                        for (Map.Entry<String, Object> entry : removes.entrySet()) {
-                            String fieldName = entry.getKey();
-                            Object newValue = entry.getValue();
-                            Object oldValue = itemState.get(fieldName);
-
-                            if (oldValue instanceof Map) {
-                                if (newValue instanceof Map) {
-                                    ((Map<Object, Object>) oldValue).keySet().removeAll(((Map<Object, Object>) newValue).keySet());
-
-                                } else if (newValue instanceof Collection) {
-                                    ((Map<Object, Object>) oldValue).keySet().removeAll((Collection<Object>) newValue);
-                                }
-
-                            } else if (oldValue instanceof Collection) {
-                                if (newValue instanceof Map) {
-                                    ((Collection<Object>) oldValue).removeAll(((Map<Object, Object>) newValue).values());
-
-                                } else if (newValue instanceof Collection) {
-                                    ((Collection<Object>) oldValue).removeAll((Collection<Object>) newValue);
-
-                                } else {
-                                    ((Collection<Object>) oldValue).remove(newValue);
-                                }
-                            }
-                        }
-
-                        for (String clear : clears) {
-                            itemState.remove(clear);
-                        }
-
-                        try {
-                            itemState.save();
-
-                        } catch (Exception error) {
-                            failures.put(itemState.getId(), itemState);
-                            LOGGER.warn(String.format(
-                                    "Can't save [%s] as part of a bulk edit!", itemState.getId()),
-                                    error);
-                        }
-                    }
-
-                    state.clear();
-
-                    long successes = count - failures.size();
-                    String cssClass = failures.size() == 0 ? "message-success" : failures.size() == count ? "message-error" : "message-warning";
-
-                    page.writeStart("div", "class", "message " + cssClass);
-                        page.writeHtml("Successfully saved ");
-                        page.writeHtml(count - failures.size());
-                        page.writeHtml(" item" + (successes != 1 ? "s" : "") + ". ");
-
-                        if (failures.size() > 0) {
-                            page.writeStart("br").writeEnd();
-                            page.writeHtml("Item" + (failures.size() != 1 ? "s" : "") + " which failed to save:");
-                            page.writeStart("ul");
-                            for (Map.Entry<UUID, Object> entry : failures.entrySet()) {
-                                page.writeStart("ul");
-                                    page.writeStart("a", "href", page.objectUrl("/content/edit.jsp", entry.getValue()));
-                                        page.writeHtml(State.getInstance(entry.getValue()).getLabel());
-                                    page.writeEnd();
-                                page.writeEnd();
-                            }
-                            page.writeEnd();
-                        }
-
-                        String returnUrl = page.param(String.class, "returnUrl");
-
-                        if (!ObjectUtils.isBlank(returnUrl)) {
-                            page.writeStart("a",
-                                    "href", returnUrl);
-                                page.writeHtml("Return to search.");
-                            page.writeEnd();
-                        }
-                    page.writeEnd();
+                    page.getResponse().sendRedirect(page.cmsUrl(
+                            "/contentEditBulkSubmissionStatus",
+                            "id", status.getId(),
+                            "returnUrl", page.param(String.class, "returnUrl")));
+                    return;
 
                 } catch (Exception error) {
                     page.writeObject(error);
