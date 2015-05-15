@@ -39,11 +39,19 @@ function($, bsp_utils) {
                 'html': $('<form/>', {
                     'method': 'post',
                     'action': CONTEXT_PATH + '/queryField',
-                    'html': $('<input/>', {
-                        'type': 'hidden',
-                        'name': 'search',
-                        'value': search ? JSON.stringify(search) : ''
-                    })
+                    'html': [
+                        $('<input/>', {
+                            'type': 'hidden',
+                            'name': 'containerObjectId',
+                            'value': $field.closest('form').attr('data-content-id')
+                        }),
+
+                        $('<input/>', {
+                            'type': 'hidden',
+                            'name': 'search',
+                            'value': search ? JSON.stringify(search) : ''
+                        })
+                    ]
                 })
             });
 
