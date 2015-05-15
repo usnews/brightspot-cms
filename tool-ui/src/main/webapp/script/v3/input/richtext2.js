@@ -276,7 +276,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             { style: 'alignCenter', text: 'Center', className: 'rte-toolbar-align-center' },
             { style: 'alignRight', text: 'Right', className: 'rte-toolbar-align-right' },
             { separator:true },
-            { action:'clear', text: 'Clear', className: 'rte-toolbar-clear'  },
+            { action:'enhancement', text: 'Enhancement', className: 'rte-toolbar-enhancement'  },
+            { action:'marker', text: 'Marker', className: 'rte-toolbar-marker'  },
             { separator:true },
             { action:'trackChangesToggle', text: 'Track Changes', className: 'rte-toolbar-track-changes' },
             { action:'trackChangesAccept', text: 'Accept', className: 'rte-toolbar-track-changes-accept' },
@@ -511,6 +512,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     }
                     break;
 
+                case 'enhancement':
+                    self.enhancementCreate();
+                    break;
+                    
+                case 'marker':
+                    self.enhancementCreate();
+                    break;
+
                 case 'trackChangesToggle':
                     rte.trackToggle();
                     break;
@@ -655,6 +664,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
         /**
          * Sets up the pop-up form that will be used to edit links.
+         * This is called only once when the editor is initialized.
          */
         linkInit: function() {
 
@@ -773,6 +783,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         },
 
 
+        /**
+         * Used by the link dialog, this function gets the values from the dialog
+         * then resolves the deferred object so we can complete editing the link.
+         */
         linkSave: function() {
 
             var attributes, self;
@@ -794,6 +808,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         },
 
 
+        /**
+         * Used by the link dialog, this function resolves the deferred object
+         * so we can complete editing the link (and remove the link).
+         */
         linkUnlink: function() {
             var self;
             self = this;
@@ -817,6 +835,289 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             }
         },
 
+
+        /*==================================================
+         * Enhancements
+         * Enhancements are bits of external content that sit within the editor content.
+         * Users can do the following to the enhancement:
+         * Create (and select an enhancement object in a popup)
+         * Remove (mark for removal)
+         * Remove completely (if already marked for removal)
+         * Change (select the enhancement object)
+         * Edit (modify the enhancement object in a popup)
+         * Move up / down
+         * Float left / right / full line
+         * Set image size
+         *==================================================*/
+        
+        /**
+         */
+        enhancementInit: function() {
+            
+        },
+
+        enhancementCreate: function(html) {
+
+            var $button, $enhancement, mark, self;
+
+            self = this;
+            
+            // Create wrapper element for the enhancement and add the toolbar
+            $enhancement = $('<div/>', {
+                'class': 'rte-enhancement'
+            }).append( self.enhancementToolbarCreate() );
+
+            // ???
+            $('<div/>', {'class': 'rte-enhancement-label' }).appendTo($enhancement);
+
+            // Add the enhancement to the eidtor
+            mark = self.rte.enhancementAdd($enhancement[0], null, {block:true, toHTML:function(){
+                
+                // TODO: how does the enhancement export html?
+                
+            }});
+
+            // Save the mark so we can use it to modify the enhancement later
+            self.enhancementSetMark($enhancement, mark);
+        },
+
+        
+        enhancementToolbarCreate: function() {
+
+            var self, $toolbar;
+
+            self = this;
+            
+            $toolbar = $('<div/>', {
+                'class': 'rte-enhancement-toolbar'
+            });
+
+            $('<a/>', {
+                href: '#',
+                text: 'Up',
+                'class': 'rte-enhancement-toolbar-up'
+            }).on('click', function(){
+                self.enhancementMove(this, -1);
+                return false;
+            }).appendTo($toolbar);
+    
+            $('<a/>', {
+                href: '#',
+                text: 'Down',
+                'class': 'rte-enhancement-toolbar-down'
+            }).on('click', function(){
+                self.enhancementMove(this, +1);
+                return false;
+            }).appendTo($toolbar);
+    
+            $('<a/>', {
+                href: '#',
+                text: 'Left',
+                'class': 'rte-enhancement-toolbar-left'
+            }).on('click', function(){
+                self.enhancementPosition(this, 'left');
+                return false;
+            }).appendTo($toolbar);
+    
+            $('<a/>', {
+                href: '#',
+                text: 'Full',
+                'class': 'rte-enhancement-toolbar-full'
+            }).on('click', function(){
+                self.enhancementPosition(this, 'full');
+                return false;
+            }).appendTo($toolbar);
+
+            $('<a/>', {
+                href: '#',
+                text: 'Right',
+                'class': 'rte-enhancement-toolbar-right'
+            }).on('click', function(){
+                self.enhancementPosition(this, 'right');
+                return false;
+            }).appendTo($toolbar);
+
+            // TODO: image size selector
+            
+            $('<a/>', {
+                href: '#',
+                text: 'Change',
+                'class': 'rte-enhancement-toolbar-change'
+            }).on('click', function(){
+                self.enhancementChange(this);
+                return false;
+            }).appendTo($toolbar);
+            
+            $('<a/>', {
+                href: '#',
+                text: 'Edit',
+                'class': 'rte-enhancement-toolbar-edit'
+            }).on('click', function(){
+                self.enhancementEdit(this);
+                return false;
+            }).appendTo($toolbar);
+            
+            $('<a/>', {
+                href: '#',
+                text: 'Remove',
+                'class': 'rte-enhancement-toolbar-remove'
+            }).on('click', function(){
+                self.enhancementRemove(this);
+                return false;
+            }).appendTo($toolbar);
+            
+            $('<a/>', {
+                href: '#',
+                text: 'Restore',
+                'class': 'rte-enhancement-toolbar-restore'
+            }).on('click', function(){
+                self.enhancementRestore(this, false);
+                return false;
+            }).appendTo($toolbar);
+            
+            $('<a/>', {
+                href: '#',
+                text: 'Remove Completely',
+                'class': 'rte-enhancement-toolbar-remove-completely'
+            }).on('click', function(){
+                self.enhancementRemoveCompletely(this);
+                return false;
+            }).appendTo($toolbar);
+
+            return $toolbar;
+        },
+
+        
+        enhancementChange: function(el) {
+            var mark, self;
+            self = this;
+            mark = self.enhancementGetMark(el);
+        },
+
+        
+        enhancementRemove: function (el) {
+            var $el, mark, self;
+            self = this;
+            $el = self.enhancementGetWrapper(el);
+            $el.addClass('toBeRemoved');
+        },
+
+        
+        enhancementRemoveCompletely: function (el) {
+            var mark, self;
+            self = this;
+            mark = self.enhancementGetMark(el);
+            if (mark) {
+                self.rte.enhancementRemove(mark);
+            }
+        },
+
+        
+        enhancementRestore: function (el) {
+            var $el, self;
+            self = this;
+            $el = self.enhancementGetWrapper(el);
+            $el.removeClass('toBeRemoved');
+        },
+
+        
+        enhancementIsToBeRemoved: function(el) {
+            var $el, self;
+            self = this;
+            $el = self.enhancementGetWrapper(el);
+            return $el.hasClass('toBeRemoved');
+        },
+
+        
+        enhancementMove: function(el, direction) {
+            
+            var mark, self;
+            
+            self = this;
+            
+            mark = self.enhancementGetMark(el);
+            if (!mark) {
+                return;
+            }
+            
+            if (direction === 1 || direction === -1) {
+                mark = self.rte.enhancementMove(mark, direction);
+                self.enhancementSetMark(el, mark);
+            }
+        },
+
+        
+        enhancementPosition: function(el, type) {
+            
+            var $el, mark, rte, self;
+            
+            self = this;
+            rte = self.rte;
+            $el = self.enhancementGetWrapper(el);
+            mark = self.enhancementGetMark($el);
+
+            $el.removeClass('rte-style-enhancement-right rte-style-enhancement-left rte-style-enhancement-full');
+
+            switch (type) {
+
+            case 'left':
+                mark = rte.enhancementSetInline(mark);
+                $el.addClass('rte-style-enhancement-left');
+                break;
+                
+            case 'right':
+                mark = rte.enhancementSetInline(mark);
+                $el.addClass('rte-style-enhancement-right');
+                break;
+                
+            case 'full':
+                mark = rte.enhancementSetBlock(mark);
+                $el.addClass('rte-style-enhancement-full');
+                break;
+            }
+
+            self.enhancementSetMark(el, mark);
+
+            rte.refresh();
+        },
+
+        
+        /**
+         * Given the element for the enhancement (or an element within that)
+         * returns the wrapper element for the enhancement.
+         */
+        enhancementGetWrapper: function(el) {
+            var self;
+            self = this;
+            return $(el).closest('.rte-enhancement');
+        },
+
+        
+        /**
+         * Given the element for the enhancement (or an element within that)
+         * returns the mark for that enhancement.
+         */
+        enhancementGetMark: function(el) {
+            var self;
+            self = this;
+            return self.enhancementGetWrapper(el).data('mark');
+        },
+
+
+        /**
+         * Given the element for the enhancement (or an element within that)
+         * sets the mark for that enhancement.
+         */
+        enhancementSetMark: function(el, mark) {
+            var self;
+            self = this;
+            self.enhancementGetWrapper(el).data('mark', mark);
+        },
+
+
+        /*==================================================
+         * Misc
+         *==================================================*/
         
         fromHTML: function(html) {
             var self;

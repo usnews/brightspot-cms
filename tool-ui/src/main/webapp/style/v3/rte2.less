@@ -48,6 +48,9 @@
   .rte-toolbar-link { .icon; .icon-link; }
   .rte-toolbar-quote { .icon; .icon-comment-alt; }
   .rte-toolbar-quote-collapse { .icon; .icon-ellipsis-horizontal; }
+  
+  .rte-toolbar-enhancement { width:auto; padding-left:0.5em; padding-right:0.5em; }
+  .rte-toolbar-marker { width:auto; padding-left:0.5em; padding-right:0.5em; }
 
   .rte-toolbar-track-changes { width:auto; padding-left:0.5em; padding-right:0.5em; }
   .rte-toolbar-track-changes-accept { .icon; .icon-ok; }
@@ -67,6 +70,25 @@
   .rte-toolbar-remove { .icon; .icon-remove; color: @color-remove; }
   .rte-toolbar-restore { .icon; .icon-undo; }
   .rte-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
+}
+
+.rte-enhancement-toolbar:extend(.rte-toolbar all) {
+  .rte-enhancement-toolbar-up { .icon; .icon-arrow-up; }
+  .rte-enhancement-toolbar-down { .icon; .icon-arrow-down; }
+  .rte-enhancement-toolbar-left { .icon; .icon-arrow-left; }
+  .rte-enhancement-toolbar-right { .icon; .icon-arrow-right; }
+  .rte-enhancement-toolbar-full { .icon; .icon-resize-full; }
+  .rte-enhancement-toolbar-remove { .icon; .icon-remove; color: @color-remove }
+  .rte-enhancement-toolbar-restore { .icon; .icon-undo; display:none; }
+  .rte-enhancement-toolbar-remove-completely { .icon; .icon-remove; color: @color-remove; display:none; }
+  .rte-enhancement-toolbar-change { .icon; .icon-random; }
+  .rte-enhancement-toolbar-edit { .icon; .icon-pencil; }
+}
+
+.rte-enhancement.toBeRemoved {
+  .rte-enhancement-toolbar-remove { display:none; }
+  .rte-enhancement-toolbar-restore { display:inline-block; }
+  .rte-enhancement-toolbar-remove-completely { display:inline-block; }
 }
 
 .rte-style-bold {
@@ -158,7 +180,9 @@
       padding-left: 2em;
     }
     .rte-style-ul:before {
-      content: "* ";
+      content: "\2022";
+      margin-left: -1em;
+      padding-right:0.5em;
     }
     .rte-style-ol {
       counter-reset: none;
@@ -166,8 +190,9 @@
       padding-left: 2em;
     }
     .rte-style-ol:before {
-      content: counter(brightspot_ol_counter) ". ";
+      content: counter(brightspot_ol_counter) ".";
       margin-left: -1em;
+      padding-right:0.25em;
     }
   }
 }
