@@ -62,12 +62,15 @@ public class UploadFiles extends PageServlet {
     }
 
     public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
-        DatabaseEnvironment environment = Database.Static.getDefault().getEnvironment();
+        Database database = Database.Static.getDefault();
+        DatabaseEnvironment environment = database.getEnvironment();
         Exception postError = null;
         ObjectType selectedType = environment.getTypeById(page.param(UUID.class, "type"));
         String containerId = page.param(String.class, "containerId");
 
         if (page.isFormPost()) {
+            database.beginWrites();
+
             try {
                 MultipartRequest request = MultipartRequestFilter.Static.getInstance(page.getRequest());
 
@@ -251,6 +254,8 @@ public class UploadFiles extends PageServlet {
                             js.append("$input.change();");
                         js.append("});");
                     }
+
+                    database.commitWrites();
                 }
 
                 if (page.getErrors().isEmpty()) {
@@ -276,6 +281,9 @@ public class UploadFiles extends PageServlet {
 
             } catch (Exception error) {
                 postError = error;
+
+            } finally {
+                database.endWrites();
             }
         }
 
