@@ -40,6 +40,10 @@ public class DashboardWidgetPage extends PageServlet {
                 dashboard = page.getUser().getDashboard();
                 break;
 
+            case "role" :
+                dashboard = page.getUser().getRole().getDashboard();
+                break;
+
             case "tool" :
                 dashboard = page.getCmsTool().getDefaultDashboard();
                 break;
