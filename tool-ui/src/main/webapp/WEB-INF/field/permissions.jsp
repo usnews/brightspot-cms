@@ -3,6 +3,7 @@
 com.psddev.cms.db.Content,
 com.psddev.cms.db.Site,
 com.psddev.cms.db.Template,
+com.psddev.cms.db.ToolUi,
 com.psddev.cms.db.Workflow,
 com.psddev.cms.db.WorkflowTransition,
 com.psddev.cms.tool.Area,
@@ -29,8 +30,11 @@ java.util.Iterator,
 java.util.LinkedHashMap,
 java.util.List,
 java.util.Map,
-java.util.Set
-" %><%
+java.util.Set,
+java.util.TreeSet
+" %>
+<%@ page import="com.psddev.dari.util.StringUtils" %>
+<%@ page import="com.psddev.dari.db.DatabaseEnvironment" %><%
 
 // --- Logic ---
 
@@ -166,6 +170,54 @@ wp.writeStart("div", "class", "inputSmall permissions");
             }
         wp.writeEnd();
     wp.writeEnd();
+
+    DatabaseEnvironment dbEnv = Database.Static.getDefault().getEnvironment();
+    Set<String> tabNames = new TreeSet<>();
+
+    for (ObjectField f : dbEnv.getFields()) {
+        String tabName = f.as(ToolUi.class).getTab();
+
+        if (!ObjectUtils.isBlank(tabName)) {
+            tabNames.add(tabName);//
+        }
+    }
+
+    for (ObjectType t : dbEnv.getTypes()) {
+        for (ObjectField f : t.getFields()) {
+            String tabName = f.as(ToolUi.class).getTab();
+
+            if (!ObjectUtils.isBlank(tabName)) {
+                tabNames.add(tabName);//
+            }
+        }
+    }
+
+    if (!tabNames.isEmpty()) {
+        wp.writeStart("div", "class", "permissionsSection");
+            writeParent(wp, permissions, "Tabs", "tab");
+
+            wp.writeStart("ul");
+                for (String tabName : tabNames) {
+                    String permissionId = "tab/" + StringUtils.toNormalized(tabName);
+
+                    wp.writeStart("li");
+                        wp.writeElement("input",
+                                "type", "checkbox",
+                                "id", wp.createId(),
+                                "name", wp.getRequest().getAttribute("inputName"),
+                                "value", permissionId,
+                                "checked", permissions.contains(permissionId) ? "checked" : null);
+
+                        wp.writeHtml(" ");
+
+                        wp.writeStart("label", "for", wp.getId());
+                            wp.writeHtml(tabName);
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+        wp.writeEnd();
+    }
 
     wp.writeStart("div", "class", "permissionsType");
         writeParent(wp, permissions, "Types", "type");
