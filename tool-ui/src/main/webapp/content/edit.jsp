@@ -626,7 +626,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                 if (currentState != null || !transitionNames.isEmpty()) {
                                     WorkflowLog log = Query.
                                             from(WorkflowLog.class).
-                                            where("objectId = ?", editingState.getId()).
+                                            where("objectId = ?", (draft == null) ? editingState.getId() : draft.getId()).
                                             sortDescending("date").
                                             first();
 
@@ -652,7 +652,7 @@ if (!Query.from(CmsTool.class).first().isDisableContentLocking() &&
                                                     wp.writeHtml(" ");
                                                     wp.writeStart("a",
                                                             "target", "workflowLogs",
-                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", editingState.getId()));
+                                                            "href", wp.cmsUrl("/workflowLogs", "objectId", log.getObjectId()));
                                                         if (ObjectUtils.isBlank(comment)) {
                                                             wp.writeHtml("by ");
 
