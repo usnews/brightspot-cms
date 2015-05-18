@@ -91,68 +91,71 @@ public class ContentEditBulk extends PageServlet {
 
         state.clear();
 
-        page.writeHeader();
-            if (page.isFormPost() &&
-                    page.param(String.class, "action-save") != null) {
-                try {
-                    JspUtils.include(
-                            page.getRequest(),
-                            page.getResponse(),
-                            page,
-                            page.toolPath(CmsTool.class, "/WEB-INF/objectPost.jsp"),
-                            "object", state.getOriginalObject());
+        Exception error = null;
 
-                    Map<String, Object> values = state.getValues();
-                    Map<String, Object> replaces = new CompactMap<>();
-                    Map<String, Object> adds = new CompactMap<>();
-                    Map<String, Object> removes = new CompactMap<>();
-                    Set<String> clears = new LinkedHashSet<>();
+        if (page.isFormPost() &&
+                page.param(String.class, "action-save") != null) {
+            try {
+                JspUtils.include(
+                        page.getRequest(),
+                        page.getResponse(),
+                        page,
+                        page.toolPath(CmsTool.class, "/WEB-INF/objectPost.jsp"),
+                        "object", state.getOriginalObject());
 
-                    for (ObjectField field : type.getFields()) {
-                        String name = field.getInternalName();
-                        Object value = values.get(name);
+                Map<String, Object> values = state.getValues();
+                Map<String, Object> replaces = new CompactMap<>();
+                Map<String, Object> adds = new CompactMap<>();
+                Map<String, Object> removes = new CompactMap<>();
+                Set<String> clears = new LinkedHashSet<>();
 
-                        Operation op = page.param(Operation.class, OPERATION_PARAMETER_PREFIX + name);
+                for (ObjectField field : type.getFields()) {
+                    String name = field.getInternalName();
+                    Object value = values.get(name);
 
-                        if (op != null) {
-                            if (Operation.REPLACE.equals(op)) {
-                                replaces.put(name, value);
+                    Operation op = page.param(Operation.class, OPERATION_PARAMETER_PREFIX + name);
 
-                            } else if (Operation.ADD.equals(op)) {
-                                adds.put(name, value);
+                    if (op != null) {
+                        if (Operation.REPLACE.equals(op)) {
+                            replaces.put(name, value);
 
-                            } else if (Operation.REMOVE.equals(op)) {
-                                removes.put(name, value);
+                        } else if (Operation.ADD.equals(op)) {
+                            adds.put(name, value);
 
-                            } else if (Operation.CLEAR.equals(op)) {
-                                clears.add(name);
-                            }
+                        } else if (Operation.REMOVE.equals(op)) {
+                            removes.put(name, value);
+
+                        } else if (Operation.CLEAR.equals(op)) {
+                            clears.add(name);
                         }
                     }
-
-                    ContentEditBulkSubmission status = new ContentEditBulkSubmission();
-
-                    status.setSubmitSite(page.getSite());
-                    status.setSubmitUser(page.getUser());
-                    status.setSubmitDate(new Date());
-                    status.setQuery(query);
-                    status.setCount(count);
-                    status.setReplaces(replaces);
-                    status.setAdds(adds);
-                    status.setRemoves(removes);
-                    status.setClears(clears);
-                    status.submitTask();
-
-                    page.getResponse().sendRedirect(page.cmsUrl(
-                            "/contentEditBulkSubmissionStatus",
-                            "id", status.getId(),
-                            "returnUrl", page.param(String.class, "returnUrl")));
-                    return;
-
-                } catch (Exception error) {
-                    page.writeObject(error);
                 }
+
+                ContentEditBulkSubmission status = new ContentEditBulkSubmission();
+
+                status.setSubmitSite(page.getSite());
+                status.setSubmitUser(page.getUser());
+                status.setSubmitDate(new Date());
+                status.setQuery(query);
+                status.setCount(count);
+                status.setReplaces(replaces);
+                status.setAdds(adds);
+                status.setRemoves(removes);
+                status.setClears(clears);
+                status.submitTask();
+
+                page.getResponse().sendRedirect(page.cmsUrl(
+                        "/contentEditBulkSubmissionStatus",
+                        "id", status.getId(),
+                        "returnUrl", page.param(String.class, "returnUrl")));
+                return;
+
+            } catch (Exception e) {
+                error = e;
             }
+        }
+
+        page.writeHeader();
 
             page.writeStart("div", "class", "widget");
                 page.writeStart("h1");
@@ -160,6 +163,8 @@ public class ContentEditBulk extends PageServlet {
                     page.writeHtml(count);
                     page.writeHtml(" Items");
                 page.writeEnd();
+
+                page.writeObject(error);
 
                 String formId = page.createId();
 
