@@ -190,9 +190,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // Special styles used for enhancements
             enhancementContent: {
                 className: 'rte-enhancement-content',
-                element: 'div',
+                element: 'button',
                 elementAttr: {
-                    'class': 'rte-enhancement-content'
+                    'class': 'enhancement'
                 },
                 internal: true
             }
@@ -962,8 +962,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // Add the enhancement to the editor
             mark = self.rte.enhancementAdd($enhancement[0], null, {block:true, toHTML:function(){
                 
-                // TODO: how does the enhancement export html?
-                return '';
+                return self.enhancementToHTML($enhancement);
                 
             }});
 
@@ -1058,7 +1057,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 text: 'Left',
                 'class': 'rte-enhancement-toolbar-left'
             }).on('click', function(){
-                self.enhancementPosition(this, 'left');
+                self.enhancementSetPosition(this, 'left');
                 return false;
             }).appendTo($toolbar);
     
@@ -1067,7 +1066,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 text: 'Full',
                 'class': 'rte-enhancement-toolbar-full'
             }).on('click', function(){
-                self.enhancementPosition(this, 'full');
+                self.enhancementSetPosition(this, 'full');
                 return false;
             }).appendTo($toolbar);
 
@@ -1076,7 +1075,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 text: 'Right',
                 'class': 'rte-enhancement-toolbar-right'
             }).on('click', function(){
-                self.enhancementPosition(this, 'right');
+                self.enhancementSetPosition(this, 'right');
                 return false;
             }).appendTo($toolbar);
 
@@ -1206,8 +1205,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             }
         },
 
-        
-        enhancementPosition: function(el, type) {
+        /**
+         * Sets the position for an enhancement.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
+         *
+         * @param String [type=full]
+         * The positioning type: 'left', 'right'. If not specified defaults
+         * to full positioning.
+         */
+        enhancementSetPosition: function(el, type) {
             
             var $el, mark, rte, self;
             
@@ -1230,7 +1238,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 $el.addClass('rte-style-enhancement-right');
                 break;
                 
-            case 'full':
+            default:
                 mark = rte.enhancementSetBlock(mark);
                 $el.addClass('rte-style-enhancement-full');
                 break;
@@ -1241,10 +1249,39 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             rte.refresh();
         },
 
+        /**
+         * Returns the position for an enhancement.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
+         *
+         * @returns String
+         * Returns 'left' for float left, 'right' for float right, or empty string for full positioning.
+         */
+        enhancementGetPosition: function(el) {
+            
+            var $el, pos, self;
+            
+            self = this;
+            $el = self.enhancementGetWrapper(el);
+
+            if ($el.hasClass('rte-style-enhancement-left')) {
+                pos = 'left';
+            } else if ($el.hasClass('rte-style-enhancement-left')) {
+                pos = 'right';
+            }
+
+            return pos || '';
+
+        },
+
         
         /**
          * Given the element for the enhancement (or an element within that)
          * returns the wrapper element for the enhancement.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
          */
         enhancementGetWrapper: function(el) {
             var self;
@@ -1256,6 +1293,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         /**
          * Given the element for the enhancement (or an element within that)
          * returns the mark for that enhancement.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
          */
         enhancementGetMark: function(el) {
             var self;
@@ -1267,6 +1307,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         /**
          * Given the element for the enhancement (or an element within that)
          * sets the mark for that enhancement.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
+         *
+         * @paream Object mark
+         * The mark object that was returned by the rte.enhancementCreate() function.
          */
         enhancementSetMark: function(el, mark) {
             var self;
@@ -1285,6 +1331,52 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             return 'contentEnhancement-' + self.enhancementGetTargetCounter++;
         },
 
+
+        /**
+         * Convert an enhancement into HTML for output.
+         *
+         * @param Element el
+         * The enhancement element, or an element within the enhancement.
+         */
+        enhancementToHTML: function(el) {
+            
+            var alignment, data, $enhancement, html, $html, id, ref, self;
+
+            self = this;
+
+            $enhancement = self.enhancementGetWrapper(el);
+
+            // Get the enhancement data that was stored previously in a data attribute
+            data = $enhancement.data('rte-enhancement') || {};
+            if (data.record) {
+                id = data.record._ref;
+            }
+
+            alignment = self.enhancementGetPosition(el);
+            
+            if (id) {
+                
+                $html = $('<button/>', {
+                    'class': 'enhancement',
+                    'data-id': id,
+                    'data-reference': JSON.stringify(data),
+                    text: data.label || ''
+                });
+
+                if (data.preview) {
+                    $html.attr('data-preview', data.preview);
+                }
+                
+                if (alignment) {
+                    $html.attr('data-alignment', alignment);
+                }
+                
+                html = $html[0].outerHTML;
+            }
+            
+            return html || '';
+        },
+
         
         /*==================================================
          * Misc
@@ -1298,9 +1390,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
         
         toHTML: function() {
-            var self;
+            var html, self;
             self = this;
-            return self.rte.toHTML();
+            html = self.rte.toHTML();
+            return html;
         },
 
         focus: function() {
