@@ -1159,8 +1159,8 @@ define([
 
             self.tabsCreate('sizes');
 
-            // Move everything into the tab
-            self.$element.children().appendTo( self.dom.tabs.sizes );
+            // Move the image into the tab
+            self.$element.find('.imageEditor-image').appendTo( self.dom.tabs.sizes );
 
             // Create a sidebar to hold the size selector
             self.dom.$sizesAside = $('<div/>', {
@@ -3189,7 +3189,7 @@ define([
 
         hotspotInit: function() {
 
-            var self;
+            var $hotspotsContainer, self;
 
             self = this;
 
@@ -3201,6 +3201,9 @@ define([
 
             // Create a tab for hotspots
             self.tabsCreate('hotspots');
+            
+            // We'll need to remove the hostpot container after we move it into a tab of the image editor
+            $hotspotsContainer = self.dom.$hotspots.closest('.inputContainer');
             
             // Create an image in the hotspot tab to show the hotspots
             // Note this image will need to be kept in sync with image changes
@@ -3214,6 +3217,8 @@ define([
             
             // Move hotspot form into the hotspot tab so it only shows when that tab is active
             self.dom.$hotspots.appendTo( self.dom.tabs.hotspots );
+
+            $hotspotsContainer.remove();
             
             // Set up all the hotspot overlays based on the form inputs
             self.hotspotOverlayResetAll();
