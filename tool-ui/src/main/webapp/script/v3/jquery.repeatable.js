@@ -1170,6 +1170,7 @@ The HTML within the repeatable element must conform to these standards:
                 var imageUrl;
                 var $label;
                 var $controls;
+                var labelType = $item.attr('data-type') || 'Title';
                 var labelText = $item.attr('data-label') || '[Empty Title]';
                 
                 // Only do this for mode=preview
@@ -1191,7 +1192,15 @@ The HTML within the repeatable element must conform to these standards:
                 }).appendTo($item);
                 
                 // Add the title of the slide here
-                $label = $('<div class="previewable-label"><span class="previewable-label-prefix">Title: </span></div>').appendTo($item);
+                //$label = $('<div class="previewable-label"><span class="previewable-label-prefix">' + labelType + ': </span></div>').appendTo($item);
+                $label = $('<div/>', {
+                    'class': 'previewable-label',
+                    html: $('<span/>', {
+                        'class': 'previewable-label-prefix',
+                        text: labelType + ': '
+                    })
+                }).appendTo($item);
+
                 $('<a/>', {
                     href: '#',
                     text: labelText,
