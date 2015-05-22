@@ -591,7 +591,13 @@ if (!isValueExternal) {
                 wp.writeStart("li",
                         "data-type", wp.getObjectLabel(itemType),
                         "data-label", wp.getObjectLabel(item),
-                        "data-preview", wp.getPreviewThumbnailUrl(item));
+                        
+                        // Add the image url for the preview thumbnail, plus the field name that provided the thumbnail
+                        // so if that field is changed the front-end knows that the thumbnail should also be updated
+                        "data-preview", wp.getPreviewThumbnailUrl(item),
+                        "data-preview-field", itemType.getPreviewField()
+                        
+                        );
                     wp.writeElement("input",
                             "type", "hidden",
                             "name", idName,
