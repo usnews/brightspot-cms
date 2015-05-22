@@ -316,6 +316,18 @@ public class AuthenticationFilter extends AbstractFilter {
                 Database.Static.overrideDefault(db);
                 request.setAttribute(DATABASE_OVERRIDDEN_ATTRIBUTE, Boolean.TRUE);
 
+                ToolPageContext page = new ToolPageContext(context, request, response);
+                String tfaUrl = page.cmsUrl("toolUserTfa");
+                String qrUrl = page.cmsUrl("qrCode");
+                if (user.isTfaRequired() && !user.isTfaEnabled() && !request.getRequestURI().startsWith(tfaUrl) && !request.getRequestURI().startsWith(qrUrl)) {
+                    user = Query.from(ToolUser.class).where("_id = ?", user.getId()).noCache().master().first();
+                    if (user != null && user.isTfaRequired() && !user.isTfaEnabled()) {
+                        tfaUrl = page.cmsUrl("toolUserTfa", RETURN_PATH_PARAMETER, JspUtils.getAbsolutePath(request, ""));
+                        response.sendRedirect(tfaUrl);
+                        return true;
+                    }
+                }
+
             } else if (!JspUtils.getEmbeddedServletPath(context, request.getServletPath()).equals(LOG_IN_PATH)) {
                 @SuppressWarnings("resource")
                 ToolPageContext page = new ToolPageContext(context, request, response);

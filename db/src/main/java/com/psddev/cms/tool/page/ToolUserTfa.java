@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.ObjectUtils;
@@ -38,7 +39,13 @@ public class ToolUserTfa extends PageServlet {
                 user.save();
 
                 page.writeStart("script", "type", "text/javascript");
-                    page.writeRaw("window.location = window.location;");
+                    page.writeRaw("window.location = ");
+                    String redirectUrl = page.param(String.class, AuthenticationFilter.RETURN_PATH_PARAMETER);
+                    if (!StringUtils.isBlank(redirectUrl)) {
+                        page.writeRaw('"' + redirectUrl + "\";");
+                    } else {
+                        page.writeRaw("window.location;");
+                    }
                 page.writeEnd();
                 return;
             }
@@ -123,6 +130,10 @@ public class ToolUserTfa extends PageServlet {
                             page.writeHtml("Verify");
                         page.writeEnd();
                     page.writeEnd();
+                    page.writeElement("input",
+                            "type", "hidden",
+                            "name", AuthenticationFilter.RETURN_PATH_PARAMETER,
+                            "value", page.param(String.class, AuthenticationFilter.RETURN_PATH_PARAMETER));
                 page.writeEnd();
             page.writeEnd();
         page.writeFooter();

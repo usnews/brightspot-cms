@@ -89,6 +89,10 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private Schedule currentSchedule;
 
+    @ToolUi.Tab("Advanced")
+    @DisplayName("Two Factor Authentication Required?")
+    private boolean tfaRequired;
+
     @ToolUi.Hidden
     private boolean tfaEnabled;
 
@@ -440,6 +444,14 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTfaEnabled(boolean tfaEnabled) {
         this.tfaEnabled = tfaEnabled;
+    }
+
+    public boolean isTfaRequired() {
+        return tfaRequired;
+    }
+
+    public void setTfaRequired(boolean tfaRequired) {
+        this.tfaRequired = tfaRequired;
     }
 
     public String getTotpSecret() {
