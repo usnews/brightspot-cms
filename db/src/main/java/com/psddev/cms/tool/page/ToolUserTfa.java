@@ -76,7 +76,7 @@ public class ToolUserTfa extends PageServlet {
                     keyUri.append(StringUtils.encodeUri(" - "));
                 }
 
-                keyUri.append(StringUtils.encodeUri(user.getEmail()));
+                keyUri.append(StringUtils.encodeUri(!StringUtils.isEmpty(user.getUsername()) ? user.getUsername() : user.getEmail()));
                 keyUri.append("?secret=");
                 keyUri.append(user.getTotpSecret());
 
