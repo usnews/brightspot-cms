@@ -80,13 +80,20 @@ public class ToolUserTfa extends PageServlet {
                 keyUri.append("?secret=");
                 keyUri.append(user.getTotpSecret());
 
-                page.writeElement("img",
-                        "width", 200,
-                        "height", 200,
-                        "src", page.cmsUrl("/qrCode", "data", keyUri),
-                        "style", "float: right; margin-left: 10px;");
+                page.writeStart("div", "style", "float: right; margin-left: 10px; margin-top: -20px;");
+                    page.writeElement("img",
+                            "width", 200,
+                            "height", 200,
+                            "src", page.cmsUrl("/qrCode", "data", keyUri),
+                            "style", "margin-left: 30px;");
+                    page.writeStart("div");
+                        page.writeHtml("Secret Key: ");
+                        page.writeTag("br");
+                        page.writeRaw(user.getTotpSecret().replaceAll("(.{4})", "$1 "));
+                    page.writeEnd();
+                page.writeEnd();
 
-                page.writeStart("div", "style", "margin-right: 210px;");
+                page.writeStart("div", "style", "margin-right: 280px;");
                     if (verifyError) {
                         page.writeStart("div", "class", "message message-error");
                             page.writeHtml("Code you've entered isn't valid! Try re-entering the code or re-scan the QR code.");
@@ -98,7 +105,7 @@ public class ToolUserTfa extends PageServlet {
                                 page.writeHtml("Enter the displayed code from your Google Authenticator to disable two factor authentication.");
 
                             } else {
-                                page.writeHtml("Scan the QR code with your Google Authenticator and enter the displayed code to enable two factor authentication.");
+                                page.writeHtml("Use Google Authenticator to scan the QR code or type in the secret key, then enter the displayed code to enable two factor authentication.");
                             }
                         page.writeEnd();
                     }
