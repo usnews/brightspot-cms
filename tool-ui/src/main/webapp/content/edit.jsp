@@ -214,7 +214,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <h1 class="breadcrumbs"><%
 
                     wp.writeStart("span", "class", "breadcrumbItem icon icon-object");
-                        wp.writeHtml(state.isNew() ? "New " : "Edit ");
+                        wp.writeHtml((state.isNew() || state.as(Content.ObjectModification.class).isDraft()) ? "New " : "Edit ");
 
                         if (compatibleTypes.size() < 2) {
                             wp.write(wp.objectLabel(state.getType()));
@@ -233,7 +233,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.write("</select>");
                         }
 
-                        if (!state.isNew()) {
+                        if (!(state.isNew() || state.as(Content.ObjectModification.class).isDraft())) {
                             wp.write(": " );
                             wp.write(wp.objectLabel(editing));
                         }
