@@ -1449,6 +1449,7 @@ The HTML within the repeatable element must conform to these standards:
                 
                 var self = this;
                 var $item = $(item);
+                var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
                 var $editContainer;
 
                 // If necessary create the container for editing this item
@@ -1457,12 +1458,24 @@ The HTML within the repeatable element must conform to these standards:
                     $editContainer = $('<div/>', {
                         'class': 'itemEdit'
                     }).on('change', function(event) {
-                        // If a change is made to the preview image
-                        // update the thumbnail image in the carousel
-                        // and in the grid view
-                        var $target = $(event.target).closest('[data-preview]');
-                        var imageUrl = $target.attr('data-preview');
-                        if (imageUrl) {
+
+                        var imageUrl, $target, targetName, thumbnailName;
+                        
+                        // If a change is made to the preview image update the thumbnail image in the carousel and grid view
+                        $target = $(event.target).closest('[data-preview]');
+                        imageUrl = $target.attr('data-preview');
+                        targetName = $target.attr('name');
+
+                        // Make sure this changed item is actually used for the thumbnail
+                        // The data-preview-field contains the name of the field and the type,
+                        // so we need to remove the /type part
+                        thumbnailName = $item.attr('data-preview-field') || '';
+                        thumbnailName = thumbnailName.replace(/(.*)\/.*/, '$1'); // remove last / and beyond
+                        thumbnailName = itemId + '/' + thumbnailName;
+                        
+                        // Make sure the preview that was changed is actually used as the thumbnail for this repeatable object.
+                        // This will account for cases where the repeatable object contains multiple images, or nested objects.
+                        if (imageUrl && targetName === thumbnailName) {
                             self.modePreviewSetThumbnail($item, imageUrl);
                         }
                     }).appendTo(self.dom.$carouselTargetItems);

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.psddev.cms.db.Draft;
-import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.SearchResultAction;
@@ -23,6 +22,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
+import com.psddev.dari.util.UrlBuilder;
 
 public class CreateDraftSearchResultAction implements SearchResultAction {
 
@@ -45,17 +45,12 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
 
             Set<ObjectType> itemTypes = new HashSet<>();
 
-            int count = 0;
-
             for (Object item : selection.createItemsQuery().
                     selectAll()) {
 
                 itemTypes.add(State.getInstance(item).getType());
-                count += 1;
             }
 
-            boolean multiple = count > 1;
-            List<TypeAndField> creates = new ArrayList<>();
             List<TypeAndItemTypes> generates = new ArrayList<>();
 
             for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
@@ -74,84 +69,43 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                         type.getGroups().contains(SearchResultSelectionGeneratable.class.getName()) &&
                         type.as(SearchResultSelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
 
-                    generates.add(new TypeAndItemTypes(type, new ArrayList<ObjectType>(itemTypes)));
-                }
-
-                for (ObjectField field : type.getFields()) {
-                    if (field.as(ToolUi.class).isHidden() ||
-                            multiple ^ field.isInternalCollectionType()) {
-
-                        continue;
-                    }
-
-                    Set<ObjectType> fieldTypes = new HashSet<>();
-
-                    for (ObjectType fieldType : field.getTypes()) {
-                        fieldTypes.addAll(fieldType.findConcreteTypes());
-                    }
-
-                    if (fieldTypes.containsAll(itemTypes)) {
-                        creates.add(new TypeAndField(type, field));
-                    }
+                    generates.add(new TypeAndItemTypes(type, new ArrayList<>(itemTypes)));
                 }
             }
 
-            if (!creates.isEmpty() || !generates.isEmpty()) {
-                Collections.sort(creates);
+            if (!generates.isEmpty()) {
                 Collections.sort(generates);
 
-                page.writeStart("div", "class", "searchResult-action-createContent");
-                    page.writeStart("h2");
-                        page.writeHtml("Create");
-                    page.writeEnd();
+                for (TypeAndItemTypes generate : generates) {
 
-                    page.writeStart("form",
-                            "method", "post",
+                    page.writeStart("div", "class", "searchResult-action-simple");
+                    page.writeStart("a",
+                            "class", "button",
                             "target", "_top",
-                            "action", page.toolUrl(CmsTool.class, CreateDraft.PATH));
+                            "href", new UrlBuilder(page.getRequest()).
+                                    absolutePath(page.toolPath(CmsTool.class, CreateDraft.PATH)).
+                                    currentParameters().
+                                    parameter("typeIdAndField", generate.type.getId()).
+                                    parameter("selectionId", selection.getId()));
+                    page.writeHtml("Create New ");
+                    page.writeObjectLabel(generate.type);
 
-                        page.writeElement("input",
-                                "type", "hidden",
-                                "name", "selectionId",
-                                "value", selection.getId());
+                    // write out count of objects that will be passed to the SearchResultSelectionGeneratable#fromCollection method.
+                    page.writeHtml(" (");
 
-                        page.writeStart("select", "name", "typeIdAndField");
-                            for (TypeAndField create : creates) {
-                                page.writeStart("option",
-                                        "value", create.type.getId() + "," + create.field.getInternalName());
+                    Iterator<ObjectType> componentTypesIt = generate.componentTypes.iterator();
+                    ObjectType componentType = componentTypesIt.next();
+                    page.writeObjectLabel(componentType);
+                    while (componentTypesIt.hasNext()) {
+                        page.write(",");
+                        componentType = componentTypesIt.next();
+                        page.writeObjectLabel(componentType);
+                    }
+                    page.writeHtml(')');
 
-                                    page.writeObjectLabel(create.type);
-                                    page.writeHtml(" (");
-                                    page.writeObjectLabel(create.field);
-                                    page.writeHtml(')');
-                                page.writeEnd();
-                            }
-
-                            for (TypeAndItemTypes generate : generates) {
-                                page.writeStart("option",
-                                        "value", generate.type.getId());
-
-                                page.writeObjectLabel(generate.type);
-                                page.writeHtml(" (");
-
-                                Iterator<ObjectType> componentTypesIt = generate.componentTypes.iterator();
-                                ObjectType componentType = componentTypesIt.next();
-                                page.writeObjectLabel(componentType);
-                                while (componentTypesIt.hasNext()) {
-                                    page.write(",");
-                                    componentType = componentTypesIt.next();
-                                    page.writeObjectLabel(componentType);
-                                }
-                                page.writeHtml(')');
-                                page.writeEnd();
-                            }
-                        page.writeEnd();
-
-                        page.writeStart("button");
-                            page.writeHtml("New");
-                        page.writeEnd();
-                    page.writeEnd();
-                page.writeEnd();
+                    page.writeEnd(); // end a.button
+                    page.writeEnd(); // end div.searchResult-action-simple
+                }
             }
         }
     }
