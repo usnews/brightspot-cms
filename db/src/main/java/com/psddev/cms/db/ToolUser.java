@@ -34,6 +34,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
+import com.psddev.dari.util.StringUtils;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -91,7 +92,8 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Tab("Advanced")
     @DisplayName("Two Factor Authentication Required?")
-    private boolean tfaRequired;
+    @ToolUi.Placeholder("Inherit from Role")
+    private TfaRequired tfaRequired;
 
     @ToolUi.Hidden
     private boolean tfaEnabled;
@@ -447,10 +449,14 @@ public class ToolUser extends Record implements ToolEntity {
     }
 
     public boolean isTfaRequired() {
-        return tfaRequired;
+        if (tfaRequired == null && getRole() != null) {
+            return getRole().isTfaRequired();
+        } else {
+            return TfaRequired.REQUIRED.equals(tfaRequired);
+        }
     }
 
-    public void setTfaRequired(boolean tfaRequired) {
+    public void setTfaRequired(TfaRequired tfaRequired) {
         this.tfaRequired = tfaRequired;
     }
 
@@ -910,6 +916,15 @@ public class ToolUser extends Record implements ToolEntity {
         @Override
         public String toString() {
             return label;
+        }
+    }
+
+    public enum TfaRequired {
+        REQUIRED, NOT_REQUIRED;
+
+        @Override
+        public String toString() {
+            return StringUtils.toLabel(name());
         }
     }
 }

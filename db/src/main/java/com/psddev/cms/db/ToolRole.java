@@ -27,6 +27,8 @@ public class ToolRole extends Record implements ToolEntity {
     @ToolUi.Tab("Dashboard")
     private CmsTool.CommonContentSettings roleCommonContentSettings;
 
+    private boolean tfaRequired;
+
     /** Returns the name. */
     public String getName() {
         return name;
@@ -78,5 +80,9 @@ public class ToolRole extends Record implements ToolEntity {
     @Override
     public Iterable<? extends ToolUser> getUsers() {
         return Query.from(ToolUser.class).where("role = ?", this).iterable(0);
+    }
+
+    public boolean isTfaRequired() {
+        return tfaRequired;
     }
 }
