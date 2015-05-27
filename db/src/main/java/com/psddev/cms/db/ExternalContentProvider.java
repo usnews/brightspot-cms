@@ -95,7 +95,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public static class InstagramEmbedProvider extends ExternalContentProvider.RichExternalContentProvider {
+    public static class Instagram extends ExternalContentProvider.RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://instagr(?:\\.am|am\\.com)/p/([^/]+).*");
 
@@ -122,7 +122,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public static class VineContentProvider extends RichExternalContentProvider {
+    public static class Vine extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("\"(?i)https?:(//vine.co/[^/]+/[^/]+).*\"");
 
@@ -149,7 +149,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public static class StorifyEmbedProvider extends RichExternalContentProvider {
+    public static class Storify extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?:(//storify.com/[^/]+/[^/]+).*");
 
@@ -167,7 +167,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public static class PinterestEmbedProvider extends RichExternalContentProvider {
+    public static class Pinterest extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\\.)?pinterest.com/([^/]+)(/[^/]+)?.*");
 
@@ -210,7 +210,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public static class FacebookEmbedProvider extends RichExternalContentProvider {
+    public static class Facebook extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\\.)?facebook.com/([^/]+)(/[^/]+)?.*");
 
