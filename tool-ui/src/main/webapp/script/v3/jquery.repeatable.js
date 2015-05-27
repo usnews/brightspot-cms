@@ -409,7 +409,8 @@ The HTML within the repeatable element must conform to these standards:
                 self.initItemLabel($item);
 
                 // Collapse the item unless it has an error message within it
-                if ($item.find('.message-error').length === 0) {
+                if ($item.find('.message-error').length === 0
+                    && !self.modeIsPreview()) {
                     self.itemCollapse($item);
                 }
 
