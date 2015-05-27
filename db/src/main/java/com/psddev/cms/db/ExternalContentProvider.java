@@ -122,7 +122,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public class VineContentProvider extends ExternalContentProvider.RichExternalContentProvider {
+    public static class VineContentProvider extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("\"(?i)https?:(//vine.co/[^/]+/[^/]+).*\"");
 
@@ -149,7 +149,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public class StorifyEmbedProvider extends ExternalContentProvider.RichExternalContentProvider {
+    public static class StorifyEmbedProvider extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?:(//storify.com/[^/]+/[^/]+).*");
 
@@ -167,7 +167,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public class PinterestEmbedProvider extends ExternalContentProvider.RichExternalContentProvider {
+    public static class PinterestEmbedProvider extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\\.)?pinterest.com/([^/]+)(/[^/]+)?.*");
 
@@ -210,7 +210,7 @@ public interface ExternalContentProvider {
         }
     }
 
-    public class FacebookEmbedProvider extends ExternalContentProvider.RichExternalContentProvider {
+    public static class FacebookEmbedProvider extends RichExternalContentProvider {
 
         private static final Pattern URL_PATTERN = Pattern.compile("(?i)https?://(?:www\\.)?facebook.com/([^/]+)(/[^/]+)?.*");
 
