@@ -694,14 +694,14 @@ The HTML within the repeatable element must conform to these standards:
                 var $item = $(item);
                 var deferred;
 
+                // Collapse or uncollapse the item
+                $item.toggleClass('collapsed', collapseFlag);
+                
                 // Don't do anything if mode=preview
                 if (self.modeIsPreview()) {
                     return;
                 }
                 
-                // Collapse or uncollapse the item
-                $item.toggleClass('collapsed', collapseFlag);
-
                 // Load the item if necessary,
                 // or if it's already loaded do some stuff immediately
                 if (!self.itemIsCollapsed($item)) {
