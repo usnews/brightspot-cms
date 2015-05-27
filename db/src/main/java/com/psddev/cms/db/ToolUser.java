@@ -593,6 +593,95 @@ public class ToolUser extends Record implements ToolEntity {
         }
     }
 
+    /**
+     * Sets the specified {@link SearchResultSelection} as the {@link ToolUser}'s current selection.  The current selection
+     * is used to provide contextual {@link com.psddev.cms.tool.SearchResultAction}s.  If the ToolUser already has a current selection,
+     * the selection will replaced and if the user has not saved the existing selection, it will be cleared and deleted.
+     * @param selection the {@link SearchResultSelection} to set as current for this {@link ToolUser}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection activateSelection(SearchResultSelection selection) {
+
+        SearchResultSelection currentSelection = getCurrentSearchResultSelection();
+
+        // If the current selection is not saved, clear it.
+        if (currentSelection != null && !isSavedSearchResultSelection(currentSelection)) {
+
+            currentSelection.clear();
+            currentSelection.delete();
+        }
+
+        // Set the current selection
+        setCurrentSearchResultSelection(selection);
+
+        save();
+
+        return selection;
+    }
+
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * @param selection the SearchResultSelection to deactivate
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection) {
+
+        return deactivateSelection(selection, false);
+    }
+
+    /**
+     * Resets this {@link ToolUser}s current {@link SearchResultSelection} to a new instance.  If the specified SearchResultSelection
+     * is saved for this ToolUser, it is replaced with a new SearchResultSelection, otherwise, the existing one is cleared.
+     * If checked is true, the specified SearchResultSelection must be the same as the ToolUser's current selection, otherwise an
+     * {@link IllegalStateException} will be thrown.
+     * @param selection the SearchResultSelection to deactivate
+     * @param checked indicates whether to require that the specified {@link SearchResultSelection} is the same as the {@link ToolUser}'s current selection.  default: {@code false}
+     * @return the current selection for this {@link ToolUser} after the deactivation of the specified selection.
+     */
+    public SearchResultSelection deactivateSelection(SearchResultSelection selection, boolean checked) {
+
+        // Throw an exception if this is a checked invocation.
+        if (checked && selection != null && getCurrentSearchResultSelection() != null && !selection.equals(getCurrentSearchResultSelection())) {
+            throw new IllegalStateException("The specified selection is not active for this user!");
+        }
+
+        // Reset the current selection.
+        return resetCurrentSelection();
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     * @param selection the {@link SearchResultSelection} to check
+     * @return {@code true} if the specified {@link SearchResultSelection} is saved for this {@link ToolUser}.
+     */
+    public boolean isSavedSearchResultSelection(SearchResultSelection selection) {
+
+        return selection != null && !ObjectUtils.isBlank(selection.getName()) &&
+                (selection.getEntities().contains(this) ||
+                    (getRole() != null && selection.getEntities().contains(getRole())));
+    }
+
+    /**
+     * Clears the {@link ToolUser}'s current {@link SearchResultSelection} if it is not saved, otherwise creates a new one with
+     * this {@link ToolUser} as the default accessible {@link ToolEntity}.
+     * @return the {@link ToolUser}'s current {@link SearchResultSelection} after the reset has been performed.
+     */
+    public SearchResultSelection resetCurrentSelection() {
+
+        if (getCurrentSearchResultSelection() != null && !isSavedSearchResultSelection(getCurrentSearchResultSelection())) {
+            getCurrentSearchResultSelection().clear();
+        } else {
+            SearchResultSelection selection = new SearchResultSelection();
+            selection.getEntities().add(this);
+            selection.save();
+            setCurrentSearchResultSelection(selection);
+            save();
+        }
+
+        return getCurrentSearchResultSelection();
+    }
+
     public Set<UUID> getAutomaticallySavedDraftIds() {
         if (automaticallySavedDraftIds == null) {
             automaticallySavedDraftIds = new LinkedHashSet<UUID>();

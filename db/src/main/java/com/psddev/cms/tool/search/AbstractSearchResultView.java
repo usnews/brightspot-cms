@@ -61,6 +61,13 @@ public abstract class AbstractSearchResultView implements SearchResultView {
         this.search = search;
         this.itemWriter = itemWriter;
 
+        // Ensure that the ToolUser has a current SearchResultSelection.
+        ToolUser user = page.getUser();
+
+        if (user != null && user.getCurrentSearchResultSelection() == null) {
+            user.resetCurrentSelection();
+        }
+
         doWriteHtml();
     }
 

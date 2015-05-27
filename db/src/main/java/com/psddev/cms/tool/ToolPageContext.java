@@ -120,6 +120,8 @@ public class ToolPageContext extends WebPageContext {
     private static final String TOOL_ATTRIBUTE = ATTRIBUTE_PREFIX + "tool";
     private static final String TOOL_BY_CLASS_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByClass";
     private static final String TOOL_BY_PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByPath";
+    public static final String PARENT_ID_ATTRIBUTE = ATTRIBUTE_PREFIX + "parentId";
+    public static final String PARENT_TYPE_ID_ATTRIBUTE = ATTRIBUTE_PREFIX + "parentTypeId";
 
     private static final String EXTRA_PREFIX = "cms.tool.";
     private static final String OVERLAID_DRAFT_EXTRA = EXTRA_PREFIX + "overlaidDraft";
@@ -1884,6 +1886,20 @@ public class ToolPageContext extends WebPageContext {
      * @param attributes Extra attributes for the HTML tag.
      */
     public void writeObjectSelect(ObjectField field, Object value, Object... attributes) throws IOException {
+        writeObjectSelect(field, value, param(UUID.class, OBJECT_ID_PARAMETER), param(UUID.class, TYPE_ID_PARAMETER), attributes);
+    }
+
+    /**
+     * Writes a {@code <select>} or {@code <input>} tag that allows the user
+     * to pick a content.
+     * @param field Can't be {@code null}.
+     * @param value Initial value. May be {@code null}.
+     * @param parentId ID of parent object. Will be obtained from query parameter {@code OBJECT_ID_PARAMETER} if {@code null}.
+     * @param parentTypeId ObjectType ID of parent object. Will be obtained from query parameter {@code TYPE_ID_PARAMETER} if {@code null}.
+     * @param attributes Extra attributes for the HTML tag.
+     * @throws IOException
+     */
+    public void writeObjectSelect(ObjectField field, Object value, UUID parentId, UUID parentTypeId, Object... attributes) throws IOException {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
@@ -1895,8 +1911,8 @@ public class ToolPageContext extends WebPageContext {
 
         if (isObjectSelectDropDown(field)) {
             Search dropDownSearch = new Search(field);
-            dropDownSearch.setParentId(param(UUID.class, OBJECT_ID_PARAMETER));
-            dropDownSearch.setParentTypeId(param(UUID.class, TYPE_ID_PARAMETER));
+            dropDownSearch.setParentId(parentId);
+            dropDownSearch.setParentTypeId(parentTypeId);
 
             List<?> items = findDropDownItems(field, dropDownSearch);
 
