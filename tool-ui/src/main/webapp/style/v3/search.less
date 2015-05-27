@@ -11,29 +11,25 @@
 }
 
 .searchResult-fields {
-  float: left;
-  margin-right: 10px;
-
   .link {
     &:extend(.select all);
   }
 }
 
-.searchResult-sorts {
+.queryRestrictions,
+.searchResult-fields,
+.searchResult-sorts,
+.searchResult-limits {
   float: left;
-  margin-right: 10px;
+  margin: 0 10px 10px 0;
 
   form {
     display: inline;
   }
 }
 
-.searchResult-limits {
-  margin-bottom: 20px;
-
-  form {
-    display: inline;
-  }
+.queryRestrictions:empty {
+  display: none;
 }
 
 .searchResult-pagination {
@@ -43,7 +39,7 @@
 }
 
 .searchResult-list {
-  padding-top: @gap-large;
+  padding-top: 10px;
   width: 100%;
 }
 
