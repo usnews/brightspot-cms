@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.Uploader;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
@@ -47,6 +49,7 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
+import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.TypeReference;
 
 @RoutingFilter.Path(application = "cms", value = "storageItemField")
@@ -544,6 +547,26 @@ public class StorageItemField extends PageServlet {
                 }
             }
         }
+        Uploader uploader = null;
+        for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
+
+            if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
+                continue;
+            }
+            
+            Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
+            if (candidateUploader.isSupported(field)) {
+                uploader = candidateUploader;
+
+                if (candidateUploader.isPreferred(field)) {
+                    break;
+                }
+            }
+        }
+
+        if (uploader != null) {
+            uploader.writeHtml(page, field);
+        }
 
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
@@ -596,7 +619,7 @@ public class StorageItemField extends PageServlet {
                 page.writeEnd();
 
                 page.writeTag("input",
-                        "class", "fileSelectorItem fileSelectorNewUpload",
+                        "class", "fileSelectorItem fileSelectorNewUpload" + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
                         "type", "file",
                         "name", page.h(fileName));
 
