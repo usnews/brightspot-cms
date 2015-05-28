@@ -547,13 +547,14 @@ public class StorageItemField extends PageServlet {
                 }
             }
         }
+
         Uploader uploader = null;
         for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
 
             if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
                 continue;
             }
-            
+
             Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
             if (candidateUploader.isSupported(field)) {
                 uploader = candidateUploader;
@@ -619,7 +620,7 @@ public class StorageItemField extends PageServlet {
                 page.writeEnd();
 
                 page.writeTag("input",
-                        "class", "fileSelectorItem fileSelectorNewUpload" + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
+                        "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
                         "type", "file",
                         "name", page.h(fileName));
 
