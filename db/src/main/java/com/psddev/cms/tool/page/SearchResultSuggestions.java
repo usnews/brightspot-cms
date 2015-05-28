@@ -48,162 +48,158 @@ public class SearchResultSuggestions extends PageServlet {
             return;
         }
 
-        try {
-            Map<String, Object> searchData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "search"));
-            Search search = new Search(page);
+        Map<String, Object> searchData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "search"));
+        Search search = new Search(page);
 
-            search.getState().setValues(searchData);
+        search.getState().setValues(searchData);
 
-            Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "object"));
-            Object object = Database.Static.getDefault().getEnvironment().createObject(ObjectUtils.to(UUID.class, objectData.get("_type")), ObjectUtils.to(UUID.class, objectData.get("_id")));
-            State objectState = State.getInstance(object);
+        Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "object"));
+        Object object = Database.Static.getDefault().getEnvironment().createObject(ObjectUtils.to(UUID.class, objectData.get("_type")), ObjectUtils.to(UUID.class, objectData.get("_id")));
+        State objectState = State.getInstance(object);
 
-            objectState.setValues(objectData);
+        objectState.setValues(objectData);
 
-            ObjectType objectType = objectState.getType();
+        ObjectType objectType = objectState.getType();
 
-            if (objectType == null) {
-                return;
+        if (objectType == null) {
+            return;
+        }
+
+        String fieldName = page.param(String.class, "field");
+        ObjectField field = objectType.getField(fieldName);
+
+        if (field == null) {
+            return;
+        }
+
+        Map<Object, Float> suggestions = new HashMap<Object, Float>();
+        StringBuilder filter = new StringBuilder();
+
+        for (ObjectType t : field.as(ToolUi.class).findDisplayTypes()) {
+            filter.append(SolrDatabase.Static.escapeValue(t.getId()));
+            filter.append(" || ");
+        }
+
+        Site site = page.getUser().getCurrentSite();
+
+        for (Object item : findSimilar(object, filter, 10)) {
+            Float score = SolrDatabase.Static.getNormalizedScore(item);
+
+            if (score != null && score > 0.7) {
+                if (site != null &&
+                        !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                    continue;
+                }
+
+                suggestions.put(item, score);
             }
+        }
 
-            String fieldName = page.param(String.class, "field");
-            ObjectField field = objectType.getField(fieldName);
+        filter.setLength(0);
 
-            if (field == null) {
-                return;
-            }
+        String fieldClass = field.getJavaDeclaringClassName();
 
-            Map<Object, Float> suggestions = new HashMap<Object, Float>();
-            StringBuilder filter = new StringBuilder();
+        for (ObjectType type : objectState.getDatabase().getEnvironment().getTypes()) {
+            ObjectField f = type.getField(fieldName);
 
-            for (ObjectType t : field.as(ToolUi.class).findDisplayTypes()) {
-                filter.append(SolrDatabase.Static.escapeValue(t.getId()));
+            if (f != null && ObjectUtils.equals(fieldClass, f.getJavaDeclaringClassName())) {
+                filter.append(SolrDatabase.Static.escapeValue(type.getId()));
                 filter.append(" || ");
             }
+        }
 
-            Site site = page.getUser().getCurrentSite();
+        Map<Object, Integer> similar = new HashMap<Object, Integer>();
 
-            for (Object item : findSimilar(object, filter, 10)) {
-                Float score = SolrDatabase.Static.getNormalizedScore(item);
+        for (Object item : findSimilar(object, filter, 20)) {
+            Float score = SolrDatabase.Static.getNormalizedScore(item);
 
-                if (score != null && score > 0.7) {
-                    if (site != null &&
-                            !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
-                        continue;
-                    }
-
-                    suggestions.put(item, score);
-                }
-            }
-
-            filter.setLength(0);
-
-            String fieldClass = field.getJavaDeclaringClassName();
-
-            for (ObjectType type : objectState.getDatabase().getEnvironment().getTypes()) {
-                ObjectField f = type.getField(fieldName);
-
-                if (f != null && ObjectUtils.equals(fieldClass, f.getJavaDeclaringClassName())) {
-                    filter.append(SolrDatabase.Static.escapeValue(type.getId()));
-                    filter.append(" || ");
-                }
-            }
-
-            Map<Object, Integer> similar = new HashMap<Object, Integer>();
-
-            for (Object item : findSimilar(object, filter, 20)) {
-                Float score = SolrDatabase.Static.getNormalizedScore(item);
-
-                if (score > 0.7) {
-                    if (site != null &&
-                            !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
-                        continue;
-                    }
-
-                    Object value = State.getInstance(item).get(fieldName);
-
-                    if (value == null) {
-                        continue;
-                    }
-
-                    if (value instanceof Map) {
-                        value = ((Map<?, ?>) value).values();
-                    }
-
-                    if (value instanceof Iterable) {
-                        for (Object v : (Iterable<?>) value) {
-                            incrementCount(similar, v);
-                        }
-
-                    } else {
-                        incrementCount(similar, value);
-                    }
-                }
-            }
-
-            for (Map.Entry<Object, Integer> entry : similar.entrySet()) {
-                Integer count = entry.getValue();
-
-                if (count > 1) {
-                    suggestions.put(entry.getKey(), ((float) count) / similar.size());
-                }
-            }
-
-            if (suggestions.isEmpty()) {
-                return;
-            }
-
-            Object fieldValue = State.getInstance(object).get(fieldName);
-
-            if (fieldValue != null) {
-                if (fieldValue instanceof Map) {
-                    fieldValue = ((Map<?, ?>) fieldValue).values();
+            if (score > 0.7) {
+                if (site != null &&
+                        !PredicateParser.Static.evaluate(item, site.itemsPredicate())) {
+                    continue;
                 }
 
-                if (fieldValue instanceof Iterable) {
-                    for (Object v : (Iterable<?>) fieldValue) {
-                        suggestions.remove(v);
+                Object value = State.getInstance(item).get(fieldName);
+
+                if (value == null) {
+                    continue;
+                }
+
+                if (value instanceof Map) {
+                    value = ((Map<?, ?>) value).values();
+                }
+
+                if (value instanceof Iterable) {
+                    for (Object v : (Iterable<?>) value) {
+                        incrementCount(similar, v);
                     }
 
                 } else {
-                    suggestions.remove(fieldValue);
+                    incrementCount(similar, value);
                 }
             }
-
-            if (suggestions.isEmpty()) {
-                return;
-            }
-
-            List<Map.Entry<Object, Float>> suggestionsList = new ArrayList<Map.Entry<Object, Float>>(suggestions.entrySet());
-
-            Collections.sort(suggestionsList, new Comparator<Map.Entry<Object, Float>>() {
-                public int compare(Map.Entry<Object, Float> x, Map.Entry<Object, Float> y) {
-                    float xv = x.getValue();
-                    float yv = y.getValue();
-
-                    return xv == yv ? 0 : xv < yv ? 1 : -1;
-                }
-            });
-
-            List<Object> sortedSuggestions = new ArrayList<Object>();
-
-            for (Map.Entry<Object, Float> entry : suggestionsList) {
-                sortedSuggestions.add(entry.getKey());
-            }
-
-            if (sortedSuggestions.size() > 10) {
-                sortedSuggestions = sortedSuggestions.subList(0, 10);
-            }
-
-            PageWriter writer = page.getWriter();
-
-            writer.start("div", "class", "searchSuggestions");
-            writer.start("h2").html("Suggestions").end();
-            new SearchResultRenderer(page, search).renderList(sortedSuggestions);
-            writer.end();
-        } catch (Exception error) {
-            LOGGER.debug("Solrj (an optional dependency) was not found.", error);
         }
+
+        for (Map.Entry<Object, Integer> entry : similar.entrySet()) {
+            Integer count = entry.getValue();
+
+            if (count > 1) {
+                suggestions.put(entry.getKey(), ((float) count) / similar.size());
+            }
+        }
+
+        if (suggestions.isEmpty()) {
+            return;
+        }
+
+        Object fieldValue = State.getInstance(object).get(fieldName);
+
+        if (fieldValue != null) {
+            if (fieldValue instanceof Map) {
+                fieldValue = ((Map<?, ?>) fieldValue).values();
+            }
+
+            if (fieldValue instanceof Iterable) {
+                for (Object v : (Iterable<?>) fieldValue) {
+                    suggestions.remove(v);
+                }
+
+            } else {
+                suggestions.remove(fieldValue);
+            }
+        }
+
+        if (suggestions.isEmpty()) {
+            return;
+        }
+
+        List<Map.Entry<Object, Float>> suggestionsList = new ArrayList<Map.Entry<Object, Float>>(suggestions.entrySet());
+
+        Collections.sort(suggestionsList, new Comparator<Map.Entry<Object, Float>>() {
+            public int compare(Map.Entry<Object, Float> x, Map.Entry<Object, Float> y) {
+                float xv = x.getValue();
+                float yv = y.getValue();
+
+                return xv == yv ? 0 : xv < yv ? 1 : -1;
+            }
+        });
+
+        List<Object> sortedSuggestions = new ArrayList<Object>();
+
+        for (Map.Entry<Object, Float> entry : suggestionsList) {
+            sortedSuggestions.add(entry.getKey());
+        }
+
+        if (sortedSuggestions.size() > 10) {
+            sortedSuggestions = sortedSuggestions.subList(0, 10);
+        }
+
+        PageWriter writer = page.getWriter();
+
+        writer.start("div", "class", "searchSuggestions");
+        writer.start("h2").html("Suggestions").end();
+        new SearchResultRenderer(page, search).renderList(sortedSuggestions);
+        writer.end();
     }
 
     private static List<?> findSimilar(Object object, StringBuilder filter, int rows) {
@@ -217,12 +213,17 @@ public class SearchResultSuggestions extends PageServlet {
 
         List<Object> items = new ArrayList<>();
         SolrDatabase solr = Database.Static.getFirst(SolrDatabase.class);
-        SolrQuery solrQuery = solr.buildSimilarQuery(object);
 
-        solrQuery.add(CommonParams.FQ, filter.toString());
-        solrQuery.setStart(0);
-        solrQuery.setRows(rows);
-        items = solr.queryPartialWithOptions(solrQuery, null).getItems();
+        try {
+            SolrQuery solrQuery = solr.buildSimilarQuery(object);
+
+            solrQuery.add(CommonParams.FQ, filter.toString());
+            solrQuery.setStart(0);
+            solrQuery.setRows(rows);
+            items = solr.queryPartialWithOptions(solrQuery, null).getItems();
+        } catch (Exception error) {
+            LOGGER.debug("Solrj (an optional dependency) was not found.", error);
+        }
 
         return items;
     }
