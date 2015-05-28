@@ -13,6 +13,8 @@ import javax.servlet.ServletException;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.PageServlet;
@@ -29,9 +31,10 @@ import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 
-
 @RoutingFilter.Path(application = "cms", value = "/content/suggestions")
 public class SearchResultSuggestions extends PageServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultSuggestions.class);
 
     @Override
     protected String getPermissionId() {
@@ -199,7 +202,7 @@ public class SearchResultSuggestions extends PageServlet {
             new SearchResultRenderer(page, search).renderList(sortedSuggestions);
             writer.end();
         } catch (Exception error) {
-
+            LOGGER.debug("Solrj (an optional dependency) was not found.", error);
         }
     }
 
