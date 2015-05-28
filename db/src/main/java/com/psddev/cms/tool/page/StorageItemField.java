@@ -397,9 +397,7 @@ public class StorageItemField extends PageServlet {
                             pathBuilder.append(StringUtils.toNormalized(label));
                             pathBuilder.append(extension);
 
-                            String storageSetting = field.as(ToolUi.class).getStorageSetting();
-
-                            newItem = StorageItem.Static.createIn(storageSetting != null ? Settings.getOrDefault(String.class, storageSetting, null) : null);
+                            newItem = StorageItem.Static.createIn(getStorageSetting(field));
                             newItem.setPath(pathBuilder.toString());
                             newItem.setContentType(fileContentType);
 
@@ -653,6 +651,27 @@ public class StorageItemField extends PageServlet {
         if (projectUsingBrightSpotImage) {
             page.include("set/hotSpot.jsp");
         }
+    }
+
+    /**
+     * Gets storageSetting for current field,
+     * if non exists, get {@link StorageItem.DEFAULT_STORAGE_SETTING}
+     *
+     * @param field to check for storage setting
+     */
+    private static String getStorageSetting(ObjectField field) {
+        String storageSetting = "";
+        String fieldStorageSettingsKey = field.as(ToolUi.class).getStorageSetting();
+
+        if (!StringUtils.isBlank(fieldStorageSettingsKey)) {
+            Settings.getOrDefault(String.class, fieldStorageSettingsKey, null);
+        }
+
+        if (StringUtils.isBlank(storageSetting)) {
+            storageSetting = Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING);
+        }
+
+        return storageSetting;
     }
 
     @Override
