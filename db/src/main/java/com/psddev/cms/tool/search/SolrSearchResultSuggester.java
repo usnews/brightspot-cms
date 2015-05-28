@@ -34,7 +34,7 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
 
     @Override
     public boolean isSupported(Search search) {
-        return ObjectUtils.getClassByName("com.apache.solr.client.solrj.SolrQuery") != null;
+        return ObjectUtils.getClassByName("org.apache.solr.client.solrj.SolrQuery") != null;
     }
 
     @Override
