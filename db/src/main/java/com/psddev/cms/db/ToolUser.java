@@ -25,6 +25,8 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.ToolEntityTfaRequired;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -34,7 +36,6 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Password;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
-import com.psddev.dari.util.StringUtils;
 
 /** User that uses the CMS and other related tools. */
 @ToolUi.IconName("object-toolUser")
@@ -92,8 +93,8 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Tab("Advanced")
     @DisplayName("Two Factor Authentication Required?")
-    @ToolUi.Placeholder("Inherit from Role")
-    private TfaRequired tfaRequired;
+    @ToolUi.Placeholder("Default")
+    private ToolEntityTfaRequired tfaRequired;
 
     @ToolUi.Hidden
     private boolean tfaEnabled;
@@ -449,14 +450,16 @@ public class ToolUser extends Record implements ToolEntity {
     }
 
     public boolean isTfaRequired() {
-        if (tfaRequired == null && getRole() != null) {
+        if (tfaRequired != null) {
+            return ToolEntityTfaRequired.REQUIRED.equals(tfaRequired);
+        } else if (getRole() != null) {
             return getRole().isTfaRequired();
         } else {
-            return TfaRequired.REQUIRED.equals(tfaRequired);
+            return Application.Static.getInstance(CmsTool.class).isTfaRequired();
         }
     }
 
-    public void setTfaRequired(TfaRequired tfaRequired) {
+    public void setTfaRequired(ToolEntityTfaRequired tfaRequired) {
         this.tfaRequired = tfaRequired;
     }
 
@@ -916,15 +919,6 @@ public class ToolUser extends Record implements ToolEntity {
         @Override
         public String toString() {
             return label;
-        }
-    }
-
-    public enum TfaRequired {
-        REQUIRED, NOT_REQUIRED;
-
-        @Override
-        public String toString() {
-            return StringUtils.toLabel(name());
         }
     }
 }

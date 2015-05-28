@@ -2,6 +2,8 @@ package com.psddev.cms.db;
 
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
+import com.psddev.cms.tool.ToolEntityTfaRequired;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.ObjectUtils;
@@ -27,7 +29,10 @@ public class ToolRole extends Record implements ToolEntity {
     @ToolUi.Tab("Dashboard")
     private CmsTool.CommonContentSettings roleCommonContentSettings;
 
-    private boolean tfaRequired;
+    @ToolUi.Tab("Advanced")
+    @DisplayName("Two Factor Authentication Required?")
+    @ToolUi.Placeholder("Default")
+    private ToolEntityTfaRequired tfaRequired;
 
     /** Returns the name. */
     public String getName() {
@@ -83,6 +88,10 @@ public class ToolRole extends Record implements ToolEntity {
     }
 
     public boolean isTfaRequired() {
-        return tfaRequired;
+        if (tfaRequired == null) {
+            return Application.Static.getInstance(CmsTool.class).isTfaRequired();
+        } else {
+            return ToolEntityTfaRequired.REQUIRED.equals(tfaRequired);
+        }
     }
 }
