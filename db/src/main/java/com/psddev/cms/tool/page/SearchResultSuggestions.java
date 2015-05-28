@@ -201,7 +201,7 @@ public class SearchResultSuggestions extends PageServlet {
             writer.start("h2").html("Suggestions").end();
             new SearchResultRenderer(page, search).renderList(sortedSuggestions);
             writer.end();
-        } catch (Exception error) {
+        } catch (Throwable error) {
             LOGGER.debug("Solrj (an optional dependency) was not found.", error);
         }
     }
