@@ -655,11 +655,11 @@ public class StorageItemField extends PageServlet {
 
     /**
      * Gets storageSetting for current field,
-     * if non exists, get {@link StorageItem.DEFAULT_STORAGE_SETTING}
+     * if non exists, get {@code StorageItem.DEFAULT_STORAGE_SETTING}
      *
      * @param field to check for storage setting
      */
-    private static String getStorageSetting(ObjectField field) {
+    public static String getStorageSetting(ObjectField field) {
         String storageSetting = "";
         String fieldStorageSettingsKey = field.as(ToolUi.class).getStorageSetting();
 
