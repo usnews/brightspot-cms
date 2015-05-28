@@ -59,7 +59,6 @@ public class StorageItemField extends PageServlet {
         HttpServletRequest request = page.getRequest();
 
         State state = State.getInstance(request.getAttribute("object"));
-        UUID id = state.getId();
 
         ObjectField field = (ObjectField) request.getAttribute("field");
         String fieldName = field.getInternalName();
@@ -90,8 +89,6 @@ public class StorageItemField extends PageServlet {
         String focusYName = inputName + ".focusY";
 
         String metadataFieldName = fieldName + ".metadata";
-        String widthFieldName = fieldName + ".width";
-        String heightFieldName = fieldName + ".height";
         String cropsFieldName = fieldName + ".crops";
 
         String action = page.param(actionName);
