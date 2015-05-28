@@ -212,7 +212,7 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
             solrQuery.setStart(0);
             solrQuery.setRows(rows);
             items = solr.queryPartialWithOptions(solrQuery, null).getItems();
-        } catch (Exception error) {
+        } catch (Throwable error) {
             LOGGER.debug("Solrj (an optional dependency) was not found.", error);
         }
 
