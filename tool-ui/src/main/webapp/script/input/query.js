@@ -24,15 +24,9 @@ function($, bsp_utils) {
                 $(window.document.body).append($frames);
             }
 
-            var search = inputValue ? JSON.parse(inputValue)['cms.ui.search'] : null;
-
-            if (search) {
-                var types = $field.closest('.inputLarge').attr('data-generic-arguments');
-
-                if (types) {
-                    search.types = types.split('\\s*,\\s*');
-                }
-            }
+            search = inputValue ? JSON.parse(inputValue)['cms.ui.search'] : { 'limit': 10 };
+            var types = $field.closest('.inputLarge').attr('data-generic-arguments');
+            search.types = types ? types.split('\\s*,\\s*') : null;
 
             $frame = $('<div/>', {
                 'class': 'frame',
