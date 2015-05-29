@@ -97,7 +97,8 @@ public class StorageItemField extends PageServlet {
         String action = page.param(actionName);
 
         Map<String, Object> fieldValueMetadata = null;
-        if (fieldValue != null && (!((Boolean) request.getAttribute("isFormPost")) || "keep".equals(action))) {
+        boolean isFormPost = request.getAttribute("isFormPost") != null ? (Boolean) request.getAttribute("isFormPost") : false;
+        if (fieldValue != null && (!isFormPost || "keep".equals(action))) {
             fieldValueMetadata = fieldValue.getMetadata();
         }
 
@@ -169,7 +170,7 @@ public class StorageItemField extends PageServlet {
         Class hotSpotClass = ObjectUtils.getClassByName(ImageTag.HOTSPOT_CLASS);
         boolean projectUsingBrightSpotImage = hotSpotClass != null && !ObjectUtils.isBlank(ClassFinder.Static.findClasses(hotSpotClass));
 
-        if ((Boolean) request.getAttribute("isFormPost")) {
+        if (isFormPost) {
             File file = null;
 
             try {
