@@ -49,9 +49,9 @@ function ($, bsp_utils, evaporate) {
               },
               complete: function () {
                 if (isMultiple) {
-                  //_afterBulkUpload($this, $inputSmall, filePath, i);
+                  _afterBulkUpload($this, $inputSmall, filePath, i);
                 } else {
-                  //_afterUpload($this, $inputSmall, filePath);
+                  _afterUpload($this, $inputSmall, filePath);
                 }
               }
 
