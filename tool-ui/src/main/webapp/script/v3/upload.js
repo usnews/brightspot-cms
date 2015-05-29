@@ -93,7 +93,6 @@ function ($, bsp_utils, evaporate) {
         var localSrc = $uploadPreview.find('img').first().attr('src');
 
         var params = {};
-        params['isNewUpload'] = true;
         params['inputName'] = inputName;
         params['fieldName'] = state.fieldName;
         params['typeId'] = state.typeId;
