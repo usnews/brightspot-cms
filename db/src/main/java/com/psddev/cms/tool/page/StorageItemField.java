@@ -365,43 +365,10 @@ public class StorageItemField extends PageServlet {
                         }
 
                         if (fileSize > 0) {
-                            String idString = UUID.randomUUID().toString().replace("-", "");
-                            StringBuilder pathBuilder = new StringBuilder();
-                            String label = state.getLabel();
-
                             fieldValueMetadata.put("originalFilename", name);
 
-                            int lastDotAt = name.indexOf('.');
-                            String extension;
-
-                            if (lastDotAt > -1) {
-                                extension = name.substring(lastDotAt);
-                                name = name.substring(0, lastDotAt);
-
-                            } else {
-                                extension = "";
-                            }
-
-                            if (ObjectUtils.isBlank(label) ||
-                                    ObjectUtils.to(UUID.class, label) != null) {
-                                label = name;
-                            }
-
-                            if (ObjectUtils.isBlank(label)) {
-                                label = UUID.randomUUID().toString().replace("-", "");
-                            }
-
-                            pathBuilder.append(idString.substring(0, 2));
-                            pathBuilder.append('/');
-                            pathBuilder.append(idString.substring(2, 4));
-                            pathBuilder.append('/');
-                            pathBuilder.append(idString.substring(4));
-                            pathBuilder.append('/');
-                            pathBuilder.append(StringUtils.toNormalized(label));
-                            pathBuilder.append(extension);
-
                             newItem = StorageItem.Static.createIn(getStorageSetting(field));
-                            newItem.setPath(pathBuilder.toString());
+                            newItem.setPath(createStorageItemPath(state.getLabel(), fileName));
                             newItem.setContentType(fileContentType);
 
                             Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
@@ -623,7 +590,8 @@ public class StorageItemField extends PageServlet {
                 page.writeTag("input",
                         "class", "fileSelectorItem fileSelectorNewUpload " + (uploader != null ? ObjectUtils.firstNonNull(uploader.getClassIdentifier(), "") : ""),
                         "type", "file",
-                        "name", page.h(fileName));
+                        "name", page.h(fileName),
+                        "data-input-name", inputName);
 
                 page.writeTag("input",
                         "class", "fileSelectorItem fileSelectorNewUrl",
@@ -676,6 +644,50 @@ public class StorageItemField extends PageServlet {
         if (projectUsingBrightSpotImage) {
             page.include("set/hotSpot.jsp");
         }
+    }
+
+    private static String createStorageItemPath(String label, String fileName) {
+
+        String extension = "";
+        String path = createStoragePathPrefix();
+
+        if (!StringUtils.isBlank(fileName)) {
+            int lastDotAt = fileName.indexOf('.');
+
+            if (lastDotAt > -1) {
+                extension = fileName.substring(lastDotAt);
+                fileName = fileName.substring(0, lastDotAt);
+
+            }
+        }
+
+        if (ObjectUtils.isBlank(label) ||
+                ObjectUtils.to(UUID.class, label) != null) {
+            label = fileName;
+        }
+
+        if (ObjectUtils.isBlank(label)) {
+            label = UUID.randomUUID().toString().replace("-", "");
+        }
+
+        path += StringUtils.toNormalized(label);
+        path += extension;
+
+        return path;
+    }
+
+    public static String createStoragePathPrefix() {
+        String idString = UUID.randomUUID().toString().replace("-", "");
+        StringBuilder pathBuilder = new StringBuilder();
+
+        pathBuilder.append(idString.substring(0, 2));
+        pathBuilder.append('/');
+        pathBuilder.append(idString.substring(2, 4));
+        pathBuilder.append('/');
+        pathBuilder.append(idString.substring(4));
+        pathBuilder.append('/');
+
+        return pathBuilder.toString();
     }
 
     /**
