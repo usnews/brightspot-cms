@@ -93,7 +93,7 @@ public class SearchResultActions extends PageServlet {
             page.writeEnd();
 
             page.writeStart("script", "type", "text/javascript");
-                page.writeRaw("$('#" + page.getId() + "').closest('.search-result').find('.searchResultList :checkbox').prop('checked', false);");
+                page.writeRaw("$('#" + page.getId() + "').closest('.searchResult').find('.searchResult-list :checkbox').prop('checked', false);");
             page.writeEnd();
 
         } else if (ACTION_ACTIVATE.equals(action)) {
