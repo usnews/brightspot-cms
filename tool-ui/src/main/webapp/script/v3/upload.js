@@ -107,7 +107,12 @@ function ($, bsp_utils, evaporate) {
           data: params
         }).done(function (html) {
           $uploadPreview.detach();
-          $inputSmall.replaceWith(html);
+          var $response = $(html);
+
+          //$inputSmall.replaceWith(html);
+
+          $inputSmall.find('meta[name="evaporateSettings"]').replaceWith($response.find('meta[name="evaporateSettings"]'));
+          $inputSmall.find('.fileSelector').after($response.find('.filePreview'));
 
           //prevent image pop-in
           var img = $inputSmall.find('.imageEditor-image').find('img').first();
