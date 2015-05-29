@@ -16,6 +16,11 @@ function ($, bsp_utils, evaporate) {
         var files = event.target.files;
         var $inputSmall = $this.closest('.inputSmall');
         var settingsMeta = $inputSmall.find('meta[name="evaporateSettings"]');
+
+        if (settingsMeta.size() === 0) {
+          return;
+        }
+
         state.fieldName = settingsMeta.attr('data-field-name');
         state.pathStart = settingsMeta.attr('data-path-start');
         state.storage = settingsMeta.attr('data-storage');
