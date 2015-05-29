@@ -32,7 +32,7 @@ function ($, bsp_utils, evaporate) {
           var file = files[i];
 
           _beforeUpload(file, $inputSmall, i);
-          var filePath = state.pathStart + "/" + encodeURIComponent(file.name);
+          var filePath = state.pathStart + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
             new Evaporate(JSON.parse(settingsMeta.attr('content'))).add({
