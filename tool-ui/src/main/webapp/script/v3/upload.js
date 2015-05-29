@@ -112,7 +112,14 @@ function ($, bsp_utils, evaporate) {
           //$inputSmall.replaceWith(html);
 
           $inputSmall.find('meta[name="evaporateSettings"]').replaceWith($response.find('meta[name="evaporateSettings"]'));
-          $inputSmall.find('.fileSelector').after($response.find('.filePreview'));
+
+          var $existingPreview = $inputSmall.find('.filePreview');
+
+          if ($existingPreview.size() === 0) {
+            $inputSmall.find('.fileSelector').after($response.find('.filePreview'));
+          } else {
+            $inputSmall.find('.filePreview').replaceWith($response.find('.filePreview'));
+          }
 
           //prevent image pop-in
           var img = $inputSmall.find('.imageEditor-image').find('img').first();
