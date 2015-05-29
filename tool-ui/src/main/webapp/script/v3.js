@@ -66,6 +66,7 @@ require([
   'jquery.tabbed',
   'v3/taxonomy',
   'jquery.toggleable',
+  'v3/upload',
   'nv.d3',
 
   'dashboard',
