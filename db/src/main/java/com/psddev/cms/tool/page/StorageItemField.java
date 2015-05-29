@@ -568,7 +568,6 @@ public class StorageItemField extends PageServlet {
                 page.writeStart("select",
                         "class", "toggleable",
                         "data-root", ".inputSmall",
-                        "id", page.getId(),
                         "name", page.h(actionName));
 
                     if (fieldValue != null) {
