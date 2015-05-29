@@ -9,20 +9,28 @@ function ($, bsp_utils, evaporate) {
 
     insert: function (input) {
 
+      var state = {};
+
       $(input).on('change', function (event) {
         var $this = $(this);
         var files = event.target.files;
         var $inputSmall = $this.closest('.inputSmall');
+        var settingsMeta = $inputSmall.find('meta[name="evaporateSettings"]');
+        state.fieldName = settingsMeta.attr('data-field-name');
+        state.pathStart = settingsMeta.attr('data-path-start');
+        state.storage = settingsMeta.attr('data-storage');
+        state.typeId = settingsMeta.attr('data-type-id');
+
         var isMultiple = $this.attr('multiple') ? true : false;
 
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
 
           _beforeUpload(file, $inputSmall, i);
-          var filePath = $this.attr('data-path-start') + "/" + encodeURIComponent(file.name);
+          var filePath = state.pathStart + "/" + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
-            window._e_.add({
+            new Evaporate(JSON.parse(settingsMeta.attr('content'))).add({
               name: filePath,
               file: file,
               notSignedHeadersAtInitiate: {
@@ -82,10 +90,10 @@ function ($, bsp_utils, evaporate) {
         var params = {};
         params['isNewUpload'] = true;
         params['inputName'] = inputName;
-        params['fieldName'] = $this.attr('data-field-name');
-        params['typeId'] = $this.attr('data-type-id');
+        params['fieldName'] = state.fieldName;
+        params['typeId'] = state.typeId;
         params[inputName + '.path'] = filePath;
-        params[inputName + '.storage'] = $this.attr('data-storage');
+        params[inputName + '.storage'] = state.storage;
 
         $uploadPreview.removeClass('loading');
 

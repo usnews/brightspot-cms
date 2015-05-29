@@ -43,14 +43,16 @@ public class AmazonUploader implements Uploader {
             return;
         }
 
-        page.writeStart("script", "type", "text/javascript");
-            page.writeRaw("require([ 'evaporate' ], function(evaporate) { " +
-                    "window._e_ = new Evaporate(");
-            page.write(ObjectUtils.toJson(ImmutableMap.of(
-                    "signerUrl", page.cmsUrl("/amazonAuth"),
-                    "aws_key", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/access"),
-                    "bucket", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/bucket"))));
-            page.writeRaw(");})");
-        page.writeEnd();
+        page.writeTag("meta",
+                "name", "evaporateSettings",
+                "content", ObjectUtils.toJson(ImmutableMap.of(
+                                "signerUrl", page.cmsUrl("/amazonAuth"),
+                                "aws_key", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/access"),
+                                "bucket", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/bucket")
+                )),
+                "data-path-start", StorageItemField.createStoragePathPrefix(),
+                "data-field-name", field.getInternalName(),
+                "data-storage", StorageItemField.getStorageSetting(field),
+                "data-type-id", field.getParentType().getId());
     }
 }
