@@ -67,7 +67,7 @@ public class StorageItemField extends PageServlet {
         String fieldName = field.getInternalName();
         StorageItem fieldValue = (StorageItem) state.getValue(fieldName);
 
-        String inputName = (String) request.getAttribute("inputName");
+        String inputName = page.paramOrDefault(String.class, "inputName", (String) request.getAttribute("inputName"));
         String actionName = inputName + ".action";
         String storageName = inputName + ".storage";
         String pathName = inputName + ".path";
