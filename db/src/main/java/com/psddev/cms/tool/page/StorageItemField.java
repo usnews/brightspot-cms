@@ -35,6 +35,8 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.Uploader;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.ReferentialText;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
@@ -64,8 +66,6 @@ public class StorageItemField extends PageServlet {
         State state = State.getInstance(request.getAttribute("object"));
 
         ObjectField field = (ObjectField) request.getAttribute("field");
-        String fieldName = field.getInternalName();
-        StorageItem fieldValue = (StorageItem) state.getValue(fieldName);
 
         String inputName = page.paramOrDefault(String.class, "inputName", (String) request.getAttribute("inputName"));
         String actionName = inputName + ".action";
@@ -90,6 +90,29 @@ public class StorageItemField extends PageServlet {
 
         String focusXName = inputName + ".focusX";
         String focusYName = inputName + ".focusY";
+
+        String fieldName;
+        StorageItem fieldValue = null;
+
+        if (state != null) {
+            fieldName = field.getInternalName();
+            fieldValue = (StorageItem) state.getValue(fieldName);
+        } else {
+            // handles processing of files uploaded on frontend
+            UUID typeId = page.param(UUID.class, "typeId");
+            fieldName = page.param(String.class, "fieldName");
+            ObjectType type = Query.findById(ObjectType.class, typeId);
+            field = type.getField(fieldName);
+
+            String storageItemPath = page.param(String.class, pathName);
+            if (!StringUtils.isBlank(storageItemPath)) {
+                StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
+                newItem.setPath(storageItemPath);
+                fieldValue = newItem;
+            }
+
+            state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
+        }
 
         String metadataFieldName = fieldName + ".metadata";
         String cropsFieldName = fieldName + ".crops";
