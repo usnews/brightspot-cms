@@ -565,12 +565,13 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        if (uploader != null) {
-            uploader.writeHtml(page, field);
-        }
-
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
+
+            if (uploader != null) {
+                uploader.writeHtml(page, field);
+            }
+
             page.writeStart("div", "class", "fileSelector");
 
                 page.writeStart("select",
