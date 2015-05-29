@@ -34,6 +34,19 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         $dateInput.change(onChange);
         $newSchedule.change(onChange);
       }
+
+      // Bind command/control-S to saving a draft.
+      var $draftButton = $widget.find('button[name="action-draft"]');
+
+      if ($draftButton.length > 0) {
+        $(document).on('keydown', function(event) {
+          if (event.which === 83 && (event.ctrlKey || event.metaKey)) {
+            $draftButton.click();
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+      }
     }
   });
 
