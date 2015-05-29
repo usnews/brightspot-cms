@@ -61,7 +61,7 @@ if (ObjectUtils.isBlank(tab)) {
     tab = ui.getTab();
 }
 
-if (!isHidden && !ObjectUtils.isBlank(tab) && !wp.hasPermission("tab/" + StringUtils.toNormalized(tab))) {
+if (!isHidden && (!ObjectUtils.isBlank(tab) && !ContentField.DEFAULT_TAB_VALUE.equals(tab)) && !wp.hasPermission("tab/" + StringUtils.toNormalized(tab))) {
     isHidden = true;
 }
 
