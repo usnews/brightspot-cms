@@ -45,9 +45,9 @@ public class AmazonUploader implements Uploader {
 
         page.writeStart("script", "type", "text/javascript");
             page.writeRaw("require([ 'evaporate' ], function(evaporate) { " +
-                    "var _e_ = new Evaporate(");
+                    "window._e_ = new Evaporate(");
             page.write(ObjectUtils.toJson(ImmutableMap.of(
-                    "signerUrl", "/cms/s3auth",
+                    "signerUrl", page.cmsUrl("/amazonAuth"),
                     "aws_key", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/access"),
                     "bucket", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/bucket"))));
             page.writeRaw(");})");
