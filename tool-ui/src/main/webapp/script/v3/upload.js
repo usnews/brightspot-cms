@@ -107,7 +107,7 @@ function ($, bsp_utils, evaporate) {
           data: params
         }).done(function (html) {
           $uploadPreview.detach();
-          $inputSmall.append(html);
+          $inputSmall.replaceWith(html);
 
           //prevent image pop-in
           var img = $inputSmall.find('.imageEditor-image').find('img').first();
