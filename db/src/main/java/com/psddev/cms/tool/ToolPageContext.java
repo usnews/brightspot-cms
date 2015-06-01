@@ -1010,9 +1010,7 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
-            writeHtml(ObjectUtils.isBlank(label) ?
-                    state.getId() :
-                    state.getLabel());
+            writeHtml(getObjectLabelOrDefault(state, "Untitled"));
         }
     }
 
