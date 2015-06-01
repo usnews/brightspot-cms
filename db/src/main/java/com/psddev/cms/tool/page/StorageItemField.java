@@ -438,6 +438,8 @@ public class StorageItemField extends PageServlet {
                             IoUtils.closeQuietly(newItemData);
                         }
                     }
+                } else {
+                    IoUtils.closeQuietly(newItemData);
                 }
 
                 // Standard sizes.
