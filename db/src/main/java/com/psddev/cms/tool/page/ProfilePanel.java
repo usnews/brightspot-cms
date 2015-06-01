@@ -1,6 +1,10 @@
 package com.psddev.cms.tool.page;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -21,6 +25,12 @@ public class ProfilePanel extends PageServlet {
 
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
+        List<Class<? extends ProfilePanelTab>> tabClasses = new ArrayList<>(ClassFinder.Static.findClasses(ProfilePanelTab.class));
+
+        Collections.sort(tabClasses, Comparator.<Class<? extends ProfilePanelTab>, String>comparing(Class::getSimpleName).thenComparing(Class::getName));
+
+        tabClasses.remove(SiteTab.class);
+        tabClasses.add(0, SiteTab.class);
 
         page.writeHeader();
             page.writeStart("div", "class", "widget p-tud");
@@ -30,7 +40,7 @@ public class ProfilePanel extends PageServlet {
 
                 page.writeStart("div", "class", "tabbed tabbed-vertical");
 
-                    for (Class<? extends ProfilePanelTab> c : ClassFinder.Static.findClasses(ProfilePanelTab.class)) {
+                    for (Class<? extends ProfilePanelTab> c : tabClasses) {
                         TypeDefinition.getInstance(c).newInstance().writeHtml(page);
                     }
 
