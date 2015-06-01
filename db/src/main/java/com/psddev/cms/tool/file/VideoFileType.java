@@ -1,6 +1,5 @@
 package com.psddev.cms.tool.file;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -49,10 +48,5 @@ public class VideoFileType implements FileContentType {
                     "type", contentType,
                     "src", fieldValue.getPublicUrl());
         page.writeEnd();
-    }
-
-    @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
-
     }
 }
