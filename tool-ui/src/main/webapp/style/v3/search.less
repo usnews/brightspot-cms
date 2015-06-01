@@ -1,6 +1,6 @@
 @-actions-borderWidth: 2px;
 @-actions-padding: 20px;
-@-actions-width: 180px;
+@-actions-width: 200px;
 
 .searchResult-container {
   padding-right: (@-actions-width + (@-actions-padding * 2));
@@ -11,35 +11,42 @@
 }
 
 .searchResult-fields {
-  float: left;
-  margin-right: 10px;
-
   .link {
     &:extend(.select all);
   }
 }
 
-.searchResult-sorts {
+.queryRestrictions,
+.searchResult-fields,
+.searchResult-sorts,
+.searchResult-limits {
   float: left;
-  margin-right: 10px;
+  margin: 0 10px 10px 0;
 
   form {
     display: inline;
   }
 }
 
-.searchResult-limits {
-  margin-bottom: 20px;
-
-  form {
-    display: inline;
-  }
+.queryRestrictions:empty {
+  display: none;
 }
 
 .searchResult-pagination {
-  position: absolute;
-  right: 0;
-  top: 0;
+  float: right;
+  margin: 0 0 10px 10px;
+
+  .pagination {
+    display: block;
+    margin: 0;
+  }
+}
+
+.searchResult-list {
+  float: left;
+  margin-top: 10px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .searchResult-actions {
@@ -51,12 +58,6 @@
   right: 0;
   top: 0;
   width: (@-actions-width + @-actions-padding + (@-actions-borderWidth / 2));
-
-  .action-cancel {
-    left: 88px;
-    position: absolute;
-    top: 0;
-  }
 }
 
 .searchResult-action-simple {
@@ -87,7 +88,7 @@
 }
 
 .searchResult-images {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow: hidden;
 
   figure {
@@ -349,4 +350,27 @@
       max-width: 100%;
     }
   }
+}
+
+.searchResult-selectionReset {
+  margin-left: 10px;
+}
+
+.searchResult-selectionPreview {
+  overflow: hidden;
+}
+
+.searchResult-selectionPreview figure {
+  height: auto;
+  margin: 0 5px 5px 0;
+  min-height: 0;
+  min-width: 0;
+  float: left;
+  overflow: hidden;
+  width: auto;
+}
+
+.searchResult-selectionPreview figure img {
+  display: block;
+  height: 30px;
 }

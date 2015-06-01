@@ -271,7 +271,13 @@ public class PageFilter extends AbstractFilter {
             response = new LazyWriterResponse(request, response);
         }
 
-        super.doInclude(request, response, chain);
+        try {
+            super.doInclude(request, response, chain);
+        } finally {
+            if (response instanceof LazyWriterResponse) {
+                ((LazyWriterResponse) response).getLazyWriter().writePending();
+            }
+        }
     }
 
     @Override
@@ -1133,7 +1139,6 @@ public class PageFilter extends AbstractFilter {
                 marker.append("<span class=\"cms-objectBegin\" style=\"display: none;\" data-object=\"");
                 marker.append(StringUtils.escapeHtml(ObjectUtils.toJson(map)));
                 marker.append("\"></span>");
-
                 lazyWriter.writeLazily(marker.toString());
             }
 
@@ -1154,6 +1159,7 @@ public class PageFilter extends AbstractFilter {
 
             if (lazyWriter != null) {
                 lazyWriter.writeLazily("<span class=\"cms-objectEnd\" style=\"display: none;\"></span>");
+                lazyWriter.writePending();
             }
         }
     }
@@ -1382,6 +1388,14 @@ public class PageFilter extends AbstractFilter {
 
                         if (previewSite != null) {
                             setSite(request, previewSite);
+
+                        } else {
+                            for (Directory.Path p : dirData.getPaths()) {
+                                if (Directory.PathType.PERMALINK.equals(p.getType())) {
+                                    setSite(request, p.getSite());
+                                    break;
+                                }
+                            }
                         }
                     }
 

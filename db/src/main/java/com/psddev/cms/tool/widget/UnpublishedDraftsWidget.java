@@ -17,6 +17,7 @@ import com.psddev.cms.db.Workflow;
 import com.psddev.cms.db.WorkflowState;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
+import com.psddev.cms.tool.QueryRestriction;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -105,6 +106,8 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
             };
         }
 
+        QueryRestriction.updateQueryUsingAll(draftsQuery, page);
+
         int limit = page.pageParam(int.class, "limit", 20);
         PaginatedResult<?> drafts = draftsQuery.
                 and("* matches *").
@@ -119,6 +122,10 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
             page.writeEnd();
 
             page.writeStart("div", "class", "widget-filters");
+                for (Class<? extends QueryRestriction> c : QueryRestriction.classIterable()) {
+                    page.writeQueryRestrictionForm(c);
+                }
+
                 page.writeStart("form",
                         "method", "get",
                         "action", page.url(null));

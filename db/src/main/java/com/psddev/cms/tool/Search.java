@@ -26,6 +26,7 @@ import java.util.UUID;
 import com.psddev.cms.db.Content;
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Site;
+import com.psddev.cms.db.ToolEntity;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.db.Workflow;
@@ -985,8 +986,13 @@ public class Search extends Record {
     }
 
     private void addGlobalTypes(Set<ObjectType> globalTypes, ObjectType type) {
-        if (type != null && type.getGroups().contains(ObjectType.class.getName())) {
-            globalTypes.add(type);
+        if (type != null) {
+            Set<String> groups = type.getGroups();
+
+            if (groups.contains(ObjectType.class.getName()) ||
+                    groups.contains(ToolEntity.class.getName())) {
+                globalTypes.add(type);
+            }
         }
     }
 
