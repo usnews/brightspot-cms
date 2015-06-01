@@ -25,6 +25,8 @@ import com.google.common.io.BaseEncoding;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.SearchResultSelection;
+import com.psddev.cms.tool.ToolEntityTfaRequired;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
@@ -88,6 +90,11 @@ public class ToolUser extends Record implements ToolEntity {
 
     @ToolUi.Hidden
     private Schedule currentSchedule;
+
+    @ToolUi.Tab("Advanced")
+    @DisplayName("Two Factor Authentication Required?")
+    @ToolUi.Placeholder("Default")
+    private ToolEntityTfaRequired tfaRequired;
 
     @ToolUi.Hidden
     private boolean tfaEnabled;
@@ -440,6 +447,20 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setTfaEnabled(boolean tfaEnabled) {
         this.tfaEnabled = tfaEnabled;
+    }
+
+    public boolean isTfaRequired() {
+        if (tfaRequired != null) {
+            return ToolEntityTfaRequired.REQUIRED.equals(tfaRequired);
+        } else if (getRole() != null) {
+            return getRole().isTfaRequired();
+        } else {
+            return Application.Static.getInstance(CmsTool.class).isTfaRequired();
+        }
+    }
+
+    public void setTfaRequired(ToolEntityTfaRequired tfaRequired) {
+        this.tfaRequired = tfaRequired;
     }
 
     public String getTotpSecret() {
