@@ -414,7 +414,10 @@ public class StorageItemField extends PageServlet {
                 }
 
                 // Automatic image metadata extraction.
-                if (newItem != null && !"keep".equals(action)) {
+                if (newItem != null &&
+                        !fieldValueMetadata.containsKey("width") &&
+                        !fieldValueMetadata.containsKey("height")) {
+
                     if (newItemData == null) {
                         newItemData = newItem.getData();
                     }
