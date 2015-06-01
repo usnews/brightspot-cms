@@ -10,21 +10,17 @@ import com.psddev.dari.db.ObjectField;
  */
 public interface Uploader {
 
-    /**
-     * Returns {@code true} if this uploader is supported
-     * for uploading the given {@code field}
-     *
-     * @param field Can't be {@code null}.
-     */
-    public boolean isSupported(ObjectField field);
+    public static final double DEFAULT_PRIORITY = 0;
 
     /**
-     * Returns {@code true} if this uploader is the preferred default for
-     * uploading the given {@code field}.
+     * Returns {@code double} as a priority rating for
+     * this Uploader. The highest priority will be used
+     * by {@code StorageItemField}. Return a value less
+     * than zero if Uploader should not be supported.
      *
      * @param field Can't be {@code null}.
      */
-    public boolean isPreferred(ObjectField field);
+    public double getPriority(ObjectField field);
 
     /**
      * Returns class used by javascript to which DOM

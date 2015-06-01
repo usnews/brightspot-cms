@@ -547,11 +547,11 @@ public class StorageItemField extends PageServlet {
             }
 
             Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
-            if (candidateUploader.isSupported(field)) {
-                uploader = candidateUploader;
 
-                if (candidateUploader.isPreferred(field)) {
-                    break;
+            if (candidateUploader.getPriority(field) >= 0) {
+
+                if (uploader == null || uploader.getPriority(field) < candidateUploader.getPriority(field)) {
+                    uploader = candidateUploader;
                 }
             }
         }

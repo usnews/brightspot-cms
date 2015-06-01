@@ -13,21 +13,21 @@ import com.psddev.dari.util.StringUtils;
 public class AmazonUploader implements Uploader {
 
     @Override
-    public boolean isSupported(ObjectField field) {
+    public double getPriority(ObjectField field) {
+
         String storageItemClassName = Settings.getOrDefault(String.class, StorageItem.SETTING_PREFIX + "/" + StorageItemField.getStorageSetting(field) + "/class", "");
 
         if (StringUtils.isBlank(storageItemClassName)) {
-            return false;
+            return -1;
         }
 
         Class<?> storageItemClass = ObjectUtils.getClassByName(storageItemClassName);
 
-        return storageItemClass != null && StorageItem.class.isAssignableFrom(storageItemClass);
-    }
+        if (storageItemClass == null || !StorageItem.class.isAssignableFrom(storageItemClass)) {
+            return -1;
+        }
 
-    @Override
-    public boolean isPreferred(ObjectField field) {
-        return false;
+        return DEFAULT_PRIORITY;
     }
 
     @Override
