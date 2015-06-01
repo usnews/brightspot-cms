@@ -62,7 +62,7 @@ public class ImageFileType implements FileContentType {
             fieldName = page.param(String.class, "fieldName");
         }
 
-        String inputName = (String) request.getAttribute("inputName");
+        String inputName = page.paramOrDefault(String.class, "inputName", (String) request.getAttribute("inputName"));
         String actionName = inputName + ".action";
         String cropsName = inputName + ".crops.";
 
