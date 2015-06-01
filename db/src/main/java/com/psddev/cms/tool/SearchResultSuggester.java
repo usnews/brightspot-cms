@@ -4,16 +4,17 @@ import java.io.IOException;
 
 public interface SearchResultSuggester {
 
-    public static final int DEFAULT_PRIORITY_LEVEL = 3;
+    public static final double DEFAULT_PRIORITY_LEVEL = 0;
 
     /**
      * Returns {@code double} priority level for this
-     * suggester for the given {@code search}.
-     * If not supported, {@code -1} should be returned.
+     * suggester for the given {@code search}. Highest
+     * priority level will be used by {@code SearchResultSuggestions}
+     * If not supported, a value less than 0 should be returned.
      *
      * @param search Can't be {@code null}
      */
-    public int getPriority(Search search);
+    public double getPriority(Search search);
 
     /**
      * @param search     Can't be {@code null}.

@@ -50,7 +50,7 @@ public class SearchResultSuggestions extends PageServlet {
 
             SearchResultSuggester candidateSuggester = TypeDefinition.getInstance(c).newInstance();
 
-            if (candidateSuggester.getPriority(search) != -1) {
+            if (candidateSuggester.getPriority(search) >= 0) {
 
                 if (suggester == null || suggester.getPriority(search) < candidateSuggester.getPriority(search)) {
                     suggester = candidateSuggester;
