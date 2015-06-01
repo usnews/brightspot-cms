@@ -2,8 +2,11 @@ package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +14,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.ImageTag;
+import com.psddev.cms.db.ResizeOption;
 import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
@@ -18,9 +23,11 @@ import com.psddev.cms.tool.SearchResultAction;
 import com.psddev.cms.tool.SearchResultSelection;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
+import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.UrlBuilder;
 
@@ -151,6 +158,10 @@ public class SearchResultActions extends PageServlet {
             page.writeEnd();
         }
 
+        if (count > 0) {
+            writeSelectionPreview(page, currentSelection);
+        }
+
         page.writeStart("a",
                 "class", "reload",
                 "href", new UrlBuilder(page.getRequest()).
@@ -159,14 +170,7 @@ public class SearchResultActions extends PageServlet {
                         currentPath().
                         parameter("search", ObjectUtils.toJson(new Search(page, (Set<UUID>) null).getState().getSimpleValues()))).writeEnd();
 
-        if (count > 0) {
-
-            page.writeStart("p");
-                page.writeHtml(count);
-                page.writeHtml(" items selected.");
-            page.writeEnd();
-
-        } else {
+        if (count == 0) {
             page.writeStart("h2");
                 page.writeHtml("All");
             page.writeEnd();
@@ -198,6 +202,63 @@ public class SearchResultActions extends PageServlet {
                     "class", "action action-cancel",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
             page.writeHtml("Clear");
+            page.writeEnd();
+        }
+    }
+
+    private void writeSelectionPreview(ToolPageContext page, SearchResultSelection selection) throws IOException {
+
+        page.writeStart("div", "class", "search-selectionPreview");
+
+        Map<Object, StorageItem> previews = new LinkedHashMap<>();
+
+        List<Object> items = new ArrayList<>(selection.createItemsQuery().selectAll());
+
+        int count = 0;
+
+        // store up to the first 100 previewable States with state.getPreview() != null
+        for (ListIterator<Object> i = items.listIterator(); i.hasNext() && count < 100;) {
+
+            Object item = i.next();
+
+            State itemState = State.getInstance(item);
+            StorageItem preview = itemState.getPreview();
+
+            if (preview != null) {
+                String contentType = preview.getContentType();
+
+                if (contentType != null && contentType.startsWith("image/")) {
+                    i.remove();
+                    previews.put(item, preview);
+                    count ++;
+                }
+            }
+        }
+
+        // render the preview thumbnails, max height 30, dynamic resize
+        for (Map.Entry<Object, StorageItem> entry : previews.entrySet()) {
+
+            Object item = entry.getKey();
+
+            String previewUrl = new ImageTag.Builder(entry.getValue()).
+                setHeight(30).
+                setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
+                toUrl();
+
+            page.writeStart("figure");
+            page.writeElement("img",
+                    "src", previewUrl,
+                    "alt", page.getObjectLabel(item));
+
+            page.writeEnd(); // end figure
+        }
+
+        page.writeEnd(); // end .search-selectionPreview
+
+        // write out the number of items not shown in the preview thumbnails.
+        if (items.size() > 0) {
+            page.writeStart("p");
+            page.writeHtml("+ " + items.size() + " more");
             page.writeEnd();
         }
     }
