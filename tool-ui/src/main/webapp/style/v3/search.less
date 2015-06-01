@@ -33,13 +33,18 @@
 }
 
 .searchResult-pagination {
-  position: absolute;
-  right: 0;
-  top: 0;
+  float: right;
+  margin: 0 0 10px 10px;
+
+  .pagination {
+    display: block;
+    margin: 0;
+  }
 }
 
 .searchResult-list {
-  padding-top: 10px;
+  float: left;
+  margin-top: 10px;
   width: 100%;
 }
 
@@ -82,7 +87,7 @@
 }
 
 .searchResult-images {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow: hidden;
 
   figure {
@@ -346,23 +351,25 @@
   }
 }
 
-.search-selectionPreview {
-    margin-bottom: 8px;
-    overflow: hidden;
+.searchResult-selectionReset {
+  margin-left: 10px;
 }
 
-.search-selectionPreview figure {
-    min-width: 0;
-    min-height: 0;
-    height: 30px;
-    max-width: 40px;
-    margin: 0 2px 2px 0;
-    float: left;
-    overflow: hidden;
+.searchResult-selectionPreview {
+  overflow: hidden;
 }
 
-.search-selectionPreview figure img {
-    display: block;
-    height: 30px;
-    max-width: 40px;
+.searchResult-selectionPreview figure {
+  height: auto;
+  margin: 0 5px 5px 0;
+  min-height: 0;
+  min-width: 0;
+  float: left;
+  overflow: hidden;
+  width: auto;
+}
+
+.searchResult-selectionPreview figure img {
+  display: block;
+  height: 30px;
 }

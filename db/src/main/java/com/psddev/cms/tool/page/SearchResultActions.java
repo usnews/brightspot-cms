@@ -199,14 +199,14 @@ public class SearchResultActions extends PageServlet {
     private void writeDeleteAction(ToolPageContext page) throws IOException {
         if (page.getUser().isSavedSearchResultSelection(page.getUser().getCurrentSearchResultSelection())) {
             page.writeStart("a",
-                    "class", "action action-delete",
+                    "class", "searchResult-selectionReset action action-delete",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
             page.writeHtml("Delete");
             page.writeEnd();
 
         } else {
             page.writeStart("a",
-                    "class", "action action-cancel",
+                    "class", "searchResult-selectionReset action action-cancel",
                     "href", page.url("", ACTION_PARAMETER, ACTION_CLEAR, SELECTION_ID_PARAMETER, null));
             page.writeHtml("Clear");
             page.writeEnd();
@@ -215,7 +215,7 @@ public class SearchResultActions extends PageServlet {
 
     private void writeSelectionPreview(ToolPageContext page, SearchResultSelection selection) throws IOException {
 
-        page.writeStart("div", "class", "search-selectionPreview");
+        page.writeStart("div", "class", "searchResult-selectionPreview");
 
         Map<Object, StorageItem> previews = new LinkedHashMap<>();
 
@@ -260,12 +260,19 @@ public class SearchResultActions extends PageServlet {
             page.writeEnd(); // end figure
         }
 
-        page.writeEnd(); // end .search-selectionPreview
+        page.writeEnd(); // end .searchResult-selectionPreview
 
         // write out the number of items not shown in the preview thumbnails.
         if (items.size() > 0) {
             page.writeStart("p");
-            page.writeHtml("+ " + items.size() + " more");
+
+            if (count > 0) {
+                page.writeHtml("+ " + items.size() + " more items selected.");
+
+            } else {
+                page.writeHtml(items.size() + " items selected.");
+            }
+
             page.writeEnd();
         }
     }
