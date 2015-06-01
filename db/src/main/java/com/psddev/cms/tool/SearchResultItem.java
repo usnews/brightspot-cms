@@ -3,6 +3,7 @@ package com.psddev.cms.tool;
 import java.io.IOException;
 
 import com.psddev.cms.tool.page.SearchResultActions;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -15,9 +16,16 @@ public class SearchResultItem {
                 "search", ObjectUtils.toJson(search.getState().getSimpleValues()),
                 SearchResultActions.ITEM_ID_PARAMETER, State.getInstance(item).getId());
 
+        SearchResultSelection currentSelection = page.getUser().getCurrentSearchResultSelection();
+
+        boolean selected = currentSelection != null &&
+                item != null &&
+                Query.from(SearchResultSelectionItem.class).where("selectionId = ?", currentSelection).and("itemId = ?", item).first() != null;
+
         page.writeElement("input",
                 "type", "checkbox",
                 "name", "id",
+                "checked", (selected ? "checked" : null),
                 "value", State.getInstance(item).getId(),
                 "data-frame-target", "searchResultActions",
                 "data-frame-check", StringUtils.addQueryParameters(url, SearchResultActions.ACTION_PARAMETER, SearchResultActions.ACTION_ADD),
