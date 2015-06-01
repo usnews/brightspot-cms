@@ -3196,12 +3196,9 @@ define([
             // Create a tab for hotspots
             self.tabsCreate('hotspots');
 
-            // Create a popup to be used for the active hotspot form
-            // We add it to the form because a lot of stuff that appears must be inside a form or the code breaks.
-            // Also the form spans the whole page, so hopefully the popup will not have any z-index issues.
-            self.dom.$hotspotPopup = $('<div/>', {'class':'hotspotPopup'}).popup({parent:self.dom.$hotspots.closest('form')}).popup('close');
-            //self.dom.$hotspotPopup = $('<div/>', {'class':'hotspotPopup'}).popup().popup('close');
-            
+            // Create an area to hold the hotspot popups
+            self.dom.$hotspotPopups = $('<div/>').appendTo(self.dom.$hotspots.closest('form'));
+                                                           
             // Create an image in the hotspot tab to show the hotspots
             // Note this image will need to be kept in sync with image changes
             // to flip and rotate the original image
@@ -3219,7 +3216,7 @@ define([
             self.dom.$hotspots.appendTo( self.dom.tabs.hotspots );
             $hotspotsInputContainer.hide();
 
-            // Hide the individual hotspot forms because we will make them appear in a popup
+            // Hide the individual hotspot forms because we will make them appear in popups
             self.dom.$hotspots.find('> ul').first().hide();
 
             // Set up all the hotspot overlays based on the form inputs
@@ -3237,7 +3234,7 @@ define([
 
                 // If we created a new hotspot, display the form in a popup
                 if (event.type === 'change') {
-                    self.hotspotSelect(event.target.closest('li'));
+                    self.hotspotEdit(event.target.closest('li'));
                 }
 
             });
@@ -3278,18 +3275,23 @@ define([
             // Remove any existing overlays so we can recreate them with new values
             self.hotspotOverlayRemoveAll();
 
-            // Loop through all the hotspot inputs
+            // Loop through all the hotspot inputs that have not yet been moved into popups
             self.dom.$hotspots.find('.objectInputs').each(function(){
                 
-                var data, $objectInput;
+                var $hotspot, $objectInput;
                 
                 $objectInput = $(this);
+                $hotspot = $('<ul/>').append( $objectInput.closest('li') );
+                $hotspot.popup({parent:self.dom.$hotspotPopups}).popup('close');
+            });
 
-                // Skip this hotspot if it is marked to be removed
-                if ($objectInput.closest('li').hasClass('toBeRemoved')) {
-                    return;
-                }
+            // Loop through all the hotspot data in the popups
+            self.dom.$hotspotPopups.find('.objectInputs').each(function(){
 
+                var data, $objectInput;
+
+                $objectInput = $(this);
+                
                 // Get all the data for the hotspot from the inputs
                 data = self.hotspotInputGet($objectInput);
 
@@ -3576,24 +3578,6 @@ define([
             
             $input = $(input);
 
-/***
-            if (!$input.closest('ul').hasClass('plugin-popup')) {
-
-                // Turn the hotspot form into a popup form
-                // Since $input is an LI element we'll change it into a div first
-                $inputPopup = $('<ul/>');
-            
-                $inputPopup.popup({
-                    // Leave the popup container inside the hotspots container
-                    // so the inputs can be found later
-                    parent:$input.closest('form')
-                }).popup('close');
-
-                // Move the hotspot form inputs into the popup
-                $inputPopup.append($input);
-            }
-***/
-            
             $hotspotOverlay = $('<div/>', {
                 'class': 'imageEditor-hotSpotOverlay',
                 'css': {
@@ -3607,7 +3591,7 @@ define([
                 //'data-type-id' : $input.find('input[name$="file.hotspots.typeId"]').val(),
                 'click' : function() {
                     
-                    self.hotspotSelect($input);
+                    self.hotspotEdit($input);
                     
                     // Need to cancel the click here because otherwise it will bubble up
                     // to the window and the popup will get it and assume you have clicked
@@ -3621,6 +3605,10 @@ define([
             $input.data('hotspotOverlay', $hotspotOverlay);
             $hotspotOverlay.data('hotspotInput', $input);
 
+            // Determine if this hotspot is "to be removed" and add a class to the overlay
+            // so it displays differently
+            $hotspotOverlay.toggleClass('toBeRemoved', $input.hasClass('toBeRemoved'));
+            
             $hotspotOverlayBox = $('<div/>', {
                 'class': 'imageEditor-hotSpotOverlayBox',
                 'css': {
@@ -3637,7 +3625,7 @@ define([
                 'text': 'HotSpot',
                 'mousedown' : self.hotspotMousedownDragHandler(function(event, original, delta) {
                     $input.addClass("state-focus");
-                    $hotspotOverlay.addClass("selected");
+                    self.hotspotSelect($input);
                     return {
                         'moving': true,
                         'left': original.left + delta.x,
@@ -3671,85 +3659,90 @@ define([
                     'class': 'imageEditor-resizer imageEditor-resizer-bottomRight',
                     'mousedown': self.hotspotMousedownDragHandler(function(event, original, delta) {
                         $input.addClass("state-focus");
-                        $hotspotOverlay.addClass("selected");
+                        self.hotspotSelect($input);
                         return {
                             'width': original.width + delta.x,
                             'height': original.height + delta.y
                         };
                     })
                 }).appendTo($hotspotOverlayBox);
-                
             }
-
-            // Adding a focus class to the input when we mouse over
-            
-            // TODO: since we are removing and adding hotspots whenever a change is made,
-            // there is a possibility that these events might get multiple handlers.
-            // Need to test to see how many times they fire in that case.
-            
-            $input.mouseover(function() {
-                $input.addClass("state-focus");
-                $hotspotOverlay.addClass("selected");
-            }).mouseleave(function() {
-                $input.removeClass("state-focus");
-                $hotspotOverlay.removeClass("selected");
-            });
-            self.$element.mouseleave(function() {
-                $input.removeClass("state-focus");
-                $hotspotOverlay.removeClass("selected");
-            });
 
         },
 
         
         /**
-         * 
+         * Select an single hotspot and display the popup edit form.
+         * @param Element input
+         * The input elements for the hotspot to be selected.
          */
-        hotspotSelect: function(input) {
+        hotspotEdit: function(input) {
             
-            var $hotspotOverlay, $input, $inputParent, self;
+            var $hotspotOverlay, $input, $popup, self;
 
             self = this;
 
             $input = $(input);
             
-            // Get the parent of the hotspot form inputs, because we are going to move them to the popup then will have to move them back
-            $inputParent = $input.parent();
+            self.hotspotSelect($input);
             
             $hotspotOverlay = $input.data('hotspotOverlay');
-            
-            self.$element.find('.imageEditor-hotSpotOverlay').removeClass("selected");
             self.$element.find('.state-focus').removeClass("state-focus");
             $input.addClass("state-focus");
-            $hotspotOverlay.addClass("selected");
 
-            self.dom.$hotspotPopup
-                .empty()
-                .append($input)
+            $input
                 .popup('source', $hotspotOverlay)
-                .popup('open')
-                .popup('container').one('close', function(){
-                    // Move the hotspot form back to the parent where it started
-                    console.log('hotspot popup close');
-                    $input.appendTo($inputParent);
-                });
-            
+                .popup('open');
         },
 
         
         /**
-         * Remove a single hotspot overlay.
+         * Mark a single hotspot as selected.
+         * @param Element input
+         * The input elements for the hotspot to be selected.
+         */
+        hotspotSelect: function(input) {
+            
+            var $input, self;
+
+            self = this;
+            
+            self.hotspotUnselect();
+            
+            $input = $(input);
+            $hotspotOverlay = $input.data('hotspotOverlay');
+            $hotspotOverlay.addClass("selected");
+
+            // Move this overlay to the end of the container so it will get click events first!
+            $hotspotOverlay.appendTo( $hotspotOverlay.parent() );
+        },
+
+        
+        /**
+         * Mark all hotspot overlays as unselected.
+         */
+        hotspotUnselect: function() {
+            var self;
+            self = this;
+            self.$element.find('.imageEditor-hotSpotOverlay').removeClass("selected");
+        },
+        
+        
+        /**
+         * Remove or restore a hotspot.
          *
          * @param Element overlayElement
          */
         hotspotRemove: function(overlayElement) {
 
-            var height, $input, left, $overlay, self, top, width;
+            var height, $input, left, $overlay, overlays, self, top, width;
 
             self = this;
 
             $overlay = $(overlayElement);
 
+            overlays = [$overlay];
+            
             // Check if there are any overlays of the exact size and position underneath,
             // and if so remove them as well
             left = $overlay.css("left");
@@ -3757,31 +3750,41 @@ define([
             width = $overlay.css("width");
             height = $overlay.css("height");
 
-            self.$element.find('.imageEditor-hotSpotOverlay').each(function() {
-                var $input, $overlay;
-
+            self.$element.find('.imageEditor-hotSpotOverlay').not($overlay).each(function() {
+                
+                var $overlay;
+                
                 $overlay = $(this);
                 
                 if ($overlay.css("left") === left &&
                     $overlay.css("top") === top &&
                     $overlay.css("width") === width &&
                     $overlay.css("height") === height) {
-                    
-                    // We previously saved the hotspotInput data on the hotspot element.
-                    // We'll get it now so we can mark the input to be removed.
-                    $input = $overlay.data('hotspotInput');
-                    self.hotspotInputMarkToBeRemoved($input);
 
-                    $overlay.remove();
+                    overlays.push($overlay);
                 }
             });
 
-            // We previously saved the hotspotInput data on the hotspot element.
-            // We'll get it now so we can mark the input to be removed.
-            $input = $overlay.data('hotspotInput');
-            self.hotspotInputMarkToBeRemoved($input);
-            
-            $overlay.remove();
+            $.each(overlays, function(i, $overlay){
+                
+                var $input, remove;
+
+                remove = !$overlay.hasClass('toBeRemoved');
+                
+                // We previously saved the hotspotInput data on the hotspot element.
+                // We'll get it now so we can mark the input to be removed.
+                $input = $overlay.data('hotspotInput');
+
+                if (remove) {
+                    $overlay.addClass('toBeRemoved');
+                    self.hotspotInputMarkToBeRemoved($input);
+                } else {
+                    $overlay.removeClass('toBeRemoved');
+                    self.hotspotInputRestore($input);
+                }
+
+            });
+
         },
 
         
@@ -3795,7 +3798,21 @@ define([
             var $input;
             $input = $(inputElement);
             $input.addClass("toBeRemoved");
-            $input.find("input").attr("disabled", "disabled");
+            $input.find("input").prop("disabled", "disabled");
+        },
+
+        
+        /**
+         * Remove the "to be removed" mark from the hotspot inputs
+         *
+         * @param Element inputElement
+         * The element that contains the inputs for a single hotspot.
+         */
+        hotspotInputRestore: function(inputElement) {
+            var $input;
+            $input = $(inputElement);
+            $input.removeClass("toBeRemoved");
+            $input.find("input").prop("disabled", false);
         },
 
         
