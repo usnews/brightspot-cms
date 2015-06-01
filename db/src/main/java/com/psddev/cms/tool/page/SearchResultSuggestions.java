@@ -23,6 +23,14 @@ public class SearchResultSuggestions extends PageServlet {
         return null;
     }
 
+    /**
+     * Gets the SearchResultSuggester with the highest priority, and writes
+     * the results provided by the suggester.
+     *
+     * @param page
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
 
@@ -42,11 +50,10 @@ public class SearchResultSuggestions extends PageServlet {
 
             SearchResultSuggester candidateSuggester = TypeDefinition.getInstance(c).newInstance();
 
-            if (candidateSuggester.isSupported(search)) {
-                suggester = candidateSuggester;
+            if (candidateSuggester.getPriority(search) != -1) {
 
-                if (candidateSuggester.isPreferred(search)) {
-                    break;
+                if (suggester == null || suggester.getPriority(search) < candidateSuggester.getPriority(search)) {
+                    suggester = candidateSuggester;
                 }
             }
         }

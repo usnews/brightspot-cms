@@ -4,21 +4,16 @@ import java.io.IOException;
 
 public interface SearchResultSuggester {
 
-    /**
-     * Returns {@code true} if this suggester supports the given
-     * {@code search}.
-     *
-     * @param search Can't be {@code null}.
-     */
-    public boolean isSupported(Search search);
+    public static final int DEFAULT_PRIORITY_LEVEL = 3;
 
     /**
-     * Returns {@code true} if this suggester is the preferred default for
-     * displaying the given {@code search}.
+     * Returns {@code double} priority level for this
+     * suggester for the given {@code search}.
+     * If not supported, {@code -1} should be returned.
      *
-     * @param search Can't be {@code null}.
+     * @param search Can't be {@code null}
      */
-    public boolean isPreferred(Search search);
+    public int getPriority(Search search);
 
     /**
      * @param search     Can't be {@code null}.

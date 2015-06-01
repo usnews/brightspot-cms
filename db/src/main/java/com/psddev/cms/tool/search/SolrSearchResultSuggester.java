@@ -33,13 +33,8 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrSearchResultSuggester.class);
 
     @Override
-    public boolean isSupported(Search search) {
-        return ObjectUtils.getClassByName("org.apache.solr.client.solrj.SolrQuery") != null;
-    }
-
-    @Override
-    public boolean isPreferred(Search search) {
-        return false;
+    public int getPriority(Search search) {
+        return ObjectUtils.getClassByName("org.apache.solr.client.solrj.SolrQuery") != null ? DEFAULT_PRIORITY_LEVEL : -1;
     }
 
     @Override
