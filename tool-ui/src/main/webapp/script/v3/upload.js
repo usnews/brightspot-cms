@@ -102,7 +102,7 @@ function ($, bsp_utils, evaporate) {
         $uploadPreview.removeClass('loading');
 
         $.ajax({
-          url: '/cms/storageItemField',
+          url: window.CONTEXT_PATH + 'storageItemField',
           dataType: 'html',
           data: params
         }).done(function (html) {
@@ -146,7 +146,7 @@ function ($, bsp_utils, evaporate) {
         params[inputName + '.path'] = filePath;
 
         $.ajax({
-          url: '/cms/content/uploadFiles',
+          url: window.CONTEXT_PATH + 'content/uploadFiles',
           dataType: 'html',
           data: params
         }).done(function (html) {
