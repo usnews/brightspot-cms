@@ -91,27 +91,24 @@ public class StorageItemField extends PageServlet {
         String focusXName = inputName + ".focusX";
         String focusYName = inputName + ".focusY";
 
-        String fieldName;
+        String fieldName = field != null ? field.getInternalName() : page.param(String.class, "fieldName");
         StorageItem fieldValue = null;
 
         if (state != null) {
-            fieldName = field.getInternalName();
             fieldValue = (StorageItem) state.getValue(fieldName);
         } else {
             // handles processing of files uploaded on frontend
             UUID typeId = page.param(UUID.class, "typeId");
-            fieldName = page.param(String.class, "fieldName");
             ObjectType type = Query.findById(ObjectType.class, typeId);
             field = type.getField(fieldName);
-
-            String storageItemPath = page.param(String.class, pathName);
-            if (!StringUtils.isBlank(storageItemPath)) {
-                StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
-                newItem.setPath(storageItemPath);
-                fieldValue = newItem;
-            }
-
             state = State.getInstance(ObjectType.getInstance(page.param(UUID.class, "typeId")));
+        }
+
+        String storageItemPath = page.param(String.class, pathName);
+        if (!StringUtils.isBlank(storageItemPath)) {
+            StorageItem newItem = StorageItem.Static.createIn(page.param(storageName));
+            newItem.setPath(storageItemPath);
+            fieldValue = newItem;
         }
 
         String metadataFieldName = fieldName + ".metadata";
