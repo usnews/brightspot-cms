@@ -3197,7 +3197,7 @@ define([
             self.tabsCreate('hotspots');
 
             // Create an area to hold the hotspot popups
-            self.dom.$hotspotPopups = $('<div/>').appendTo(self.dom.$hotspots.closest('form'));
+            self.dom.$hotspotPopups = $('<div/>', {'class': 'imageEditor-hotSpotPopups'}).appendTo(self.dom.$hotspots.closest('form'));
                                                            
             // Create an image in the hotspot tab to show the hotspots
             // Note this image will need to be kept in sync with image changes
@@ -3281,6 +3281,10 @@ define([
                 var $hotspot, $objectInput;
                 
                 $objectInput = $(this);
+
+                // Hide the width, height, x, y inputs
+                $objectInput.find(':input[name$=".x"], :input[name$=".y"], :input[name$=".width"], :input[name$=".height"]').closest('.inputContainer').hide();
+                
                 $hotspot = $('<ul/>').append( $objectInput.closest('li') );
                 $hotspot.popup({parent:self.dom.$hotspotPopups}).popup('close');
             });
@@ -3693,6 +3697,11 @@ define([
             $input
                 .popup('source', $hotspotOverlay)
                 .popup('open');
+            
+            // Make sure there are inputs that can be edited within the popup
+            if (!$input.find(':input:not(:hidden):not([disabled])').length) {
+                $input.popup('close');
+            }
         },
 
         
@@ -3781,6 +3790,7 @@ define([
                 } else {
                     $overlay.removeClass('toBeRemoved');
                     self.hotspotInputRestore($input);
+                    self.hotspotEdit($input);
                 }
 
             });
@@ -3798,7 +3808,7 @@ define([
             var $input;
             $input = $(inputElement);
             $input.addClass("toBeRemoved");
-            $input.find("input").prop("disabled", "disabled");
+            $input.find(":input").prop("disabled", "disabled");
         },
 
         
@@ -3812,7 +3822,7 @@ define([
             var $input;
             $input = $(inputElement);
             $input.removeClass("toBeRemoved");
-            $input.find("input").prop("disabled", false);
+            $input.find(":input").prop("disabled", false);
         },
 
         
