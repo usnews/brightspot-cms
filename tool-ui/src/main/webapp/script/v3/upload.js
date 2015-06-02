@@ -48,6 +48,7 @@ function ($, bsp_utils, evaporate) {
                 _progress($inputSmall, i, Math.round(Number(progress * 100)));
               },
               complete: function () {
+                _progress($inputSmall, i, 100);
                 if (isMultiple) {
                   _afterBulkUpload($this, $inputSmall, filePath, i);
                 } else {
@@ -90,7 +91,8 @@ function ($, bsp_utils, evaporate) {
       function _afterUpload($this, $inputSmall, filePath) {
         var $uploadPreview = $inputSmall.find('.upload-preview');
         var inputName = $this.attr('data-input-name');
-        var localSrc = $uploadPreview.find('img').first().attr('src');
+        var localImg = $uploadPreview.find('img');
+        var localSrc = localImg.first().attr('src');
 
         var params = {};
         params['inputName'] = inputName;
@@ -98,39 +100,44 @@ function ($, bsp_utils, evaporate) {
         params['typeId'] = state.typeId;
         params[inputName + '.path'] = filePath;
         params[inputName + '.storage'] = state.storage;
+        params[inputName + '.originalWidth'] = localImg.prop('naturalWidth');
 
         $uploadPreview.removeClass('loading');
 
-        $.ajax({
-          url: window.CONTEXT_PATH + 'storageItemField',
-          dataType: 'html',
-          data: params
-        }).done(function (html) {
-          $uploadPreview.detach();
-          var $response = $(html);
-
-          //$inputSmall.replaceWith(html);
-
-          $inputSmall.find('meta[name="evaporateSettings"]').replaceWith($response.find('meta[name="evaporateSettings"]'));
-
-          var $existingPreview = $inputSmall.find('.filePreview');
-
-          if ($existingPreview.size() === 0) {
-            $inputSmall.find('.fileSelector').after($response.find('.filePreview'));
-          } else {
-            $inputSmall.find('.filePreview').replaceWith($response.find('.filePreview'));
-          }
-
-          //prevent image pop-in
-          var img = $inputSmall.find('.imageEditor-image').find('img').first();
-          var remoteSrc = img.attr('src');
-          img.attr('src', localSrc);
+        (function(width) {
           $.ajax({
-            url: remoteSrc
+            url: window.CONTEXT_PATH + 'storageItemField',
+            dataType: 'html',
+            data: params
           }).done(function (html) {
-            img.attr('src', remoteSrc);
+            $uploadPreview.detach();
+            var $response = $(html);
+
+            //$inputSmall.replaceWith(html);
+
+            $inputSmall.find('.fileSelectorItem').hide();
+            $inputSmall.find('meta[name="evaporateSettings"]').replaceWith($response.find('meta[name="evaporateSettings"]'));
+
+            var $existingPreview = $inputSmall.find('.filePreview');
+
+            if ($existingPreview.size() === 0) {
+              $inputSmall.find('.fileSelector').after($response.find('.filePreview'));
+            } else {
+              $inputSmall.find('.filePreview').replaceWith($response.find('.filePreview'));
+            }
+
+            // prevents image pop-in
+            var img = $inputSmall.find('.imageEditor-image').find('img').first();
+            img.attr('style', 'max-width: ' + width + 'px;');
+            var remoteSrc = img.attr('src');
+            img.attr('src', localSrc);
+            $.ajax({
+              url: remoteSrc
+            }).done(function (html) {
+              $inputSmall.find('img').attr('src', remoteSrc);
+            });
           });
-        });
+        })(localImg.width());
       }
 
       function _afterBulkUpload($this, $inputSmall, filePath, index) {
