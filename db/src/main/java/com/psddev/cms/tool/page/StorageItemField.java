@@ -30,10 +30,12 @@ import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ImageTextOverlay;
 import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.ToolUi;
+import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.Uploader;
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -542,18 +544,21 @@ public class StorageItemField extends PageServlet {
         }
 
         Uploader uploader = null;
-        for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
 
-            if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
-                continue;
-            }
+        if (!Application.Static.getInstance(CmsTool.class).isDisableFrontEndUploaders()) {
+            for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
 
-            Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
+                if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
+                    continue;
+                }
 
-            if (candidateUploader.getPriority(field) >= 0) {
+                Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
 
-                if (uploader == null || uploader.getPriority(field) < candidateUploader.getPriority(field)) {
-                    uploader = candidateUploader;
+                if (candidateUploader.getPriority(field) >= 0) {
+
+                    if (uploader == null || uploader.getPriority(field) < candidateUploader.getPriority(field)) {
+                        uploader = candidateUploader;
+                    }
                 }
             }
         }
