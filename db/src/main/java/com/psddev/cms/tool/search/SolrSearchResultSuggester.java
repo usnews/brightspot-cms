@@ -40,6 +40,11 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
     @Override
     public void writeHtml(Search search, ToolPageContext page) throws IOException {
         Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "object"));
+
+        if (ObjectUtils.isBlank(objectData)) {
+            return;
+        }
+
         Object object = Database.Static.getDefault().getEnvironment().createObject(ObjectUtils.to(UUID.class, objectData.get("_type")), ObjectUtils.to(UUID.class, objectData.get("_id")));
         State objectState = State.getInstance(object);
 
