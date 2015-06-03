@@ -27,6 +27,7 @@ import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.SolrDatabase;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 
 public class SolrSearchResultSuggester implements SearchResultSuggester {
 
@@ -39,7 +40,13 @@ public class SolrSearchResultSuggester implements SearchResultSuggester {
 
     @Override
     public void writeHtml(Search search, ToolPageContext page) throws IOException {
-        Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(page.param(String.class, "object"));
+        String objectString = page.param(String.class, "object");
+
+        if (StringUtils.isBlank(objectString)) {
+            return;
+        }
+
+        Map<String, Object> objectData = (Map<String, Object>) ObjectUtils.fromJson(objectString);
 
         if (ObjectUtils.isBlank(objectData)) {
             return;
