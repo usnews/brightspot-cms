@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 
-    <abortOnConfigurationError>${solr.abortOnConfigurationError:true}</abortOnConfigurationError>
-    <dataDir>${solr.data.dir:../../../../data/solr/}</dataDir>
+    <abortOnConfigurationError>true</abortOnConfigurationError>
+    <dataDir>${dataDirectory}/solr</dataDir>
 
     <admin>
         <defaultQuery>*:*</defaultQuery>
     </admin>
 
-    <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}" />
+    <directoryFactory name="DirectoryFactory" class="solr.StandardDirectoryFactory" />
 
     <indexDefaults>
         <lockType>native</lockType>
