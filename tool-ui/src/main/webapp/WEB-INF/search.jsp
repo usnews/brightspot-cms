@@ -170,6 +170,11 @@ if (wp.isFormPost()) {
 
 writer.writeStart("h1", "class", "icon icon-action-search");
     writer.writeHtml("Search");
+
+    if (singleType && selectedType != null) {
+        writer.writeHtml(' ');
+        writer.writeHtml(wp.getObjectLabel(selectedType));
+    }
 writer.writeEnd();
 
 ToolUser user = wp.getUser();

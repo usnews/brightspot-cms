@@ -64,10 +64,7 @@ public class CreateDraft extends PageServlet {
 
         Content.Static.publish(state, page.getUser().getCurrentSite(), page.getUser());
 
-            Query.
-                    from(SearchResultSelection.class).
-                    where("_id = ?", selectionId).
-                    deleteAll();
+        page.getUser().deactivateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
 
         page.getResponse().sendRedirect(
                 page.toolUrl(CmsTool.class, "/content/edit.jsp",

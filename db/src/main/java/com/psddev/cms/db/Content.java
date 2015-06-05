@@ -319,14 +319,16 @@ public abstract class Content extends Record {
 
             } else {
                 try {
-                    History history = new History(user, object);
-
                     state.beginWrites();
 
                     SaveOptions options = new SaveOptions();
                     options.setDisableValidation(state.as(Content.ObjectModification.class).isDraft());
 
                     state.saveWithOptions(options);
+                    state.save();
+
+                    History history = new History(user, object);
+
                     history.save();
                     state.commitWrites();
                     return history;

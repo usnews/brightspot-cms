@@ -24,26 +24,29 @@ function($, bsp_utils) {
                 $(window.document.body).append($frames);
             }
 
-            var search = inputValue ? JSON.parse(inputValue)['cms.ui.search'] : null;
-
-            if (search) {
-                var types = $field.closest('.inputLarge').attr('data-generic-arguments');
-
-                if (types) {
-                    search.types = types.split('\\s*,\\s*');
-                }
-            }
+            search = inputValue ? JSON.parse(inputValue)['cms.ui.search'] : null;
+            search = search ? search : { 'limit': 10 };
+            var types = $field.closest('.inputLarge').attr('data-generic-arguments');
+            search.types = types ? types.split('\\s*,\\s*') : null;
 
             $frame = $('<div/>', {
                 'class': 'frame',
                 'html': $('<form/>', {
                     'method': 'post',
                     'action': CONTEXT_PATH + '/queryField',
-                    'html': $('<input/>', {
-                        'type': 'hidden',
-                        'name': 'search',
-                        'value': search ? JSON.stringify(search) : ''
-                    })
+                    'html': [
+                        $('<input/>', {
+                            'type': 'hidden',
+                            'name': 'containerObjectId',
+                            'value': $field.closest('form').attr('data-content-id')
+                        }),
+
+                        $('<input/>', {
+                            'type': 'hidden',
+                            'name': 'search',
+                            'value': search ? JSON.stringify(search) : ''
+                        })
+                    ]
                 })
             });
 
