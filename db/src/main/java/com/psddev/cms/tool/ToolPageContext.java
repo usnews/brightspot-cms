@@ -2286,10 +2286,10 @@ public class ToolPageContext extends WebPageContext {
                 request.setAttribute("containerObject", object);
             }
 
-            List<ToolUiLayoutElement> layoutPlaceholders = type.as(ToolUi.class).getLayoutPlaceholders();
+            List<ToolUiLayoutElement> layoutPlaceholders = type != null ? type.as(ToolUi.class).getLayoutPlaceholders() : null;
             String layoutPlaceholdersJson = null;
 
-            if (!layoutPlaceholders.isEmpty()) {
+            if (!ObjectUtils.isBlank(layoutPlaceholders)) {
                 List<Map<String, Object>> jsons = new ArrayList<Map<String, Object>>();
 
                 for (ToolUiLayoutElement element : layoutPlaceholders) {
