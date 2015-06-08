@@ -12,8 +12,6 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.psddev.cms.db.ImageCrop;
 import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ResizeOption;
@@ -35,17 +33,15 @@ import com.psddev.dari.util.TypeReference;
 
 public class ImageFileType implements FileContentType {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageFileType.class);
-
     @Override
-    public boolean isSupported(StorageItem storageItem) {
+    public double getPriority(StorageItem storageItem) {
         String contentType = storageItem.getContentType();
-        return !StringUtils.isBlank(contentType) && contentType.startsWith("image/");
-    }
 
-    @Override
-    public boolean isPreferred(StorageItem storageItem) {
-        return false;
+        if (StringUtils.isBlank(contentType) || !contentType.startsWith("image/")) {
+            return DEFAULT_PRIORITY_LEVEL - 1;
+        }
+
+        return DEFAULT_PRIORITY_LEVEL;
     }
 
     @Override

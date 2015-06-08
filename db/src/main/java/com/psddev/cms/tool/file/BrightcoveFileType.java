@@ -14,13 +14,11 @@ import com.psddev.dari.util.StorageItem;
 public class BrightcoveFileType implements FileContentType {
 
     @Override
-    public boolean isSupported(StorageItem storageItem) {
-        return (storageItem instanceof BrightcoveStorageItem);
-    }
-
-    @Override
-    public boolean isPreferred(StorageItem storageItem) {
-        return true;
+    public double getPriority(StorageItem storageItem) {
+        if (!(storageItem instanceof BrightcoveStorageItem)) {
+            return DEFAULT_PRIORITY_LEVEL - 1;
+        }
+        return DEFAULT_PRIORITY_LEVEL + 1;
     }
 
     @Override
