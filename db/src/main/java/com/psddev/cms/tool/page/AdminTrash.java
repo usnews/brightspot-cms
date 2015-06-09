@@ -78,7 +78,7 @@ public class AdminTrash extends PageServlet {
 
                                     page.writeStart("li", "class", item.equals(trash) ? "selected" : null);
                                         page.writeStart("a", "href", page.url(null, "id", itemState.getId()));
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeHtml(page.getObjectLabelOrDefault(itemState, "Untitled"));
                                         page.writeEnd();
                                     page.writeEnd();
                                 }
