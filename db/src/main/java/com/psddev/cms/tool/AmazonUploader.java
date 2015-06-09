@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.tool.page.StorageItemField;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.util.AmazonStorageItem;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
@@ -22,8 +23,7 @@ public class AmazonUploader implements Uploader {
         }
 
         Class<?> storageItemClass = ObjectUtils.getClassByName(storageItemClassName);
-
-        if (storageItemClass == null || !StorageItem.class.isAssignableFrom(storageItemClass)) {
+        if (storageItemClass == null || !AmazonStorageItem.class.isAssignableFrom(storageItemClass)) {
             return -1;
         }
 
