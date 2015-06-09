@@ -3265,10 +3265,17 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * @see Content.Static#trash
+     * @see {@link com.psddev.cms.db.Content.Static#trash(Object, com.psddev.cms.db.Site, com.psddev.cms.db.ToolUser)}
      */
     public void trash(Object object) {
         Content.Static.trash(object, getSite(), getUser());
+    }
+
+    /**
+     * @see {@link com.psddev.cms.db.Content.Static#restore(Object, com.psddev.cms.db.Site, com.psddev.cms.db.ToolUser)}
+     */
+    public void restore(Object object) {
+        Content.Static.restore(object, getSite(), getUser());
     }
 
     /** @see Content.Static#purge */
