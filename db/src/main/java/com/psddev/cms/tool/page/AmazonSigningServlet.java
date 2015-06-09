@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import com.psddev.dari.util.AmazonStorageItem;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
@@ -24,7 +25,7 @@ public class AmazonSigningServlet extends HttpServlet {
             throw new ServletException(StorageItem.DEFAULT_STORAGE_SETTING + " not found in your context.xml");
         }
 
-        String secret = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + defaultStorage + "/secret");
+        String secret = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + defaultStorage + "/" + AmazonStorageItem.SECRET_SETTING);
 
         if (StringUtils.isBlank(secret)) {
             throw new ServletException("dari/storage/psddevS3/secret not found in your context.xml");
