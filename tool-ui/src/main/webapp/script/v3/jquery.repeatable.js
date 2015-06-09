@@ -1461,7 +1461,16 @@ The HTML within the repeatable element must conform to these standards:
                     }).on('change', function(event) {
 
                         var imageUrl, $target, targetName, thumbnailName;
-                        
+
+                        // Mark the tiles as changed so user can see which items have been modified.
+                        // Inputs are not marked as changed until the change event bubbles up to the body of the page,
+                        // so we put this in a timeout to hopefully force it to run after the event bubbles up.
+                        // An alternative would be to bind another event on the document body, but then we
+                        // would have no way to unbind that event.
+                        setTimeout(function(){
+                            self.modePreviewMarkAsChanged($item);
+                        }, 1);
+
                         // If a change is made to the preview image update the thumbnail image in the carousel and grid view
                         $target = $(event.target).closest('[data-preview]');
                         imageUrl = $target.attr('data-preview');
@@ -1480,6 +1489,7 @@ The HTML within the repeatable element must conform to these standards:
                             self.modePreviewSetThumbnail($item, imageUrl);
                         }
                     }).appendTo(self.dom.$carouselTargetItems);
+                    
                     $item.data('editContainer', $editContainer);
                 }
 
@@ -1575,6 +1585,21 @@ The HTML within the repeatable element must conform to these standards:
                 }
 
                 $thumbnails.attr('src', imageUrl);
+            },
+
+
+            /**
+             * Mark the tiles as changed so the user can see they have been updated.
+             * @param Boolean changed
+             * Set to true if the item was changed, or false if changes were removed.
+             */
+            modePreviewMarkAsChanged: function(item) {
+                var $item = $(item); // the thumbnail in grid view
+                var $carouselTile = $item.data('carouselTile'); // the tile in gallery view
+                var $editContainer = $item.data('editContainer'); // the edit form
+                var isChanged = Boolean($editContainer.find('.state-changed').length > 0);
+                
+                $item.add($carouselTile).toggleClass('state-changed', isChanged);
             }
             
         }; // END repeatableUtility

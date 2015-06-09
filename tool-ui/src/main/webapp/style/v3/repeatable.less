@@ -154,6 +154,10 @@
       // For a numbered carousel create a CSS counter
       counter-reset: @preview-counter;
 
+      > li.state-changed {
+        .background-flat(@color-change);
+      }
+      
       > li {
         background: white;
         box-sizing: border-box;

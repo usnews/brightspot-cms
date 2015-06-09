@@ -311,7 +311,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                                 "href", page.url("/content/edit.jsp",
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeObjectLabel(itemState);
                                         page.writeEnd();
                                     page.writeEnd();
 
@@ -337,7 +337,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
                                     page.writeStart("td", "data-preview-anchor", "");
                                         page.writeStart("a", "href", page.url("/content/edit.jsp", "id", itemId), "target", "_top");
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeObjectLabel(itemState);
                                         page.writeEnd();
                                     page.writeEnd();
 
