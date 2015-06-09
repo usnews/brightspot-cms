@@ -44,6 +44,9 @@ function ($, bsp_utils, evaporate) {
               xAmzHeadersAtInitiate: {
                 'x-amz-acl': 'public-read'
               },
+              signParams: {
+                storageSetting: state.storage
+              },
               progress: function (progress) {
                 _progress($inputSmall, i, Math.round(Number(progress * 100)));
               },

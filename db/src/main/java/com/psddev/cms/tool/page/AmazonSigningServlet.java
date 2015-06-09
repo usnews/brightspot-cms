@@ -19,16 +19,16 @@ public class AmazonSigningServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String storageSetting = request.getParameter("storageSetting");
 
-        String defaultStorage = Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING);
-        if (StringUtils.isBlank(defaultStorage)) {
-            throw new ServletException(StorageItem.DEFAULT_STORAGE_SETTING + " not found in your context.xml");
+        if (StringUtils.isBlank(storageSetting)) {
+            throw new ServletException("storageSetting parameter is empty");
         }
 
-        String secret = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + defaultStorage + "/" + AmazonStorageItem.SECRET_SETTING);
+        String secret = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/" + AmazonStorageItem.SECRET_SETTING);
 
         if (StringUtils.isBlank(secret)) {
-            throw new ServletException("dari/storage/psddevS3/secret not found in your context.xml");
+            throw new ServletException("dari/storage/" + storageSetting + "/secret not found in your context.xml");
         }
 
         byte[] rawHmac = StringUtils.hmacSha1(secret, request.getParameter("to_sign"));
