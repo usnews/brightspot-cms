@@ -87,10 +87,12 @@ public class SearchCarousel extends PageServlet {
                                         toUrl() :
                                 itemPreview.getPublicUrl();
 
+                        Site owner = itemState.as(Site.ObjectModification.class).getOwner();
+
                         page.writeStart("figure");
                             page.writeElement("img",
                                     "src", itemPreviewUrl,
-                                    "alt", (page.getObjectLabel(itemState.as(Site.ObjectModification.class).getOwner()) + ": ") +
+                                    "alt", (owner != null ? (page.getObjectLabel(owner) + ": ") : "") +
                                             (page.getTypeLabel(item) + ": ") + page.getObjectLabelOrDefault(item, ToolPageContext.DEFAULT_OBJECT_LABEL));
 
                             page.writeStart("figcaption");
