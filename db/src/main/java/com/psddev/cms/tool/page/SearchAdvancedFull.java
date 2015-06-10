@@ -23,13 +23,14 @@ public class SearchAdvancedFull extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         page.writeHeader();
-            page.writeStart("div", "class", "widget");
+            page.writeStart("div", "class", "widget", "name", "searchAdvancedFull");
                 JspUtils.include(
                         page.getRequest(),
                         page.getResponse(),
                         page,
                         page.toolPath(CmsTool.class, "/WEB-INF/search.jsp"),
-                        "resultJsp", "/searchAdvancedFullResult");
+                        "name", "fullScreen",
+                        "resultJsp", "/misc/searchResult.jsp");
             page.writeEnd();
         page.writeFooter();
     }

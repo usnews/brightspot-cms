@@ -217,14 +217,18 @@ if (isEmbedded) {
             wp.write("<div class=\"inputLarge ", validObjectClass, " ", showClasses.get(validState.getId()), "\">");
             wp.write("<input name=\"", wp.h(typeIdName), "\" type=\"hidden\" value=\"", validState.getTypeId(), "\">");
             wp.write("<input name=\"", wp.h(publishDateName), "\" type=\"hidden\" value=\"", wp.h(validObjectPublishDate != null ? validObjectPublishDate.getTime() : null), "\">");
-            wp.writeStart("div",
-                    "class", "toggleable-form",
-                    "data-form-fields-data", ObjectUtils.toJson(validState.getSimpleValues()),
-                    "data-form-fields-url", wp.cmsUrl(
-                            "/contentFormFields",
-                            "typeId", validState.getTypeId(),
-                            "id", validState.getId()));
-            wp.writeEnd();
+            if (!validState.hasAnyErrors()) {
+                wp.writeStart("div",
+                        "class", "toggleable-form",
+                        "data-form-fields-data", ObjectUtils.toJson(validState.getSimpleValues()),
+                        "data-form-fields-url", wp.cmsUrl(
+                                "/contentFormFields",
+                                "typeId", validState.getTypeId(),
+                                "id", validState.getId()));
+                wp.writeEnd();
+            } else {
+                wp.writeFormFields(validObject);
+            }
             wp.write("</div>");
         }
     }

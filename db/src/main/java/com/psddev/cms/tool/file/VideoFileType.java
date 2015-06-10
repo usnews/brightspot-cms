@@ -1,12 +1,9 @@
 package com.psddev.cms.tool.file;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.State;
@@ -15,17 +12,15 @@ import com.psddev.dari.util.StringUtils;
 
 public class VideoFileType implements FileContentType {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToolPageContext.class);
-
     @Override
-    public boolean isSupported(StorageItem storageItem) {
+    public double getPriority(StorageItem storageItem) {
         String contentType = storageItem.getContentType();
-        return !StringUtils.isBlank(contentType) && contentType.startsWith("video/");
-    }
 
-    @Override
-    public boolean isPreferred(StorageItem storageItem) {
-        return false;
+        if (StringUtils.isBlank(contentType) || !contentType.startsWith("video/")) {
+            return DEFAULT_PRIORITY_LEVEL - 1;
+        }
+
+        return DEFAULT_PRIORITY_LEVEL;
     }
 
     @Override
@@ -49,10 +44,5 @@ public class VideoFileType implements FileContentType {
                     "type", contentType,
                     "src", fieldValue.getPublicUrl());
         page.writeEnd();
-    }
-
-    @Override
-    public void setMetadata(ToolPageContext page, State state, StorageItem fieldValue, File file) throws IOException, ServletException {
-
     }
 }

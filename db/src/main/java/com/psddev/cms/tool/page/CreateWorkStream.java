@@ -87,12 +87,9 @@ public class CreateWorkStream extends PageServlet {
 
                 UUID selectionId = page.param(UUID.class, "selectionId");
 
-                // delete the temporary selection after using it to create a workstream
                 if (selectionId != null) {
-                    Query.
-                            from(SearchResultSelection.class).
-                            where("_id = ?", selectionId).
-                            deleteAll();
+
+                    page.getUser().deactivateSelection(Query.from(SearchResultSelection.class).where("_id = ?", selectionId).first());
                 }
             }
 

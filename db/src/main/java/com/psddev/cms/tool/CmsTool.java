@@ -73,6 +73,10 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private List<CommonTime> commonTimes;
 
+    @ToolUi.Tab("Defaults")
+    @DisplayName("Two Factor Authentication Required?")
+    private boolean tfaRequired;
+
     @ToolUi.Tab("Dashboard")
     private Dashboard defaultDashboard;
 
@@ -478,6 +482,14 @@ public class CmsTool extends Tool {
 
     public void setCommonTimes(List<CommonTime> commonTimes) {
         this.commonTimes = commonTimes;
+    }
+
+    public boolean isTfaRequired() {
+        return tfaRequired;
+    }
+
+    public void setTfaRequired(boolean tfaRequired) {
+        this.tfaRequired = tfaRequired;
     }
 
     public String getDefaultTextOverlayCss() {
@@ -965,4 +977,5 @@ public class CmsTool extends Tool {
             }
         }
     }
+
 }

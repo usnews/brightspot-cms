@@ -133,7 +133,12 @@ function($, bsp_utils) {
                     'contentDiff-edit');
 
             $container.closest('form').submit(function() {
-                $left.find(':input').prop('disabled', true);
+                if ($left.is('.contentDiffCurrent')) {
+                    $left.find(':input').prop('disabled', true);
+
+                } else {
+                    $right.find(':input').prop('disabled', true);
+                }
             });
         }
     });

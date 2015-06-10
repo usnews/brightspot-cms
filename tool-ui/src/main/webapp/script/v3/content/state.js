@@ -65,7 +65,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
                 $element.attr('data-dynamic-html') ||
                 $element.attr('data-dynamic-placeholder') ||
                 '')) +
-                '&_dtf=' + $element.attr('data-dynamic-field-name') || '';
+                  '&_dtf=' + ($element.attr('data-dynamic-field-name') || '');
           }).get().join(''),
 
           'success': function(data) {
@@ -75,7 +75,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
               var $element = $(this),
                   text = data._dynamicTexts[index];
 
-              if (text === null) {
+              if (text === null || text === '') {
                 return;
               }
 
@@ -112,7 +112,7 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
         });
       }
 
-      $form.bind('change input', function() {
+      $form.bind('create change input', function() {
         update();
 
         clearTimeout(idleTimeout);

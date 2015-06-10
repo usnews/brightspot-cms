@@ -154,6 +154,7 @@
   }
 
   figure {
+
     border-radius: @carousel-tile-borderRadius;
     bottom: 0;
     display: block;
@@ -164,6 +165,10 @@
     right: 0;
     top: 0;
 
+    &.state-changed figcaption {
+      .background-flat(@color-change);
+    }
+    
     img {
       height: 100%;
       object-fit: cover;
@@ -174,6 +179,7 @@
 
 .carousel-target {
   display: table;
+  table-layout:fixed;
   position: relative;
   width: 100%;
 }

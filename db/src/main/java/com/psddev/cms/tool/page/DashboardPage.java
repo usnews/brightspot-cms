@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.ToolRole;
+import com.psddev.cms.db.ToolUser;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DashboardColumn;
@@ -25,8 +27,18 @@ public class DashboardPage extends PageServlet {
 
     @Override
     public void doService(ToolPageContext page) throws IOException, ServletException {
-        Dashboard dashboard = page.getUser().getDashboard();
+        ToolUser user = page.getUser();
+        Dashboard dashboard = user.getDashboard();
         String dashboardId = "user";
+
+        if (dashboard == null) {
+            ToolRole role = user.getRole();
+
+            if (role != null) {
+                dashboard = role.getDashboard();
+                dashboardId = "role";
+            }
+        }
 
         if (dashboard == null) {
             dashboard = page.getCmsTool().getDefaultDashboard();

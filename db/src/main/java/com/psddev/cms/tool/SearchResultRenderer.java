@@ -11,9 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.psddev.dari.db.PredicateParser;
 import org.joda.time.DateTime;
-
 import com.psddev.cms.db.Directory;
 import com.psddev.cms.db.Renderer;
 import com.psddev.cms.db.Site;
@@ -25,6 +23,7 @@ import com.psddev.dari.db.MetricInterval;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
@@ -247,7 +246,7 @@ public class SearchResultRenderer {
             page.writeStart("form",
                     "class", "searchSuggestionsForm",
                     "method", "post",
-                    "action", page.url("/content/suggestions.jsp"),
+                    "action", page.url("/content/suggestions"),
                     "target", frameName);
                 page.writeElement("input",
                         "type", "hidden",

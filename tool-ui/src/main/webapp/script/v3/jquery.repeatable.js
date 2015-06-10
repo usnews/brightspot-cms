@@ -409,7 +409,8 @@ The HTML within the repeatable element must conform to these standards:
                 self.initItemLabel($item);
 
                 // Collapse the item unless it has an error message within it
-                if ($item.find('.message-error').length === 0) {
+                if ($item.find('.message-error').length === 0
+                    && !self.modeIsPreview()) {
                     self.itemCollapse($item);
                 }
 
@@ -694,14 +695,14 @@ The HTML within the repeatable element must conform to these standards:
                 var $item = $(item);
                 var deferred;
 
+                // Collapse or uncollapse the item
+                $item.toggleClass('collapsed', collapseFlag);
+                
                 // Don't do anything if mode=preview
                 if (self.modeIsPreview()) {
                     return;
                 }
                 
-                // Collapse or uncollapse the item
-                $item.toggleClass('collapsed', collapseFlag);
-
                 // Load the item if necessary,
                 // or if it's already loaded do some stuff immediately
                 if (!self.itemIsCollapsed($item)) {
@@ -1170,6 +1171,7 @@ The HTML within the repeatable element must conform to these standards:
                 var imageUrl;
                 var $label;
                 var $controls;
+                var labelType = $item.attr('data-type') || 'Title';
                 var labelText = $item.attr('data-label') || '[Empty Title]';
                 
                 // Only do this for mode=preview
@@ -1191,7 +1193,15 @@ The HTML within the repeatable element must conform to these standards:
                 }).appendTo($item);
                 
                 // Add the title of the slide here
-                $label = $('<div class="previewable-label"><span class="previewable-label-prefix">Title: </span></div>').appendTo($item);
+                //$label = $('<div class="previewable-label"><span class="previewable-label-prefix">' + labelType + ': </span></div>').appendTo($item);
+                $label = $('<div/>', {
+                    'class': 'previewable-label',
+                    html: $('<span/>', {
+                        'class': 'previewable-label-prefix',
+                        text: labelType + ': '
+                    })
+                }).appendTo($item);
+
                 $('<a/>', {
                     href: '#',
                     text: labelText,
@@ -1440,6 +1450,7 @@ The HTML within the repeatable element must conform to these standards:
                 
                 var self = this;
                 var $item = $(item);
+                var itemId = $item.find('> input[type="hidden"][name$=".id"]').val();
                 var $editContainer;
 
                 // If necessary create the container for editing this item
@@ -1448,15 +1459,37 @@ The HTML within the repeatable element must conform to these standards:
                     $editContainer = $('<div/>', {
                         'class': 'itemEdit'
                     }).on('change', function(event) {
-                        // If a change is made to the preview image
-                        // update the thumbnail image in the carousel
-                        // and in the grid view
-                        var $target = $(event.target).closest('[data-preview]');
-                        var imageUrl = $target.attr('data-preview');
-                        if (imageUrl) {
+
+                        var imageUrl, $target, targetName, thumbnailName;
+
+                        // Mark the tiles as changed so user can see which items have been modified.
+                        // Inputs are not marked as changed until the change event bubbles up to the body of the page,
+                        // so we put this in a timeout to hopefully force it to run after the event bubbles up.
+                        // An alternative would be to bind another event on the document body, but then we
+                        // would have no way to unbind that event.
+                        setTimeout(function(){
+                            self.modePreviewMarkAsChanged($item);
+                        }, 1);
+
+                        // If a change is made to the preview image update the thumbnail image in the carousel and grid view
+                        $target = $(event.target).closest('[data-preview]');
+                        imageUrl = $target.attr('data-preview');
+                        targetName = $target.attr('name');
+
+                        // Make sure this changed item is actually used for the thumbnail
+                        // The data-preview-field contains the name of the field and the type,
+                        // so we need to remove the /type part
+                        thumbnailName = $item.attr('data-preview-field') || '';
+                        thumbnailName = thumbnailName.replace(/(.*)\/.*/, '$1'); // remove last / and beyond
+                        thumbnailName = itemId + '/' + thumbnailName;
+                        
+                        // Make sure the preview that was changed is actually used as the thumbnail for this repeatable object.
+                        // This will account for cases where the repeatable object contains multiple images, or nested objects.
+                        if (imageUrl && targetName === thumbnailName) {
                             self.modePreviewSetThumbnail($item, imageUrl);
                         }
                     }).appendTo(self.dom.$carouselTargetItems);
+                    
                     $item.data('editContainer', $editContainer);
                 }
 
@@ -1552,6 +1585,21 @@ The HTML within the repeatable element must conform to these standards:
                 }
 
                 $thumbnails.attr('src', imageUrl);
+            },
+
+
+            /**
+             * Mark the tiles as changed so the user can see they have been updated.
+             * @param Boolean changed
+             * Set to true if the item was changed, or false if changes were removed.
+             */
+            modePreviewMarkAsChanged: function(item) {
+                var $item = $(item); // the thumbnail in grid view
+                var $carouselTile = $item.data('carouselTile'); // the tile in gallery view
+                var $editContainer = $item.data('editContainer'); // the edit form
+                var isChanged = Boolean($editContainer.find('.state-changed').length > 0);
+                
+                $item.add($carouselTile).toggleClass('state-changed', isChanged);
             }
             
         }; // END repeatableUtility
