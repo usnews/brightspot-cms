@@ -1015,7 +1015,6 @@ public class Search extends Record {
     }
 
     /**
-     * @param page Can't be {@code null}.
      * @param itemWriter May be {@code null}.
      * @throws IOException if unable to write to the given {@code page}.
      */
