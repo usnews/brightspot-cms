@@ -1136,7 +1136,7 @@ public class Search extends Record {
     @Deprecated
     public static final String REQUESTED_TYPES_PARAMETER = TYPES_PARAMETER;
 
-    /** @deprecated Use {@link #Search(ToolPageContext, Collection)} instead. */
+    /** @deprecated Use {@link Search(ToolPageContext, Collection)} instead. */
     @Deprecated
     public Search(ToolPageContext page, UUID... typeIds) {
         this(page, typeIds != null ? Arrays.asList(typeIds) : null);
