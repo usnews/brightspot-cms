@@ -1124,7 +1124,7 @@ public class Search extends Record {
 
     // --- Deprecated ---
 
-    /** @deprecated Use {@link #ADDITIONA_PREDICATE_PARAMETER} instead. */
+    /** @deprecated Use {@link #ADDITIONAL_PREDICATE_PARAMETER} instead. */
     @Deprecated
     public static final String ADDITIONAL_QUERY_PARAMETER = ADDITIONAL_PREDICATE_PARAMETER;
 
