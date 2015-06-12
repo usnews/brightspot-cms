@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,13 +19,13 @@ import javax.servlet.ServletException;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.psddev.cms.db.BulkUploadDraft;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.tool.Uploader;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ObjectField;
@@ -306,6 +307,7 @@ public class UploadFiles extends PageServlet {
 
         List<ObjectType> types = new ArrayList<ObjectType>(typesSet);
         Collections.sort(types, new ObjectFieldComparator("name", false));
+        Uploader uploader = Uploader.getUploader(Optional.empty());
 
         page.writeStart("h1").writeHtml("Upload Files").writeEnd();
 

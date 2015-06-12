@@ -1,6 +1,7 @@
 package com.psddev.cms.tool;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.tool.page.StorageItemField;
@@ -14,7 +15,7 @@ import com.psddev.dari.util.StringUtils;
 public class AmazonUploader implements Uploader {
 
     @Override
-    public double getPriority(ObjectField field) {
+    public double getPriority(Optional<ObjectField> field) {
 
         String storageItemClassName = Settings.getOrDefault(String.class, StorageItem.SETTING_PREFIX + "/" + StorageItemField.getStorageSetting(field) + "/class", "");
 
@@ -37,7 +38,7 @@ public class AmazonUploader implements Uploader {
 
     @Override
     public void writeHtml(ToolPageContext page, ObjectField field) throws IOException {
-        String storageSetting = StorageItemField.getStorageSetting(field);
+        String storageSetting = StorageItemField.getStorageSetting(Optional.of(field));
 
         if (StringUtils.isBlank(storageSetting)) {
             return;
@@ -52,7 +53,7 @@ public class AmazonUploader implements Uploader {
                 )),
                 "data-path-start", StorageItemField.createStoragePathPrefix(),
                 "data-field-name", field.getInternalName(),
-                "data-storage", StorageItemField.getStorageSetting(field),
+                "data-storage", storageSetting,
                 "data-type-id", field.getParentType().getId());
     }
 }

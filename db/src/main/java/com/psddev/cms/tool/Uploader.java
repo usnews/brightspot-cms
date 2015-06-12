@@ -2,6 +2,7 @@ package com.psddev.cms.tool;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
@@ -22,9 +23,9 @@ public interface Uploader {
      * by {@code StorageItemField}. Return a value less
      * than zero if Uploader should not be supported.
      *
-     * @param field Can't be {@code null}.
+     * @param field
      */
-    public double getPriority(ObjectField field);
+    public double getPriority(Optional<ObjectField> field);
 
     /**
      * Returns class used by javascript to which DOM
@@ -42,7 +43,7 @@ public interface Uploader {
             ObjectField field)
             throws IOException;
 
-    static Uploader getUploader(ObjectField field) {
+    static Uploader getUploader(Optional<ObjectField> field) {
 
         Uploader uploader = null;
 

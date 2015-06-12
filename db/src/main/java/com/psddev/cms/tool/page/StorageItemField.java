@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -386,7 +387,7 @@ public class StorageItemField extends PageServlet {
                         if (fileSize > 0) {
                             fieldValueMetadata.put("originalFilename", name);
 
-                            newItem = StorageItem.Static.createIn(getStorageSetting(field));
+                            newItem = StorageItem.Static.createIn(getStorageSetting(Optional.of(field)));
                             newItem.setPath(createStorageItemPath(state.getLabel(), fileName));
                             newItem.setContentType(fileContentType);
 
@@ -539,7 +540,7 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        Uploader uploader = Uploader.getUploader(field);
+        Uploader uploader = Uploader.getUploader(Optional.of(field));
 
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
@@ -704,12 +705,14 @@ public class StorageItemField extends PageServlet {
      *
      * @param field to check for storage setting
      */
-    public static String getStorageSetting(ObjectField field) {
-        String storageSetting = "";
-        String fieldStorageSettingsKey = field.as(ToolUi.class).getStorageSetting();
+    public static String getStorageSetting(Optional<ObjectField> field) {
+        String storageSetting = null;
 
-        if (!StringUtils.isBlank(fieldStorageSettingsKey)) {
-            Settings.getOrDefault(String.class, fieldStorageSettingsKey, null);
+        if (field.isPresent()) {
+            String fieldStorageSetting = field.get().as(ToolUi.class).getStorageSetting();
+            if (!StringUtils.isBlank(fieldStorageSetting)) {
+                storageSetting = Settings.getOrDefault(String.class, StorageItem.SETTING_PREFIX + "/" + fieldStorageSetting, StorageItem.DEFAULT_STORAGE_SETTING);
+            }
         }
 
         if (StringUtils.isBlank(storageSetting)) {
