@@ -37,8 +37,8 @@ public class AmazonUploader implements Uploader {
     }
 
     @Override
-    public void writeHtml(ToolPageContext page, ObjectField field) throws IOException {
-        String storageSetting = StorageItemField.getStorageSetting(Optional.of(field));
+    public void writeHtml(ToolPageContext page, Optional<ObjectField> field) throws IOException {
+        String storageSetting = StorageItemField.getStorageSetting(field);
 
         if (StringUtils.isBlank(storageSetting)) {
             return;
@@ -52,8 +52,8 @@ public class AmazonUploader implements Uploader {
                                 "bucket", Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + storageSetting + "/" + AmazonStorageItem.BUCKET_SETTING)
                 )),
                 "data-path-start", StorageItemField.createStoragePathPrefix(),
-                "data-field-name", field.getInternalName(),
+                "data-field-name", field.isPresent() ? field.get().getInternalName() : null,
                 "data-storage", storageSetting,
-                "data-type-id", field.getParentType().getId());
+                "data-type-id", field.isPresent() ? field.get().getParentType().getId() : null);
     }
 }

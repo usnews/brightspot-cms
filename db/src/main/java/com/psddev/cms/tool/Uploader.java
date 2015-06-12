@@ -40,7 +40,7 @@ public interface Uploader {
      */
     public void writeHtml(
             ToolPageContext page,
-            ObjectField field)
+            Optional<ObjectField> field)
             throws IOException;
 
     static Uploader getUploader(Optional<ObjectField> field) {

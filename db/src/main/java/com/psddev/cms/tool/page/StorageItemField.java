@@ -540,13 +540,14 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        Uploader uploader = Uploader.getUploader(Optional.of(field));
+        Optional<ObjectField> fieldOptional = Optional.of(field);
+        Uploader uploader = Uploader.getUploader(fieldOptional);
 
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");
 
             if (uploader != null) {
-                uploader.writeHtml(page, field);
+                uploader.writeHtml(page, fieldOptional);
             }
 
             page.writeStart("div", "class", "fileSelector");
