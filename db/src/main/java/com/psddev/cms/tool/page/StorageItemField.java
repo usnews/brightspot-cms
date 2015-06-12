@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,12 +29,10 @@ import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.ImageTextOverlay;
 import com.psddev.cms.db.StandardImageSize;
 import com.psddev.cms.db.ToolUi;
-import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.tool.Uploader;
-import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -53,7 +50,6 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.SparseSet;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.TypeDefinition;
 import com.psddev.dari.util.TypeReference;
 
 @RoutingFilter.Path(application = "cms", value = "storageItemField")
@@ -543,25 +539,7 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        Uploader uploader = null;
-
-        if (!Application.Static.getInstance(CmsTool.class).isDisableFrontEndUploaders()) {
-            for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
-
-                if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
-                    continue;
-                }
-
-                Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
-
-                if (candidateUploader.getPriority(field) >= 0) {
-
-                    if (uploader == null || uploader.getPriority(field) < candidateUploader.getPriority(field)) {
-                        uploader = candidateUploader;
-                    }
-                }
-            }
-        }
+        Uploader uploader = Uploader.getUploader(field);
 
         // --- Presentation ---
         page.writeStart("div", "class", "inputSmall");

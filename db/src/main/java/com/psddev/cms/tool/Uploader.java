@@ -1,8 +1,12 @@
 package com.psddev.cms.tool;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 
+import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
+import com.psddev.dari.util.ClassFinder;
+import com.psddev.dari.util.TypeDefinition;
 
 /**
  * An interface to extend the StorageItemField to allow
@@ -37,4 +41,29 @@ public interface Uploader {
             ToolPageContext page,
             ObjectField field)
             throws IOException;
+
+    static Uploader getUploader(ObjectField field) {
+
+        Uploader uploader = null;
+
+        if (!Application.Static.getInstance(CmsTool.class).isDisableFrontEndUploaders()) {
+            for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
+
+                if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
+                    continue;
+                }
+
+                Uploader candidateUploader = TypeDefinition.getInstance(uploaderClass).newInstance();
+
+                if (candidateUploader.getPriority(field) >= 0) {
+
+                    if (uploader == null || uploader.getPriority(field) < candidateUploader.getPriority(field)) {
+                        uploader = candidateUploader;
+                    }
+                }
+            }
+        }
+
+        return uploader;
+    }
 }
