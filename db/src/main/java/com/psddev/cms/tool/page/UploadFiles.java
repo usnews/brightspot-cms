@@ -25,7 +25,6 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.Uploader;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.db.DatabaseEnvironment;
 import com.psddev.dari.db.ObjectField;
@@ -66,7 +65,7 @@ public class UploadFiles extends PageServlet {
         }
     }
 
-    public static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
+    private static void reallyDoService(ToolPageContext page) throws IOException, ServletException {
         Database database = Database.Static.getDefault();
         DatabaseEnvironment environment = database.getEnvironment();
         Exception postError = null;

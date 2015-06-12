@@ -1,9 +1,11 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
+import com.psddev.cms.tool.CmsTool;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.util.ClassFinder;
@@ -13,7 +15,7 @@ import com.psddev.dari.util.TypeDefinition;
  * An interface to extend the StorageItemField to allow
  * for adding front end uploaders
  */
-public interface Uploader {
+interface Uploader {
 
     public static final double DEFAULT_PRIORITY = 0;
 

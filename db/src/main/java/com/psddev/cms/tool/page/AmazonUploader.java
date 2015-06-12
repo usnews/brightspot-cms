@@ -1,10 +1,10 @@
-package com.psddev.cms.tool;
+package com.psddev.cms.tool.page;
 
 import java.io.IOException;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
-import com.psddev.cms.tool.page.StorageItemField;
+import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.util.AmazonStorageItem;
 import com.psddev.dari.util.ObjectUtils;
@@ -12,7 +12,7 @@ import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StorageItem;
 import com.psddev.dari.util.StringUtils;
 
-public class AmazonUploader implements Uploader {
+class AmazonUploader implements Uploader {
 
     @Override
     public double getPriority(Optional<ObjectField> field) {

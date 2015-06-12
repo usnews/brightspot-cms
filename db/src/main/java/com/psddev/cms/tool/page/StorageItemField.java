@@ -33,7 +33,6 @@ import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.tool.FileContentType;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.tool.Uploader;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
@@ -686,7 +685,7 @@ public class StorageItemField extends PageServlet {
         return path;
     }
 
-    public static String createStoragePathPrefix() {
+    static String createStoragePathPrefix() {
         String idString = UUID.randomUUID().toString().replace("-", "");
         StringBuilder pathBuilder = new StringBuilder();
 
@@ -706,7 +705,7 @@ public class StorageItemField extends PageServlet {
      *
      * @param field to check for storage setting
      */
-    public static String getStorageSetting(Optional<ObjectField> field) {
+    static String getStorageSetting(Optional<ObjectField> field) {
         String storageSetting = null;
 
         if (field.isPresent()) {
