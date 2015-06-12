@@ -298,6 +298,55 @@
       float: left;
       margin: 0 10px 0 0;
     }
+
+    .carousel-tile {
+      
+      .removeButton {
+        .icon;
+        .icon-remove;
+        .icon-only;
+        .link;
+        color: @color-remove;
+        position: absolute;
+        right: 2px;
+        bottom: 4px;
+        
+        // Hide the remove button unless the tile is active
+        display:none;
+      }
+      
+      .toBeRemoved {
+        
+        opacity: 0.5;
+        text-decoration: line-through;
+
+        .removeButton {
+          // Always show the restore button even if tile is not active
+          display:block;
+          .icon-plus;
+          color: @color-link-dark;
+        }
+        
+        // Add padding to the caption to leave room for removeButton
+        figcaption {
+          padding-right: 1em;
+        }
+      }
+    }
+    
+    .carousel-tile-active {
+
+      // Always show remove/restore on the active tile
+      .removeButton {
+        display:block;
+      }
+
+      // Add padding to the caption to leave room for removeButton
+      figcaption {
+        padding-right: 1em;
+      }
+      
+    }
   }
 }
 
