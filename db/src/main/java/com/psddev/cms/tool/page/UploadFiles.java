@@ -97,12 +97,10 @@ public class UploadFiles extends PageServlet {
                 List<StorageItem> newStorageItems = new ArrayList<>();
                 FileItem[] files = request.getFileItems("file");
                 StringBuilder js = new StringBuilder();
-                LOGGER.info("TYPE ID" + selectedType.getId());
                 Object common = selectedType.createObject(page.param(UUID.class, "typeForm-" + selectedType.getId()));
                 page.updateUsingParameters(common);
 
                 if (!ObjectUtils.isBlank(paths)) {
-                    LOGGER.info("CREATING BY PATHS");
                     //get existing storage item
                     for (String path : paths) {
                         String defaultStorageSetting = Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING);
@@ -110,7 +108,6 @@ public class UploadFiles extends PageServlet {
                         StorageItem newStorageItem = StorageItem.Static.createIn(defaultStorageSetting);
                         newStorageItem.setPath(path);
                         if (!StringUtils.isBlank(fieldStorageSetting) && !fieldStorageSetting.equals(defaultStorageSetting)) {
-                            LOGGER.info("COPYING...");
                             newStorageItem = StorageItem.Static.copy(newStorageItem, fieldStorageSetting);
                         }
 
@@ -119,7 +116,6 @@ public class UploadFiles extends PageServlet {
                     }
                 } else {
                     if (files != null && files.length > 0) {
-                        LOGGER.info("CREATING BY FILES");
 
                         for (FileItem file : files) {
 
