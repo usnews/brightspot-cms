@@ -28,6 +28,10 @@ function ($, bsp_utils, evaporate) {
 
         var isMultiple = $this.attr('multiple') ? true : false;
 
+        if (isMultiple) {
+          $this.hide();
+        }
+
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
 
