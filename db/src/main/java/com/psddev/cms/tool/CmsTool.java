@@ -113,7 +113,7 @@ public class CmsTool extends Tool {
     private boolean disableAutomaticallySavingDrafts;
 
     @ToolUi.Tab("Debug")
-    private boolean disableFrontEndUploaders;
+    private boolean enableFrontEndUploader;
 
     @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
@@ -606,12 +606,12 @@ public class CmsTool extends Tool {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
     }
 
-    public boolean isDisableFrontEndUploaders() {
-        return disableFrontEndUploaders;
+    public boolean isEnableFrontEndUploader() {
+        return enableFrontEndUploader;
     }
 
-    public void setDisableFrontEndUploaders(boolean disableFrontEndUploaders) {
-        this.disableFrontEndUploaders = disableFrontEndUploaders;
+    public void setEnableFrontEndUploader(boolean enableFrontEndUploader) {
+        this.enableFrontEndUploader = enableFrontEndUploader;
     }
 
     public boolean isDisplayTypesNotAssociatedWithJavaClasses() {

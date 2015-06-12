@@ -49,7 +49,7 @@ interface Uploader {
 
         Uploader uploader = null;
 
-        if (!Application.Static.getInstance(CmsTool.class).isDisableFrontEndUploaders()) {
+        if (Application.Static.getInstance(CmsTool.class).isEnableFrontEndUploader()) {
             for (Class<? extends Uploader> uploaderClass : ClassFinder.Static.findClasses(Uploader.class)) {
 
                 if (uploaderClass.isInterface() || Modifier.isAbstract(uploaderClass.getModifiers())) {
