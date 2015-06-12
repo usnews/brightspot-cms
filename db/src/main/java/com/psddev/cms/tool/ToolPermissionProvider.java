@@ -11,20 +11,14 @@ public interface ToolPermissionProvider extends SettingsBackedObject {
     /** Setting key for permission provider configuration. */
     String SETTING_KEY = "cms/tool/permissionProvider";
 
-    /** Called by ToolPageContext#hasPermission, so do NOT execute that method within this method. */
-    boolean hasPermission(String permissionId);
-
-    /** Set up cache, etc., */
-    void initializeContext(ToolPageContext toolPageContext);
-
-    final class Static {
-        private Static() { }
-
-        /** Get the configured permission provider. */
-        public static ToolPermissionProvider getDefault() {
-            String defaultPermissionProvider = Settings.get(String.class, DEFAULT_SETTING_KEY);
-            return defaultPermissionProvider == null ? null :
-                    Settings.newInstance(ToolPermissionProvider.class, SETTING_KEY + '/' + defaultPermissionProvider);
-        }
+    /** Get the configured permission provider. */
+    static ToolPermissionProvider getDefault() {
+        String defaultPermissionProvider = Settings.get(String.class, DEFAULT_SETTING_KEY);
+        return defaultPermissionProvider == null ? null :
+                Settings.newInstance(ToolPermissionProvider.class, SETTING_KEY + '/' + defaultPermissionProvider);
     }
+
+    /** Called by ToolPageContext#hasPermission, so do NOT execute that method within this method. */
+    boolean hasPermission(ToolPageContext page, String permissionId);
+
 }

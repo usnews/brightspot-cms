@@ -3217,7 +3217,7 @@ public class ToolPageContext extends WebPageContext {
     public boolean hasPermission(String permissionId) {
         ToolPermissionProvider provider = getToolPermissionProvider();
         if (provider != null) {
-            return provider.hasPermission(permissionId);
+            return provider.hasPermission(this, permissionId);
         }
         ToolUser user = getUser();
 
@@ -3251,11 +3251,8 @@ public class ToolPageContext extends WebPageContext {
      */
     private ToolPermissionProvider getToolPermissionProvider() {
         if (!checkedPermissionProvider) {
-            permissionProvider = ToolPermissionProvider.Static.getDefault();
+            permissionProvider = ToolPermissionProvider.getDefault();
             checkedPermissionProvider = true;
-            if (permissionProvider != null) {
-                permissionProvider.initializeContext(this);
-            }
         }
         return permissionProvider;
     }
