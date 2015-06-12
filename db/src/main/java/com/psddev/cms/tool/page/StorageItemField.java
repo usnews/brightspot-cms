@@ -656,7 +656,7 @@ public class StorageItemField extends PageServlet {
         }
     }
 
-    private static String createStorageItemPath(String label, String fileName) {
+    public static String createStorageItemPath(String label, String fileName) {
 
         String extension = "";
         String path = createStoragePathPrefix();
@@ -712,7 +712,7 @@ public class StorageItemField extends PageServlet {
         if (field.isPresent()) {
             String fieldStorageSetting = field.get().as(ToolUi.class).getStorageSetting();
             if (!StringUtils.isBlank(fieldStorageSetting)) {
-                storageSetting = Settings.getOrDefault(String.class, StorageItem.SETTING_PREFIX + "/" + fieldStorageSetting, StorageItem.DEFAULT_STORAGE_SETTING);
+                storageSetting = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + fieldStorageSetting);
             }
         }
 
