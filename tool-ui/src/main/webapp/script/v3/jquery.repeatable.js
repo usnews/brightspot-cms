@@ -1289,7 +1289,16 @@ The HTML within the repeatable element must conform to these standards:
                     'data-dynamic-text': '${content.label}'
 
                 }).appendTo($carouselTile);
-                
+
+                // Add a remove/restore button to the carousel tile
+                // This will be hidden by CSS unless the tile is active or "toBeRemoved"
+                $('<span/>', {
+                    'class': 'removeButton',
+                    'text': self.options.removeButtonText
+                }).on('click', function(){
+                    self.removeItemToggle( $item );
+                }).appendTo($carouselTile);
+
                 // On the item, save a reference to the carousel tile,
                 // so later if user changes sort order of the items,
                 // we can determine which carousel tile needs to be moved
