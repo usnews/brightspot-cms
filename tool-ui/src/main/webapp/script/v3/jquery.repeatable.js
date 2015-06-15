@@ -1328,7 +1328,7 @@ The HTML within the repeatable element must conform to these standards:
                 $editContainer = self.modePreviewCreateEditContainer($item);
                 
                 // Remove the item's edit form and move it to the edit container
-                $item.find('.objectInputs').appendTo($editContainer);
+                $item.find('> .objectInputs').appendTo($editContainer);
 
                 // Trigger a change to update any thumbnails
                 $editContainer.find(':input').trigger('change');
