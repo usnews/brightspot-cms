@@ -387,7 +387,7 @@ public class StorageItemField extends PageServlet {
                             fieldValueMetadata.put("originalFilename", name);
 
                             newItem = StorageItem.Static.createIn(getStorageSetting(Optional.of(field)));
-                            newItem.setPath(createStorageItemPath(state.getLabel(), fileName));
+                            newItem.setPath(createStorageItemPath(state.getLabel(), name));
                             newItem.setContentType(fileContentType);
 
                             Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
