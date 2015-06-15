@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 import javax.servlet.ServletException;
 
 import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.util.ObjectUtils;
@@ -38,7 +39,13 @@ public class ToolUserTfa extends PageServlet {
                 user.save();
 
                 page.writeStart("script", "type", "text/javascript");
-                    page.writeRaw("window.location = window.location;");
+                    page.writeRaw("window.location = ");
+                    String redirectUrl = page.param(String.class, AuthenticationFilter.RETURN_PATH_PARAMETER);
+                    if (!StringUtils.isBlank(redirectUrl)) {
+                        page.writeRaw('"' + redirectUrl + "\";");
+                    } else {
+                        page.writeRaw("window.location;");
+                    }
                 page.writeEnd();
                 return;
             }
@@ -69,17 +76,24 @@ public class ToolUserTfa extends PageServlet {
                     keyUri.append(StringUtils.encodeUri(" - "));
                 }
 
-                keyUri.append(StringUtils.encodeUri(user.getEmail()));
+                keyUri.append(StringUtils.encodeUri(!StringUtils.isEmpty(user.getUsername()) ? user.getUsername() : user.getEmail()));
                 keyUri.append("?secret=");
                 keyUri.append(user.getTotpSecret());
 
-                page.writeElement("img",
-                        "width", 200,
-                        "height", 200,
-                        "src", page.cmsUrl("/qrCode", "data", keyUri),
-                        "style", "float: right; margin-left: 10px;");
+                page.writeStart("div", "style", "float: right; margin-left: 10px; margin-top: -20px;");
+                    page.writeElement("img",
+                            "width", 200,
+                            "height", 200,
+                            "src", page.cmsUrl("/qrCode", "data", keyUri),
+                            "style", "margin-left: 30px;");
+                    page.writeStart("div");
+                        page.writeHtml("Secret Key: ");
+                        page.writeTag("br");
+                        page.writeRaw(user.getTotpSecret().replaceAll("(.{4})", "$1 "));
+                    page.writeEnd();
+                page.writeEnd();
 
-                page.writeStart("div", "style", "margin-right: 210px;");
+                page.writeStart("div", "style", "margin-right: 280px;");
                     if (verifyError) {
                         page.writeStart("div", "class", "message message-error");
                             page.writeHtml("Code you've entered isn't valid! Try re-entering the code or re-scan the QR code.");
@@ -91,7 +105,7 @@ public class ToolUserTfa extends PageServlet {
                                 page.writeHtml("Enter the displayed code from your Google Authenticator to disable two factor authentication.");
 
                             } else {
-                                page.writeHtml("Scan the QR code with your Google Authenticator and enter the displayed code to enable two factor authentication.");
+                                page.writeHtml("Use Google Authenticator to scan the QR code or type in the secret key, then enter the displayed code to enable two factor authentication.");
                             }
                         page.writeEnd();
                     }
@@ -123,6 +137,10 @@ public class ToolUserTfa extends PageServlet {
                             page.writeHtml("Verify");
                         page.writeEnd();
                     page.writeEnd();
+                    page.writeElement("input",
+                            "type", "hidden",
+                            "name", AuthenticationFilter.RETURN_PATH_PARAMETER,
+                            "value", page.param(String.class, AuthenticationFilter.RETURN_PATH_PARAMETER));
                 page.writeEnd();
             page.writeEnd();
         page.writeFooter();

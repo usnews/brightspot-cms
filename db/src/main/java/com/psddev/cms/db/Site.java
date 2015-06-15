@@ -220,7 +220,7 @@ public class Site extends Record {
                     Site.IS_GLOBAL_FIELD + " = ? and " +
                     Site.BLACKLIST_FIELD + " != ?) or " +
                     Site.CONSUMERS_FIELD + " = ?",
-                    this, Boolean.TRUE, this, consumers);
+                    consumers, Boolean.TRUE, this, consumers);
         }
     }
 

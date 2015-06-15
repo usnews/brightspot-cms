@@ -42,39 +42,6 @@ define([
 
         
         /**
-         * Each size will have an entry in this object.
-         * Key = name of the size
-         * Value = an object containing information about the size such as a description,
-         * a jquery object containing the inputs, etc.
-         *
-         * @example
-         * {
-         *   'thumb_109x73': {description:'Thumbnail 109 x 73', inputs:{}},
-         *   'promo_177x118' {description:'Small Promo 177 x 118', inputs:{}}
-         * }
-         */
-        sizeInfos: {},
-
-
-        /**
-         * We want to group together sizes that have approximately the same aspect ratio.
-         * Key = the aspect ratio, or the name of an individual size
-         * Value = an object that contains the element for the group, and a sizeInfos object
-         * with all the sizes in the group.
-         *   
-         * @example
-         * {
-         *   '1.5': {
-         *     $element: e,
-         *     $sizeBox: e,
-         *     sizeInfos: {}
-         *   }
-         * }
-         */
-        sizeGroups: {},
-
-        
-        /**
          * Names for all the tabs.
          */
         tabNames: {
@@ -1330,6 +1297,35 @@ define([
             var groupsApproximate, self;
 
             self = this;
+
+            // Create sizeInfos object.
+            // Each size will have an entry in this object.
+            // Key = name of the size
+            // Value = an object containing information about the size such as a description,
+            // a jquery object containing the inputs, etc.
+            //
+            // @example
+            // {
+            //   'thumb_109x73': {description:'Thumbnail 109 x 73', inputs:{}},
+            //   'promo_177x118' {description:'Small Promo 177 x 118', inputs:{}}
+            // }
+            self.sizeInfos = {};
+
+            // Create sizeGroups object.
+            // We want to group together sizes that have approximately the same aspect ratio.
+            // Key = the aspect ratio, or the name of an individual size
+            // Value = an object that contains the element for the group, and a sizeInfos object
+            // with all the sizes in the group.
+            //   
+            // @example
+            // {
+            //   '1.5': {
+            //     $element: e,
+            //     $sizeBox: e,
+            //     sizeInfos: {}
+            //   }
+            // }
+            self.sizeGroups = {};
 
             // We want to group together sizes that have approximately the same aspect ratio.
             // So we will create a list of groups based on an approximate aspect ratio.

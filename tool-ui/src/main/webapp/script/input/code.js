@@ -37,6 +37,8 @@ function($, bsp_utils, CodeMirror) {
 
                 mirror.on('change', function() {
                     $input.closest('.inputContainer').scrollTop(0);
+                    $input.val(mirror.getValue());
+                    $input.change();
                 });
 
                 mirrors.push(mirror);

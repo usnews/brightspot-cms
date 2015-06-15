@@ -32,7 +32,7 @@ $.plugin2('toggleable', {
             $matching = $root.find(selector);
 
             if (!disable) {
-                $matching.find('.toggleable-form[data-form-fields-url]').each(function() {
+                $matching.find('> .toggleable-form[data-form-fields-url]').each(function() {
                     var $div = $(this);
                     var url = $div.attr('data-form-fields-url');
                     var data = $div.attr('data-form-fields-data');

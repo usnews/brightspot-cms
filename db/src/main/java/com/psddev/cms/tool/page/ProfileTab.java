@@ -21,6 +21,7 @@ public class ProfileTab extends ProfilePanelTab {
 
         excludeFields.add("role");
         excludeFields.add("changePasswordOnLogIn");
+        excludeFields.add("tfaRequired");
 
         if (user.isExternal()) {
             excludeFields.add("password");

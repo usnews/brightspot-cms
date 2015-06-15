@@ -73,6 +73,10 @@ public class CmsTool extends Tool {
     @ToolUi.Tab("Defaults")
     private List<CommonTime> commonTimes;
 
+    @ToolUi.Tab("Defaults")
+    @DisplayName("Two Factor Authentication Required?")
+    private boolean tfaRequired;
+
     @ToolUi.Tab("Dashboard")
     private Dashboard defaultDashboard;
 
@@ -107,6 +111,9 @@ public class CmsTool extends Tool {
 
     @ToolUi.Tab("Debug")
     private boolean disableAutomaticallySavingDrafts;
+
+    @ToolUi.Tab("Debug")
+    private boolean enableFrontEndUploader;
 
     @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
@@ -480,6 +487,14 @@ public class CmsTool extends Tool {
         this.commonTimes = commonTimes;
     }
 
+    public boolean isTfaRequired() {
+        return tfaRequired;
+    }
+
+    public void setTfaRequired(boolean tfaRequired) {
+        this.tfaRequired = tfaRequired;
+    }
+
     public String getDefaultTextOverlayCss() {
         return defaultTextOverlayCss;
     }
@@ -589,6 +604,14 @@ public class CmsTool extends Tool {
 
     public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isEnableFrontEndUploader() {
+        return enableFrontEndUploader;
+    }
+
+    public void setEnableFrontEndUploader(boolean enableFrontEndUploader) {
+        this.enableFrontEndUploader = enableFrontEndUploader;
     }
 
     public boolean isDisplayTypesNotAssociatedWithJavaClasses() {
@@ -965,4 +988,5 @@ public class CmsTool extends Tool {
             }
         }
     }
+
 }

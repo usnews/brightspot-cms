@@ -80,7 +80,9 @@ $.plugin2('frame', {
         $frame.empty();
       }
 
-      $frame.popup('open');
+      if ($frame.parent().frame('container').length == 0) {
+        $frame.popup('open');
+      }
 
       return version;
     };

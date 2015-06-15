@@ -53,6 +53,7 @@ require([
   'jquery.calendar',
   'v3/jquery.dropdown',
   'jquery.editableplaceholder',
+  'evaporate',
   'v3/plugin/popup',
   'v3/plugin/fixed-scrollable',
   'v3/jquery.frame',
@@ -66,6 +67,7 @@ require([
   'jquery.tabbed',
   'v3/taxonomy',
   'jquery.toggleable',
+  'v3/upload',
   'nv.d3',
 
   'dashboard',

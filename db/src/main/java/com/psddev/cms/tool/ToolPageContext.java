@@ -120,6 +120,8 @@ public class ToolPageContext extends WebPageContext {
     private static final String TOOL_ATTRIBUTE = ATTRIBUTE_PREFIX + "tool";
     private static final String TOOL_BY_CLASS_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByClass";
     private static final String TOOL_BY_PATH_ATTRIBUTE = ATTRIBUTE_PREFIX + "toolByPath";
+    public static final String PARENT_ID_ATTRIBUTE = ATTRIBUTE_PREFIX + "parentId";
+    public static final String PARENT_TYPE_ID_ATTRIBUTE = ATTRIBUTE_PREFIX + "parentTypeId";
 
     private static final String EXTRA_PREFIX = "cms.tool.";
     private static final String OVERLAID_DRAFT_EXTRA = EXTRA_PREFIX + "overlaidDraft";
@@ -1008,9 +1010,7 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(" ");
             }
 
-            writeHtml(ObjectUtils.isBlank(label) ?
-                    state.getId() :
-                    state.getLabel());
+            writeHtml(getObjectLabelOrDefault(state, "Untitled"));
         }
     }
 
@@ -1227,6 +1227,7 @@ public class ToolPageContext extends WebPageContext {
                     writeHtml(companyName);
                 writeEnd();
 
+                writeElement("meta", "name", "referrer", "content", "never");
                 writeElement("meta", "name", "robots", "content", "noindex");
                 writeElement("meta", "name", "viewport", "content", "width=device-width, initial-scale=1");
                 writeStylesAndScripts();
@@ -1883,6 +1884,20 @@ public class ToolPageContext extends WebPageContext {
      * @param attributes Extra attributes for the HTML tag.
      */
     public void writeObjectSelect(ObjectField field, Object value, Object... attributes) throws IOException {
+        writeObjectSelect(field, value, param(UUID.class, OBJECT_ID_PARAMETER), param(UUID.class, TYPE_ID_PARAMETER), attributes);
+    }
+
+    /**
+     * Writes a {@code <select>} or {@code <input>} tag that allows the user
+     * to pick a content.
+     * @param field Can't be {@code null}.
+     * @param value Initial value. May be {@code null}.
+     * @param parentId ID of parent object. Will be obtained from query parameter {@code OBJECT_ID_PARAMETER} if {@code null}.
+     * @param parentTypeId ObjectType ID of parent object. Will be obtained from query parameter {@code TYPE_ID_PARAMETER} if {@code null}.
+     * @param attributes Extra attributes for the HTML tag.
+     * @throws IOException
+     */
+    public void writeObjectSelect(ObjectField field, Object value, UUID parentId, UUID parentTypeId, Object... attributes) throws IOException {
         ErrorUtils.errorIfNull(field, "field");
 
         ToolUi ui = field.as(ToolUi.class);
@@ -1894,8 +1909,8 @@ public class ToolPageContext extends WebPageContext {
 
         if (isObjectSelectDropDown(field)) {
             Search dropDownSearch = new Search(field);
-            dropDownSearch.setParentId(param(UUID.class, OBJECT_ID_PARAMETER));
-            dropDownSearch.setParentTypeId(param(UUID.class, TYPE_ID_PARAMETER));
+            dropDownSearch.setParentId(parentId);
+            dropDownSearch.setParentTypeId(parentTypeId);
 
             List<?> items = findDropDownItems(field, dropDownSearch);
 
@@ -2271,10 +2286,10 @@ public class ToolPageContext extends WebPageContext {
                 request.setAttribute("containerObject", object);
             }
 
-            List<ToolUiLayoutElement> layoutPlaceholders = type.as(ToolUi.class).getLayoutPlaceholders();
+            List<ToolUiLayoutElement> layoutPlaceholders = type != null ? type.as(ToolUi.class).getLayoutPlaceholders() : null;
             String layoutPlaceholdersJson = null;
 
-            if (!layoutPlaceholders.isEmpty()) {
+            if (!ObjectUtils.isBlank(layoutPlaceholders)) {
                 List<Map<String, Object>> jsons = new ArrayList<Map<String, Object>>();
 
                 for (ToolUiLayoutElement element : layoutPlaceholders) {
@@ -3200,6 +3215,10 @@ public class ToolPageContext extends WebPageContext {
      * @param If {@code null}, returns {@code true}.
      */
     public boolean hasPermission(String permissionId) {
+        ToolPermissionProvider provider = getToolPermissionProvider();
+        if (provider != null) {
+            return provider.hasPermission(this, permissionId);
+        }
         ToolUser user = getUser();
 
         return user != null &&
@@ -3222,6 +3241,20 @@ public class ToolPageContext extends WebPageContext {
                 return true;
             }
         }
+    }
+
+    private transient boolean checkedPermissionProvider;
+    private transient ToolPermissionProvider permissionProvider;
+
+    /**
+     * Returns the {@link ToolPermissionProvider} if configured.
+     */
+    private ToolPermissionProvider getToolPermissionProvider() {
+        if (!checkedPermissionProvider) {
+            permissionProvider = ToolPermissionProvider.getDefault();
+            checkedPermissionProvider = true;
+        }
+        return permissionProvider;
     }
 
     // --- Content.Static bridge ---
@@ -3249,10 +3282,17 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * @see Content.Static#trash
+     * @see {@link com.psddev.cms.db.Content.Static#trash(Object, com.psddev.cms.db.Site, com.psddev.cms.db.ToolUser)}
      */
     public void trash(Object object) {
         Content.Static.trash(object, getSite(), getUser());
+    }
+
+    /**
+     * @see {@link com.psddev.cms.db.Content.Static#restore(Object, com.psddev.cms.db.Site, com.psddev.cms.db.ToolUser)}
+     */
+    public void restore(Object object) {
+        Content.Static.restore(object, getSite(), getUser());
     }
 
     /** @see Content.Static#purge */
