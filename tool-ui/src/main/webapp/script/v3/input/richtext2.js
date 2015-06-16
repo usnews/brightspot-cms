@@ -1,3 +1,6 @@
+/* jshint undef: true, unused: true, browser: true, jquery: true, devel: true */
+/* global define */
+
 define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($, CodeMirrorRte) {
     
     /**
@@ -80,7 +83,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 // Function to return the opening HTML element for a link
                 toHTML: function(mark) {
                     
-                    var $el, href, html, rel, target, title, cmsId;
+                    var href, html, rel, target, title, cmsId;
                     
                     // For a link set the attributes on the element that were set on the mark
                     html = '<a';
@@ -185,16 +188,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     style: 'text-align:right'
                 },
                 clear: ['alignLeft', 'alignCenter', 'ol', 'ul']
-            },
-
-            // Special styles used for enhancements
-            enhancementContent: {
-                className: 'rte-enhancement-content',
-                element: 'button',
-                elementAttr: {
-                    'class': 'enhancement'
-                },
-                internal: true
             }
         },
 
@@ -408,6 +401,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // Initialize the editor
             self.rte.init(self.$container);
 
+            // Override the rich text editor to tell it how enhancements should be imported from HTML
+            self.rte.enhancementFromHTML = function($content, line) {
+            
+                self.enhancementFromHTML($content, line);
+            };
+
             // Set the content into the editor
             self.rte.fromHTML(content);
         },
@@ -514,10 +513,20 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     break;
 
                 case 'enhancement':
+                    
+                    // Stop the event from propagating, otherwise it will close the enhancement popup
+                    event.stopPropagation();
+                    event.preventDefault();
+                    
                     self.enhancementCreate();
                     break;
                     
                 case 'marker':
+                    
+                    // Stop the event from propagating, otherwise it will close the enhancement popup
+                    event.stopPropagation();
+                    event.preventDefault();
+                    
                     self.enhancementCreate();
                     break;
 
@@ -552,8 +561,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 }
             }
 
+            // Update the toolbar so it makes the buttons active or inactive
+            // based on the cursor position or selection
             self.toolbarUpdate();
-            
+
+            // Focus back on the editor
             self.focus();
         },
 
@@ -563,7 +575,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          */
         toolbarUpdate: function() {
 
-            var $links, rte, self, styles, gotAlignment, lastPos;
+            var $links, rte, self, styles;
 
             self = this;
             rte = self.rte;
@@ -580,7 +592,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // Go through each link in the toolbar and see if the style is defined
             $links.each(function(){
                 
-                var config, $link, style;
+                var config, $link, makeActive;
 
                 $link = $(this);
 
@@ -790,7 +802,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          */
         linkSave: function() {
 
-            var attributes, self;
+            var attributes, $linkDialog, self;
 
             self = this;
 
@@ -858,7 +870,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             var self;
             
             self = this;
-            
+
+            // Counter to generate unique link targets for enhancement toolbar links
+            self.enhancementGetTargetCounter = 0;
+
             // Okay, this is a hack so prepare yourself.
             // Set up a global click event to detect when user clicks on an enhancement in the popup.
             // However, since there can be multiple enhancements in the editor,
@@ -867,7 +882,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // somebody else deal with it.
             $(document.body).on('click', '[data-enhancement]', function(event) {
                 
-                var data, dataReference, $edit, editUrl, $enhancement, $placeholder, $popupTrigger, $select, selectUrl, $target;
+                var data, $edit, editUrl, $enhancement, $popupTrigger, $select, $target;
                 
                 // The enhancement link that the user clicked
                 $target = $(this);
@@ -917,7 +932,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // so we can remove the enhancement if nothing was selected.
             $(document).on('close', '.popup[name ^= "contentEnhancement-"]', function() {
 
-                var $enhancement, mark, $popupTrigger, $popup;
+                var $enhancement, $popupTrigger, $popup;
 
                 // The popup that was closed
                 $popup = $(this);
@@ -945,10 +960,19 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         
         /**
          * Create a new enhancement.
+         *
+         * @param {Object} [config]
+         * Optional data for the enhancement. This is normally used only when importing the enhancment from HTML.
+         * @param {Object} [config.reference]
+         * @param {String} [config.alignment]
+         * The alignment for the enhancement: blank, "left", or "right"
+         *
+         * @param {Number} [line=current line]
+         * Optional line number.
          */
-        enhancementCreate: function(data) {
+        enhancementCreate: function(config, line) {
 
-            var $button, $enhancement, mark, self;
+            var $enhancement, mark, self;
 
             self = this;
             
@@ -960,20 +984,36 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<div/>', {'class': 'rte-enhancement-label' }).appendTo($enhancement);
 
             // Add the enhancement to the editor
-            mark = self.rte.enhancementAdd($enhancement[0], null, {block:true, toHTML:function(){
-                
-                return self.enhancementToHTML($enhancement);
-                
-            }});
+            mark = self.rte.enhancementAdd($enhancement[0], line, {
+                block:true,
+                // Set up a custom "toHTML" function so the editor can output the enhancement
+                toHTML:function(){
+                    return self.enhancementToHTML($enhancement);
+                }
+            });
 
             // Save the mark so we can use it to modify the enhancement later
             self.enhancementSetMark($enhancement, mark);
 
             // If the data for this enhancement was provided, save it as part of the enhancement
-            if (data) {
-                $enhancement.data('rte-enhancement', data);
+            if (config) {
+
+                // config.id = $content.attr('data-id');
+                // config.reference = $content.attr('data-reference');
+                // config.alignment = $content.attr('data-alignment');
+                // config.preview = $content.attr('data-preview');
+                // config.text = $content.text();
+
+                $enhancement.data('rte-enhancement', config.reference);
+
+                if (config.alignment) {
+                    self.enhancementSetPosition($enhancement, config.alignment);
+                }
+                
                 self.enhancementUpdate($enhancement);
+                
             } else {
+                
                 // No data was provided so this is a new enhancement.
                 // Pop up the selection form.
                 self.enhancementChange($enhancement);
@@ -1086,7 +1126,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 target: self.enhancementGetTarget(),
                 text: 'Select', // Note this web be updated to "Change" once an enhancement is selected
                 'class': 'rte-enhancement-toolbar-change'
-            }).on('click', function(event){
             }).appendTo($toolbar);
             
             $('<a/>', {
@@ -1135,8 +1174,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          * Pop up the enhancement selector form.
          */
         enhancementChange: function(el) {
-            var $enhancement, mark, self;
-            self = this;
+            
+            var $enhancement;
+            var self = this;
+            
             $enhancement = self.enhancementGetWrapper(el);
 
             // Okay this is a bit of a hack.
@@ -1144,18 +1185,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             // because there is another click event on the page that will handle that
             // and pop up the appropriate form to select the enhancement.
 
-            // Also for some reason the popup close event is triggering
-            // and killing the enhancement before the popup even appears.
-            // Using a timeout here seems to correct it but I'm not sure why.
-            // TODO: investigate why this is necessary.
-            setTimeout(function(){
-                $enhancement.find('.rte-enhancement-toolbar-change').trigger('click');
-            }, 1);
+            $enhancement.find('.rte-enhancement-toolbar-change').trigger('click');
         },
 
         
         enhancementRemove: function (el) {
-            var $el, mark, self;
+            var $el, self;
             self = this;
             $el = self.enhancementGetWrapper(el);
             $el.addClass('toBeRemoved');
@@ -1205,6 +1240,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             }
         },
 
+        
         /**
          * Sets the position for an enhancement.
          *
@@ -1249,6 +1285,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             rte.refresh();
         },
 
+        
         /**
          * Returns the position for an enhancement.
          *
@@ -1324,7 +1361,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         /**
          * Generate a unique link target for enhancement toolbar links.
          */
-        enhancementGetTargetCounter: 0,
         enhancementGetTarget: function() {
             var self;
             self = this;
@@ -1337,15 +1373,23 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          *
          * @param Element el
          * The enhancement element, or an element within the enhancement.
+         *
+         * @returns {String}
+         * The HTMl for the enhancement.
          */
         enhancementToHTML: function(el) {
             
-            var alignment, data, $enhancement, html, $html, id, ref, self;
+            var alignment, data, $enhancement, html, $html, id, self;
 
             self = this;
 
             $enhancement = self.enhancementGetWrapper(el);
 
+            // If the enhancement is marked to be removed?
+            if (self.enhancementIsToBeRemoved($enhancement)) {
+                return '';
+            }
+            
             // Get the enhancement data that was stored previously in a data attribute
             data = $enhancement.data('rte-enhancement') || {};
             if (data.record) {
@@ -1377,6 +1421,40 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             return html || '';
         },
 
+        /**
+         * When importing from HTML, this function converts the enhancement HTML to an enhancement in the editor.
+         *
+         *
+         * @param {jQuery} $content
+         * The HTML for the enhancement, something like this:
+         * <span class="enhancement" data-id="[id]" data-reference="[JSON]" data-alignment="[alignment]" data-preview="[preview]">Text</span>
+         * Note that we output the enhancement as a button element, but in the textarea fields we received it as a span element.
+         *
+         * @param {Number} line
+         * The line number for the enhancement.
+         */
+        enhancementFromHTML: function($content, line) {
+            
+            var self = this;
+            var config = {};
+            
+            // Get enhancement options from the HTML, which looks like
+            // <span data-id data-reference data-preview data-alignment/>
+            
+            try {
+                config.reference = JSON.parse($content.attr('data-reference') || '') || {};
+            } catch(e) {
+                config.reference = {};
+            }
+             
+            config.id = $content.attr('data-id');
+            config.alignment = $content.attr('data-alignment');
+            config.preview = $content.attr('data-preview');
+            config.text = $content.text();
+
+            self.enhancementCreate(config, line);
+        },
+        
         
         /*==================================================
          * Misc
@@ -1404,17 +1482,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         }
     };
 
-
+    
     // Expose as a jQuery plugin.
-    var $inputs = $();
-
     $.plugin2('rte', {
         
         _defaultOptions: { },
 
         _create: function(input) {
             
-            var $input, options;
+            var options, rte;
             
             options = this.option();
 
@@ -1422,6 +1498,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
             rte = Object.create(Rte);
             rte.init(input, options);
+            
             return;
         },
 
@@ -1434,3 +1511,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
     return Rte;
 
 });
+
+// Set filename for debugging tools to allow breakpoints even when using a cachebuster
+//# sourceURL=richtext2.js

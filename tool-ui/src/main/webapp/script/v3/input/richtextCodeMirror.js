@@ -25,7 +25,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
      *
      * @example
      * editor = Object.create(CodeMirrorRte);
-     * $.extend(true, editor.styles, {bold:{className:'rte-style-bold', element:'b'}});
+     * editor.styles = $.extend(true, {}, editor.styles, {bold:{className:'rte-style-bold', element:'b'}});
      * editor.init('#mytextarea');
      */
     CodeMirrorRte = {
@@ -173,7 +173,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             // Create a mapping from self.styles so we can perform quick lookups on the classname
             self.classes = self.getClassNameMap();
-            
+
+            self.enhancementInit();
             self.initListListeners();
             self.initClickListener();
             self.initEvents();
@@ -1503,18 +1504,21 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         //--------------------------------------------------
 
         /**
-         * Unique ID to use for enchancments.
+         * Initialize internal storage for enhancements.
          */
-        enhancementId: 0,
-
+        enhancementInit: function() {
+            
+            var self = this;
+            
+            // Unique ID to use for enchancments.
+            self.enhancementId = 0;
+            
+            // Internal storage for enhancements that have been added.
+            // CodeMirror doesn't seem to have a way to get a list of enhancements,
+            // so we'll have to remember them as we create them.
+            self.enhancementCache = {};
+        },
         
-        /**
-         * Internal storage for enhancements that have been added.
-         * CodeMirror doesn't seem to have a way to get a list of enhancements,
-         * so we'll have to remember them as we create them.
-         */
-        enhancementCache: {},
-
         
         /**
          * Add an enhancement into the editor.
@@ -2717,7 +2721,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         };
 
                         // Special case - is this an enhancement?
-                        if (elementName === 'div' && $(next).attr('class') === 'rte-enhancement-content') {
+                        if (elementName === 'span' && $(next).attr('class') === 'enhancement') {
 
                             // TODO: process the enhancement
                             enhancements.push({
