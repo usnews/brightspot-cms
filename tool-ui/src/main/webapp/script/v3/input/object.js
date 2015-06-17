@@ -92,7 +92,7 @@ function($) {
           $clear.is('.restore') ||
           ($input.attr('data-clearable') !== 'false' &&
           $input.closest('.repeatableObjectId').length === 0 &&
-          !!value));
+          !!value && !$clear.hasClass('state-disabled')));
 
       $edit.attr('href', CONTEXT_PATH + 'content/edit.jsp' +
           '?id=' + (value || '') +
