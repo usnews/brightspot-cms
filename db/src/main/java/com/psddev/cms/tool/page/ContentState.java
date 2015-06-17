@@ -214,8 +214,8 @@ public class ContentState extends PageServlet {
                     // Ignore.
                 }
 
-                String dynamicText = null;
-                String dynamicPredicate = null;
+                String dynamicText = "";
+                String dynamicPredicate = "";
 
                 if (content != null) {
 
@@ -236,7 +236,6 @@ public class ContentState extends PageServlet {
                     } catch (RuntimeException error) {
                         if (Settings.isProduction()) {
                             LOGGER.warn("Could not generate dynamic text!", error);
-                            dynamicText = "";
 
                         } else {
                             StringWriter string = new StringWriter();
