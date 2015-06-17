@@ -255,10 +255,10 @@ public class ContentState extends PageServlet {
 
                         LOGGER.warn("Could not generate dynamic predicate!", error);
                     }
-
-                    dynamicTexts.add(dynamicText);
-                    dynamicPredicates.add(dynamicPredicate);
                 }
+
+                dynamicTexts.add(dynamicText);
+                dynamicPredicates.add(dynamicPredicate);
             }
 
         } finally {
