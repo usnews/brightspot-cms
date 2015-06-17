@@ -29,6 +29,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
+import com.psddev.dari.db.PredicateParser;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.CompactMap;
@@ -185,6 +186,7 @@ public class ContentState extends PageServlet {
 
         // Evaluate all dynamic texts.
         List<String> dynamicTexts = new ArrayList<String>();
+        List<String> dynamicPredicates = new ArrayList<>();
         JspFactory jspFactory = JspFactory.getDefaultFactory();
         PageContext pageContext = jspFactory.getPageContext(this, page.getRequest(), page.getResponse(), null, false, 0, false);
 
@@ -195,6 +197,7 @@ public class ContentState extends PageServlet {
             int contentIdsSize = contentIds.size();
             List<String> templates = page.params(String.class, "_dtt");
             List<String> contentFieldNames = page.params(String.class, "_dtf");
+            List<String> predicates = page.params(String.class, "_dtq");
             int contentFieldNamesSize = contentFieldNames.size();
 
             for (int i = 0, size = templates.size(); i < size; ++ i) {
@@ -213,9 +216,15 @@ public class ContentState extends PageServlet {
                         pageContext.setAttribute("field", field);
 
                         dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext)));
+                        if (!ObjectUtils.isBlank(predicates.get(i))) {
+                            dynamicPredicates.add(PredicateParser.Static.parse(predicates.get(i), content).toString());
+                        } else {
+                            dynamicPredicates.add(null);
+                        }
 
                     } else {
                         dynamicTexts.add(null);
+                        dynamicPredicates.add(null);
                     }
 
                 } catch (RuntimeException error) {
@@ -236,6 +245,7 @@ public class ContentState extends PageServlet {
         }
 
         jsonResponse.put("_dynamicTexts", dynamicTexts);
+        jsonResponse.put("_dynamicPredicates", dynamicPredicates);
 
         // Write the JSON response.
         HttpServletResponse response = page.getResponse();

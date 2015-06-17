@@ -19,10 +19,14 @@ function($) {
           preview,
           visibility,
           label,
+          advancedQuery,
           dynamicPlaceholderText,
           dynamicFieldName,
           placeholder,
-          value;
+          value,
+          selectHref,
+          aqIndex,
+          aqParam;
 
       if (!shadow) {
         return;
@@ -33,6 +37,7 @@ function($) {
       $clear = shadow.$clear;
       preview = $input.attr('data-preview');
       label = $input.attr('data-label');
+      additionalQuery = $input.attr('data-additional-query');
       visibility = $input.attr('data-visibility');
       value = $input.val();
 
@@ -83,6 +88,18 @@ function($) {
           }
         }
       }
+
+      // update additional query parameter in select href
+      selectHref = $select.attr('href');
+      aqIndex = selectHref.indexOf('aq');
+      aqParam = 'aq=' + encodeURIComponent(additionalQuery || '');
+
+      if (aqIndex === -1) {
+          selectHref += '&' + aqParam;
+      } else {
+          selectHref = selectHref.substr(0, aqIndex) + aqParam + selectHref.substr(selectHref.indexOf('&', aqIndex));
+      }
+      $select.attr('href', selectHref);
 
       $edit.toggle(
           $input.attr('data-editable') !== 'false' &&
