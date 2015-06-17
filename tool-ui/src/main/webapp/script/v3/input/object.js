@@ -19,7 +19,7 @@ function($) {
           preview,
           visibility,
           label,
-          advancedQuery,
+          additionalQuery,
           dynamicPlaceholderText,
           dynamicFieldName,
           placeholder,
