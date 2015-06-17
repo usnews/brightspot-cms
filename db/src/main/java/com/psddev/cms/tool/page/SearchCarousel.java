@@ -7,6 +7,7 @@ import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ImageEditor;
 import com.psddev.dari.util.ObjectUtils;
@@ -16,6 +17,7 @@ import com.psddev.dari.util.StorageItem;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,13 +43,28 @@ public class SearchCarousel extends PageServlet {
         }
 
         PaginatedResult<?> result = search.toQuery(page.getSite()).select(search.getOffset(), search.getLimit());
-        List<?> items = result.getItems();
+
+        List<Object> items = new ArrayList<>();
+
+        for (Object resultItem : result.getItems()) {
+            items.add(resultItem);
+        }
+
+        UUID currentContentId = page.param(UUID.class, "id");
+        boolean included = true;
+
+        if (searchOffset == null) { // only splice in the current object if this is the initial page and the current object isn't in the result list
+            Object currentContent = currentContentId == null ? null : Query.fromAll().where("id = ?", currentContentId).first();
+
+            if (currentContent != null && !items.contains(currentContent)) {
+                included = false;
+                items.add(0, currentContent);
+            }
+        }
 
         if (items.size() <= 1 && !result.hasPrevious()) {
             return;
         }
-
-        UUID currentContentId = page.param(UUID.class, "id");
 
         page.writeStart("div", "class", "widget-searchCarousel",
                 "data-next-page", result.hasNext() ? page.url("", Search.OFFSET_PARAMETER, result.getNextOffset()) : "",
@@ -62,7 +79,7 @@ public class SearchCarousel extends PageServlet {
                         itemState.getPreview();
 
                 page.writeStart("a",
-                        "class", itemId.equals(currentContentId) ? "widget-searchCarousel-item-selected" : null,
+                        "class", (itemId.equals(currentContentId) ? "widget-searchCarousel-item-selected" + (included ? "" : " notIncluded") : null),
                         "data-objectId", itemState.getId(),
                         "target", "_top",
                         "href", page.toolUrl(CmsTool.class, "/content/edit.jsp",
