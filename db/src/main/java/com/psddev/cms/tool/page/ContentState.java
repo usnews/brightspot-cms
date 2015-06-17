@@ -39,9 +39,13 @@ import com.psddev.dari.util.ObjectToIterable;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 import com.psddev.dari.util.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RoutingFilter.Path(application = "cms", value = "/contentState")
 public class ContentState extends PageServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentState.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -201,10 +205,22 @@ public class ContentState extends PageServlet {
             int contentFieldNamesSize = contentFieldNames.size();
 
             for (int i = 0, size = templates.size(); i < size; ++ i) {
-                try {
-                    Object content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
 
-                    if (content != null) {
+                Object content = null;
+
+                try {
+                    content = i < contentIdsSize ? findContent(object, contentIds.get(i)) : null;
+                } catch (RuntimeException e) {
+                    // Ignore.
+                }
+
+                String dynamicText = null;
+                String dynamicPredicate = null;
+
+                if (content != null) {
+
+                    try {
+
                         pageContext.setAttribute("content", content);
 
                         ObjectField field = null;
@@ -215,28 +231,34 @@ public class ContentState extends PageServlet {
                         }
                         pageContext.setAttribute("field", field);
 
-                        dynamicTexts.add(((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext)));
-                        if (!ObjectUtils.isBlank(predicates.get(i))) {
-                            dynamicPredicates.add(PredicateParser.Static.parse(predicates.get(i), content).toString());
+                        dynamicText = ((String) expressionFactory.createValueExpression(elContext, templates.get(i), String.class).getValue(elContext));
+
+                    } catch (RuntimeException error) {
+                        if (Settings.isProduction()) {
+                            LOGGER.warn("Could not generate dynamic text!", error);
+                            dynamicText = "";
+
                         } else {
-                            dynamicPredicates.add(null);
+                            StringWriter string = new StringWriter();
+
+                            error.printStackTrace(new PrintWriter(string));
+                            dynamicText = string.toString();
+                        }
+                    }
+
+                    try {
+
+                        if (!ObjectUtils.isBlank(predicates.get(i))) {
+                            dynamicPredicate = PredicateParser.Static.parse(predicates.get(i), content).toString();
                         }
 
-                    } else {
-                        dynamicTexts.add(null);
-                        dynamicPredicates.add(null);
+                    } catch (RuntimeException error) {
+
+                        LOGGER.warn("Could not generate dynamic predicate!", error);
                     }
 
-                } catch (RuntimeException error) {
-                    if (Settings.isProduction()) {
-                        dynamicTexts.add("");
-
-                    } else {
-                        StringWriter string = new StringWriter();
-
-                        error.printStackTrace(new PrintWriter(string));
-                        dynamicTexts.add(string.toString());
-                    }
+                    dynamicTexts.add(dynamicText);
+                    dynamicPredicates.add(dynamicPredicate);
                 }
             }
 
