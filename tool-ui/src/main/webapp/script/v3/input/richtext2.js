@@ -1062,7 +1062,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             self = this;
             $enhancement = self.enhancementGetWrapper(el);
             $content = $enhancement.find('.rte-enhancement-label');
-            data = $enhancement.data('rte-enhancement') || {};
+            data = $enhancement.data('rte-enhancement');
             emptyText = self.enhancementIsMarker($enhancement) ? 'Empty Marker' : 'Empty Enhancement';
             
             if (!data) {
@@ -1087,7 +1087,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 }).appendTo($content);
                 
             } else {
+                
                 $content.text(data.label || emptyText);
+                
             }
         },
 

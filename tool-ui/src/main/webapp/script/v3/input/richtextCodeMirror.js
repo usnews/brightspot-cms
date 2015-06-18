@@ -1567,7 +1567,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             };
 
             if (options.block) {
-                mark = editor.addLineWidget(lineNumber, content, {above: Boolean(options.above)});
+                mark = editor.addLineWidget(lineNumber, content, {above: true});
             } else {
                 mark = editor.setBookmark({line:lineNumber, ch:0}, widgetOptions);
             }
@@ -1605,7 +1605,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         enhancementMove: function(mark, lineDelta) {
 
-            var content, $content, editor, lineNumber, lineMax, position, self;
+            var content, $content, editor, lineLength, lineNumber, lineMax, position, self;
 
             self = this;
             editor = self.codeMirror;
@@ -1613,31 +1613,19 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Get the options we saved previously so we can create a mark with the same options
             options = mark.options;
             
-            lineMax = editor.lineCount();
+            lineMax = editor.lineCount() - 1;
             lineNumber = self.enhancementGetLineNumber(mark) + lineDelta;
 
-            if (options.block) {
-
-                if (lineNumber < 0) {
-                    if (options.above) {
-                        return mark;
-                    } else {
-                        lineNumber = 0;
-                        options.above = true;
-                    }
-                }
-
-                if (lineNumber >= lineMax) {
-                    if (options.above) {
-                        lineNumber = lineMax;
-                        options.above = false;
-                    } else {
-                        return mark;
-                    }
-                }
-                
-            } else if (lineNumber > lineMax || lineNumber < 0) {
+            if (lineNumber < 0) {
                 return mark;
+            }
+            
+            if (lineNumber > lineMax) {
+                
+                // Add another line to the end of the editor
+                lineLength = editor.getLine(lineMax).length;
+                editor.replaceRange('\n', {line:lineMax, ch:lineLength});
+                
             }
 
             // Depending on the type of mark that was created, the content is stored differently
