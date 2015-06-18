@@ -527,7 +527,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     event.stopPropagation();
                     event.preventDefault();
                     
-                    self.enhancementCreate();
+                    self.enhancementCreate({marker:true});
                     break;
 
                 case 'trackChangesToggle':
@@ -850,7 +850,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
 
         /*==================================================
-         * Enhancements
+         * Enhancements and Markers
+         *
          * Enhancements are bits of external content that sit within the editor content.
          * Users can do the following to the enhancement:
          * Create (and select an enhancement object in a popup)
@@ -861,6 +862,27 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          * Move up / down
          * Float left / right / full line
          * Set image size
+         *
+         * Markers are similar to enhancements, but they do not have external content,
+         * they just represent things like page breaks, etc.
+         *
+         * Enhancements and markers are output in the HTML as a BUTTON element:
+         * <button class="enhancement"/>
+         * <button class="enhancement marker"/>
+         *
+         * However, in the the HTML that the rich text editor receives, instead
+         * of a BUTTON element we receive a SPAN element.
+         *
+         * The element has several data elements:
+         *
+         * data-reference
+         * A JSON string that contains information about the enhancement or marker.
+         *
+         * data-alignment
+         * If this exists, "left" will float the enhancement left, "right" will float right.
+         *
+         * data-preview
+         * If this exists, it contains a thumbnail URL for a preview image.
          *==================================================*/
         
         /**
@@ -959,28 +981,41 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
         
         /**
-         * Create a new enhancement.
+         * Create a new enhancement or marker.
          *
          * @param {Object} [config]
-         * Optional data for the enhancement. This is normally used only when importing the enhancment from HTML.
+         * Optional data for the enhancement.
+         *
          * @param {Object} [config.reference]
+         *
          * @param {String} [config.alignment]
          * The alignment for the enhancement: blank, "left", or "right"
          *
+         * @param {Boolean} [config.marker]
+         * Set to true if this is a marker, or omit if this is an enhancement.
+         *
          * @param {Number} [line=current line]
-         * Optional line number.
+         * Optional line number to insert the enhancement.
+         * Omit to insert the enhancement at the current cursor position.
          */
         enhancementCreate: function(config, line) {
 
             var $enhancement, mark, self;
 
             self = this;
+
+            config = config || {};
             
             // Create wrapper element for the enhancement and add the toolbar
             $enhancement = $('<div/>', {
                 'class': 'rte-enhancement'
-            }).append( self.enhancementToolbarCreate() );
+            }).append( self.enhancementToolbarCreate(config) );
 
+            if (config.marker) {
+                $enhancement.addClass('rte-marker');
+            }
+
+            // Add the label (preview image and label text)
             $('<div/>', {'class': 'rte-enhancement-label' }).appendTo($enhancement);
 
             // Add the enhancement to the editor
@@ -992,17 +1027,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 }
             });
 
-            // Save the mark so we can use it to modify the enhancement later
+            // Save the rich text editor mark so we can use it to modify the enhancement later
             self.enhancementSetMark($enhancement, mark);
 
             // If the data for this enhancement was provided, save it as part of the enhancement
-            if (config) {
-
-                // config.id = $content.attr('data-id');
-                // config.reference = $content.attr('data-reference');
-                // config.alignment = $content.attr('data-alignment');
-                // config.preview = $content.attr('data-preview');
-                // config.text = $content.text();
+            if (config.reference) {
 
                 $enhancement.data('rte-enhancement', config.reference);
 
@@ -1017,22 +1046,25 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 // No data was provided so this is a new enhancement.
                 // Pop up the selection form.
                 self.enhancementChange($enhancement);
+                
             }
         },
 
 
         /**
          * Update the enhancement display, based on the enhancement data.
+         * If the enhancement does not have data then remove it.
          */
         enhancementUpdate: function(el) {
             
-            var $content, data, $enhancement, self;
+            var $content, data, $enhancement, emptyText, self;
             
             self = this;
             $enhancement = self.enhancementGetWrapper(el);
             $content = $enhancement.find('.rte-enhancement-label');
-            data = $enhancement.data('rte-enhancement');
-
+            data = $enhancement.data('rte-enhancement') || {};
+            emptyText = self.enhancementIsMarker($enhancement) ? 'Empty Marker' : 'Empty Enhancement';
+            
             if (!data) {
                 self.enhancementRemoveCompletely($enhancement);
                 return;
@@ -1055,7 +1087,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 }).appendTo($content);
                 
             } else {
-                $content.text(data.label || 'Empty Enhancement');
+                $content.text(data.label || emptyText);
             }
         },
 
@@ -1063,12 +1095,20 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
         /**
          * @returns jQuery
          * Returns a jQuery object containing the toolbar.
+         *
+         * @param {Object} [config]
+         * Set of key:value pairs.
+         *
+         * @param {Boolean} [config.marker]
+         * Set to true if this is a marker, or omit if it is an enhancement.
          */
-        enhancementToolbarCreate: function() {
+        enhancementToolbarCreate: function(config) {
 
             var self, $toolbar;
 
             self = this;
+
+            config = config || {};
             
             $toolbar = $('<div/>', {
                 'class': 'rte-enhancement-toolbar'
@@ -1120,21 +1160,26 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             }).appendTo($toolbar);
 
             // TODO: image size selector
-            
+
             $('<a/>', {
-                href: CONTEXT_PATH + '/enhancementSelect',
+                href: CONTEXT_PATH + (config.marker ? '/content/marker.jsp' : '/enhancementSelect'),
                 target: self.enhancementGetTarget(),
                 text: 'Select', // Note this web be updated to "Change" once an enhancement is selected
                 'class': 'rte-enhancement-toolbar-change'
             }).appendTo($toolbar);
-            
-            $('<a/>', {
-                href: CONTEXT_PATH + '/content/enhancement.jsp', // Note this url will be modified to add the enhancement id
-                target: self.enhancementGetTarget(),
-                text: 'Edit',
-                'class': 'rte-enhancement-toolbar-edit'
-            }).on('click', function(){
-            }).appendTo($toolbar);
+
+            // Add the "Edit" button for an enhancement but not for a marker
+            if (!config.marker) {
+                
+                $('<a/>', {
+                    href: CONTEXT_PATH + '/content/enhancement.jsp', // Note this url will be modified to add the enhancement id
+                    target: self.enhancementGetTarget(),
+                    text: 'Edit',
+                    'class': 'rte-enhancement-toolbar-edit'
+                }).on('click', function(){
+                }).appendTo($toolbar);
+                
+            }
             
             // CSS is used to hide this when the toBeRemoved class is set on the enhancement
             $('<a/>', {
@@ -1309,7 +1354,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             }
 
             return pos || '';
-
         },
 
         
@@ -1369,6 +1413,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
 
         /**
+         * Returns true if the enhancement is a marker.
+         *
+         * @param {Element} el
+         * The enhancement element, or an element within the enhancement.
+         *
+         * @returns {Boolean}
+         */
+        enhancementIsMarker: function(el) {
+
+            var self = this;
+            var $enhancement = self.enhancementGetWrapper(el);
+            return $enhancement.hasClass('rte-marker');
+        },
+
+        
+        /**
          * Convert an enhancement into HTML for output.
          *
          * @param Element el
@@ -1379,12 +1439,14 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          */
         enhancementToHTML: function(el) {
             
-            var alignment, data, $enhancement, html, $html, id, self;
+            var alignment, data, $enhancement, html, $html, id, isMarker, self;
 
             self = this;
 
             $enhancement = self.enhancementGetWrapper(el);
 
+            isMarker = self.enhancementIsMarker($enhancement);
+            
             // If the enhancement is marked to be removed?
             if (self.enhancementIsToBeRemoved($enhancement)) {
                 return '';
@@ -1407,6 +1469,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     text: data.label || ''
                 });
 
+                if (isMarker) {
+                    $html.addClass('marker');
+                }
+                
                 if (data.preview) {
                     $html.attr('data-preview', data.preview);
                 }
@@ -1447,11 +1513,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                 config.reference = {};
             }
              
+            config.marker = $content.hasClass('marker');
+            
             config.id = $content.attr('data-id');
             config.alignment = $content.attr('data-alignment');
             config.preview = $content.attr('data-preview');
             config.text = $content.text();
-
+            
             self.enhancementCreate(config, line);
         },
         

@@ -2495,8 +2495,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         if (enhancementHTML) {
 
-                            enhancementHTML = '<div class="rte-enhancement-content">' + enhancementHTML + '</div>';
-                            
                             if (mark.above) {
                                 html += enhancementHTML;
                             } else {
