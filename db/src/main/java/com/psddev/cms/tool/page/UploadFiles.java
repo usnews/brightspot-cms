@@ -14,12 +14,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspFactory;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.psddev.cms.db.BulkUploadDraft;
+import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
@@ -32,6 +39,7 @@ import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
+import com.psddev.dari.util.CapturingResponse;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
@@ -59,7 +67,7 @@ public class UploadFiles extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         if (page.paramOrDefault(Boolean.class, "writeInputsOnly", false)) {
-            writeFileInput(page);
+            writeFileInput(this, page);
         } else {
             reallyDoService(page);
         }
@@ -414,7 +422,7 @@ public class UploadFiles extends PageServlet {
         page.writeEnd();
     }
 
-    public static void writeFileInput(ToolPageContext page) throws IOException, ServletException {
+    public static void writeFileInput(Servlet servlet, ToolPageContext page) throws IOException, ServletException {
 
         String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"), "file");
         String pathName = inputName + ".path";
@@ -424,7 +432,40 @@ public class UploadFiles extends PageServlet {
             return;
         }
 
-        page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
+        HttpServletResponse response = page.getResponse();
+        JspFactory jspFactory = JspFactory.getDefaultFactory();
+        CapturingResponse responseWrapper = new CapturingResponse(response);
+        PageContext pageContext = jspFactory.getPageContext(servlet, page.getRequest(), responseWrapper, null, false, 0, false);
+        ImageTag imageTag = new ImageTag();
+        imageTag.setPageContext(pageContext);
+        StorageItem newStorageItem = StorageItem.Static.createIn(Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING));
+        newStorageItem.setPath(path);
+        imageTag.setSrc(newStorageItem);
+        imageTag.setWidth("170");
+        doTag(imageTag, pageContext);
+
+        response.setContentType("text/html");
+        page.writeStart("div");
+            page.write(responseWrapper.getOutput());
+            page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
+        page.writeEnd();
+    }
+
+    private static void doTag(TagSupport tagSupport, PageContext pageContext) {
+        try {
+            tagSupport.doStartTag();
+            if (tagSupport instanceof BodyTagSupport) {
+                ((BodyTagSupport) tagSupport).setBodyContent(pageContext.pushBody());
+                ((BodyTagSupport) tagSupport).doInitBody();
+            }
+            tagSupport.doAfterBody();
+            tagSupport.doAfterBody();
+            tagSupport.doEndTag();
+            pageContext.popBody();
+            tagSupport.release();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     private static ObjectField getPreviewField(ObjectType type) {

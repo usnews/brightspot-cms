@@ -164,7 +164,9 @@ function ($, bsp_utils, evaporate) {
           dataType: 'html',
           data: params
         }).done(function (html) {
-          $inputSmall.prepend(html);
+          var $html = $(html);
+          $uploadPreview.prepend($html.find('img'));
+          $inputSmall.prepend($html.find('input'));
         });
       }
 
