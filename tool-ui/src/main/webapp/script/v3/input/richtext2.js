@@ -210,6 +210,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          * @property {Boolean} separator
          * Set this and no other properties to add a separator between groups of toolbar icons.
          *
+         * @property {Boolean} [inline=true]
+         * Set this explicitely to false to hide a button when in "inline" mode.
+         * If unset or set to true, the button will appear even in inline mode.
+         *
          * @property {String} action
          * The name of a supported toolbar action. The following are supported:
          *
@@ -250,32 +254,38 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          * Note it is assumed that submenu items are mutually exclusive.
          */
         toolbarConfig: [
-            { style: 'bold', text: 'B', className: 'rte-toolbar-bold' },
-            { style: 'italic', text: 'I', className: 'rte-toolbar-italic' },
-            { style: 'underline', text: 'U', className: 'rte-toolbar-underline' },
-            { style: 'strikethrough', text: 'S', className: 'rte-toolbar-strikethrough' },
-            { style: 'superscript', text: 'Super', className: 'rte-toolbar-superscript' },
-            { style: 'subscript', text: 'Sub', className: 'rte-toolbar-subscript' },
+            
+            { style: 'bold', text: 'B', className: 'rte-toolbar-bold', tooltip: 'Bold' },
+            { style: 'italic', text: 'I', className: 'rte-toolbar-italic', tooltip: 'Italic' },
+            { style: 'underline', text: 'U', className: 'rte-toolbar-underline', tooltip: 'Underline' },
+            { style: 'strikethrough', text: 'S', className: 'rte-toolbar-strikethrough', tooltip: 'Strikethrough' },
+            { style: 'superscript', text: 'Super', className: 'rte-toolbar-superscript', tooltip: 'Superscript' },
+            { style: 'subscript', text: 'Sub', className: 'rte-toolbar-subscript', tooltip: 'Subscript' },
+            { action: 'clear', text: 'Clear', className: 'rte-toolbar-clear', tooltip: 'Clear Formatting' },
+
             { separator:true },
-            { style: 'quote', text: 'Quote', className: 'rte-toolbar-quote' },
-            { action:'collapse', text: 'Collapse', className: 'rte-toolbar-quote-collapse', collapseStyle: 'quote' },
+            { style: 'quote', text: 'Quote', className: 'rte-toolbar-quote', tooltip: 'Quote' },
+            { action:'collapse', text: 'Collapse', className: 'rte-toolbar-quote-collapse', collapseStyle: 'quote', tooltip: 'Collapse Quote' },
+
+            { separator:true, inline:false },
+            { style: 'ul', text: '&bull;', className: 'rte-toolbar-ul', tooltip: 'Bullet List', inline:false },
+            { style: 'ol', text: '1.', className: 'rte-toolbar-ol', tooltip: 'Numbered List', inline:false },
+            
+            { separator:true, inline:false },
+            { style: 'alignLeft', text: 'Left', className: 'rte-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'], tooltip: 'Left Align', inline:false },
+            { style: 'alignCenter', text: 'Center', className: 'rte-toolbar-align-center', tooltip: 'Center Align', inline:false },
+            { style: 'alignRight', text: 'Right', className: 'rte-toolbar-align-right', tooltip: 'Right Align', inline:false },
+            
             { separator:true },
-            { style: 'ul', text: '&bull;', className: 'rte-toolbar-ul' },
-            { style: 'ol', text: '1.', className: 'rte-toolbar-ol' },
+            { style: 'link', text: 'Link', className: 'rte-toolbar-link', tooltip: 'Link' },
+            { action:'enhancement', text: 'Enhancement', className: 'rte-toolbar-enhancement', tooltip: 'Add Enhancement', inline:false },
+            { action:'marker', text: 'Marker', className: 'rte-toolbar-marker', tooltip: 'Add Marker', inline:false },
+            
             { separator:true },
-            { style: 'link', text: 'Link', className: 'rte-toolbar-link' },
-            { separator:true },
-            { style: 'alignLeft', text: 'Left', className: 'rte-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'] },
-            { style: 'alignCenter', text: 'Center', className: 'rte-toolbar-align-center' },
-            { style: 'alignRight', text: 'Right', className: 'rte-toolbar-align-right' },
-            { separator:true },
-            { action:'enhancement', text: 'Enhancement', className: 'rte-toolbar-enhancement'  },
-            { action:'marker', text: 'Marker', className: 'rte-toolbar-marker'  },
-            { separator:true },
-            { action:'trackChangesToggle', text: 'Track Changes', className: 'rte-toolbar-track-changes' },
-            { action:'trackChangesAccept', text: 'Accept', className: 'rte-toolbar-track-changes-accept' },
-            { action:'trackChangesReject', text: 'Reject', className: 'rte-toolbar-track-changes-reject' },
-            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte-toolbar-track-changes-show-final' }
+            { action:'trackChangesToggle', text: 'Track Changes', className: 'rte-toolbar-track-changes', tooltip: 'Toggle Track Changes' },
+            { action:'trackChangesAccept', text: 'Accept', className: 'rte-toolbar-track-changes-accept', tooltip: 'Accept a Change' },
+            { action:'trackChangesReject', text: 'Reject', className: 'rte-toolbar-track-changes-reject', tooltip: 'Reject a Change' },
+            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte-toolbar-track-changes-show-final', tooltip: 'Toggle Show Final' }
         ],
 
         
@@ -302,7 +312,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
          */
         doOnSubmit: true,
 
-       
+
+        /**
+         * @param {Boolean} inline
+         * Operate in "inline" mode?
+         * This will hide certain toolbar icons such as enhancements.
+         */
+        inline: false,
+
+        
         /**
          * Initialize the rich text editor.
          *
@@ -437,10 +455,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
 
                 var $item;
 
+                // Skip inline toolbar items if this is an inline editor
+                if (self.inline && item.inline === false) {
+                    return;
+                }
+
                 if (item.separator) {
                     
                     // Add a separator between items
-                    $item = $('<span/>', {'class':'rte-toolbar-separator', text:' | '}).appendTo($toolbar);
+                    $item = $('<span/>', {'class':'rte-toolbar-separator', text:' '}).appendTo($toolbar);
                     
                 } else if (item.submenu) {
                     
@@ -454,6 +477,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                         href: '#',
                         'class': item.className || '',
                         html: item.text || '',
+                        title: item.tooltip || '',
                         data: {
                             toolbarConfig:item
                         }
@@ -1556,16 +1580,30 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
     // Expose as a jQuery plugin.
     $.plugin2('rte', {
         
-        _defaultOptions: { },
+        _defaultOptions: {
+            inline:false
+        },
 
         _create: function(input) {
             
-            var options, rte;
+            var inline, $input, options, rte;
+
+            $input = $(input);
             
+            // ??? Not really sure how plugin2 works, just copying existing code
+            
+            // Get the options from the element
             options = this.option();
 
-            $.data(input, 'rte-options', $.extend(true, { }, options));
+            inline = $input.data('inline');
+            if (inline !== undefined) {
+                options.inline = inline;
+            }
+            
+            // ???
+            $input.data('rte-options', $.extend(true, { }, options));
 
+            
             rte = Object.create(Rte);
             rte.init(input, options);
             
