@@ -35,7 +35,7 @@ function ($, bsp_utils, evaporate) {
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
 
-          _beforeUpload(file, $inputSmall, i);
+          _beforeUpload($this, file, $inputSmall, i);
           var filePath = state.pathStart + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
@@ -68,13 +68,13 @@ function ($, bsp_utils, evaporate) {
         }
       });
 
-      function _beforeUpload(file, $inputSmall, index) {
+      function _beforeUpload($this, file, $inputSmall, index) {
         var $fileSelector = $inputSmall.find('.fileSelector').first();
 
           $inputSmall.append(_createProgressHtml());
           var $uploadPreview = $inputSmall.find('.upload-preview').eq(index);
 
-          if (file.type.match('image.*')) {
+          if (file.type.match('image.*') && !($this.attr('multiple'))) {
             _displayImgPreview($uploadPreview.find('img').first(), file);
           } else {
             _displayDefaultPreview($uploadPreview);
