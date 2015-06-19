@@ -1143,6 +1143,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Up',
+                title: 'Move Up',
                 'class': 'rte-enhancement-toolbar-up'
             }).on('click', function(){
                 self.enhancementMove(this, -1);
@@ -1152,15 +1153,21 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Down',
+                title: 'Move Down',
                 'class': 'rte-enhancement-toolbar-down'
             }).on('click', function(){
                 self.enhancementMove(this, +1);
                 return false;
             }).appendTo($toolbar);
-    
+            
+            $('<span/>', {
+                'class': 'rte-toolbar-separator'
+            }).appendTo($toolbar);
+            
             $('<a/>', {
                 href: '#',
                 text: 'Left',
+                title: 'Position Left',
                 'class': 'rte-enhancement-toolbar-left'
             }).on('click', function(){
                 self.enhancementSetPosition(this, 'left');
@@ -1170,6 +1177,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Full',
+                title: 'Position Full Line',
                 'class': 'rte-enhancement-toolbar-full'
             }).on('click', function(){
                 self.enhancementSetPosition(this, 'full');
@@ -1179,18 +1187,24 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Right',
+                title: 'Position Right',
                 'class': 'rte-enhancement-toolbar-right'
             }).on('click', function(){
                 self.enhancementSetPosition(this, 'right');
                 return false;
             }).appendTo($toolbar);
 
+            $('<span/>', {
+                'class': 'rte-toolbar-separator'
+            }).appendTo($toolbar);
+            
             // TODO: image size selector
 
             $('<a/>', {
                 href: CONTEXT_PATH + (config.marker ? '/content/marker.jsp' : '/enhancementSelect'),
                 target: self.enhancementGetTarget(),
                 text: 'Select', // Note this web be updated to "Change" once an enhancement is selected
+                title: 'Select',
                 'class': 'rte-enhancement-toolbar-change'
             }).appendTo($toolbar);
 
@@ -1201,6 +1215,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
                     href: CONTEXT_PATH + '/content/enhancement.jsp', // Note this url will be modified to add the enhancement id
                     target: self.enhancementGetTarget(),
                     text: 'Edit',
+                    title: 'Edit',
                     'class': 'rte-enhancement-toolbar-edit'
                 }).on('click', function(){
                 }).appendTo($toolbar);
@@ -1211,6 +1226,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Remove',
+                title: 'Remove',
                 'class': 'rte-enhancement-toolbar-remove'
             }).on('click', function(){
                 self.enhancementRemove(this); // Mark to be removed
@@ -1221,6 +1237,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Restore',
+                title: 'Restore',
                 'class': 'rte-enhancement-toolbar-restore'
             }).on('click', function(){
                 self.enhancementRestore(this, false);  // Erase the to be removed mark
@@ -1231,6 +1248,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup'], function($,
             $('<a/>', {
                 href: '#',
                 text: 'Remove Completely',
+                title: 'Remove Completely',
                 'class': 'rte-enhancement-toolbar-remove-completely'
             }).on('click', function(){
                 self.enhancementRemoveCompletely(this);

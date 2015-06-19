@@ -23,6 +23,10 @@
     }
   }
 
+  span {
+    background-color:transparent;
+  }
+  
   a {
     .link {
       color: @color-text;
@@ -89,11 +93,11 @@
   .rte-enhancement-toolbar-left { .icon; .icon-arrow-left; }
   .rte-enhancement-toolbar-right { .icon; .icon-arrow-right; }
   .rte-enhancement-toolbar-full { .icon; .icon-resize-full; }
-  .rte-enhancement-toolbar-remove { .icon; .icon-remove; color: @color-remove }
-  .rte-enhancement-toolbar-restore { .icon; .icon-undo; display:none; }
-  .rte-enhancement-toolbar-remove-completely { .icon; .icon-remove; color: @color-remove; display:none; }
-  .rte-enhancement-toolbar-change { .icon; .icon-random; }
-  .rte-enhancement-toolbar-edit { .icon; .icon-pencil; }
+  .rte-enhancement-toolbar-remove { .icon; .icon-remove; color: @color-remove; width:auto; padding-right:0.5em; }
+  .rte-enhancement-toolbar-restore { .icon; .icon-undo; width:auto; padding-right:0.5em; display:none; }
+  .rte-enhancement-toolbar-remove-completely { .icon; .icon-remove; color: @color-remove; width:auto; padding-right:0.5em; display:none; }
+  .rte-enhancement-toolbar-change { .icon; .icon-random; width:auto; padding-right:0.5em; }
+  .rte-enhancement-toolbar-edit { .icon; .icon-pencil; width:auto; padding-right:0.5em; }
 }
 
 .rte-enhancement.toBeRemoved {
