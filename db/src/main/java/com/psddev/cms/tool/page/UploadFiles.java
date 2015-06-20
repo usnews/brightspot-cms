@@ -17,10 +17,6 @@ import java.util.UUID;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspFactory;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
@@ -39,7 +35,6 @@ import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AggregateException;
-import com.psddev.dari.util.CapturingResponse;
 import com.psddev.dari.util.ErrorUtils;
 import com.psddev.dari.util.ImageMetadataMap;
 import com.psddev.dari.util.IoUtils;
@@ -433,39 +428,16 @@ public class UploadFiles extends PageServlet {
         }
 
         HttpServletResponse response = page.getResponse();
-        JspFactory jspFactory = JspFactory.getDefaultFactory();
-        CapturingResponse responseWrapper = new CapturingResponse(response);
-        PageContext pageContext = jspFactory.getPageContext(servlet, page.getRequest(), responseWrapper, null, false, 0, false);
-        ImageTag imageTag = new ImageTag();
-        imageTag.setPageContext(pageContext);
         StorageItem newStorageItem = StorageItem.Static.createIn(Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING));
         newStorageItem.setPath(path);
-        imageTag.setSrc(newStorageItem);
-        imageTag.setWidth("170");
-        doTag(imageTag, pageContext);
+        ImageTag.Builder imageTagBuilder = new ImageTag.Builder(newStorageItem);
+        imageTagBuilder.setWidth(170);
 
         response.setContentType("text/html");
         page.writeStart("div");
-            page.write(responseWrapper.getOutput());
+            page.write(imageTagBuilder.toHtml());
             page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
         page.writeEnd();
-    }
-
-    private static void doTag(TagSupport tagSupport, PageContext pageContext) {
-        try {
-            tagSupport.doStartTag();
-            if (tagSupport instanceof BodyTagSupport) {
-                ((BodyTagSupport) tagSupport).setBodyContent(pageContext.pushBody());
-                ((BodyTagSupport) tagSupport).doInitBody();
-            }
-            tagSupport.doAfterBody();
-            tagSupport.doAfterBody();
-            tagSupport.doEndTag();
-            pageContext.popBody();
-            tagSupport.release();
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     private static ObjectField getPreviewField(ObjectType type) {
