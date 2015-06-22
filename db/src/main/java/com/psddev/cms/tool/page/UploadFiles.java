@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
@@ -62,7 +61,7 @@ public class UploadFiles extends PageServlet {
     @Override
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         if (page.paramOrDefault(Boolean.class, "writeInputsOnly", false)) {
-            writeFileInput(this, page);
+            writeFileInput(page);
         } else {
             reallyDoService(page);
         }
@@ -417,7 +416,7 @@ public class UploadFiles extends PageServlet {
         page.writeEnd();
     }
 
-    public static void writeFileInput(Servlet servlet, ToolPageContext page) throws IOException, ServletException {
+    public static void writeFileInput(ToolPageContext page) throws IOException, ServletException {
 
         String inputName = ObjectUtils.firstNonBlank(page.param(String.class, "inputName"), (String) page.getRequest().getAttribute("inputName"), "file");
         String pathName = inputName + ".path";
