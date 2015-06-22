@@ -13,10 +13,12 @@ env:
 cache:
   directories:
     - $HOME/.m2
+    - tool-ui/bower_components
+    - tool-ui/node_modules
 
 install: mvn dependency:resolve
 
-script: mvn -Plibrary verify
+script: mvn -o -Plibrary verify
 
 after_success:
   - etc/deploy.sh
