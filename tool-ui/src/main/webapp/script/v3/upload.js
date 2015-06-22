@@ -20,7 +20,7 @@ function ($, bsp_utils, evaporate) {
         if (settingsMeta.size() === 0) {
           return;
         }
-
+        state.evaporateConfig = settingsMeta.attr('content');
         state.fieldName = settingsMeta.attr('data-field-name');
         state.pathStart = settingsMeta.attr('data-path-start');
         state.storage = settingsMeta.attr('data-storage');
@@ -32,14 +32,24 @@ function ($, bsp_utils, evaporate) {
           $this.hide();
         }
 
+        state.evaporators = [ ];
+
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
 
-          _beforeUpload($this, file, $inputSmall, i);
+          // Create up to 5 evaporators for concurrency
+          if (state.evaporators.length < 5) {
+            state.evaporators.push(new Evaporate(JSON.parse(state.evaporateConfig)));
+          } else {
+            var shifted = state.evaporators.shift();
+            state.evaporators.push(shifted);
+          }
+
+          _beforeUpload(file, $inputSmall, i);
           var filePath = state.pathStart + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
-            new Evaporate(JSON.parse(settingsMeta.attr('content'))).add({
+            state.evaporators[state.evaporators.length - 1].add({
               name: filePath,
               file: file,
               notSignedHeadersAtInitiate: {
