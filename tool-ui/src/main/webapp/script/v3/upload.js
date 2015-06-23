@@ -45,7 +45,7 @@ function ($, bsp_utils, evaporate) {
             state.evaporators.push(shifted);
           }
 
-          _beforeUpload(file, $inputSmall, i);
+          _beforeUpload($this, file, $inputSmall, i);
           var filePath = state.pathStart + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
