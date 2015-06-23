@@ -1,9 +1,21 @@
 .rte-toolbar {
+
+  background-color: fade(white, 93%);
+  border-bottom: 1px solid @color-separator;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  margin-bottom: 5px;
+  padding-top:5px;
+  position: relative;
+  vertical-align: top;
+  
+  z-index:3; // Give a higher z-index than the rich text editor
+  
+  .state-disabled & {
+    display: none;
+  }
   
   a, span {
-    background-color: white;
-    background-position: center;
-    background-repeat: no-repeat;
     color: @color-placeholder;
     cursor: pointer;
     display: inline-block;
@@ -88,6 +100,11 @@
 }
 
 .rte-enhancement-toolbar:extend(.rte-toolbar all) {
+
+  background-color: transparent;
+  border-style: none;
+  padding: 0;
+
   .rte-enhancement-toolbar-up { .icon; .icon-arrow-up; }
   .rte-enhancement-toolbar-down { .icon; .icon-arrow-down; }
   .rte-enhancement-toolbar-left { .icon; .icon-arrow-left; }
@@ -210,4 +227,29 @@
       padding-right:0.25em;
     }
   }
+
+  .rte-enhancement {
+  
+    .background-striped(@color-heading);
+    box-sizing: border-box;
+    padding: 4px;
+
+    figure {
+      height: 153px;
+    }
+
+    img {
+      max-height: 100%;
+      max-width: 100%;
+    }
+
+    a {
+      color: @color-placeholder;
+
+      &:hover {
+        background-color: fade(white, 93%);
+      }
+    }
+  }
 }
+
