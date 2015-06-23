@@ -15,11 +15,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.psddev.cms.db.BulkUploadDraft;
+import com.psddev.cms.db.ImageTag;
 import com.psddev.cms.db.Site;
 import com.psddev.cms.db.ToolUi;
 import com.psddev.cms.db.Variation;
@@ -424,7 +426,17 @@ public class UploadFiles extends PageServlet {
             return;
         }
 
-        page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
+        HttpServletResponse response = page.getResponse();
+        StorageItem newStorageItem = StorageItem.Static.createIn(Settings.get(String.class, StorageItem.DEFAULT_STORAGE_SETTING));
+        newStorageItem.setPath(path);
+        ImageTag.Builder imageTagBuilder = new ImageTag.Builder(newStorageItem);
+        imageTagBuilder.setWidth(170);
+
+        response.setContentType("text/html");
+        page.writeStart("div");
+            page.write(imageTagBuilder.toHtml());
+            page.writeTag("input", "type", "hidden", "name", pathName, "value", page.h(path));
+        page.writeEnd();
     }
 
     private static ObjectField getPreviewField(ObjectType type) {
