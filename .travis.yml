@@ -5,10 +5,24 @@ language: java
 jdk:
   - oraclejdk8
 
+env:
+  global:
+    - secure: dDqArCwU822X1otGdfRjWyx4EY7mw+mHe+1UGeK9xORkSzrKYgus6Gk0HQsJ6xtyrdCEojT7b/bViMkEkKEAcZV4CGqQ2Y8a9GO6I1gLswkePxwlPM8cbemDmwa+B7/a1EYqAt+nllb1X4kQTP8++FqmdLvVvzw0nDDHiiswuJs=
+    - secure: VMhgSZRSKRGW32t6gaWOIxuR2astinaNVvmr7Xvlqeut7f+br8PuFDhr2OrAtchDCsGk/5JuWdhYKSVk3jrbJO6ula9pQ/II/qotvpepr5GsLjeBxb7xYePezjSeosMiXvtMqxKYX9PRSPZ5Cva4V5TSKk1Re6QQB4zasSbHaVg=
+
 cache:
   directories:
     - $HOME/.m2
+    - tool-ui/bower_components
+    - tool-ui/node_modules
 
-install: mvn -Dmaven.test.skip=true install
+install: mvn dependency:resolve
 
-script: mvn -Plibrary verify
+script: mvn -o -Plibrary verify
+
+after_success:
+  - etc/deploy.sh
+
+notifications:
+  slack:
+    secure: NCITf3iLtWmffITENdcyd9rfirJvZQICoSRH575QfwhjHhbt2e/BB0emD5e8p8FwPvpz3iuIkhAY9qHt8DRfTxQRgmrUccTPpM2zLb/IeKjxJVvtM7gNgkx7ABwQxK0D6c/ScdCAkc1bzDDgcx7Tjc7EKcEHQRE5esr3Ft8LKKY=
