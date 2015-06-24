@@ -60,6 +60,7 @@ public class ToolUi extends Modification<Object> {
     private String placeholder;
     private String placeholderDynamicText;
     private Boolean placeholderEditable;
+    private String publishButtonText;
     private Boolean referenceable;
     private String referenceableViaClassName;
     private Boolean readOnly;
@@ -345,6 +346,14 @@ public class ToolUi extends Modification<Object> {
 
     public void setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+    }
+
+    public String getPublishButtonText() {
+        return publishButtonText;
+    }
+
+    public void setPublishButtonText(String publishButtonText) {
+        this.publishButtonText = publishButtonText;
     }
 
     public boolean isReadOnly() {
@@ -1108,6 +1117,26 @@ public class ToolUi extends Modification<Object> {
                 ui.setPlaceholderDynamicText(placeholder.dynamicText());
                 ui.setPlaceholderEditable(placeholder.editable());
             }
+        }
+    }
+
+    /**
+     * Specifies the note displayed along with the target in the UI.
+     */
+    @Documented
+    @Inherited
+    @ObjectType.AnnotationProcessorClass(PublishButtonTextProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface PublishButtonText {
+        String value();
+    }
+
+    private static class PublishButtonTextProcessor implements ObjectType.AnnotationProcessor<PublishButtonText> {
+
+        @Override
+        public void process(ObjectType objectType, PublishButtonText annotation) {
+            objectType.as(ToolUi.class).setPublishButtonText(annotation.value());
         }
     }
 
