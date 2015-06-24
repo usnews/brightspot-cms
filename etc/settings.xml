@@ -4,14 +4,26 @@
     <servers>
         <server>
             <id>psddev-releases</id>
-            <username>${env.CI_DEPLOY_USERNAME}</username>
-            <password>${env.CI_DEPLOY_PASSWORD}</password>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Authorization</name>
+                        <value>${env.MAVEN_HEADER_AUTHORIZATION}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
         </server>
 
         <server>
             <id>psddev-snapshots</id>
-            <username>${env.CI_DEPLOY_USERNAME}</username>
-            <password>${env.CI_DEPLOY_PASSWORD}</password>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Authorization</name>
+                        <value>${env.MAVEN_HEADER_AUTHORIZATION}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
         </server>
     </servers>
 </settings>
