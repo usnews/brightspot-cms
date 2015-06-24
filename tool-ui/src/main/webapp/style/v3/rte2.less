@@ -4,6 +4,7 @@
   border-bottom: 1px solid @color-separator;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  margin:0;
   margin-bottom: 5px;
   padding-top:5px;
   position: relative;
@@ -14,8 +15,30 @@
   .state-disabled & {
     display: none;
   }
+
+  li {
+    list-style-type:none;
+    display: inline-block;
+
+    > ul {  // Submenu
+      display:none;
+      margin:0;
+      position:absolute;
+      padding:0.5em;
+      background-color: fade(white, 93%);
+      border:1px solid @color-separator;
+
+      li {
+        display:block;
+      }
+    }
+
+    &:hover > ul { // show submenu
+      display:block;
+    }
+  }
   
-  a, span {
+  a, span, .rte-toolbar-separator {
     color: @color-placeholder;
     cursor: pointer;
     display: inline-block;
@@ -34,6 +57,13 @@
       background-color: @color-link-light;
     }
   }
+
+  .rte-toolbar-submenu {
+    &.active span {
+      background-color: @color-link-light;
+    }
+  }
+  
 
   span {
     background-color:transparent;
@@ -89,12 +119,21 @@
   .rte-toolbar-restore { .icon; .icon-undo; }
   .rte-toolbar-removeCompletely { .icon; .icon-remove; color: @color-remove; }
 
-  .rte-toolbar-separator {
+  .rte-toolbar-custom { width:auto; padding: 0 0.5em; }
+
+  .rte-toolbar-submenu > span {
+    .icon;
+    .icon-caret-right;
     width:auto;
+    padding-right:0.5em;
+    &:before { padding: 0 0 1px 3px; }
+  }
+
+  .rte-toolbar-separator {
+    width:1px;
     margin-left:0.25em;
     margin-right:0.5em;
-    border:4px solid transparent;
-    border-left:1px solid @color-placeholder;
+    border-left:1px solid @color-separator;
     cursor: none;
   }
 }

@@ -2451,7 +2451,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         htmlStartOfLine += openElement(styleObj);
 
                         // Also push this style onto a stack so when we reach the end of the line we can close the element
-                        blockElementsToClose.push(styleObj.element);
+                        blockElementsToClose.push(styleObj);
                         
                     }); // .each
                 }// if line.textClass
@@ -2622,9 +2622,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                 // If we reached end of line, close all the open block elements
                 if (blockElementsToClose.length) {
+                    
                     $.each(blockElementsToClose.reverse(), function() {
                         var element;
-                        element = this;
+                        element = this.element;
                         html += '</' + element + '>\n';
                     });
                     blockElementsToClose = [];
@@ -2814,15 +2815,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         }
 
                         // Add a new line for certain elements
-                        if (self.newLineRegExp.test(elementName)) {
+                        // Add a new line for custom elements
+                        if (self.newLineRegExp.test(elementName)
+                            || (matchStyleObj && matchStyleObj.line)) {
+                            
                             val += '\n';
                         }
 
-                    } // else if
+                    } // else if this is an element...
                     
                     next = next.nextSibling;
                     
-                } // while
+                } // while there is a next sibling...
             } // function processNode
 
             processNode(el);

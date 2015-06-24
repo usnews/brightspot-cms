@@ -22,6 +22,21 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
     // Global variable set by the CMS, typically "/cms/"
     CONTEXT_PATH = window.CONTEXT_PATH || '';
+
+    // Global variable set by the CMS containing custom toolbar styles
+    // For example:
+    // var CSS_CLASS_GROUPS = [
+    //   {"internalName":"PatStylesInternal","dropDown":true,"displayName":"PatStyles","cssClasses":[
+    //     {"internalName":"PatStyle1Internal","displayName":"PatStyle1","tag":"EM"},
+    //     {"internalName":"PatStyle2Internal","displayName":"PatStyle2","tag":"STRONG"}
+    //   ]}];
+
+    // Global variable set by the CMS containing image sizes to be used for enhancements
+    // For example:
+    // var STANDARD_IMAGE_SIZES = [
+    //   {"internalName":"500x500 Square","displayName":"500x500 Square"},
+    //   {"internalName":"640x400","displayName":"640x400"}
+    // ];
     
     Rte = {
 
@@ -214,6 +229,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * Set this explicitely to false to hide a button when in "inline" mode.
          * If unset or set to true, the button will appear even in inline mode.
          *
+         * @property {Boolean} [custom=false]
+         * Placeholder where you want any custom CMS styles to appear in the toolbar.
+         * Set this to true.
+         *
          * @property {String} action
          * The name of a supported toolbar action. The following are supported:
          *
@@ -239,19 +258,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * @example:
          * For a single icon provide the following information:
          * { style: 'bold', text: 'B', className: 'rte-toolbar-bold' },
-         *
-         * @example:
-         * For a drop-down submenu:
-         * {
-         *   text: 'Headings',
-         *   className: 'rte-toolbar-headings',
-         *   submenu: [
-         *     { style: 'h1', text: 'H1', className: 'rte-toolbar-h1' },
-         *     { style: 'h2', text: 'H2', className: 'rte-toolbar-h2' },
-         *   ]
-         * }
-         *
-         * Note it is assumed that submenu items are mutually exclusive.
          */
         toolbarConfig: [
             
@@ -275,7 +281,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { style: 'alignLeft', text: 'Left', className: 'rte-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'], tooltip: 'Left Align', inline:false },
             { style: 'alignCenter', text: 'Center', className: 'rte-toolbar-align-center', tooltip: 'Center Align', inline:false },
             { style: 'alignRight', text: 'Right', className: 'rte-toolbar-align-right', tooltip: 'Right Align', inline:false },
-            
+
+            { custom:true }, // If custom styles exist, insert a separator and custom styles here
+
             { separator:true },
             { style: 'link', text: 'Link', className: 'rte-toolbar-link', tooltip: 'Link' },
             { action:'enhancement', text: 'Enhancement', className: 'rte-toolbar-enhancement', tooltip: 'Add Enhancement', inline:false },
@@ -367,18 +375,112 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             self = this;
 
-            // TODO: determine which styles should be for inline editor only
-            
-            // TODO: add customized styles from the CMS
+            // Add any custom styles from teh global CSS_CLASS_GROUPS variable
+            self.initStylesCustom();
             
             $.each(self.styles, function(i,styleObj) {
 
                 // Modify the onClick function so it is called in the context of our object,
-                // to allow the onclick function access to other functions
+                // to allow the onclick function access to other RTE functions
                 if (styleObj.onClick) {
                     styleObj.onClick = $.proxy(styleObj.onClick, self);
                 }
             });
+        },
+
+
+        /**
+         * Add CMS-defined styles to the rich text editor.
+         * These styles come from a global variable set by the CMS.
+         * These styles always apply to the entire line.
+         * For example:
+         *
+         * var CSS_CLASS_GROUPS = [
+         *   {"internalName":"MyStyles","dropDown":true,"displayName":"My Styles","cssClasses":[
+         *     {"internalName":"MyStyle1","displayName":"My Style 1","tag":"H1"},
+         *     {"internalName":"MyStyle2","displayName":"My Style 2","tag":"H2"}
+         *   ]},
+         *   {"internalName":"OtherStyles","dropDown":false,"displayName":"Other","cssClasses":[
+         *     {"internalName":"Other1","displayName":"Other 1","tag":"B"},
+         *     {"internalName":"Other2","displayName":"Other 2","tag":"EM"}
+         *   ]}
+         * ];
+         */
+        initStylesCustom: function() {
+            
+            var stylesCustom, self;
+            
+            self = this;
+            
+            // Add customized styles from the CMS
+            if (window.CSS_CLASS_GROUPS) {
+
+                // List of new style definitions
+                stylesCustom = {};
+                
+                $.each(window.CSS_CLASS_GROUPS, function() {
+
+                    var group, groupName;
+                
+                    group = this;
+                    groupName = 'cms-' + group.internalName;
+
+                    // Loop through all the styles in this group
+                    $.each(group.cssClasses, function() {
+
+                        var classConfig, cmsClassName, rteClassName, styleDef;
+                    
+                        classConfig = this;
+
+                        // Which class name should be used for this style?
+                        // This is used to export and import the HTML 
+                        // For example:
+                        // cms-groupInternalName-classInternalName
+                        cmsClassName = groupName + '-' + classConfig.internalName;
+
+                        // Only within the rich text editor, which class name should be used to style the text?
+                        // For example:
+                        // rte-cms-groupInternalName-classInternalName
+                        rteClassName = 'rte-style-' + cmsClassName;
+
+                        // Define the custom style that will be used to export/import HTML
+                        styleDef = {
+
+                            // All custom styles will be inline (not block)
+                            line:false,
+                        
+                            // Classname to use for this style only within the rich text editor
+                            className: rteClassName,
+
+                            // The HTML element and class name to output for this style
+                            element: classConfig.tag.toLowerCase(),
+                            elementAttr: {
+                                'class': cmsClassName
+                            }
+                        };
+                    
+                        // Add the style definition to our master list of styles
+                        // For example, at the end of this you might have something like the following:
+                        //
+                        // self.styles['rte-style-cms-MyStyles-MyStyle1'] = {
+                        //   line:true,
+                        //   className: 'rte-style-cms-MyStyles-MyStyle1',
+                        //   element: 'h1',
+                        //   class: 'cms-MyStyles-MyStyle1'
+                        // }
+                        //
+                        // And that should output HTML like the following:
+                        // <h1 class="cms-MyStyles-MyStyle1">text here</h1>
+                        
+                        stylesCustom[ rteClassName ] = styleDef;
+
+                    }); // each group.cssClasses
+                }); // each window.CSS_CLASS_GROUPS
+
+                // Create a new styles definition, with custom styles listed first
+                self.styles = $.extend(true, {}, stylesCustom, self.styles);
+                
+            } // if window.CSS_CLASS_GROUPS
         },
 
 
@@ -442,7 +544,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self = this;
 
             // Set up the toolbar container
-            $toolbar = $('<div/>', {'class': 'rte-toolbar'});
+            $toolbar = $('<ul/>', {'class': 'rte-toolbar'});
             if (self.toolbarLocation) {
                 $toolbar.appendTo(self.toolbarLocation);
             } else {
@@ -463,30 +565,21 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 if (item.separator) {
                     
                     // Add a separator between items
-                    $item = $('<span/>', {'class':'rte-toolbar-separator', text:' '}).appendTo($toolbar);
+                    self.toolbarAddSeparator();
                     
                 } else if (item.submenu) {
                     
                     // This is a submenu
                     console.log('rte toolbar submenu not yet implemented');
+
+                } else if (item.custom) {
+
+                    self.toolbarInitCustom();
                     
                 } else {
-
-                    // This is a toolbar button
-                    $item = $('<a/>', {
-                        href: '#',
-                        'class': item.className || '',
-                        html: item.text || '',
-                        title: item.tooltip || '',
-                        data: {
-                            toolbarConfig:item
-                        }
-                    }).appendTo($toolbar);
-
-                    $item.on('click', function(event) {
-                        event.preventDefault();
-                        self.toolbarHandleClick(item, event);
-                    });
+                    
+                    self.toolbarAddButton(item);
+                    
                 }
             });
 
@@ -503,7 +596,170 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             });
         },
 
-    
+
+        /**
+         * Set up custom styles that were specified in the CMS.
+         * These styles come from a global variable set by the CMS.
+         * For example:
+         *
+         * var CSS_CLASS_GROUPS = [
+         *   {"internalName":"PatStylesInternal","dropDown":true,"displayName":"PatStyles","cssClasses":[
+         *     {"internalName":"PatStyle1Internal","displayName":"PatStyle1","tag":"EM"},
+         *     {"internalName":"PatStyle2Internal","displayName":"PatStyle2","tag":"STRONG"}
+         *   ]},
+         *   {"internalName":"PatStyles2Internal","dropDown":false,"displayName":"PatStyles2","cssClasses":[
+         *     {"internalName":"PatStyle2-1Internal","displayName":"PatStyle2-1","tag":"B"},
+         *     {"internalName":"PatStyle2-2Internal","displayName":"PatStyle2-2","tag":"EM"}
+         *   ]}
+         * ];
+         */
+        toolbarInitCustom: function() {
+            
+            var self = this;
+            var $toolbar = self.$toolbar;
+
+            if (!window.CSS_CLASS_GROUPS) {
+                return;
+            }
+
+            self.toolbarAddSeparator();
+            
+            $.each(window.CSS_CLASS_GROUPS, function() {
+
+                var group, groupName, $submenu;
+                
+                group = this;
+                groupName = 'cms-' + group.internalName;
+
+                // Should the buttons be placed directly in the toolbar are in a drop-down menu?
+                $submenu = self.$toolbar;
+                if (group.dropDown) {
+                    $submenu = self.toolbarAddSubmenu({text:group.displayName});
+                }
+
+                // Loop through all the styles in this group
+                $.each(group.cssClasses, function() {
+
+                    var classConfig, cmsClassName, rteClassName, style, toolbarItem;
+                    
+                    classConfig = this;
+
+                    // Which class name should be used for this style?
+                    // This is used to export and import the HTML 
+                    // For example:
+                    // cms-groupInternalName-classInternalName
+                    cmsClassName = groupName + '-' + classConfig.internalName;
+
+                    // Only within the rich text editor, which class name should be used to style the text?
+                    // For example:
+                    // rte-cms-groupInternalName-classInternalName
+                    rteClassName = 'rte-style-' + cmsClassName;
+
+                    // Configure the toolbar button
+                    toolbarItem = {
+                        style: rteClassName, // The style definition that will be applied
+                        text: classConfig.displayName, // Text for the toolbar button
+                        className: 'rte-toolbar-custom' // Class used to style the toolbar button
+                    };
+
+                    // Create a toolbar button to apply the style
+                    self.toolbarAddButton(toolbarItem, $submenu);
+                });
+            });
+        },
+        
+
+        /**
+         * Add a submenu to the toolbar.
+         *
+         * @param {Object} item
+         * The toolbar item to add.
+         * @param {Object} item.className
+         * @param {Object} item.text
+         * @param {Object} item.tooltip
+         *
+         * @param {Object} [$addToSubmenu]
+         * Optional submenu where the submenu should be added.
+         * If omitted, the submenu is added to the top level of the toolbar.
+         *
+         * @returns {jQuery}
+         * The submenu element where additional buttons can be added.
+         */
+        toolbarAddSubmenu: function(item, $addToSubmenu) {
+            
+            var self = this;
+            var $toolbar = $addToSubmenu || self.$toolbar;
+            var $submenu;
+
+            $submenu = $('<li class="rte-toolbar-submenu"><span></span><ul></ul></li>');
+            $submenu.find('span').html(item.text);
+            $submenu.appendTo($toolbar);
+
+            return $submenu.find('ul');
+        },
+
+
+        /**
+         * Add a button to the toolbar (or to a submenu in the toolbar).
+         *
+         * @param {Object} item
+         * The toolbar item to add.
+         * @param {Object} item.className
+         * @param {Object} item.text
+         * @param {Object} item.tooltip
+         *
+         * @param {Object} [$submenu]
+         * Optional submenu where the button should be added.
+         * If omitted, the button is added to the top level of the toolbar.
+         * If provided this should be the value that was returned by toolbarAddSubmenu()
+         */
+        toolbarAddButton: function(item, $submenu) {
+            
+            var self = this;
+            var $toolbar = $submenu || self.$toolbar;
+            var $button;
+            
+            // This is a toolbar button
+            $button = $('<a/>', {
+                href: '#',
+                'class': item.className || '',
+                html: item.text || '',
+                title: item.tooltip || '',
+                data: {
+                    toolbarConfig:item
+                }
+            })
+
+            $button.on('click', function(event) {
+                event.preventDefault();
+                self.toolbarHandleClick(item, event);
+            });
+
+            $('<li/>').append($button).appendTo($toolbar);
+        },
+
+
+        
+        /**
+         * Add a button to the toolbar (or to a submenu in the toolbar).
+         *
+         * @param {Object} [$submenu]
+         * Optional submenu where the button should be added.
+         * If omitted, the button is added to the top level of the toolbar.
+         * If provided this should be the value that was returned by toolbarAddSubmenu()
+         */
+        toolbarAddSeparator: function($submenu) {
+            
+            var self = this;
+            var $toolbar = $submenu || self.$toolbar;
+            
+            $('<li/>', {
+                'class': 'rte-toolbar-separator',
+                html: '&nbsp;'
+            }).appendTo($toolbar);
+        },
+
+        
         /**
          * When user clicks a toolbar item, do somehting.
          * In general this toggles the style associated with the item,
@@ -613,7 +869,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Then we'll decide which need to be active
             $links = self.$toolbar.find('a');
             $links.removeClass('active');
-
+            self.$toolbar.find('.rte-toolbar-submenu').removeClass('active');
+            
             // Get all the styles defined on the current range
             // Note ALL characters in the range must have the style or it won't be returned
             styles = $.extend({}, rte.inlineGetStyles(), rte.blockGetStyles());
@@ -653,7 +910,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     
                     // Check if the style for this toolbar item is defined for ALL characters in the range
                     if (config.style && styles[config.style] === true) {
+                        
                         $link.addClass('active');
+
+                        // If the link is inside a submenu, mark the submenu as active also
+                        $link.closest('.rte-toolbar-submenu').addClass('active');
+
                     }
 
                     // Special case if we have a toolbar icon that should be active when another set of
