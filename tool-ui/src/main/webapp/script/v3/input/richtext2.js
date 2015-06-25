@@ -3,6 +3,33 @@
 
 define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extra'], function($, CodeMirrorRte) {
 
+    var CONTEXT_PATH, Rte;
+
+    // Global variable set by the CMS, typically "/cms/"
+    CONTEXT_PATH = window.CONTEXT_PATH || '';
+
+    // Global variable set by the CMS containing custom toolbar styles
+    // For example:
+    // var CSS_CLASS_GROUPS = [
+    //   {"internalName":"PatStylesInternal","dropDown":true,"displayName":"PatStyles","cssClasses":[
+    //     {"internalName":"PatStyle1Internal","displayName":"PatStyle1","tag":"EM"},
+    //     {"internalName":"PatStyle2Internal","displayName":"PatStyle2","tag":"STRONG"}
+    //   ]}];
+
+    
+    // Global variable set by the CMS containing image sizes to be used for enhancements
+    // For example:
+    // var STANDARD_IMAGE_SIZES = [
+    //   {"internalName":"500x500 Square","displayName":"500x500 Square"},
+    //   {"internalName":"640x400","displayName":"640x400"}
+    // ];
+
+    
+    // Private variable used to tell if the custom CMS styles have been loaded.
+    // We only need to load them once.
+    var customStylesLoaded = false;
+
+    
     /**
      * @class
      * Rich text editor.
@@ -18,26 +45,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
      * rte = Object.create(Rte);
      * rte.init('#mytextarea');
      */
-    var CONTEXT_PATH, Rte;
-
-    // Global variable set by the CMS, typically "/cms/"
-    CONTEXT_PATH = window.CONTEXT_PATH || '';
-
-    // Global variable set by the CMS containing custom toolbar styles
-    // For example:
-    // var CSS_CLASS_GROUPS = [
-    //   {"internalName":"PatStylesInternal","dropDown":true,"displayName":"PatStyles","cssClasses":[
-    //     {"internalName":"PatStyle1Internal","displayName":"PatStyle1","tag":"EM"},
-    //     {"internalName":"PatStyle2Internal","displayName":"PatStyle2","tag":"STRONG"}
-    //   ]}];
-
-    // Global variable set by the CMS containing image sizes to be used for enhancements
-    // For example:
-    // var STANDARD_IMAGE_SIZES = [
-    //   {"internalName":"500x500 Square","displayName":"500x500 Square"},
-    //   {"internalName":"640x400","displayName":"640x400"}
-    // ];
-    
     Rte = {
 
         /**
@@ -415,6 +422,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Add customized styles from the CMS
             if (window.CSS_CLASS_GROUPS) {
 
+                // Load the custom CMS styles onto the page (if not already loaded)
+                self.loadCMSStyles();
+                
                 // List of new style definitions
                 stylesCustom = {};
                 
@@ -428,7 +438,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // Loop through all the styles in this group
                     $.each(group.cssClasses, function() {
 
-                        var classConfig, cmsClassName, rteClassName, styleDef;
+                        var classConfig, cmsClassName, styleDef;
                     
                         classConfig = this;
 
@@ -438,11 +448,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                         // cms-groupInternalName-classInternalName
                         cmsClassName = groupName + '-' + classConfig.internalName;
 
-                        // Only within the rich text editor, which class name should be used to style the text?
-                        // For example:
-                        // rte-cms-groupInternalName-classInternalName
-                        rteClassName = 'rte-style-' + cmsClassName;
-
                         // Define the custom style that will be used to export/import HTML
                         styleDef = {
 
@@ -450,7 +455,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                             line:false,
                         
                             // Classname to use for this style only within the rich text editor
-                            className: rteClassName,
+                            className: cmsClassName,
 
                             // The HTML element and class name to output for this style
                             element: classConfig.tag.toLowerCase(),
@@ -472,7 +477,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                         // And that should output HTML like the following:
                         // <h1 class="cms-MyStyles-MyStyle1">text here</h1>
                         
-                        stylesCustom[ rteClassName ] = styleDef;
+                        stylesCustom[ cmsClassName ] = styleDef;
 
                     }); // each group.cssClasses
                 }); // each window.CSS_CLASS_GROUPS
@@ -532,7 +537,33 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         },
 
 
+        /**
+         * Load the custom CMS styles onto the page if they are not already present.
+         */
+        loadCMSStyles: function() {
+            var self;
+            self = this;
 
+            // Check the private variable customStylesLoaded to determine if the styles have already been loaded
+            // If there are multiple rich text editors on the page we only want to load the styles once
+            if (window.CSS_CLASS_GROUPS && !customStylesLoaded) {
+
+                customStylesLoaded = true;
+
+                // Loading the style rules via ajax to ensure it is not cached
+                // so we have the latest styles as set in the CMS settings
+                $.ajax({
+                    'url': CONTEXT_PATH + '/style/v3/rte2-cms-styles.jsp',
+                    'cache': false,
+                    'async': false,
+                    'success': function(rules) {
+                        $('<style>' + rules + '</style>').appendTo('head');
+                    }
+                });
+            }
+        },
+
+        
         /*==================================================
          * TOOLBAR 
          *==================================================*/
@@ -640,7 +671,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Loop through all the styles in this group
                 $.each(group.cssClasses, function() {
 
-                    var classConfig, cmsClassName, rteClassName, style, toolbarItem;
+                    var classConfig, cmsClassName, style, toolbarItem;
                     
                     classConfig = this;
 
@@ -650,14 +681,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // cms-groupInternalName-classInternalName
                     cmsClassName = groupName + '-' + classConfig.internalName;
 
-                    // Only within the rich text editor, which class name should be used to style the text?
-                    // For example:
-                    // rte-cms-groupInternalName-classInternalName
-                    rteClassName = 'rte-style-' + cmsClassName;
-
                     // Configure the toolbar button
                     toolbarItem = {
-                        style: rteClassName, // The style definition that will be applied
+                        style: cmsClassName, // The style definition that will be applied
                         text: classConfig.displayName, // Text for the toolbar button
                         className: 'rte-toolbar-custom' // Class used to style the toolbar button
                     };
