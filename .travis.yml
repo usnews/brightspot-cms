@@ -7,7 +7,11 @@ jdk:
 
 env:
   global:
-    - secure: pfQ0YztDBxyLlRboI1ISk6KhI2zQe5ugFF87akt10Bq5mQh3UVrr1YegpBHY9FUiI9V/reGCSb54fi1OGtWFi9jgvZWn4/xkVZhLxwycBUAqP85OQPWQy5hzkerlwL1BNx0wMqMtgP6yPtMwBWrSTSxs+VVAY6hwVCi086uiM90=
+    - secure: "pfQ0YztDBxyLlRboI1ISk6KhI2zQe5ugFF87akt10Bq5mQh3UVrr1YegpBHY9FUiI9V/reGCSb54fi1OGtWFi9jgvZWn4/xkVZhLxwycBUAqP85OQPWQy5hzkerlwL1BNx0wMqMtgP6yPtMwBWrSTSxs+VVAY6hwVCi086uiM90="
+
+install: mvn dependency:go-offline
+
+script: mvn -Plibrary verify
 
 cache:
   directories:
@@ -15,13 +19,9 @@ cache:
     - tool-ui/bower_components
     - tool-ui/node_modules
 
-install: mvn dependency:resolve
-
-script: mvn -o -Plibrary verify
-
 after_success:
-  - etc/deploy.sh
+  - git clone https://github.com/perfectsense/travis-maven-deploy.git && travis-maven-deploy/deploy.sh
 
 notifications:
   slack:
-    secure: NCITf3iLtWmffITENdcyd9rfirJvZQICoSRH575QfwhjHhbt2e/BB0emD5e8p8FwPvpz3iuIkhAY9qHt8DRfTxQRgmrUccTPpM2zLb/IeKjxJVvtM7gNgkx7ABwQxK0D6c/ScdCAkc1bzDDgcx7Tjc7EKcEHQRE5esr3Ft8LKKY=
+    secure: "NCITf3iLtWmffITENdcyd9rfirJvZQICoSRH575QfwhjHhbt2e/BB0emD5e8p8FwPvpz3iuIkhAY9qHt8DRfTxQRgmrUccTPpM2zLb/IeKjxJVvtM7gNgkx7ABwQxK0D6c/ScdCAkc1bzDDgcx7Tjc7EKcEHQRE5esr3Ft8LKKY="
