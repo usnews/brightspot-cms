@@ -33,8 +33,15 @@
       }
     }
 
-    &:hover > ul { // show submenu
-      display:block;
+    &:hover {
+
+      > span {
+        .icon-caret-down;
+      }
+
+      > ul { // show submenu
+        display:block;
+      }
     }
   }
   
@@ -63,7 +70,6 @@
       background-color: @color-link-light;
     }
   }
-  
 
   span {
     background-color:transparent;
@@ -154,6 +160,7 @@
   .rte-enhancement-toolbar-remove-completely { .icon; .icon-remove; color: @color-remove; width:auto; padding-right:0.5em; display:none; }
   .rte-enhancement-toolbar-change { .icon; .icon-random; width:auto; padding-right:0.5em; }
   .rte-enhancement-toolbar-edit { .icon; .icon-pencil; width:auto; padding-right:0.5em; }
+  .rte-enhancement-toolbar-size { width:auto; }
 }
 
 .rte-enhancement.toBeRemoved {
@@ -273,6 +280,11 @@
     box-sizing: border-box;
     padding: 4px;
 
+    .rte-enhancement-label {
+ 
+      position:relative;
+    }
+    
     figure {
       height: 153px;
     }
@@ -288,6 +300,15 @@
       &:hover {
         background-color: fade(white, 93%);
       }
+    }
+
+    .rte-enhancement-size {
+      position:absolute;
+      top:0;
+      left:0;
+      width:auto;
+      background-color: fade(white, 85%);
+      padding:0.25em;
     }
   }
 }

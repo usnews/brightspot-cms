@@ -1337,7 +1337,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 data = $target.data('enhancement');
 
                 // Save the data on the enhancement so it can be used later
-                $enhancement.data('rte-enhancement', data);
+                self.enhancementSetReference($enhancement, data);
 
                 // Modify the Select button in the toolbar
                 $select = $enhancement.find('.rte-enhancement-toolbar-change');
@@ -1358,7 +1358,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             
             // Set up a global close event to determine when the enhancement popup is closed
             // so we can remove the enhancement if nothing was selected.
-            $(document).on('close', '.popup[name ^= "contentEnhancement-"]', function() {
+            $(document).on('close', '.popup[name^="contentEnhancement-"]', function() {
 
                 var $enhancement, $popupTrigger, $popup;
 
@@ -1439,7 +1439,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // If the data for this enhancement was provided, save it as part of the enhancement
             if (config.reference) {
 
-                $enhancement.data('rte-enhancement', config.reference);
+                self.enhancementSetReference($enhancement, config.reference);
 
                 if (config.alignment) {
                     self.enhancementSetPosition($enhancement, config.alignment);
@@ -1463,40 +1463,42 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementUpdate: function(el) {
             
-            var $content, data, $enhancement, emptyText, self;
+            var $content, reference, $enhancement, emptyText, self;
             
             self = this;
             $enhancement = self.enhancementGetWrapper(el);
             $content = $enhancement.find('.rte-enhancement-label');
-            data = $enhancement.data('rte-enhancement');
+            reference = self.enhancementGetReference($enhancement);
             emptyText = self.enhancementIsMarker($enhancement) ? 'Empty Marker' : 'Empty Enhancement';
             
-            if (!data) {
+            if (!reference) {
                 self.enhancementRemoveCompletely($enhancement);
                 return;
             }
 
             $content.empty();
             
-            if (data.preview) {
+            if (reference.preview) {
                 
                 $('<figure/>', {
                     html: [
                         $('<img/>', {
-                            src: data.preview,
-                            title: data.label || ''
+                            src: reference.preview,
+                            title: reference.label || ''
                         }),
                         $('<figcaption/>', {
-                            text: data.label || ''
+                            text: reference.label || ''
                         })
                     ]
                 }).appendTo($content);
                 
             } else {
                 
-                $content.text(data.label || emptyText);
+                $content.text(reference.label || emptyText);
                 
             }
+
+            self.enhancementDisplaySize();
         },
 
         
@@ -1512,135 +1514,241 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementToolbarCreate: function(config) {
 
-            var self, $toolbar;
+            var self, sizes, $sizesSubmenu, $toolbar;
 
             self = this;
 
             config = config || {};
             
-            $toolbar = $('<div/>', {
+            $toolbar = $('<ul/>', {
                 'class': 'rte-enhancement-toolbar'
             });
 
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Up',
-                title: 'Move Up',
-                'class': 'rte-enhancement-toolbar-up'
-            }).on('click', function(){
-                self.enhancementMove(this, -1);
-                return false;
-            }).appendTo($toolbar);
-    
-            $('<a/>', {
-                href: '#',
+                tooltip: 'Move Up',
+                className: 'rte-enhancement-toolbar-up',
+                onClick: function() {
+                    self.enhancementMove($toolbar, -1);
+                }
+            }, $toolbar);
+            
+            self.enhancementToolbarAddButton({
                 text: 'Down',
-                title: 'Move Down',
-                'class': 'rte-enhancement-toolbar-down'
-            }).on('click', function(){
-                self.enhancementMove(this, +1);
-                return false;
-            }).appendTo($toolbar);
+                tooltip: 'Move Down',
+                className: 'rte-enhancement-toolbar-down',
+                onClick: function() {
+                    self.enhancementMove($toolbar, +1);
+                }
+            }, $toolbar);
             
-            $('<span/>', {
-                'class': 'rte-toolbar-separator'
-            }).appendTo($toolbar);
+            self.enhancementToolbarAddSeparator($toolbar);
             
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Left',
-                title: 'Position Left',
-                'class': 'rte-enhancement-toolbar-left'
-            }).on('click', function(){
-                self.enhancementSetPosition(this, 'left');
-                return false;
-            }).appendTo($toolbar);
-    
-            $('<a/>', {
-                href: '#',
+                tooltip: 'Position Left',
+                className: 'rte-enhancement-toolbar-left',
+                onClick: function() {
+                    self.enhancementSetPosition($toolbar, 'left');
+                }
+            }, $toolbar);
+
+            self.enhancementToolbarAddButton({
                 text: 'Full',
-                title: 'Position Full Line',
-                'class': 'rte-enhancement-toolbar-full'
-            }).on('click', function(){
-                self.enhancementSetPosition(this, 'full');
-                return false;
-            }).appendTo($toolbar);
+                tooltip: 'Position Full Line',
+                className: 'rte-enhancement-toolbar-full',
+                onClick: function() {
+                    self.enhancementSetPosition($toolbar, 'full');
+                }
+            }, $toolbar);
 
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Right',
-                title: 'Position Right',
-                'class': 'rte-enhancement-toolbar-right'
-            }).on('click', function(){
-                self.enhancementSetPosition(this, 'right');
-                return false;
-            }).appendTo($toolbar);
+                tooltip: 'Position Right',
+                className: 'rte-enhancement-toolbar-right',
+                onClick: function() {
+                    self.enhancementSetPosition($toolbar, 'right');
+                }
+            }, $toolbar);
 
-            $('<span/>', {
-                'class': 'rte-toolbar-separator'
-            }).appendTo($toolbar);
+            //*** Image Sizes ***
+
+            sizes = self.enhancementGetSizes();
+            if (sizes) {
+                
+                self.enhancementToolbarAddSeparator($toolbar);
+
+                $sizesSubmenu = self.enhancementToolbarAddSubmenu({
+                    text: 'Image Size',
+                    className: 'rte-enhancement-toolbar-sizes'
+                }, $toolbar);
+
+                self.enhancementToolbarAddButton({
+                    text: 'None',
+                    className: 'rte-enhancement-toolbar-size',
+                    onClick: function() {
+                        self.enhancementSetSize($toolbar, '');
+                    }
+                }, $sizesSubmenu);
+
+                $.each(sizes, function(internalName, displayName) {
+
+                    self.enhancementToolbarAddButton({
+                        text: displayName,
+                        className: 'rte-enhancement-toolbar-size',
+                        onClick: function() {
+                            self.enhancementSetSize($toolbar, internalName);
+                        }
+                    }, $sizesSubmenu);
+                    
+                });
+            }
             
-            // TODO: image size selector
-
-            $('<a/>', {
+            self.enhancementToolbarAddSeparator($toolbar);
+            
+            self.enhancementToolbarAddButton({
+                text: 'Select',
+                tooltip: '',
+                className: 'rte-enhancement-toolbar-change',
                 href: CONTEXT_PATH + (config.marker ? '/content/marker.jsp' : '/enhancementSelect'),
                 target: self.enhancementGetTarget(),
-                text: 'Select', // Note this web be updated to "Change" once an enhancement is selected
-                title: 'Select',
-                'class': 'rte-enhancement-toolbar-change'
-            }).appendTo($toolbar);
+            }, $toolbar);
 
             // Add the "Edit" button for an enhancement but not for a marker
             if (!config.marker) {
                 
-                $('<a/>', {
+                self.enhancementToolbarAddButton({
                     href: CONTEXT_PATH + '/content/enhancement.jsp', // Note this url will be modified to add the enhancement id
                     target: self.enhancementGetTarget(),
                     text: 'Edit',
-                    title: 'Edit',
-                    'class': 'rte-enhancement-toolbar-edit'
-                }).on('click', function(){
-                }).appendTo($toolbar);
+                    className: 'rte-enhancement-toolbar-edit'
+                }, $toolbar);
                 
             }
-            
+
             // CSS is used to hide this when the toBeRemoved class is set on the enhancement
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Remove',
-                title: 'Remove',
-                'class': 'rte-enhancement-toolbar-remove'
-            }).on('click', function(){
-                self.enhancementRemove(this); // Mark to be removed
-                return false;
-            }).appendTo($toolbar);
+                className: 'rte-enhancement-toolbar-remove',
+                onClick: function() {
+                    self.enhancementRemove($toolbar); // Mark to be removed
+                }
+            }, $toolbar);
+
 
             // CSS is used to hide this unless the toBeRemoved class is set on the enhancement
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Restore',
-                title: 'Restore',
-                'class': 'rte-enhancement-toolbar-restore'
-            }).on('click', function(){
-                self.enhancementRestore(this, false);  // Erase the to be removed mark
-                return false;
-            }).appendTo($toolbar);
-            
+                className: 'rte-enhancement-toolbar-restore',
+                onClick: function() {
+                    self.enhancementRestore($toolbar, false);  // Erase the to be removed mark
+                }
+            }, $toolbar);
+
             // CSS is used to hide this unless the toBeRemoved class is set on the enhancement
-            $('<a/>', {
-                href: '#',
+            self.enhancementToolbarAddButton({
                 text: 'Remove Completely',
-                title: 'Remove Completely',
-                'class': 'rte-enhancement-toolbar-remove-completely'
-            }).on('click', function(){
-                self.enhancementRemoveCompletely(this);
-                return false;
-            }).appendTo($toolbar);
+                className: 'rte-enhancement-toolbar-remove-completely',
+                onClick: function() {
+                    self.enhancementRemoveCompletely($toolbar);
+                }
+            }, $toolbar);
 
             return $toolbar;
         },
 
 
+        /**
+         * Add a submenu to the toolbar.
+         *
+         * @param {Object} item
+         * The toolbar item to add.
+         * @param {Object} item.className
+         * @param {Object} item.text
+         * @param {Object} item.tooltip
+         *
+         * @param {Object} [$addToSubmenu]
+         * Where the submenu should be added.
+         *
+         * @returns {jQuery}
+         * The submenu element where additional buttons can be added.
+         */
+        enhancementToolbarAddSubmenu: function(item, $addToSubmenu) {
+            
+            var self = this;
+            var $submenu;
+
+            $submenu = $('<li class="rte-toolbar-submenu"><span></span><ul></ul></li>');
+            $submenu.find('span').html(item.text);
+            $submenu.appendTo($addToSubmenu);
+
+            return $submenu.find('ul');
+        },
+
+
+        /**
+         * Add a button to the toolbar (or to a submenu in the toolbar).
+         *
+         * @param {Object} item
+         * The toolbar item to add.
+         * @param {Object} item.className
+         * @param {Object} item.text
+         * @param {Object} item.tooltip
+         * @param {Object} item.onClick
+         *
+         * @param {Object} [$submenu]
+         * Toolbar or submenu where the button should be added.
+         */
+        enhancementToolbarAddButton: function(item, $submenu) {
+            
+            var self = this;
+            var $button;
+            
+            // This is a toolbar button
+            $button = $('<a/>', {
+                href: item.href || '#',
+                target: item.target || '',
+                'class': item.className || '',
+                html: item.text || '',
+                title: item.tooltip || ''
+            });
+
+            if (item['data-enhancement-size'] !== undefined) {
+                $button.attr('data-enhancement-size', item['data-enhancement-size']);
+            }
+            
+            if (item.onClick) {
+                $button.on('click', function(event) {
+                    event.preventDefault();
+                    // Call the onclick function, setting "this" to the clicked element
+                    item.onClick.call(this, event);
+                    return false;
+                });
+            }
+
+            $('<li/>').append($button).appendTo($submenu);
+        },
+
+        
+        /**
+         * Add a button to the toolbar (or to a submenu in the toolbar).
+         *
+         * @param {Object} [$submenu]
+         * Optional submenu where the button should be added.
+         * If omitted, the button is added to the top level of the toolbar.
+         * If provided this should be the value that was returned by toolbarAddSubmenu()
+         */
+        enhancementToolbarAddSeparator: function($submenu) {
+            
+            var self = this;
+            
+            $('<li/>', {
+                'class': 'rte-toolbar-separator',
+                html: '&nbsp;'
+            }).appendTo($submenu);
+        },
+
+        
         /**
          * Pop up the enhancement selector form.
          */
@@ -1853,11 +1961,157 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             return $enhancement.hasClass('rte-marker');
         },
 
+
+        /**
+         * Get a list of image sizes that are supported for the enhancement.
+         *
+         * The enclosing inputContainer must contain an attribute data-standard-image-sizes.
+         * For example:
+         * data-standard-image-sizes="500x500 640x400"
+         *
+         * This is compared against the global variable window.STANDARD_IMAGE_SIZES to get
+         * a list of supported sizes.
+         * For example:
+         * var STANDARD_IMAGE_SIZES = [
+         *   {"internalName":"500x500 Square","displayName":"500x500 Square"},
+         *   {"internalName":"640x400","displayName":"640x400"}
+         * ];
+         *
+         * @returns {Object|undefined}
+         * Returns undefined if no sizes are defined.
+         * An object of the available sizes, where the key is the image size internal name,
+         * and the value is the display name.
+         * For example:
+         * { "500x500": "500x500 Square" }
+         */
+        enhancementGetSizes: function() {
+
+            var gotSize, self, sizes, sizesInputContainer, sizesGlobal;
+
+            self = this;
+
+            sizes = {};
+
+            sizesGlobal = window.STANDARD_IMAGE_SIZES || [];
+            
+            // Get the sizes from the enclosing inputContainer
+            sizesInputContainer = self.$el.closest('.inputContainer').attr('data-standard-image-sizes') || '';
+            
+            // The data attribute uses a space-separated list of size names.
+            // To make matching easier we'll add space character before and after the string.
+            sizesInputContainer = ' ' + sizesInputContainer + ' ';
+
+            // Loop through all available sizes
+            $.each(sizesGlobal, function(){
+                
+                var size = this;
+
+                if (sizesInputContainer.indexOf(' ' + size.internalName + ' ') > -1) {
+                    gotSize = true;
+                    sizes[size.internalName] = size.displayName;
+                }
+            });
+
+            return gotSize ? sizes : undefined;
+        },
+
+
+        /**
+         * @param {Element} el
+         * The enhancement element, or an element within the enhancement.
+         * 
+         * @param {String} size
+         * The internal name of the size.
+         */
+        enhancementSetSize: function(el, size) {
+
+            var $enhancement, reference, self, sizes;
+
+            self = this;
+            
+            $enhancement = self.enhancementGetWrapper(el);
+
+            reference = self.enhancementGetReference(el);
+            
+            sizes = self.enhancementGetSizes() || {};
+
+            // Check if the size that was selected is a valid size for this enhancement
+            if (sizes[size]) {
+                // Set the size
+                reference.imageSize = size;
+            } else {
+                // Remove the size
+                delete reference.imageSize;
+            }
+
+            self.enhancementSetReference(el, reference);
+            self.enhancementDisplaySize(el);
+        },
+
+
+        /**
+         * Add an attribute to the enhancement that can be used to display the image size (via CSS).
+         */
+        enhancementDisplaySize: function(el) {
+            
+            var $enhancement, $label, reference, self, sizes, $sizeLabel;
+            
+            self = this;
+            $enhancement = self.enhancementGetWrapper(el);
+            $label = $enhancement.find('.rte-enhancement-label');
+            reference = self.enhancementGetReference(el);
+            sizes = self.enhancementGetSizes(el) || {};
+            
+            $sizeLabel = $label.find('.rte-enhancement-size');
+            if (!$sizeLabel.length) {
+                $sizeLabel = $('<div/>', { 'class': 'rte-enhancement-size' }).appendTo($label);
+            }
+            
+            if (reference.imageSize) {
+                $sizeLabel.text(sizes[ reference.imageSize ]);
+            } else {
+                $sizeLabel.remove();
+            }
+        },
+
+        
+        /**
+         * Get the reference object for the enhancement.
+         * @returns {Object}
+         */
+        enhancementGetReference: function(el) {
+            
+            var $enhancement, reference, self;
+            
+            self = this;
+            
+            $enhancement = self.enhancementGetWrapper(el);
+
+            reference = $enhancement.data('reference') || {};
+
+            return reference;
+        },
+
+        
+        /**
+         * Set the reference object for the enhancement.
+         */
+        enhancementSetReference: function(el, reference) {
+            
+            var $enhancemnt, self;
+            
+            self = this;
+            
+            $enhancement = self.enhancementGetWrapper(el);
+
+            $enhancement.data('reference', reference);
+        },
+        
         
         /**
          * Convert an enhancement into HTML for output.
          *
-         * @param Element el
+         * @param {Element} el
          * The enhancement element, or an element within the enhancement.
          *
          * @returns {String}
@@ -1865,7 +2119,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementToHTML: function(el) {
             
-            var alignment, data, $enhancement, html, $html, id, isMarker, self;
+            var alignment, reference, $enhancement, html, $html, id, isMarker, self;
 
             self = this;
 
@@ -1878,10 +2132,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 return '';
             }
             
-            // Get the enhancement data that was stored previously in a data attribute
-            data = $enhancement.data('rte-enhancement') || {};
-            if (data.record) {
-                id = data.record._ref;
+            // Get the enhancement reference that was stored previously in a data attribute
+            reference = self.enhancementGetReference($enhancement);
+            if (reference.record) {
+                id = reference.record._ref;
             }
 
             alignment = self.enhancementGetPosition(el);
@@ -1891,16 +2145,16 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $html = $('<button/>', {
                     'class': 'enhancement',
                     'data-id': id,
-                    'data-reference': JSON.stringify(data),
-                    text: data.label || ''
+                    'data-reference': JSON.stringify(reference),
+                    text: reference.label || ''
                 });
 
                 if (isMarker) {
                     $html.addClass('marker');
                 }
                 
-                if (data.preview) {
-                    $html.attr('data-preview', data.preview);
+                if (reference.preview) {
+                    $html.attr('data-preview', reference.preview);
                 }
                 
                 if (alignment) {
@@ -1974,6 +2228,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.rte.focus();
             self.toolbarUpdate();
         }
+
     };
 
     
