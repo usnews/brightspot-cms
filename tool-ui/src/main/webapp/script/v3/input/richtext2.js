@@ -64,10 +64,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 className: 'rte-style-underline',
                 element: 'u'
             },
-            quote: {
-                className: 'rte-style-quote',
-                element: 'q'
-            },
             strikethrough: {
                 className: 'rte-style-strikethrough',
                 element: 'strike'
@@ -81,6 +77,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 className: 'rte-style-subscript',
                 element: 'sub',
                 clear: ['superscript']
+            },
+            comment: {
+                className: 'rte-style-comment',
+                element: 'span',
+                elementAttr: {
+                    'class': 'rte rte-comment'
+                },
+                // Don't let this style be removed by the "Clear" toolbar button
+                internal: true
             },
             link: {
                 className: 'rte-style-link',
@@ -276,10 +281,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { style: 'subscript', text: 'Sub', className: 'rte-toolbar-subscript', tooltip: 'Subscript' },
             { action: 'clear', text: 'Clear', className: 'rte-toolbar-clear', tooltip: 'Clear Formatting' },
 
-            { separator:true },
-            { style: 'quote', text: 'Quote', className: 'rte-toolbar-quote', tooltip: 'Quote' },
-            { action:'collapse', text: 'Collapse', className: 'rte-toolbar-quote-collapse', collapseStyle: 'quote', tooltip: 'Collapse Quote' },
-
             { separator:true, inline:false },
             { style: 'ul', text: '&bull;', className: 'rte-toolbar-ul', tooltip: 'Bullet List', inline:false },
             { style: 'ol', text: '1.', className: 'rte-toolbar-ol', tooltip: 'Numbered List', inline:false },
@@ -300,7 +301,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action:'trackChangesToggle', text: 'Track Changes', className: 'rte-toolbar-track-changes', tooltip: 'Toggle Track Changes' },
             { action:'trackChangesAccept', text: 'Accept', className: 'rte-toolbar-track-changes-accept', tooltip: 'Accept a Change' },
             { action:'trackChangesReject', text: 'Reject', className: 'rte-toolbar-track-changes-reject', tooltip: 'Reject a Change' },
-            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte-toolbar-track-changes-show-final', tooltip: 'Toggle Show Final' }
+            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte-toolbar-track-changes-show-final', tooltip: 'Toggle Show Final' },
+
+            { separator:true },
+            { style: 'comment', text: 'Add Comment', className: 'rte-toolbar-comment', tooltip: 'Add Comment' },
+            { action: 'collapse', text: 'Collapse All Comments', className: 'rte-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
+            { action: 'cleartext', text: 'Remove Comment', className: 'rte-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' }
+
         ],
 
 
@@ -817,9 +824,15 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     rte.removeStyles();
                     break;
 
+                case 'cleartext':
+                    if (item.cleartextStyle) {
+                        rte.inlineRemoveStyledText(item.cleartextStyle);
+                    }
+                    break;
+
                 case 'collapse':
                     if (item.collapseStyle) {
-                        rte.inlineCollapse(item.collapseStyle);
+                        rte.inlineCollapse(item.collapseStyle, rte.getRangeAll());
                     }
                     break;
 

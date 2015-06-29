@@ -790,6 +790,35 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             CodeMirror.signal(editor, "cursorActivity");
         },
 
+
+        /**
+         * Given a styles and a cursor position, removes the style that surrounds the cursor position.
+         *
+         * For example, if your cursor "|" is within an italic styled area:
+         * this is <i>it|alic<i> text
+         *
+         * Then this function will remove the italic styling and the text within, leaving you with:
+         * this is  text
+         */
+        inlineRemoveStyledText: function(styleKey, range) {
+            
+            var mark, pos, self, styles;
+
+            self = this;
+            
+            mark = self.inlineGetMark(styleKey, range);
+            if (mark) {
+                
+                pos = mark.find();
+            
+                // Delete the text within the mark
+                self.codeMirror.replaceRange('', pos.from, pos.to);
+
+                // Delete the mark
+                mark.clear();
+            }
+        },
+
         
         /**
          * Determines if ALL characters in the range have a style.
@@ -2208,6 +2237,27 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         },
 
 
+        /**
+         * Returns a range that represents the entire document.
+         *
+         * @returns Object
+         * An object with {from,to} values for the entire docuemnt.
+         */
+        getRangeAll: function(){
+
+            var self, totalLines;
+
+            self = this;
+
+            totalLines = self.codeMirror.lineCount();
+
+            return {
+                from: {line: 0, ch: 0},
+                to: {line: totalLines - 1, ch: self.codeMirror.getLine(totalLines - 1).length}
+            };
+        },
+
+        
         /**
          * Rework the styles object so it is indexed by the className,
          * to make looking up class names easier.
