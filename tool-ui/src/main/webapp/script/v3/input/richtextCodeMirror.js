@@ -140,7 +140,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * List of elements that should cause a new line when importing from HTML.
          * We don't necessarily list them all, just the ones we are likely to encounter.
          */
-        newLineRegExp: /li|p|div|br|h[1-6]|hr|blockquote/,
+        newLineRegExp: /^(li|p|div|br|h[1-6]|hr|blockquote)$/,
 
         
         /**
@@ -2742,8 +2742,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (next.nodeType === 3) {
 
                         // We got a text node, just add it to the value
-                        // But remove any newlines at the beginning or end
-                        val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '');
+                        // Remove any newlines at the beginning or end
+                        // Remove "zero width space" character that the previous editor sometimes used
+                        val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
                         
                     } else if (next.nodeType === 1) {
 
@@ -2911,3 +2912,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
     return CodeMirrorRte;
 
 }); // define
+
+// Set filename for debugging tools to allow breakpoints even when using a cachebuster
+//# sourceURL=richtextCodeMirror.js
