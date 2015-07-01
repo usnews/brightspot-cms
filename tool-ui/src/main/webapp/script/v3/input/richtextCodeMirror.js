@@ -80,10 +80,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         styles: {
 
+            // Special style for raw HTML. 
+            // This will be used when we import HTML that we don't understand.
+            // Also can be used to mark text that user wants to treat as html
+            html: {
+                className: 'rte-style-html',
+                raw: true // do not allow other styles inside this style and do not encode the text within this style, to allow for raw html
+            },
+            
             // Special style used to collapse an element.
             // It does not output any HTML, but it can be cleared.
             // You can use the class name to make CSS rules to style the collapsed area.
-            // This can be used for example to collapse quotes.
+            // This can be used for example to collapse comments.
             collapsed: {
                 className: 'rte-style-collapsed'
             },
@@ -140,7 +148,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * List of elements that should cause a new line when importing from HTML.
          * We don't necessarily list them all, just the ones we are likely to encounter.
          */
-        newLineRegExp: /^(li|p|div|br|h[1-6]|hr|blockquote)$/,
+        newLineRegExp: /^(li|br)$/,
 
         
         /**
@@ -2379,11 +2387,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
              */
             function openElement(styleObj) {
                 
-                var html;
+                var html = '';
 
                 if (styleObj.markToHTML) {
                     html = styleObj.markToHTML();
-                } else {
+                } else if (styleObj.element) {
                     html = '<' + styleObj.element;
 
                     if (styleObj.elementAttr) {
@@ -2436,7 +2444,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Loop through the content one line at a time
             doc.eachLine(function(line) {
 
-                var annotationStart, annotationEnd, blockOnThisLine, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo;
+                var annotationStart, annotationEnd, blockOnThisLine, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo, outputChar, raw;
 
                 lineNo = line.lineNo();
                 
@@ -2576,10 +2584,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             return;
                         }
 
-                        styleObj = self.classes[className];
+                        styleObj = self.classes[className] || {};
 
                         // Skip any marker where we don't have an element mapping
-                        if (!styleObj || !styleObj.element) {
+                        if (!(styleObj.element || styleObj.raw)) {
                             return;
                         }
 
@@ -2637,6 +2645,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Find out which elements are no longer active
                         $.each(annotationEnd[charNum], function(i, styleObj) {
+                            
+                            // If any of the styles is "raw" mode, clear the raw flag
+                            if (styleObj.raw) {
+                                raw = false;
+                            }
+                            
                             delete inlineActive[styleObj.className];
                         });
 
@@ -2652,6 +2666,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (annotationStart[charNum]) {
                         
                         $.each(annotationStart[charNum], function(i, styleObj) {
+
+                            // If any of the styles is "raw" mode, set a raw flag for later
+                            if (styleObj.raw) {
+                                raw = true;
+                            }
                             
                             if (!inlineActive[styleObj.className]) {
                                 
@@ -2667,7 +2686,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         });
                     }
 
-                    html += line.text.charAt(charNum);
+                    outputChar = line.text.charAt(charNum);
+                    if (raw) {
+                        console.log('RAW: ', outputChar);
+                    } else {
+                        outputChar = self.htmlEncode(outputChar);
+                    }
+                    html += outputChar;
                 }
 
                 // If we reached end of line, close all the open block elements
@@ -2732,7 +2757,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n) {
                 
-                var elementName, from, matchStyleObj, next, split, to;
+                var elementName, elementClose, from, matchStyleObj, next, split, to;
 
                 next = n.childNodes[0];
 
@@ -2750,37 +2775,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // We got an element
                         elementName = next.tagName.toLowerCase();
-
-                        // Figure out which line and character for the start of our element
-                        split = val.split("\n");
-                        from =  {
-                            line: split.length - 1,
-                            ch: split[split.length - 1].length
-                        };
-
-                        // Special case - is this an enhancement?
-                        if (elementName === 'span' && $(next).attr('class') === 'enhancement') {
-
-                            // TODO: process the enhancement
-                            enhancements.push({
-                                line: from.line,
-                                $content: $(next)
-                            });
-
-                            // Skip past the enhancement
-                            next = next.nextSibling;
-                            continue;
-                        }
-                        
-                        // Recursively go into our element and add more text to the value
-                        processNode(next);
-
-                        // Now figure out the line and character for the end of our element
-                        split = val.split("\n");
-                        to =  {
-                            line: split.length - 1,
-                            ch: split[split.length - 1].length
-                        };
 
                         // Determine how to map the element to a marker
                         matchStyleObj = '';
@@ -2831,6 +2825,81 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                 }
                             });
                         }
+
+                        // Figure out which line and character for the start of our element
+                        split = val.split("\n");
+                        from =  {
+                            line: split.length - 1,
+                            ch: split[split.length - 1].length
+                        };
+
+                        // Special case - is this an enhancement?
+                        if (elementName === 'span' && $(next).attr('class') === 'enhancement') {
+
+                            enhancements.push({
+                                line: from.line,
+                                $content: $(next)
+                            });
+
+                            // Skip past the enhancement
+                            next = next.nextSibling;
+                            continue;
+                        }
+
+                        // If we did not find a matching element, then we need to output as raw HTML
+                        if (!matchStyleObj && (elementName !== 'br')) {
+                            
+                            matchStyleObj = self.styles.html;
+                            
+                            val += '<' + elementName;
+
+                            $.each(next.attributes, function(i, attrib){
+                                var attributeName = attrib.name;
+                                var attributeValue = attrib.value;
+                                val += ' ' + attributeName + '="' + self.htmlEncode(attributeValue) + '"';
+                            });
+
+                            val += '>';
+
+                            // End the mark for raw HTML
+                            split = val.split("\n");
+                            to =  {
+                                line: split.length - 1,
+                                ch: split[split.length - 1].length
+                            };
+                            annotations.push({
+                                styleObj:matchStyleObj,
+                                from:from,
+                                to:to
+                            });
+                            
+                            // Remember we need to close the element later
+                            elementClose = '</' + elementName + '>';
+                        }
+
+                        // Recursively go into our element and add more text to the value
+                        processNode(next);
+
+                        if (elementClose) {
+
+                            // Create a new starting point for raw html annotation
+                            split = val.split("\n");
+                            from =  {
+                                line: split.length - 1,
+                                ch: split[split.length - 1].length
+                            };
+
+                            // Add the closing element
+                            val += elementClose;
+                            elementClose = '';
+                        }
+                        
+                        // Now figure out the line and character for the end of our element
+                        split = val.split("\n");
+                        to =  {
+                            line: split.length - 1,
+                            ch: split[split.length - 1].length
+                        };
 
                         if (matchStyleObj) {
 
@@ -2906,7 +2975,22 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line);
                 
             });
-        } // fromHTML()
+        }, // fromHTML()
+
+
+        /**
+         * Encode text so it is HTML safe.
+         * @param {String} s
+         * @return {String}
+         */
+        htmlEncode: function(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
     };
 
     return CodeMirrorRte;

@@ -294,6 +294,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             { separator:true },
             { style: 'link', text: 'Link', className: 'rte-toolbar-link', tooltip: 'Link' },
+            { style: 'html', text: 'HTML', className: 'rte-toolbar-html', tooltip: 'Raw HTML' },
             { action:'enhancement', text: 'Enhancement', className: 'rte-toolbar-enhancement', tooltip: 'Add Enhancement', inline:false },
             { action:'marker', text: 'Marker', className: 'rte-toolbar-marker', tooltip: 'Add Marker', inline:false },
 
