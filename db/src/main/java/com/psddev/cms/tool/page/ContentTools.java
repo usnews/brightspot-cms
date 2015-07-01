@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 
@@ -35,7 +34,6 @@ import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
-import com.psddev.dari.db.Query;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.DebugFilter;
@@ -57,7 +55,7 @@ public class ContentTools extends PageServlet {
     protected void doService(ToolPageContext page) throws IOException, ServletException {
         ToolUser user = page.getUser();
         Collection<String> includeFields = Arrays.asList("returnToDashboardOnSave");
-        Object object = Query.from(Object.class).where("_id = ?", page.param(UUID.class, "id")).first();
+        Object object = page.findOrReserve();
         State state = State.getInstance(object);
         ContentLock contentLock = null;
 
@@ -287,7 +285,7 @@ public class ContentTools extends PageServlet {
                                 page.writeStart("li");
                                     page.writeStart("a",
                                             "target", "_blank",
-                                            "href", page.objectUrl("/contentRaw", object));
+                                            "href", page.objectUrl("/contentRaw", ObjectUtils.firstNonNull(page.getOverlaidDraft(object), page.getOverlaidHistory(object), object)));
                                         page.writeHtml("View Raw Data");
                                     page.writeEnd();
                                 page.writeEnd();
