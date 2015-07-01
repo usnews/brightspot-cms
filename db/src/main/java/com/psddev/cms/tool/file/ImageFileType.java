@@ -414,21 +414,23 @@ public class ImageFileType implements FileContentType {
                             setWidth(1000).
                             setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
                             setEdits(false);
-                    Number originalWidth = null;
-                    if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"))) {
-                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth");
-                    } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"))) {
-                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth");
-                    } else if (!ObjectUtils.isBlank(CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width"))) {
-                        originalWidth = (Number) CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width");
-                    } else if (!ObjectUtils.isBlank(page.param(Integer.class, originalWidthName))) {
-                        originalWidth = page.param(Integer.class, originalWidthName);
+                    Object originalWidthObject = ObjectUtils.firstNonBlank(
+                        CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"),
+                        CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"),
+                        CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "width"),
+                        page.param(String.class, originalWidthName)
+                    );
+
+                    int originalWidth;
+
+                    if (originalWidthObject instanceof Number) {
+                        originalWidth = ((Number) originalWidthObject).intValue();
+                    } else {
+                        originalWidth = ObjectUtils.to(double.class, originalWidthObject).intValue();
                     }
 
-                    if (originalWidth != null) {
-                        if (originalWidth.intValue() > 1000) {
-                            resizeScale = String.format("%.2f", (double) 1000 / originalWidth.intValue());
-                        }
+                    if (originalWidth > 1000) {
+                        resizeScale = String.format("%.2f", (double) 1000 / originalWidth);
                     }
                     fieldValueUrl = imageTagBuilder.toUrl();
                 } else {
