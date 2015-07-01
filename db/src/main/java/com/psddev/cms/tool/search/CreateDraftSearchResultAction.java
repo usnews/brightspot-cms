@@ -65,9 +65,15 @@ public class CreateDraftSearchResultAction implements SearchResultAction {
                     continue;
                 }
 
+                Set<ObjectType> generatableItemTypes = new HashSet<>();
+
+                for (ObjectType itemType : type.as(SearchResultSelectionGeneratable.TypeData.class).getItemTypes()) {
+                    generatableItemTypes.addAll(itemType.findConcreteTypes());
+                }
+
                 if (type.getObjectClass() != null &&
                         type.getGroups().contains(SearchResultSelectionGeneratable.class.getName()) &&
-                        type.as(SearchResultSelectionGeneratable.TypeData.class).getItemTypes().containsAll(itemTypes)) {
+                        generatableItemTypes.containsAll(itemTypes)) {
 
                     generates.add(new TypeAndItemTypes(type, new ArrayList<>(itemTypes)));
                 }
