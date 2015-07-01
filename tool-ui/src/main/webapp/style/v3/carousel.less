@@ -209,6 +209,17 @@
     background-color: white;
     border-color: white;
     box-shadow: 0 2px 0 fade(black, 10%);
+      .widget-searchCarousel-item-selected.notIncluded {
+          img {
+              opacity: 0.5;
+          }
+          figcaption {
+              text-decoration: line-through;
+              > .visibilityLabel {
+                  text-decoration: none;
+              }
+          }
+      }
   }
 }
 
