@@ -413,7 +413,7 @@ public class StorageItemField extends PageServlet {
                         !fieldValueMetadata.containsKey("width") &&
                         !fieldValueMetadata.containsKey("height")) {
 
-                    Map<String, Object> metadata = extractImageMetadata(newItem);
+                    Map<String, Object> metadata = extractMetadata(newItem);
                     fieldValueMetadata.putAll(metadata);
                 }
 
@@ -704,7 +704,7 @@ public class StorageItemField extends PageServlet {
         return storageSetting;
     }
 
-    static Map<String, Object> extractImageMetadata(StorageItem storageItem) {
+    static Map<String, Object> extractMetadata(StorageItem storageItem) {
         String contentType = storageItem.getContentType();
         ImageMetadataMap metadata = null;
 
