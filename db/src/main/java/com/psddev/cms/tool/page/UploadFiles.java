@@ -33,10 +33,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectFieldComparator;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.State;
-import com.psddev.dari.util.AggregateException;
 import com.psddev.dari.util.ErrorUtils;
-import com.psddev.dari.util.ImageMetadataMap;
-import com.psddev.dari.util.IoUtils;
 import com.psddev.dari.util.MultipartRequest;
 import com.psddev.dari.util.MultipartRequestFilter;
 import com.psddev.dari.util.ObjectUtils;
@@ -209,24 +206,6 @@ public class UploadFiles extends PageServlet {
                             item.getMetadata().put("originalFilename", fileName);
                             item.setData(file.getInputStream());
 
-                            if (contentType != null && contentType.startsWith("image/")) {
-                                InputStream fileInput = file.getInputStream();
-
-                                try {
-                                    ImageMetadataMap metadata = new ImageMetadataMap(fileInput);
-                                    List<Throwable> errors = metadata.getErrors();
-
-                                    item.getMetadata().putAll(metadata);
-
-                                    if (!errors.isEmpty()) {
-                                        LOGGER.info("Can't read image metadata!", new AggregateException(errors));
-                                    }
-
-                                } finally {
-                                    IoUtils.closeQuietly(fileInput);
-                                }
-                            }
-
                             newStorageItems.add(item);
                         }
                     }
@@ -239,6 +218,9 @@ public class UploadFiles extends PageServlet {
                         }
 
                         item.save();
+
+                        Map<String, Object> metadata = StorageItemField.extractImageMetadata(item);
+                        item.getMetadata().putAll(metadata);
 
                         Object object = selectedType.createObject(null);
                         State state = State.getInstance(object);

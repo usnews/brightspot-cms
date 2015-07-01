@@ -413,29 +413,11 @@ public class StorageItemField extends PageServlet {
                         !fieldValueMetadata.containsKey("width") &&
                         !fieldValueMetadata.containsKey("height")) {
 
-                    if (newItemData == null) {
-                        newItemData = newItem.getData();
-                    }
-
-                    String contentType = newItem.getContentType();
-
-                    if (contentType != null && contentType.startsWith("image/")) {
-                        try {
-                            ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
-                            fieldValueMetadata.putAll(metadata);
-
-                            List<Throwable> errors = metadata.getErrors();
-                            if (!errors.isEmpty()) {
-                                LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
-                            }
-
-                        } finally {
-                            IoUtils.closeQuietly(newItemData);
-                        }
-                    }
-                } else {
-                    IoUtils.closeQuietly(newItemData);
+                    Map<String, Object> metadata = extractImageMetadata(newItem);
+                    fieldValueMetadata.putAll(metadata);
                 }
+
+                IoUtils.closeQuietly(newItemData);
 
                 // Standard sizes.
                 for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
@@ -720,6 +702,32 @@ public class StorageItemField extends PageServlet {
         }
 
         return storageSetting;
+    }
+
+    static Map<String, Object> extractImageMetadata(StorageItem storageItem) {
+        String contentType = storageItem.getContentType();
+        ImageMetadataMap metadata = null;
+
+        if (contentType != null && contentType.startsWith("image/")) {
+            InputStream inputStream = null;
+
+            try {
+                inputStream = storageItem.getData();
+                metadata = new ImageMetadataMap(inputStream);
+                List<Throwable> errors = metadata.getErrors();
+
+                if (!errors.isEmpty()) {
+                    LOGGER.debug("Can't read image metadata", new AggregateException(errors));
+                }
+
+            } catch (IOException e) {
+                LOGGER.debug("Can't read image metadata", e);
+            } finally {
+                IoUtils.closeQuietly(inputStream);
+            }
+        }
+
+        return metadata;
     }
 
     @Override
