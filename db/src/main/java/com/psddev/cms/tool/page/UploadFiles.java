@@ -141,40 +141,40 @@ public class UploadFiles extends PageServlet {
                                     String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
                                     String ptr = data.trim();
 
-                                    if (ptr.startsWith("<!") ||
-                                            ptr.startsWith("<?") ||
-                                            data.startsWith("<html") ||
-                                            data.startsWith("<script") ||
-                                            data.startsWith("<title") ||
-                                            data.startsWith("<body") ||
-                                            data.startsWith("<head") ||
-                                            data.startsWith("<plaintext") ||
-                                            data.startsWith("<table") ||
-                                            data.startsWith("<img") ||
-                                            data.startsWith("<pre") ||
-                                            data.startsWith("text/html") ||
-                                            data.startsWith("<a") ||
-                                            ptr.startsWith("<frameset") ||
-                                            ptr.startsWith("<iframe") ||
-                                            ptr.startsWith("<link") ||
-                                            ptr.startsWith("<base") ||
-                                            ptr.startsWith("<style") ||
-                                            ptr.startsWith("<div") ||
-                                            ptr.startsWith("<p") ||
-                                            ptr.startsWith("<font") ||
-                                            ptr.startsWith("<applet") ||
-                                            ptr.startsWith("<meta") ||
-                                            ptr.startsWith("<center") ||
-                                            ptr.startsWith("<form") ||
-                                            ptr.startsWith("<isindex") ||
-                                            ptr.startsWith("<h1") ||
-                                            ptr.startsWith("<h2") ||
-                                            ptr.startsWith("<h3") ||
-                                            ptr.startsWith("<h4") ||
-                                            ptr.startsWith("<h5") ||
-                                            ptr.startsWith("<h6") ||
-                                            ptr.startsWith("<b") ||
-                                            ptr.startsWith("<br")) {
+                                    if (ptr.startsWith("<!")
+                                            || ptr.startsWith("<?")
+                                            || data.startsWith("<html")
+                                            || data.startsWith("<script")
+                                            || data.startsWith("<title")
+                                            || data.startsWith("<body")
+                                            || data.startsWith("<head")
+                                            || data.startsWith("<plaintext")
+                                            || data.startsWith("<table")
+                                            || data.startsWith("<img")
+                                            || data.startsWith("<pre")
+                                            || data.startsWith("text/html")
+                                            || data.startsWith("<a")
+                                            || ptr.startsWith("<frameset")
+                                            || ptr.startsWith("<iframe")
+                                            || ptr.startsWith("<link")
+                                            || ptr.startsWith("<base")
+                                            || ptr.startsWith("<style")
+                                            || ptr.startsWith("<div")
+                                            || ptr.startsWith("<p")
+                                            || ptr.startsWith("<font")
+                                            || ptr.startsWith("<applet")
+                                            || ptr.startsWith("<meta")
+                                            || ptr.startsWith("<center")
+                                            || ptr.startsWith("<form")
+                                            || ptr.startsWith("<isindex")
+                                            || ptr.startsWith("<h1")
+                                            || ptr.startsWith("<h2")
+                                            || ptr.startsWith("<h3")
+                                            || ptr.startsWith("<h4")
+                                            || ptr.startsWith("<h5")
+                                            || ptr.startsWith("<h6")
+                                            || ptr.startsWith("<b")
+                                            || ptr.startsWith("<br")) {
                                         page.getErrors().add(new IllegalArgumentException(String.format(
                                                 "Can't upload [%s] file disguising as HTML!",
                                                 file.getContentType())));
@@ -247,8 +247,8 @@ public class UploadFiles extends PageServlet {
 
                         Site site = page.getSite();
 
-                        if (site != null &&
-                                site.getDefaultVariation() != null) {
+                        if (site != null
+                                && site.getDefaultVariation() != null) {
                             state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
                         }
 

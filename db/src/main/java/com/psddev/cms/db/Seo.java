@@ -80,9 +80,9 @@ public final class Seo {
          */
         @Deprecated
         public static String findTitle(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findTitle() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findTitle()
+                    : null;
         }
 
         /**
@@ -94,9 +94,9 @@ public final class Seo {
          */
         @Deprecated
         public static String findDescription(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findDescription() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findDescription()
+                    : null;
         }
 
         /**
@@ -108,9 +108,9 @@ public final class Seo {
          */
         @Deprecated
         public static Set<String> findKeywords(Object object) {
-            return object != null ?
-                    State.getInstance(object).as(ObjectModification.class).findKeywords() :
-                    null;
+            return object != null
+                    ? State.getInstance(object).as(ObjectModification.class).findKeywords()
+                    : null;
         }
     }
 

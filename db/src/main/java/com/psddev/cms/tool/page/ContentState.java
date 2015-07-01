@@ -65,10 +65,10 @@ public class ContentState extends PageServlet {
         // Pretend to update the object.
         State state = State.getInstance(object);
 
-        if (state.isNew() ||
-                object instanceof Draft ||
-                state.as(Content.ObjectModification.class).isDraft() ||
-                state.as(Workflow.Data.class).getCurrentState() != null) {
+        if (state.isNew()
+                || object instanceof Draft
+                || state.as(Content.ObjectModification.class).isDraft()
+                || state.as(Workflow.Data.class).getCurrentState() != null) {
             page.setContentFormScheduleDate(object);
         }
 
@@ -104,9 +104,9 @@ public class ContentState extends PageServlet {
             Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
             ToolUser user = page.getUser();
 
-            if (idle &&
-                    (state.isNew() || contentData.isDraft()) &&
-                    !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
+            if (idle
+                    && (state.isNew() || contentData.isDraft())
+                    && !page.getCmsTool().isDisableAutomaticallySavingDrafts()) {
                 contentData.setDraft(true);
                 contentData.setUpdateDate(new Date());
                 contentData.setUpdateUser(user);
@@ -306,9 +306,9 @@ public class ContentState extends PageServlet {
                 if (valueState.isNew()) {
                     ObjectType type;
 
-                    if (embedded ||
-                            ((type = valueState.getType()) != null &&
-                            type.isEmbedded())) {
+                    if (embedded
+                            || ((type = valueState.getType()) != null
+                            && type.isEmbedded())) {
                         Object found = findContent(value, id);
 
                         if (found != null) {
@@ -318,9 +318,9 @@ public class ContentState extends PageServlet {
                 }
 
             } else {
-                Iterable<?> valueIterable = value instanceof Map ?
-                        ((Map<?, ?>) value).values() :
-                        ObjectToIterable.iterable(value);
+                Iterable<?> valueIterable = value instanceof Map
+                        ? ((Map<?, ?>) value).values()
+                        : ObjectToIterable.iterable(value);
 
                 if (valueIterable != null) {
                     for (Object item : valueIterable) {

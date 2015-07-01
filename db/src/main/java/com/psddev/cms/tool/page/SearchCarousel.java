@@ -74,9 +74,9 @@ public class SearchCarousel extends PageServlet {
             for (Object item : items) {
                 State itemState = State.getInstance(item);
                 UUID itemId = itemState.getId();
-                StorageItem itemPreview = item instanceof SearchCarouselPreviewable ?
-                        ((SearchCarouselPreviewable) item).getSearchCarouselPreview() :
-                        itemState.getPreview();
+                StorageItem itemPreview = item instanceof SearchCarouselPreviewable
+                        ? ((SearchCarouselPreviewable) item).getSearchCarouselPreview()
+                        : itemState.getPreview();
 
                 page.writeStart("a",
                         "class", (itemId.equals(currentContentId) ? "widget-searchCarousel-item-selected" + (included ? "" : " notIncluded") : null),
@@ -97,18 +97,18 @@ public class SearchCarousel extends PageServlet {
                     }
 
                     if (itemPreviewImage) {
-                        String itemPreviewUrl = ImageEditor.Static.getDefault() != null ?
-                                new ImageTag.Builder(itemPreview).
-                                        setHeight(300).
-                                        setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
-                                        toUrl() :
-                                itemPreview.getPublicUrl();
+                        String itemPreviewUrl = ImageEditor.Static.getDefault() != null
+                                ? new ImageTag.Builder(itemPreview)
+                                .setHeight(300)
+                                .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
+                                .toUrl()
+                                : itemPreview.getPublicUrl();
 
                         page.writeStart("figure");
                             page.writeElement("img",
                                     "src", itemPreviewUrl,
-                                    "alt", (page.getObjectLabel(itemState.as(Site.ObjectModification.class).getOwner()) + ": ") +
-                                            (page.getTypeLabel(item) + ": ") + page.getObjectLabel(item));
+                                    "alt", (page.getObjectLabel(itemState.as(Site.ObjectModification.class).getOwner()) + ": ")
+                                            + (page.getTypeLabel(item) + ": ") + page.getObjectLabel(item));
 
                             page.writeStart("figcaption");
                                 page.writeTypeObjectLabel(item);

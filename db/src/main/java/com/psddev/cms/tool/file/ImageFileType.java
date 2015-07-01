@@ -410,10 +410,10 @@ public class ImageFileType implements FileContentType {
                 String fieldValueUrl;
                 String resizeScale = "";
                 if (ImageEditor.Static.getDefault() != null) {
-                    ImageTag.Builder imageTagBuilder = new ImageTag.Builder(fieldValue).
-                            setWidth(1000).
-                            setResizeOption(ResizeOption.ONLY_SHRINK_LARGER).
-                            setEdits(false);
+                    ImageTag.Builder imageTagBuilder = new ImageTag.Builder(fieldValue)
+                            .setWidth(1000)
+                            .setResizeOption(ResizeOption.ONLY_SHRINK_LARGER)
+                            .setEdits(false);
                     Object originalWidthObject = ObjectUtils.firstNonBlank(
                         CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "image/originalWidth"),
                         CollectionUtils.getByPath(imageTagBuilder.getItem().getMetadata(), "dims/originalWidth"),

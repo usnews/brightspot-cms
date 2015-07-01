@@ -266,8 +266,8 @@ public class StorageItemField extends PageServlet {
                         newItem.setContentType(page.param(contentTypeName));
                     }
 
-                } else if ("newUpload".equals(action) ||
-                        "dropbox".equals(action)) {
+                } else if ("newUpload".equals(action)
+                        || "dropbox".equals(action)) {
                     String name = null;
                     String fileContentType = null;
                     long fileSize = 0;
@@ -315,8 +315,8 @@ public class StorageItemField extends PageServlet {
                         }
                     }
 
-                    if (name != null &&
-                            fileContentType != null) {
+                    if (name != null
+                            && fileContentType != null) {
 
                         // Checks to make sure the file's content type is valid
                         String groupsPattern = Settings.get(String.class, "cms/tool/fileContentTypeGroups");
@@ -338,40 +338,40 @@ public class StorageItemField extends PageServlet {
                                 String data = new String(buffer, 0, input.read(buffer)).toLowerCase(Locale.ENGLISH);
                                 String ptr = data.trim();
 
-                                if (ptr.startsWith("<!") ||
-                                        ptr.startsWith("<?") ||
-                                        data.startsWith("<html") ||
-                                        data.startsWith("<script") ||
-                                        data.startsWith("<title") ||
-                                        data.startsWith("<body") ||
-                                        data.startsWith("<head") ||
-                                        data.startsWith("<plaintext") ||
-                                        data.startsWith("<table") ||
-                                        data.startsWith("<img") ||
-                                        data.startsWith("<pre") ||
-                                        data.startsWith("text/html") ||
-                                        data.startsWith("<a") ||
-                                        ptr.startsWith("<frameset") ||
-                                        ptr.startsWith("<iframe") ||
-                                        ptr.startsWith("<link") ||
-                                        ptr.startsWith("<base") ||
-                                        ptr.startsWith("<style") ||
-                                        ptr.startsWith("<div") ||
-                                        ptr.startsWith("<p") ||
-                                        ptr.startsWith("<font") ||
-                                        ptr.startsWith("<applet") ||
-                                        ptr.startsWith("<meta") ||
-                                        ptr.startsWith("<center") ||
-                                        ptr.startsWith("<form") ||
-                                        ptr.startsWith("<isindex") ||
-                                        ptr.startsWith("<h1") ||
-                                        ptr.startsWith("<h2") ||
-                                        ptr.startsWith("<h3") ||
-                                        ptr.startsWith("<h4") ||
-                                        ptr.startsWith("<h5") ||
-                                        ptr.startsWith("<h6") ||
-                                        ptr.startsWith("<b") ||
-                                        ptr.startsWith("<br")) {
+                                if (ptr.startsWith("<!")
+                                        || ptr.startsWith("<?")
+                                        || data.startsWith("<html")
+                                        || data.startsWith("<script")
+                                        || data.startsWith("<title")
+                                        || data.startsWith("<body")
+                                        || data.startsWith("<head")
+                                        || data.startsWith("<plaintext")
+                                        || data.startsWith("<table")
+                                        || data.startsWith("<img")
+                                        || data.startsWith("<pre")
+                                        || data.startsWith("text/html")
+                                        || data.startsWith("<a")
+                                        || ptr.startsWith("<frameset")
+                                        || ptr.startsWith("<iframe")
+                                        || ptr.startsWith("<link")
+                                        || ptr.startsWith("<base")
+                                        || ptr.startsWith("<style")
+                                        || ptr.startsWith("<div")
+                                        || ptr.startsWith("<p")
+                                        || ptr.startsWith("<font")
+                                        || ptr.startsWith("<applet")
+                                        || ptr.startsWith("<meta")
+                                        || ptr.startsWith("<center")
+                                        || ptr.startsWith("<form")
+                                        || ptr.startsWith("<isindex")
+                                        || ptr.startsWith("<h1")
+                                        || ptr.startsWith("<h2")
+                                        || ptr.startsWith("<h3")
+                                        || ptr.startsWith("<h4")
+                                        || ptr.startsWith("<h5")
+                                        || ptr.startsWith("<h6")
+                                        || ptr.startsWith("<b")
+                                        || ptr.startsWith("<br")) {
                                     state.addError(field, String.format(
                                             "Can't upload [%s] file disguising as HTML!",
                                             fileContentType));
@@ -409,9 +409,9 @@ public class StorageItemField extends PageServlet {
                 }
 
                 // Automatic image metadata extraction.
-                if (newItem != null &&
-                        !fieldValueMetadata.containsKey("width") &&
-                        !fieldValueMetadata.containsKey("height")) {
+                if (newItem != null
+                        && !fieldValueMetadata.containsKey("width")
+                        && !fieldValueMetadata.containsKey("height")) {
 
                     if (newItemData == null) {
                         newItemData = newItem.getData();
@@ -519,9 +519,9 @@ public class StorageItemField extends PageServlet {
                     newItem.setMetadata(fieldValueMetadata);
                 }
 
-                if (newItem != null &&
-                        ("newUpload".equals(action) ||
-                                "dropbox".equals(action))) {
+                if (newItem != null
+                        && ("newUpload".equals(action)
+                        || "dropbox".equals(action))) {
                     newItem.save();
                 }
 
@@ -618,9 +618,9 @@ public class StorageItemField extends PageServlet {
 
                     page.writeStart("script", "type", "text/javascript");
                         page.writeRaw(
-                                "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n" +
-                                "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n" +
-                                "});"
+                                "$('.fileSelectorDropbox input').on('DbxChooserSuccess', function(event) {\n"
+                                        + "   $(this).val(JSON.stringify(event.originalEvent.files[0]));\n"
+                                        + "});"
                         );
                     page.writeEnd();
                 }
@@ -640,8 +640,8 @@ public class StorageItemField extends PageServlet {
                         ToolUi ui = field.as(ToolUi.class);
                         String processorPath = ui.getStoragePreviewProcessorPath();
                         if (processorPath != null) {
-                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication()) +
-                                    StringUtils.ensureStart(processorPath, "/"));
+                            page.include(RoutingFilter.Static.getApplicationPath(ui.getStoragePreviewProcessorApplication())
+                                    + StringUtils.ensureStart(processorPath, "/"));
                         }
                     } else {
                         FileContentType.writeFilePreview(page, state, fieldValue);
@@ -670,8 +670,8 @@ public class StorageItemField extends PageServlet {
             }
         }
 
-        if (ObjectUtils.isBlank(label) ||
-                ObjectUtils.to(UUID.class, label) != null) {
+        if (ObjectUtils.isBlank(label)
+                || ObjectUtils.to(UUID.class, label) != null) {
             label = fileName;
         }
 

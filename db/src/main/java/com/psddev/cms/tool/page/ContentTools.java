@@ -71,10 +71,10 @@ public class ContentTools extends PageServlet {
                     if (newPublishDate != null) {
                         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
                         DateTimeZone timeZone = page.getUserDateTimeZone();
-                        newPublishDate = new Date(DateTimeFormat.
-                                forPattern("yyyy-MM-dd HH:mm:ss").
-                                withZone(timeZone).
-                                parseMillis(new DateTime(newPublishDate).toString("yyyy-MM-dd HH:mm:ss")));
+                        newPublishDate = new Date(DateTimeFormat
+                                .forPattern("yyyy-MM-dd HH:mm:ss")
+                                .withZone(timeZone)
+                                .parseMillis(new DateTime(newPublishDate).toString("yyyy-MM-dd HH:mm:ss")));
 
                         contentData.setPublishUser(page.getUser());
                         contentData.setPublishDate(newPublishDate);
@@ -172,8 +172,8 @@ public class ContentTools extends PageServlet {
                                 page.writeHtml("Advanced Edits");
                             page.writeEnd();
 
-                            if (page.isFormPost() &&
-                                    page.param(String.class, "action-edits") != null) {
+                            if (page.isFormPost()
+                                    && page.param(String.class, "action-edits") != null) {
                                 if (page.getErrors().isEmpty()) {
                                     page.writeStart("div", "class", "message message-success");
                                         page.writeHtml("Advanced edits successfully saved.");
@@ -248,8 +248,8 @@ public class ContentTools extends PageServlet {
                             page.writeHtml("Settings");
                         page.writeEnd();
 
-                        if (page.isFormPost() &&
-                                page.param(String.class, "action-settings") != null) {
+                        if (page.isFormPost()
+                                && page.param(String.class, "action-settings") != null) {
                             if (page.getErrors().isEmpty()) {
                                 page.writeStart("div", "class", "message message-success");
                                     page.writeHtml("Settings successfully saved.");
@@ -492,10 +492,10 @@ public class ContentTools extends PageServlet {
             List<Class<? extends Annotation>> possibleAnnotationClasses = new ArrayList<Class<? extends Annotation>>();
 
             for (Class<? extends Annotation> ac : ClassFinder.Static.findClasses(Annotation.class)) {
-                if (!ac.isAnnotationPresent(Deprecated.class) &&
-                        ac.isAnnotationPresent(annotated instanceof Field ?
-                                ObjectField.AnnotationProcessorClass.class :
-                                ObjectType.AnnotationProcessorClass.class)) {
+                if (!ac.isAnnotationPresent(Deprecated.class)
+                        && ac.isAnnotationPresent(annotated instanceof Field
+                        ? ObjectField.AnnotationProcessorClass.class
+                        : ObjectType.AnnotationProcessorClass.class)) {
                     possibleAnnotationClasses.add(ac);
                     continue;
                 }

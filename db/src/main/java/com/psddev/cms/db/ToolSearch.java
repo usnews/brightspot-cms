@@ -172,9 +172,9 @@ public class ToolSearch extends Record {
             Sorter sorter = i.next();
             if (Sorter.ASCENDING_OPERATOR.equals(sorter.getOperator())) {
                 List<Object> options = sorter.getOptions();
-                if (options != null &&
-                        options.size() > 0 &&
-                        sortFieldName.equals(options.get(0))) {
+                if (options != null
+                        && options.size() > 0
+                        && sortFieldName.equals(options.get(0))) {
                     i.set(new Sorter(Sorter.DESCENDING_OPERATOR, options));
                 }
             }
