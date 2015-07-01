@@ -666,23 +666,26 @@ if (!isValueExternal) {
     wp.writeEnd();
 
 } else {
-    Set<ObjectType> types = field.getTypes();
+    Set<ObjectType> valueTypes = field.getTypes();
     final StringBuilder typeIdsCsv = new StringBuilder();
     StringBuilder typeIdsQuery = new StringBuilder();
-    boolean previewable = false;
 
-    if (types != null && !types.isEmpty()) {
-        for (ObjectType type : types) {
-            typeIdsCsv.append(type.getId()).append(",");
-            typeIdsQuery.append("typeId=").append(type.getId()).append("&");
-
-            if (!ObjectUtils.isBlank(type.getPreviewField())) {
-                previewable = true;
-            }
+    if (valueTypes != null && !valueTypes.isEmpty()) {
+        for (ObjectType valueType : valueTypes) {
+            typeIdsCsv.append(valueType.getId()).append(",");
+            typeIdsQuery.append("typeId=").append(valueType.getId()).append("&");
         }
 
         typeIdsCsv.setLength(typeIdsCsv.length() - 1);
         typeIdsQuery.setLength(typeIdsQuery.length() - 1);
+    }
+
+    boolean previewable = false;
+
+    for (ObjectType displayType : field.as(ToolUi.class).findDisplayTypes()) {
+        if (!ObjectUtils.isBlank(displayType.getPreviewField())) {
+            previewable = true;
+        }
     }
 
     PageWriter writer = wp.getWriter();
