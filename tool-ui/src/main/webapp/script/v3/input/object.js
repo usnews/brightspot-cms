@@ -22,7 +22,10 @@ function($) {
           dynamicPlaceholderText,
           dynamicFieldName,
           placeholder,
-          value;
+          value,
+          selectHref,
+          aqIndex,
+          aqParam;
 
       if (!shadow) {
         return;
@@ -83,6 +86,18 @@ function($) {
           }
         }
       }
+
+      // update additional query parameter in select href
+      selectHref = $select.attr('href');
+      aqIndex = selectHref.indexOf('aq');
+      aqParam = 'aq=' + encodeURIComponent($input.attr('data-additional-query') || '');
+
+      if (aqIndex === -1) {
+          selectHref += '&' + aqParam;
+      } else {
+          selectHref = selectHref.substr(0, aqIndex) + aqParam + selectHref.substr(selectHref.indexOf('&', aqIndex));
+      }
+      $select.attr('href', selectHref);
 
       $edit.toggle(
           $input.attr('data-editable') !== 'false' &&

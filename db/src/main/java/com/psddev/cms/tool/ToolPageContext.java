@@ -1958,7 +1958,7 @@ public class ToolPageContext extends WebPageContext {
             writeElement("input",
                     "type", "text",
                     "class", "objectId",
-                    "data-additional-query", field.getPredicate(),
+                    "data-dynamic-predicate", field.getPredicate(),
                     "data-generic-argument-index", field.getGenericArgumentIndex(),
                     "data-dynamic-placeholder", ui.getPlaceholderDynamicText(),
                     "data-dynamic-field-name", field.getInternalName(),
