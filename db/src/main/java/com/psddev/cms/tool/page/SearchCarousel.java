@@ -67,7 +67,7 @@ public class SearchCarousel extends PageServlet {
                         "target", "_top",
                         "href", page.toolUrl(CmsTool.class, "/content/edit.jsp",
                                 "id", itemState.getId(),
-                                "search", searchString));
+                                "search", ObjectUtils.toJson(search.getState().getSimpleValues())));
 
                     boolean itemPreviewImage = false;
 
