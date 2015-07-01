@@ -1011,7 +1011,7 @@ The HTML within the repeatable element must conform to these standards:
                 // So it will tell the back-end that this input should be added
                 // ???: this is not checked initially (but is is checked when the new input is added?)
                 $('<input/>', {
-                    'name': $singleInput.attr('name'),
+                    'name': $toggle.attr('name'),
                     'type': 'hidden',
                     'value': $toggle.attr('value')
                 }).appendTo($addButtonContainer);
