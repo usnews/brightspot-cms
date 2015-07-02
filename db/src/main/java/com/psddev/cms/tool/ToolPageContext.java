@@ -1306,37 +1306,6 @@ public class ToolPageContext extends WebPageContext {
                         String firstName = nameParts[0];
 
                         writeStart("div", "class", "toolUserDisplay");
-                            writeStart("div", "class", "toolUserWelcome");
-                                writeHtml("Welcome, ");
-
-                                if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
-                                    writeHtml(firstName.substring(0, 1).toUpperCase(Locale.ENGLISH));
-                                    writeHtml(firstName.substring(1));
-
-                                } else {
-                                    writeHtml(firstName);
-                                }
-                            writeEnd();
-
-                            writeStart("div", "class", "toolUserControls");
-                                writeStart("ul", "class", "piped");
-                                    writeStart("li");
-                                        writeStart("a",
-                                                "href", cmsUrl("/profilePanel"),
-                                                "target", "profilePanel");
-                                            writeHtml("Profile");
-                                        writeEnd();
-                                    writeEnd();
-
-                                    writeStart("li");
-                                        writeStart("a",
-                                                "href", cmsUrl("/misc/logOut.jsp"));
-                                            writeHtml("Log Out");
-                                        writeEnd();
-                                    writeEnd();
-                                writeEnd();
-                            writeEnd();
-
                             writeStart("span", "class", "toolUserAvatar");
                                 writeStart("a",
                                         "href", cmsUrl("/profilePanel"),
@@ -1347,6 +1316,60 @@ public class ToolPageContext extends WebPageContext {
                                     }
                                 writeEnd();
                             writeEnd();
+
+                            writeStart("div", "class", "toolUser");
+                                writeStart("div", "class", "toolUserWelcome");
+                                    writeHtml("Welcome, ");
+
+                                    if (firstName.equals(firstName.toLowerCase(Locale.ENGLISH))) {
+                                        writeHtml(firstName.substring(0, 1).toUpperCase(Locale.ENGLISH));
+                                        writeHtml(firstName.substring(1));
+
+                                    } else {
+                                        writeHtml(firstName);
+                                    }
+                                writeEnd();
+
+                                writeStart("div", "class", "toolUserControls");
+                                    writeStart("ul", "class", "piped");
+                                        writeStart("li");
+                                            writeStart("a",
+                                                    "href", cmsUrl("/profilePanel"),
+                                                    "target", "profilePanel");
+                                                writeHtml("Profile");
+                                            writeEnd();
+                                        writeEnd();
+
+                                        writeStart("li");
+                                            writeStart("a",
+                                                    "href", cmsUrl("/misc/logOut.jsp"));
+                                                writeHtml("Log Out");
+                                            writeEnd();
+                                        writeEnd();
+                                    writeEnd();
+                                writeEnd();
+                            writeEnd();
+
+                            if (Query.from(Site.class).hasMoreThan(0)) {
+                                writeStart("div", "class", "toolUserSite");
+                                    writeStart("div", "class", "toolUserSiteDisplay");
+                                        writeHtml("Site: ");
+                                        writeHtml(site != null ? site.getLabel() : "Global");
+                                    writeEnd();
+
+                                    writeStart("div", "class", "toolUserSiteControls");
+                                        writeStart("ul", "class", "piped");
+                                            writeStart("li");
+                                                writeStart("a",
+                                                        "href", cmsUrl("/siteSwitch"),
+                                                        "target", "siteSwitch");
+                                                    writeHtml("Switch");
+                                                writeEnd();
+                                            writeEnd();
+                                        writeEnd();
+                                    writeEnd();
+                                writeEnd();
+                            }
                         writeEnd();
 
                         int nowHour = new DateTime().getHourOfDay();
