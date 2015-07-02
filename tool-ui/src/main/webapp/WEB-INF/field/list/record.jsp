@@ -379,7 +379,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "data-label", itemState != null ? itemState.getLabel() : null,
                                                                     "data-typeIds", itemTypeIdsCsv,
                                                                     "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                    "data-additional-query", field.getPredicate(),
+                                                                    "data-dynamic-predicate", field.getPredicate(),
                                                                     "data-preview", preview != null ? preview.getUrl() : null,
                                                                     "name", inputName,
                                                                     "value", itemState != null ? itemState.getId() : null);
@@ -529,7 +529,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                 "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
                                                                 "data-typeIds", itemTypeIdsCsv,
                                                                 "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                "data-additional-query", field.getPredicate(),
+                                                                "data-dynamic-predicate", field.getPredicate(),
                                                                 "name", inputName);
                                                     }
                                                 writer.end();

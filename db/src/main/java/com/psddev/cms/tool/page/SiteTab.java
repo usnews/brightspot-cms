@@ -19,10 +19,10 @@ public class SiteTab extends ProfilePanelTab {
         ToolUser user = page.getUser();
 
         if ("site".equals(page.param(String.class, "tab"))) {
-            Site newCurrentSite = Query.
-                    from(Site.class).
-                    where("_id = ?", page.param(UUID.class, "id")).
-                    first();
+            Site newCurrentSite = Query
+                    .from(Site.class)
+                    .where("_id = ?", page.param(UUID.class, "id"))
+                    .first();
 
             user.setCurrentSite(newCurrentSite);
             page.publish(user);

@@ -733,7 +733,8 @@ function() {
               'opacity': '',
               'transform': '',
               'transform-origin': ''
-            })
+            });
+            $popup.remove();
           }
         })
       }

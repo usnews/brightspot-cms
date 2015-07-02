@@ -52,8 +52,9 @@ function ($, bsp_utils, evaporate) {
             state.evaporators[state.evaporators.length - 1].add({
               name: filePath,
               file: file,
+              contentType: file.type,
               notSignedHeadersAtInitiate: {
-                'Cache-Control': 'max-age=3600'
+                'Cache-Control': 'public, max-age=31536000'
               },
               xAmzHeadersAtInitiate: {
                 'x-amz-acl': 'public-read'

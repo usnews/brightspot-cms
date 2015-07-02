@@ -1,5 +1,9 @@
 sudo: false
 
+branches:
+  except:
+    - /^v[-.0-9]+$/
+
 language: java
 
 jdk:
@@ -7,8 +11,12 @@ jdk:
 
 env:
   global:
-    - secure: dDqArCwU822X1otGdfRjWyx4EY7mw+mHe+1UGeK9xORkSzrKYgus6Gk0HQsJ6xtyrdCEojT7b/bViMkEkKEAcZV4CGqQ2Y8a9GO6I1gLswkePxwlPM8cbemDmwa+B7/a1EYqAt+nllb1X4kQTP8++FqmdLvVvzw0nDDHiiswuJs=
-    - secure: VMhgSZRSKRGW32t6gaWOIxuR2astinaNVvmr7Xvlqeut7f+br8PuFDhr2OrAtchDCsGk/5JuWdhYKSVk3jrbJO6ula9pQ/II/qotvpepr5GsLjeBxb7xYePezjSeosMiXvtMqxKYX9PRSPZ5Cva4V5TSKk1Re6QQB4zasSbHaVg=
+    - secure: "pfQ0YztDBxyLlRboI1ISk6KhI2zQe5ugFF87akt10Bq5mQh3UVrr1YegpBHY9FUiI9V/reGCSb54fi1OGtWFi9jgvZWn4/xkVZhLxwycBUAqP85OQPWQy5hzkerlwL1BNx0wMqMtgP6yPtMwBWrSTSxs+VVAY6hwVCi086uiM90="
+    - secure: "jQbegeTjPZ+5bm4goTU/+jsoR7UmSOYowjZZ04oUZmkGxhd9wdnHDgHGmryRDfpLGPVw8/yt0IVXWntL0oZTDKQ1OrTbhK7I1oppt7hnd7ghylY+UWVj68ZP9Qp/4ntHjvelp8v3kqrY28MPdT7cZp9C7dDSjjNYphXFVpCb2rM="
+
+install: true
+
+script: mvn -Plibrary verify
 
 cache:
   directories:
@@ -16,13 +24,5 @@ cache:
     - tool-ui/bower_components
     - tool-ui/node_modules
 
-install: mvn dependency:resolve
-
-script: mvn -o -Plibrary verify
-
 after_success:
-  - etc/deploy.sh
-
-notifications:
-  slack:
-    secure: NCITf3iLtWmffITENdcyd9rfirJvZQICoSRH575QfwhjHhbt2e/BB0emD5e8p8FwPvpz3iuIkhAY9qHt8DRfTxQRgmrUccTPpM2zLb/IeKjxJVvtM7gNgkx7ABwQxK0D6c/ScdCAkc1bzDDgcx7Tjc7EKcEHQRE5esr3Ft8LKKY=
+  - git clone https://github.com/perfectsense/travis-maven-deploy.git && travis-maven-deploy/deploy.sh

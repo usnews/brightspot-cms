@@ -171,9 +171,9 @@ public class Workflow extends Record {
                 transition.setSource(source);
                 transition.setTarget(states.get(t.get("target")));
 
-                if (!(source == null ||
-                        !from.equals(source.getName()) ||
-                        "Published".equals(transition.getTarget().getName()))) {
+                if (!(source == null
+                        || !from.equals(source.getName())
+                        || "Published".equals(transition.getTarget().getName()))) {
                     transitions.put(name, transition);
                 }
             }
@@ -274,10 +274,10 @@ public class Workflow extends Record {
             String currentState = getCurrentState();
 
             if (currentState != null) {
-                Workflow workflow = Query.
-                        from(Workflow.class).
-                        where("contentTypes = ?", getState().getType()).
-                        first();
+                Workflow workflow = Query
+                        .from(Workflow.class)
+                        .where("contentTypes = ?", getState().getType())
+                        .first();
 
                 if (workflow != null) {
                     for (WorkflowState s : workflow.getStates()) {
