@@ -404,20 +404,20 @@ public class StorageItemField extends PageServlet {
 
                 } else if ("newUrl".equals(action)) {
                     newItem = StorageItem.Static.createUrl(page.param(urlName));
-
-                    newItemData = newItem.getData();
                 }
 
                 // Automatic image metadata extraction.
                 if (newItem != null &&
                         !fieldValueMetadata.containsKey("width") &&
                         !fieldValueMetadata.containsKey("height")) {
-
-                    Map<String, Object> metadata = extractMetadata(newItem);
+                    Map<String, Object> metadata = extractMetadata(newItem, Optional.ofNullable(newItemData));
                     fieldValueMetadata.putAll(metadata);
                 }
 
-                IoUtils.closeQuietly(newItemData);
+                // Makes sure opened stream gets closed
+                if (newItemData != null) {
+                    IoUtils.closeQuietly(newItemData);
+                }
 
                 // Standard sizes.
                 for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
@@ -704,15 +704,14 @@ public class StorageItemField extends PageServlet {
         return storageSetting;
     }
 
-    static Map<String, Object> extractMetadata(StorageItem storageItem) {
+    static Map<String, Object> extractMetadata(StorageItem storageItem, Optional<InputStream> optionalStream) {
         String contentType = storageItem.getContentType();
         ImageMetadataMap metadata = null;
 
         if (contentType != null && contentType.startsWith("image/")) {
             InputStream inputStream = null;
-
             try {
-                inputStream = storageItem.getData();
+                inputStream = optionalStream.isPresent() ? optionalStream.get() : storageItem.getData();
                 metadata = new ImageMetadataMap(inputStream);
                 List<Throwable> errors = metadata.getErrors();
 
