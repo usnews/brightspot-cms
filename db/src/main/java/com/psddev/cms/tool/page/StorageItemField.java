@@ -407,9 +407,9 @@ public class StorageItemField extends PageServlet {
                 }
 
                 // Automatic image metadata extraction.
-                if (newItem != null &&
-                        !fieldValueMetadata.containsKey("width") &&
-                        !fieldValueMetadata.containsKey("height")) {
+                if (newItem != null
+                        && !fieldValueMetadata.containsKey("width")
+                        && !fieldValueMetadata.containsKey("height")) {
                     Map<String, Object> metadata = extractMetadata(newItem, Optional.ofNullable(newItemData));
                     fieldValueMetadata.putAll(metadata);
                 }
