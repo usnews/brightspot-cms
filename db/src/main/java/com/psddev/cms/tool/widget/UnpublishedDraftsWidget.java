@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.widget;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -154,6 +155,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                             ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes(),
                             type,
                             "Any Types",
+                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "name", "typeId",
                             "data-bsp-autosubmit", "",
                             "data-searchable", true);

@@ -2,6 +2,7 @@ package com.psddev.cms.tool.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -122,6 +123,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                             com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite()),
                             itemType,
                             "Any Types",
+                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "data-bsp-autosubmit", "",
                             "name", "itemType",
                             "data-searchable", "true");

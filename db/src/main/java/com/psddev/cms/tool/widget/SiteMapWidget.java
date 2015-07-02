@@ -2,6 +2,7 @@ package com.psddev.cms.tool.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -147,6 +148,7 @@ public class SiteMapWidget extends DashboardWidget {
                             com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite()),
                             itemType,
                             "Any Types",
+                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "name", "itemType",
                             "data-bsp-autosubmit", "",
                             "data-searchable", "true");
