@@ -65,8 +65,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
         ObjectType selectedType = search.getSelectedType();
 
         sortField = updateSort();
-        showSiteLabel = Query.from(CmsTool.class).first().isDisplaySiteInSearchResult() &&
-                Query.from(Site.class).hasMoreThan(0);
+        showSiteLabel = Query.from(CmsTool.class).first().isDisplaySiteInSearchResult()
+                && Query.from(Site.class).hasMoreThan(0);
 
         if (selectedType != null) {
             showTypeLabel = selectedType.as(ToolUi.class).findDisplayTypes().size() != 1;
@@ -120,9 +120,9 @@ public class ListSearchResultView extends AbstractSearchResultView {
                 page.writeStart("figure");
                     page.writeElement("img",
                             "src", page.getPreviewThumbnailUrl(item),
-                            "alt", (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "") +
-                                    (showTypeLabel ? page.getTypeLabel(item) + ": " : "") +
-                                    page.getObjectLabel(item));
+                            "alt", (showSiteLabel ? page.getObjectLabel(State.getInstance(item).as(Site.ObjectModification.class).getOwner()) + ": " : "")
+                                    + (showTypeLabel ? page.getTypeLabel(item) + ": " : "")
+                                    + page.getObjectLabel(item));
 
                     page.writeStart("figcaption");
                         itemWriter.writeCheckboxHtml(page, search, item);
@@ -158,8 +158,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
                                 "class", "searchResult-checkAll");
                     page.writeEnd();
 
-                    if (sortField != null &&
-                            ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                    if (sortField != null
+                            && ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
 
                         page.writeStart("th", "colspan", 2);
                             page.writeHtml(sortField.getDisplayName());
@@ -182,8 +182,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
                         page.writeHtml("Label");
                     page.writeEnd();
 
-                    if (sortField != null &&
-                            !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                    if (sortField != null
+                            && !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
 
                         page.writeStart("th");
                             page.writeHtml(sortField.getDisplayName());
@@ -249,8 +249,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
                             Renderer.TypeModification rendererData = type.as(Renderer.TypeModification.class);
                             int previewWidth = rendererData.getEmbedPreviewWidth();
 
-                            if (previewWidth > 0 &&
-                                    !ObjectUtils.isBlank(rendererData.getEmbedPath())) {
+                            if (previewWidth > 0
+                                    && !ObjectUtils.isBlank(rendererData.getEmbedPath())) {
 
                                 permalink = "/_preview?_embed=true&_cms.db.previewId=" + itemState.getId();
                                 embedWidth = 320;
@@ -267,8 +267,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
                             itemWriter.writeCheckboxHtml(page, search, item);
                         page.writeEnd();
 
-                        if (sortField != null &&
-                                ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                        if (sortField != null
+                                && ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
 
                             DateTime dateTime = page.toUserDateTime(itemState.getByPath(sortField.getInternalName()));
 
@@ -311,8 +311,8 @@ public class ListSearchResultView extends AbstractSearchResultView {
                             itemWriter.writeAfterHtml(page, search, item);
                         page.writeEnd();
 
-                        if (sortField != null &&
-                                !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
+                        if (sortField != null
+                                && !ObjectField.DATE_TYPE.equals(sortField.getInternalType())) {
 
                             String sortFieldName = sortField.getInternalName();
                             Object value = itemState.getByPath(sortFieldName);
@@ -324,9 +324,9 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
                                         if (maxSum == null) {
                                             Object maxObject = search.toQuery(page.getSite()).sortDescending(sortFieldName).first();
-                                            maxSum = maxObject != null ?
-                                                    ((Metric) State.getInstance(maxObject).get(sortFieldName)).getSum() :
-                                                    1.0;
+                                            maxSum = maxObject != null
+                                                    ? ((Metric) State.getInstance(maxObject).get(sortFieldName)).getSum()
+                                                    : 1.0;
 
                                             request.setAttribute(MAX_SUM_ATTRIBUTE, maxSum);
                                         }
