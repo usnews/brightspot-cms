@@ -1126,8 +1126,8 @@ define([
 
             self.tabsCreate('sizes');
 
-            // Move everything into the tab
-            self.$element.children().appendTo( self.dom.tabs.sizes );
+            // Move the image into the tab
+            self.$element.find('.imageEditor-image').appendTo( self.dom.tabs.sizes );
 
             // Create a sidebar to hold the size selector
             self.dom.$sizesAside = $('<div/>', {
@@ -3214,6 +3214,7 @@ define([
             // so we will just hide it.
             $hotspotsInputContainer = self.dom.$hotspots.closest('.inputContainer');
             self.dom.$hotspots.appendTo( self.dom.tabs.hotspots );
+
             $hotspotsInputContainer.hide();
 
             // Hide the individual hotspot forms because we will make them appear in popups

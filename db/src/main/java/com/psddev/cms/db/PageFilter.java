@@ -287,8 +287,8 @@ public class PageFilter extends AbstractFilter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        if (request.getMethod().equalsIgnoreCase("HEAD") &&
-                ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
+        if (request.getMethod().equalsIgnoreCase("HEAD")
+                && ObjectUtils.to(boolean.class, request.getHeader("Brightspot-Main-Object-Id-Query"))) {
             Object mainObject = Static.getMainObject(request);
 
             if (mainObject != null) {
@@ -399,18 +399,50 @@ public class PageFilter extends AbstractFilter {
             // If mainObject has a redirect path AND a permalink and the
             // current request is the redirect path, then redirect to the
             // permalink.
-            String path = Static.getPath(request);
             Directory.Path redirectPath = null;
             boolean isRedirect = false;
 
             for (Directory.Path p : State.getInstance(mainObject).as(Directory.Data.class).getPaths()) {
-                if (p.getType() == Directory.PathType.REDIRECT &&
-                        ObjectUtils.equals(p.getSite(), site) &&
-                        path.equalsIgnoreCase(p.getPath())) {
-                    isRedirect = true;
 
-                } else if (p.getType() == Directory.PathType.PERMALINK &&
-                        ObjectUtils.equals(p.getSite(), site)) {
+                if (p.getType() == Directory.PathType.REDIRECT
+                        && ObjectUtils.equals(p.getSite(), site)) {
+                    String path = p.getPath();
+                    String requestPath = Static.getPath(request);
+
+                    if (requestPath.equalsIgnoreCase(path)) {
+                        isRedirect = true;
+
+                    } else {
+                        // handle wildcards
+                        int wildcardIndex = path.indexOf("/*");
+
+                        if (wildcardIndex > -1) {
+                            String purePath = path.substring(0, wildcardIndex);
+
+                            if (requestPath.length() >= purePath.length()) {
+                                String requestPurePath = requestPath.substring(0, wildcardIndex);
+
+                                if (requestPurePath.equalsIgnoreCase(purePath)) {
+                                    String requestPathLeftover = requestPath.substring(wildcardIndex, requestPath.length());
+
+                                    if (requestPathLeftover.isEmpty()) {
+                                        isRedirect = true;
+
+                                    } else {
+                                        String wildcard = path.substring(wildcardIndex, path.length());
+
+                                        if (wildcard.equals("/**")
+                                                || (wildcard.equals("/*") && requestPathLeftover.split("/").length < 3)) {
+                                            isRedirect = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } else if (p.getType() == Directory.PathType.PERMALINK
+                        && ObjectUtils.equals(p.getSite(), site)) {
                     redirectPath = p;
                 }
             }
@@ -418,9 +450,9 @@ public class PageFilter extends AbstractFilter {
             if (isRedirect && redirectPath != null) {
                 String rp = StringUtils.removeEnd(redirectPath.getPath(), "*");
 
-                JspUtils.redirectPermanently(request, response, site != null ?
-                        site.getPrimaryUrl() + rp :
-                        rp);
+                JspUtils.redirectPermanently(request, response, site != null
+                        ? site.getPrimaryUrl() + rp
+                        : rp);
                 return;
             }
 
@@ -442,10 +474,10 @@ public class PageFilter extends AbstractFilter {
                     int colonAt = previewPath.indexOf(':');
 
                     if (colonAt > -1) {
-                        Site previewSite = Query.
-                                from(Site.class).
-                                where("_id = ?", ObjectUtils.to(UUID.class, previewPath.substring(0, colonAt))).
-                                first();
+                        Site previewSite = Query
+                                .from(Site.class)
+                                .where("_id = ?", ObjectUtils.to(UUID.class, previewPath.substring(0, colonAt)))
+                                .first();
 
                         if (previewSite != null) {
                             Static.setSite(request, previewSite);
@@ -476,14 +508,14 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (!Static.isPreview(request) &&
-                    !mainState.isVisible()) {
+            if (!Static.isPreview(request)
+                    && !mainState.isVisible()) {
                 SCHEDULED: {
                     if (user != null) {
                         Schedule currentSchedule = user.getCurrentSchedule();
 
-                        if (currentSchedule != null &&
-                                Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
+                        if (currentSchedule != null
+                                && Query.from(Draft.class).where("schedule = ? and objectId = ?", currentSchedule, mainState.getId()).first() != null) {
                             break SCHEDULED;
                         }
 
@@ -509,9 +541,9 @@ public class PageFilter extends AbstractFilter {
             ObjectType mainType = mainState.getType();
             Page page = Static.getPage(request);
 
-            if (page == null &&
-                    mainType != null &&
-                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getPath())) {
+            if (page == null
+                    && mainType != null
+                    && !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getPath())) {
                 page = Application.Static.getInstance(CmsTool.class).getModulePreviewTemplate();
             }
 
@@ -541,13 +573,13 @@ public class PageFilter extends AbstractFilter {
             request.setAttribute("stage", stage);
             stage.setMetaProperty("og:type", mainType.as(Seo.TypeModification.class).getOpenGraphType());
 
-            if (mainType != null &&
-                    !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getEmbedPath())) {
+            if (mainType != null
+                    && !ObjectUtils.isBlank(mainType.as(Renderer.TypeModification.class).getEmbedPath())) {
                 stage.findOrCreateHeadElement("link",
                         "rel", "alternate",
-                        "type", "application/json+oembed").
-                        getAttributes().
-                        put("href", JspUtils.getAbsoluteUrl(request, "",
+                        "type", "application/json+oembed")
+                        .getAttributes()
+                        .put("href", JspUtils.getAbsoluteUrl(request, "",
                                 "_embed", true,
                                 "_format", "oembed"));
             }
@@ -606,8 +638,8 @@ public class PageFilter extends AbstractFilter {
                 }
             }
 
-            if (ObjectUtils.isBlank(layoutPath) &&
-                    Static.isPreview(request)) {
+            if (ObjectUtils.isBlank(layoutPath)
+                    && Static.isPreview(request)) {
                 layoutPath = findLayoutPath(mainObject, true);
             }
 
@@ -615,8 +647,8 @@ public class PageFilter extends AbstractFilter {
             boolean rendered = false;
 
             try {
-                ContextTag.Static.pushContext(request, contextNotBlank ? context :
-                        (embed ? EMBED_OBJECT_RENDERER_CONTEXT : MAIN_OBJECT_RENDERER_CONTEXT));
+                ContextTag.Static.pushContext(request, contextNotBlank ? context
+                        : (embed ? EMBED_OBJECT_RENDERER_CONTEXT : MAIN_OBJECT_RENDERER_CONTEXT));
 
                 if (!ObjectUtils.isBlank(layoutPath)) {
                     rendered = true;
@@ -703,16 +735,16 @@ public class PageFilter extends AbstractFilter {
             }
         }
 
-        if (Settings.isDebug() ||
-                (Static.isPreview(request) &&
-                !Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE)))) {
+        if (Settings.isDebug()
+                || (Static.isPreview(request)
+                && !Boolean.TRUE.equals(request.getAttribute(PERSISTENT_PREVIEW_ATTRIBUTE)))) {
             return;
         }
 
         String contentType = response.getContentType();
 
-        if (contentType == null ||
-                !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
+        if (contentType == null
+                || !StringUtils.ensureEnd(contentType, ";").startsWith("text/html;")) {
             return;
         }
 
@@ -815,16 +847,16 @@ public class PageFilter extends AbstractFilter {
                         "class", "bsp-inlineEditorMain_remove",
                         "href", "#",
                         "onclick",
-                                "var main = this.parentNode," +
-                                        "contents = this.ownerDocument.getElementById('bsp-inlineEditorContents');" +
+                                "var main = this.parentNode,"
+                                        + "contents = this.ownerDocument.getElementById('bsp-inlineEditorContents');"
 
-                                "main.parentNode.removeChild(main);" +
+                                + "main.parentNode.removeChild(main);"
 
-                                "if (contents) {" +
-                                    "contents.parentNode.removeChild(contents);" +
-                                "}" +
+                                + "if (contents) {"
+                                    + "contents.parentNode.removeChild(contents);"
+                                + "}"
 
-                                "return false;");
+                                + "return false;");
                     page.writeHtml("\u00d7");
                 page.writeEnd();
             page.writeEnd();
@@ -1002,9 +1034,9 @@ public class PageFilter extends AbstractFilter {
 
         @Override
         public boolean equals(Object other) {
-            return this == other || (
-                    other instanceof SectionCacheKey &&
-                    sectionId.equals(((SectionCacheKey) other).sectionId));
+            return this == other
+                    || (other instanceof SectionCacheKey
+                    && sectionId.equals(((SectionCacheKey) other).sectionId));
         }
 
         @Override
@@ -1332,16 +1364,16 @@ public class PageFilter extends AbstractFilter {
                         }
 
                         UUID mainObjectId = ObjectUtils.to(UUID.class, request.getParameter("_mainObjectId"));
-                        Object preview = Query.
-                                fromAll().
-                                where("_id = ?", mainObjectId).
-                                first();
+                        Object preview = Query
+                                .fromAll()
+                                .where("_id = ?", mainObjectId)
+                                .first();
 
                         if (preview == null) {
-                            preview = Query.
-                                    fromAll().
-                                    where("_id = ?", previewId).
-                                    first();
+                            preview = Query
+                                    .fromAll()
+                                    .where("_id = ?", previewId)
+                                    .first();
                         }
 
                         if (preview instanceof Draft) {
@@ -1381,10 +1413,10 @@ public class PageFilter extends AbstractFilter {
                             dirData.addPath(null, "/_preview-" + previewId, Directory.PathType.PERMALINK);
                         }
 
-                        Site previewSite = Query.
-                                from(Site.class).
-                                where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER)).
-                                first();
+                        Site previewSite = Query
+                                .from(Site.class)
+                                .where("_id = ?", request.getParameter(PREVIEW_SITE_ID_PARAMETER))
+                                .first();
 
                         if (previewSite != null) {
                             setSite(request, previewSite);

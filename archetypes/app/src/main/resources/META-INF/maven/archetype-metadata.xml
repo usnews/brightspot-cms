@@ -11,11 +11,11 @@
         <requiredProperty key="artifactId" />
 
         <requiredProperty key="version">
-            <defaultValue>1.0.0-SNAPSHOT</defaultValue>
+            <defaultValue>1.0-SNAPSHOT</defaultValue>
         </requiredProperty>
 
         <requiredProperty key="jdbcUrl">
-            <defaultValue>DEFAULT</defaultValue>
+            <defaultValue>_default</defaultValue>
         </requiredProperty>
 
         <requiredProperty key="jdbcUser">
@@ -23,11 +23,82 @@
         </requiredProperty>
 
         <requiredProperty key="jdbcPassword">
-            <defaultValue>DEFAULT</defaultValue>
+            <defaultValue>_default</defaultValue>
         </requiredProperty>
 
-        <requiredProperty key="mysqlDatabase">
-            <defaultValue>DEFAULT</defaultValue>
+        <requiredProperty key="dataDirectory">
+            <!--defaultValue>${''.getClass().forName('java.lang.System').getMethod('getProperty', ''.getClass()).invoke(null, 'user.home')}</defaultValue-->
+            <defaultValue>##
+#set($string = '')
+#set($stringClass = $string.getClass())
+##
+## Find System#getProperties(String key, String def) method.
+##
+#set($systemClass = $stringClass.forName('java.lang.System'))
+#foreach($method in $systemClass.getMethods())
+#if($method.name == 'getProperty')
+#set($paramCount = 0)
+#foreach($paramType in $method.parameterTypes)
+#set($paramCount = $paramCount + 1)
+#end
+#if($paramCount == 2)
+#set($systemGetPropertyMethod = $method)
+#end
+#end
+#end
+##
+## Set the data directory in the user home directory.
+##
+#set($parameters = [ 'user.home', '' ])
+#set($dataDirectory = $systemGetPropertyMethod.invoke(null, $parameters.toArray()) + '/.brightspot/' + $groupId + '/' + $artifactId)
+##
+## Find File(String pathname) method.
+##
+#set($fileClass = $stringClass.forName('java.io.File'))
+#foreach($method in $fileClass.getConstructors())
+#set($paramCount = 0)
+#foreach($paramType in $method.parameterTypes)
+#set($paramCount = $paramCount + 1)
+#set($lastParamType = $paramType)
+#end
+#if($paramCount == 1 &amp;&amp; $lastParamType == $stringClass)
+#set($fileConstructor = $method)
+#end
+#end
+##
+## Find File#mkdirs method.
+##
+#foreach($method in $fileClass.getMethods())
+#if($method.name == 'mkdirs')
+#set($fileMkdirsMethod = $method)
+#end
+#end
+##
+## Create the MySQL data directory.
+##
+#set($mysqlDataDirectory = ($dataDirectory + '/mysql'))
+#set($parameters = [ $mysqlDataDirectory ])
+#set($file = $fileConstructor.newInstance($parameters.toArray()))
+#set($parameters = [])
+#set($success = $fileMkdirsMethod.invoke($file, $parameters.toArray()))
+##
+## Create the Solr data directory.
+##
+#set($solrDataDirectory = ($dataDirectory + '/solr'))
+#set($parameters = [ $solrDataDirectory ])
+#set($file = $fileConstructor.newInstance($parameters.toArray()))
+#set($parameters = [])
+#set($success = $fileMkdirsMethod.invoke($file, $parameters.toArray()))
+##
+## Create the storage data directory.
+##
+#set($storageDataDirectory = ($dataDirectory + '/storage'))
+#set($parameters = [ $storageDataDirectory ])
+#set($file = $fileConstructor.newInstance($parameters.toArray()))
+#set($parameters = [])
+#set($success = $fileMkdirsMethod.invoke($file, $parameters.toArray()))
+##
+${dataDirectory}</defaultValue>
         </requiredProperty>
     </requiredProperties>
 
@@ -35,14 +106,7 @@
         <fileSet encoding="UTF-8">
             <directory></directory>
             <includes>
-                <include>.gitignore</include>
-            </includes>
-        </fileSet>
-
-        <fileSet encoding="UTF-8">
-            <directory>data</directory>
-            <includes>
-                <include>**/*</include>
+                <include>*</include>
             </includes>
         </fileSet>
 
@@ -52,14 +116,18 @@
                 <include>**/*</include>
             </includes>
             <excludes>
+                <exclude>solr-config.xml</exclude>
                 <exclude>tomcat-context.xml</exclude>
+                <exclude>tomcat-storage.xml</exclude>
             </excludes>
         </fileSet>
 
         <fileSet filtered="true" encoding="UTF-8">
             <directory>etc</directory>
             <includes>
+                <include>solr-config.xml</include>
                 <include>tomcat-context.xml</include>
+                <include>tomcat-storage.xml</include>
             </includes>
         </fileSet>
 

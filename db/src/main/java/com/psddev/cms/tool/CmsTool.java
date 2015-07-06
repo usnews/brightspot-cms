@@ -113,6 +113,9 @@ public class CmsTool extends Tool {
     private boolean disableAutomaticallySavingDrafts;
 
     @ToolUi.Tab("Debug")
+    private boolean enableFrontEndUploader;
+
+    @ToolUi.Tab("Debug")
     private boolean displayTypesNotAssociatedWithJavaClasses;
 
     @ToolUi.Tab("RTE")
@@ -581,8 +584,8 @@ public class CmsTool extends Tool {
      */
     @Deprecated
     public boolean isUseNonMinified() {
-        return isUseNonMinifiedCss() &&
-                isUseNonMinifiedJavaScript();
+        return isUseNonMinifiedCss()
+                && isUseNonMinifiedJavaScript();
     }
 
     /**
@@ -601,6 +604,14 @@ public class CmsTool extends Tool {
 
     public void setDisableAutomaticallySavingDrafts(boolean disableAutomaticallySavingDrafts) {
         this.disableAutomaticallySavingDrafts = disableAutomaticallySavingDrafts;
+    }
+
+    public boolean isEnableFrontEndUploader() {
+        return enableFrontEndUploader;
+    }
+
+    public void setEnableFrontEndUploader(boolean enableFrontEndUploader) {
+        this.enableFrontEndUploader = enableFrontEndUploader;
     }
 
     public boolean isDisplayTypesNotAssociatedWithJavaClasses() {
@@ -961,9 +972,9 @@ public class CmsTool extends Tool {
         protected void doRepeatingTask(DateTime runTime) {
             Date newLastUpdate = Query.from(CmsTool.class).lastUpdate();
 
-            if (newLastUpdate != null &&
-                    (oldLastUpdate == null ||
-                    !newLastUpdate.equals(oldLastUpdate))) {
+            if (newLastUpdate != null
+                    && (oldLastUpdate == null
+                    || !newLastUpdate.equals(oldLastUpdate))) {
                 oldLastUpdate = newLastUpdate;
                 Map<String, Object> settings = new CompactMap<String, Object>();
 

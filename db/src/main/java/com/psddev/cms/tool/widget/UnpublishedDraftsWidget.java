@@ -57,19 +57,19 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
         Query<?> draftsQuery;
 
         if ("draft".equals(state)) {
-            draftsQuery = Query.
-                    from(Object.class).
-                    where("_type = ? or cms.content.draft = true", Draft.class);
+            draftsQuery = Query
+                    .from(Object.class)
+                    .where("_type = ? or cms.content.draft = true", Draft.class);
 
         } else if (state != null && state.startsWith("ws.")) {
-            draftsQuery = Query.
-                    from(Object.class).
-                    where("cms.workflow.currentState = ?", state.substring(3));
+            draftsQuery = Query
+                    .from(Object.class)
+                    .where("cms.workflow.currentState = ?", state.substring(3));
 
         } else {
-            draftsQuery = Query.
-                    from(Object.class).
-                    where("_type = ? or cms.content.draft = true or cms.workflow.currentState != missing", Draft.class);
+            draftsQuery = Query
+                    .from(Object.class)
+                    .where("_type = ? or cms.content.draft = true or cms.workflow.currentState != missing", Draft.class);
         }
 
         final UserType userType = page.pageParam(UserType.class, "userType", UserType.ANYONE);
@@ -109,12 +109,12 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
         QueryRestriction.updateQueryUsingAll(draftsQuery, page);
 
         int limit = page.pageParam(int.class, "limit", 20);
-        PaginatedResult<?> drafts = draftsQuery.
-                and("* matches *").
-                and(Content.UPDATE_DATE_FIELD + " != missing").
-                and(page.siteItemsPredicate()).
-                sortDescending(Content.UPDATE_DATE_FIELD).
-                selectFiltered(page.param(long.class, "offset"), limit, queryFilter);
+        PaginatedResult<?> drafts = draftsQuery
+                .and("* matches *")
+                .and(Content.UPDATE_DATE_FIELD + " != missing")
+                .and(page.siteItemsPredicate())
+                .sortDescending(Content.UPDATE_DATE_FIELD)
+                .selectFiltered(page.param(long.class, "offset"), limit, queryFilter);
 
         page.writeStart("div", "class", "widget widget-unpublishedDrafts");
             page.writeStart("h1", "class", "icon icon-object-draft");
@@ -287,8 +287,8 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
                                 State itemState = State.getInstance(item);
 
-                                if (!itemState.isVisible() &&
-                                        draft.getObjectChanges().isEmpty()) {
+                                if (!itemState.isVisible()
+                                        && draft.getObjectChanges().isEmpty()) {
                                     continue;
                                 }
 
@@ -311,7 +311,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                                                 "href", page.url("/content/edit.jsp",
                                                         "id", itemState.getId(),
                                                         "draftId", draftId));
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeObjectLabel(itemState);
                                         page.writeEnd();
                                     page.writeEnd();
 
@@ -337,7 +337,7 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
 
                                     page.writeStart("td", "data-preview-anchor", "");
                                         page.writeStart("a", "href", page.url("/content/edit.jsp", "id", itemId), "target", "_top");
-                                            page.writeHtml(itemState.getLabel());
+                                            page.writeObjectLabel(itemState);
                                         page.writeEnd();
                                     page.writeEnd();
 
