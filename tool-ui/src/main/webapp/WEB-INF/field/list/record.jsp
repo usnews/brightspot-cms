@@ -379,7 +379,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                     "data-label", itemState != null ? itemState.getLabel() : null,
                                                                     "data-typeIds", itemTypeIdsCsv,
                                                                     "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                    "data-additional-query", field.getPredicate(),
+                                                                    "data-dynamic-predicate", field.getPredicate(),
                                                                     "data-preview", preview != null ? preview.getUrl() : null,
                                                                     "name", inputName,
                                                                     "value", itemState != null ? itemState.getId() : null);
@@ -529,7 +529,7 @@ UUID containerObjectId = State.getInstance(request.getAttribute("containerObject
                                                                 "data-searcher-path", field.as(ToolUi.class).getInputSearcherPath(),
                                                                 "data-typeIds", itemTypeIdsCsv,
                                                                 "data-pathed", ToolUi.isOnlyPathed(field),
-                                                                "data-additional-query", field.getPredicate(),
+                                                                "data-dynamic-predicate", field.getPredicate(),
                                                                 "name", inputName);
                                                     }
                                                 writer.end();
@@ -647,7 +647,7 @@ if (!isValueExternal) {
             }
         wp.writeEnd();
 
-        if (!bulkUploadTypes.isEmpty()) {
+        if (!bulkUploadTypes.isEmpty() && !field.as(ToolUi.class).isReadOnly()) {
             StringBuilder typeIdsQuery = new StringBuilder();
 
             for (ObjectType type : bulkUploadTypes) {
@@ -718,7 +718,7 @@ if (!isValueExternal) {
             writer.writeEnd();
         writer.end();
 
-        if (previewable) {
+        if (previewable && !field.as(ToolUi.class).isReadOnly()) {
             writer.start("a",
                     "class", "action-upload",
                     "href", wp.url("/content/uploadFiles?" + typeIdsQuery, "containerId", containerObjectId),

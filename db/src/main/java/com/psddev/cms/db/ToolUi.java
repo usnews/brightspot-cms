@@ -177,10 +177,10 @@ public class ToolUi extends Modification<Object> {
 
         ObjectField field = (ObjectField) object;
 
-        if (field.isDeprecated() ||
-                isHidden() ||
-                !ObjectField.RECORD_TYPE.equals(field.getInternalItemType()) ||
-                field.isEmbedded()) {
+        if (field.isDeprecated()
+                || isHidden()
+                || !ObjectField.RECORD_TYPE.equals(field.getInternalItemType())
+                || field.isEmbedded()) {
             return false;
         }
 
@@ -443,10 +443,10 @@ public class ToolUi extends Modification<Object> {
 
         String fieldType = field.getInternalType();
 
-        return ObjectField.DATE_TYPE.equals(fieldType) ||
-                ObjectField.NUMBER_TYPE.equals(fieldType) ||
-                ObjectField.TEXT_TYPE.equals(fieldType) ||
-                field.isMetric();
+        return ObjectField.DATE_TYPE.equals(fieldType)
+                || ObjectField.NUMBER_TYPE.equals(fieldType)
+                || ObjectField.TEXT_TYPE.equals(fieldType)
+                || field.isMetric();
     }
 
     public Set<String> getStandardImageSizes() {
@@ -1267,9 +1267,9 @@ public class ToolUi extends Modification<Object> {
     private static class SuggestedMaximumProcessor implements ObjectField.AnnotationProcessor<Annotation> {
         @Override
         public void process(ObjectType type, ObjectField field, Annotation annotation) {
-            field.as(ToolUi.class).setSuggestedMaximum(annotation instanceof FieldSuggestedMaximum ?
-                    ((FieldSuggestedMaximum) annotation).value() :
-                    ((SuggestedMaximum) annotation).value());
+            field.as(ToolUi.class).setSuggestedMaximum(annotation instanceof FieldSuggestedMaximum
+                    ? ((FieldSuggestedMaximum) annotation).value()
+                    : ((SuggestedMaximum) annotation).value());
         }
     }
 
@@ -1285,9 +1285,9 @@ public class ToolUi extends Modification<Object> {
     private static class SuggestedMinimumProcessor implements ObjectField.AnnotationProcessor<Annotation> {
         @Override
         public void process(ObjectType type, ObjectField field, Annotation annotation) {
-            field.as(ToolUi.class).setSuggestedMinimum(annotation instanceof FieldSuggestedMinimum ?
-                    ((FieldSuggestedMinimum) annotation).value() :
-                    ((SuggestedMinimum) annotation).value());
+            field.as(ToolUi.class).setSuggestedMinimum(annotation instanceof FieldSuggestedMinimum
+                    ? ((FieldSuggestedMinimum) annotation).value()
+                    : ((SuggestedMinimum) annotation).value());
         }
     }
 

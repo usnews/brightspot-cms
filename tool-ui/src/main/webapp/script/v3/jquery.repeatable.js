@@ -1057,7 +1057,7 @@ The HTML within the repeatable element must conform to these standards:
                 $topButtonContainer = $('<div/>', { 'class': 'repeatablePreviewControls' }).prependTo($container);
 
                 // Move the "action-upload" link into the top button container
-                $container.find('.action-upload').appendTo($topButtonContainer);
+                $container.find('> .action-upload').appendTo($topButtonContainer);
                 
                 // Add a placeholder for the "Add Item" button(s) to later be added to the top.
                 // Refer to initAddButton() to see how this is used.
@@ -1173,6 +1173,7 @@ The HTML within the repeatable element must conform to these standards:
                 var $controls;
                 var labelType = $item.attr('data-type') || 'Title';
                 var labelText = $item.attr('data-label') || '[Empty Title]';
+                var $editContainer;
                 
                 // Only do this for mode=preview
                 if (!self.modeIsPreview()) {
@@ -1236,6 +1237,19 @@ The HTML within the repeatable element must conform to these standards:
                 
                 // Add the item to the carousel
                 self.modePreviewInitItemCarousel($item);
+                
+                // Create the edit container for this item below the carousel,
+                // and if this item has a form already on the page move it there
+                $editContainer = self.modePreviewCreateEditContainer($item);
+                $item.find('.objectInputs').appendTo($editContainer);
+
+                // If there are validation messages in the form,
+                // mark  the gride and gallery tiles to show an error state,
+                // then select the item and show the edit form so user can correct the error.
+                if ($editContainer.find('.message-error').length) {
+                    self.modePreviewMarkError($item);
+                    self.modePreviewEdit($item);
+                }
             },
 
 
@@ -1325,6 +1339,9 @@ The HTML within the repeatable element must conform to these standards:
                 // Remove the item's edit form and move it to the edit container
                 $item.find('> .objectInputs').appendTo($editContainer);
 
+                // Trigger create event to process new content of edit container
+                $editContainer.trigger('create');
+                
                 // Trigger a change to update any thumbnails
                 $editContainer.find(':input').trigger('change');
 
@@ -1609,6 +1626,26 @@ The HTML within the repeatable element must conform to these standards:
                 var isChanged = Boolean($editContainer.find('.state-changed').length > 0);
                 
                 $item.add($carouselTile).toggleClass('state-changed', isChanged);
+            },
+
+            /**
+             * Update the thumbnail so it shows an error state.
+             * This updates both the grid view and the carousel view thumbnail.
+             * Used in cases where there is a validation error within the item.
+             */
+            modePreviewMarkError: function(item) {
+
+                var self = this;
+                var $item = $(item);
+                var $thumbnails = $item.find('.previewable-image');
+                var $carouselTile = $(item).data('carouselTile');
+                var carousel = self.carousel;
+
+                if (carousel && $carouselTile) {
+                    carousel.toggleTileError( carousel.getTileIndex($carouselTile), true);
+                }
+                
+                $thumbnails.closest('li').addClass('state-error');
             }
             
         }; // END repeatableUtility

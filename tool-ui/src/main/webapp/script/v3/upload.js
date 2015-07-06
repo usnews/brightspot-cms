@@ -20,7 +20,7 @@ function ($, bsp_utils, evaporate) {
         if (settingsMeta.size() === 0) {
           return;
         }
-
+        state.evaporateConfig = settingsMeta.attr('content');
         state.fieldName = settingsMeta.attr('data-field-name');
         state.pathStart = settingsMeta.attr('data-path-start');
         state.storage = settingsMeta.attr('data-storage');
@@ -32,18 +32,29 @@ function ($, bsp_utils, evaporate) {
           $this.hide();
         }
 
+        state.evaporators = [ ];
+
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
 
-          _beforeUpload(file, $inputSmall, i);
+          // Create up to 5 evaporators for concurrency
+          if (state.evaporators.length < 5) {
+            state.evaporators.push(new Evaporate(JSON.parse(state.evaporateConfig)));
+          } else {
+            var shifted = state.evaporators.shift();
+            state.evaporators.push(shifted);
+          }
+
+          _beforeUpload($this, file, $inputSmall, i);
           var filePath = state.pathStart + encodeURIComponent(file.name);
 
           (function ($this, file, filePath, i) {
-            new Evaporate(JSON.parse(settingsMeta.attr('content'))).add({
+            state.evaporators[state.evaporators.length - 1].add({
               name: filePath,
               file: file,
+              contentType: file.type,
               notSignedHeadersAtInitiate: {
-                'Cache-Control': 'max-age=3600'
+                'Cache-Control': 'public, max-age=31536000'
               },
               xAmzHeadersAtInitiate: {
                 'x-amz-acl': 'public-read'
@@ -68,13 +79,13 @@ function ($, bsp_utils, evaporate) {
         }
       });
 
-      function _beforeUpload(file, $inputSmall, index) {
+      function _beforeUpload($this, file, $inputSmall, index) {
         var $fileSelector = $inputSmall.find('.fileSelector').first();
 
           $inputSmall.append(_createProgressHtml());
           var $uploadPreview = $inputSmall.find('.upload-preview').eq(index);
 
-          if (file.type.match('image.*')) {
+          if (file.type.match('image.*') && !($this.attr('multiple'))) {
             _displayImgPreview($uploadPreview.find('img').first(), file);
           } else {
             _displayDefaultPreview($uploadPreview);
@@ -164,7 +175,9 @@ function ($, bsp_utils, evaporate) {
           dataType: 'html',
           data: params
         }).done(function (html) {
-          $inputSmall.prepend(html);
+          var $html = $(html);
+          $uploadPreview.prepend($html.find('img'));
+          $inputSmall.prepend($html.find('input'));
         });
       }
 

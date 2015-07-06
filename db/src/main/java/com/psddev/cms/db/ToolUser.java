@@ -278,10 +278,10 @@ public class ToolUser extends Record implements ToolEntity {
 
         ToolUserDevice device = null;
 
-        for (ToolUserDevice d : Query.
-                from(ToolUserDevice.class).
-                where("user = ?", this).
-                selectAll()) {
+        for (ToolUserDevice d : Query
+                .from(ToolUserDevice.class)
+                .where("user = ?", this)
+                .selectAll()) {
             if (userAgent.equals(d.getUserAgent())) {
                 device = d;
                 break;
@@ -306,14 +306,14 @@ public class ToolUser extends Record implements ToolEntity {
     public ToolUserDevice findRecentDevice() {
         ToolUserDevice device = null;
 
-        for (ToolUserDevice d : Query.
-                from(ToolUserDevice.class).
-                where("user = ?").
-                selectAll()) {
-            if (device == null ||
-                    device.findLastAction() == null ||
-                    (d.findLastAction() != null &&
-                    d.findLastAction().getTime() > device.findLastAction().getTime())) {
+        for (ToolUserDevice d : Query
+                .from(ToolUserDevice.class)
+                .where("user = ?")
+                .selectAll()) {
+            if (device == null
+                    || device.findLastAction() == null
+                    || (d.findLastAction() != null
+                    && d.findLastAction().getTime() > device.findLastAction().getTime())) {
                 device = d;
             }
         }
@@ -329,8 +329,8 @@ public class ToolUser extends Record implements ToolEntity {
      * @param content If {@code null}, does nothing.
      */
     public void saveAction(HttpServletRequest request, Object content) {
-        if (content == null ||
-                ObjectUtils.to(boolean.class, request.getParameter("_mirror"))) {
+        if (content == null
+                || ObjectUtils.to(boolean.class, request.getParameter("_mirror"))) {
             return;
         }
 
@@ -412,10 +412,10 @@ public class ToolUser extends Record implements ToolEntity {
     }
 
     public Site getCurrentSite() {
-        if ((currentSite == null &&
-                hasPermission("site/global")) ||
-                (currentSite != null &&
-                hasPermission(currentSite.getPermissionId()))) {
+        if ((currentSite == null
+                && hasPermission("site/global"))
+                || (currentSite != null
+                && hasPermission(currentSite.getPermissionId()))) {
             return currentSite;
 
         } else {
@@ -495,11 +495,10 @@ public class ToolUser extends Record implements ToolEntity {
 
             byte[] hash = mac.doFinal(ByteBuffer.allocate(8).putLong(counter).array());
             int offset = hash[hash.length - 1] & 0xf;
-            int binary =
-                    ((hash[offset] & 0x7f) << 24) |
-                    ((hash[offset + 1] & 0xff) << 16) |
-                    ((hash[offset + 2] & 0xff) << 8) |
-                    (hash[offset + 3] & 0xff);
+            int binary = ((hash[offset] & 0x7f) << 24)
+                    | ((hash[offset + 1] & 0xff) << 16)
+                    | ((hash[offset + 2] & 0xff) << 8)
+                    | (hash[offset + 3] & 0xff);
 
             return binary % 1000000;
 
@@ -515,8 +514,8 @@ public class ToolUser extends Record implements ToolEntity {
         long counter = System.currentTimeMillis() / TOTP_INTERVAL - 2;
 
         for (long end = counter + 5; counter < end; ++ counter) {
-            if (counter > lastTotpCounter &&
-                    code == getTotpCode(counter)) {
+            if (counter > lastTotpCounter
+                    && code == getTotpCode(counter)) {
                 lastTotpCounter = counter;
                 save();
                 return true;
@@ -554,11 +553,11 @@ public class ToolUser extends Record implements ToolEntity {
         String nextCounter = String.valueOf(counter + 1);
         String currentLock = idPrefix + currentCounter;
         String nextLock = idPrefix + nextCounter;
-        ToolUser user = Query.
-                from(ToolUser.class).
-                where("_id != ?", this).
-                and("contentLocks = ?", Arrays.asList(currentLock, nextLock)).
-                first();
+        ToolUser user = Query
+                .from(ToolUser.class)
+                .where("_id != ?", this)
+                .and("contentLocks = ?", Arrays.asList(currentLock, nextLock))
+                .first();
 
         if (user != null) {
             return user;
@@ -570,9 +569,9 @@ public class ToolUser extends Record implements ToolEntity {
         for (Iterator<String> i = newLocks.iterator(); i.hasNext();) {
             String lock = i.next();
 
-            if (lock.startsWith(idPrefix) ||
-                    !(lock.endsWith(currentCounter) ||
-                    lock.endsWith(nextCounter))) {
+            if (lock.startsWith(idPrefix)
+                    || !(lock.endsWith(currentCounter)
+                    || lock.endsWith(nextCounter))) {
                 i.remove();
             }
         }
@@ -597,11 +596,11 @@ public class ToolUser extends Record implements ToolEntity {
     public void unlockContent(UUID id) {
         String idPrefix = id.toString() + '/';
         Set<String> locks = createLocks(idPrefix);
-        ToolUser user = Query.
-                from(ToolUser.class).
-                where("_id != ?", this).
-                and("contentLocks = ?", locks).
-                first();
+        ToolUser user = Query
+                .from(ToolUser.class)
+                .where("_id != ?", this)
+                .and("contentLocks = ?", locks)
+                .first();
 
         if (user != null) {
             for (Iterator<String> i = user.contentLocks.iterator(); i.hasNext();) {
@@ -678,9 +677,9 @@ public class ToolUser extends Record implements ToolEntity {
      */
     public boolean isSavedSearchResultSelection(SearchResultSelection selection) {
 
-        return selection != null && !ObjectUtils.isBlank(selection.getName()) &&
-                (selection.getEntities().contains(this) ||
-                    (getRole() != null && selection.getEntities().contains(getRole())));
+        return selection != null && !ObjectUtils.isBlank(selection.getName())
+                && (selection.getEntities().contains(this)
+                || (getRole() != null && selection.getEntities().contains(getRole())));
     }
 
     /**
@@ -948,10 +947,10 @@ public class ToolUser extends Record implements ToolEntity {
             }
 
             // Only refresh if the expireTimestamp is empty or token was issued over TOKEN_CHECK_EXPIRE_MILLISECONDS ago.
-            if (sessionTimeout != 0L &&
-                    (this.expireTimestamp == null ||
-                            this.expireTimestamp == 0L ||
-                            (this.expireTimestamp - sessionTimeout) + TOKEN_CHECK_EXPIRE_MILLISECONDS < System.currentTimeMillis())) {
+            if (sessionTimeout != 0L
+                    && (this.expireTimestamp == null
+                    || this.expireTimestamp == 0L
+                    || (this.expireTimestamp - sessionTimeout) + TOKEN_CHECK_EXPIRE_MILLISECONDS < System.currentTimeMillis())) {
                 this.expireTimestamp = System.currentTimeMillis() + sessionTimeout;
                 return true;
             }
