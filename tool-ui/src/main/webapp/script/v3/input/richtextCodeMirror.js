@@ -405,6 +405,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     mark = self.inlineSetStyle(style, range);
                 }
             }
+
+            self.rawCleanup();
             
             return mark;
         },
@@ -560,8 +562,15 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * The range of positions {from,to} 
          *
          * @param Object [options]
-         * @param Object [options.deleteText]
+         *
+         * @param Object [options.deleteText=false]
          * Set to true if you want to also delete the text within each class that is removed.
+         *
+         * @param String [except]
+         * A format class that should not be removed.
+         * Use this is you set styleKey to blank (to remove all classes) but you want to
+         * keep one specific class. For example, for the "html" class if you want to keep the html class,
+         * but remove any other style classes within.
          *
          * @param Object [options.includeTrack=false]
          * Set to true if you want to include the "track changes" classes.
@@ -569,6 +578,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          *
          * @param Boolean [deleteText=false]
          * Set to true to also delete the text within the mark.
+         *
          */
         inlineRemoveStyle: function(styleKey, range, options) {
 
@@ -617,9 +627,15 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (className) {
                         matchesClass = Boolean(mark.marker.className === className);
                     } else {
-                        // Do not remove the track changes classes unless specifically named
                         styleObj = self.classes[mark.marker.className] || {};
+                        
+                        // Do not remove the track changes classes unless specifically named
                         matchesClass = Boolean(options.includeTrack || styleObj.internal !== true);
+
+                        // Do not remove the "except" class if it was specified
+                        if (mark.marker.className === options.except) {
+                            matchesClass = false;
+                        }
                     }
                     
                     if (!matchesClass) {
@@ -1138,6 +1154,41 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.inlineCombineAdjacentMarks();
         },
 
+
+        /**
+         * Inside any "raw" HTML mark, remove all other marks.
+         */
+        rawCleanup: function() {
+            
+            var editor, self;
+
+            self = this;
+            editor = self.codeMirror;
+            
+            $.each(editor.getAllMarks(), function(i, mark) {
+
+                var pos, styleObj, from, to;
+                
+                // Is this a "raw" mark?
+                styleObj = self.classes[mark.className] || {};
+                if (styleObj.raw) {
+
+                    // Get the start and end positions for this mark
+                    pos = mark.find();
+                    if (!pos.from) {
+                        return;
+                    }
+                    
+                    from = pos.from;
+                    to = pos.to;
+
+                    // Clear other styles
+                    self.inlineRemoveStyle('', {from:from, to:to}, {includeTrack:true, except:mark.className});
+                }
+                
+            });
+        },
+        
 
         /**
          * CodeMirror makes styles across line boundaries.
@@ -2449,6 +2500,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Before beginning make sure all the marks are cleaned up and simplified.
             // This will ensure that none of the marks span across lines.
             self.inlineCleanup();
+
+            // Clean up any "raw html" areas so they do not allow styles inside
+            self.rawCleanup();
             
             doc = self.codeMirror.getDoc();
 
@@ -2851,7 +2905,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                                 } else {
                                     
-                                    // There were no attributes specified, so this is a match just because of the element
+                                    // There were no attributes specified for this style.
                                     matchStyleObj = styleObj;
                                 }
 
