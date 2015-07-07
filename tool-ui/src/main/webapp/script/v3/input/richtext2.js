@@ -187,7 +187,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 elementContainer: 'ul',
                 clear: ['ol', 'alignLeft', 'alignCenter', 'alignRight']
             },
-
+            div: {
+                className: 'rte-style-div',
+                line: true,
+                element: 'div'
+            },
             alignLeft: {
                 className: 'rte-style-align-left',
                 line: true,

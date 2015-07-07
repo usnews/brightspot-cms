@@ -1198,7 +1198,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         inlineCombineAdjacentMarks: function() {
 
-            var editor, self;
+            var editor, marks, self;
 
             self = this;
             editor = self.codeMirror;
@@ -1206,8 +1206,21 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Combine adjacent marks
             // Note this assumes that marks do not span across lines
             
-            // First get a list of the marks sorted by from position
-            marks = editor.getAllMarks().sort(function(a, b){
+            // First get a list of the marks
+            marks = editor.getAllMarks();
+
+            // Remove any bookmarks (which are used for enhancements and markers)
+            marks = $.map(marks, function(mark, i) {
+                
+                if (mark.type === 'bookmark') {
+                    return undefined;
+                } else {
+                    return mark;
+                }
+            });
+            
+            // Sort the marks in order of position
+            marks = marks.sort(function(a, b){
                 
                 var posA, posB;
 
@@ -2367,6 +2380,29 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
         },
 
+
+        /**
+         * Determine if an element is a "container" for another element.
+         * For example, element "li" is contained within a "ul" or "ol" element.
+         *
+         * @param {String} elementName
+         * The name of an element such as "ul"
+         *
+         * @return {Boolean}
+         */
+        elementIsContainer: function(elementName) {
+            var isContainer, self;
+            self = this;
+            isContainer = false;
+            $.each(self.styles, function(styleKey, styleObj){
+                if (elementName === styleObj.elementContainer) {
+                    isContainer = true;
+                    return false; // Stop looping because we found one
+                }
+            });
+            return isContainer;
+        },
+
         
         /**
          * Get content from codemirror, analyze the marked up regions,
@@ -2784,7 +2820,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             $.each(matchArray, function(i, styleObj) {
 
                                 // Detect blocks that have containers (like "li") and make sure we are within that container
-                                if (styleObj.container && styleObj.container.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
+                                if (styleObj.elementContainer && styleObj.elementContainer.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
                                     return;
                                 }
 
@@ -2846,8 +2882,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             continue;
                         }
 
-                        // If we did not find a matching element, then we need to output as raw HTML
-                        if (!matchStyleObj && (elementName !== 'br')) {
+                        // Do we need to keep this element as raw HTML?
+                        // Check if we have not yet matched this element
+                        // Check if this is not a BR element.
+                        // Check if this element is a "container" element such as a "ul" that contains an "li" element.
+                        if (!matchStyleObj
+                            && (elementName !== 'br')
+                            && !self.elementIsContainer(elementName)) {
                             
                             matchStyleObj = self.styles.html;
                             
