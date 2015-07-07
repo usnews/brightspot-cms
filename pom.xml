@@ -25,8 +25,6 @@
 
     <modules>
         <module>archetypes/app</module>
-        <module>archetypes/content-article</module>
-        <module>archetypes/content-common</module>
         <module>db</module>
         <module>tool-ui</module>
     </modules>
