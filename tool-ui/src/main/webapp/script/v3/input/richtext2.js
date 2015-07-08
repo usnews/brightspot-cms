@@ -1452,9 +1452,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 }
             });
 
-            // Save the rich text editor mark so we can use it to modify the enhancement later
-            self.enhancementSetMark($enhancement, mark);
-
             // If the data for this enhancement was provided, save it as part of the enhancement
             if (config.reference) {
 
@@ -1834,7 +1831,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             if (direction === 1 || direction === -1) {
                 mark = self.rte.enhancementMove(mark, direction);
-                self.enhancementSetMark(el, mark);
             }
         },
 
@@ -1877,8 +1873,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 $el.addClass('rte-style-enhancement-full');
                 break;
             }
-
-            self.enhancementSetMark(el, mark);
 
             rte.refresh();
         },
@@ -1932,9 +1926,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * The enhancement element, or an element within the enhancement.
          */
         enhancementGetMark: function(el) {
-            var self;
+            var el, self;
             self = this;
-            return self.enhancementGetWrapper(el).data('mark');
+            el = self.enhancementGetWrapper(el);
+            return self.rte.enhancementGetMark(el);
         },
 
 

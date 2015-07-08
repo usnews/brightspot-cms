@@ -1668,23 +1668,49 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             };
 
             if (options.block) {
+                
                 mark = editor.addLineWidget(lineNumber, content, {above: true});
+
+                mark.deleteLineFunction = function(){
+
+                    var content, $content;
+
+                    content = self.enhancementGetContent(mark);
+                    $content = $(content).detach();
+                    self.enhancementRemove(mark);
+                    
+                    setTimeout(function(){
+                        self.enhancementAdd($content[0], null, options);
+                    }, 100);
+                    
+                };
+                
+                // If the line is deleted we don't want to delete the enhancement!
+                mark.line.on('delete', mark.deleteLineFunction);
+
             } else {
                 mark = editor.setBookmark({line:lineNumber, ch:0}, widgetOptions);
             }
 
-            // Small delay before refreshing the editor to prevent cursor problems
-            setTimeout(function(){
-                self.refresh();
-            }, 10);
-
             // Save the options we used along with the mark so it can be used later to move the mark
             // and to call the toHTML function.
             mark.options = options;
+
+            // Save the mark onto the content element so it can be access later
+            // using the enhancementGetMark(el) function.
+            // This can be used for example to implement a toolbar within the enhancement
+            // since the toolbar might need access to the mark for changing the enhancement settings.
+            $(content).data('enhancementMark', mark);
             
             // Save the mark in an internal cache so we can use it later to output content.
             mark.options.id = self.enhancementId++;
             self.enhancementCache[ mark.options.id ] = mark;
+            
+            // Small delay before refreshing the editor to prevent cursor problems
+            setTimeout(function(){
+                self.refresh();
+                mark.changed();
+            }, 100);
             
             return mark;
         },
@@ -1751,7 +1777,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             var self;
             self = this;
             delete self.enhancementCache[ mark.options.id ];
+            if (mark.deleteLineFunction) {
+                mark.line.off('delete', mark.deleteLineFunction);
+            }
             mark.clear();
+            self.codeMirror.removeLineWidget(mark);
         },
 
 
@@ -1865,6 +1895,21 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.enhancementAdd($content, line, {above:true, toHTML: function(){
                 return $content.html();
             }});
+        },
+
+
+        /**
+         * Given the content element within the enhancement, this function returns the
+         * mark for the enhancement.
+         *
+         * @param {Element} el
+         * This must be the element that was passed in to the enhancementAdd() function.
+         *
+         * @return {Object} mark
+         * The mark object that can be used to modify the enhancement.
+         */
+        enhancementGetMark: function(el) {
+            return $(el).data('enhancementMark');
         },
 
         
@@ -2778,7 +2823,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                     outputChar = line.text.charAt(charNum);
                     if (raw) {
-                        console.log('RAW: ', outputChar);
+                        //console.log('RAW: ', outputChar);
                     } else {
                         outputChar = self.htmlEncode(outputChar);
                     }
@@ -3070,6 +3115,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 self.enhancementFromHTML(enhancementObj.$content, enhancementObj.line);
                 
             });
+
+            // Clear the undo history
+            editor.clearHistory();
+            
         }, // fromHTML()
 
 
