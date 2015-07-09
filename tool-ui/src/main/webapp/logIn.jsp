@@ -2,6 +2,7 @@
 
 com.psddev.cms.db.ToolAuthenticationPolicy,
 com.psddev.cms.db.ToolUser,
+com.psddev.cms.tool.CmsTool,
 com.psddev.cms.tool.AuthenticationFilter,
 com.psddev.cms.tool.ToolPageContext,
 
@@ -10,6 +11,7 @@ com.psddev.dari.util.AuthenticationException,
 com.psddev.dari.util.AuthenticationPolicy,
 com.psddev.dari.util.HtmlWriter,
 com.psddev.dari.util.JspUtils,
+com.psddev.dari.util.LogUtils,
 com.psddev.dari.util.ObjectUtils,
 com.psddev.dari.util.Settings,
 com.psddev.dari.util.StringUtils,
@@ -38,6 +40,10 @@ String username = wp.param("username");
 String returnPath = wp.param(AuthenticationFilter.RETURN_PATH_PARAMETER);
 ToolUser user = ToolUser.Static.getByTotpToken(wp.param(String.class, "totpToken"));
 
+String siteUrl = Query.from(CmsTool.class).first().getDefaultSiteUrl();
+String domain = LogUtils.getDomain(siteUrl);
+String ipAddress  = LogUtils.getIpAddress(request.getHeader("X-FORWARDED-FOR"), request.getRemoteAddr());  
+
 if (wp.isFormPost()) {
     try {
 
@@ -54,6 +60,8 @@ if (wp.isFormPost()) {
             }
 
             user = (ToolUser) authPolicy.authenticate(username, wp.param(String.class, "password"));
+
+            LogUtils.authenticate("ToolAuthentication", username, domain, ipAddress, true);
 
             if (user.isTfaEnabled()) {
                 String totpToken = UUID.randomUUID().toString();
@@ -93,6 +101,7 @@ if (wp.isFormPost()) {
         return;
 
     } catch (AuthenticationException error) {
+        LogUtils.authenticate("ToolAuthentication", username, domain, ipAddress, false);
         authError = error;
     }
 }
