@@ -148,7 +148,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * List of elements that should cause a new line when importing from HTML.
          * We don't necessarily list them all, just the ones we are likely to encounter.
          */
-        newLineRegExp: /^(li|br)$/,
+        newLineRegExp: /^(br)$/,
 
         
         /**
@@ -2658,7 +2658,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                     if (!blockOnThisLine[container]) {
                         delete blockActive[container];
-                        html += '</' + container + '>\n';
+                        if (container) {
+                            html += '</' + container + '>\n';
+                        }
                     }
                 });
 
@@ -2774,7 +2776,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Close all the active elements in the reverse order they were created
                         $.each(inlineElementsToClose.reverse(), function(i, element) {
-                            html += '</' + element + '>';
+                            if (element) {
+                                html += '</' + element + '>';
+                            }
                         });
                         inlineElementsToClose = [];
 
@@ -2823,7 +2827,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                     outputChar = line.text.charAt(charNum);
                     if (raw) {
-                        //console.log('RAW: ', outputChar);
+
+                        if (outputChar === '<') {
+                            outputChar = '&raw_lt;';
+                        }
+
                     } else {
                         outputChar = self.htmlEncode(outputChar);
                     }
@@ -2836,7 +2844,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     $.each(blockElementsToClose.reverse(), function() {
                         var element;
                         element = this.element;
-                        html += '</' + element + '>\n';
+                        if (element) {
+                            html += '</' + element + '>\n';
+                        }
                     });
                     blockElementsToClose = [];
                 } else {
@@ -2846,16 +2856,23 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                 // Add any content that needs to go after the line
                 // for example, enhancements that are positioned below the line.
-                html += htmlEndOfLine;
+                if (htmlEndOfLine) {
+                    html += htmlEndOfLine;
+                }
             });
 
             // When we finish with the final line close any block elements that are still open
             $.each(blockActive, function(container) {
                 delete blockActive[container];
-                html += '</' + container + '>\n';
+                if (container) {
+                    html += '</' + container + '>\n';
+                }
             });
 
+            html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte-raw').replace(/&raw_lt;/g, '<');
+            
             return html;
+            
         }, // toHTML
 
         
@@ -2892,7 +2909,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n) {
                 
-                var elementName, elementClose, from, matchStyleObj, next, split, to;
+                var elementName, elementClose, from, matchStyleObj, next, raw, split, to;
 
                 next = n.childNodes[0];
 
@@ -2912,9 +2929,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         elementName = next.tagName.toLowerCase();
 
                         // Determine how to map the element to a marker
+                        raw = $(next).is('[data-rte-raw]');
                         matchStyleObj = '';
                         matchArray = map[elementName];
-                        if (matchArray) {
+                        if (matchArray && !raw) {
 
                             $.each(matchArray, function(i, styleObj) {
 
@@ -2989,13 +3007,26 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             && (elementName !== 'br')
                             && !self.elementIsContainer(elementName)) {
                             
+                            raw = true;
+                        }
+
+                        if (raw) {
+                            
                             matchStyleObj = self.styles.html;
                             
                             val += '<' + elementName;
 
                             $.each(next.attributes, function(i, attrib){
+                                
                                 var attributeName = attrib.name;
                                 var attributeValue = attrib.value;
+
+                                // Skip the data-rte-raw attribute since that is used only to
+                                // indicate which elements were previously marked as raw html
+                                if (attributeName === 'data-rte-raw') {
+                                    return;
+                                }
+                                
                                 val += ' ' + attributeName + '="' + self.htmlEncode(attributeValue) + '"';
                             });
 
