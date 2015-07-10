@@ -169,7 +169,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             codeMirrorOptions = {
                 lineWrapping: true,
                 dragDrop: false,
-                mode:null
+                mode:null,
+                extraKeys: self.getKeys()
             };
             
             // Create the codemirror object
@@ -2499,6 +2500,43 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             return isContainer;
         },
 
+
+        /**
+         * Returns a keymap based on the styles definition.
+         *
+         * @return {Object}
+         * Keymap for CodeMirror.
+         */
+        getKeys: function() {
+            
+            var keymap, self;
+
+            self = this;
+
+            keymap = {};
+            
+            $.each(self.styles, function(styleKey, styleObj) {
+
+                var keys;
+
+                keys = styleObj.keymap;
+                
+                if (keys) {
+                    
+                    if (!$.isArray(styleObj.keymap)) {
+                        keys = [keys];
+                    }
+                    
+                    $.each(keys, function(i, keyName) {
+                        keymap[keyName] = function (cm) {
+                            return self.toggleStyle(styleKey);
+                        };
+                    });
+                }
+            });
+
+            return keymap;
+        },
         
         /**
          * Get content from codemirror, analyze the marked up regions,
