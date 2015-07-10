@@ -54,15 +54,18 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             bold: {
                 className: 'rte-style-bold',
-                element: 'b'
+                element: 'b',
+                keymap: ['Ctrl-B', 'Cmd-B']
             },
             italic: {
                 className: 'rte-style-italic',
-                element: 'i'
+                element: 'i',
+                keymap: ['Ctrl-I', 'Cmd-I']
             },
             underline: {
                 className: 'rte-style-underline',
-                element: 'u'
+                element: 'u',
+                keymap: ['Ctrl-U', 'Cmd-U']
             },
             strikethrough: {
                 className: 'rte-style-strikethrough',

@@ -2849,6 +2849,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         }
                     });
                     blockElementsToClose = [];
+                    
                 } else {
                     // No block elements so add a line break
                     html += '<br/>\n';
@@ -2907,9 +2908,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             annotations = [];
             enhancements = [];
             
-            function processNode(n) {
+            function processNode(n, rawParent) {
                 
-                var elementName, elementClose, from, matchStyleObj, next, raw, split, to;
+                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to;
 
                 next = n.childNodes[0];
 
@@ -2928,8 +2929,15 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         // We got an element
                         elementName = next.tagName.toLowerCase();
 
+                        raw = false;
+                        if (rawParent) {
+                            raw = true;
+                            rawChildren = true;
+                        } else {
+                            raw = $(next).is('[data-rte-raw]');
+                        }
+                        
                         // Determine how to map the element to a marker
-                        raw = $(next).is('[data-rte-raw]');
                         matchStyleObj = '';
                         matchArray = map[elementName];
                         if (matchArray && !raw) {
@@ -2999,17 +3007,31 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             continue;
                         }
 
+                        // For container elements such as "ul" or "ol", do not allow nested lists within.
+                        // If we find a nested list treat the whole thing as raw html
+                        isContainer = self.elementIsContainer(elementName);
+                        if (isContainer) {
+                            
+                            // If there are any nested list items, then we treat this element as raw html
+                            if ($(next).find('li li').length) {
+                                raw = true;
+                                rawChildren = true;
+                            }
+                            
+                        }
+                        
                         // Do we need to keep this element as raw HTML?
                         // Check if we have not yet matched this element
                         // Check if this is not a BR element.
                         // Check if this element is a "container" element such as a "ul" that contains an "li" element.
-                        if (!matchStyleObj
-                            && (elementName !== 'br')
-                            && !self.elementIsContainer(elementName)) {
-                            
+                        if (!matchStyleObj && !isContainer && elementName !== 'br') {
                             raw = true;
                         }
 
+                        if (elementName === 'br') {
+                            raw = false;
+                        }
+                        
                         if (raw) {
                             
                             matchStyleObj = self.styles.html;
@@ -3049,7 +3071,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         }
 
                         // Recursively go into our element and add more text to the value
-                        processNode(next);
+                        processNode(next, rawChildren);
 
                         if (elementClose) {
 
@@ -3118,6 +3140,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     next = next.nextSibling;
                     
                 } // while there is a next sibling...
+                
             } // function processNode
 
             processNode(el);
