@@ -385,6 +385,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.toolbarInit();
             self.linkInit();
             self.enhancementInit();
+            self.trackChangesInit();
         },
 
 
@@ -535,6 +536,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             if (self.doOnSubmit) {
 
                 self.$el.closest('form').on('submit', function(){
+                    self.trackChangesSave();
                     self.$el.val(self.toHTML());
                 });
             }
@@ -580,6 +582,86 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         },
 
 
+        /*==================================================
+         * Track Changes
+         * Code to save and restor the state of "track changes" for an individual rich text editor.
+         * Creates values in sessionStorage like the following:
+         * {"bsp.rte.changesTracking.0000014c-7163-dcad-a14c-f1e7df5b0000/body": "1"}
+         *==================================================*/
+
+        /**
+         * On starting the rich text editor, restore previous "track changes" setting.
+         */
+        trackChangesInit: function() {
+            var self;
+            self = this;
+            self.trackChangesRestore();
+        },
+
+        
+        /**
+         * Save the current track changes status.
+         * This will normally be saved only when the user submits the form.
+         */
+        trackChangesSave: function() {
+            
+            var name, self, state;
+
+            self = this;
+
+            name = self.trackChangesGetName();
+            if (name) {
+
+                // Delete any existing setting in session storage
+                window.sessionStorage.removeItem(name);
+
+                state = self.rte.trackIsOn();
+                if (state) {
+                    // Track changes is on so save
+                    window.sessionStorage.setItem(name, '1');
+                }
+            }
+        },
+
+        
+        /**
+         *  Restore the track changes status.
+         */
+        trackChangesRestore: function() {
+            
+            var name, self;
+
+            self = this;
+
+            name = self.trackChangesGetName();
+            if (name && window.sessionStorage.getItem(name)) {
+                // Turn on track changes
+                self.rte.trackSet(true);
+                self.toolbarUpdate();
+            }
+        },
+
+        
+        /**
+         * Return the sessions storage name that can be used
+         * to save the state for this particular input.
+         */
+        trackChangesGetName: function() {
+            
+            var name, self;
+            
+            self = this;
+            
+            name = self.$el.closest('.inputContainer').attr('data-name') || '';
+            
+            if (name) {
+                name = 'bsp.rte.changesTracking.' + name;
+            }
+            
+            return name;
+        },
+
+        
         /*==================================================
          * TOOLBAR
          *==================================================*/
