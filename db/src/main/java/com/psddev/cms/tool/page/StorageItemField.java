@@ -693,7 +693,7 @@ public class StorageItemField extends PageServlet {
         if (field.isPresent()) {
             String fieldStorageSetting = field.get().as(ToolUi.class).getStorageSetting();
             if (!StringUtils.isBlank(fieldStorageSetting)) {
-                storageSetting = Settings.get(String.class, StorageItem.SETTING_PREFIX + "/" + fieldStorageSetting);
+                storageSetting = Settings.get(String.class, fieldStorageSetting);
             }
         }
 
