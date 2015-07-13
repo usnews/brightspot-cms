@@ -182,9 +182,9 @@ public class ListSearchResultView extends AbstractSearchResultView {
 
             page.writeElement("img",
                     "height", 100,
-                    "src", ImageEditor.Static.getDefault() != null
-                            ? new ImageTag.Builder(item).setHeight(100).toUrl()
-                            : item.getPublicUrl());
+                    "src", ImageEditor.Static.getDefault() != null ?
+                            new ImageTag.Builder(item).setHeight(100).toUrl() :
+                            item.getPublicUrl());
         });
 
         page.writeStart("table", "class", "searchResultTable links table-striped pageThumbnails");
