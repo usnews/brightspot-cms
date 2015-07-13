@@ -1564,7 +1564,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementUpdate: function(el) {
 
-            var $content, reference, $enhancement, emptyText, self;
+            var $content, $edit, editUrl, $enhancement, emptyText, reference, $select, self;
 
             self = this;
             $enhancement = self.enhancementGetWrapper(el);
@@ -1600,6 +1600,19 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
 
             self.enhancementDisplaySize(el);
+
+            // Modify the Select and Edit buttons in the toolbar
+            if (reference && reference.record && reference.record._ref) {
+                
+                $select = $enhancement.find('.rte-enhancement-toolbar-change');
+                $select.text('Change');
+
+                // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
+                $edit = $enhancement.find('.rte-enhancement-toolbar-edit');
+                editUrl = $edit.attr('href') || '';
+                editUrl = $.addQueryParameters(editUrl, 'id', reference.record._ref);
+                $edit.attr('href', editUrl);
+            }
         },
 
 
