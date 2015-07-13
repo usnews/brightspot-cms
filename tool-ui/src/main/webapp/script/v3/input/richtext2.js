@@ -2394,5 +2394,58 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
 });
 
+
+/*** TODO
+
+// In the old RTE there was some kind of "import" capability.
+// This has not yet been added into this new RTE.
+
+        if (win.cmsRteImportOptions && win.cmsRteImportOptions.length > 0) {
+            var $importGroup = $createToolbarGroup('Import');
+
+            $importGroup.addClass('rte-group-dropDown');
+            $toolbar.append($importGroup);
+
+            $importGroup = $importGroup.find('.rte-group-buttons');
+
+            $.each(win.cmsRteImportOptions, function(i, importOptions) {
+                $importGroup.append($('<span/>', {
+                    'class': 'rte-button rte-button-import',
+                    'text': importOptions.name,
+                    'click': function() {
+                        var $button = $(this);
+
+                        google.load('picker', '1', {
+                            'callback': function() {
+                                new google.picker.PickerBuilder().
+                                        enableFeature(google.picker.Feature.NAV_HIDDEN).
+                                        setAppId(importOptions.clientId).
+                                        setOAuthToken(importOptions.accessToken).
+                                        addView(google.picker.ViewId.DOCUMENTS).
+                                        setCallback(function(data) {
+                                            if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+                                                $.ajax({
+                                                    'method': 'get',
+                                                    'url': '/social/googleDriveFile',
+                                                    'data': { 'id': data[google.picker.Response.DOCUMENTS][0][google.picker.Document.ID] },
+                                                    'cache': false,
+                                                    'success': function(data) {
+                                                        rte.composer.setValue(data, true);
+                                                        rte.composer.parent.updateOverlay();
+                                                    }
+                                                });
+                                            }
+                                        }).
+                                        build().
+                                        setVisible(true);
+                            }
+                        });
+                    }
+                }));
+            });
+        }
+
+***/
+
 // Set filename for debugging tools to allow breakpoints even when using a cachebuster
 //# sourceURL=richtext2.js
