@@ -150,6 +150,26 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         newLineRegExp: /^(br)$/,
 
+
+        /**
+         * List of elements that do not need to be </closed>
+         */
+        voidElements: {
+            'area': true,
+            'base': true,
+            'br': true,
+            'col': true,
+            'command': true,
+            'hr': true,
+            'img': true,
+            'input': true,
+            'keygen': true,
+            'link': true,
+            'meta': true,
+            'param': true,
+            'source': true
+        },
+
         
         /**
          *
@@ -2570,6 +2590,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         });
                     }
 
+                    // For void elements add a closing slash when closing, like <br/>
+                    if (self.voidElements[ styleObj.element ]) {
+                        html += '/';
+                    }
+                    
                     html += '>';
                 }
                 
@@ -2814,7 +2839,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Close all the active elements in the reverse order they were created
                         $.each(inlineElementsToClose.reverse(), function(i, element) {
-                            if (element) {
+                            if (element && !self.voidElements[element]) {
                                 html += '</' + element + '>';
                             }
                         });
@@ -2834,8 +2859,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         // Re-open elements that are still active
                         $.each(inlineActive, function(className, styleObj) {
                             var element;
-                            inlineElementsToClose.push(styleObj.element);
-                            html += openElement(styleObj);
+                            if (!self.voidElements[ styleObj.element ]) {
+                                inlineElementsToClose.push(styleObj.element);
+                                html += openElement(styleObj);
+                            }
                         });
 
                     }
@@ -2850,12 +2877,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             }
                             
                             if (!inlineActive[styleObj.className]) {
-                                
+
                                 // Save this element on the list of active elements
                                 inlineActive[styleObj.className] = styleObj;
 
                                 // Also push it on a stack so we can close elements in reverse order
-                                inlineElementsToClose.push(styleObj.element);
+                                if (!self.voidElements[ styleObj.element ]) {
+                                    inlineElementsToClose.push(styleObj.element);
+                                }
 
                                 // Open the new element
                                 html += openElement(styleObj);
@@ -3090,6 +3119,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                 val += ' ' + attributeName + '="' + self.htmlEncode(attributeValue) + '"';
                             });
 
+                            // Close void elements like <input/>
+                            if (self.voidElements[ elementName ]) {
+                                val += '/';
+                            }
+                            
                             val += '>';
 
                             // End the mark for raw HTML
@@ -3105,7 +3139,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             });
                             
                             // Remember we need to close the element later
-                            elementClose = '</' + elementName + '>';
+                            if (!self.voidElements[ elementName ]) {
+                                elementClose = '</' + elementName + '>';
+                            }
                         }
 
                         // Recursively go into our element and add more text to the value
