@@ -187,7 +187,7 @@ function() {
 
     search = win.location.search;
     search += search.indexOf('?') > -1 ? '&' : '?';
-    search += 'id=' + $contentForm.attr('data-object-id');
+    search += 'id=' + $contentForm.attr('data-content-id');
 
     $.ajax({
       'data': $contentForm.serialize(),
@@ -733,7 +733,8 @@ function() {
               'opacity': '',
               'transform': '',
               'transform-origin': ''
-            })
+            });
+            $popup.remove();
           }
         })
       }
