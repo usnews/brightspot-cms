@@ -6,6 +6,7 @@ import com.psddev.cms.tool.PageServlet;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.JspUtils;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.RoutingFilter;
 
 import javax.servlet.ServletException;
@@ -38,9 +39,10 @@ public class SiteSwitch extends PageServlet {
         page.writeHeader();
 
         if (Query.from(Site.class).hasMoreThan(0)) {
+            Site currentSite = user.getCurrentSite();
             List<Site> sites = Site.Static.findAll()
                     .stream()
-                    .filter((Site site) -> page.hasPermission(site.getPermissionId()))
+                    .filter((Site site) -> page.hasPermission(site.getPermissionId()) && !ObjectUtils.equals(currentSite, site))
                     .collect(Collectors.toList());
 
             // Only render the control if there is at least one Site to which the ToolUser can change
