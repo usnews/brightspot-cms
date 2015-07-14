@@ -38,7 +38,6 @@ public class SiteSwitch extends PageServlet {
         page.writeHeader();
 
         if (Query.from(Site.class).hasMoreThan(0)) {
-            Site currentSite = user.getCurrentSite();
             List<Site> sites = Site.Static.findAll()
                     .stream()
                     .filter((Site site) -> page.hasPermission(site.getPermissionId()))
