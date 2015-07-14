@@ -61,10 +61,10 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
             result = null;
 
         } else {
-            Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.fromGroup(Content.SEARCHABLE_GROUP)).
-                    where(page.siteItemsSearchPredicate()).
-                    and(Content.UPDATE_DATE_FIELD + " != missing").
-                    sortDescending(Content.UPDATE_DATE_FIELD);
+            Query<?> contentQuery = (itemType != null ? Query.fromType(itemType) : Query.fromGroup(Content.SEARCHABLE_GROUP))
+                    .where(page.siteItemsSearchPredicate())
+                    .and(Content.UPDATE_DATE_FIELD + " != missing")
+                    .sortDescending(Content.UPDATE_DATE_FIELD);
 
             switch (type) {
                 case ROLE :
@@ -226,9 +226,9 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         page.writeEnd();
                     }
 
-                    if (result.getOffset() > 0 ||
-                            result.hasNext() ||
-                            result.getItems().size() > LIMITS[0]) {
+                    if (result.getOffset() > 0
+                            || result.hasNext()
+                            || result.getItems().size() > LIMITS[0]) {
                         page.writeStart("li");
                             page.writeStart("form",
                                     "data-bsp-autosubmit", "",
