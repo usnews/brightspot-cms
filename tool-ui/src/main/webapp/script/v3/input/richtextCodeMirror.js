@@ -25,7 +25,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
      *
      * @example
      * editor = Object.create(CodeMirrorRte);
-     * editor.styles = $.extend(true, {}, editor.styles, {bold:{className:'rte-style-bold', element:'b'}});
+     * editor.styles = $.extend(true, {}, editor.styles, {bold:{className:'rte2-style-bold', element:'b'}});
      * editor.init('#mytextarea');
      */
     CodeMirrorRte = {
@@ -84,7 +84,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // This will be used when we import HTML that we don't understand.
             // Also can be used to mark text that user wants to treat as html
             html: {
-                className: 'rte-style-html',
+                className: 'rte2-style-html',
                 raw: true // do not allow other styles inside this style and do not encode the text within this style, to allow for raw html
             },
             
@@ -93,17 +93,17 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // You can use the class name to make CSS rules to style the collapsed area.
             // This can be used for example to collapse comments.
             collapsed: {
-                className: 'rte-style-collapsed'
+                className: 'rte2-style-collapsed'
             },
 
             // Special styles used for tracking changes
             trackInsert: {
-                className: 'rte-style-track-insert',
+                className: 'rte2-style-track-insert',
                 element: 'ins',
                 internal: true
             },
             trackDelete: {
-                className: 'rte-style-track-delete',
+                className: 'rte2-style-track-delete',
                 element: 'del',
                 internal: true
             },
@@ -115,14 +115,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             trackDeleteHidden: {
                 // This class is used internally to hide deleted content temporarily.
                 // It does not create an element for output.
-                className: 'rte-style-track-delete-hidden',
+                className: 'rte2-style-track-delete-hidden',
                 internal: true
             },
             trackDisplay: {
                 // This class is placed on the wrapper elemnt for the entire editor,
                 // and is used to remove the colors from inserted content temporarily.
                 // It does not create an element for output.
-                className: 'rte-style-track-display',
+                className: 'rte2-style-track-display',
                 internal:true
             }
         }, // styles
@@ -1082,7 +1082,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 lineNumber++;
             });
             
-            // We have a list of class names used within the rich text editor (like 'rte-style-bold')
+            // We have a list of class names used within the rich text editor (like 'rte2-style-bold')
             // but we really want the abstracted style names (like 'bold').
             // Convert the class name into the style name.
             $.each(classes, function(className, value) {
@@ -1558,7 +1558,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 }
             });
 
-            // We have a list of class names used within the rich text editor (like 'rte-ol')
+            // We have a list of class names used within the rich text editor (like 'rte2-ol')
             // but we really want the abstracted style names (like 'ol').
             // Convert the class name into the style name.
             styles = {};
@@ -2406,10 +2406,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * still determine the original key into the styles object.
          *
          * For example, if the styles object originally contains the following:
-         * { 'bold': { className: 'rte-style-bold' } }
+         * { 'bold': { className: 'rte2-style-bold' } }
          *
          * Then this function returns the following:
-         * { 'rte-style-bold': { key: 'bold', className: 'rte-style-bold' } }
+         * { 'rte2-style-bold': { key: 'bold', className: 'rte2-style-bold' } }
          */
         getClassNameMap: function() {
             
@@ -2444,10 +2444,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * map to that element.
          *
          * For example, if the styles object originally contains the following:
-         * { 'bold': { className: 'rte-style-bold', element:'b' } }
+         * { 'bold': { className: 'rte2-style-bold', element:'b' } }
          *
          * Then this function returns the following:
-         * { 'b': [{ key: 'bold', className: 'rte-style-bold', element:'b'}] }
+         * { 'b': [{ key: 'bold', className: 'rte2-style-bold', element:'b'}] }
          */
         getElementMap: function() {
             
@@ -2667,14 +2667,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Get any line classes and determine which kind of line we are on (bullet, etc)
                 // Note this does not support nesting line elements (like a list within a list)
                 // From CodeMirror, the textClass property will contain multiple line styles separated by space
-                // like 'rte-style-ol rte-style-align-left'
+                // like 'rte2-style-ol rte2-style-align-left'
                 if (line.textClass) {
                     
                     $.each(line.textClass.split(' '), function() {
                         
                         var container, styleObj;
 
-                        // From a line style (like "rte-style-ul"), determine the style name it maps to (like "ul")
+                        // From a line style (like "rte2-style-ul"), determine the style name it maps to (like "ul")
                         styleObj = self.classes[this];
                         if (!styleObj) {
                             return;
@@ -2756,7 +2756,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Get the start/end points of all the marks on this line
                 // For these objects the key is the character number,
                 // and the value is an array of class names. For example:
-                // {'5': 'rte-style-subscript'}
+                // {'5': 'rte2-style-subscript'}
                 
                 annotationStart = {};
                 annotationEnd = {};
@@ -2937,7 +2937,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 }
             });
 
-            html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte-raw').replace(/&raw_lt;/g, '<');
+            html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
             
             return html;
             
@@ -3001,7 +3001,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             raw = true;
                             rawChildren = true;
                         } else {
-                            raw = $(next).is('[data-rte-raw]');
+                            raw = $(next).is('[data-rte2-raw]');
                         }
                         
                         // Determine how to map the element to a marker
@@ -3110,9 +3110,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                 var attributeName = attrib.name;
                                 var attributeValue = attrib.value;
 
-                                // Skip the data-rte-raw attribute since that is used only to
+                                // Skip the data-rte2-raw attribute since that is used only to
                                 // indicate which elements were previously marked as raw html
-                                if (attributeName === 'data-rte-raw') {
+                                if (attributeName === 'data-rte2-raw') {
                                     return;
                                 }
                                 
