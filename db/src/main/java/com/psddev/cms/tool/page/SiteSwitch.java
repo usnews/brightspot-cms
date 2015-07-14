@@ -65,7 +65,7 @@ public class SiteSwitch extends PageServlet {
                                 page.writeEnd();
                             }
 
-                            for (Site site : Site.Static.findAll()) {
+                            for (Site site : sites) {
                                 page.writeStart("li");
                                     page.writeStart("a",
                                             "href", page.cmsUrl("/siteSwitch", "switch", true, "id", site.getId()),
