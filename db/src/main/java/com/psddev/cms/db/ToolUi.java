@@ -677,7 +677,7 @@ public class ToolUi extends Modification<Object> {
     @Documented
     @ObjectField.AnnotationProcessorClass(DropDownProcessor.class)
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
     public @interface DropDown {
         boolean value() default true;
         String sortField() default "";
