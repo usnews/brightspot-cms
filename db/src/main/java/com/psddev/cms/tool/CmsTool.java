@@ -163,6 +163,9 @@ public class CmsTool extends Tool {
 
     private boolean enableCrossDomainInlineEditing;
 
+    @ToolUi.Tab("Debug")
+    private boolean disableCodeMirrorRichTextEditor;
+
     @Embedded
     public static class CommonTime extends Record {
 
@@ -738,6 +741,14 @@ public class CmsTool extends Tool {
 
     public void setEnableCrossDomainInlineEditing(boolean enableCrossDomainInlineEditing) {
         this.enableCrossDomainInlineEditing = enableCrossDomainInlineEditing;
+    }
+
+    public boolean isDisableCodeMirrorRichTextEditor() {
+        return disableCodeMirrorRichTextEditor;
+    }
+
+    public void setDisableCodeMirrorRichTextEditor(boolean disableCodeMirrorRichTextEditor) {
+        this.disableCodeMirrorRichTextEditor = disableCodeMirrorRichTextEditor;
     }
 
     /** Returns the preview URL. */
