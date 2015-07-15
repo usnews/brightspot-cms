@@ -1604,11 +1604,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Modify the Select and Edit buttons in the toolbar
             if (reference && reference.record && reference.record._ref) {
                 
-                $select = $enhancement.find('.rte-enhancement-toolbar-change');
+                $select = $enhancement.find('.rte2-enhancement-toolbar-change');
                 $select.text('Change');
 
                 // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
-                $edit = $enhancement.find('.rte-enhancement-toolbar-edit');
+                $edit = $enhancement.find('.rte2-enhancement-toolbar-edit');
                 editUrl = $edit.attr('href') || '';
                 editUrl = $.addQueryParameters(editUrl, 'id', reference.record._ref);
                 $edit.attr('href', editUrl);
