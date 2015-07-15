@@ -2919,7 +2919,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     
                 } else {
                     // No block elements so add a line break
-                    html += '<br/>\n';
+                    html += '<br/>';
                 }
 
                 // Add any content that needs to go after the line
