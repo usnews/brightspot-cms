@@ -411,6 +411,11 @@ public class ToolUser extends Record implements ToolEntity {
         this.settings = settings;
     }
 
+    /**
+     * Returns the ToolUser's current {@link Site} or the first accessible Site.
+     * @throws IllegalStateException if the user doesn't have access to any Sites.
+     * @return the ToolUser's current Site or null if the ToolUser is using the Global Site.
+     */
     public Site getCurrentSite() {
         if ((currentSite == null &&
                 hasPermission("site/global")) ||
@@ -423,6 +428,10 @@ public class ToolUser extends Record implements ToolEntity {
                 if (hasPermission(s.getPermissionId())) {
                     return s;
                 }
+            }
+
+            if (hasPermission("site/global")) {
+                return null;
             }
 
             throw new IllegalStateException("No accessible site!");
