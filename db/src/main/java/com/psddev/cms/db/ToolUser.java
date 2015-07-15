@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -436,6 +437,22 @@ public class ToolUser extends Record implements ToolEntity {
 
             throw new IllegalStateException("No accessible site!");
         }
+    }
+
+    /**
+     * Returns a {@code List<Site>} to which the ToolUser has access.  The ToolUser's
+     * {@link #getCurrentSite() current Site} and the Global Site are excluded from
+     * this list.
+     * @return a {@code List<Site>} to which the ToolUser has access.
+     */
+    public List<Site> findOtherAccessibleSites() {
+
+        Site currentSite = getCurrentSite();
+
+        return Site.Static.findAll()
+            .stream()
+            .filter((Site site) -> hasPermission(site.getPermissionId()) && !ObjectUtils.equals(currentSite, site))
+            .collect(Collectors.toList());
     }
 
     public void setCurrentSite(Site site) {
