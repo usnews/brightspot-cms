@@ -318,33 +318,41 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         initClickListener: function() {
 
-            var editor, self;
+            var editor, now, self;
 
             self = this;
             
             editor = self.codeMirror;
 
-            // Monitor the "mousedown" event so we can tell when 
-            // user clicks on something in the editor.
-            // CodeMirror doesn't have a click listener, so mousedown is the closest we can get.
-            $(editor.getWrapperElement()).on('click', function(event) {
+            // CodeMirror doesn't handle double clicks reliably,
+            // so we will simulate a double click event using mousedown.
+            $(editor.getWrapperElement()).on('mousedown', function(event) {
 
-                var $el, marks, pos;
+                var $el, marks, now, pos;
 
-                // Figure out the line and character based on the mouse coord that was clicked
-                pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
+                // Generate timestamp
+                now = Date.now();
 
-                // Loop through all the marks for the clicked position
-                marks = editor.findMarksAt(pos);
-                $.each(marks, function(i, mark) {
-                    var styleObj;
-                    styleObj = self.classes[mark.className];
-                    if (styleObj && styleObj.onClick) {
-                        styleObj.onClick(event, mark);
-                    }
-                });
+                if (self.doubleClickTimestamp
+                    && now - self.doubleClickTimestamp < 500 ) {
+
+                    // Figure out the line and character based on the mouse coord that was clicked
+                    pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
+
+                    // Loop through all the marks for the clicked position
+                    marks = editor.findMarksAt(pos);
+                    $.each(marks, function(i, mark) {
+                        var styleObj;
+                        styleObj = self.classes[mark.className];
+                        if (styleObj && styleObj.onClick) {
+                            styleObj.onClick(event, mark);
+                        }
+                    });
+
+                } else {
+                    self.doubleClickTimestamp = now;
+                }
             });
-
 
         }, // initClickListener
 
@@ -1195,7 +1203,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 if (styleObj.raw) {
 
                     // Get the start and end positions for this mark
-                    pos = mark.find();
+                    pos = mark.find() || {};
                     if (!pos.from) {
                         return;
                     }
