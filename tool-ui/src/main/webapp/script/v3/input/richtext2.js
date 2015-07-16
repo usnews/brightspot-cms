@@ -684,8 +684,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Loop through the toolbar config to set up buttons
             $.each(self.toolbarConfig, function(i, item) {
 
-                var $item;
-
                 // Skip inline toolbar items if this is an inline editor
                 if (self.inline && item.inline === false) {
                     return;
@@ -745,7 +743,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         toolbarInitCustom: function() {
 
             var self = this;
-            var $toolbar = self.$toolbar;
 
             if (!window.CSS_CLASS_GROUPS) {
                 return;
@@ -769,7 +766,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Loop through all the styles in this group
                 $.each(group.cssClasses, function() {
 
-                    var classConfig, cmsClassName, style, toolbarItem;
+                    var classConfig, cmsClassName, toolbarItem;
 
                     classConfig = this;
 
@@ -852,7 +849,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 data: {
                     toolbarConfig:item
                 }
-            })
+            });
 
             $button.on('click', function(event) {
                 event.preventDefault();
@@ -2024,7 +2021,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * The enhancement element, or an element within the enhancement.
          */
         enhancementGetMark: function(el) {
-            var el, self;
+            var self;
             self = this;
             el = self.enhancementGetWrapper(el);
             return self.rte.enhancementGetMark(el);
@@ -2220,7 +2217,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementSetReference: function(el, reference) {
 
-            var $enhancemnt, self;
+            var $enhancement, self;
 
             self = this;
 
