@@ -411,7 +411,9 @@ public class StorageItemField extends PageServlet {
                         && !fieldValueMetadata.containsKey("width")
                         && !fieldValueMetadata.containsKey("height")) {
                     Map<String, Object> metadata = extractMetadata(newItem, Optional.ofNullable(newItemData));
-                    fieldValueMetadata.putAll(metadata);
+                    if (metadata != null) {
+                        fieldValueMetadata.putAll(metadata);
+                    }
                 }
 
                 // Makes sure opened stream gets closed
