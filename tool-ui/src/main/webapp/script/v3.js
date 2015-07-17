@@ -89,28 +89,10 @@ function() {
   var undef;
   var $win = $(win),
       doc = win.document,
-      $doc = $(doc),
-      toolChecks = [ ],
-      toolCheckActionCallbacks = [ ];
+      $doc = $(doc);
 
-  $.addToolCheck = function(check) {
-    toolCheckActionCallbacks.push(check.actions);
-    delete check.actions;
-    toolChecks.push(check);
+  $.addToolCheck = function() {
   };
-
-  $.addToolCheck({
-    'check': 'kick',
-    'actions': {
-      'kickIn': function(parameters) {
-        win.location = win.location.protocol + '//' + win.location.host + parameters.returnPath;
-      },
-
-      'kickOut': function() {
-        win.location = CONTEXT_PATH + '/logIn.jsp?forced=true&returnPath=' + encodeURIComponent(win.location.pathname + win.location.search);
-      }
-    }
-  });
 
   // Standard behaviors.
   $doc.repeatable('live', '.repeatableForm, .repeatableInputs, .repeatableLayout, .repeatableObjectId');
@@ -870,42 +852,5 @@ function() {
         return false;
       });
     }());
-
-    // Starts all server-side tool checks.
-    if (!DISABLE_TOOL_CHECKS) {
-      (function() {
-        var toolCheckPoll = function() {
-          $.ajax({
-            'method': 'post',
-            'url': CONTEXT_PATH + '/toolCheckStream',
-            'cache': false,
-            'dataType': 'json',
-            'data': {
-              'url': win.location.href,
-              'r': JSON.stringify(toolChecks)
-            }
-
-          }).done(function(responses) {
-            if (!responses) {
-              return;
-            }
-
-            $.each(responses, function(i, response) {
-              if (response) {
-                toolCheckActionCallbacks[i][response.action].call(toolChecks[i], response);
-              }
-            });
-
-          }).done(function() {
-            setTimeout(toolCheckPoll, 100);
-
-          }).fail(function() {
-            setTimeout(toolCheckPoll, 10000);
-          });
-        };
-
-        toolCheckPoll();
-      })();
-    }
   });
 });
