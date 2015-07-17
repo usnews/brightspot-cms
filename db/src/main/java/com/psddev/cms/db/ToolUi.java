@@ -36,6 +36,8 @@ public class ToolUi extends Modification<Object> {
     private String codeType;
     private Boolean colorPicker;
     private String cssClass;
+    private Set<String> displayAfter;
+    private Set<String> displayBefore;
     private boolean displayFirst;
     private boolean displayLast;
     private boolean dropDown;
@@ -104,6 +106,28 @@ public class ToolUi extends Modification<Object> {
 
     public void setCssClass(String cssClass) {
         this.cssClass = cssClass;
+    }
+
+    public Set<String> getDisplayAfter() {
+        if (displayAfter == null) {
+            displayAfter = new LinkedHashSet<>();
+        }
+        return displayAfter;
+    }
+
+    public void setDisplayAfter(Set<String> displayAfter) {
+        this.displayAfter = displayAfter;
+    }
+
+    public Set<String> getDisplayBefore() {
+        if (displayBefore == null) {
+            displayBefore = new LinkedHashSet<>();
+        }
+        return displayBefore;
+    }
+
+    public void setDisplayBefore(Set<String> displayBefore) {
+        this.displayBefore = displayBefore;
     }
 
     public boolean isDisplayFirst() {
@@ -627,6 +651,36 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, CssClass annotation) {
             field.as(ToolUi.class).setCssClass(annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DisplayAfterProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
+    public @interface DisplayAfter {
+        String[] value();
+    }
+
+    private static class DisplayAfterProcessor implements ObjectField.AnnotationProcessor<DisplayAfter> {
+        @Override
+        public void process(ObjectType type, ObjectField field, DisplayAfter annotation) {
+            Collections.addAll(field.as(ToolUi.class).getDisplayAfter(), annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectField.AnnotationProcessorClass(DisplayBeforeProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD, ElementType.METHOD })
+    public @interface DisplayBefore {
+        String[] value();
+    }
+
+    private static class DisplayBeforeProcessor implements ObjectField.AnnotationProcessor<DisplayBefore> {
+        @Override
+        public void process(ObjectType type, ObjectField field, DisplayBefore annotation) {
+            Collections.addAll(field.as(ToolUi.class).getDisplayBefore(), annotation.value());
         }
     }
 

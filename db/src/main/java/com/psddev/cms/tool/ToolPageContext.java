@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -2403,6 +2406,31 @@ public class ToolPageContext extends WebPageContext {
                         fields.addAll(lasts);
                     }
 
+                    DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
+                    Map<String, ObjectField> fieldByName = fields.stream()
+                            .collect(Collectors.toMap(ObjectField::getInternalName, Function.identity()));
+
+                    fields.forEach(field -> {
+                        ToolUi ui = field.as(ToolUi.class);
+
+                        toFields(fieldByName, ui.getDisplayAfter())
+                                .forEach(afterField -> resolver.addRequired(field, afterField));
+
+                        toFields(fieldByName, ui.getDisplayBefore())
+                                .forEach(beforeField -> resolver.addRequired(beforeField, field));
+                    });
+
+                    List<ObjectField> dependentFields = resolver.resolve();
+
+                    for (int i = 1, size = dependentFields.size(); i < size; ++ i) {
+                        int beforeIndex = fields.indexOf(dependentFields.get(i - 1));
+                        int afterIndex = fields.indexOf(dependentFields.get(i));
+
+                        if (beforeIndex > afterIndex) {
+                            fields.add(afterIndex, fields.remove(beforeIndex));
+                        }
+                    }
+
                     boolean draftCheck = false;
 
                     try {
@@ -2442,6 +2470,12 @@ public class ToolPageContext extends WebPageContext {
                 request.setAttribute("containerObject", null);
             }
         }
+    }
+
+    private static Stream<ObjectField> toFields(Map<String, ObjectField> fieldByName, Set<String> fieldNames) {
+        return fieldNames.stream()
+                .map(fieldByName::get)
+                .filter(f -> f != null);
     }
 
     /**
