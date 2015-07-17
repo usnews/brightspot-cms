@@ -176,7 +176,7 @@
           $newSourceParent = $newSource.parent();
         }
 
-        if (isFixedPosition) {
+        if (isFixedPosition && (top / $win.height()) > 0.3) {
           $container.addClass('popup-fixed');
         }
 

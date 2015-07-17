@@ -264,14 +264,14 @@ public abstract class Content extends Record {
          * is searchable.
          */
         public static boolean isSearchableType(ObjectType type) {
-            return type != null &&
-                    type.getGroups().contains(SEARCHABLE_GROUP);
+            return type != null
+                    && type.getGroups().contains(SEARCHABLE_GROUP);
         }
 
         /** Returns {@code true} if the given {@code object} is searchable. */
         public static boolean isSearchable(Object object) {
-            return object != null &&
-                    isSearchableType(State.getInstance(object).getType());
+            return object != null
+                    && isSearchableType(State.getInstance(object).getType());
         }
 
         /**
@@ -292,8 +292,8 @@ public abstract class Content extends Record {
                 site = (Site) object;
                 siteData.setOwner(site);
 
-            } else if (state.isNew() &&
-                    siteData.getOwner() == null) {
+            } else if (state.isNew()
+                    && siteData.getOwner() == null) {
                 siteData.setOwner(site);
             }
 
@@ -371,9 +371,9 @@ public abstract class Content extends Record {
             State state = State.getInstance(object);
             Site.ObjectModification siteData = state.as(Site.ObjectModification.class);
 
-            if (object instanceof ToolEntity ||
-                    site == null ||
-                    ObjectUtils.equals(siteData.getOwner(), site)) {
+            if (object instanceof ToolEntity
+                    || site == null
+                    || ObjectUtils.equals(siteData.getOwner(), site)) {
                 ObjectModification contentData = state.as(ObjectModification.class);
 
                 contentData.setTrash(trash);

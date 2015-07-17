@@ -75,10 +75,10 @@ public class DashboardPage extends PageServlet {
 
                             page.writeStart("div", "class", "frame dashboard-widget");
                                 page.writeStart("a", "href", page.toolUrl(CmsTool.class,
-                                        "/dashboardWidget/" +
-                                        dashboardId + "/" +
-                                        widget.getClass().getName() + "/" +
-                                        widget.getId()));
+                                        "/dashboardWidget/"
+                                                + dashboardId + "/"
+                                                + widget.getClass().getName() + "/"
+                                                + widget.getId()));
                                 page.writeEnd();
                             page.writeEnd();
                         }
