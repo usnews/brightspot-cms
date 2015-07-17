@@ -2431,6 +2431,12 @@ public class ToolPageContext extends WebPageContext {
                         }
                     }
 
+                    List<ObjectField> orderedFields = toFields(fieldByName, type.as(ToolUi.class).getFieldDisplayOrder())
+                            .collect(Collectors.toList());
+
+                    fields.removeAll(orderedFields);
+                    fields.addAll(0, orderedFields);
+
                     boolean draftCheck = false;
 
                     try {
@@ -2472,7 +2478,7 @@ public class ToolPageContext extends WebPageContext {
         }
     }
 
-    private static Stream<ObjectField> toFields(Map<String, ObjectField> fieldByName, Set<String> fieldNames) {
+    private static Stream<ObjectField> toFields(Map<String, ObjectField> fieldByName, Collection<String> fieldNames) {
         return fieldNames.stream()
                 .map(fieldByName::get)
                 .filter(f -> f != null);

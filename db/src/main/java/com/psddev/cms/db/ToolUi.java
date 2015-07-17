@@ -44,6 +44,7 @@ public class ToolUi extends Modification<Object> {
     private boolean dropDownSortDescending;
     private String dropDownSortField;
     private Boolean expanded;
+    private List<String> fieldDisplayOrder;
     private Boolean filterable;
     private boolean globalFilter;
     private String heading;
@@ -176,6 +177,17 @@ public class ToolUi extends Modification<Object> {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded ? Boolean.TRUE : null;
+    }
+
+    public List<String> getFieldDisplayOrder() {
+        if (fieldDisplayOrder == null) {
+            fieldDisplayOrder = new ArrayList<>();
+        }
+        return fieldDisplayOrder;
+    }
+
+    public void setFieldDisplayOrder(List<String> fieldDisplayOrder) {
+        this.fieldDisplayOrder = fieldDisplayOrder;
     }
 
     public Boolean getFilterable() {
@@ -721,6 +733,21 @@ public class ToolUi extends Modification<Object> {
         @Override
         public void process(ObjectType type, ObjectField field, DisplayLast annotation) {
             field.as(ToolUi.class).setDisplayLast(annotation.value());
+        }
+    }
+
+    @Documented
+    @ObjectType.AnnotationProcessorClass(FieldDisplayOrderProcessor.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface FieldDisplayOrder {
+        String[] value();
+    }
+
+    private static class FieldDisplayOrderProcessor implements ObjectType.AnnotationProcessor<FieldDisplayOrder> {
+        @Override
+        public void process(ObjectType type, FieldDisplayOrder annotation) {
+            Collections.addAll(type.as(ToolUi.class).getFieldDisplayOrder(), annotation.value());
         }
     }
 
