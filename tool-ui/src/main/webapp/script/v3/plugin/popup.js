@@ -6,11 +6,6 @@
 
   $.plugin2('popup', {
     '_defaultOptions': {
-
-      // Selector, element, or jquery object for the parent element that will
-      // contain the popup container
-      parent: doc.body,
-      
       'padding': {
         'left': 35,
         'right': 35,
@@ -79,7 +74,7 @@
         $(this).popup('close');
       });
 
-      var $body = $(options.parent);
+      var $body = $(doc.body);
       $content.append($inner);
       $content.append($closeButton);
       $container.append($content);
