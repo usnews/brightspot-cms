@@ -220,7 +220,9 @@ public class UploadFiles extends PageServlet {
                         item.save();
 
                         Map<String, Object> metadata = StorageItemField.extractMetadata(item, Optional.empty());
-                        item.getMetadata().putAll(metadata);
+                        if (metadata != null) {
+                            item.getMetadata().putAll(metadata);
+                        }
 
                         Object object = selectedType.createObject(null);
                         State state = State.getInstance(object);
