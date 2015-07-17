@@ -151,29 +151,35 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     // Stop the click from propagating up to the window
                     // because if it did, it would close the popup we will be opening.
                     if (event) {
+                        event.preventDefault();
                         event.stopPropagation();
                     }
 
-                    // Let the user edit the link, and when that is done update the mark
-                    self.linkEdit(mark.attributes).done(function(attributes){
+                    // Let the user edit the link, and when that is done update the mark.
+                    // Using a timeout here because we need to let the click event complete,
+                    // otherwise the click outside the popup will close the popup!
+                    setTimeout(function() {
+                        
+                        self.linkEdit(mark.attributes).done(function(attributes){
 
-                        if (attributes.remove || attributes.href === '' || attributes.href === 'http://') {
-                            // Remove the link
-                            mark.clear();
-                        } else {
-                            // Update the link attributes
-                            mark.attributes = mark.attributes || {};
-                            $.extend(mark.attributes, attributes);
-                        }
-                    }).fail(function(){
+                            if (attributes.remove || attributes.href === '' || attributes.href === 'http://') {
+                                // Remove the link
+                                mark.clear();
+                            } else {
+                                // Update the link attributes
+                                mark.attributes = mark.attributes || {};
+                                $.extend(mark.attributes, attributes);
+                            }
+                        }).fail(function(){
 
-                        // If the popup was closed without saving and there is no href already the link,
-                        // then remove the link.
-                        if (!mark.attributes) {
-                            mark.clear();
-                        }
+                            // If the popup was closed without saving and there is no href already the link,
+                            // then remove the link.
+                            if (!mark.attributes) {
+                                mark.clear();
+                            }
+                        })
+                    }, 100);
 
-                    });
                 }
             },
             ol : {
@@ -684,8 +690,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // Loop through the toolbar config to set up buttons
             $.each(self.toolbarConfig, function(i, item) {
 
-                var $item;
-
                 // Skip inline toolbar items if this is an inline editor
                 if (self.inline && item.inline === false) {
                     return;
@@ -745,7 +749,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         toolbarInitCustom: function() {
 
             var self = this;
-            var $toolbar = self.$toolbar;
 
             if (!window.CSS_CLASS_GROUPS) {
                 return;
@@ -769,7 +772,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Loop through all the styles in this group
                 $.each(group.cssClasses, function() {
 
-                    var classConfig, cmsClassName, style, toolbarItem;
+                    var classConfig, cmsClassName, toolbarItem;
 
                     classConfig = this;
 
@@ -852,7 +855,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 data: {
                     toolbarConfig:item
                 }
-            })
+            });
 
             $button.on('click', function(event) {
                 event.preventDefault();
@@ -2024,7 +2027,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * The enhancement element, or an element within the enhancement.
          */
         enhancementGetMark: function(el) {
-            var el, self;
+            var self;
             self = this;
             el = self.enhancementGetWrapper(el);
             return self.rte.enhancementGetMark(el);
@@ -2220,7 +2223,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementSetReference: function(el, reference) {
 
-            var $enhancemnt, self;
+            var $enhancement, self;
 
             self = this;
 
