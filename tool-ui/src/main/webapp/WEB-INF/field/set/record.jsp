@@ -39,16 +39,7 @@ if (fieldValue == null) {
 }
 
 List<ObjectType> validTypes = field.as(ToolUi.class).findDisplayTypes();
-boolean isValueExternal = !field.isEmbedded();
-if (isValueExternal && validTypes != null && validTypes.size() > 0) {
-    isValueExternal = false;
-    for (ObjectType type : validTypes) {
-        if (!type.isEmbedded()) {
-            isValueExternal = true;
-            break;
-        }
-    }
-}
+boolean isValueExternal = ToolUi.isValueExternal(field);
 
 Collections.sort(validTypes, new ObjectFieldComparator("_label", false));
 
