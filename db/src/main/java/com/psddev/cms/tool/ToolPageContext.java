@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -2329,19 +2330,6 @@ public class ToolPageContext extends WebPageContext {
                     "data-object-id", state.getId(),
                     "data-layout-placeholders", layoutPlaceholdersJson);
 
-                Object original = Query.fromAll().where("_id = ?", state.getId()).master().noCache().first();
-
-                if (original != null) {
-                    Date updateDate = State.getInstance(original).as(Content.ObjectModification.class).getUpdateDate();
-
-                    if (updateDate != null) {
-                        writeElement("input",
-                                "type", "hidden",
-                                "name", state.getId() + "/_updateDate",
-                                "value", updateDate.getTime());
-                    }
-                }
-
                 if (type != null) {
                     String noteHtml = type.as(ToolUi.class).getEffectiveNoteHtml(object);
 
@@ -2959,7 +2947,21 @@ public class ToolPageContext extends WebPageContext {
                     contentData.setPublishUser(null);
                 }
 
-                publish(object);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> oldValues = (Map<String, Object>) ObjectUtils.fromJson(param(String.class, state.getId() + "/oldValues"));
+                Map<String, Object> newValues = state.getSimpleValues();
+                Map<String, Object> changedValues = new CompactMap<>();
+
+                Stream.concat(oldValues.keySet().stream(), newValues.keySet().stream()).forEach(key -> {
+                    Object oldValue = oldValues.get(key);
+                    Object newValue = newValues.get(key);
+
+                    if (!ObjectUtils.equals(oldValue, newValue)) {
+                        changedValues.put(key, newValue);
+                    }
+                });
+
+                publishChanges(state.getId(), changedValues);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3290,10 +3292,7 @@ public class ToolPageContext extends WebPageContext {
         return Content.Static.deleteSoftly(object, getSite(), getUser());
     }
 
-    /** @see Content.Static#publish */
-    public History publish(Object object) {
-        History history = Content.Static.publish(object, getSite(), getUser());
-
+    private History updateLockIgnored(History history) {
         if (history != null
                 && param(boolean.class, "editAnyway")) {
             history.setLockIgnored(true);
@@ -3301,6 +3300,20 @@ public class ToolPageContext extends WebPageContext {
         }
 
         return history;
+    }
+
+    /**
+     * @see Content.Static#publish(Object, Site, ToolUser)
+     */
+    public History publish(Object object) {
+        return updateLockIgnored(Content.Static.publish(object, getSite(), getUser()));
+    }
+
+    /**
+     * @see Content.Static#publishChanges(UUID, Map, Site, ToolUser)
+     */
+    public History publishChanges(UUID id, Map<String, Object> changedValues) {
+        return updateLockIgnored(Content.Static.publishChanges(id, changedValues, getSite(), getUser()));
     }
 
     /**

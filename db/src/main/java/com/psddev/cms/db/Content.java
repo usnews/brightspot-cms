@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.db.Database;
+import com.psddev.dari.db.DistributedLock;
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
@@ -330,6 +331,24 @@ public abstract class Content extends Record {
                 } finally {
                     state.endWrites();
                 }
+            }
+        }
+
+        public static History publishChanges(UUID id, Map<String, Object> changedValues, Site site, ToolUser user) {
+            DistributedLock lock = DistributedLock.Static.getInstance(
+                    Database.Static.getDefault(),
+                    Content.class.getName() + "/publish/" + id);
+
+            lock.lock();
+
+            try {
+                Object object = Query.fromAll().where("_id = ?", id).first();
+
+                State.getInstance(object).putAll(changedValues);
+                return publish(object, site, user);
+
+            } finally {
+                lock.unlock();
             }
         }
 
