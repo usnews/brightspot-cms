@@ -6,6 +6,7 @@ import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
+import org.atmosphere.container.JSR356AsyncSupport;
 import org.atmosphere.cpr.AtmosphereFramework;
 import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
@@ -123,6 +124,7 @@ public class RtcServlet extends HttpServlet {
         framework = new AtmosphereFramework();
 
         framework.init(getServletConfig());
+        framework.setAsyncSupport(new JSR356AsyncSupport(framework.getAtmosphereConfig()));
         framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
