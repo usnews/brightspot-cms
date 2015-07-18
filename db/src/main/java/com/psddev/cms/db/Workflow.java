@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
@@ -28,8 +29,17 @@ public class Workflow extends Record {
     @Required
     private String name;
 
-    @Indexed(unique = true)
+    @Indexed
+    @ToolUi.Note("Leave blank to apply this workflow to all sites.")
+    private Set<Site> sites;
+
+    @Indexed
+    @Required
     private Set<ObjectType> contentTypes;
+
+    @Indexed(unique = true)
+    @ToolUi.Hidden
+    private Set<String> siteContentTypeIds;
 
     @ToolUi.FieldDisplayType("workflowActions")
     private Map<String, Object> actions;
@@ -42,6 +52,17 @@ public class Workflow extends Record {
     /** Sets the name. */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<Site> getSites() {
+        if (sites == null) {
+            sites = new LinkedHashSet<>();
+        }
+        return sites;
+    }
+
+    public void setSites(Set<Site> sites) {
+        this.sites = sites;
     }
 
     public Set<ObjectType> getContentTypes() {
@@ -180,6 +201,19 @@ public class Workflow extends Record {
         }
 
         return transitions;
+    }
+
+    @Override
+    protected void beforeSave() {
+        super.beforeSave();
+
+        siteContentTypeIds = new LinkedHashSet<>();
+
+        for (Site site : getSites()) {
+            for (ObjectType contentType : getContentTypes()) {
+                siteContentTypeIds.add(site.getId() + ":" + contentType.getId());
+            }
+        }
     }
 
     @FieldInternalNamePrefix("cms.workflow.")
