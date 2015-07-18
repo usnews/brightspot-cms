@@ -64,5 +64,17 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         });
       }
     });
+
+    $form.submit(function() {
+      $form.find('.inputContainer').each(function() {
+        var $container = $(this);
+
+        if (!$container.is('.inputContainer-readOnly')
+            && $container.find('> .inputStatus').length > 0) {
+
+          $container.find(':input').prop('disabled', false);
+        }
+      })
+    });
   });
 });
