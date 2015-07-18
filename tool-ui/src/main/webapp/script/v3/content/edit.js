@@ -47,7 +47,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       contentId: contentId
     });
 
-    $(document).on('focus change', '.contentForm :input', function() {
+    $(document).on('blur focus change', '.contentForm :input', function() {
       var fieldNamesByObjectId = { };
 
       $form.find('.inputContainer.state-changed, .inputContainer.state-focus').each(function () {
