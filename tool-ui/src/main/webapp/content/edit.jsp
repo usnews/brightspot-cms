@@ -301,7 +301,42 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <%
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
-                if (!editingState.as(Content.ObjectModification.class).isDraft() &&
+                Object compareObject = null;
+
+                if (wp.param(boolean.class, "compare")) {
+                    compareObject = user.createCompareObject();
+                }
+
+                if (compareObject != null) {
+                    wp.writeStart("div", "class", "message message-info");
+                        wp.writeStart("a",
+                                "href", wp.url("", "compare", null));
+                            wp.writeHtml("Stop Comparison");
+                        wp.writeEnd();
+                    wp.writeEnd();
+
+                    wp.writeStart("div", "class", "contentDiff");
+                        wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
+                            wp.writeStart("h2");
+                            wp.writeObjectLabel(compareObject);
+                            wp.writeEnd();
+                            wp.writeSomeFormFields(compareObject, true, null, null);
+                        wp.writeEnd();
+
+                        try {
+                            wp.disableFormFields();
+
+                            wp.writeStart("div", "class", "contentDiffCurrent contentDiffRight");
+                                wp.writeStart("h2").writeHtml("Current").writeEnd();
+                                wp.writeSomeFormFields(editing, true, null, null);
+                            wp.writeEnd();
+
+                        } finally {
+                            wp.enableFormFields();
+                        }
+                    wp.writeEnd();
+
+                } else if (!editingState.as(Content.ObjectModification.class).isDraft() &&
                         (history != null || draft != null)) {
                     State original = State.getInstance(Query.
                             from(Object.class).

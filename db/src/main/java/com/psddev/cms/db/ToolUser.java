@@ -165,6 +165,9 @@ public class ToolUser extends Record implements ToolEntity {
     @ToolUi.Hidden
     private List<LoginToken> loginTokens;
 
+    @ToolUi.Hidden
+    private UUID compareId;
+
     /** Returns the role. */
     public ToolRole getRole() {
         return role;
@@ -912,6 +915,24 @@ public class ToolUser extends Record implements ToolEntity {
 
     public void setLoginTokens(List<LoginToken> loginTokens) {
         this.loginTokens = loginTokens;
+    }
+
+    public UUID getCompareId() {
+        return compareId;
+    }
+
+    public void setCompareId(UUID compareId) {
+        this.compareId = compareId;
+    }
+
+    public Object createCompareObject() {
+        UUID compareId = getCompareId();
+
+        if (compareId != null) {
+            return Query.fromAll().where("_id = ?", compareId).first();
+        }
+
+        return null;
     }
 
     public static class LoginToken extends Record {
