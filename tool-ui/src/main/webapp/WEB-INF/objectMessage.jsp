@@ -6,10 +6,12 @@ com.psddev.cms.db.History,
 com.psddev.cms.db.Schedule,
 com.psddev.cms.db.Template,
 com.psddev.cms.db.Trash,
+com.psddev.cms.db.Workflow,
 com.psddev.cms.tool.ToolPageContext,
 
 com.psddev.dari.db.Query,
 com.psddev.dari.db.State,
+com.psddev.dari.util.ObjectUtils,
 
 java.util.Date,
 java.util.List,
@@ -44,11 +46,22 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
     Date updateDate = contentData.getUpdateDate();
 
     if (updateDate != null && updateDate.after(new DateTime().minusSeconds(10).toDate())) {
+        String workflowState = state.as(Workflow.Data.class).getCurrentState();
+
         wp.write("<div class=\"message message-success\"><p>");
-        wp.write("Published ");
-        wp.writeHtml(wp.formatUserDateTime(updateDate));//
+            if (!ObjectUtils.isBlank(workflowState)) {
+                wp.write("Transitioned to ");
+                wp.writeHtml(workflowState);
+                wp.writeHtml(" at ");
+                wp.writeHtml(wp.formatUserDateTime(updateDate));
+
+            } else {
+                wp.write("Published ");
+                wp.writeHtml(wp.formatUserDateTime(updateDate));
+            }
         wp.write(".</p>");
         wp.write("</div>");
+
         return;
     }
 }
