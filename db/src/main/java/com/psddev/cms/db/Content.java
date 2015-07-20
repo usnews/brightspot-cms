@@ -322,8 +322,8 @@ public abstract class Content extends Record {
                     state.save();
 
                     History history = new History(user, object);
-                    history.save();
 
+                    history.save();
                     state.commitWrites();
                     return history;
 
