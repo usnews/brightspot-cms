@@ -2235,6 +2235,9 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
+        boolean canRestore = hasPermission("type/" + state.getType().getId() + "/restore");
+        boolean canDelete = hasPermission("type/" + state.getType().getId() + "/delete");
+
         writeStart("div", "class", "message message-warning");
             writeStart("p");
                 writeHtml("Archived ");
@@ -2244,21 +2247,27 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(".");
             writeEnd();
 
-            writeStart("div", "class", "actions");
-                writeStart("button",
-                        "class", "link icon icon-action-restore",
-                        "name", "action-restore",
-                        "value", "true");
-                    writeHtml("Restore");
-                writeEnd();
+            if (canRestore || canDelete) {
+                writeStart("div", "class", "actions");
+                    if (canRestore) {
+                        writeStart("button",
+                                "class", "link icon icon-action-restore",
+                                "name", "action-restore",
+                                "value", "true");
+                            writeHtml("Restore");
+                        writeEnd();
+                    }
 
-                writeStart("button",
-                        "class", "link icon icon-action-delete",
-                        "name", "action-delete",
-                        "value", "true");
-                    writeHtml("Delete Permanently");
+                    if (canDelete) {
+                        writeStart("button",
+                                "class", "link icon icon-action-delete",
+                                "name", "action-delete",
+                                "value", "true");
+                            writeHtml("Delete Permanently");
+                        writeEnd();
+                    }
                 writeEnd();
-            writeEnd();
+            }
         writeEnd();
 
         return true;
@@ -2702,9 +2711,15 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
-        try {
-            State state = State.getInstance(object);
+        State state = State.getInstance(object);
 
+        if (!hasPermission("type/" + state.getTypeId() + "/delete")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to delete [%s]!",
+                    state.getType().getLabel()));
+        }
+
+        try {
             if (param(UUID.class, "draftId") != null) {
                 Draft draft = getOverlaidDraft(object);
 
@@ -3036,6 +3051,14 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
+        State objectState = State.getInstance(object);
+
+        if (!hasPermission("type/" + objectState.getTypeId() + "/restore")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to restore [%s]!",
+                    objectState.getType().getLabel()));
+        }
+
         try {
             Draft draft = getOverlaidDraft(object);
             State state = State.getInstance(draft != null ? draft : object);
@@ -3114,6 +3137,14 @@ public class ToolPageContext extends WebPageContext {
         if (!isFormPost()
                 || param(String.class, "action-trash") == null) {
             return false;
+        }
+
+        State state = State.getInstance(object);
+
+        if (!hasPermission("type/" + state.getTypeId() + "/archive")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to archive [%s]!",
+                    state.getType().getLabel()));
         }
 
         try {

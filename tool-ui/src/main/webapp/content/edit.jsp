@@ -792,7 +792,8 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft &&
+                                if (wp.hasPermission("type/" + editingState.getTypeId() + "/archive") &&
+                                        !isDraft &&
                                         !isHistory &&
                                         !editingState.isNew() &&
                                         (editingState.getType() == null ||
