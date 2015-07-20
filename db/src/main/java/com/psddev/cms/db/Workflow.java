@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.psddev.dari.db.Modification;
 import com.psddev.dari.db.ObjectField;
