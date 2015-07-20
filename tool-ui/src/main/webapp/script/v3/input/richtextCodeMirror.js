@@ -2650,7 +2650,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Loop through the content one line at a time
             doc.eachLine(function(line) {
 
-                var annotationStart, annotationEnd, blockOnThisLine, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo, outputChar, raw;
+                var annotationStart, annotationEnd, blockOnThisLine, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo, outputChar, raw, rawLastChar;
 
                 lineNo = line.lineNo();
                 
@@ -2706,7 +2706,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                 // We are not already inside this style, so create the container element
                                 // and remember that we created it
                                 blockActive[container] = true;
-                                htmlStartOfLine += '<' + container + '>\n';
+                                htmlStartOfLine += '<' + container + '>';
                             }
                         }
 
@@ -2730,7 +2730,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (!blockOnThisLine[container]) {
                         delete blockActive[container];
                         if (container) {
-                            html += '</' + container + '>\n';
+                            html += '</' + container + '>';
                         }
                     }
                 });
@@ -2901,16 +2901,27 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     }
 
                     outputChar = line.text.charAt(charNum);
-                    if (raw) {
 
-                        if (outputChar === '<') {
-                            outputChar = '&raw_lt;';
+                    // In some cases (at end of line) output char might be empty
+                    if (outputChar) {
+                        
+                        if (raw) {
+
+                            if (outputChar === '<') {
+                                outputChar = '&raw_lt;';
+                            }
+
+                            rawLastChar = true;
+                        
+                        } else {
+                        
+                            outputChar = self.htmlEncode(outputChar);
+                        
+                            rawLastChar = false;
                         }
-
-                    } else {
-                        outputChar = self.htmlEncode(outputChar);
+                        
+                        html += outputChar;
                     }
-                    html += outputChar;
                 }
 
                 // If we reached end of line, close all the open block elements
@@ -2920,11 +2931,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         var element;
                         element = this.element;
                         if (element) {
-                            html += '</' + element + '>\n';
+                            html += '</' + element + '>';
                         }
                     });
                     blockElementsToClose = [];
                     
+                } else if (rawLastChar) {
+                    html += '\n';
                 } else {
                     // No block elements so add a line break
                     html += '<br/>';
@@ -2941,7 +2954,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             $.each(blockActive, function(container) {
                 delete blockActive[container];
                 if (container) {
-                    html += '</' + container + '>\n';
+                    html += '</' + container + '>';
                 }
             });
 
@@ -2997,7 +3010,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         // We got a text node, just add it to the value
                         // Remove any newlines at the beginning or end
                         // Remove "zero width space" character that the previous editor sometimes used
-                        val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
+                        //val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
+                        val += next.textContent.replace(/\u200b|\u8203/g, '');
                         
                     } else if (next.nodeType === 1) {
 
