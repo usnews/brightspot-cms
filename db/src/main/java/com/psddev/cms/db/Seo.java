@@ -239,9 +239,7 @@ public final class Seo {
         public String findTitle() {
             String title = getTitle();
 
-            return ObjectUtils.isBlank(title)
-                    ? findTitlePlaceholder()
-                    : title;
+            return ObjectUtils.isBlank(title) ? findTitlePlaceholder() : title;
         }
 
         // Converts the given object into a plain string that's usable
@@ -313,9 +311,7 @@ public final class Seo {
         public String findDescription() {
             String description = getDescription();
 
-            return ObjectUtils.isBlank(description)
-                    ? findDescriptionPlaceholder()
-                    : description;
+            return ObjectUtils.isBlank(description) ? findDescriptionPlaceholder() : description;
         }
 
         /**
