@@ -64,7 +64,13 @@ public class ContentTools extends PageServlet {
         }
 
         if (page.isFormPost()) {
-            if (page.param(String.class, "action-edits") != null) {
+            if (page.param(String.class, "action-compare") != null) {
+                if (state != null) {
+                    user.setCompareId(state.getId());
+                    user.save();
+                }
+
+            } else if (page.param(String.class, "action-edits") != null) {
                 if (state != null) {
                     Date newPublishDate = page.param(Date.class, "publishDate");
 
@@ -165,6 +171,38 @@ public class ContentTools extends PageServlet {
                                             page.writeEnd();
                                         page.writeEnd();
                                     }
+                                page.writeEnd();
+                            page.writeEnd();
+
+                            page.writeStart("h2");
+                                page.writeHtml("Compare");
+                            page.writeEnd();
+
+                            page.writeStart("form",
+                                    "method", "post",
+                                    "action", page.url(""));
+
+                                Object compareObject = user.createCompareObject();
+
+                                if (compareObject != null) {
+                                    page.writeStart("div", "class", "message message-info");
+                                        page.writeStart("a",
+                                                "target", "_top",
+                                                "href", page.cmsUrl("/content/edit.jsp?",
+                                                        "id", state.getId(),
+                                                        "compare", true));
+                                            page.writeHtml("Compare With ");
+                                            page.writeTypeObjectLabel(compareObject);
+                                        page.writeEnd();
+                                    page.writeEnd();
+                                }
+
+                                page.writeStart("div", "class", "actions");
+                                    page.writeStart("button",
+                                            "name", "action-compare",
+                                            "value", true);
+                                        page.writeHtml("Start Comparison");
+                                    page.writeEnd();
                                 page.writeEnd();
                             page.writeEnd();
 

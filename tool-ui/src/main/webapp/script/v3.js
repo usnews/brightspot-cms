@@ -46,6 +46,7 @@ require([
   'input/query',
   'input/region',
   'v3/input/richtext',
+  'v3/input/richtext2',
   'input/table',
   'input/workflow',
 
@@ -134,7 +135,14 @@ function() {
   $doc.pageLayout('live', '.pageLayout');
   $doc.pageThumbnails('live', '.pageThumbnails');
   $doc.regionMap('live', '.regionMap');
-  $doc.rte('live', '.richtext');
+
+  if (DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR) {
+    $doc.rte('live', '.richtext');
+
+  } else {
+    $doc.rte2('live', '.richtext');
+  }
+
   $doc.tabbed('live', '.tabbed, .objectInputs');
   $doc.toggleable('live', '.toggleable');
 
@@ -170,7 +178,7 @@ function() {
 
     search = win.location.search;
     search += search.indexOf('?') > -1 ? '&' : '?';
-    search += 'id=' + $contentForm.attr('data-object-id');
+    search += 'id=' + $contentForm.attr('data-content-id');
 
     $.ajax({
       'data': $contentForm.serialize(),
