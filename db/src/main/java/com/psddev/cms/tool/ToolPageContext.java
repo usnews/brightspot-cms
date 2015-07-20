@@ -828,19 +828,6 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        if (object != null) {
-            State state = State.getInstance(object);
-            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
-
-            if (contentData.isDraft()) {
-                Draft draft = Query.from(Draft.class).where("objectId = ?", state.getId()).first();
-
-                if (draft != null) {
-                    state.getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
-                }
-            }
-        }
-
         return object;
     }
 
@@ -2726,10 +2713,6 @@ public class ToolPageContext extends WebPageContext {
                 if (draft != null) {
                     draft.delete();
 
-                    if (state.as(Content.ObjectModification.class).isDraft()) {
-                        state.delete();
-                    }
-
                     Schedule schedule = draft.getSchedule();
 
                     if (schedule != null
@@ -2847,6 +2830,51 @@ public class ToolPageContext extends WebPageContext {
                 draft.setObject(object);
             }
 
+            publish(draft);
+            redirectOnSave("",
+                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                    ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
+                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+        }
+    }
+
+    /**
+     * Tries to create a new draft from the given {@code object} if the user
+     * has asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the create is tried.
+     */
+    public boolean tryNewDraft(Object object) {
+        if (!isFormPost()
+                || param(String.class, "action-newDraft") == null) {
+            return false;
+        }
+
+        setContentFormScheduleDate(object);
+
+        State state = State.getInstance(object);
+        Site site = getSite();
+
+        try {
+            updateUsingParameters(object);
+            updateUsingAllWidgets(object);
+
+            if (state.isNew()
+                    && site != null
+                    && site.getDefaultVariation() != null) {
+                state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+            }
+
+            Draft draft = new Draft();
+
+            draft.setOwner(getUser());
+            draft.setObject(object);
             publish(draft);
             redirectOnSave("",
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
