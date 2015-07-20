@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -825,19 +828,6 @@ public class ToolPageContext extends WebPageContext {
             }
         }
 
-        if (object != null) {
-            State state = State.getInstance(object);
-            Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
-
-            if (contentData.isDraft()) {
-                Draft draft = Query.from(Draft.class).where("objectId = ?", state.getId()).first();
-
-                if (draft != null) {
-                    state.getExtras().put(OVERLAID_DRAFT_EXTRA, draft);
-                }
-            }
-        }
-
         return object;
     }
 
@@ -1607,7 +1597,8 @@ public class ToolPageContext extends WebPageContext {
             write("var RTE_LEGACY_HTML = ", getCmsTool().isLegacyHtml(), ';');
             write("var RTE_ENABLE_ANNOTATIONS = ", getCmsTool().isEnableAnnotations(), ';');
             write("var DISABLE_TOOL_CHECKS = ", getCmsTool().isDisableToolChecks(), ';');
-            write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes));
+            write("var COMMON_TIMES = ", ObjectUtils.toJson(commonTimes), ';');
+            write("var DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR = ", getCmsTool().isDisableCodeMirrorRichTextEditor(), ';');
         writeEnd();
 
         writeStart("script", "type", "text/javascript", "src", "//www.google.com/jsapi");
@@ -2231,6 +2222,9 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
+        boolean canRestore = hasPermission("type/" + state.getType().getId() + "/restore");
+        boolean canDelete = hasPermission("type/" + state.getType().getId() + "/delete");
+
         writeStart("div", "class", "message message-warning");
             writeStart("p");
                 writeHtml("Archived ");
@@ -2240,21 +2234,27 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml(".");
             writeEnd();
 
-            writeStart("div", "class", "actions");
-                writeStart("button",
-                        "class", "link icon icon-action-restore",
-                        "name", "action-restore",
-                        "value", "true");
-                    writeHtml("Restore");
-                writeEnd();
+            if (canRestore || canDelete) {
+                writeStart("div", "class", "actions");
+                    if (canRestore) {
+                        writeStart("button",
+                                "class", "link icon icon-action-restore",
+                                "name", "action-restore",
+                                "value", "true");
+                            writeHtml("Restore");
+                        writeEnd();
+                    }
 
-                writeStart("button",
-                        "class", "link icon icon-action-delete",
-                        "name", "action-delete",
-                        "value", "true");
-                    writeHtml("Delete Permanently");
+                    if (canDelete) {
+                        writeStart("button",
+                                "class", "link icon icon-action-delete",
+                                "name", "action-delete",
+                                "value", "true");
+                            writeHtml("Delete Permanently");
+                        writeEnd();
+                    }
                 writeEnd();
-            writeEnd();
+            }
         writeEnd();
 
         return true;
@@ -2402,6 +2402,37 @@ public class ToolPageContext extends WebPageContext {
                         fields.addAll(lasts);
                     }
 
+                    DependencyResolver<ObjectField> resolver = new DependencyResolver<>();
+                    Map<String, ObjectField> fieldByName = fields.stream()
+                            .collect(Collectors.toMap(ObjectField::getInternalName, Function.identity()));
+
+                    fields.forEach(field -> {
+                        ToolUi ui = field.as(ToolUi.class);
+
+                        toFields(fieldByName, ui.getDisplayAfter())
+                                .forEach(afterField -> resolver.addRequired(field, afterField));
+
+                        toFields(fieldByName, ui.getDisplayBefore())
+                                .forEach(beforeField -> resolver.addRequired(beforeField, field));
+                    });
+
+                    List<ObjectField> dependentFields = resolver.resolve();
+
+                    for (int i = 1, size = dependentFields.size(); i < size; ++ i) {
+                        int beforeIndex = fields.indexOf(dependentFields.get(i - 1));
+                        int afterIndex = fields.indexOf(dependentFields.get(i));
+
+                        if (beforeIndex > afterIndex) {
+                            fields.add(afterIndex, fields.remove(beforeIndex));
+                        }
+                    }
+
+                    List<ObjectField> orderedFields = toFields(fieldByName, type.as(ToolUi.class).getFieldDisplayOrder())
+                            .collect(Collectors.toList());
+
+                    fields.removeAll(orderedFields);
+                    fields.addAll(0, orderedFields);
+
                     boolean draftCheck = false;
 
                     try {
@@ -2441,6 +2472,12 @@ public class ToolPageContext extends WebPageContext {
                 request.setAttribute("containerObject", null);
             }
         }
+    }
+
+    private static Stream<ObjectField> toFields(Map<String, ObjectField> fieldByName, Collection<String> fieldNames) {
+        return fieldNames.stream()
+                .map(fieldByName::get)
+                .filter(f -> f != null);
     }
 
     /**
@@ -2661,18 +2698,20 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
-        try {
-            State state = State.getInstance(object);
+        State state = State.getInstance(object);
 
+        if (!hasPermission("type/" + state.getTypeId() + "/delete")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to delete [%s]!",
+                    state.getType().getLabel()));
+        }
+
+        try {
             if (param(UUID.class, "draftId") != null) {
                 Draft draft = getOverlaidDraft(object);
 
                 if (draft != null) {
                     draft.delete();
-
-                    if (state.as(Content.ObjectModification.class).isDraft()) {
-                        state.delete();
-                    }
 
                     Schedule schedule = draft.getSchedule();
 
@@ -2791,6 +2830,51 @@ public class ToolPageContext extends WebPageContext {
                 draft.setObject(object);
             }
 
+            publish(draft);
+            redirectOnSave("",
+                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                    ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
+                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+            return true;
+
+        } catch (Exception error) {
+            getErrors().add(error);
+            return false;
+        }
+    }
+
+    /**
+     * Tries to create a new draft from the given {@code object} if the user
+     * has asked for it in the current request.
+     *
+     * @param object Can't be {@code null}.
+     * @return {@code true} if the create is tried.
+     */
+    public boolean tryNewDraft(Object object) {
+        if (!isFormPost()
+                || param(String.class, "action-newDraft") == null) {
+            return false;
+        }
+
+        setContentFormScheduleDate(object);
+
+        State state = State.getInstance(object);
+        Site site = getSite();
+
+        try {
+            updateUsingParameters(object);
+            updateUsingAllWidgets(object);
+
+            if (state.isNew()
+                    && site != null
+                    && site.getDefaultVariation() != null) {
+                state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
+            }
+
+            Draft draft = new Draft();
+
+            draft.setOwner(getUser());
+            draft.setObject(object);
             publish(draft);
             redirectOnSave("",
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -2995,6 +3079,14 @@ public class ToolPageContext extends WebPageContext {
             return false;
         }
 
+        State objectState = State.getInstance(object);
+
+        if (!hasPermission("type/" + objectState.getTypeId() + "/restore")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to restore [%s]!",
+                    objectState.getType().getLabel()));
+        }
+
         try {
             Draft draft = getOverlaidDraft(object);
             State state = State.getInstance(draft != null ? draft : object);
@@ -3073,6 +3165,14 @@ public class ToolPageContext extends WebPageContext {
         if (!isFormPost()
                 || param(String.class, "action-trash") == null) {
             return false;
+        }
+
+        State state = State.getInstance(object);
+
+        if (!hasPermission("type/" + state.getTypeId() + "/archive")) {
+            throw new IllegalStateException(String.format(
+                    "No permission to archive [%s]!",
+                    state.getType().getLabel()));
         }
 
         try {

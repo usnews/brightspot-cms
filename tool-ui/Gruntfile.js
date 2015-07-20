@@ -15,6 +15,7 @@ module.exports = function(grunt) {
                         src: [
                             'mode/clike/clike.js',
                             'mode/css/css.js',
+                            'addon/mode/multiplex.js', // needed by htmlembedded
                             'mode/htmlembedded/htmlembedded.js',
                             'mode/htmlmixed/htmlmixed.js',
                             'mode/javascript/javascript.js',
