@@ -22,7 +22,6 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
-import com.psddev.dari.db.SaveOptions;
 import com.psddev.dari.db.State;
 import com.psddev.dari.db.VisibilityLabel;
 import com.psddev.dari.util.ObjectUtils;
@@ -320,16 +319,11 @@ public abstract class Content extends Record {
             } else {
                 try {
                     state.beginWrites();
-
-                    SaveOptions options = new SaveOptions();
-                    options.setDisableValidation(state.as(Content.ObjectModification.class).isDraft());
-
-                    state.saveWithOptions(options);
                     state.save();
 
                     History history = new History(user, object);
-
                     history.save();
+
                     state.commitWrites();
                     return history;
 
