@@ -132,6 +132,7 @@ if (workStream != null) {
 }
 
 if (wp.tryDelete(editing) ||
+        wp.tryNewDraft(editing) ||
         wp.tryDraft(editing) ||
         wp.tryPublish(editing) ||
         wp.tryRestore(editing) ||
@@ -301,7 +302,42 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 <%
                 wp.include("/WEB-INF/objectMessage.jsp", "object", editing);
 
-                if (!editingState.as(Content.ObjectModification.class).isDraft() &&
+                Object compareObject = null;
+
+                if (wp.param(boolean.class, "compare")) {
+                    compareObject = user.createCompareObject();
+                }
+
+                if (compareObject != null) {
+                    wp.writeStart("div", "class", "message message-info");
+                        wp.writeStart("a",
+                                "href", wp.url("", "compare", null));
+                            wp.writeHtml("Stop Comparison");
+                        wp.writeEnd();
+                    wp.writeEnd();
+
+                    wp.writeStart("div", "class", "contentDiff");
+                        wp.writeStart("div", "class", "contentDiffOld contentDiffLeft");
+                            wp.writeStart("h2");
+                            wp.writeObjectLabel(compareObject);
+                            wp.writeEnd();
+                            wp.writeSomeFormFields(compareObject, true, null, null);
+                        wp.writeEnd();
+
+                        try {
+                            wp.disableFormFields();
+
+                            wp.writeStart("div", "class", "contentDiffCurrent contentDiffRight");
+                                wp.writeStart("h2").writeHtml("Current").writeEnd();
+                                wp.writeSomeFormFields(editing, true, null, null);
+                            wp.writeEnd();
+
+                        } finally {
+                            wp.enableFormFields();
+                        }
+                    wp.writeEnd();
+
+                } else if (!editingState.as(Content.ObjectModification.class).isDraft() &&
                         (history != null || draft != null)) {
                     State original = State.getInstance(Query.
                             from(Object.class).
@@ -513,7 +549,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                             wp.writeEnd();
 
                             wp.writeStart("div", "class", "actions");
-                                if (!contentData.isDraft()) {
+                                if (draft != null) {
                                     wp.writeStart("a",
                                             "class", "icon icon-action-edit",
                                             "href", wp.url("", "draftId", null));
@@ -629,7 +665,20 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 !editingState.isVisible() ||
                                 draft != null ||
                                 editingState.as(Workflow.Data.class).getCurrentState() != null)) {
-                            Workflow workflow = Query.from(Workflow.class).where("contentTypes = ?", editingState.getType()).first();
+
+                            Workflow workflow = Query
+                                    .from(Workflow.class)
+                                    .and("sites = ?", site)
+                                    .and("contentTypes = ?", editingState.getType())
+                                    .first();
+
+                            if (workflow == null) {
+                                workflow = Query
+                                        .from(Workflow.class)
+                                        .and("sites = missing")
+                                        .and("contentTypes = ?", editingState.getType())
+                                        .first();
+                            }
 
                             if (workflow != null) {
                                 Workflow.Data workflowData = editingState.as(Workflow.Data.class);
@@ -792,7 +841,8 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     wp.writeHtml("Publish");
                                 wp.writeEnd();
 
-                                if (!isDraft &&
+                                if (wp.hasPermission("type/" + editingState.getTypeId() + "/archive") &&
+                                        !isDraft &&
                                         !isHistory &&
                                         !editingState.isNew() &&
                                         (editingState.getType() == null ||
@@ -810,14 +860,24 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 }
 
                 wp.writeStart("ul", "class", "widget-publishingExtra");
-                    if (isWritable && !isDraft && !isTrash) {
+                    if (isWritable && (editingState.isNew() || draft == null) && !isTrash) {
                         wp.writeStart("li");
-                            wp.writeStart("button",
-                                    "class", "link icon icon-object-draft",
-                                    "name", "action-draft",
-                                    "value", "true");
-                                wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
-                            wp.writeEnd();
+                            if (editingState.as(Content.ObjectModification.class).isDraft()) {
+                                wp.writeStart("button",
+                                        "class", "link icon icon-object-draft",
+                                        "name", "action-newDraft",
+                                        "value", "true");
+                                    wp.writeHtml("New Draft");
+                                wp.writeEnd();
+
+                            } else {
+                                wp.writeStart("button",
+                                        "class", "link icon icon-object-draft",
+                                        "name", "action-draft",
+                                        "value", "true");
+                                    wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
+                                wp.writeEnd();
+                            }
                         wp.writeEnd();
                     }
                 wp.writeEnd();

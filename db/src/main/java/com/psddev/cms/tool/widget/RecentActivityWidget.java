@@ -23,6 +23,7 @@ import com.psddev.dari.db.DatabaseException;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
+import com.psddev.dari.db.QueryFilter;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.PaginatedResult;
 
@@ -85,19 +86,22 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
             }
 
             Predicate visibilitiesPredicate = Search.getVisibilitiesPredicate(itemType, visibilities, null, false);
+            QueryFilter<Object> visibilitiesFilter = null;
 
             if (visibilitiesPredicate != null) {
                 contentQuery.and(visibilitiesPredicate);
+            } else {
+                visibilitiesFilter = item -> State.getInstance(item).isVisible();
             }
 
             QueryRestriction.updateQueryUsingAll(contentQuery, page);
 
             try {
-                result = contentQuery.select(offset, limit);
+                result = contentQuery.selectFiltered(offset, limit, visibilitiesFilter);
 
             } catch (DatabaseException error) {
                 if (error instanceof DatabaseException.ReadTimeout) {
-                    result = contentQuery.and("_any matches *").select(offset, limit);
+                    result = contentQuery.and("_any matches *").selectFiltered(offset, limit, visibilitiesFilter);
 
                 } else {
                     throw error;

@@ -29,6 +29,11 @@ function($, bsp_utils) {
 
         $parents.addClass('state-focus');
 
+        // Don't expand the label for rich text editor
+        if ($input.closest('.CodeMirror').length) {
+            return;
+        }
+        
         function onScroll() {
             var focusLabelHeight;
             var index;

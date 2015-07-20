@@ -404,36 +404,20 @@ public class StorageItemField extends PageServlet {
 
                 } else if ("newUrl".equals(action)) {
                     newItem = StorageItem.Static.createUrl(page.param(urlName));
-
-                    newItemData = newItem.getData();
                 }
 
                 // Automatic image metadata extraction.
                 if (newItem != null
                         && !fieldValueMetadata.containsKey("width")
                         && !fieldValueMetadata.containsKey("height")) {
-
-                    if (newItemData == null) {
-                        newItemData = newItem.getData();
+                    Map<String, Object> metadata = extractMetadata(newItem, Optional.ofNullable(newItemData));
+                    if (metadata != null) {
+                        fieldValueMetadata.putAll(metadata);
                     }
+                }
 
-                    String contentType = newItem.getContentType();
-
-                    if (contentType != null && contentType.startsWith("image/")) {
-                        try {
-                            ImageMetadataMap metadata = new ImageMetadataMap(newItemData);
-                            fieldValueMetadata.putAll(metadata);
-
-                            List<Throwable> errors = metadata.getErrors();
-                            if (!errors.isEmpty()) {
-                                LOGGER.debug("Can't read image metadata!", new AggregateException(errors));
-                            }
-
-                        } finally {
-                            IoUtils.closeQuietly(newItemData);
-                        }
-                    }
-                } else {
+                // Makes sure opened stream gets closed
+                if (newItemData != null) {
                     IoUtils.closeQuietly(newItemData);
                 }
 
@@ -720,6 +704,31 @@ public class StorageItemField extends PageServlet {
         }
 
         return storageSetting;
+    }
+
+    static Map<String, Object> extractMetadata(StorageItem storageItem, Optional<InputStream> optionalStream) {
+        String contentType = storageItem.getContentType();
+        ImageMetadataMap metadata = null;
+
+        if (contentType != null && contentType.startsWith("image/")) {
+            InputStream inputStream = null;
+            try {
+                inputStream = optionalStream.isPresent() ? optionalStream.get() : storageItem.getData();
+                metadata = new ImageMetadataMap(inputStream);
+                List<Throwable> errors = metadata.getErrors();
+
+                if (!errors.isEmpty()) {
+                    LOGGER.debug("Can't read image metadata", new AggregateException(errors));
+                }
+
+            } catch (IOException e) {
+                LOGGER.debug("Can't read image metadata", e);
+            } finally {
+                IoUtils.closeQuietly(inputStream);
+            }
+        }
+
+        return metadata;
     }
 
     @Override
