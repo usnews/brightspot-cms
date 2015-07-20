@@ -3334,7 +3334,7 @@ public class ToolPageContext extends WebPageContext {
      * is allowed access to the resources identified by the given
      * {@code permissionId}.
      *
-     * @param If {@code null}, returns {@code true}.
+     * @param permissionId If {@code null}, returns {@code true}.
      */
     public boolean hasPermission(String permissionId) {
         ToolPermissionProvider provider = getToolPermissionProvider();
@@ -3526,7 +3526,7 @@ public class ToolPageContext extends WebPageContext {
 
     // --- Deprecated ---
 
-    /** @deprecated Use {@link ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse} instead. */
+    /** @deprecated Use {@link #ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse)} instead. */
     @Deprecated
     public ToolPageContext(
             Servlet servlet,
@@ -3564,7 +3564,7 @@ public class ToolPageContext extends WebPageContext {
     /**
      * Returns an HTML-escaped label for the given {@code object}.
      *
-     * @deprecated Use {@link getObjectLabel} and {@link #h} instead.
+     * @deprecated Use {@link #getObjectLabel} and {@link #h} instead.
      */
     @Deprecated
     public String objectLabel(Object object) {
@@ -3593,7 +3593,7 @@ public class ToolPageContext extends WebPageContext {
         return h(getTypeLabel(object));
     }
 
-    /** @deprecated Use {@link writeTypeSelect} instead. */
+    /** @deprecated Use {@link #writeTypeSelect} instead. */
     @Deprecated
     public void typeSelect(
             Iterable<ObjectType> types,
@@ -3604,7 +3604,7 @@ public class ToolPageContext extends WebPageContext {
         writeTypeSelect(types, selectedType, allLabel, attributes);
     }
 
-    /** @deprecated Use {@link writeObjectSelect} instead. */
+    /** @deprecated Use {@link #writeObjectSelect} instead. */
     @Deprecated
     public void objectSelect(ObjectField field, Object value, Object... attributes) throws IOException {
         writeObjectSelect(field, value, attributes);
