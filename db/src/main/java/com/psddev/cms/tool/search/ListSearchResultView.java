@@ -515,13 +515,11 @@ public class ListSearchResultView extends AbstractSearchResultView {
             page.writeEnd();
         page.writeEnd();
 
-        page.writeStart("div", "id", page.createId(), "class", "brendan");
+        page.writeStart("div", "id", page.createId());
         page.writeEnd();
 
         page.writeStart("script", "type", "text/javascript");
         page.writeRaw("$('#" + page.getId() + "').siblings('.searchResultTable').find('tr').each(function() {");
-
-        page.writeRaw("    console.log('anchors', $(this).find('td > a').size());");
         page.writeRaw("    if ($(this).find('td > a').size() > 1) {");
         page.writeRaw("        $(this).closest('.searchResultTable').addClass('multipleLinkedColumns');");
         page.writeRaw("        return false;");
