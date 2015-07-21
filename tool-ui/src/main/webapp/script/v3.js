@@ -304,12 +304,16 @@ function() {
 
       var $input = $(this);
 
+      // Skip textarea created inside CodeMirror editor
+      if ($input.closest('.CodeMirror').length) { return; }
+            
       updateWordCount(
           $input.closest('.inputContainer'),
           $input,
           $input.val());
     }));
 
+    // For original rich text editor, special handling for the word count
     $doc.onCreate('.wysihtml5-sandbox', function() {
       var iframe = this,
           $iframe = $(iframe),
@@ -329,6 +333,20 @@ function() {
         }
       }));
     });
+
+    // For new rich text editor, special handling for the word count.
+    // Note this counts only the text content not the final output which includes extra HTML elements.
+    $doc.on('rteChange', function(event, rte) {
+          
+        var $input, $container, count, text;
+
+        $input = rte.$el;
+        $container = $input.closest('.inputContainer');
+        text = rte.toText();
+          
+        updateWordCount($container, $input, text);
+    });
+
   })();
 
   // Handle file uploads from drag-and-drop.

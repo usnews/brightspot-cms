@@ -362,6 +362,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          *
          * rteCursorActivity = the cursor has changed in the editor.
          * You can use this to update a toolbar for example.
+         *
+         * rteChange = a change has been made to the editor content.
+         * You can use this to update the character count for example.
          */
         initEvents: function() {
             
@@ -372,7 +375,11 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             editor = self.codeMirror;
 
             editor.on('cursorActivity', function(instance, event) {
-                self.$el.trigger('rteCursorActivity');
+                self.$el.trigger('rteCursorActivity', [self]);
+            });
+            
+            editor.on('changes', function(instance, event) {
+                self.$el.trigger('rteChange', [self]);
             });
         },
 
@@ -2362,6 +2369,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.codeMirror.focus();
         },
 
+
+        /**
+         * Returns the character count of the editor.
+         * Note this counts only the plain text, not including the HTML elements that will be in the final result.
+         * @returns Number
+         */
+        getCount: function() {
+            var count, self;
+            self = this;
+            return self.toText().length;
+        },
+
         
         /**
          * Gets the currently selected range.
@@ -2565,6 +2584,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             return keymap;
         },
+
+
+        /**
+         * Get plain text from codemirror.
+         * @returns String
+         */
+        toText: function() {
+            var count, self;
+            self = this;
+            return self.codeMirror.getValue();
+        },
+
         
         /**
          * Get content from codemirror, analyze the marked up regions,
