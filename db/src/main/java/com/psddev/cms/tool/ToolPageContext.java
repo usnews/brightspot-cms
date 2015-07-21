@@ -1340,7 +1340,7 @@ public class ToolPageContext extends WebPageContext {
                                 writeEnd();
                             writeEnd();
 
-                            if (Query.from(Site.class).hasMoreThan(0)) {
+                            if (Site.Static.findAll().size() > 0) {
                                 writeStart("div", "class", "toolUserSite");
                                     writeStart("div", "class", "toolUserSiteDisplay");
                                         writeHtml("Site: ");
@@ -1349,13 +1349,15 @@ public class ToolPageContext extends WebPageContext {
 
                                     writeStart("div", "class", "toolUserSiteControls");
                                         writeStart("ul", "class", "piped");
+                                        if (user.findOtherAccessibleSites().size() > 0 || (user.getCurrentSite() != null && user.hasPermission("site/global"))) {
                                             writeStart("li");
                                                 writeStart("a",
-                                                        "href", cmsUrl("/siteSwitch"),
-                                                        "target", "siteSwitch");
+                                                    "href", cmsUrl("/siteSwitch"),
+                                                    "target", "siteSwitch");
                                                     writeHtml("Switch");
                                                 writeEnd();
                                             writeEnd();
+                                        }
                                         writeEnd();
                                     writeEnd();
                                 writeEnd();
@@ -3335,7 +3337,7 @@ public class ToolPageContext extends WebPageContext {
      * is allowed access to the resources identified by the given
      * {@code permissionId}.
      *
-     * @param If {@code null}, returns {@code true}.
+     * @param permissionId If {@code null}, returns {@code true}.
      */
     public boolean hasPermission(String permissionId) {
         ToolPermissionProvider provider = getToolPermissionProvider();
@@ -3538,7 +3540,7 @@ public class ToolPageContext extends WebPageContext {
 
     // --- Deprecated ---
 
-    /** @deprecated Use {@link ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse} instead. */
+    /** @deprecated Use {@link #ToolPageContext(ServletContext, HttpServletRequest, HttpServletResponse)} instead. */
     @Deprecated
     public ToolPageContext(
             Servlet servlet,
@@ -3576,7 +3578,7 @@ public class ToolPageContext extends WebPageContext {
     /**
      * Returns an HTML-escaped label for the given {@code object}.
      *
-     * @deprecated Use {@link getObjectLabel} and {@link #h} instead.
+     * @deprecated Use {@link #getObjectLabel} and {@link #h} instead.
      */
     @Deprecated
     public String objectLabel(Object object) {
@@ -3605,7 +3607,7 @@ public class ToolPageContext extends WebPageContext {
         return h(getTypeLabel(object));
     }
 
-    /** @deprecated Use {@link writeTypeSelect} instead. */
+    /** @deprecated Use {@link #writeTypeSelect} instead. */
     @Deprecated
     public void typeSelect(
             Iterable<ObjectType> types,
@@ -3616,7 +3618,7 @@ public class ToolPageContext extends WebPageContext {
         writeTypeSelect(types, selectedType, allLabel, attributes);
     }
 
-    /** @deprecated Use {@link writeObjectSelect} instead. */
+    /** @deprecated Use {@link #writeObjectSelect} instead. */
     @Deprecated
     public void objectSelect(ObjectField field, Object value, Object... attributes) throws IOException {
         writeObjectSelect(field, value, attributes);
