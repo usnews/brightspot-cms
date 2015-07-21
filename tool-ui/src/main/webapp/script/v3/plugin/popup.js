@@ -79,7 +79,7 @@
         $(this).popup('close');
       });
 
-      var $body = $(options.parent);
+      var $body = $(options.parent || doc.body);
       $content.append($inner);
       $content.append($closeButton);
       $container.append($content);
