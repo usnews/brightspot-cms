@@ -177,7 +177,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                             if (!mark.attributes) {
                                 mark.clear();
                             }
-                        })
+                        });
+                        
                     }, 100);
 
                 }
@@ -1631,7 +1632,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         enhancementToolbarCreate: function(config) {
 
-            var self, sizes, $sizesSubmenu, $toolbar;
+            var formAction, formId, formTypeId, self, sizes, $sizesSubmenu, $toolbar;
 
             self = this;
 
@@ -1723,11 +1724,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             self.enhancementToolbarAddSeparator($toolbar);
 
+            // For the select enhancement / marker popup, include parameters for the form id and typeId
+            formAction = self.$el.closest('form').attr('action') || '';
+            formId = (/id=([^&]+)/.exec(formAction) || [ ])[1] || '';
+            formTypeId = (/typeId=([^&]+)/.exec(formAction) || [ ])[1] || '';
+            
             self.enhancementToolbarAddButton({
                 text: 'Select',
                 tooltip: '',
                 className: 'rte2-enhancement-toolbar-change',
-                href: CONTEXT_PATH + (config.marker ? '/content/marker.jsp' : '/enhancementSelect'),
+                href: CONTEXT_PATH + (config.marker ? '/content/marker.jsp' : '/enhancementSelect') +
+                    '?pt=' + encodeURIComponent(formId) + '&py=' + encodeURIComponent(formTypeId),
                 target: self.enhancementGetTarget(),
             }, $toolbar);
 
