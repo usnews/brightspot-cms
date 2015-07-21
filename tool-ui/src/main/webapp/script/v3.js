@@ -153,7 +153,7 @@ function() {
   $doc.pageThumbnails('live', '.pageThumbnails');
   $doc.regionMap('live', '.regionMap');
 
-  if (DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR) {
+  if (window.DISABLE_CODE_MIRROR_RICH_TEXT_EDITOR) {
     $doc.rte('live', '.richtext');
 
   } else {
