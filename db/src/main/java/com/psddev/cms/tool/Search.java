@@ -1013,7 +1013,6 @@ public class Search extends Record {
     }
 
     /**
-     * @param page Can't be {@code null}.
      * @param itemWriter May be {@code null}.
      * @throws IOException if unable to write to the given {@code page}.
      */
@@ -1123,7 +1122,7 @@ public class Search extends Record {
 
     // --- Deprecated ---
 
-    /** @deprecated Use {@link #ADDITIONA_PREDICATE_PARAMETER} instead. */
+    /** @deprecated Use {@link #ADDITIONAL_PREDICATE_PARAMETER} instead. */
     @Deprecated
     public static final String ADDITIONAL_QUERY_PARAMETER = ADDITIONAL_PREDICATE_PARAMETER;
 
@@ -1135,7 +1134,7 @@ public class Search extends Record {
     @Deprecated
     public static final String REQUESTED_TYPES_PARAMETER = TYPES_PARAMETER;
 
-    /** @deprecated Use {@link #Search(ToolPageContext, Collection)} instead. */
+    /** @deprecated Use {@link Search(ToolPageContext, Collection)} instead. */
     @Deprecated
     public Search(ToolPageContext page, UUID... typeIds) {
         this(page, typeIds != null ? Arrays.asList(typeIds) : null);
