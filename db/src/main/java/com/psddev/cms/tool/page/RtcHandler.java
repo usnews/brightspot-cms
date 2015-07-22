@@ -24,7 +24,7 @@ class RtcHandler extends OnMessage<Object> {
     public void onMessage(AtmosphereResponse response, Object message) throws IOException {
         try {
             AtmosphereResource resource = response.resource();
-            UUID currentUserId = RtcServlet.getCurrentUserId(resource);
+            UUID currentUserId = RtcFilter.getCurrentUserId(resource);
 
             if (!(message instanceof String)) {
                 writeBroadcast(message, currentUserId, resource);
@@ -110,7 +110,7 @@ class RtcHandler extends OnMessage<Object> {
     @SuppressWarnings("unchecked")
     public void onDisconnect(AtmosphereResponse response) throws IOException {
         AtmosphereRequest request = response.request();
-        UUID userId = RtcServlet.getCurrentUserId(response.resource());
+        UUID userId = RtcFilter.getCurrentUserId(response.resource());
         Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(userId.toString());
 
         if (actions != null) {

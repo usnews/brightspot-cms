@@ -6,39 +6,42 @@ import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
-import org.atmosphere.container.JSR356AsyncSupport;
 import org.atmosphere.cpr.AtmosphereFramework;
+import org.atmosphere.cpr.AtmosphereFrameworkInitializer;
 import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
-import org.atmosphere.interceptor.HeartbeatInterceptor;
-import org.atmosphere.interceptor.SuspendTrackerInterceptor;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.UUID;
 
 /**
- * Endpoint that handles the real-time communication between the server
+ * Filter that handles the real-time communication between the server
  * and the clients.
  *
  * @since 3.1
  */
-@WebServlet(urlPatterns = { RtcServlet.PATH }, asyncSupported = true)
-public class RtcServlet extends HttpServlet {
+public class RtcFilter implements Filter {
 
     public static final String PATH = "/_rtc";
 
-    private static final String CURRENT_USER_ID_ATTRIBUTE = RtcServlet.class.getName() + ".currentUserId";
+    private static final String CURRENT_USER_ID_ATTRIBUTE = RtcFilter.class.getName() + ".currentUserId";
 
-    private AtmosphereFramework framework;
+    private AtmosphereFrameworkInitializer initializer;
     private RtcObjectUpdateNotifier notifier;
 
     /**
@@ -120,11 +123,36 @@ public class RtcServlet extends HttpServlet {
     }
 
     @Override
-    public void init() throws ServletException {
-        framework = new AtmosphereFramework();
+    public void init(FilterConfig filterConfig) throws ServletException {
+        ServletConfig servletConfig = new ServletConfig() {
 
-        framework.init(getServletConfig());
-        framework.setAsyncSupport(new JSR356AsyncSupport(framework.getAtmosphereConfig()));
+            @Override
+            public String getServletName() {
+                return filterConfig.getFilterName();
+            }
+
+            @Override
+            public ServletContext getServletContext() {
+                return filterConfig.getServletContext();
+            }
+
+            @Override
+            public String getInitParameter(String name) {
+                return filterConfig.getInitParameter(name);
+            }
+
+            @Override
+            public Enumeration<String> getInitParameterNames() {
+                return filterConfig.getInitParameterNames();
+            }
+        };
+
+        initializer = new AtmosphereFrameworkInitializer(false, true);
+
+        initializer.configureFramework(servletConfig);
+
+        AtmosphereFramework framework = initializer.framework();
+
         framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
@@ -132,8 +160,6 @@ public class RtcServlet extends HttpServlet {
                 Arrays.asList(
                         new AtmosphereResourceLifecycleInterceptor(),
                         new BroadcastOnPostAtmosphereInterceptor(),
-                        new HeartbeatInterceptor(),
-                        new SuspendTrackerInterceptor(),
                         new TrackMessageSizeInterceptor()
                 )
         );
@@ -157,16 +183,18 @@ public class RtcServlet extends HttpServlet {
 
         } finally {
             try {
-                framework.destroy();
+                initializer.destroy();
 
             } finally {
-                framework = null;
+                initializer = null;
             }
         }
     }
 
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        framework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response));
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        initializer.framework().doCometSupport(
+                AtmosphereRequest.wrap((HttpServletRequest) request),
+                AtmosphereResponse.wrap((HttpServletResponse) response));
     }
 }
