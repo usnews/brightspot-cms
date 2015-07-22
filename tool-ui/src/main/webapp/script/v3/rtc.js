@@ -11,7 +11,9 @@ define([ 'jquery', 'atmosphere' ], function($, atmosphere) {
   var messages = [ ];
   var socket;
 
-  request.onOpen = function() {
+  request.onOpen = function(response) {
+    request.uuid = response.request.uuid;
+
     var oldMessages = messages;
 
     messages = {
