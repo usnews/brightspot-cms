@@ -838,7 +838,12 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                 wp.writeStart("button",
                                         "name", "action-publish",
                                         "value", "true");
-                                    wp.writeHtml("Publish");
+                                    ObjectType type = editingState.getType();
+                                    if (type != null) {
+                                        wp.writeHtml(ObjectUtils.firstNonBlank(type.as(ToolUi.class).getPublishButtonText(), "Publish"));
+                                    } else {
+                                        wp.writeHtml("Publish");
+                                    }
                                 wp.writeEnd();
 
                                 if (wp.hasPermission("type/" + editingState.getTypeId() + "/archive") &&
