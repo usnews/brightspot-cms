@@ -47,7 +47,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       contentId: contentId
     });
 
-    $(document).on('blur focus change', '.contentForm :input', function() {
+    function update() {
       var fieldNamesByObjectId = { };
 
       $form.find('.inputContainer.state-changed, .inputContainer.state-focus').each(function () {
@@ -63,6 +63,19 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
           fieldNamesByObjectId: fieldNamesByObjectId
         });
       }
+    }
+
+    var updateTimeout;
+
+    $(document).on('blur focus change', '.contentForm :input', function() {
+      if (updateTimeout) {
+        clearTimeout(updateTimeout);
+      }
+
+      updateTimeout = setTimeout(function() {
+        updateTimeout = null;
+        update();
+      }, 50);
     });
 
     $form.submit(function() {
