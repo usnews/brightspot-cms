@@ -3046,7 +3046,7 @@ public class ToolPageContext extends WebPageContext {
                     }
                 });
 
-                publishChanges(state.getId(), changedValues);
+                publishChanges(object, changedValues);
                 state.commitWrites();
                 redirectOnSave("",
                         "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
@@ -3411,10 +3411,10 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * @see Content.Static#publishChanges(UUID, Map, Site, ToolUser)
+     * @see Content.Static#publishChanges(Object, Map, Site, ToolUser)
      */
-    public History publishChanges(UUID id, Map<String, Object> changedValues) {
-        return updateLockIgnored(Content.Static.publishChanges(id, changedValues, getSite(), getUser()));
+    public History publishChanges(Object object, Map<String, Object> changedValues) {
+        return updateLockIgnored(Content.Static.publishChanges(object, changedValues, getSite(), getUser()));
     }
 
     /**
