@@ -2,8 +2,9 @@ define([ 'jquery', 'atmosphere' ], function($, atmosphere) {
   var request = {
     url: '/_rtc',
     contentType: 'application/json',
+    fallbackTransport: 'long-polling',
     trackMessageLength: true,
-    transport: 'websocket'
+    transport: 'sse'
   };
 
   var broadcastCallbacks = { };
