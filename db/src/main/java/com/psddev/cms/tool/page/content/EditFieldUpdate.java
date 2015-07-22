@@ -69,9 +69,14 @@ public class EditFieldUpdate extends Record {
         Preconditions.checkNotNull(userId);
         Preconditions.checkNotNull(contentId);
 
-        Query.from(EditFieldUpdate.class)
+        for (EditFieldUpdate update : Query.from(EditFieldUpdate.class)
                 .where("_id = ?", createId(userId, contentId))
-                .deleteAll();
+                .selectAll()) {
+
+            update.setFieldNamesByObjectId(null);
+            update.save();
+            update.delete();
+        }
     }
 
     public UUID getUserId() {
