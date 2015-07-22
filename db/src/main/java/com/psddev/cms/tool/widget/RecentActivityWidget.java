@@ -166,7 +166,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                                     "class", "objectId",
                                     "data-editable", false,
                                     "data-label", valueState != null ? valueState.getLabel() : null,
-                                    "data-typeIds", ObjectType.getInstance(ToolRole.class).getId(),
+                                    "data-typeIds", ObjectType.getInstance(valueQuery.getGroup()).getId(),
                                     "name", valueParameter,
                                     "value", valueState != null ? valueState.getId() : null);
 
