@@ -188,7 +188,7 @@ public class UploadFiles extends PageServlet {
                             }
 
                             String fileName = file.getName();
-                            String path = StorageItemField.createStorageItemPath(fileName, null);
+                            String path = StorageItemField.createStorageItemPath(null, fileName);
 
                             Map<String, List<String>> httpHeaders = new LinkedHashMap<String, List<String>>();
 
