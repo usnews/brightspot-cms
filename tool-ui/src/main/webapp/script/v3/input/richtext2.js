@@ -393,7 +393,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.linkInit();
             self.enhancementInit();
             self.trackChangesInit();
-
+            self.placeholderInit();
+            
             // Refresh the editor after all the initialization is done.
             // We put it in a timeout to ensure the editor has displayed before doing the refresh.
             setTimeout(function(){
@@ -2342,6 +2343,71 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
         },
 
 
+        /*==================================================
+         * Placeholder
+         *==================================================*/
+
+        /**
+         * Set the placeholder text for when the editor is empty,
+         * and periodically check to see if the placeholder text
+         * has changed.
+         */
+        placeholderInit: function() {
+            
+            var interval, self;
+
+            self = this;
+
+            // Set the placeholder
+            self.placeholderRefresh();
+
+            // Repeat checking the placeholder because it might change due to other plugins
+            // running on the page even after the page has completed loading
+            interval = setInterval(function(){
+
+                // Check if the editor is still on the page
+                if ($.contains(document, self.$el[0])) {
+                    self.placeholderRefresh();
+                } else {
+                    // If the editor has been removed from the DOM, stop running this!
+                    clearInterval(interval);
+                }
+                
+            }, 200);
+        },
+
+
+        /**
+         * Check to see if the textarea has a placeholder attribute, and
+         * if so display it over the rich text editor when the editor is empty.
+         */
+        placeholderRefresh: function() {
+
+            var attrName, count, placeholder, self, $wrapper;
+            self = this;
+
+            // Get the placeholder attribute from the textarea element
+            placeholder = self.$el.attr('placeholder') || '';
+
+            attrName = 'rte2-placeholder';
+            
+            // Is the editor empty?
+            count = self.rte.getCount();
+
+            if (count === 0 && placeholder) {
+
+                // Add a placeholder attribute to the container.
+                // CSS rules will overlay the text on top of the editor.
+                self.$container.attr(attrName, placeholder);
+                
+            } else {
+
+                // Remove the attribute so the text will not be overlayed
+                self.$container.removeAttr(attrName);
+            }
+        },
+
+        
         /*==================================================
          * Misc
          *==================================================*/
