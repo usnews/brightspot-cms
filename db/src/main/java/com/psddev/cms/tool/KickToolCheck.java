@@ -6,6 +6,10 @@ import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.util.Settings;
 import com.psddev.dari.util.StringUtils;
 
+/**
+ * @deprecated No replacement.
+ */
+@Deprecated
 public class KickToolCheck extends ToolCheck {
 
     @Override
