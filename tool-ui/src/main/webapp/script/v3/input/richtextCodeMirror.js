@@ -3304,6 +3304,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
 
         /**
+         * Add text to the editor at the current selection or cursor position.
+         */
+        insert: function(value) {
+            var self;
+
+            self = this;
+
+            self.codeMirror.replaceSelection(value);
+        },
+
+        
+        /**
          * Encode text so it is HTML safe.
          * @param {String} s
          * @return {String}

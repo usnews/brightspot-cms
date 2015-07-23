@@ -249,7 +249,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * @property {String} className
          * A class to place on the toolbar link so it can be styled.
          *
-         * @property {Boolean} separator
+         * @property {Boolean} [separator]
          * Set this and no other properties to add a separator between groups of toolbar icons.
          *
          * @property {Boolean} [inline=true]
@@ -260,6 +260,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * Placeholder where you want any custom CMS styles to appear in the toolbar.
          * Set this to true.
          *
+         * @property {String} [value]
+         * When using action="insert" use the "value" attribute to specify text to be inserted.
+         *
          * @property {String} action
          * The name of a supported toolbar action. The following are supported:
          *
@@ -269,6 +272,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          *
          * @property {String} action='clear'
          * Clear all styles within the range.
+         *
+         * @property {String} action='insert'
+         * Insert text at the current selection or cursor position.
+         * Specify the text using the "value" attribute.
          *
          * @property {String} action='trackChangesToggle'
          * Toggle the track changes function.
@@ -285,6 +292,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * @example:
          * For a single icon provide the following information:
          * { style: 'bold', text: 'B', className: 'rte2-toolbar-bold' },
+         *
+         * @example
+         *
+         * To add more buttons to the toolbar for an individual target, you can add to the Rte.toolbarConfig array.
+         * For example, to add some buttons for inserting special characters, run the following code before
+         * the rich text editor has been created on the page:
+         *
+         * require(['jquery', 'v3/input/richtext2'], function($, Rte) {
+         *     // Add buttons to the new rich text editor
+         *     $.merge(rte2.toolbarConfig, [
+         *         { separator:true },
+         *         { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
+         *         { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
+         *     ]);
+         * });
+         *
          */
         toolbarConfig: [
 
@@ -324,6 +347,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
             { action: 'cleartext', text: 'Remove Comment', className: 'rte2-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' }
 
+            // Example adding buttons to insert special characters or other text:
+            // { separator:true },
+            // { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
+            // { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
         ],
 
 
@@ -947,6 +974,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     self.enhancementCreate();
                     break;
 
+                case 'insert':
+                    if (item.value) {
+                        rte.insert(item.value);
+                    }
+                    break;
+                    
                 case 'marker':
 
                     // Stop the event from propagating, otherwise it will close the enhancement popup
