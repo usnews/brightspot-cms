@@ -2485,7 +2485,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // ??? Not really sure how plugin2 works, just copying existing code
 
             // Get the options from the element
-            options = this.option();
+            // Make a copy of the object with extend so we don't
+            // accidentally change any global default options
+            options = $.extend(true, {}, this.option());
 
             inline = $input.data('inline');
             if (inline !== undefined) {
@@ -2493,7 +2495,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
 
             // ???
-            $input.data('rte2-options', $.extend(true, { }, options));
+            $input.data('rte2-options', options);
 
 
             rte = Object.create(Rte);
