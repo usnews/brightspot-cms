@@ -252,6 +252,17 @@
 }
 
 .rte2-wrapper {
+
+  position:relative;
+  
+  &::after {
+    content: attr(rte2-placeholder);
+    position:absolute;
+    left:0.5em;
+    top:0.5em;
+    color: @color-placeholder;
+    font-style: italic;
+  }
   
   .CodeMirror {
     
@@ -359,3 +370,4 @@
   color: @color-remove;
   float: right;
 }
+

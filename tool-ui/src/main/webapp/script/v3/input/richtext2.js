@@ -249,7 +249,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * @property {String} className
          * A class to place on the toolbar link so it can be styled.
          *
-         * @property {Boolean} separator
+         * @property {Boolean} [separator]
          * Set this and no other properties to add a separator between groups of toolbar icons.
          *
          * @property {Boolean} [inline=true]
@@ -260,6 +260,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * Placeholder where you want any custom CMS styles to appear in the toolbar.
          * Set this to true.
          *
+         * @property {String} [value]
+         * When using action="insert" use the "value" attribute to specify text to be inserted.
+         *
          * @property {String} action
          * The name of a supported toolbar action. The following are supported:
          *
@@ -269,6 +272,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          *
          * @property {String} action='clear'
          * Clear all styles within the range.
+         *
+         * @property {String} action='insert'
+         * Insert text at the current selection or cursor position.
+         * Specify the text using the "value" attribute.
          *
          * @property {String} action='trackChangesToggle'
          * Toggle the track changes function.
@@ -285,6 +292,22 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * @example:
          * For a single icon provide the following information:
          * { style: 'bold', text: 'B', className: 'rte2-toolbar-bold' },
+         *
+         * @example
+         *
+         * To add more buttons to the toolbar for an individual target, you can add to the Rte.toolbarConfig array.
+         * For example, to add some buttons for inserting special characters, run the following code before
+         * the rich text editor has been created on the page:
+         *
+         * require(['jquery', 'v3/input/richtext2'], function($, Rte) {
+         *     // Add buttons to the new rich text editor
+         *     $.merge(rte2.toolbarConfig, [
+         *         { separator:true },
+         *         { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
+         *         { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
+         *     ]);
+         * });
+         *
          */
         toolbarConfig: [
 
@@ -324,6 +347,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
             { action: 'cleartext', text: 'Remove Comment', className: 'rte2-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' }
 
+            // Example adding buttons to insert special characters or other text:
+            // { separator:true },
+            // { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
+            // { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
         ],
 
 
@@ -393,6 +420,13 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.linkInit();
             self.enhancementInit();
             self.trackChangesInit();
+            self.placeholderInit();
+            
+            // Refresh the editor after all the initialization is done.
+            // We put it in a timeout to ensure the editor has displayed before doing the refresh.
+            setTimeout(function(){
+                self.rte.refresh();
+            }, 1);
         },
 
 
@@ -940,6 +974,12 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     self.enhancementCreate();
                     break;
 
+                case 'insert':
+                    if (item.value) {
+                        rte.insert(item.value);
+                    }
+                    break;
+                    
                 case 'marker':
 
                     // Stop the event from propagating, otherwise it will close the enhancement popup
@@ -2337,6 +2377,71 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
 
         /*==================================================
+         * Placeholder
+         *==================================================*/
+
+        /**
+         * Set the placeholder text for when the editor is empty,
+         * and periodically check to see if the placeholder text
+         * has changed.
+         */
+        placeholderInit: function() {
+            
+            var interval, self;
+
+            self = this;
+
+            // Set the placeholder
+            self.placeholderRefresh();
+
+            // Repeat checking the placeholder because it might change due to other plugins
+            // running on the page even after the page has completed loading
+            interval = setInterval(function(){
+
+                // Check if the editor is still on the page
+                if ($.contains(document, self.$el[0])) {
+                    self.placeholderRefresh();
+                } else {
+                    // If the editor has been removed from the DOM, stop running this!
+                    clearInterval(interval);
+                }
+                
+            }, 200);
+        },
+
+
+        /**
+         * Check to see if the textarea has a placeholder attribute, and
+         * if so display it over the rich text editor when the editor is empty.
+         */
+        placeholderRefresh: function() {
+
+            var attrName, count, placeholder, self, $wrapper;
+            self = this;
+
+            // Get the placeholder attribute from the textarea element
+            placeholder = self.$el.attr('placeholder') || '';
+
+            attrName = 'rte2-placeholder';
+            
+            // Is the editor empty?
+            count = self.rte.getCount();
+
+            if (count === 0 && placeholder) {
+
+                // Add a placeholder attribute to the container.
+                // CSS rules will overlay the text on top of the editor.
+                self.$container.attr(attrName, placeholder);
+                
+            } else {
+
+                // Remove the attribute so the text will not be overlayed
+                self.$container.removeAttr(attrName);
+            }
+        },
+
+        
+        /*==================================================
          * Misc
          *==================================================*/
 
@@ -2380,7 +2485,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // ??? Not really sure how plugin2 works, just copying existing code
 
             // Get the options from the element
-            options = this.option();
+            // Make a copy of the object with extend so we don't
+            // accidentally change any global default options
+            options = $.extend(true, {}, this.option());
 
             inline = $input.data('inline');
             if (inline !== undefined) {
@@ -2388,7 +2495,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
 
             // ???
-            $input.data('rte2-options', $.extend(true, { }, options));
+            $input.data('rte2-options', options);
 
 
             rte = Object.create(Rte);
