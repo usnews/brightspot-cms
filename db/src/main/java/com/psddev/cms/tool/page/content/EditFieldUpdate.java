@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page.content;
 
 import com.google.common.base.Preconditions;
+import com.psddev.dari.db.Database;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
 import com.psddev.dari.util.CompactMap;
@@ -52,7 +53,7 @@ public class EditFieldUpdate extends Record {
         update.setUserId(userId);
         update.setContentId(contentId);
         update.setFieldNamesByObjectId(fieldNamesByObjectId);
-        update.save();
+        update.saveImmediately();
     }
 
     /**
@@ -74,8 +75,19 @@ public class EditFieldUpdate extends Record {
                 .selectAll()) {
 
             update.setFieldNamesByObjectId(null);
-            update.save();
-            update.delete();
+            update.saveImmediately();
+
+            Database db = Database.Static.getDefault();
+
+            db.beginIsolatedWrites();
+
+            try {
+                update.delete();
+                db.commitWrites();
+
+            } finally {
+                db.endWrites();
+            }
         }
     }
 
