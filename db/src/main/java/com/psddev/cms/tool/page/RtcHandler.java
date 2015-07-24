@@ -26,8 +26,15 @@ class RtcHandler extends OnMessage<Object> {
             AtmosphereResource resource = response.resource();
             UUID currentUserId = RtcFilter.getCurrentUserId(resource);
 
-            if (!(message instanceof String)) {
-                writeBroadcast(message, currentUserId, resource);
+            if (message instanceof RtcBroadcastMessage) {
+                RtcBroadcastMessage broadcastMessage = (RtcBroadcastMessage) message;
+
+                writeBroadcast(
+                        broadcastMessage.getBroadcast(),
+                        broadcastMessage.getData(),
+                        currentUserId,
+                        resource);
+
                 return;
             }
 
@@ -43,7 +50,8 @@ class RtcHandler extends OnMessage<Object> {
                 RtcState state = createInstance(RtcState.class, stateClassName);
 
                 for (Object object : state.create((Map<String, Object>) messageJson.get("data"))) {
-                    writeBroadcast(object, currentUserId, resource);
+                    RtcBroadcast.forEachBroadcast(object, (broadcast, data) ->
+                            writeBroadcast(broadcast, data, currentUserId, resource));
                 }
 
                 return;
@@ -75,15 +83,11 @@ class RtcHandler extends OnMessage<Object> {
         }
     }
 
-    private void writeBroadcast(Object object, UUID currentUserId, AtmosphereResource resource) {
-        for (RtcBroadcast<Object> broadcast : RtcBroadcast.forObject(object)) {
-            Map<String, Object> data = broadcast.create(currentUserId, object);
-
-            if (data != null) {
-                resource.write(ObjectUtils.toJson(ImmutableMap.of(
-                        "broadcast", broadcast.getClass().getName(),
-                        "data", data)));
-            }
+    private void writeBroadcast(RtcBroadcast<Object> broadcast, Map<String, Object> data, UUID currentUserId, AtmosphereResource resource) {
+        if (broadcast.shouldBroadcast(data, currentUserId)) {
+            resource.write(ObjectUtils.toJson(ImmutableMap.of(
+                    "broadcast", broadcast.getClass().getName(),
+                    "data", data)));
         }
     }
 
