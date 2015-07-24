@@ -131,6 +131,8 @@ if (workStream != null) {
     State.getInstance(workstreamObject).as(WorkStream.Data.class).complete(workStream, wp.getUser());
 }
 
+Map<String, Object> editingOldValues = State.getInstance(editing).getSimpleValues();
+
 if (wp.tryDelete(editing) ||
         wp.tryNewDraft(editing) ||
         wp.tryDraft(editing) ||
@@ -216,7 +218,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
             data-content-locked-out="<%= lockedOut && !editAnyway %>"
             data-content-id="<%= State.getInstance(editing).getId() %>">
 
-        <input type="hidden" name="<%= editingState.getId() %>/oldValues" value="<%= wp.h(ObjectUtils.toJson(editingState.getSimpleValues())) %>">
+        <input type="hidden" name="<%= editingState.getId() %>/oldValues" value="<%= wp.h(ObjectUtils.toJson(editingOldValues)) %>">
 
         <div class="contentForm-main">
             <div class="widget widget-content">
