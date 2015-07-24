@@ -18,6 +18,7 @@ import java.util.UUID;
 class RtcHandler extends OnMessage<Object> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RtcHandler.class);
+    private static final String ACTIONS_ATTRIBUTE = RtcHandler.class.getName() + ".actions";
 
     @Override
     @SuppressWarnings("unchecked")
@@ -59,12 +60,11 @@ class RtcHandler extends OnMessage<Object> {
 
             String actionClassName = ObjectUtils.to(String.class, messageJson.get("action"));
             AtmosphereRequest request = response.request();
-            String currentUserIdString = currentUserId.toString();
-            Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(currentUserIdString);
+            Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(ACTIONS_ATTRIBUTE);
 
             if (actions == null) {
                 actions = new HashMap<>();
-                request.setAttribute(currentUserIdString, actions);
+                request.setAttribute(ACTIONS_ATTRIBUTE, actions);
             }
 
             RtcAction action = actions.get(actionClassName);
@@ -114,8 +114,7 @@ class RtcHandler extends OnMessage<Object> {
     @SuppressWarnings("unchecked")
     public void onDisconnect(AtmosphereResponse response) throws IOException {
         AtmosphereRequest request = response.request();
-        UUID userId = RtcFilter.getCurrentUserId(response.resource());
-        Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(userId.toString());
+        Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(ACTIONS_ATTRIBUTE);
 
         if (actions != null) {
             actions.values().forEach(RtcAction::destroy);
