@@ -260,6 +260,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * Placeholder where you want any custom CMS styles to appear in the toolbar.
          * Set this to true.
          *
+         * @property {Boolean} [submenu]
+         * Array of submenu items.
+         *
          * @property {String} [value]
          * When using action="insert" use the "value" attribute to specify text to be inserted.
          *
@@ -348,9 +351,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { action: 'cleartext', text: 'Remove Comment', className: 'rte2-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' }
 
             // Example adding buttons to insert special characters or other text:
-            // { separator:true },
-            // { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
-            // { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
+            // { text: 'Special Characters', submenu: [
+            //   { action: 'insert', text:'em-', className: 'rte2-toolbar-insert', tooltip:'Em-dash', value:'—'},
+            //   { action: 'insert', text:'…', className: 'rte2-toolbar-insert', tooltip:'Ellipsis', value:'…'}
+            // ]}
         ],
 
 
@@ -722,34 +726,46 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
             self.$toolbar = $toolbar;
 
-            // Loop through the toolbar config to set up buttons
-            $.each(self.toolbarConfig, function(i, item) {
+            // Recursive function for setting up toolbar menu and submenus
+            function toolbarProcess(config, $toolbar) {
+                
+                var $submenu;
 
-                // Skip inline toolbar items if this is an inline editor
-                if (self.inline && item.inline === false) {
-                    return;
-                }
+                // Loop through the toolbar config to set up buttons
+                $.each(config, function(i, item) {
 
-                if (item.separator) {
+                    // Skip inline toolbar items if this is an inline editor
+                    if (self.inline && item.inline === false) {
+                        return;
+                    }
 
-                    // Add a separator between items
-                    self.toolbarAddSeparator();
+                    if (item.separator) {
 
-                } else if (item.submenu) {
+                        // Add a separator between items
+                        self.toolbarAddSeparator($toolbar);
 
-                    // This is a submenu
-                    console.log('rte toolbar submenu not yet implemented');
+                    } else if (item.submenu) {
 
-                } else if (item.custom) {
+                        // This is a submenu
+                        // {submenu:true, text:'', style:'', className:'', submenuItems:[]}
+                        $submenu = self.toolbarAddSubmenu(item, $toolbar);
+                        
+                        toolbarProcess(item.submenu, $submenu);
 
-                    self.toolbarInitCustom();
+                    } else if (item.custom) {
 
-                } else {
+                        self.toolbarInitCustom($toolbar);
 
-                    self.toolbarAddButton(item);
+                    } else {
 
-                }
-            });
+                        self.toolbarAddButton(item, $toolbar);
+
+                    }
+                });
+            }
+
+            // Process all the toolbar entries
+            toolbarProcess(self.toolbarConfig, $toolbar);
 
             // Whenever the cursor moves, update the toolbar to show which styles are selected
             self.$container.on("rteCursorActivity", function() {
@@ -781,7 +797,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          *   ]}
          * ];
          */
-        toolbarInitCustom: function() {
+        toolbarInitCustom: function($toolbar) {
 
             var self = this;
 
@@ -789,7 +805,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 return;
             }
 
-            self.toolbarAddSeparator();
+            self.toolbarAddSeparator($toolbar);
 
             $.each(window.CSS_CLASS_GROUPS, function() {
 
@@ -799,9 +815,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 groupName = 'cms-' + group.internalName;
 
                 // Should the buttons be placed directly in the toolbar are in a drop-down menu?
-                $submenu = self.$toolbar;
+                $submenu = $toolbar;
                 if (group.dropDown) {
-                    $submenu = self.toolbarAddSubmenu({text:group.displayName});
+                    $submenu = self.toolbarAddSubmenu({text:group.displayName}, $toolbar);
                 }
 
                 // Loop through all the styles in this group
