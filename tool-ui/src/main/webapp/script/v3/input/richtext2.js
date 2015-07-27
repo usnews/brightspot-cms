@@ -854,7 +854,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * The toolbar item to add.
          * @param {Object} item.className
          * @param {Object} item.text
-         * @param {Object} item.tooltip
          *
          * @param {Object} [$addToSubmenu]
          * Optional submenu where the submenu should be added.
@@ -869,7 +868,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var $toolbar = $addToSubmenu || self.$toolbar;
             var $submenu;
 
-            $submenu = $('<li class="rte2-toolbar-submenu"><span></span><ul></ul></li>');
+            $submenu = $('<li class="rte2-toolbar-submenu ' + (item.className || '') + '"><span></span><ul></ul></li>');
             $submenu.find('span').html(item.text);
             $submenu.appendTo($toolbar);
 
