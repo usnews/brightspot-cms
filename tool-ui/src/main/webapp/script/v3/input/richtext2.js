@@ -952,7 +952,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarHandleClick: function(item, event) {
 
-            var mark, rte, self, styleObj;
+            var mark, rte, self, styleObj, value;
 
             self = this;
 
@@ -991,7 +991,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 case 'insert':
                     if (item.value) {
-                        rte.insert(item.value);
+                        // Write value to the DOM and read it back again,
+                        // to convert any entities to a character code
+                        value = $('<div>').html(item.value).text();
+                        rte.insert(value);
                     }
                     break;
                     
