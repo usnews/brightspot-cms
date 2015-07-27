@@ -147,7 +147,6 @@
 .inputContainer {
   margin: 0 0 10px 0;
   min-height: 30px;
-  overflow: hidden;
   position: relative;
 
   &:before {
@@ -165,6 +164,14 @@
     }
   }
 
+  // Most reliable way to clear floats and avoid margin collapse after the input container
+  // As described here: https://css-tricks.com/snippets/css/clear-fix/
+  &:after {
+    content: '';
+    display:table;
+    clear:both;
+  }
+  
   .message {
     margin-bottom: 5px;
   }
