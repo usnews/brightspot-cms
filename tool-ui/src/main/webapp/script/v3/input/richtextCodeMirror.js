@@ -381,6 +381,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             editor.on('changes', function(instance, event) {
                 self.$el.trigger('rteChange', [self]);
             });
+
+            editor.on('focus', function(instance, event) {
+                self.$el.trigger('rteFocus', [self]);
+            });
+            
+            editor.on('blur', function(instance, event) {
+                self.$el.trigger('rteBlur', [self]);
+            });
         },
 
 

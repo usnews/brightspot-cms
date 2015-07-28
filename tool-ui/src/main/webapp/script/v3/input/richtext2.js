@@ -854,7 +854,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          * The toolbar item to add.
          * @param {Object} item.className
          * @param {Object} item.text
-         * @param {Object} item.tooltip
          *
          * @param {Object} [$addToSubmenu]
          * Optional submenu where the submenu should be added.
@@ -869,7 +868,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var $toolbar = $addToSubmenu || self.$toolbar;
             var $submenu;
 
-            $submenu = $('<li class="rte2-toolbar-submenu"><span></span><ul></ul></li>');
+            $submenu = $('<li class="rte2-toolbar-submenu ' + (item.className || '') + '"><span></span><ul></ul></li>');
             $submenu.find('span').html(item.text);
             $submenu.appendTo($toolbar);
 
@@ -953,7 +952,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         toolbarHandleClick: function(item, event) {
 
-            var mark, rte, self, styleObj;
+            var mark, rte, self, styleObj, value;
 
             self = this;
 
@@ -992,7 +991,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 case 'insert':
                     if (item.value) {
-                        rte.insert(item.value);
+                        // Write value to the DOM and read it back again,
+                        // to convert any entities to a character code
+                        value = $('<div>').html(item.value).text();
+                        rte.insert(value);
                     }
                     break;
                     
