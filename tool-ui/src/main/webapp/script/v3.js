@@ -487,14 +487,6 @@ function() {
     return confirm('Are you sure you want to archive this item?');
   });
 
-  $doc.on('input-disable', ':input', function(event, disable) {
-    $(this).prop('disabled', disable);
-  });
-
-  $doc.onCreate('.inputContainer-readOnly', function() {
-    $(this).find(":input, div").trigger('input-disable', [ true ]);
-  });
-
   (function() {
     function sync() {
       var $input = $(this),

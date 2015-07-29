@@ -5,12 +5,12 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       var $status = $(this);
       var $container = $status.closest('.inputContainer');
 
-      if ($container.is('.inputContainer-lock')) {
+      if ($container.is('.inputContainer-updated')) {
         return;
       }
 
       if (!$container.is('.inputContainer-readOnly')) {
-        $container.find(':input').prop('disabled', false);
+        $container.removeClass('inputContainer-pending');
       }
 
       $status.remove();
@@ -18,12 +18,12 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
   }
 
   function updateStatus($container, userId, message) {
-    if ($container.length === 0 || $container.is('.inputContainer-lock')) {
+    if ($container.length === 0 || $container.is('.inputContainer-updated')) {
       return;
     }
 
     if (!$container.is('.inputContainer-readOnly')) {
-      $container.find(':input').prop('disabled', true);
+      $container.addClass('inputContainer-pending');
     }
 
     $container.find('> .inputLabel').after($('<div/>', {
@@ -72,7 +72,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
           var $container = $('.objectInputs[data-id="' + contentId + '"] > .inputContainer[data-field="' + fieldName + '"]');
 
           updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
-          $container.addClass('inputContainer-lock');
+          $container.addClass('inputContainer-updated');
         }
       });
     }
@@ -124,7 +124,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         if (!$container.is('.inputContainer-readOnly')
             && $container.find('> .inputStatus').length > 0) {
 
-          $container.find(':input').prop('disabled', false);
+          $container.removeClass('.inputContainer-pending');
         }
       })
     });
