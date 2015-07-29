@@ -1,10 +1,14 @@
 package com.psddev.cms.tool.page;
 
 import com.google.common.collect.ImmutableMap;
+import com.psddev.cms.db.ToolUser;
+import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeDefinition;
 import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
+import org.atmosphere.cpr.AtmosphereResourceSession;
+import org.atmosphere.cpr.AtmosphereResourceSessionFactory;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.handler.OnMessage;
 import org.slf4j.Logger;
@@ -18,14 +22,32 @@ import java.util.UUID;
 class RtcHandler extends OnMessage<Object> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RtcHandler.class);
-    private static final String ACTIONS_ATTRIBUTE = RtcHandler.class.getName() + ".actions";
+
+    private static final String CURRENT_USER_ID_ATTRIBUTE = "currentUserId";
+    private static final String ACTIONS_ATTRIBUTE = "actions";
+
+    private AtmosphereResourceSessionFactory sessionFactory;
+
+    public RtcHandler(AtmosphereResourceSessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    @Override
+    public void onOpen(AtmosphereResource resource) throws IOException {
+        ToolUser user = AuthenticationFilter.Static.getUser(resource.getRequest().wrappedRequest());
+
+        if (user != null) {
+            sessionFactory.getSession(resource).setAttribute(CURRENT_USER_ID_ATTRIBUTE, user.getId());
+        }
+    }
 
     @Override
     @SuppressWarnings("unchecked")
     public void onMessage(AtmosphereResponse response, Object message) throws IOException {
         try {
             AtmosphereResource resource = response.resource();
-            UUID currentUserId = RtcFilter.getCurrentUserId(resource);
+            AtmosphereResourceSession session = sessionFactory.getSession(resource);
+            UUID currentUserId = (UUID) session.getAttribute(CURRENT_USER_ID_ATTRIBUTE);
 
             if (message instanceof RtcBroadcastMessage) {
                 RtcBroadcastMessage broadcastMessage = (RtcBroadcastMessage) message;
@@ -60,11 +82,11 @@ class RtcHandler extends OnMessage<Object> {
 
             String actionClassName = ObjectUtils.to(String.class, messageJson.get("action"));
             AtmosphereRequest request = response.request();
-            Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(ACTIONS_ATTRIBUTE);
+            Map<String, RtcAction> actions = (Map<String, RtcAction>) session.getAttribute(ACTIONS_ATTRIBUTE);
 
             if (actions == null) {
                 actions = new HashMap<>();
-                request.setAttribute(ACTIONS_ATTRIBUTE, actions);
+                session.setAttribute(ACTIONS_ATTRIBUTE, actions);
             }
 
             RtcAction action = actions.get(actionClassName);
@@ -113,8 +135,9 @@ class RtcHandler extends OnMessage<Object> {
     @Override
     @SuppressWarnings("unchecked")
     public void onDisconnect(AtmosphereResponse response) throws IOException {
-        AtmosphereRequest request = response.request();
-        Map<String, RtcAction> actions = (Map<String, RtcAction>) request.getAttribute(ACTIONS_ATTRIBUTE);
+        AtmosphereResource resource = response.resource();
+        AtmosphereResourceSession session = sessionFactory.getSession(resource);
+        Map<String, RtcAction> actions = (Map<String, RtcAction>) session.getAttribute(ACTIONS_ATTRIBUTE);
 
         if (actions != null) {
             actions.values().forEach(RtcAction::destroy);
