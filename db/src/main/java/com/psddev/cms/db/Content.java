@@ -335,7 +335,8 @@ public abstract class Content extends Record {
         }
 
         public static History publishChanges(Object object, Map<String, Object> changedValues, Site site, ToolUser user) {
-            UUID id = State.getInstance(object).getId();
+            State state = State.getInstance(object);
+            UUID id = state.getId();
             DistributedLock lock = DistributedLock.Static.getInstance(
                     Database.Static.getDefault(),
                     Content.class.getName() + "/publish/" + id);
@@ -345,13 +346,12 @@ public abstract class Content extends Record {
             try {
                 Object oldObject = Query.fromAll().where("_id = ?", id).first();
 
-                if (oldObject == null) {
-                    return publish(object, site, user);
-
-                } else {
-                    State.getInstance(oldObject).putAll(changedValues);
-                    return publish(oldObject, site, user);
+                if (oldObject != null) {
+                    state.setValues(State.getInstance(oldObject).getValues());
+                    state.putAll(changedValues);
                 }
+
+                return publish(object, site, user);
 
             } finally {
                 lock.unlock();
