@@ -333,8 +333,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Generate timestamp
                 now = Date.now();
 
-                if (self.doubleClickTimestamp
-                    && now - self.doubleClickTimestamp < 500 ) {
+                if (self.doubleClickTimestamp && (now - self.doubleClickTimestamp < 500) ) {
 
                     // Figure out the line and character based on the mouse coord that was clicked
                     pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
@@ -1126,7 +1125,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         inlineCollapse: function(styleKey, range) {
 
-            var className, editor, self;
+            var className, editor, marks, marksCollapsed, self;
 
             self = this;
             editor = self.codeMirror;
@@ -1135,19 +1134,39 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             className = self.styles[styleKey].className;
             
             range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
             
             // Find the marks within the range that match the classname
             $.each(editor.findMarks(range.from, range.to), function(i, mark) {
 
-                var markCollapsed, markPosition, widgetOptions;
-
                 // Skip this mark if it is not the desired classname
-                if (mark.className !== className) {
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
                     return;
                 }
 
-                markPosition = mark.find();
-                
                 // Create a codemirror "widget" that will replace the mark
                 $widget = $('<span/>', {
                     'class': self.styles.collapsed.className,
@@ -1163,16 +1182,113 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 };
 
                 // Create the collapsed mark
+                markPosition = mark.find();
                 markCollapsed = editor.markText(markPosition.from, markPosition.to, widgetOptions);
-
+                markCollapsed.collapsed = mark;
+                markCollapsed.styleKey = styleKey;
+                
                 // If user clicks the widget then uncollapse it
                 $widget.on('click', function() {
                     // Use the closure variable "markCollapsed" to clear the mark that we created above
                     markCollapsed.clear();
+                    delete mark.markCollapsed;
                     return false;
                 });
+
+                // Save markCollapsed onto the original mark object so later we can tell
+                // that the mark is already collapsed
+                mark.markCollapsed = markCollapsed;
+                
             });
+
         }, // inlineCollapse
+
+
+        /**
+         * 
+         */
+        inlineUncollapse: function(styleKey, range) {
+
+            var className, editor, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+                if (mark.collapsed && mark.styleKey === styleKey) {
+                    mark.clear();
+                    delete mark.collapsed.markCollapsed;
+                }
+            });
+        },
+
+
+        /**
+         * 
+         */
+        inlineToggleCollapse: function(styleKey, range) {
+
+            var className, editor, foundUncollapsed, marks, marksCollapsed, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
+            
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+
+                // Skip this mark if it is not the desired classname
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
+                    return;
+                }
+
+                foundUncollapsed = true;
+                return false;
+            });
+
+            if (marks.length) {
+
+                if (foundUncollapsed) {
+                    self.inlineCollapse(styleKey, range);
+                } else {
+                    self.inlineUncollapse(styleKey, range);
+                }
+            }
+        },
 
         
         /**
@@ -3264,9 +3380,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Add a new line for certain elements
                         // Add a new line for custom elements
-                        if (self.newLineRegExp.test(elementName)
-                            || (matchStyleObj && matchStyleObj.line)) {
-                            
+                        if (self.newLineRegExp.test(elementName) || (matchStyleObj && matchStyleObj.line)) {
                             val += '\n';
                         }
 

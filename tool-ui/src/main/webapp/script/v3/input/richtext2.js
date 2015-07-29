@@ -976,7 +976,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 case 'collapse':
                     if (item.collapseStyle) {
-                        rte.inlineCollapse(item.collapseStyle, rte.getRangeAll());
+                        rte.inlineToggleCollapse(item.collapseStyle, rte.getRangeAll());
                     }
                     break;
 
@@ -1038,6 +1038,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 }
             }
 
+            // Certain styles like comments look strange when there are two
+            // adjacent marks, so combine adjacent marks if possible.
+            rte.inlineCombineAdjacentMarks();
+            
             // Update the toolbar so it makes the buttons active or inactive
             // based on the cursor position or selection
             self.toolbarUpdate();
@@ -2434,7 +2438,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
          */
         placeholderRefresh: function() {
 
-            var attrName, count, placeholder, self, $wrapper;
+            var attrName, count, placeholder, self;
             self = this;
 
             // Get the placeholder attribute from the textarea element
