@@ -406,7 +406,9 @@ public class StorageItemField extends PageServlet {
                     newItem = StorageItem.Static.createUrl(page.param(urlName));
                 }
 
-                tryExtractMetadata(newItem, fieldValueMetadata, Optional.ofNullable(newItemData));
+                if (newItem != null) {
+                    tryExtractMetadata(newItem, fieldValueMetadata, Optional.ofNullable(newItemData));
+                }
 
                 // Standard sizes.
                 for (Iterator<Map.Entry<String, ImageCrop>> i = crops.entrySet().iterator(); i.hasNext();) {
