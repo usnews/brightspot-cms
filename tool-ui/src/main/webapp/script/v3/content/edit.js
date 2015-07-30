@@ -116,17 +116,5 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         update();
       }, 50);
     });
-
-    $form.submit(function() {
-      $form.find('.inputContainer').each(function() {
-        var $container = $(this);
-
-        if (!$container.is('.inputContainer-readOnly')
-            && $container.find('> .inputStatus').length > 0) {
-
-          $container.removeClass('.inputContainer-pending');
-        }
-      })
-    });
   });
 });
