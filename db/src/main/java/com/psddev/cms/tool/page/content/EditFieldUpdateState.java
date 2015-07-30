@@ -23,7 +23,7 @@ class EditFieldUpdateState implements RtcState {
         database.beginIsolatedWrites();
 
         try {
-            for (Iterator<EditFieldUpdate> it = updates.iterator(); it.hasNext(); ) {
+            for (Iterator<EditFieldUpdate> it = updates.iterator(); it.hasNext();) {
                 EditFieldUpdate update = it.next();
                 long updateTime = update.getTime();
 
