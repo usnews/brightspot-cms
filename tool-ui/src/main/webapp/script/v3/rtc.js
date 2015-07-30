@@ -1,32 +1,60 @@
-define([ 'jquery', 'atmosphere' ], function($, atmosphere) {
+define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmosphere) {
   var request = {
     url: '/_rtc',
     contentType: 'application/json',
     fallbackTransport: 'long-polling',
+    maxReconnectOnClose: 0,
     trackMessageLength: true,
     transport: 'sse'
   };
 
-  var broadcastCallbacks = { };
-  var messages = [ ];
   var socket;
+  var subscribe = bsp_utils.throttle(5000, function() {
+    socket = atmosphere.subscribe(request);
+  });
 
-  request.onOpen = function(response) {
-    request.uuid = response.request.uuid;
+  var restores = [ ];
 
-    var oldMessages = messages;
+  var broadcastCallbacks = { };
 
-    messages = {
-      push: function(message) {
-        socket.push(JSON.stringify($.extend(message, {
-          resource: socket.getUUID()
-        })));
+  var isOnline = false;
+  var offlineMessages = [ ];
+  var onlineMessages = {
+    push: function(message) {
+      socket.push(JSON.stringify($.extend(message, {
+        resource: socket.getUUID()
+      })));
+    }
+  };
+
+  request.onOpen = function() {
+    isOnline = true;
+
+    $.each(restores, function(i, restore) {
+      onlineMessages.push(restore.message);
+
+      var callback = restore.callback;
+
+      if (callback) {
+        callback();
       }
-    };
-
-    $.each(oldMessages, function(i, message) {
-      messages.push(message);
     });
+
+    $.each(offlineMessages, function(i, message) {
+      onlineMessages.push(message);
+    });
+
+    offlineMessages = [ ];
+  };
+
+  request.onClose = function() {
+    isOnline = false;
+  };
+
+  request.onError = function() {
+    isOnline = false;
+
+    subscribe();
   };
 
   request.onMessage = function(response) {
@@ -40,13 +68,16 @@ define([ 'jquery', 'atmosphere' ], function($, atmosphere) {
     }
   };
 
-  socket = atmosphere.subscribe(request);
+  subscribe();
 
   return {
-    restore: function(state, data) {
-      messages.push({
-        state: state,
-        data: data
+    restore: function(state, data, callback) {
+      restores.push({
+        callback: callback,
+        message: {
+          state: state,
+          data: data
+        }
       });
     },
 
@@ -55,7 +86,7 @@ define([ 'jquery', 'atmosphere' ], function($, atmosphere) {
     },
 
     execute: function(action, data) {
-      messages.push({
+      (isOnline ? onlineMessages : offlineMessages).push({
         action: action,
         data: data
       });

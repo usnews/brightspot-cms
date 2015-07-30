@@ -3,6 +3,7 @@ package com.psddev.cms.tool.page;
 import com.psddev.dari.db.Database;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
+import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
 import org.atmosphere.cpr.AtmosphereFrameworkInitializer;
 import org.atmosphere.cpr.AtmosphereRequest;
@@ -22,7 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Filter that handles the real-time communication between the server
@@ -33,8 +38,6 @@ import java.util.Enumeration;
 public class RtcFilter implements Filter {
 
     public static final String PATH = "/_rtc";
-
-    private static final String CURRENT_USER_ID_ATTRIBUTE = RtcFilter.class.getName() + ".currentUserId";
 
     private AtmosphereFrameworkInitializer initializer;
     private RtcObjectUpdateNotifier notifier;
@@ -55,12 +58,24 @@ public class RtcFilter implements Filter {
 
             @Override
             public String getInitParameter(String name) {
-                return filterConfig.getInitParameter(name);
+                String value = filterConfig.getInitParameter(name);
+
+                if (value == null) {
+                    if (ApplicationConfig.MAX_INACTIVE.equals(name)) {
+                        return String.valueOf(TimeUnit.SECONDS.toMillis(30));
+                    }
+                }
+
+                return value;
             }
 
             @Override
             public Enumeration<String> getInitParameterNames() {
-                return filterConfig.getInitParameterNames();
+                Set<String> names = new HashSet<>(Collections.list(filterConfig.getInitParameterNames()));
+
+                names.add(ApplicationConfig.MAX_INACTIVE);
+
+                return Collections.enumeration(names);
             }
         };
 

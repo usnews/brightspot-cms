@@ -82,10 +82,6 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
     var $form = $(this);
     var contentId = $form.attr('data-o-id');
 
-    rtc.restore('com.psddev.cms.tool.page.content.EditFieldUpdateState', {
-      contentId: contentId
-    });
-
     function update() {
       var fieldNamesByObjectId = { };
 
@@ -103,6 +99,10 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         });
       }
     }
+
+    rtc.restore('com.psddev.cms.tool.page.content.EditFieldUpdateState', {
+      contentId: contentId
+    }, update);
 
     var updateTimeout;
 
