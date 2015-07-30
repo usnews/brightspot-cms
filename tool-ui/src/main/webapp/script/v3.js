@@ -70,7 +70,7 @@ require([
   'v3/upload',
   'nv.d3',
 
-  'dashboard',
+  'v3/dashboard',
   'v3/constrainedscroll',
   'content/diff',
   'v3/content/edit',

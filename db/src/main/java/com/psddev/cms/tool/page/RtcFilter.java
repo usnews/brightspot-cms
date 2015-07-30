@@ -1,15 +1,12 @@
 package com.psddev.cms.tool.page;
 
-import com.google.common.base.Preconditions;
-import com.psddev.cms.db.ToolUser;
 import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Query;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
+import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
 import org.atmosphere.cpr.AtmosphereFrameworkInitializer;
 import org.atmosphere.cpr.AtmosphereRequest;
-import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
@@ -26,8 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Filter that handles the real-time communication between the server
@@ -39,88 +39,8 @@ public class RtcFilter implements Filter {
 
     public static final String PATH = "/_rtc";
 
-    private static final String CURRENT_USER_ID_ATTRIBUTE = RtcFilter.class.getName() + ".currentUserId";
-
     private AtmosphereFrameworkInitializer initializer;
     private RtcObjectUpdateNotifier notifier;
-
-    /**
-     * Returns the unique ID of the current user associated with the given
-     * {@code resource}.
-     *
-     * @param resource
-     *        Can't be {@code null}.
-     *
-     * @return Never {@code null}.
-     *
-     * @throws IllegalStateException
-     *         If there's no user associated with the given {@code resource}.
-     */
-    public static UUID getCurrentUserId(AtmosphereResource resource) {
-        Preconditions.checkNotNull(resource);
-
-        AtmosphereRequest request = resource.getRequest();
-        UUID currentUserId = (UUID) request.getAttribute(CURRENT_USER_ID_ATTRIBUTE);
-
-        if (currentUserId == null) {
-            String cookie = request.getHeader("Cookie");
-
-            if (cookie != null) {
-                for (String pair : cookie.trim().split("\\s*;\\s*")) {
-                    int equalAt = pair.indexOf('=');
-
-                    if (equalAt < 0) {
-                        continue;
-                    }
-
-                    String name = pair.substring(0, equalAt);
-                    String value = pair.substring(equalAt + 1);
-
-                    if (!name.equals("bsp.tu")) {
-                        continue;
-                    }
-
-                    value = value.substring(name.length());
-                    int pipeAt = value.indexOf('|');
-
-                    if (pipeAt < 0) {
-                        continue;
-                    }
-
-                    ToolUser user = Query
-                            .from(ToolUser.class)
-                            .where("loginTokens/token = ?", value.substring(0, pipeAt))
-                            .first();
-
-                    if (user != null) {
-                        currentUserId = user.getId();
-                    }
-                }
-            }
-
-            if (currentUserId == null) {
-                throw new IllegalStateException();
-            }
-        }
-
-        return currentUserId;
-    }
-
-    /**
-     * Sets the unique ID of the current user associated with the given
-     * {@code resource} to the given {@code currentUserId}.
-     *
-     * @param resource
-     *        Can't be {@code null}.
-     *
-     * @param currentUserId
-     *        May be {@code null}.
-     */
-    public static void setCurrentUserId(AtmosphereResource resource, UUID currentUserId) {
-        Preconditions.checkNotNull(resource);
-
-        resource.getRequest().setAttribute(CURRENT_USER_ID_ATTRIBUTE, currentUserId);
-    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -138,12 +58,24 @@ public class RtcFilter implements Filter {
 
             @Override
             public String getInitParameter(String name) {
-                return filterConfig.getInitParameter(name);
+                String value = filterConfig.getInitParameter(name);
+
+                if (value == null) {
+                    if (ApplicationConfig.MAX_INACTIVE.equals(name)) {
+                        return String.valueOf(TimeUnit.SECONDS.toMillis(30));
+                    }
+                }
+
+                return value;
             }
 
             @Override
             public Enumeration<String> getInitParameterNames() {
-                return filterConfig.getInitParameterNames();
+                Set<String> names = new HashSet<>(Collections.list(filterConfig.getInitParameterNames()));
+
+                names.add(ApplicationConfig.MAX_INACTIVE);
+
+                return Collections.enumeration(names);
             }
         };
 
@@ -156,7 +88,7 @@ public class RtcFilter implements Filter {
         framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
-                new RtcHandler(),
+                new RtcHandler(framework.sessionFactory()),
                 Arrays.asList(
                         new AtmosphereResourceLifecycleInterceptor(),
                         new BroadcastOnPostAtmosphereInterceptor(),
