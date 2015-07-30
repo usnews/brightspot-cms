@@ -87,6 +87,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 className: 'rte2-style-html',
                 raw: true // do not allow other styles inside this style and do not encode the text within this style, to allow for raw html
             },
+
+            // Special style for reprenting newlines
+            newline: {
+                className:'rte2-style-newline',
+                internal:true,
+                raw: true
+            },
             
             // Special style used to collapse an element.
             // It does not output any HTML, but it can be cleared.
@@ -333,8 +340,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Generate timestamp
                 now = Date.now();
 
-                if (self.doubleClickTimestamp
-                    && now - self.doubleClickTimestamp < 500 ) {
+                if (self.doubleClickTimestamp && (now - self.doubleClickTimestamp < 500) ) {
 
                     // Figure out the line and character based on the mouse coord that was clicked
                     pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
@@ -1126,7 +1132,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         inlineCollapse: function(styleKey, range) {
 
-            var className, editor, self;
+            var className, editor, marks, marksCollapsed, self;
 
             self = this;
             editor = self.codeMirror;
@@ -1135,19 +1141,39 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             className = self.styles[styleKey].className;
             
             range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
             
             // Find the marks within the range that match the classname
             $.each(editor.findMarks(range.from, range.to), function(i, mark) {
 
-                var markCollapsed, markPosition, widgetOptions;
-
                 // Skip this mark if it is not the desired classname
-                if (mark.className !== className) {
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
                     return;
                 }
 
-                markPosition = mark.find();
-                
                 // Create a codemirror "widget" that will replace the mark
                 $widget = $('<span/>', {
                     'class': self.styles.collapsed.className,
@@ -1163,16 +1189,113 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 };
 
                 // Create the collapsed mark
+                markPosition = mark.find();
                 markCollapsed = editor.markText(markPosition.from, markPosition.to, widgetOptions);
-
+                markCollapsed.collapsed = mark;
+                markCollapsed.styleKey = styleKey;
+                
                 // If user clicks the widget then uncollapse it
                 $widget.on('click', function() {
                     // Use the closure variable "markCollapsed" to clear the mark that we created above
                     markCollapsed.clear();
+                    delete mark.markCollapsed;
                     return false;
                 });
+
+                // Save markCollapsed onto the original mark object so later we can tell
+                // that the mark is already collapsed
+                mark.markCollapsed = markCollapsed;
+                
             });
+
         }, // inlineCollapse
+
+
+        /**
+         * 
+         */
+        inlineUncollapse: function(styleKey, range) {
+
+            var className, editor, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+                if (mark.collapsed && mark.styleKey === styleKey) {
+                    mark.clear();
+                    delete mark.collapsed.markCollapsed;
+                }
+            });
+        },
+
+
+        /**
+         * 
+         */
+        inlineToggleCollapse: function(styleKey, range) {
+
+            var className, editor, foundUncollapsed, marks, marksCollapsed, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
+            
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+
+                // Skip this mark if it is not the desired classname
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
+                    return;
+                }
+
+                foundUncollapsed = true;
+                return false;
+            });
+
+            if (marks.length) {
+
+                if (foundUncollapsed) {
+                    self.inlineCollapse(styleKey, range);
+                } else {
+                    self.inlineUncollapse(styleKey, range);
+                }
+            }
+        },
 
         
         /**
@@ -2569,7 +2692,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self = this;
 
             keymap = {};
-            
+
+            keymap['Shift-Enter'] = function (cm) {
+                // Add a carriage-return symbol and style it as 'newline'
+                // so it won't be confused with any user-inserted carriage return symbols
+                self.insert('\u21b5', 'newline');
+            };
+
             $.each(self.styles, function(styleKey, styleObj) {
 
                 var keys;
@@ -2946,16 +3075,25 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         
                         if (raw) {
 
+                            // Carriage return character within raw region should be converted to an actual newline
+                            if (outputChar === '\u21b5') {
+                                outputChar = '\n';
+                            }
+
+                            // Less-than character within raw region temporily changed to a fake entity,
+                            // so we can find it and do other stuff later
                             if (outputChar === '<') {
                                 outputChar = '&raw_lt;';
                             }
 
+                            // We need to remember if the last character is raw html because
+                            // if it is we will not insert a <br> element at the end of the line
                             rawLastChar = true;
                         
                         } else {
                         
                             outputChar = self.htmlEncode(outputChar);
-                        
+
                             rawLastChar = false;
                         }
                         
@@ -2997,8 +3135,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 }
             });
 
+            // Find the raw "<" characters (which we previosly replaced with &raw_lt;)
+            // and add a data-rte2-raw attribute to each HTML element.
+            // This will ensure that when we re-import the HTML into the editor,
+            // we will know which elements were marked as raw HTML.
             html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
-            
+
             return html;
             
         }, // toHTML
@@ -3037,7 +3179,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n, rawParent) {
                 
-                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to;
+                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to, text;
 
                 next = n.childNodes[0];
 
@@ -3047,21 +3189,62 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (next.nodeType === 3) {
 
                         // We got a text node, just add it to the value
-                        // Remove any newlines at the beginning or end
-                        // Remove "zero width space" character that the previous editor sometimes used
-                        //val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
-                        val += next.textContent.replace(/\u200b|\u8203/g, '');
+                        text = next.textContent;
                         
+                        // Remove "zero width space" character that the previous editor sometimes used
+                        text = text.replace(/\u200b|\u8203/g, '');
+
+                        // Convert newlines to a carriage return character and annotate it
+                        text = text.replace(/[\n\r]/g, function(match, offset, string){
+
+                            var from, split, to;
+                            
+                            // Create an annotation to mark the newline as "raw html" so we can distinguish it
+                            // from any other user of the carriage return character
+                            
+                            split = val.split("\n");
+                            from =  {
+                                line: split.length - 1,
+                                ch: split[split.length - 1].length + offset
+                            };
+                            to = {
+                                line: from.line,
+                                ch: from.ch + 1
+                            };
+                            annotations.push({
+                                styleObj: self.styles.newline,
+                                from:from,
+                                to:to
+                            });
+                             
+                            return '\u21b5';
+                        });
+
+                        val += text;
+
                     } else if (next.nodeType === 1) {
 
                         // We got an element
                         elementName = next.tagName.toLowerCase();
 
+                        // Determine if we need to treat this element as raw HTML
                         raw = false;
+
+                        // Check if the parent element had something unusual where
+                        // all the children should also be considered raw HTML.
+                        // This is used for nested lists since we can't support that in the editor.
                         if (rawParent) {
+                            
                             raw = true;
+                            
+                            // Make sure any other children elements are also treated as raw elements.
                             rawChildren = true;
+                            
                         } else {
+                            
+                            // When the editor writes HTML, it places a data-rte2-raw attribute onto
+                            // each element that was marked as raw HTML.
+                            // If we see this attribute on importing HTML, we will again treat it as raw HTML.
                             raw = $(next).is('[data-rte2-raw]');
                         }
                         
@@ -3264,9 +3447,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Add a new line for certain elements
                         // Add a new line for custom elements
-                        if (self.newLineRegExp.test(elementName)
-                            || (matchStyleObj && matchStyleObj.line)) {
-                            
+                        if (self.newLineRegExp.test(elementName) || (matchStyleObj && matchStyleObj.line)) {
                             val += '\n';
                         }
 
@@ -3314,12 +3495,22 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         /**
          * Add text to the editor at the current selection or cursor position.
          */
-        insert: function(value) {
-            var self;
+        insert: function(value, styleKey) {
+            
+            var range, self;
 
             self = this;
 
-            self.codeMirror.replaceSelection(value);
+            // Insert text and change range to be around the new text so we can add a style
+            self.codeMirror.replaceSelection(value, 'around');
+            
+            range = self.getRange();
+            if (styleKey) {
+                self.setStyle(styleKey, range);
+            }
+
+            // Now set cursor after the inserted text
+            self.codeMirror.setCursor( range.to );
         },
 
         

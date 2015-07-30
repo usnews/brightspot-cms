@@ -11,6 +11,11 @@
   vertical-align: top;
   
   z-index:3; // Give a higher z-index than the rich text editor
+  &:hover {
+    // When hovering the toolbar, give it a higher z-index than
+    // other toolbars below (so submenu will be on top of other toolbars)
+    z-index:4;
+  }
   
   .state-disabled & {
     display: none;
@@ -172,9 +177,11 @@
 }
 
 .rte2-style-html {
-  font-weight:bold;
   font-family: @fontFamily-code;
   background-color:fade(black, 10%);
+}
+.rte2-style-newline {
+  color: @color-placeholder;
 }
 .rte2-style-bold {
   font-weight:bold;
