@@ -1,12 +1,7 @@
 define([ 'jquery', 'v3/rtc' ], function($, rtc) {
-  rtc.receive('com.psddev.cms.tool.page.content.PublishBroadcast', function(data) {
+  function reload() {
     $('.dashboard-widget').each(function() {
       var $widget = $(this);
-
-      if ($widget.find('[data-preview-url]').length === 0) {
-        return;
-      }
-
       var widgetUrl = $widget.attr('data-dashboard-widget-url');
 
       if (widgetUrl) {
@@ -23,5 +18,19 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         });
       }
     })
+  }
+
+  var reloadTimeout;
+
+  rtc.receive('com.psddev.cms.tool.page.content.PublishBroadcast', function() {
+    if (reloadTimeout) {
+      clearTimeout(reload);
+    }
+
+    reloadTimeout = setTimeout(function() {
+      reloadTimeout = null;
+
+      reload();
+    }, 5000)
   });
 });
