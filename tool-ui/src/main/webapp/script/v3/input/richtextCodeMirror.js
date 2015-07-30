@@ -87,6 +87,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 className: 'rte2-style-html',
                 raw: true // do not allow other styles inside this style and do not encode the text within this style, to allow for raw html
             },
+
+            // Special style for reprenting newlines
+            newline: {
+                className:'rte2-style-newline',
+                internal:true,
+                raw: true
+            },
             
             // Special style used to collapse an element.
             // It does not output any HTML, but it can be cleared.
@@ -2685,7 +2692,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self = this;
 
             keymap = {};
-            
+
+            keymap['Shift-Enter'] = function (cm) {
+                // Add a carriage-return symbol and style it as 'newline'
+                // so it won't be confused with any user-inserted carriage return symbols
+                self.insert('\u21b5', 'newline');
+            };
+
             $.each(self.styles, function(styleKey, styleObj) {
 
                 var keys;
@@ -3062,16 +3075,25 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         
                         if (raw) {
 
+                            // Carriage return character within raw region should be converted to an actual newline
+                            if (outputChar === '\u21b5') {
+                                outputChar = '\n';
+                            }
+
+                            // Less-than character within raw region temporily changed to a fake entity,
+                            // so we can find it and do other stuff later
                             if (outputChar === '<') {
                                 outputChar = '&raw_lt;';
                             }
 
+                            // We need to remember if the last character is raw html because
+                            // if it is we will not insert a <br> element at the end of the line
                             rawLastChar = true;
                         
                         } else {
                         
                             outputChar = self.htmlEncode(outputChar);
-                        
+
                             rawLastChar = false;
                         }
                         
@@ -3113,8 +3135,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 }
             });
 
+            // Find the raw "<" characters (which we previosly replaced with &raw_lt;)
+            // and add a data-rte2-raw attribute to each HTML element.
+            // This will ensure that when we re-import the HTML into the editor,
+            // we will know which elements were marked as raw HTML.
             html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
-            
+
             return html;
             
         }, // toHTML
@@ -3153,7 +3179,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n, rawParent) {
                 
-                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to;
+                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to, text;
 
                 next = n.childNodes[0];
 
@@ -3163,21 +3189,62 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (next.nodeType === 3) {
 
                         // We got a text node, just add it to the value
-                        // Remove any newlines at the beginning or end
-                        // Remove "zero width space" character that the previous editor sometimes used
-                        //val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
-                        val += next.textContent.replace(/\u200b|\u8203/g, '');
+                        text = next.textContent;
                         
+                        // Remove "zero width space" character that the previous editor sometimes used
+                        text = text.replace(/\u200b|\u8203/g, '');
+
+                        // Convert newlines to a carriage return character and annotate it
+                        text = text.replace(/[\n\r]/g, function(match, offset, string){
+
+                            var from, split, to;
+                            
+                            // Create an annotation to mark the newline as "raw html" so we can distinguish it
+                            // from any other user of the carriage return character
+                            
+                            split = val.split("\n");
+                            from =  {
+                                line: split.length - 1,
+                                ch: split[split.length - 1].length + offset
+                            };
+                            to = {
+                                line: from.line,
+                                ch: from.ch + 1
+                            };
+                            annotations.push({
+                                styleObj: self.styles.newline,
+                                from:from,
+                                to:to
+                            });
+                             
+                            return '\u21b5';
+                        });
+
+                        val += text;
+
                     } else if (next.nodeType === 1) {
 
                         // We got an element
                         elementName = next.tagName.toLowerCase();
 
+                        // Determine if we need to treat this element as raw HTML
                         raw = false;
+
+                        // Check if the parent element had something unusual where
+                        // all the children should also be considered raw HTML.
+                        // This is used for nested lists since we can't support that in the editor.
                         if (rawParent) {
+                            
                             raw = true;
+                            
+                            // Make sure any other children elements are also treated as raw elements.
                             rawChildren = true;
+                            
                         } else {
+                            
+                            // When the editor writes HTML, it places a data-rte2-raw attribute onto
+                            // each element that was marked as raw HTML.
+                            // If we see this attribute on importing HTML, we will again treat it as raw HTML.
                             raw = $(next).is('[data-rte2-raw]');
                         }
                         
@@ -3428,12 +3495,22 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         /**
          * Add text to the editor at the current selection or cursor position.
          */
-        insert: function(value) {
-            var self;
+        insert: function(value, styleKey) {
+            
+            var range, self;
 
             self = this;
 
-            self.codeMirror.replaceSelection(value);
+            // Insert text and change range to be around the new text so we can add a style
+            self.codeMirror.replaceSelection(value, 'around');
+            
+            range = self.getRange();
+            if (styleKey) {
+                self.setStyle(styleKey, range);
+            }
+
+            // Now set cursor after the inserted text
+            self.codeMirror.setCursor( range.to );
         },
 
         
