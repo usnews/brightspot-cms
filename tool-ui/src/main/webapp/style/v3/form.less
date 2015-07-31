@@ -264,9 +264,15 @@
     pointer-events: auto;
   }
 
-  .objectId-clear,
-  .repeatableForm > .addButtonContainer {
+  .objectId-clear {
     display: none !important;
+  }
+
+  .repeatableForm,
+  .repeatableObjectId {
+    > .addButtonContainer {
+      display: none !important;
+    }
   }
 }
 
@@ -581,7 +587,6 @@
   background-size: auto 14px;
   cursor: pointer;
   display: inline-block;
-  height: (@lineHeight-default + 2 * (@input-padding + @input-borderWidth));
   max-width: 100%;
   padding-right: 26px;
   position: relative;
