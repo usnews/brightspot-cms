@@ -588,20 +588,22 @@
 }
 
 // Soft validation based on suggested sizes.
+.inputWordCount {
+  display: none;
+}
+
 .inputContainer.state-focus {
-  &[data-wc-message],
-  [data-wc-message] {
-    &:after {
-      .background-flat(@color-placeholder);
+  > .inputWordCount {
+    .background-flat(@color-placeholder);
 
-      content: attr(data-wc-message);
-      font-size: 11px;
-      height: 18px;
-      line-height: 18px;
-      padding: 0 3px;
-    }
+    content: attr(data-wc-message);
+    display: block;
+    font-size: 11px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 3px;
 
-    &[data-wc-message ^= 'Too']:after {
+    &.inputWordCount-warning {
       background-color: #e90;
     }
   }
