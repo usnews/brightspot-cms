@@ -49,6 +49,10 @@ class RtcHandler extends OnMessage<Object> {
             AtmosphereResourceSession session = sessionFactory.getSession(resource);
             UUID currentUserId = (UUID) session.getAttribute(CURRENT_USER_ID_ATTRIBUTE);
 
+            if (currentUserId == null) {
+                return;
+            }
+
             if (message instanceof RtcBroadcastMessage) {
                 RtcBroadcastMessage broadcastMessage = (RtcBroadcastMessage) message;
 
