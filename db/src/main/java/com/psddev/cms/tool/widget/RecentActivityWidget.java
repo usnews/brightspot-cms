@@ -18,7 +18,6 @@ import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.dari.db.DatabaseException;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
