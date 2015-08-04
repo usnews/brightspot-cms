@@ -46,6 +46,79 @@ define([ 'jquery', 'bsp-utils' ], function($, bsp_utils) {
             event.stopPropagation();
           }
         });
+
+        if ($draftButton.closest('.message').length > 0) {
+          var saving = false;
+          var toolMessageTimeout;
+
+          $draftButton.click(function (event) {
+            if (saving) {
+              event.preventDefault();
+              event.stopPropagation();
+              return;
+            }
+
+            saving = true;
+
+            var frameName = 'saveDraft';
+            var $form = $draftButton.closest('form');
+            var $frame = $('<iframe/>', {
+              'name': frameName,
+              'css': {
+                'display': 'none'
+              }
+            });
+
+            var $toolMessage = $('.toolMessage');
+
+            if ($toolMessage.length === 0) {
+              $toolMessage = $('<div/>', {
+                'class': 'toolMessage'
+              });
+
+              $(document.body).append($toolMessage);
+            }
+
+            $toolMessage.html($('<div/>', {
+              'class': 'message message-info',
+              'text': 'Saving...'
+            }));
+
+            if (toolMessageTimeout) {
+              clearTimeout(toolMessageTimeout);
+            }
+
+            $toolMessage.fadeIn('fast');
+
+            $(document.body).append($frame);
+            $form.attr('target', frameName);
+            $frame.load(function () {
+              var $message = $('.contentForm-main > .widget-content > .message', this.contentDocument);
+
+              if ($message.length > 0) {
+                $toolMessage.html($message.clone());
+
+              } else {
+                $toolMessage.html($('<div/>', {
+                  'class': 'message message-error',
+                  'text': 'Save failed with an unknown error!'
+                }));
+              }
+
+              toolMessageTimeout = setTimeout(function () {
+                toolMessageTimeout = null;
+
+                $toolMessage.fadeOut('fast');
+              }, 5000);
+
+              saving = false;
+
+              $form.removeAttr('target');
+              $frame.remove();
+              $.removeData($form[0], 'bsp-publish-submitting');
+            });
+          });
+        }
       }
     }
   });

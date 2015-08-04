@@ -40,7 +40,10 @@ if (deleted != null) {
 }
 
 State state = State.getInstance(object);
-Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+Draft draft = wp.getOverlaidDraft(object);
+Content.ObjectModification contentData = draft != null
+        ? draft.as(Content.ObjectModification.class)
+        : state.as(Content.ObjectModification.class);
 
 if (wp.getUser().equals(contentData.getUpdateUser())) {
     Date updateDate = contentData.getUpdateDate();
@@ -56,7 +59,12 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
                 wp.writeHtml(wp.formatUserDateTime(updateDate));
 
             } else {
-                wp.write("Published ");
+                if (draft != null) {
+                    wp.write("Saved ");
+                } else {
+                    wp.write("Published ");
+                }
+
                 wp.writeHtml(wp.formatUserDateTime(updateDate));
             }
         wp.write(".</p>");
@@ -72,5 +80,31 @@ if (saved != null) {
     wp.write("Saved ", saved);
     wp.write(".</p></div>");
     return;
+}
+
+if (wp.getOverlaidDraft(object) == null) {
+    List<Draft> userDrafts = Query
+            .from(Draft.class)
+            .and("objectId = ?", state.getId())
+            .and("owner = ?", wp.getUser())
+            .selectAll();
+
+    if (!userDrafts.isEmpty()) {
+        wp.writeStart("div", "class", "message message-info");
+            wp.writeStart("p");
+                wp.writeHtml("Your drafts:");
+            wp.writeEnd();
+
+            wp.writeStart("ul");
+                for (Draft userDraft : userDrafts) {
+                    wp.writeStart("li");
+                        wp.writeStart("a", "href", wp.objectUrl(null, userDraft));
+                            wp.writeHtml(wp.formatUserDateTime(userDraft.as(Content.ObjectModification.class).getUpdateDate()));
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+        wp.writeEnd();
+    }
 }
 %>
