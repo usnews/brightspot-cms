@@ -270,6 +270,29 @@
     color: @color-placeholder;
     font-style: italic;
   }
+
+  &.rte-fullscreen {
+    background-color: white;
+    border-style: none;
+    height: 100%;
+    left: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 49;
+
+    padding:20px;
+    font-size:16px;
+    line-height:24px;
+
+    .CodeMirror {
+      border:0;
+      background-color:white;
+      width:70em;
+    }
+  }
   
   .CodeMirror {
 
