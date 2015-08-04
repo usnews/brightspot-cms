@@ -592,6 +592,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             // Set the content into the editor
             self.rte.fromHTML(content);
+
+            // Set up periodic update of the textarea
+            self.previewInit();
         },
 
 
@@ -2454,6 +2457,51 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
                 // Remove the attribute so the text will not be overlayed
                 self.$container.removeAttr(attrName);
+            }
+        },
+
+        
+        /*==================================================
+         * Preview
+         * To support brightspot cms preview functionality,
+         * we must keep the textarea updated with the most recent data.
+         * Triggering an "input" event will update the preview.
+         *==================================================*/
+
+        
+        /**
+         * Initialize an event listener so whenever the rich text editor changes,
+         * we update the textarea with the latest content, and trigger an
+         * event to update the preview.
+         *
+         * This is throttled agressively to prevent performance problems.
+         */
+        previewInit: function() {
+            
+            var self;
+            self = this;
+
+            self.$container.on('rteChange', $.throttle(2000, function(){
+                self.previewUpdate();
+            }));
+        },
+
+        
+        /**
+         * Update the textarea with the latest content from the rich text editor,
+         * plus trigger an "input" event so the preview will be updated.
+         */
+        previewUpdate: function() {
+            
+            var html, self;
+            
+            self = this;
+
+            html = self.toHTML();
+            
+            if (html !== self.previewUpdateSaved) {
+                self.previewUpdateSaved = html;
+                self.$el.val(html).trigger('input');
             }
         },
 
