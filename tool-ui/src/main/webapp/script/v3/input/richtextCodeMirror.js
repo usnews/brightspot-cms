@@ -385,7 +385,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
             
             editor.on('changes', function(instance, event) {
-                self.$el.trigger('rteChange', [self]);
+                self.triggerChange();
             });
 
             editor.on('focus', function(instance, event) {
@@ -397,7 +397,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
         },
 
+        
+        /**
+         * Trigger an rteChange event.
+         * This can happen when user types changes into the editor, or if some kind of mark is modified.
+         */
+        triggerChange: function() {
+            var self;
+            self = this;
+            self.$el.trigger('rteChange', [self]);
+        },
 
+        
         //==================================================
         // STYLE FUNCTIONS
         // The following functions deal with inline or block styles.
@@ -457,7 +468,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
 
             self.rawCleanup();
-            
+
             return mark;
         },
 
@@ -595,6 +606,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Trigger a cursorActivity event so for example toolbar can pick up changes
             CodeMirror.signal(editor, "cursorActivity");
 
+            self.triggerChange();
+            
             return mark;
             
         }, // initSetStyle
@@ -862,6 +875,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             // Trigger a cursor activity event so the toolbar can update
             CodeMirror.signal(editor, "cursorActivity");
+            
+            self.triggerChange();
         },
 
 
@@ -890,6 +905,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                 // Delete the mark
                 mark.clear();
+                
+                self.triggerChange();
             }
         },
 
@@ -1585,6 +1602,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Refresh the editor display since our line classes
             // might have padding that messes with the cursor position
             editor.refresh();
+            
+            self.triggerChange();
         },
 
         
@@ -1629,6 +1648,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Refresh the editor display since our line classes
             // might have padding that messes with the cursor position
             editor.refresh();
+            
+            self.triggerChange();
         },
         
 
@@ -1879,6 +1900,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 mark.changed();
             }, 100);
             
+            self.triggerChange();
+            
             return mark;
         },
 
@@ -1949,6 +1972,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
             mark.clear();
             self.codeMirror.removeLineWidget(mark);
+            
+            self.triggerChange();
         },
 
 
