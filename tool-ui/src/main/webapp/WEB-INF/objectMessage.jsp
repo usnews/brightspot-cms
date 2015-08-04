@@ -81,4 +81,30 @@ if (saved != null) {
     wp.write(".</p></div>");
     return;
 }
+
+if (wp.getOverlaidDraft(object) == null) {
+    List<Draft> userDrafts = Query
+            .from(Draft.class)
+            .and("objectId = ?", state.getId())
+            .and("owner = ?", wp.getUser())
+            .selectAll();
+
+    if (!userDrafts.isEmpty()) {
+        wp.writeStart("div", "class", "message message-info");
+            wp.writeStart("p");
+                wp.writeHtml("Your drafts:");
+            wp.writeEnd();
+
+            wp.writeStart("ul");
+                for (Draft userDraft : userDrafts) {
+                    wp.writeStart("li");
+                        wp.writeStart("a", "href", wp.objectUrl(null, userDraft));
+                            wp.writeHtml(wp.formatUserDateTime(userDraft.as(Content.ObjectModification.class).getUpdateDate()));
+                        wp.writeEnd();
+                    wp.writeEnd();
+                }
+            wp.writeEnd();
+        wp.writeEnd();
+    }
+}
 %>
