@@ -40,7 +40,10 @@ if (deleted != null) {
 }
 
 State state = State.getInstance(object);
-Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
+Draft draft = wp.getOverlaidDraft(object);
+Content.ObjectModification contentData = draft != null
+        ? draft.as(Content.ObjectModification.class)
+        : state.as(Content.ObjectModification.class);
 
 if (wp.getUser().equals(contentData.getUpdateUser())) {
     Date updateDate = contentData.getUpdateDate();
@@ -56,7 +59,12 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
                 wp.writeHtml(wp.formatUserDateTime(updateDate));
 
             } else {
-                wp.write("Published ");
+                if (draft != null) {
+                    wp.write("Saved ");
+                } else {
+                    wp.write("Published ");
+                }
+
                 wp.writeHtml(wp.formatUserDateTime(updateDate));
             }
         wp.write(".</p>");
