@@ -344,7 +344,7 @@ public abstract class Content extends Record {
             lock.lock();
 
             try {
-                Object oldObject = Query.fromAll().where("_id = ?", id).first();
+                Object oldObject = Query.fromAll().where("_id = ?", id).noCache().first();
 
                 if (oldObject != null) {
                     state.setValues(State.getInstance(oldObject).getValues());
