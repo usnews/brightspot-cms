@@ -3331,7 +3331,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         };
 
                         // Special case - is this an enhancement?
-                        if (elementName === 'span' && $(next).attr('class') === 'enhancement') {
+                        if (elementName === 'span' && $(next).hasClass('enhancement')) {
 
                             enhancements.push({
                                 line: from.line,
