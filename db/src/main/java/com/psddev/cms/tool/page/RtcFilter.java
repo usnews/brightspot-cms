@@ -1,6 +1,7 @@
 package com.psddev.cms.tool.page;
 
 import com.psddev.dari.db.Database;
+import com.psddev.dari.util.AbstractFilter;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.cpr.ApplicationConfig;
@@ -17,8 +18,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,8 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Filter that handles the real-time communication between the server
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 3.1
  */
-public class RtcFilter implements Filter {
+public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
 
     public static final String PATH = "/_rtc";
 
@@ -43,7 +42,13 @@ public class RtcFilter implements Filter {
     private RtcObjectUpdateNotifier notifier;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void updateDependencies(Class<? extends AbstractFilter> filterClass, List<Class<? extends Filter>> dependencies) {
+        dependencies.add(getClass());
+    }
+
+    @Override
+    protected void doInit() throws ServletException {
+        FilterConfig filterConfig = getFilterConfig();
         ServletConfig servletConfig = new ServletConfig() {
 
             @Override
@@ -60,10 +65,10 @@ public class RtcFilter implements Filter {
             public String getInitParameter(String name) {
                 String value = filterConfig.getInitParameter(name);
 
-                if (value == null) {
-                    if (ApplicationConfig.MAX_INACTIVE.equals(name)) {
-                        return String.valueOf(TimeUnit.SECONDS.toMillis(30));
-                    }
+                if (value == null
+                        && ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS.equals(name)) {
+
+                    return String.valueOf("5");
                 }
 
                 return value;
@@ -73,7 +78,7 @@ public class RtcFilter implements Filter {
             public Enumeration<String> getInitParameterNames() {
                 Set<String> names = new HashSet<>(Collections.list(filterConfig.getInitParameterNames()));
 
-                names.add(ApplicationConfig.MAX_INACTIVE);
+                names.add(ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS);
 
                 return Collections.enumeration(names);
             }
@@ -88,7 +93,7 @@ public class RtcFilter implements Filter {
         framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
-                new RtcHandler(framework.sessionFactory()),
+                new RtcHandler(),
                 Arrays.asList(
                         new AtmosphereResourceLifecycleInterceptor(),
                         new BroadcastOnPostAtmosphereInterceptor(),
@@ -102,7 +107,7 @@ public class RtcFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
+    protected void doDestroy() {
         try {
             if (notifier != null) {
                 try {
@@ -124,9 +129,14 @@ public class RtcFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        initializer.framework().doCometSupport(
-                AtmosphereRequest.wrap((HttpServletRequest) request),
-                AtmosphereResponse.wrap((HttpServletResponse) response));
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (request.getServletPath().startsWith(PATH)) {
+            initializer.framework().doCometSupport(
+                    AtmosphereRequest.wrap(request),
+                    AtmosphereResponse.wrap(response));
+
+        } else {
+            chain.doFilter(request, response);
+        }
     }
 }
