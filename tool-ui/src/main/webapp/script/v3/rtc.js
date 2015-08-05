@@ -2,7 +2,7 @@ define([ 'jquery', 'bsp-utils', 'atmosphere' ], function($, bsp_utils, atmospher
   var request = {
     url: '/_rtc',
     contentType: 'application/json',
-    fallbackTransport: 'long-polling',
+    fallbackTransport: 'sse',
     maxReconnectOnClose: 0,
     trackMessageLength: true,
     transport: 'sse'
