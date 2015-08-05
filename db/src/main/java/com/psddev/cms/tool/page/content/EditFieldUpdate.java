@@ -18,8 +18,6 @@ import java.util.UUID;
  */
 public class EditFieldUpdate extends Record {
 
-    private long time;
-
     @Indexed
     private UUID userId;
 
@@ -52,7 +50,6 @@ public class EditFieldUpdate extends Record {
         EditFieldUpdate update = new EditFieldUpdate();
 
         update.getState().setId(createId(userId, contentId));
-        update.setTime(Database.Static.getDefault().now());
         update.setUserId(userId);
         update.setContentId(contentId);
         update.setFieldNamesByObjectId(fieldNamesByObjectId);
@@ -92,14 +89,6 @@ public class EditFieldUpdate extends Record {
                 db.endWrites();
             }
         }
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
     }
 
     public UUID getUserId() {
