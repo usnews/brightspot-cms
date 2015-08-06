@@ -93,7 +93,8 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             link: {
                 className: 'rte2-style-link',
                 element: 'a',
-
+                elementAttrAny: true, // Allow any attributes for this element
+                
                 // Do not allow links to span multiple lines
                 singleLine: true,
 
@@ -650,9 +651,6 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             $('body').toggleClass('rte-fullscreen');
             self.$container.toggleClass('rte-fullscreen');
             
-            //$(composer.parent.container).toggleClass('rte-fullscreen');
-            //$(composer.element).toggleClass('rte-fullscreen');
-
             // After changing fullscreen status, kick the toolbar in case it was moved due to scrolling
             self.toolbarHoist();
 

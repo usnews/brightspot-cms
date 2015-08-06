@@ -42,8 +42,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * The element that is created when translating rich text to HTML.
          * If not specified then this style will not have output HTML (only plain text).
          *
-         * String [elementAttr]
-         * A list of attributes that are applied to the output HTML element.
+         * Object [elementAttr]
+         * A list of attributes name/value pairs that are applied to the output HTML element.
+         * Also used to match elements to styles on importing HTML.
+         * If a value is Boolean true, then that means the attribute must exist (with any value).
          *
          * String [elementContainer]
          * A container elment that surrounds the element in the HTML output.
@@ -91,8 +93,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Special style for reprenting newlines
             newline: {
                 className:'rte2-style-newline',
-                internal:true,
-                raw: true
+                internal:true
+                //,raw: true
             },
             
             // Special style used to collapse an element.
@@ -176,6 +178,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             'param': true,
             'source': true
         },
+
+
+        /**
+         * When a region is marked as raw HTML, should we add a data attribute to the elements?
+         */
+        rawAddDataAttribute: false,
 
         
         /**
@@ -3097,17 +3105,18 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                     // In some cases (at end of line) output char might be empty
                     if (outputChar) {
+
+                        // Carriage return character within raw region should be converted to an actual newline
+                        if (outputChar === '\u21b5') {
+                            outputChar = '\n';
+                        }
                         
                         if (raw) {
 
-                            // Carriage return character within raw region should be converted to an actual newline
-                            if (outputChar === '\u21b5') {
-                                outputChar = '\n';
-                            }
 
                             // Less-than character within raw region temporily changed to a fake entity,
                             // so we can find it and do other stuff later
-                            if (outputChar === '<') {
+                            if (self.rawAddDataAttribute && outputChar === '<') {
                                 outputChar = '&raw_lt;';
                             }
 
@@ -3164,7 +3173,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // and add a data-rte2-raw attribute to each HTML element.
             // This will ensure that when we re-import the HTML into the editor,
             // we will know which elements were marked as raw HTML.
-            html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
+            if (self.rawAddDataAttribute) {
+                html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
+            }
 
             return html;
             
@@ -3204,7 +3215,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n, rawParent) {
                 
-                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to, text;
+                var elementAttributes, elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to, text;
 
                 next = n.childNodes[0];
 
@@ -3251,8 +3262,9 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // We got an element
                         elementName = next.tagName.toLowerCase();
-
-                        // Determine if we need to treat this element as raw HTML
+                        elementAttributes = self.getAttributes(next);
+                        
+                        // Determine if we need to treat this element as raw based on previous elements
                         raw = false;
 
                         // Check if the parent element had something unusual where
@@ -3267,60 +3279,102 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             
                         } else {
                             
-                            // When the editor writes HTML, it places a data-rte2-raw attribute onto
+                            // When the editor writes HTML, it might place a data-rte2-raw attribute onto
                             // each element that was marked as raw HTML.
                             // If we see this attribute on importing HTML, we will again treat it as raw HTML.
                             raw = $(next).is('[data-rte2-raw]');
                         }
-                        
-                        // Determine how to map the element to a marker
-                        matchStyleObj = '';
-                        matchArray = map[elementName];
-                        if (matchArray && !raw) {
 
-                            $.each(matchArray, function(i, styleObj) {
+                        if (!raw) {
 
-                                // Detect blocks that have containers (like "li") and make sure we are within that container
-                                if (styleObj.elementContainer && styleObj.elementContainer.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
-                                    return;
-                                }
+                            // Determine if the element maps to one of our defined styles
+                            matchStyleObj = false;
 
-                                // If the style has attributes listed we must check to see if they match this element
-                                if (styleObj.elementAttr) {
+                            // Multiple styles might map to a particular element name (like <b> vs <b class=foo>)
+                            // so first we get a list of styles that map just to this element name
+                            matchArray = map[elementName];
+                            if (matchArray) {
 
-                                    // Loop through all the attributes in the style definition,
-                                    // and see if we get a match
-                                    $.each(styleObj.elementAttr, function(attr, expectedValue) {
+                                $.each(matchArray, function(i, styleObj) {
 
-                                        var attributeValue;
+                                    var attributesFound;
 
-                                        attributeValue = $(next).attr(attr);
-                                        if (attributeValue === expectedValue) {
-                                            // We got a match!
-                                            // But if there is more than one attribute listed,
-                                            // we keep looping and all of them must match!
-                                            matchStyleObj = styleObj;
-                                        } else {
-                                            
-                                            // The attribute did not match so we do not have a match.
-                                            matchStyleObj = false;
-                                            
-                                            // Stop looping through the rest of the attributes.
-                                            return false;
+                                    // Detect blocks that have containers (like "li" must be contained by "ul")
+                                    if (styleObj.elementContainer && styleObj.elementContainer.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
+                                        return;
+                                    }
+
+                                    attributesFound = {};
+
+                                    // If the style has attributes listed we must check to see if they match this element
+                                    if (styleObj.elementAttr) {
+
+                                        // Loop through all the attributes in the style definition,
+                                        // and see if we get a match
+                                        $.each(styleObj.elementAttr, function(attr, expectedValue) {
+
+                                            var attributeValue;
+
+                                            attributeValue = $(next).attr(attr);
+
+                                            // Check if the element's attribute value matches what we are looking for,
+                                            // or if we're just expecting the attribute to exist (no matter the value)
+                                            if ((attributeValue === expectedValue) ||
+                                                (expectedValue === true && attributeValue !== undefined)) {
+                                                
+                                                // We got a match!
+                                                // But if there is more than one attribute listed,
+                                                // we keep looping and all of them must match!
+                                                attributesFound[attr] = true;
+                                                matchStyleObj = styleObj;
+                                                
+                                            } else {
+                                                
+                                                // The attribute did not match so we do not have a match.
+                                                matchStyleObj = false;
+                                                
+                                                // Stop looping through the rest of the attributes.
+                                                return false;
+                                            }
+                                        });
+
+
+                                    } else {
+                                        
+                                        // There were no attributes specified for this style so we might have a match just on the element
+                                        matchStyleObj = styleObj;
+/***
+                                        // Check to verify the element doesn't have any unexpected attributes.
+                                        // For example, if we are looking for <b> we should not match <b class="foo">
+                                        if (!styleObj.elementAttrAny) {
+                                            $.each(elementAttributes, function(attr, value) {
+                                                matchStyleObj = false;
+                                                return false;
+                                            });
                                         }
-                                    });
+***/
+                                    }
 
-                                } else {
-                                    
-                                    // There were no attributes specified for this style.
-                                    matchStyleObj = styleObj;
-                                }
+                                    // Check if the element has other attributes that are unexpected
+                                    if (matchStyleObj && !styleObj.elementAttrAny) {
+                                        $.each(elementAttributes, function(attr, value) {
+                                            if (!attributesFound[attr]) {
+                                                // Oops, this element has an extra attribute that is not in our style object,
+                                                // so it should not be considered a match
+                                                matchStyleObj = false;
+                                                return false;
+                                            }
+                                        });
+                                    }
 
-                                // Stop after first style that matches
-                                if (matchStyleObj) {
-                                    return false;
-                                }
-                            });
+
+                                    // Stop after the first style that matches
+                                    if (matchStyleObj) {
+                                        return false;
+                                    }
+                                });
+                            }
+
                         }
 
                         // Figure out which line and character for the start of our element
@@ -3551,7 +3605,46 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 .replace(/'/g, '&#39;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
+        },
+
+
+        /**
+         * Get all the attributes for an element.
+         *
+         * @param {Element|jQuery} el
+         * A DOM element, jQuery object, or a jQuery selector string.
+         *
+         * @returns {Object}
+         * A
+         */
+        getAttributes: function(el) {
+            
+            var attr, $el, self;
+            
+            self = this;
+
+            attr = {};
+
+            $el = $(el);
+            
+            if($el.length) {
+
+                // Loop through all the attributes
+                // Note in some browsers (old IE) this will return all possible attributes
+                // even if the attribute is not set, so we check the values too.
+                $.each($el.get(0).attributes, function(value,node) {
+                    var name;
+                    name = node.nodeName || node.name;
+                    value = $el.attr(name);
+                    if (value !== undefined && value !== false) {
+                        attr[name] = value;
+                    }
+                });
+            }
+
+            return attr;
         }
+        
     };
 
     return CodeMirrorRte;
