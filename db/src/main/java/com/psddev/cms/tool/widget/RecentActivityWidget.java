@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -113,10 +114,12 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
                         "action", page.url(null));
 
                     page.writeTypeSelect(
-                            com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite()),
+                            com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite())
+                                    .stream()
+                                    .filter(page.getTypeDisplayPredicate(Arrays.asList("read")))
+                                    .collect(Collectors.toList()),
                             itemType,
                             "Any Types",
-                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "data-bsp-autosubmit", "",
                             "name", "itemType",
                             "data-searchable", "true");

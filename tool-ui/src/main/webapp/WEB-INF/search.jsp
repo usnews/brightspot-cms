@@ -32,7 +32,7 @@ java.util.List,
 java.util.Map,
 java.util.Set,
 java.util.UUID
-, java.util.Arrays" %><%
+, java.util.Arrays, java.util.stream.Collectors" %><%
 
 ToolPageContext wp = new ToolPageContext(pageContext);
 PageWriter writer = wp.getWriter();
@@ -241,10 +241,11 @@ writer.start("div", "class", "searchForm");
 
                 if (!singleType && !validTypes.isEmpty()) {
                     wp.writeTypeSelect(
-                            validTypes,
+                            validTypes.stream()
+                                .filter(wp.getTypeDisplayPredicate(Arrays.asList("read")))
+                                .collect(Collectors.toList()),
                             selectedType,
                             "Any Types",
-                            wp.getTypeDisplayPredicate(Arrays.asList("read")),
                             "name", Search.SELECTED_TYPE_PARAMETER,
                             "data-bsp-autosubmit", "",
                             "data-searchable", true);
@@ -546,10 +547,11 @@ writer.start("div", "class", "searchForm");
                         }
 
                         wp.writeTypeSelect(
-                                creatableTypes,
+                                creatableTypes.stream()
+                                    .filter(wp.getTypeDisplayPredicate(Arrays.asList("write", "read")))
+                                    .collect(Collectors.toList()),
                                 selectedType,
                                 null,
-                                wp.getTypeDisplayPredicate(Arrays.asList("write", "read")),
                                 "name", "typeId",
                                 "data-searchable", true);
                         writer.writeStart("button", "class", "action action-create");

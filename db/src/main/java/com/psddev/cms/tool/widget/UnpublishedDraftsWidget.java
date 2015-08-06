@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -152,10 +153,12 @@ public class UnpublishedDraftsWidget extends DefaultDashboardWidget {
                     }
 
                     page.writeTypeSelect(
-                            ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes(),
+                            ObjectType.getInstance(Content.class).as(ToolUi.class).findDisplayTypes()
+                                    .stream()
+                                    .filter(page.getTypeDisplayPredicate(Arrays.asList("read")))
+                                    .collect(Collectors.toList()),
                             type,
                             "Any Types",
-                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "name", "typeId",
                             "data-bsp-autosubmit", "",
                             "data-searchable", true);

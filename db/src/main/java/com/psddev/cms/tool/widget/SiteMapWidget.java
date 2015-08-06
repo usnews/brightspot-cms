@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -145,10 +146,12 @@ public class SiteMapWidget extends DashboardWidget {
                         "action", page.url(null));
 
                     page.writeTypeSelect(
-                            com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite()),
+                            com.psddev.cms.db.Template.Static.findUsedTypes(page.getSite())
+                                    .stream()
+                                    .filter(page.getTypeDisplayPredicate(Arrays.asList("read")))
+                                    .collect(Collectors.toList()),
                             itemType,
                             "Any Types",
-                            page.getTypeDisplayPredicate(Arrays.asList("read")),
                             "name", "itemType",
                             "data-bsp-autosubmit", "",
                             "data-searchable", "true");

@@ -1730,38 +1730,17 @@ public class ToolPageContext extends WebPageContext {
     }
 
     /**
-     * Deprecated.
-     * Use {@link #writeMultipleTypeSelect(Iterable, java.util.Collection, java.util.function.Predicate, Object...)} instead.
-     */
-    @Deprecated
-    public void writeMultipleTypeSelect(
-            Iterable<ObjectType> types,
-            Collection<ObjectType> selectedTypes,
-            Object... attributes) throws IOException {
-
-        writeTypeSelectReally(
-                true,
-                types,
-                selectedTypes != null ? selectedTypes : Collections.<ObjectType>emptySet(),
-                null,
-                getTypeDisplayPredicate(Arrays.asList("write")),
-                attributes);
-    }
-
-    /**
      * Writes a {@code <select>} tag that allows the user to pick multiple
      * content types.
      *
      * @param types Types that the user is allowed to select from.
      * If {@code null}, all content types will be available.
      * @param selectedTypes Types that should be initially selected.
-     * @param filterPredicate Predicate to evaluate whether to write an {@link ObjectType}
      * @param attributes Attributes for the {@code <select>} tag.
      */
     public void writeMultipleTypeSelect(
             Iterable<ObjectType> types,
             Collection<ObjectType> selectedTypes,
-            java.util.function.Predicate<ObjectType> filterPredicate,
             Object... attributes) throws IOException {
 
         writeTypeSelectReally(
@@ -1769,26 +1748,6 @@ public class ToolPageContext extends WebPageContext {
                 types,
                 selectedTypes != null ? selectedTypes : Collections.<ObjectType>emptySet(),
                 null,
-                filterPredicate,
-                attributes);
-    }
-
-    /**
-     * Deprecated.
-     * Use {@link #writeTypeSelect(Iterable, com.psddev.dari.db.ObjectType, String, java.util.function.Predicate, Object...)} instead.
-     */
-    @Deprecated
-    public void writeTypeSelect(
-            Iterable<ObjectType> types,
-            ObjectType selectedType,
-            String allLabel,
-            Object... attributes) throws IOException {
-
-        writeTypeSelect(
-                types,
-                selectedType,
-                allLabel,
-                getTypeDisplayPredicate(Arrays.asList("write")),
                 attributes);
     }
 
@@ -1801,14 +1760,12 @@ public class ToolPageContext extends WebPageContext {
      * @param selectedType Type that should be initially selected.
      * @param allLabel Label for the option that selects all types.
      * If {@code null}, the option won't be available.
-     * @param filterPredicate Predicate to evaluate whether to write an {@link ObjectType}
      * @param attributes Attributes for the {@code <select>} tag.
      */
     public void writeTypeSelect(
             Iterable<ObjectType> types,
             ObjectType selectedType,
             String allLabel,
-            java.util.function.Predicate<ObjectType> filterPredicate,
             Object... attributes) throws IOException {
 
         writeTypeSelectReally(
@@ -1816,7 +1773,6 @@ public class ToolPageContext extends WebPageContext {
                 types,
                 selectedType != null ? Arrays.asList(selectedType) : Collections.<ObjectType>emptySet(),
                 allLabel,
-                filterPredicate,
                 attributes);
     }
 
@@ -1843,17 +1799,13 @@ public class ToolPageContext extends WebPageContext {
             Iterable<ObjectType> types,
             Collection<ObjectType> selectedTypes,
             String allLabel,
-            java.util.function.Predicate<ObjectType> filterPredicate,
             Object... attributes) throws IOException {
 
         if (types == null) {
             types = Database.Static.getDefault().getEnvironment().getTypes();
         }
 
-        List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types)
-                .stream()
-                .filter(filterPredicate)
-                .collect(Collectors.toList());
+        List<ObjectType> typesList = ObjectUtils.to(new TypeReference<List<ObjectType>>() { }, types);
 
         for (ObjectType type : Database.Static.getDefault().getEnvironment().getTypes()) {
             if (Boolean.FALSE.equals(type.as(ToolUi.class).getHidden()) && !type.isConcrete()) {
