@@ -1,18 +1,17 @@
 package com.psddev.cms.tool.page;
 
-import com.google.common.base.Preconditions;
-import com.psddev.cms.db.ToolUser;
+import com.google.common.collect.ImmutableMap;
 import com.psddev.dari.db.Database;
-import com.psddev.dari.db.Query;
-import org.atmosphere.cache.UUIDBroadcasterCache;
+import com.psddev.dari.util.AbstractFilter;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
+import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
 import org.atmosphere.cpr.AtmosphereFrameworkInitializer;
 import org.atmosphere.cpr.AtmosphereRequest;
-import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
+import org.atmosphere.util.VoidAnnotationProcessor;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -20,14 +19,16 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Filter that handles the real-time communication between the server
@@ -35,96 +36,30 @@ import java.util.UUID;
  *
  * @since 3.1
  */
-public class RtcFilter implements Filter {
+public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
 
     public static final String PATH = "/_rtc";
 
-    private static final String CURRENT_USER_ID_ATTRIBUTE = RtcFilter.class.getName() + ".currentUserId";
+    private static final Map<String, String> DEFAULT_INIT_PARAMETERS = ImmutableMap.<String, String>builder()
+            .put(ApplicationConfig.ANALYTICS, Boolean.FALSE.toString())
+            .put(ApplicationConfig.ANNOTATION_PROCESSOR, VoidAnnotationProcessor.class.getName())
+            .put(ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS, String.valueOf(5))
+            .build();
 
     private AtmosphereFrameworkInitializer initializer;
     private RtcObjectUpdateNotifier notifier;
 
-    /**
-     * Returns the unique ID of the current user associated with the given
-     * {@code resource}.
-     *
-     * @param resource
-     *        Can't be {@code null}.
-     *
-     * @return Never {@code null}.
-     *
-     * @throws IllegalStateException
-     *         If there's no user associated with the given {@code resource}.
-     */
-    public static UUID getCurrentUserId(AtmosphereResource resource) {
-        Preconditions.checkNotNull(resource);
-
-        AtmosphereRequest request = resource.getRequest();
-        UUID currentUserId = (UUID) request.getAttribute(CURRENT_USER_ID_ATTRIBUTE);
-
-        if (currentUserId == null) {
-            String cookie = request.getHeader("Cookie");
-
-            if (cookie != null) {
-                for (String pair : cookie.trim().split("\\s*;\\s*")) {
-                    int equalAt = pair.indexOf('=');
-
-                    if (equalAt < 0) {
-                        continue;
-                    }
-
-                    String name = pair.substring(0, equalAt);
-                    String value = pair.substring(equalAt + 1);
-
-                    if (!name.equals("bsp.tu")) {
-                        continue;
-                    }
-
-                    value = value.substring(name.length());
-                    int pipeAt = value.indexOf('|');
-
-                    if (pipeAt < 0) {
-                        continue;
-                    }
-
-                    ToolUser user = Query
-                            .from(ToolUser.class)
-                            .where("loginTokens/token = ?", value.substring(0, pipeAt))
-                            .first();
-
-                    if (user != null) {
-                        currentUserId = user.getId();
-                    }
-                }
-            }
-
-            if (currentUserId == null) {
-                throw new IllegalStateException();
-            }
-        }
-
-        return currentUserId;
-    }
-
-    /**
-     * Sets the unique ID of the current user associated with the given
-     * {@code resource} to the given {@code currentUserId}.
-     *
-     * @param resource
-     *        Can't be {@code null}.
-     *
-     * @param currentUserId
-     *        May be {@code null}.
-     */
-    public static void setCurrentUserId(AtmosphereResource resource, UUID currentUserId) {
-        Preconditions.checkNotNull(resource);
-
-        resource.getRequest().setAttribute(CURRENT_USER_ID_ATTRIBUTE, currentUserId);
+    @Override
+    public void updateDependencies(Class<? extends AbstractFilter> filterClass, List<Class<? extends Filter>> dependencies) {
+        dependencies.add(getClass());
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        ServletConfig servletConfig = new ServletConfig() {
+    protected void doInit() throws ServletException {
+        initializer = new AtmosphereFrameworkInitializer(false, true);
+        FilterConfig filterConfig = getFilterConfig();
+
+        initializer.configureFramework(new ServletConfig() {
 
             @Override
             public String getServletName() {
@@ -138,22 +73,23 @@ public class RtcFilter implements Filter {
 
             @Override
             public String getInitParameter(String name) {
-                return filterConfig.getInitParameter(name);
+                String value = filterConfig.getInitParameter(name);
+
+                return value != null ? value : DEFAULT_INIT_PARAMETERS.get(name);
             }
 
             @Override
             public Enumeration<String> getInitParameterNames() {
-                return filterConfig.getInitParameterNames();
+                Set<String> names = new HashSet<>(Collections.list(filterConfig.getInitParameterNames()));
+
+                names.addAll(DEFAULT_INIT_PARAMETERS.keySet());
+
+                return Collections.enumeration(names);
             }
-        };
-
-        initializer = new AtmosphereFrameworkInitializer(false, true);
-
-        initializer.configureFramework(servletConfig);
+        });
 
         AtmosphereFramework framework = initializer.framework();
 
-        framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
                 new RtcHandler(),
@@ -170,7 +106,7 @@ public class RtcFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
+    protected void doDestroy() {
         try {
             if (notifier != null) {
                 try {
@@ -192,9 +128,14 @@ public class RtcFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        initializer.framework().doCometSupport(
-                AtmosphereRequest.wrap((HttpServletRequest) request),
-                AtmosphereResponse.wrap((HttpServletResponse) response));
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (request.getServletPath().startsWith(PATH)) {
+            initializer.framework().doCometSupport(
+                    AtmosphereRequest.wrap(request),
+                    AtmosphereResponse.wrap(response));
+
+        } else {
+            chain.doFilter(request, response);
+        }
     }
 }

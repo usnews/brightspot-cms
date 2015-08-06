@@ -5,12 +5,12 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       var $status = $(this);
       var $container = $status.closest('.inputContainer');
 
-      if ($container.is('.inputContainer-lock')) {
+      if ($container.is('.inputContainer-updated')) {
         return;
       }
 
       if (!$container.is('.inputContainer-readOnly')) {
-        $container.find(':input').prop('disabled', false);
+        $container.removeClass('inputContainer-pending');
       }
 
       $status.remove();
@@ -18,12 +18,12 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
   }
 
   function updateStatus($container, userId, message) {
-    if ($container.length === 0 || $container.is('.inputContainer-lock')) {
+    if ($container.length === 0 || $container.is('.inputContainer-updated')) {
       return;
     }
 
     if (!$container.is('.inputContainer-readOnly')) {
-      $container.find(':input').prop('disabled', true);
+      $container.addClass('inputContainer-pending');
     }
 
     $container.find('> .inputLabel').after($('<div/>', {
@@ -72,7 +72,7 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
           var $container = $('.objectInputs[data-id="' + contentId + '"] > .inputContainer[data-field="' + fieldName + '"]');
 
           updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
-          $container.addClass('inputContainer-lock');
+          $container.addClass('inputContainer-updated');
         }
       });
     }
@@ -81,10 +81,6 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
   $('.contentForm').each(function() {
     var $form = $(this);
     var contentId = $form.attr('data-o-id');
-
-    rtc.restore('com.psddev.cms.tool.page.content.EditFieldUpdateState', {
-      contentId: contentId
-    });
 
     function update() {
       var fieldNamesByObjectId = { };
@@ -104,6 +100,10 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       }
     }
 
+    rtc.restore('com.psddev.cms.tool.page.content.EditFieldUpdateState', {
+      contentId: contentId
+    }, update);
+
     var updateTimeout;
 
     $(document).on('blur focus change', '.contentForm :input', function() {
@@ -115,18 +115,6 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         updateTimeout = null;
         update();
       }, 50);
-    });
-
-    $form.submit(function() {
-      $form.find('.inputContainer').each(function() {
-        var $container = $(this);
-
-        if (!$container.is('.inputContainer-readOnly')
-            && $container.find('> .inputStatus').length > 0) {
-
-          $container.find(':input').prop('disabled', false);
-        }
-      })
     });
   });
 });

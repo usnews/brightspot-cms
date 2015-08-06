@@ -70,7 +70,7 @@ require([
   'v3/upload',
   'nv.d3',
 
-  'dashboard',
+  'v3/dashboard',
   'v3/constrainedscroll',
   'content/diff',
   'v3/content/edit',
@@ -274,7 +274,18 @@ function() {
       cc = value.length;
       wc = value ? value.split(WHITESPACE_RE).length : 0;
 
-      $container.attr('data-wc-message',
+      var $wordCount = $container.find('> .inputWordCount');
+
+      if ($wordCount.length === 0) {
+        $wordCount = $('<div/>', {
+          'class': 'inputWordCount'
+        });
+
+        $container.append($wordCount);
+      }
+
+      $wordCount.toggleClass('inputWordCount-warning', cc < minimum || cc > maximum);
+      $wordCount.text(
           cc < minimum ? 'Too Short' :
           cc > maximum ? 'Too Long' :
           wc + 'w ' + cc + 'c');
@@ -485,14 +496,6 @@ function() {
 
   $doc.on('click', 'button[name="action-trash"], :submit[name="action-trash"]', function() {
     return confirm('Are you sure you want to archive this item?');
-  });
-
-  $doc.on('input-disable', ':input', function(event, disable) {
-    $(this).prop('disabled', disable);
-  });
-
-  $doc.onCreate('.inputContainer-readOnly', function() {
-    $(this).find(":input, div").trigger('input-disable', [ true ]);
   });
 
   (function() {

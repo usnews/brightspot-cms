@@ -42,8 +42,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * The element that is created when translating rich text to HTML.
          * If not specified then this style will not have output HTML (only plain text).
          *
-         * String [elementAttr]
-         * A list of attributes that are applied to the output HTML element.
+         * Object [elementAttr]
+         * A list of attributes name/value pairs that are applied to the output HTML element.
+         * Also used to match elements to styles on importing HTML.
+         * If a value is Boolean true, then that means the attribute must exist (with any value).
          *
          * String [elementContainer]
          * A container elment that surrounds the element in the HTML output.
@@ -86,6 +88,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             html: {
                 className: 'rte2-style-html',
                 raw: true // do not allow other styles inside this style and do not encode the text within this style, to allow for raw html
+            },
+
+            // Special style for reprenting newlines
+            newline: {
+                className:'rte2-style-newline',
+                internal:true
+                //,raw: true
             },
             
             // Special style used to collapse an element.
@@ -169,6 +178,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             'param': true,
             'source': true
         },
+
+
+        /**
+         * When a region is marked as raw HTML, should we add a data attribute to the elements?
+         */
+        rawAddDataAttribute: false,
 
         
         /**
@@ -333,8 +348,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Generate timestamp
                 now = Date.now();
 
-                if (self.doubleClickTimestamp
-                    && now - self.doubleClickTimestamp < 500 ) {
+                if (self.doubleClickTimestamp && (now - self.doubleClickTimestamp < 500) ) {
 
                     // Figure out the line and character based on the mouse coord that was clicked
                     pos = editor.coordsChar({left:event.pageX, top:event.pageY}, 'page');
@@ -379,11 +393,30 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
             
             editor.on('changes', function(instance, event) {
-                self.$el.trigger('rteChange', [self]);
+                self.triggerChange();
+            });
+
+            editor.on('focus', function(instance, event) {
+                self.$el.trigger('rteFocus', [self]);
+            });
+            
+            editor.on('blur', function(instance, event) {
+                self.$el.trigger('rteBlur', [self]);
             });
         },
 
+        
+        /**
+         * Trigger an rteChange event.
+         * This can happen when user types changes into the editor, or if some kind of mark is modified.
+         */
+        triggerChange: function() {
+            var self;
+            self = this;
+            self.$el.trigger('rteChange', [self]);
+        },
 
+        
         //==================================================
         // STYLE FUNCTIONS
         // The following functions deal with inline or block styles.
@@ -443,7 +476,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
 
             self.rawCleanup();
-            
+
             return mark;
         },
 
@@ -581,6 +614,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Trigger a cursorActivity event so for example toolbar can pick up changes
             CodeMirror.signal(editor, "cursorActivity");
 
+            self.triggerChange();
+            
             return mark;
             
         }, // initSetStyle
@@ -848,6 +883,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             // Trigger a cursor activity event so the toolbar can update
             CodeMirror.signal(editor, "cursorActivity");
+            
+            self.triggerChange();
         },
 
 
@@ -876,6 +913,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                 // Delete the mark
                 mark.clear();
+                
+                self.triggerChange();
             }
         },
 
@@ -1118,7 +1157,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         inlineCollapse: function(styleKey, range) {
 
-            var className, editor, self;
+            var className, editor, marks, marksCollapsed, self;
 
             self = this;
             editor = self.codeMirror;
@@ -1127,19 +1166,39 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             className = self.styles[styleKey].className;
             
             range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
             
             // Find the marks within the range that match the classname
             $.each(editor.findMarks(range.from, range.to), function(i, mark) {
 
-                var markCollapsed, markPosition, widgetOptions;
-
                 // Skip this mark if it is not the desired classname
-                if (mark.className !== className) {
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
                     return;
                 }
 
-                markPosition = mark.find();
-                
                 // Create a codemirror "widget" that will replace the mark
                 $widget = $('<span/>', {
                     'class': self.styles.collapsed.className,
@@ -1155,16 +1214,113 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 };
 
                 // Create the collapsed mark
+                markPosition = mark.find();
                 markCollapsed = editor.markText(markPosition.from, markPosition.to, widgetOptions);
-
+                markCollapsed.collapsed = mark;
+                markCollapsed.styleKey = styleKey;
+                
                 // If user clicks the widget then uncollapse it
                 $widget.on('click', function() {
                     // Use the closure variable "markCollapsed" to clear the mark that we created above
                     markCollapsed.clear();
+                    delete mark.markCollapsed;
                     return false;
                 });
+
+                // Save markCollapsed onto the original mark object so later we can tell
+                // that the mark is already collapsed
+                mark.markCollapsed = markCollapsed;
+                
             });
+
         }, // inlineCollapse
+
+
+        /**
+         * 
+         */
+        inlineUncollapse: function(styleKey, range) {
+
+            var className, editor, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+                if (mark.collapsed && mark.styleKey === styleKey) {
+                    mark.clear();
+                    delete mark.collapsed.markCollapsed;
+                }
+            });
+        },
+
+
+        /**
+         * 
+         */
+        inlineToggleCollapse: function(styleKey, range) {
+
+            var className, editor, foundUncollapsed, marks, marksCollapsed, self;
+
+            self = this;
+            editor = self.codeMirror;
+
+            // Check if className is a key into our styles object
+            className = self.styles[styleKey].className;
+            
+            range = range || self.getRange();
+
+            marks = [];
+            marksCollapsed = [];
+            
+            // Find the marks within the range that match the classname
+            $.each(editor.findMarks(range.from, range.to), function(i, mark) {
+
+                // Skip this mark if it is not the desired classname
+                if (mark.className == className) {
+                    
+                    // Save this mark so we can check it later
+                    marks.push(mark);
+                    
+                } else if (mark.collapsed) {
+                    
+                    // Save this collapsed mark so we can see if it matches another mark
+                    marksCollapsed.push(mark);
+                    
+                }
+            });
+
+            $.each(marks, function(i, mark) {
+
+                var markCollapsed, markPosition, $widget, widgetOptions;
+                
+                // Check if this mark was previously collapsed
+                // (because we saved the collapse mark as a parameter on the original mark)
+                // Calling .find() on a cleared mark should return undefined
+                markCollapsed = mark.markCollapsed;
+                if (markCollapsed && markCollapsed.find()) {
+                    return;
+                }
+
+                foundUncollapsed = true;
+                return false;
+            });
+
+            if (marks.length) {
+
+                if (foundUncollapsed) {
+                    self.inlineCollapse(styleKey, range);
+                } else {
+                    self.inlineUncollapse(styleKey, range);
+                }
+            }
+        },
 
         
         /**
@@ -1454,6 +1610,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Refresh the editor display since our line classes
             // might have padding that messes with the cursor position
             editor.refresh();
+            
+            self.triggerChange();
         },
 
         
@@ -1498,6 +1656,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Refresh the editor display since our line classes
             // might have padding that messes with the cursor position
             editor.refresh();
+            
+            self.triggerChange();
         },
         
 
@@ -1748,6 +1908,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 mark.changed();
             }, 100);
             
+            self.triggerChange();
+            
             return mark;
         },
 
@@ -1818,6 +1980,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             }
             mark.clear();
             self.codeMirror.removeLineWidget(mark);
+            
+            self.triggerChange();
         },
 
 
@@ -2561,7 +2725,13 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self = this;
 
             keymap = {};
-            
+
+            keymap['Shift-Enter'] = function (cm) {
+                // Add a carriage-return symbol and style it as 'newline'
+                // so it won't be confused with any user-inserted carriage return symbols
+                self.insert('\u21b5', 'newline');
+            };
+
             $.each(self.styles, function(styleKey, styleObj) {
 
                 var keys;
@@ -2935,19 +3105,29 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                     // In some cases (at end of line) output char might be empty
                     if (outputChar) {
+
+                        // Carriage return character within raw region should be converted to an actual newline
+                        if (outputChar === '\u21b5') {
+                            outputChar = '\n';
+                        }
                         
                         if (raw) {
 
-                            if (outputChar === '<') {
+
+                            // Less-than character within raw region temporily changed to a fake entity,
+                            // so we can find it and do other stuff later
+                            if (self.rawAddDataAttribute && outputChar === '<') {
                                 outputChar = '&raw_lt;';
                             }
 
+                            // We need to remember if the last character is raw html because
+                            // if it is we will not insert a <br> element at the end of the line
                             rawLastChar = true;
                         
                         } else {
                         
                             outputChar = self.htmlEncode(outputChar);
-                        
+
                             rawLastChar = false;
                         }
                         
@@ -2989,8 +3169,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 }
             });
 
-            html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
-            
+            // Find the raw "<" characters (which we previosly replaced with &raw_lt;)
+            // and add a data-rte2-raw attribute to each HTML element.
+            // This will ensure that when we re-import the HTML into the editor,
+            // we will know which elements were marked as raw HTML.
+            if (self.rawAddDataAttribute) {
+                html = html.replace(/&raw_lt;(\w+)/g, '<$1 data-rte2-raw').replace(/&raw_lt;/g, '<');
+            }
+
             return html;
             
         }, // toHTML
@@ -3029,7 +3215,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             function processNode(n, rawParent) {
                 
-                var elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to;
+                var elementAttributes, elementName, elementClose, from, isContainer, matchStyleObj, next, raw, rawChildren, split, to, text;
 
                 next = n.childNodes[0];
 
@@ -3039,72 +3225,156 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     if (next.nodeType === 3) {
 
                         // We got a text node, just add it to the value
-                        // Remove any newlines at the beginning or end
-                        // Remove "zero width space" character that the previous editor sometimes used
-                        //val += next.textContent.replace(/^[\n\r]+|[\n\r]+$/g, '').replace(/\u200b|\u8203/g, '');
-                        val += next.textContent.replace(/\u200b|\u8203/g, '');
+                        text = next.textContent;
                         
+                        // Remove "zero width space" character that the previous editor sometimes used
+                        text = text.replace(/\u200b|\u8203/g, '');
+
+                        // Convert newlines to a carriage return character and annotate it
+                        text = text.replace(/[\n\r]/g, function(match, offset, string){
+
+                            var from, split, to;
+                            
+                            // Create an annotation to mark the newline as "raw html" so we can distinguish it
+                            // from any other user of the carriage return character
+                            
+                            split = val.split("\n");
+                            from =  {
+                                line: split.length - 1,
+                                ch: split[split.length - 1].length + offset
+                            };
+                            to = {
+                                line: from.line,
+                                ch: from.ch + 1
+                            };
+                            annotations.push({
+                                styleObj: self.styles.newline,
+                                from:from,
+                                to:to
+                            });
+                             
+                            return '\u21b5';
+                        });
+
+                        val += text;
+
                     } else if (next.nodeType === 1) {
 
                         // We got an element
                         elementName = next.tagName.toLowerCase();
-
+                        elementAttributes = self.getAttributes(next);
+                        
+                        // Determine if we need to treat this element as raw based on previous elements
                         raw = false;
+
+                        // Check if the parent element had something unusual where
+                        // all the children should also be considered raw HTML.
+                        // This is used for nested lists since we can't support that in the editor.
                         if (rawParent) {
+                            
                             raw = true;
+                            
+                            // Make sure any other children elements are also treated as raw elements.
                             rawChildren = true;
+                            
                         } else {
+                            
+                            // When the editor writes HTML, it might place a data-rte2-raw attribute onto
+                            // each element that was marked as raw HTML.
+                            // If we see this attribute on importing HTML, we will again treat it as raw HTML.
                             raw = $(next).is('[data-rte2-raw]');
                         }
-                        
-                        // Determine how to map the element to a marker
-                        matchStyleObj = '';
-                        matchArray = map[elementName];
-                        if (matchArray && !raw) {
 
-                            $.each(matchArray, function(i, styleObj) {
+                        if (!raw) {
 
-                                // Detect blocks that have containers (like "li") and make sure we are within that container
-                                if (styleObj.elementContainer && styleObj.elementContainer.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
-                                    return;
-                                }
+                            // Determine if the element maps to one of our defined styles
+                            matchStyleObj = false;
 
-                                // If the style has attributes listed we must check to see if they match this element
-                                if (styleObj.elementAttr) {
+                            // Multiple styles might map to a particular element name (like <b> vs <b class=foo>)
+                            // so first we get a list of styles that map just to this element name
+                            matchArray = map[elementName];
+                            if (matchArray) {
 
-                                    // Loop through all the attributes in the style definition,
-                                    // and see if we get a match
-                                    $.each(styleObj.elementAttr, function(attr, expectedValue) {
+                                $.each(matchArray, function(i, styleObj) {
 
-                                        var attributeValue;
+                                    var attributesFound;
 
-                                        attributeValue = $(next).attr(attr);
-                                        if (attributeValue === expectedValue) {
-                                            // We got a match!
-                                            // But if there is more than one attribute listed,
-                                            // we keep looping and all of them must match!
-                                            matchStyleObj = styleObj;
-                                        } else {
-                                            
-                                            // The attribute did not match so we do not have a match.
-                                            matchStyleObj = false;
-                                            
-                                            // Stop looping through the rest of the attributes.
-                                            return false;
+                                    // Detect blocks that have containers (like "li" must be contained by "ul")
+                                    if (styleObj.elementContainer && styleObj.elementContainer.toLowerCase() !== next.parentElement.tagName.toLowerCase()) {
+                                        return;
+                                    }
+
+                                    attributesFound = {};
+
+                                    // If the style has attributes listed we must check to see if they match this element
+                                    if (styleObj.elementAttr) {
+
+                                        // Loop through all the attributes in the style definition,
+                                        // and see if we get a match
+                                        $.each(styleObj.elementAttr, function(attr, expectedValue) {
+
+                                            var attributeValue;
+
+                                            attributeValue = $(next).attr(attr);
+
+                                            // Check if the element's attribute value matches what we are looking for,
+                                            // or if we're just expecting the attribute to exist (no matter the value)
+                                            if ((attributeValue === expectedValue) ||
+                                                (expectedValue === true && attributeValue !== undefined)) {
+                                                
+                                                // We got a match!
+                                                // But if there is more than one attribute listed,
+                                                // we keep looping and all of them must match!
+                                                attributesFound[attr] = true;
+                                                matchStyleObj = styleObj;
+                                                
+                                            } else {
+                                                
+                                                // The attribute did not match so we do not have a match.
+                                                matchStyleObj = false;
+                                                
+                                                // Stop looping through the rest of the attributes.
+                                                return false;
+                                            }
+                                        });
+
+
+                                    } else {
+                                        
+                                        // There were no attributes specified for this style so we might have a match just on the element
+                                        matchStyleObj = styleObj;
+/***
+                                        // Check to verify the element doesn't have any unexpected attributes.
+                                        // For example, if we are looking for <b> we should not match <b class="foo">
+                                        if (!styleObj.elementAttrAny) {
+                                            $.each(elementAttributes, function(attr, value) {
+                                                matchStyleObj = false;
+                                                return false;
+                                            });
                                         }
-                                    });
+***/
+                                    }
 
-                                } else {
-                                    
-                                    // There were no attributes specified for this style.
-                                    matchStyleObj = styleObj;
-                                }
+                                    // Check if the element has other attributes that are unexpected
+                                    if (matchStyleObj && !styleObj.elementAttrAny) {
+                                        $.each(elementAttributes, function(attr, value) {
+                                            if (!attributesFound[attr]) {
+                                                // Oops, this element has an extra attribute that is not in our style object,
+                                                // so it should not be considered a match
+                                                matchStyleObj = false;
+                                                return false;
+                                            }
+                                        });
+                                    }
 
-                                // Stop after first style that matches
-                                if (matchStyleObj) {
-                                    return false;
-                                }
-                            });
+
+                                    // Stop after the first style that matches
+                                    if (matchStyleObj) {
+                                        return false;
+                                    }
+                                });
+                            }
+
                         }
 
                         // Figure out which line and character for the start of our element
@@ -3115,7 +3385,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         };
 
                         // Special case - is this an enhancement?
-                        if (elementName === 'span' && $(next).attr('class') === 'enhancement') {
+                        if (elementName === 'span' && $(next).hasClass('enhancement')) {
 
                             enhancements.push({
                                 line: from.line,
@@ -3256,9 +3526,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
                         // Add a new line for certain elements
                         // Add a new line for custom elements
-                        if (self.newLineRegExp.test(elementName)
-                            || (matchStyleObj && matchStyleObj.line)) {
-                            
+                        if (self.newLineRegExp.test(elementName) || (matchStyleObj && matchStyleObj.line)) {
                             val += '\n';
                         }
 
@@ -3304,6 +3572,28 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
 
         /**
+         * Add text to the editor at the current selection or cursor position.
+         */
+        insert: function(value, styleKey) {
+            
+            var range, self;
+
+            self = this;
+
+            // Insert text and change range to be around the new text so we can add a style
+            self.codeMirror.replaceSelection(value, 'around');
+            
+            range = self.getRange();
+            if (styleKey) {
+                self.setStyle(styleKey, range);
+            }
+
+            // Now set cursor after the inserted text
+            self.codeMirror.setCursor( range.to );
+        },
+
+        
+        /**
          * Encode text so it is HTML safe.
          * @param {String} s
          * @return {String}
@@ -3315,7 +3605,46 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 .replace(/'/g, '&#39;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
+        },
+
+
+        /**
+         * Get all the attributes for an element.
+         *
+         * @param {Element|jQuery} el
+         * A DOM element, jQuery object, or a jQuery selector string.
+         *
+         * @returns {Object}
+         * A
+         */
+        getAttributes: function(el) {
+            
+            var attr, $el, self;
+            
+            self = this;
+
+            attr = {};
+
+            $el = $(el);
+            
+            if($el.length) {
+
+                // Loop through all the attributes
+                // Note in some browsers (old IE) this will return all possible attributes
+                // even if the attribute is not set, so we check the values too.
+                $.each($el.get(0).attributes, function(value,node) {
+                    var name;
+                    name = node.nodeName || node.name;
+                    value = $el.attr(name);
+                    if (value !== undefined && value !== false) {
+                        attr[name] = value;
+                    }
+                });
+            }
+
+            return attr;
         }
+        
     };
 
     return CodeMirrorRte;
