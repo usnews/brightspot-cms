@@ -13,7 +13,12 @@ import java.util.UUID;
 public class PublishBroadcast implements RtcBroadcast<Object> {
 
     @Override
-    public Map<String, Object> create(UUID currentUserId, Object object) {
+    public boolean shouldBroadcast(Map<String, Object> data, UUID currentUserId) {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> create(Object object) {
         State state = State.getInstance(object);
         Content.ObjectModification contentData = state.as(Content.ObjectModification.class);
         ToolUser user = contentData.getUpdateUser();

@@ -29,14 +29,6 @@
   .toolHeader {
     top: @toolBroadcast-height;
   }
-
-  .contentPreview {
-    margin-top: -35px;
-  }
-
-  .contentPreviewClose {
-    top: 107px;
-  }
 }
 
 .toolHeader {
@@ -382,6 +374,21 @@
 
   img {
     vertical-align: middle;
+  }
+}
+
+.toolMessage {
+  left: 50%;
+  margin-left: -150px;
+  position: fixed;
+  top: 0;
+  width: 300px;
+  z-index: 1000;
+
+  > .message {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: 0 0 20px fade(black, 50%);
   }
 }
 
