@@ -13,8 +13,7 @@ class RtcObjectUpdateNotifier implements UpdateNotifier<Object> {
 
     @Override
     public void onUpdate(Object object) {
-        if (!RtcBroadcast.forObject(object).isEmpty()) {
-            broadcaster.broadcast(object);
-        }
+        RtcBroadcast.forEachBroadcast(object, (broadcast, data) ->
+                broadcaster.broadcast(new RtcBroadcastMessage(broadcast, data)));
     }
 }
