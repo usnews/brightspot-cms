@@ -114,19 +114,21 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             trackDelete: {
                 className: 'rte2-style-track-delete',
                 element: 'del',
-                internal: true
+                internal: true,
+                showFinal: false
             },
 
             // The following styles are used internally to show the final results of the user's tracked changes.
             // The user can toggle between showing the tracked changes (insertions and deletions) or showing
             // the final result.
             
-            trackDeleteHidden: {
+            trackHideFinal: {
                 // This class is used internally to hide deleted content temporarily.
                 // It does not create an element for output.
-                className: 'rte2-style-track-delete-hidden',
+                className: 'rte2-style-track-hide-final',
                 internal: true
             },
+            
             trackDisplay: {
                 // This class is placed on the wrapper elemnt for the entire editor,
                 // and is used to remove the colors from inserted content temporarily.
@@ -2499,22 +2501,28 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Find all the marks for deleted elements
             $.each(editor.getAllMarks(), function(i, mark) {
 
-                // Remove of the trackDeleteHidden marks that were previously set
-                if (mark.className === self.styles.trackDeleteHidden.className) {
+                var styleObj;
+                
+                styleObj = self.classes[ mark.className ] || {};
+                
+                // Remove of the trackHideFinal marks that were previously set
+                if (mark.className === self.styles.trackHideFinal.className) {
                     mark.clear();
                 }
 
-                if (mark.className === self.styles.trackDelete.className && !self.trackDisplay) {
+                // Check if this style should be hidden when in "Show Final" mode
+                if (styleObj.showFinal === false && !self.trackDisplay) {
 
                     // Hide the deleted elements by creating a new mark that collapses (hides) the text
                     
                     pos = mark.find();
                     
                     editor.markText(pos.from, pos.to, {
-                        className: self.styles.trackDeleteHidden.className,
+                        className: self.styles.trackHideFinal.className,
                         collapsed: true
                     });
                 }
+
             });
         },
 

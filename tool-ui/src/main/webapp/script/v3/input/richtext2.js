@@ -87,6 +87,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 elementAttr: {
                     'class': 'rte rte-comment'
                 },
+                
+                // Hide this style when viewing in "show final" mode
+                showFinal:false,
+                
                 // Don't let this style be removed by the "Clear" toolbar button
                 internal: true
             },
