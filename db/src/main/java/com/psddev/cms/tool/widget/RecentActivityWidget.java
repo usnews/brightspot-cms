@@ -19,7 +19,6 @@ import com.psddev.cms.tool.Dashboard;
 import com.psddev.cms.tool.DefaultDashboardWidget;
 import com.psddev.cms.tool.Search;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.dari.db.DatabaseException;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Predicate;
 import com.psddev.dari.db.Query;
@@ -96,17 +95,7 @@ public class RecentActivityWidget extends DefaultDashboardWidget {
 
             QueryRestriction.updateQueryUsingAll(contentQuery, page);
 
-            try {
-                result = contentQuery.selectFiltered(offset, limit, visibilitiesFilter);
-
-            } catch (DatabaseException error) {
-                if (error instanceof DatabaseException.ReadTimeout) {
-                    result = contentQuery.and("_any matches *").selectFiltered(offset, limit, visibilitiesFilter);
-
-                } else {
-                    throw error;
-                }
-            }
+            result = contentQuery.and("_any matches *").selectFiltered(offset, limit, visibilitiesFilter);
         }
 
         page.writeStart("div", "class", "widget");

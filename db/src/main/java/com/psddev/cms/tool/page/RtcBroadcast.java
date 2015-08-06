@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 /**
  * For capturing any updates to the instances of the given {@code <T>} type
@@ -32,7 +33,7 @@ import java.util.UUID;
  */
 public interface RtcBroadcast<T> {
 
-    static <T> Set<RtcBroadcast<T>> forObject(T object) {
+    static <T> void forEachBroadcast(T object, BiConsumer<RtcBroadcast<T>, Map<String, Object>> consumer) {
         Set<RtcBroadcast<T>> broadcasts = new HashSet<>();
 
         BROADCAST:
@@ -68,24 +69,34 @@ public interface RtcBroadcast<T> {
 
             @SuppressWarnings("unchecked")
             Class<RtcBroadcast<T>> broadcastClass = (Class<RtcBroadcast<T>>) c;
+            RtcBroadcast<T> broadcast = TypeDefinition.getInstance(broadcastClass).newInstance();
+            Map<String, Object> data = broadcast.create(object);
 
-            broadcasts.add(TypeDefinition.getInstance(broadcastClass).newInstance());
+            if (data != null) {
+                consumer.accept(broadcast, data);
+            }
         }
-
-        return broadcasts;
     }
 
     /**
-     * Creates the broadcast data based on the given {@code currentUserId}
-     * and {@code object}.
+     * Returns {@code true} if the given {@code data} should be broadcast
+     * to the user with the given {@code currentUserId}.
+     *
+     * @param data
+     *        Can't be {@code null}.
      *
      * @param currentUserId
      *        Can't be {@code null}.
+     */
+    boolean shouldBroadcast(Map<String, Object> data, UUID currentUserId);
+
+    /**
+     * Creates the broadcast data based on the given {@code object}.
      *
      * @param object
      *        Can't be {@code null}.
      *
      * @return If {@code null}, doesn't send anything back to the client.
      */
-    Map<String, Object> create(UUID currentUserId, T object);
+    Map<String, Object> create(T object);
 }
