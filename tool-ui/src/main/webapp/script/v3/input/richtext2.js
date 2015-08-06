@@ -519,7 +519,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                             className: cmsClassName,
 
                             // The HTML element and class name to output for this style
-                            element: classConfig.tag.toLowerCase(),
+                            element: (classConfig.tag || 'span').toLowerCase(),
                             elementAttr: {
                                 'class': cmsClassName
                             }
