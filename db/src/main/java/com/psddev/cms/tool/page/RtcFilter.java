@@ -1,8 +1,8 @@
 package com.psddev.cms.tool.page;
 
+import com.google.common.collect.ImmutableMap;
 import com.psddev.dari.db.Database;
 import com.psddev.dari.util.AbstractFilter;
-import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
@@ -11,6 +11,7 @@ import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
+import org.atmosphere.util.VoidAnnotationProcessor;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,6 +40,12 @@ public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
 
     public static final String PATH = "/_rtc";
 
+    private static final Map<String, String> DEFAULT_INIT_PARAMETERS = ImmutableMap.<String, String>builder()
+            .put(ApplicationConfig.ANALYTICS, Boolean.FALSE.toString())
+            .put(ApplicationConfig.ANNOTATION_PROCESSOR, VoidAnnotationProcessor.class.getName())
+            .put(ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS, String.valueOf(5))
+            .build();
+
     private AtmosphereFrameworkInitializer initializer;
     private RtcObjectUpdateNotifier notifier;
 
@@ -48,8 +56,10 @@ public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
 
     @Override
     protected void doInit() throws ServletException {
+        initializer = new AtmosphereFrameworkInitializer(false, true);
         FilterConfig filterConfig = getFilterConfig();
-        ServletConfig servletConfig = new ServletConfig() {
+
+        initializer.configureFramework(new ServletConfig() {
 
             @Override
             public String getServletName() {
@@ -65,32 +75,21 @@ public class RtcFilter extends AbstractFilter implements AbstractFilter.Auto {
             public String getInitParameter(String name) {
                 String value = filterConfig.getInitParameter(name);
 
-                if (value == null
-                        && ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS.equals(name)) {
-
-                    return String.valueOf("5");
-                }
-
-                return value;
+                return value != null ? value : DEFAULT_INIT_PARAMETERS.get(name);
             }
 
             @Override
             public Enumeration<String> getInitParameterNames() {
                 Set<String> names = new HashSet<>(Collections.list(filterConfig.getInitParameterNames()));
 
-                names.add(ApplicationConfig.HEARTBEAT_INTERVAL_IN_SECONDS);
+                names.addAll(DEFAULT_INIT_PARAMETERS.keySet());
 
                 return Collections.enumeration(names);
             }
-        };
-
-        initializer = new AtmosphereFrameworkInitializer(false, true);
-
-        initializer.configureFramework(servletConfig);
+        });
 
         AtmosphereFramework framework = initializer.framework();
 
-        framework.setBroadcasterCacheClassName(UUIDBroadcasterCache.class.getName());
         framework.addAtmosphereHandler(
                 PATH,
                 new RtcHandler(),
