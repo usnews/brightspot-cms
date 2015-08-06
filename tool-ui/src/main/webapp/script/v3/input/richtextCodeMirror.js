@@ -187,6 +187,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         rawAddDataAttribute: false,
 
+
+        /**
+         * When a line ends in a character marked as raw HTML, should we add a BR element?
+         * If true, add a BR element at the end of every line.
+         * If false, add a newline if the last character in the line is marked as raw HTML.
+         */
+        rawBr: true,
+
         
         /**
          *
@@ -3154,8 +3162,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         }
                     });
                     blockElementsToClose = [];
-                    
-                } else if (rawLastChar) {
+
+                } else if (rawLastChar && !self.rawBr) {
                     html += '\n';
                 } else {
                     // No block elements so add a line break
