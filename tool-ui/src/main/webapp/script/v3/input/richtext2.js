@@ -1565,25 +1565,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Save the data on the enhancement so it can be used later
                 self.enhancementSetReference($enhancement, data);
 
-                // Modify the Select button in the toolbar
-                $select = $enhancement.find('.rte2-enhancement-toolbar-change');
-                $select.text('Change');
-
-                // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
-                $edit = $enhancement.find('.rte2-enhancement-toolbar-edit');
-                editUrl = $edit.attr('href') || '';
-                editUrl = $.addQueryParameters(editUrl, 'id', data.record._ref);
-                $edit.attr('href', editUrl);
-
+                // Close the popup - this will also trigger the enhancement display to be updated (see 'close' event below)
+                $target.popup('close');
+                
                 event.preventDefault();
                 event.stopImmediatePropagation();
-                $target.popup('close');
                 return false;
             });
 
 
             // Set up a global close event to determine when the enhancement popup is closed
-            // so we can remove the enhancement if nothing was selected.
+            // so we can update the enhancement display (or remove the enhancement)
             $(document).on('close', '.popup[name^="contentEnhancement-"]', function() {
 
                 var $enhancement, $popupTrigger, $popup;
@@ -1732,7 +1724,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
                 $edit = $enhancement.find('.rte2-enhancement-toolbar-edit');
                 editUrl = $edit.attr('href') || '';
-                editUrl = $.addQueryParameters(editUrl, 'id', reference.record._ref);
+                editUrl = $.addQueryParameters(editUrl,
+                                               'id', reference.record._ref,
+                                               'reference', JSON.stringify(reference));
                 $edit.attr('href', editUrl);
             }
         },
