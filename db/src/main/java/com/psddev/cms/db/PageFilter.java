@@ -1117,7 +1117,7 @@ public class PageFilter extends AbstractFilter {
             } else {
                 LOGGER.warn("Could not resolve view of type ["
                         + viewClass.getName() + "] for object of type ["
-                        + object.getClass() + "]!");;
+                        + object.getClass() + "]!");
             }
 
             return true;

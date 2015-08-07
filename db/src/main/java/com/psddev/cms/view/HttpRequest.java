@@ -34,9 +34,9 @@ public class HttpRequest {
 
                     Class<?> fieldType = field.getType();
 
-                    if (List.class.isAssignableFrom(fieldType) ||
-                            Set.class.isAssignableFrom(fieldType) ||
-                            fieldType.isArray()) {
+                    if (List.class.isAssignableFrom(fieldType)
+                            || Set.class.isAssignableFrom(fieldType)
+                            || fieldType.isArray()) {
 
                         paramValue = request.getParameterValues(paramName);
 
@@ -63,9 +63,9 @@ public class HttpRequest {
 
                     Class<?> fieldType = field.getType();
 
-                    if (List.class.isAssignableFrom(fieldType) ||
-                            Set.class.isAssignableFrom(fieldType) ||
-                            fieldType.isArray()) {
+                    if (List.class.isAssignableFrom(fieldType)
+                            || Set.class.isAssignableFrom(fieldType)
+                            || fieldType.isArray()) {
 
                         headerValue = Collections.list(request.getHeaders(headerName));
 
