@@ -2116,7 +2116,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             if ($el.hasClass('rte2-style-enhancement-left')) {
                 pos = 'left';
-            } else if ($el.hasClass('rte2-style-enhancement-left')) {
+            } else if ($el.hasClass('rte2-style-enhancement-right')) {
                 pos = 'right';
             }
 
@@ -2382,7 +2382,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 id = reference.record._ref;
             }
 
+            delete reference.alignment;
             alignment = self.enhancementGetPosition(el);
+            if (alignment) {
+                reference.alignment = alignment;
+            }
 
             if (id) {
 

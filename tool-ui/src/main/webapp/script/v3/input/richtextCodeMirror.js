@@ -1916,9 +1916,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             setTimeout(function(){
                 self.refresh();
                 mark.changed();
+                self.triggerChange();
             }, 100);
-            
-            self.triggerChange();
             
             return mark;
         },
@@ -2040,12 +2039,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * @param Object mark
          * The mark that was returned when you called enhancementAdd().
          */
-        enhancementSetInline: function(mark) {
+        enhancementSetInline: function(mark, options) {
             
-            var content, lineNumber, self;
+            var content, $content, lineNumber, self;
 
             self = this;
 
+            options = options || {};
+            
             lineNumber = self.enhancementGetLineNumber(mark);
             
             content = self.enhancementGetContent(mark);
@@ -2053,7 +2054,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             self.enhancementRemove(mark);
             
-            return self.enhancementAdd($content[0], lineNumber);
+            return self.enhancementAdd($content[0], lineNumber, $.extend({}, mark.options || {}, options, {block:false}));
         },
 
         
@@ -2068,7 +2069,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          */
         enhancementSetBlock: function(mark, options) {
 
-            var content, lineNumber, self;
+            var content, $content, lineNumber, self;
 
             self = this;
 
@@ -2081,7 +2082,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             self.enhancementRemove(mark);
             
-            return self.enhancementAdd($content[0], lineNumber, $.extend({}, options, {block:true}));
+            return self.enhancementAdd($content[0], lineNumber, $.extend({}, mark.options || {}, options, {block:true}));
         },
 
 
