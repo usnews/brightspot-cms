@@ -31,6 +31,12 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
+import com.psddev.cms.view.MainViewMapping;
+import com.psddev.cms.view.ServletViewContext;
+import com.psddev.cms.view.ViewCreator;
+import com.psddev.cms.view.ViewMap;
+import com.psddev.cms.view.ViewRenderer;
+import com.psddev.cms.view.ViewResult;
 import com.psddev.dari.db.Application;
 import com.psddev.dari.db.ApplicationFilter;
 import com.psddev.dari.db.Database;
@@ -673,6 +679,10 @@ public class PageFilter extends AbstractFilter {
                     ((Renderer) mainObject).renderObject(request, response, (HtmlWriter) writer);
                 }
 
+                if (!rendered && tryRenderView(request, response, writer, mainObject)) {
+                    rendered = true;
+                }
+
             } finally {
                 ContextTag.Static.popContext(request);
             }
@@ -1069,6 +1079,54 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
+    public static boolean tryRenderView(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Writer writer,
+                                        Object object)
+                                        throws IOException, ServletException {
+
+        MainViewMapping mainViewMapping = object.getClass().getAnnotation(MainViewMapping.class);
+
+        Class<? extends ViewCreator> viewCreatorClass = mainViewMapping != null ? mainViewMapping.value() : null;
+
+        if (viewCreatorClass != null) {
+            Class<?> viewClass = ViewCreator.getGenericViewTypeArgument(viewCreatorClass);
+
+            ServletViewContext viewContext = new ServletViewContext(request);
+
+            Object view = viewContext.createView(viewClass, object);
+            if (view != null) {
+
+                viewContext.initializeView(view);
+
+                ViewRenderer renderer = ViewRenderer.findRenderer(view);
+                if (renderer != null) {
+
+                    ViewResult result = renderer.renderObject(new ViewMap(view));
+                    if (result != null) {
+
+                        String output = result.get();
+                        if (output != null) {
+                            writer.write(output);
+                        }
+
+                    } // TODO: else logging
+
+                } // TODO: else logging
+
+            } else {
+                LOGGER.warn("Could not resolve view of type ["
+                        + viewClass.getName() + "] for object of type ["
+                        + object.getClass() + "]!");;
+            }
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
     /** Renders the given {@code object}. */
     public static void renderObject(
             HttpServletRequest request,
@@ -1077,11 +1135,14 @@ public class PageFilter extends AbstractFilter {
             Object object)
             throws IOException, ServletException {
 
-        if (object instanceof Section) {
-            renderSection(request, response, writer, (Section) object);
+        if (!tryRenderView(request, response, writer, object)) {
 
-        } else {
-            renderObjectWithSection(request, response, writer, object, null);
+            if (object instanceof Section) {
+                renderSection(request, response, writer, (Section) object);
+
+            } else {
+                renderObjectWithSection(request, response, writer, object, null);
+            }
         }
     }
 
