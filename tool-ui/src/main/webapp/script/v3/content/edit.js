@@ -29,7 +29,23 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
     $container.find('> .inputLabel').after($('<div/>', {
       'class': 'inputStatus',
       'data-user-id': userId,
-      'text': message
+      'html': [
+        message + ' - ',
+        $('<a/>', {
+          'text': 'Unlock',
+          'click': function() {
+            if (confirm('Are you sure you want to forcefully unlock this field?')) {
+              rtc.execute('com.psddev.cms.tool.page.content.EditFieldUpdateAction', {
+                contentId: $container.closest('form').attr('data-o-id'),
+                unlockObjectId: $container.closest('.objectInputs').attr('data-id'),
+                unlockFieldName: $container.attr('data-field')
+              });
+            }
+
+            return false;
+          }
+        })
+      ]
     }));
   }
 
