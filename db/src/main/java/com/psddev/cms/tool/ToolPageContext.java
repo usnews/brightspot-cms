@@ -2820,10 +2820,11 @@ public class ToolPageContext extends WebPageContext {
             }
 
             publish(draft);
-            redirectOnSave("",
+            getResponse().sendRedirect(url("",
+                    "editAnyway", null,
                     "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
                     ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
-                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+                    ToolPageContext.HISTORY_ID_PARAMETER, null));
             return true;
 
         } catch (Exception error) {
