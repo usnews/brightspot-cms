@@ -872,24 +872,14 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                 }
 
                 wp.writeStart("ul", "class", "widget-publishingExtra");
-                    if (isWritable && (editingState.isNew() || draft == null) && !isTrash) {
+                    if (isWritable && !isTrash) {
                         wp.writeStart("li");
-                            if (editingState.as(Content.ObjectModification.class).isDraft()) {
-                                wp.writeStart("button",
-                                        "class", "link icon icon-object-draft",
-                                        "name", "action-newDraft",
-                                        "value", "true");
-                                    wp.writeHtml("New Draft");
-                                wp.writeEnd();
-
-                            } else {
-                                wp.writeStart("button",
-                                        "class", "link icon icon-object-draft",
-                                        "name", "action-draft",
-                                        "value", "true");
-                                    wp.writeHtml(editingState.isVisible() ? "Save Draft" : "Save");
-                                wp.writeEnd();
-                            }
+                            wp.writeStart("button",
+                                    "class", "link icon icon-object-draft",
+                                    "name", "action-newDraft",
+                                    "value", "true");
+                                wp.writeHtml("New Draft");
+                            wp.writeEnd();
                         wp.writeEnd();
                     }
                 wp.writeEnd();

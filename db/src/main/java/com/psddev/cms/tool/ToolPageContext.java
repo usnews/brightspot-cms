@@ -3243,6 +3243,15 @@ public class ToolPageContext extends WebPageContext {
                     if (draft == null) {
                         publish(object);
 
+                    } else if (!State.getInstance(Query.fromAll()
+                            .where("_id = ?", state.getId())
+                            .noCache()
+                            .first())
+                            .isVisible()) {
+
+                        draft.delete();
+                        publish(object);
+
                     } else {
                         draft.as(Workflow.Data.class).changeState(transition, getUser(), log);
                         draft.setObject(object);
