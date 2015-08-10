@@ -19,6 +19,8 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
+import com.psddev.cms.db.Draft;
+import com.psddev.cms.db.History;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -65,9 +67,23 @@ public class ContentTools extends PageServlet {
 
         if (page.isFormPost()) {
             if (page.param(String.class, "action-compare") != null) {
-                if (state != null) {
-                    user.setCompareId(state.getId());
+                Draft draft = page.getOverlaidDraft(object);
+
+                if (draft != null) {
+                    user.setCompareId(draft.getId());
                     user.save();
+
+                } else {
+                    History history = page.getOverlaidHistory(object);
+
+                    if (history != null) {
+                        user.setCompareId(history.getId());
+                        user.save();
+
+                    } else if (state != null) {
+                        user.setCompareId(state.getId());
+                        user.save();
+                    }
                 }
 
             } else if (page.param(String.class, "action-edits") != null) {
