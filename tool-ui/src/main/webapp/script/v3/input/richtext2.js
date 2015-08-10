@@ -205,11 +205,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             alignLeft: {
                 className: 'rte2-style-align-left',
                 line: true,
-                // Align left is the default so do not output any special HTML
-                // element: 'div',
-                // elementAttr: {
-                //     style: 'text-align:left'
-                // },
+                element: 'div',
+                elementAttr: {
+                    'class': 'cms-textAlign-left'
+                },
                 clear: ['alignCenter', 'alignRight', 'ol', 'ul']
             },
             alignCenter: {
@@ -217,7 +216,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:center'
+                    'class': 'cms-textAlign-center'
                 },
                 clear: ['alignLeft', 'alignRight', 'ol', 'ul']
             },
@@ -226,7 +225,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:right'
+                    'class': 'cms-textAlign-right'
                 },
                 clear: ['alignLeft', 'alignCenter', 'ol', 'ul']
             }
@@ -421,6 +420,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             self.$el = $(element);
 
+            // Save this object on the element so it can be accessed externally
+            self.$el.data('rte2', self);
+
             self.initStyles();
             self.initRte();
             self.toolbarInit();
@@ -576,6 +578,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.$container = $('<div/>', {
                 'class': 'rte2-wrapper'
             }).insertAfter(self.$el);
+
+            // Also save this object on the wrapper so it can be accessed externally
+            // This is useful for when the external code doesn't know the self.$el (textarea)
+            self.$container.data('rte2', self);
 
             self.$editor = $('<div/>').appendTo(self.$container);
                 
@@ -1536,7 +1542,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // somebody else deal with it.
             $(document.body).on('click', '[data-enhancement]', function(event) {
 
-                var data, $edit, editUrl, $enhancement, $popupTrigger, $select, $target;
+                var data, $enhancement, $popupTrigger, $target;
 
                 // The enhancement link that the user clicked
                 $target = $(this);
@@ -1690,9 +1696,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 self.enhancementRemoveCompletely($enhancement);
                 return;
             }
-
+            
             $content.empty();
-
+            
             if (reference.preview) {
 
                 $('<figure/>', {
@@ -1716,7 +1722,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.enhancementDisplaySize(el);
 
             // Modify the Select and Edit buttons in the toolbar
-            if (reference && reference.record && reference.record._ref) {
+            if (reference.record && reference.record._ref) {
                 
                 $select = $enhancement.find('.rte2-enhancement-toolbar-change');
                 $select.text('Change');
