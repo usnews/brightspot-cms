@@ -2861,15 +2861,26 @@ public class ToolPageContext extends WebPageContext {
                 state.as(Variation.Data.class).setInitialVariation(site.getDefaultVariation());
             }
 
-            Draft draft = new Draft();
+            if (state.isNew()) {
+                state.as(Content.ObjectModification.class).setDraft(true);
+                publish(state);
+                redirectOnSave("",
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                        "id", state.getId(),
+                        "copyId", null);
 
-            draft.setOwner(getUser());
-            draft.setObject(object);
-            publish(draft);
-            redirectOnSave("",
-                    "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
-                    ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
-                    ToolPageContext.HISTORY_ID_PARAMETER, null);
+            } else {
+                Draft draft = new Draft();
+
+                draft.setOwner(getUser());
+                draft.setObject(object);
+                publish(draft);
+                redirectOnSave("",
+                        "_frame", param(boolean.class, "_frame") ? Boolean.TRUE : null,
+                        ToolPageContext.DRAFT_ID_PARAMETER, draft.getId(),
+                        ToolPageContext.HISTORY_ID_PARAMETER, null);
+            }
+
             return true;
 
         } catch (Exception error) {
