@@ -205,11 +205,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             alignLeft: {
                 className: 'rte2-style-align-left',
                 line: true,
-                // Align left is the default so do not output any special HTML
-                // element: 'div',
-                // elementAttr: {
-                //     style: 'text-align:left'
-                // },
+                element: 'div',
+                elementAttr: {
+                    'class': 'cms-textAlign-left'
+                },
                 clear: ['alignCenter', 'alignRight', 'ol', 'ul']
             },
             alignCenter: {
@@ -217,7 +216,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:center'
+                    'class': 'cms-textAlign-center'
                 },
                 clear: ['alignLeft', 'alignRight', 'ol', 'ul']
             },
@@ -226,7 +225,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:right'
+                    'class': 'cms-textAlign-right'
                 },
                 clear: ['alignLeft', 'alignCenter', 'ol', 'ul']
             }
