@@ -878,7 +878,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "class", "link icon icon-object-draft",
                                     "name", "action-newDraft",
                                     "value", "true");
-                                wp.writeHtml("New Draft");
+                                wp.writeHtml(editingState.isNew() ? "Save Draft" : "New Draft");
                             wp.writeEnd();
                         wp.writeEnd();
                     }
