@@ -38,11 +38,6 @@ public interface ViewCreator<M, V> {
 
         for (Class<?> classToCheck : getClassesToCheck(modelClass)) {
 
-            MainViewMapping mainViewMapping = classToCheck.getAnnotation(MainViewMapping.class);
-            if (mainViewMapping != null) {
-                allCreatorClasses.add(mainViewMapping.value());
-            }
-
             allCreatorClasses.addAll(
                     Arrays.stream(classToCheck.getAnnotationsByType(ViewMapping.class))
                             .map(ViewMapping::value)
@@ -54,7 +49,7 @@ public interface ViewCreator<M, V> {
             Class<?> declaredViewClass = getGenericViewTypeArgument(creatorClass);
             Class<?> declaredModelClass = getGenericModelTypeArgument(creatorClass);
 
-            if (declaredViewClass != null && viewClass.isAssignableFrom(declaredViewClass)
+            if (((declaredViewClass != null && viewClass.isAssignableFrom(declaredViewClass)) || viewClass.isAssignableFrom(creatorClass))
                     && declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)) {
 
                 creatorClasses.add(creatorClass);

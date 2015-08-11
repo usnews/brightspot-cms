@@ -1,10 +1,13 @@
 package com.psddev.cms.view;
 
 import com.psddev.cms.db.PageStage;
-import com.psddev.dari.util.TypeDefinition;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,20 +21,13 @@ public class ServletViewContext implements ViewContext {
         this.request = request;
     }
 
-    public void initializeView(Object view) {
-        HttpRequest.applyServletHttpRequest(request, view);
-        applyPageStage(view);
-    }
-
     @Override
     public <V> V createView(Class<V> viewClass, Object model) {
 
         ViewCreator<Object, V> vc = ViewCreator.findCreator(model, viewClass);
 
         if (vc != null) {
-            V view = vc.createView(model, this);
-            initializeView(view);
-            return view;
+            return vc.createView(model, this);
 
         } else {
             LOGGER.warn("Could not find view creator of [" + viewClass
@@ -40,17 +36,28 @@ public class ServletViewContext implements ViewContext {
         }
     }
 
-    private void applyPageStage(Object view) {
-        Class<?> viewClass = view.getClass();
+    @Override
+    public PageStage getPageStage() {
+        return (PageStage) request.getAttribute("stage");
+    }
 
-        TypeDefinition.getInstance(viewClass).getAllFields().forEach((field) -> {
-            if (field.isAnnotationPresent(Cms.PageStage.class) && field.getType().isAssignableFrom(PageStage.class)) {
-                try {
-                    field.set(view, request.getAttribute("stage"));
-                } catch (IllegalAccessException e) {
-                    // do nothing
-                }
-            }
-        });
+    @Override
+    public String getParameter(String name) {
+        return request.getParameter(name);
+    }
+
+    @Override
+    public List<String> getParameters(String name) {
+        return Arrays.asList(request.getParameterValues(name));
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return request.getHeader(name);
+    }
+
+    @Override
+    public List<String> getHeaders(String name) {
+        return Collections.list(request.getHeaders(name));
     }
 }

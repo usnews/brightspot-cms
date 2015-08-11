@@ -33,6 +33,7 @@ import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
 import com.psddev.cms.view.MainViewMapping;
 import com.psddev.cms.view.ServletViewContext;
+import com.psddev.cms.view.ViewContext;
 import com.psddev.cms.view.ViewCreator;
 import com.psddev.cms.view.ViewMap;
 import com.psddev.cms.view.ViewRenderer;
@@ -43,6 +44,7 @@ import com.psddev.dari.db.Database;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Record;
+import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.AbstractFilter;
 import com.psddev.dari.util.ErrorUtils;
@@ -1085,38 +1087,31 @@ public class PageFilter extends AbstractFilter {
                                         Object object)
                                         throws IOException, ServletException {
 
-        MainViewMapping mainViewMapping = object.getClass().getAnnotation(MainViewMapping.class);
+        ViewContext viewContext = new ServletViewContext(request);
 
-        Class<? extends ViewCreator> viewCreatorClass = mainViewMapping != null ? mainViewMapping.value() : null;
+        Class<?> layoutViewClass = viewContext.getLayoutViewClass(object);
+        if (layoutViewClass != null) {
 
-        if (viewCreatorClass != null) {
-            Class<?> viewClass = ViewCreator.getGenericViewTypeArgument(viewCreatorClass);
-
-            ServletViewContext viewContext = new ServletViewContext(request);
-
-            Object view = viewContext.createView(viewClass, object);
+            Object view = viewContext.createView(layoutViewClass, object);
             if (view != null) {
 
-                viewContext.initializeView(view);
-
-                ViewRenderer renderer = ViewRenderer.findRenderer(view);
+                ViewRenderer renderer = ViewRenderer.createRenderer(view);
                 if (renderer != null) {
 
                     ViewResult result = renderer.renderObject(new ViewMap(view));
-                    if (result != null) {
+                    String output = result.get();
+                    if (output != null) {
+                        writer.write(output);
+                    }
 
-                        String output = result.get();
-                        if (output != null) {
-                            writer.write(output);
-                        }
-
-                    } // TODO: else logging
-
-                } // TODO: else logging
+                } else {
+                    LOGGER.warn("Could not create renderer for view of type ["
+                            + view.getClass().getName() + "]!");
+                }
 
             } else {
-                LOGGER.warn("Could not resolve view of type ["
-                        + viewClass.getName() + "] for object of type ["
+                LOGGER.warn("Could not create view of type ["
+                        + layoutViewClass.getName() + "] for object of type ["
                         + object.getClass() + "]!");
             }
 
@@ -1744,7 +1739,7 @@ public class PageFilter extends AbstractFilter {
                 for (int i = objects.size() - 1; i >= 0; -- i) {
                     Object object = objects.get(i);
 
-                    if (!State.getInstance(object).isNew()) {
+                    if (object instanceof Recordable && !State.getInstance(object).isNew()) {
                         return object;
                     }
                 }

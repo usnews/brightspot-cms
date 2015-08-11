@@ -45,7 +45,7 @@ public interface ViewRenderer {
         return classesToCheck;
     }
 
-    static ViewRenderer findRenderer(Object view) {
+    static ViewRenderer createRenderer(Object view) {
 
         if (view instanceof ViewMap) {
             view = ((ViewMap) view).getView();
