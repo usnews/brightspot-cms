@@ -19,7 +19,7 @@ public interface ViewRenderer {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
 
-    ViewResult renderObject(ViewMap viewMap);
+    ViewResult render(ViewMap viewMap);
 
     // TODO: move into the find renderer method.
     static List<Class<?>> getClassesToCheck(Class<?> viewClass) {

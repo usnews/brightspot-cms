@@ -31,10 +31,8 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.view.MainViewMapping;
 import com.psddev.cms.view.ServletViewContext;
 import com.psddev.cms.view.ViewContext;
-import com.psddev.cms.view.ViewCreator;
 import com.psddev.cms.view.ViewMap;
 import com.psddev.cms.view.ViewRenderer;
 import com.psddev.cms.view.ViewResult;
@@ -1098,7 +1096,7 @@ public class PageFilter extends AbstractFilter {
                 ViewRenderer renderer = ViewRenderer.createRenderer(view);
                 if (renderer != null) {
 
-                    ViewResult result = renderer.renderObject(new ViewMap(view));
+                    ViewResult result = renderer.render(new ViewMap(view));
                     String output = result.get();
                     if (output != null) {
                         writer.write(output);
