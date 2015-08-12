@@ -851,7 +851,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             var self = this;
 
-            if (!window.CSS_CLASS_GROUPS) {
+            if (!window.CSS_CLASS_GROUPS || window.CSS_CLASS_GROUPS.length === 0) {
                 return;
             }
 
