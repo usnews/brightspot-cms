@@ -87,6 +87,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 elementAttr: {
                     'class': 'rte rte-comment'
                 },
+                
+                // Hide this style when viewing in "show final" mode
+                showFinal:false,
+                
                 // Don't let this style be removed by the "Clear" toolbar button
                 internal: true
             },
@@ -201,11 +205,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             alignLeft: {
                 className: 'rte2-style-align-left',
                 line: true,
-                // Align left is the default so do not output any special HTML
-                // element: 'div',
-                // elementAttr: {
-                //     style: 'text-align:left'
-                // },
+                element: 'div',
+                elementAttr: {
+                    'class': 'cms-textAlign-left'
+                },
                 clear: ['alignCenter', 'alignRight', 'ol', 'ul']
             },
             alignCenter: {
@@ -213,7 +216,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:center'
+                    'class': 'cms-textAlign-center'
                 },
                 clear: ['alignLeft', 'alignRight', 'ol', 'ul']
             },
@@ -222,7 +225,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 line: true,
                 element: 'div',
                 elementAttr: {
-                    style: 'text-align:right'
+                    'class': 'cms-textAlign-right'
                 },
                 clear: ['alignLeft', 'alignCenter', 'ol', 'ul']
             }
@@ -316,36 +319,36 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             { style: 'strikethrough', text: 'S', className: 'rte2-toolbar-strikethrough', tooltip: 'Strikethrough' },
             { style: 'superscript', text: 'Super', className: 'rte2-toolbar-superscript', tooltip: 'Superscript' },
             { style: 'subscript', text: 'Sub', className: 'rte2-toolbar-subscript', tooltip: 'Subscript' },
+            { style: 'link', text: 'Link', className: 'rte2-toolbar-link', tooltip: 'Link' },
+            { style: 'html', text: 'HTML', className: 'rte2-toolbar-html', tooltip: 'Raw HTML' },
             { action: 'clear', text: 'Clear', className: 'rte2-toolbar-clear', tooltip: 'Clear Formatting' },
 
             { separator:true, inline:false },
-            { style: 'ul', text: '&bull;', className: 'rte2-toolbar-ul', tooltip: 'Bullet List', inline:false },
+            { style: 'ul', text: '&bull;', className: 'rte2-toolbar-ul', tooltip: 'Bulleted List', inline:false },
             { style: 'ol', text: '1.', className: 'rte2-toolbar-ol', tooltip: 'Numbered List', inline:false },
 
             { separator:true, inline:false },
-            { style: 'alignLeft', text: 'Left', className: 'rte2-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'], tooltip: 'Left Align', inline:false },
-            { style: 'alignCenter', text: 'Center', className: 'rte2-toolbar-align-center', tooltip: 'Center Align', inline:false },
-            { style: 'alignRight', text: 'Right', className: 'rte2-toolbar-align-right', tooltip: 'Right Align', inline:false },
+            { style: 'alignLeft', text: 'Left', className: 'rte2-toolbar-align-left', activeIfUnset:['alignCenter', 'alignRight', 'ol', 'ul'], tooltip: 'Left Align Text', inline:false },
+            { style: 'alignCenter', text: 'Center', className: 'rte2-toolbar-align-center', tooltip: 'Center Align Text', inline:false },
+            { style: 'alignRight', text: 'Right', className: 'rte2-toolbar-align-right', tooltip: 'Right Align Text', inline:false },
 
             { custom:true }, // If custom styles exist, insert a separator and custom styles here
 
-            { separator:true },
-            { style: 'link', text: 'Link', className: 'rte2-toolbar-link', tooltip: 'Link' },
-            { style: 'html', text: 'HTML', className: 'rte2-toolbar-html', tooltip: 'Raw HTML' },
+            { separator:true, inline:false },
             { action:'enhancement', text: 'Enhancement', className: 'rte2-toolbar-enhancement', tooltip: 'Add Enhancement', inline:false },
             { action:'marker', text: 'Marker', className: 'rte2-toolbar-marker', tooltip: 'Add Marker', inline:false },
 
             { separator:true },
             { action:'trackChangesToggle', text: 'Track Changes', className: 'rte2-toolbar-track-changes', tooltip: 'Toggle Track Changes' },
-            { action:'trackChangesAccept', text: 'Accept', className: 'rte2-toolbar-track-changes-accept', tooltip: 'Accept a Change' },
-            { action:'trackChangesReject', text: 'Reject', className: 'rte2-toolbar-track-changes-reject', tooltip: 'Reject a Change' },
-            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte2-toolbar-track-changes-show-final', tooltip: 'Toggle Show Final' },
+            { action:'trackChangesAccept', text: 'Accept', className: 'rte2-toolbar-track-changes-accept', tooltip: 'Accept Change' },
+            { action:'trackChangesReject', text: 'Reject', className: 'rte2-toolbar-track-changes-reject', tooltip: 'Reject Change' },
+            { action:'trackChangesShowFinalToggle', text: 'Show Final', className: 'rte2-toolbar-track-changes-show-final', tooltip: 'Toggle Preview' },
 
             { separator:true },
             { style: 'comment', text: 'Add Comment', className: 'rte2-toolbar-comment', tooltip: 'Add Comment' },
-            { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
             { action: 'cleartext', text: 'Remove Comment', className: 'rte2-toolbar-comment-remove', tooltip: 'Remove Comment', cleartextStyle: 'comment' },
-            
+            { action: 'collapse', text: 'Collapse All Comments', className: 'rte2-toolbar-comment-collapse', collapseStyle: 'comment', tooltip: 'Collapse All Comments' },
+
             { separator:true },
             { action:'fullscreen', text: 'Fullscreen', className: 'rte2-toolbar-fullscreen', tooltip: 'Toggle Fullscreen Editing' },
 
@@ -416,6 +419,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             }
 
             self.$el = $(element);
+
+            // Save this object on the element so it can be accessed externally
+            self.$el.data('rte2', self);
 
             self.initStyles();
             self.initRte();
@@ -572,6 +578,10 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.$container = $('<div/>', {
                 'class': 'rte2-wrapper'
             }).insertAfter(self.$el);
+
+            // Also save this object on the wrapper so it can be accessed externally
+            // This is useful for when the external code doesn't know the self.$el (textarea)
+            self.$container.data('rte2', self);
 
             self.$editor = $('<div/>').appendTo(self.$container);
                 
@@ -841,7 +851,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             var self = this;
 
-            if (!window.CSS_CLASS_GROUPS) {
+            if (!window.CSS_CLASS_GROUPS || window.CSS_CLASS_GROUPS.length === 0) {
                 return;
             }
 
@@ -971,8 +981,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             var $toolbar = $submenu || self.$toolbar;
 
             $('<li/>', {
-                'class': 'rte2-toolbar-separator',
-                html: '&nbsp;'
+                'class': 'rte2-toolbar-separator'
             }).appendTo($toolbar);
         },
 
@@ -1249,6 +1258,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     $container.css('padding-top', 0);
 
                     // Restore toolbar to original styles
+                    $toolbar.removeClass('rte2-toolbar-fixed');
                     $toolbar.attr('style', self._toolbarOldStyle);
                     self._toolbarOldStyle = null;
                 });
@@ -1275,6 +1285,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                     toolbarWidth = $toolbar.width();
 
                     raf(function() {
+                        $toolbar.addClass('rte2-toolbar-fixed');
                         $toolbar.css({
                             'left': toolbarLeft,
                             'position': 'fixed',
@@ -1532,7 +1543,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             // somebody else deal with it.
             $(document.body).on('click', '[data-enhancement]', function(event) {
 
-                var data, $edit, editUrl, $enhancement, $popupTrigger, $select, $target;
+                var data, $enhancement, $popupTrigger, $target;
 
                 // The enhancement link that the user clicked
                 $target = $(this);
@@ -1561,25 +1572,17 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Save the data on the enhancement so it can be used later
                 self.enhancementSetReference($enhancement, data);
 
-                // Modify the Select button in the toolbar
-                $select = $enhancement.find('.rte2-enhancement-toolbar-change');
-                $select.text('Change');
-
-                // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
-                $edit = $enhancement.find('.rte2-enhancement-toolbar-edit');
-                editUrl = $edit.attr('href') || '';
-                editUrl = $.addQueryParameters(editUrl, 'id', data.record._ref);
-                $edit.attr('href', editUrl);
-
+                // Close the popup - this will also trigger the enhancement display to be updated (see 'close' event below)
+                $target.popup('close');
+                
                 event.preventDefault();
                 event.stopImmediatePropagation();
-                $target.popup('close');
                 return false;
             });
 
 
             // Set up a global close event to determine when the enhancement popup is closed
-            // so we can remove the enhancement if nothing was selected.
+            // so we can update the enhancement display (or remove the enhancement)
             $(document).on('close', '.popup[name^="contentEnhancement-"]', function() {
 
                 var $enhancement, $popupTrigger, $popup;
@@ -1694,9 +1697,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 self.enhancementRemoveCompletely($enhancement);
                 return;
             }
-
+            
             $content.empty();
-
+            
             if (reference.preview) {
 
                 $('<figure/>', {
@@ -1720,7 +1723,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
             self.enhancementDisplaySize(el);
 
             // Modify the Select and Edit buttons in the toolbar
-            if (reference && reference.record && reference.record._ref) {
+            if (reference.record && reference.record._ref) {
                 
                 $select = $enhancement.find('.rte2-enhancement-toolbar-change');
                 $select.text('Change');
@@ -1728,7 +1731,9 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 // Modify the "Edit" button in the toolbar so it will pop up the edit dialog for the enhancement
                 $edit = $enhancement.find('.rte2-enhancement-toolbar-edit');
                 editUrl = $edit.attr('href') || '';
-                editUrl = $.addQueryParameters(editUrl, 'id', reference.record._ref);
+                editUrl = $.addQueryParameters(editUrl,
+                                               'id', reference.record._ref,
+                                               'reference', JSON.stringify(reference));
                 $edit.attr('href', editUrl);
             }
         },
@@ -2118,7 +2123,7 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
 
             if ($el.hasClass('rte2-style-enhancement-left')) {
                 pos = 'left';
-            } else if ($el.hasClass('rte2-style-enhancement-left')) {
+            } else if ($el.hasClass('rte2-style-enhancement-right')) {
                 pos = 'right';
             }
 
@@ -2384,7 +2389,11 @@ define(['jquery', 'v3/input/richtextCodeMirror', 'v3/plugin/popup', 'jquery.extr
                 id = reference.record._ref;
             }
 
+            delete reference.alignment;
             alignment = self.enhancementGetPosition(el);
+            if (alignment) {
+                reference.alignment = alignment;
+            }
 
             if (id) {
 
