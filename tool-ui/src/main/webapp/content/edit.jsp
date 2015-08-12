@@ -719,6 +719,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                             }
 
                                             wp.writeStart("div", "class", "widget-publishingWorkflowComment");
+                                                wp.writeStart("div", "class", "message message-warning");
                                                 wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
                                                     wp.writeHtml(workflowStateDisplayName);
                                                 wp.writeEnd();
@@ -745,6 +746,16 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                         wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                                     wp.writeEnd();
                                                 }
+
+                                                wp.writeStart("div", "class", "actions");
+                                                    wp.writeStart("button",
+                                                            "class", "link icon icon-action-save",
+                                                            "name", "action-draft",
+                                                            "value", "true");
+                                                        wp.writeHtml("Save");
+                                                    wp.writeEnd();
+                                                wp.writeEnd();
+                                                wp.writeEnd();
                                             wp.writeEnd();
                                         }
 
