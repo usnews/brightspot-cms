@@ -3,6 +3,7 @@ package com.psddev.cms.view;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Recordable;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import com.psddev.dari.util.TypeDefinition;
 
 import org.slf4j.Logger;
@@ -10,8 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,18 +39,18 @@ public interface ViewCreator<M, V> {
 
         Set<Class<? extends ViewCreator>> allCreatorClasses = new LinkedHashSet<>();
 
-        for (Class<?> classToCheck : getClassesToCheck(modelClass)) {
+        for (Class<?> annotatableClass : Static.getAnnotatableClasses(modelClass)) {
 
             allCreatorClasses.addAll(
-                    Arrays.stream(classToCheck.getAnnotationsByType(ViewMapping.class))
+                    Arrays.stream(annotatableClass.getAnnotationsByType(ViewMapping.class))
                             .map(ViewMapping::value)
                             .collect(Collectors.toList()));
         }
 
         allCreatorClasses.forEach(creatorClass -> {
 
-            Class<?> declaredViewClass = getGenericViewTypeArgument(creatorClass);
-            Class<?> declaredModelClass = getGenericModelTypeArgument(creatorClass);
+            Class<?> declaredViewClass = Static.getGenericViewTypeArgument(creatorClass);
+            Class<?> declaredModelClass = Static.getGenericModelTypeArgument(creatorClass);
 
             if (((declaredViewClass != null && viewClass.isAssignableFrom(declaredViewClass)) || viewClass.isAssignableFrom(creatorClass))
                     && declaredModelClass != null && declaredModelClass.isAssignableFrom(modelClass)) {
@@ -79,77 +82,269 @@ public interface ViewCreator<M, V> {
         return null;
     }
 
-    // returns classes in order of input class, followed by its super classes, followed by its interfaces.
-    static List<Class<?>> getClassesToCheck(Class<?> klass) {
+    static final class Static {
 
-        List<Class<?>> classesToCheck = new ArrayList<>();
-
-        classesToCheck.add(klass);
-
-        // check super classes
-        Class<?> superClass = klass.getSuperclass();
-
-        while (superClass != null) {
-            if (!Object.class.equals(superClass)) {
-                classesToCheck.add(superClass);
-            }
-
-            superClass = superClass.getSuperclass();
+        private Static() {
         }
 
-        // check interfaces
-        classesToCheck.addAll(Arrays.asList(klass.getInterfaces()));
+        /**
+         * returns classes in order of input class, followed by its super
+         * classes, followed by its interfaces, followed by its modifications.
+         *
+         * @param klass the class to traverse.
+         * @return the list of classes that should be checked for annotations.
+         */
+        private static List<Class<?>> getAnnotatableClasses(Class<?> klass) {
 
-        // check modification classes
-        if (Recordable.class.isAssignableFrom(klass)) {
-            ObjectType type = ObjectType.getInstance(klass);
-            if (type != null) {
-                for (String modClassName : type.getModificationClassNames()) {
-                    Class<?> modClass = ObjectUtils.getClassByName(modClassName);
-                    if (modClass != null) {
-                        classesToCheck.add(modClass);
-                    }
+            List<Class<?>> classesToCheck = new ArrayList<>();
+
+            classesToCheck.add(klass);
+
+            // check super classes
+            Class<?> superClass = klass.getSuperclass();
+
+            while (superClass != null) {
+                if (!Object.class.equals(superClass)) {
+                    classesToCheck.add(superClass);
                 }
+
+                superClass = superClass.getSuperclass();
             }
-        }
 
-        return classesToCheck;
-    }
+            // check interfaces
+            classesToCheck.addAll(Arrays.asList(klass.getInterfaces()));
 
-    static Class<?> getGenericModelTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
-        return getGenericTypeArgument(viewCreatorClass, 0);
-    }
-
-    static Class<?> getGenericViewTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
-        return getGenericTypeArgument(viewCreatorClass, 1);
-    }
-
-    static Class<?> getGenericTypeArgument(Class<? extends ViewCreator> viewCreatorClass, int argIndex) {
-
-        for (Type interfaceClass : viewCreatorClass.getGenericInterfaces()) {
-
-            if (interfaceClass instanceof ParameterizedType) {
-
-                ParameterizedType pt = (ParameterizedType) interfaceClass;
-
-                Type rt = pt.getRawType();
-
-                if (rt instanceof Class
-                        && ViewCreator.class.isAssignableFrom((Class<?>) rt)) {
-
-                    Type[] args = pt.getActualTypeArguments();
-
-                    if (args.length > argIndex) {
-                        Type arg = args[argIndex];
-
-                        if (arg instanceof Class) {
-                            return (Class<?>) arg;
+            // check modification classes
+            if (Recordable.class.isAssignableFrom(klass)) {
+                ObjectType type = ObjectType.getInstance(klass);
+                if (type != null) {
+                    for (String modClassName : type.getModificationClassNames()) {
+                        Class<?> modClass = ObjectUtils.getClassByName(modClassName);
+                        if (modClass != null) {
+                            classesToCheck.add(modClass);
                         }
                     }
                 }
             }
+
+            return classesToCheck;
         }
 
-        return null;
+        /**
+         *
+         * @param viewCreatorClass
+         * @return
+         */
+        private static Class<?> getGenericModelTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
+            return Static.getGenericTypeArgument(viewCreatorClass, ViewCreator.class, 0);
+        }
+
+        /**
+         *
+         * @param viewCreatorClass
+         * @return
+         */
+        private static Class<?> getGenericViewTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
+            return Static.getGenericTypeArgument(viewCreatorClass, ViewCreator.class, 1);
+        }
+
+        /**
+         *
+         * @param clazz
+         * @param baseClass
+         * @param baseClassGenericTypeArgumentIndex
+         * @return
+         */
+        private static Class<?> getGenericTypeArgument(Class<?> clazz, Class<?> baseClass, int baseClassGenericTypeArgumentIndex) {
+
+            List<ClassInfo> hierarchy = getClassInfoHierarchy(clazz, baseClass);
+
+            int argIndex = baseClassGenericTypeArgumentIndex;
+
+            for (ClassInfo classInfo : hierarchy) {
+
+                List<Type> superClassTypeVars = classInfo.getSuperClassTypeParameters();
+
+                if (superClassTypeVars.size() > argIndex) {
+
+                    Type superClassTypeVar = superClassTypeVars.get(argIndex);
+
+                    if (superClassTypeVar instanceof Class) {
+                        return (Class<?>) superClassTypeVar;
+
+                    } else if (superClassTypeVar instanceof TypeVariable) {
+
+                        String superClassTypeVarName = ((TypeVariable) superClassTypeVar).getName();
+
+                        int index = 0;
+                        for (TypeVariable classTypeVar : classInfo.getClassTypeParameters()) {
+
+                            if (superClassTypeVarName.equals(classTypeVar.getName())) {
+                                argIndex = index;
+                                break;
+                            }
+                            index++;
+                        }
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         *
+         * @param clazz
+         * @param baseClass
+         * @return
+         */
+        private static List<ClassInfo> getClassInfoHierarchy(Class<?> clazz, Class<?> baseClass) {
+
+            List<Class<?>> classes = getClassHierarchy(clazz, baseClass);
+
+            List<Class<?>> classesReversed = new ArrayList<>(classes);
+            Collections.reverse(classesReversed);
+            classesReversed.add(baseClass);
+
+            List<ClassInfo> hierarchy = new ArrayList<>();
+
+            Class<?> prevClass = null;
+            for (Class<?> nextClass : classesReversed) {
+
+                if (prevClass != null) {
+                    Type superType = getGenericSuperType(prevClass, nextClass);
+
+                    if (superType != null) {
+                        hierarchy.add(new ClassInfo(prevClass, superType));
+                    }
+                }
+
+                prevClass = nextClass;
+            }
+
+            Collections.reverse(hierarchy);
+
+            return hierarchy;
+        }
+
+        /**
+         *
+         * @param clazz
+         * @param baseClass
+         * @return
+         */
+        private static List<Class<?>> getClassHierarchy(Class<?> clazz, Class<?> baseClass) {
+
+            if (Object.class.equals(clazz)) {
+                return null;
+
+            } else if (baseClass.equals(clazz)) {
+                return new ArrayList<>();
+            }
+
+            List<Class<?>> superTypes = new ArrayList<>();
+
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass != null) {
+                superTypes.add(superClass);
+            }
+
+            List<Class<?>> interfaceClasses = Arrays.asList(clazz.getInterfaces());
+            superTypes.addAll(interfaceClasses);
+
+            for (Class<?> superType : superTypes) {
+
+                List<Class<?>> hierarchy = getClassHierarchy(superType, baseClass);
+
+                if (hierarchy != null) {
+
+                    List<Class<?>> clazzes = new ArrayList<>();
+
+                    clazzes.addAll(hierarchy);
+                    clazzes.add(clazz);
+
+                    return clazzes;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         *
+         * @param clazz
+         * @param superType
+         * @return
+         */
+        private static Type getGenericSuperType(Class<?> clazz, Class<?> superType) {
+
+            if (superType.isInterface()) {
+                for (Type genericInterface : clazz.getGenericInterfaces()) {
+
+                    if (genericInterface instanceof Class) {
+                        if (superType.equals(genericInterface)) {
+                            return genericInterface;
+                        }
+
+                    } else if (genericInterface instanceof ParameterizedType) {
+
+                        Type rawType = ((ParameterizedType) genericInterface).getRawType();
+                        if (superType.equals(rawType)) {
+                            return genericInterface;
+                        }
+                    }
+                }
+
+            } else {
+                return clazz.getGenericSuperclass();
+            }
+
+            return null;
+        }
+
+        /**
+         *
+         */
+        private static class ClassInfo {
+
+            private Class<?> clazz;
+
+            private Type genericSuperClazz;
+
+            private ClassInfo(Class<?> clazz, Type genericSuperClazz) {
+                this.clazz = clazz;
+                this.genericSuperClazz = genericSuperClazz;
+            }
+
+            private List<TypeVariable> getClassTypeParameters() {
+                return Arrays.asList(clazz.getTypeParameters());
+            }
+
+            private List<Type> getSuperClassTypeParameters() {
+                if (genericSuperClazz instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType) genericSuperClazz;
+                    return Arrays.asList(pt.getActualTypeArguments());
+                } else {
+                    return new ArrayList<>();
+                }
+            }
+
+            @Override
+            public String toString() {
+
+                List<TypeVariable> classTypeParameters = getClassTypeParameters();
+
+                String classTypeParamsString = StringUtils.join(classTypeParameters.stream().map(Object::toString).collect(Collectors.toList()), ", ");
+                if (!StringUtils.isBlank(classTypeParamsString)) {
+                    classTypeParamsString = "<" + classTypeParamsString + ">";
+                }
+
+                return clazz + classTypeParamsString + " <-- " + genericSuperClazz;
+            }
+        }
     }
 }
