@@ -20,12 +20,33 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creator of view objects from a model object.
+ *
+ * @param <M> the model type to create the view from.
+ * @param <V> the view type to create.
+ */
 public interface ViewCreator<M, V> {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(ViewCreator.class);
-
+    /**
+     * Creates a view based on the specified model in the current view context.
+     *
+     * @param model the backing model for the view to be created.
+     * @param context the current view context.
+     * @return the newly created view.
+     */
     V createView(M model, ViewContext context);
 
+    /**
+     * Finds the view creator that should be used to create views of the
+     * specified {@code viewClass} type based on the specified {@code model}.
+     *
+     * @param model the model from which the view should be created.
+     * @param viewClass the class of the view that should be created.
+     * @param <M> the model type the view creator creates from.
+     * @param <V> the view type the view creator creates.
+     * @return the view creator of model to view.
+     */
     static <M, V> ViewCreator<M, V> findCreator(M model, Class<V> viewClass) {
 
         if (model == null) {
@@ -71,25 +92,31 @@ public interface ViewCreator<M, V> {
 
                     return creator;
                 } catch (Exception e) {
-                    LOGGER.warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
+                    Static.LOGGER.warn("Unable to create view creator of type [" + creatorClass.getName() + "]");
                 }
 
             } else {
-                LOGGER.warn("Found multiple conflicting mappings... " + creatorClasses);
+                Static.LOGGER.warn("Found multiple conflicting view creator mappings... " + creatorClasses);
             }
         }
 
         return null;
     }
 
+    /**
+     * Private static utility methods
+     */
     static final class Static {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ViewCreator.class);
 
         private Static() {
         }
 
         /**
-         * returns classes in order of input class, followed by its super
-         * classes, followed by its interfaces, followed by its modifications.
+         * Returns classes in order of input class, followed by its super
+         * classes, followed by its interfaces, followed by its modification
+         * classes.
          *
          * @param klass the class to traverse.
          * @return the list of classes that should be checked for annotations.
@@ -131,31 +158,36 @@ public interface ViewCreator<M, V> {
         }
 
         /**
+         * Finds the actual view class generic of the ViewCreator interface in
+         * context of the specified view creator class.
          *
-         * @param viewCreatorClass
-         * @return
+         * @param viewCreatorClass the view creator class to inspect.
+         * @return the view class generic for the given view creator class.
          */
         private static Class<?> getGenericModelTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
-            return Static.getGenericTypeArgument(viewCreatorClass, ViewCreator.class, 0);
+            return Static.getGenericTypeArgumentClass(viewCreatorClass, ViewCreator.class, 0);
         }
 
         /**
+         * Finds the actual model class generic of the ViewCreator interface in
+         * context of the specified view creator class.
          *
-         * @param viewCreatorClass
-         * @return
+         * @param viewCreatorClass the view creator class to inspect.
+         * @return the model class generic for the given view creator class.
          */
         private static Class<?> getGenericViewTypeArgument(Class<? extends ViewCreator> viewCreatorClass) {
-            return Static.getGenericTypeArgument(viewCreatorClass, ViewCreator.class, 1);
+            return Static.getGenericTypeArgumentClass(viewCreatorClass, ViewCreator.class, 1);
         }
 
         /**
          *
-         * @param clazz
-         * @param baseClass
-         * @param baseClassGenericTypeArgumentIndex
-         * @return
+         * @param clazz the class that extends/implements {@code baseClass} whose
+         *              actual generic type argument class should be fetched.
+         * @param baseClass the class defining the generics.
+         * @param baseClassGenericTypeArgumentIndex the index of the generic to fetch.
+         * @return the generic type argument class for the given {@code clazz}.
          */
-        private static Class<?> getGenericTypeArgument(Class<?> clazz, Class<?> baseClass, int baseClassGenericTypeArgumentIndex) {
+        private static Class<?> getGenericTypeArgumentClass(Class<?> clazz, Class<?> baseClass, int baseClassGenericTypeArgumentIndex) {
 
             List<ClassInfo> hierarchy = getClassInfoHierarchy(clazz, baseClass);
 
@@ -197,10 +229,14 @@ public interface ViewCreator<M, V> {
         }
 
         /**
+         * Returns the list of ClassInfo objects in the class hierarchy from
+         * {@code clazz} class to {@code baseClass} class, where the first
+         * element in the list is {@code clazz}. If the two classes are not in
+         * the same hierarchy, an empty list returned
          *
-         * @param clazz
-         * @param baseClass
-         * @return
+         * @param clazz the bottom starting class in the hierarchy.
+         * @param baseClass the top most parent class or interface in the hierarchy.
+         * @return the ClassInfo hierarchy list between the two class arguments.
          */
         private static List<ClassInfo> getClassInfoHierarchy(Class<?> clazz, Class<?> baseClass) {
 
@@ -232,10 +268,14 @@ public interface ViewCreator<M, V> {
         }
 
         /**
+         * Returns the list of classes in the class hierarchy from {@code clazz}
+         * class to {@code baseClass} class, where the first element in the
+         * list is {@code clazz}. If the two classes are not in the same
+         * hierarchy, {@code null} is returned.
          *
-         * @param clazz
-         * @param baseClass
-         * @return
+         * @param clazz the bottom starting class in the hierarchy.
+         * @param baseClass the top most parent class or interface in the hierarchy.
+         * @return the class hierarchy list between the two class arguments.
          */
         private static List<Class<?>> getClassHierarchy(Class<?> clazz, Class<?> baseClass) {
 
@@ -275,10 +315,12 @@ public interface ViewCreator<M, V> {
         }
 
         /**
+         * Returns the generic super type of the for the given {@code clazz}
+         * matching the specified {@code superType}.
          *
-         * @param clazz
-         * @param superType
-         * @return
+         * @param clazz the class containing a generic super type.
+         * @param superType the non-generic superType of {@code clazz}.
+         * @return the generic super type of {@code clazz}.
          */
         private static Type getGenericSuperType(Class<?> clazz, Class<?> superType) {
 
@@ -307,9 +349,9 @@ public interface ViewCreator<M, V> {
         }
 
         /**
-         *
+         * Represents a class and one if its generic super classes or interfaces.
          */
-        private static class ClassInfo {
+        private static final class ClassInfo {
 
             private Class<?> clazz;
 

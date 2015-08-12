@@ -6,9 +6,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Specifies the view class that should be created as the entry point for the
+ * rendering of a page.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface LayoutView {
+
+    /**
+     * @return the view class for the layout.
+     */
     Class<?> value();
 }

@@ -6,9 +6,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Specifies the view class that should be created for rendering the main object
+ * of a page.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface MainView {
+
+    /**
+     * @return the view class for the main object.
+     */
     Class<?> value();
 }

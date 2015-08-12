@@ -11,6 +11,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * ViewContext implementation that uses the Java Servlet Spec for handling HTTP
+ * requests.
+ */
 public class ServletViewContext implements ViewContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletViewContext.class);

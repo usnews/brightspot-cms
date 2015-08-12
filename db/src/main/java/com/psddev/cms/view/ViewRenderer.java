@@ -15,36 +15,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A renderer of views.
+ */
 public interface ViewRenderer {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
-
+    /**
+     * Renders a view, storing the result.
+     *
+     * @param viewMap a Map implementation that wraps the view to be rendered.
+     * @return the result of rendering a view.
+     */
     ViewResult render(ViewMap viewMap);
 
-    // TODO: move into the find renderer method.
-    static List<Class<?>> getClassesToCheck(Class<?> viewClass) {
-
-        List<Class<?>> classesToCheck = new ArrayList<>();
-
-        classesToCheck.add(viewClass);
-
-        // check super classes
-        Class<?> superClass = viewClass.getSuperclass();
-
-        while (superClass != null) {
-            if (!Object.class.equals(superClass)) {
-                classesToCheck.add(superClass);
-            }
-
-            superClass = superClass.getSuperclass();
-        }
-
-        // check interfaces
-        classesToCheck.addAll(Arrays.asList(viewClass.getInterfaces()));
-
-        return classesToCheck;
-    }
-
+    /**
+     * Creates an appropriate ViewRenderer based on the specified view.
+     *
+     * @param view the view from which to create a view renderer.
+     * @return the view renderer for the specified view.
+     */
     static ViewRenderer createRenderer(Object view) {
 
         if (view instanceof ViewMap) {
@@ -54,7 +43,7 @@ public interface ViewRenderer {
         // we expect a list of size 1
         List<ViewRenderer> renderers = new ArrayList<>();
 
-        for (Class<?> viewClass : getClassesToCheck(view.getClass())) {
+        for (Class<?> viewClass : Static.getAnnotatableClasses(view.getClass())) {
 
             SetClass rendererAnnotation = viewClass.getAnnotation(SetClass.class);
             if (rendererAnnotation != null) {
@@ -70,7 +59,7 @@ public interface ViewRenderer {
                         }
 
                     } catch (Exception e) {
-                        LOGGER.warn("Unable to create instance of renderer of type ["
+                        Static.LOGGER.warn("Unable to create instance of renderer of type ["
                                         + rendererClass.getName() + "]");
                     }
                 }
@@ -110,7 +99,7 @@ public interface ViewRenderer {
                 return renderers.get(0);
 
             } else {
-                LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
+                Static.LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
                 return null;
             }
 
@@ -120,8 +109,8 @@ public interface ViewRenderer {
     }
 
     /**
-     * Annotation for view types that specifies the Renderer type that should be
-     * used to render the view.
+     * Annotation for view types that specifies the ViewRenderer type that
+     * should be used to render the view.
      */
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
@@ -130,15 +119,72 @@ public interface ViewRenderer {
         Class<? extends ViewRenderer> value();
     }
 
+    /**
+     * An annotation that is placed on the annotations of views. Specifies the
+     * class that that will read the view annotation and create a ViewRenderer
+     * that will be used to render the view. This is a hook to create custom
+     * annotations that define ViewRenderers as opposed to the more direct
+     * {@link com.psddev.cms.view.ViewRenderer.SetClass} annotation.
+     */
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.ANNOTATION_TYPE)
     static @interface AnnotationProcessorClass {
+
+        /**
+         * @return the class that will process annotation on which this
+         * annotation lives.
+         */
         Class<? extends AnnotationProcessor<? extends Annotation>> value();
     }
 
+    /**
+     * Processes an annotation in order to create a ViewRenderer.
+     *
+     * @param <A> the annotation type to process.
+     */
     static interface AnnotationProcessor<A extends Annotation> {
 
+        /**
+         * Creates a ViewRenderer based on the specified annotation.
+         *
+         * @param annotation the annotation to process.
+         * @return the ViewRenderer created based on the annotation.
+         */
         ViewRenderer createRenderer(A annotation);
+    }
+
+    /**
+     * Private static utility methods
+     */
+    static final class Static {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
+
+        private Static() {
+        }
+
+        private static List<Class<?>> getAnnotatableClasses(Class<?> viewClass) {
+
+            List<Class<?>> classesToCheck = new ArrayList<>();
+
+            classesToCheck.add(viewClass);
+
+            // check super classes
+            Class<?> superClass = viewClass.getSuperclass();
+
+            while (superClass != null) {
+                if (!Object.class.equals(superClass)) {
+                    classesToCheck.add(superClass);
+                }
+
+                superClass = superClass.getSuperclass();
+            }
+
+            // check interfaces
+            classesToCheck.addAll(Arrays.asList(viewClass.getInterfaces()));
+
+            return classesToCheck;
+        }
     }
 }

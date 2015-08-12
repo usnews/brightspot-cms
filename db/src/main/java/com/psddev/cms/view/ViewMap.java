@@ -6,18 +6,20 @@ import com.psddev.dari.db.Recordable;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.Once;
 import com.psddev.dari.util.StringUtils;
-import com.psddev.dari.util.TypeDefinition;
 
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +32,11 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * A Map implementation that uses a view (java bean) as the backing object for
+ * the keys and values within the map. This Map uses the bean spec to map the
+ * getter methods of the backing view to the keys within the map.
+ */
 public class ViewMap implements Map<String, Object> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewMap.class);
@@ -47,31 +54,31 @@ public class ViewMap implements Map<String, Object> {
         }
     };
 
+    /**
+     * Creates a new Map backed by the specified view.
+     *
+     * @param view the view to wrap.
+     */
     public ViewMap(Object view) {
         this.view = view;
         this.unresolved = new HashMap<>();
         this.resolved = new HashMap<>();
 
-        // TODO: Switch to using java bean spec
-        TypeDefinition typeDef = TypeDefinition.getInstance(view.getClass());
-        Map<String, Method> getters = typeDef.getAllGetters();
+        try {
+            Arrays.stream(Introspector.getBeanInfo(view.getClass()).getPropertyDescriptors())
+                    .forEach(prop -> unresolved.put(prop.getName(), () -> invoke(prop.getReadMethod(), view)));
 
-        getters.entrySet().forEach(e -> unresolved.put(e.getKey(), () -> invoke(e.getValue(), view)));
+        } catch (IntrospectionException e) {
+            LOGGER.warn("Failed to introspect bean info for view of type ["
+                    + view.getClass().getName() + "]. Cause: " + e.getMessage());
+        }
     }
 
+    /**
+     * @return the backing view object for this map.
+     */
     public Object getView() {
         return view;
-    }
-
-    private static Object invoke(Method method, Object view) {
-        try {
-            method.setAccessible(true);
-            return method.invoke(view);
-
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.warn("failed to invoke method: " + method);
-            return null;
-        }
     }
 
     @Override
@@ -166,8 +173,9 @@ public class ViewMap implements Map<String, Object> {
     }
 
     /*
-    public static final String REFERENTIAL_TEXT_TYPE = "referentialText";
-    public static final String REGION_TYPE = "region";
+    Types not currently handled...
+    REFERENTIAL_TEXT_TYPE = "referentialText";
+    REGION_TYPE = "region";
      */
     private Object convertValue(Object value) {
 
@@ -221,7 +229,6 @@ public class ViewMap implements Map<String, Object> {
             return value;
 
         } else if (value instanceof Map) {
-            // TODO: should probably wrap the map
             return value;
 
         } else if (value != null) {
@@ -229,5 +236,16 @@ public class ViewMap implements Map<String, Object> {
         }
 
         return value;
+    }
+
+    private static Object invoke(Method method, Object view) {
+        try {
+            method.setAccessible(true);
+            return method.invoke(view);
+
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            LOGGER.warn("Failed to invoke method: " + method);
+            return null;
+        }
     }
 }
