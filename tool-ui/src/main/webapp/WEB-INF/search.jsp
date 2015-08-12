@@ -243,7 +243,7 @@ writer.start("div", "class", "searchForm");
                     wp.writeTypeSelect(
                             validTypes.stream()
                                 .filter(wp.getTypeDisplayPredicate(Arrays.asList("read")))
-                                .collect(Collectors.toList()),
+                                .collect(Collectors.<ObjectType>toSet()),
                             selectedType,
                             "Any Types",
                             "name", Search.SELECTED_TYPE_PARAMETER,
@@ -549,7 +549,7 @@ writer.start("div", "class", "searchForm");
                         wp.writeTypeSelect(
                                 creatableTypes.stream()
                                     .filter(wp.getTypeDisplayPredicate(Arrays.asList("write", "read")))
-                                    .collect(Collectors.toList()),
+                                    .collect(Collectors.<ObjectType>toSet()),
                                 selectedType,
                                 null,
                                 "name", "typeId",
