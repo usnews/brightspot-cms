@@ -2554,6 +2554,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 self.clipboardSet(e.originalEvent);
             });
 
+/*** // not ready yet
+
             $wrapper.on('paste', function(e){
                 var value;
                 value = self.clipboardGet(e.originalEvent);
@@ -2561,7 +2563,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     self.fromHTML(value, self.getRange());
                 }
             });
-
+***/
+            
         },
 
 
