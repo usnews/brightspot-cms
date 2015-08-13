@@ -1,7 +1,7 @@
 (function($, win, undef) {
 
-var $win = $(win),
-        doc = win.document;
+var $win = $(win);
+var $doc = $(win.document);
 
 $.plugin2('sortable', {
     '_defaultOptions': {
@@ -9,8 +9,8 @@ $.plugin2('sortable', {
     },
 
     '_create': function(container) {
-        var $container = $(container),
-                options = this.option();
+        var $container = $(container);
+        var options = this.option();
 
         $container.addClass('_sortable');
         $container.find(options.itemSelector).addClass('_sortable-item');
@@ -18,7 +18,7 @@ $.plugin2('sortable', {
         $container.delegate(options.itemSelector, 'mousedown.sortable', function(event) {
             var $target = $(event.target);
 
-            if ($target.closest('._sortable')[0] != container) {
+            if ($target.closest('._sortable')[0] !== container) {
                 return;
             }
 
@@ -33,8 +33,8 @@ $.plugin2('sortable', {
             }
 
             $.drag(this, event, function(event, data) {
-                var $selected = $(this),
-                        selectedOffset = $selected.offset();
+                var $selected = $(this);
+                var selectedOffset = $selected.offset();
 
                 data.originalStyle = $selected.attr('style');
 
@@ -56,11 +56,11 @@ $.plugin2('sortable', {
                 });
 
             }, function(event, data) {
-                var $selected = $(this),
-                        $drop,
-                        $items,
-                        placeholderIndex,
-                        dropIndex;
+                var $selected = $(this);
+                var $drop;
+                var $items;
+                var placeholderIndex;
+                var dropIndex;
 
                 $selected.css({
                     'left': event.pageX - $win.scrollLeft() + data.adjustX,
