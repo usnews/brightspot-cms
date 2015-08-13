@@ -232,6 +232,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             self.initListListeners();
             self.initClickListener();
             self.initEvents();
+            self.clipboardInit();
             self.trackInit();
         },
 
@@ -2013,19 +2014,20 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
         /**
          * @returns Number
-         * The line number of the mark.
+         * The line number of the mark, or 0 if the mark is not in the document.
          */
         enhancementGetLineNumber: function(mark) {
             
             var lineNumber, position;
 
+            lineNumber = undefined;
             if (mark.line) {
-                lineNumber = mark.line.lineNo() || 0;
+                lineNumber = mark.line.lineNo();
             } else if (mark.find) {
                 position = mark.find();
-                lineNumber = position.line;
-            } else {
-                lineNumber = 0;
+                if (position) {
+                    lineNumber = position.line;
+                }
             }
             
             return lineNumber;
@@ -2535,6 +2537,91 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
         },
 
+        //==================================================
+        // Clipboard 
+        //==================================================
+        
+        clipboardInit: function() {
+            
+            var editor, self, $wrapper;
+            self = this;
+
+            // Set up copy event
+            editor = self.codeMirror;
+            $wrapper = $(editor.getWrapperElement());
+
+            $wrapper.on('cut copy', function(e){
+                self.clipboardSet(e.originalEvent);
+            });
+
+            $wrapper.on('paste', function(e){
+                var value;
+                value = self.clipboardGet(e.originalEvent);
+                if (value !== undefined) {
+                    self.fromHTML(value, self.getRange());
+                }
+            });
+
+        },
+
+
+        /**
+         * @param {Event} e
+         * The paste event. This is required because you can only access the clipboardData from one of these events.
+         *
+         */
+        clipboardGet: function(e) {
+            var self, value;
+            self = this;
+            
+            if (e && e.clipboardData && e.clipboardData.getData) {
+                value = e.clipboardData.getData('text/brightspot-rte2') || e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+                if (value) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return value;
+                }
+            }
+        },
+
+        
+        /**
+         * @param {Event} e
+         * The cut/copy event. This is required because you can only access the clipboardData from one of these events.
+         *
+         * @param {String} value
+         * The HTML text to save in the clipboard.
+         */
+        clipboardSet: function(e) {
+            
+            var editor, html, range, self, text;
+            self = this;
+            editor = self.codeMirror;
+            
+            range = self.getRange();
+            text = editor.getRange(range.from, range.to);
+            html = self.toHTML(range);
+
+            if (e && e.clipboardData && e.clipboardData.setData) {
+                
+                e.clipboardData.setData('text/plain', text);
+                e.clipboardData.setData('text/html', html);
+
+                // We set the html using mime type text/brightspot-rte
+                // so we can get it back from the clipboard without browser modification
+                // (since browser tends to add a <meta> element to text/html)
+                e.clipboardData.setData('text/brightspot-rte2', html);
+
+                // Clear the cut area
+                if (e.type === 'cut') {
+                    editor.replaceRange('', range.from, range.to);
+                }
+
+                // Don't let the actual cut/copy event occur
+                // (or it will overwrite the clipboard)
+                e.preventDefault();
+            }
+        },
 
         //==================================================
         // Miscelaneous Functions
@@ -2787,8 +2874,12 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
         /**
          * Get content from codemirror, analyze the marked up regions,
          * and convert to HTML.
+         *
+         * @param {Object} [range=entire document]
+         * If this parameter is provided, it is a selection range within the documents.
+         * Only the selected characters will be converted to HTML.
          */
-        toHTML: function() {
+        toHTML: function(range) {
 
             /**
              * Create the opening HTML element for a given style object.
@@ -2831,6 +2922,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             self = this;
 
+            range = range || self.getRangeAll();
+            
             // Before beginning make sure all the marks are cleaned up and simplified.
             // This will ensure that none of the marks span across lines.
             self.inlineCleanup();
@@ -2855,11 +2948,14 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 var lineNo;
 
                 lineNo = self.enhancementGetLineNumber(mark);
-
-                // Create an array to hold the enhancements for this line, then add the current enhancement
-                enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
                 
-                enhancementsByLine[lineNo].push(mark);
+                if (lineNo !== undefined) {
+                    
+                    // Create an array to hold the enhancements for this line, then add the current enhancement
+                    enhancementsByLine[lineNo] = enhancementsByLine[lineNo] || [];
+                
+                    enhancementsByLine[lineNo].push(mark);
+                }
             });
 
             // Start the HTML!
@@ -2868,7 +2964,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             // Loop through the content one line at a time
             doc.eachLine(function(line) {
 
-                var annotationStart, annotationEnd, blockOnThisLine, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo, outputChar, raw, rawLastChar;
+                var annotationStart, annotationEnd, blockOnThisLine, charNum, charInRange, htmlStartOfLine, htmlEndOfLine, inlineActive, inlineElementsToClose, lineNo, lineInRange, outputChar, raw, rawLastChar;
 
                 lineNo = line.lineNo();
                 
@@ -2889,7 +2985,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // and the current line contains a list item, then we keep the list open.
                 // But if the current line does not contain a list item then we close the list.
                 blockOnThisLine = {};
-                
+
+                // If lineNo is in range
+                if (range.from.line <= lineNo && range.to.line >= lineNo) {
+
                 // Get any line classes and determine which kind of line we are on (bullet, etc)
                 // Note this does not support nesting line elements (like a list within a list)
                 // From CodeMirror, the textClass property will contain multiple line styles separated by space
@@ -2928,6 +3027,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             }
                         }
 
+                            
                         // Now determine which element to create for the line.
                         // For example, if it is a list then we would create an 'LI' element.
                         htmlStartOfLine += openElement(styleObj);
@@ -2937,7 +3037,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         
                     }); // .each
                 }// if line.textClass
-
+                    
+                } // if lineNo is in range
                 
                 // Now that we know which line styles are on this line, we can tell if we need to continue a list
                 // from a previous line, or actually close the list.
@@ -2959,6 +3060,15 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     $.each(enhancementsByLine[lineNo], function(i,mark) {
 
                         var enhancmentHTML;
+
+                        // Only include the enhancement if the first character of this line is within the selected range
+                        charInRange = (lineNo >= range.from.line) && (lineNo <= range.to.line);
+                        if (lineNo === range.from.line && 0 <= range.from.ch) {
+                            charInRange = false;
+                        }
+                        if (!charInRange) {
+                            return;
+                        }
 
                         enhancementHTML = '';
                         if (mark.options.toHTML) {
@@ -3053,15 +3163,26 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         
                         // Add the element to the start and end annotations for this character
                         annotationEnd[endCh].push(styleObj);
-
-                    });
-                }
+                        
+                    }); // each markedSpan
+                    
+                } // if markedSpans
 
                 // Loop through each character in the line string.
                 for (charNum = 0; charNum <= line.text.length; charNum++) {
-                    
+
+                    charInRange = true;
+                    if (lineNo === range.from.line && charNum < range.from.ch) {
+                        charInRange = false;
+                    }
+                    if (lineNo === range.to.line && charNum > (range.to.ch - 1)) {
+                        charInRange = false;
+                    }
+                    charInRange = charInRange && (lineNo >= range.from.line) && (lineNo <= range.to.line);
+
                     // Do we need to end elements at this character?
-                    if (annotationEnd[charNum]) {
+                    if (annotationEnd[charNum] || 
+                        ((lineNo === range.to.line) && (range.to.ch <= charNum))) {
 
                         // Close all the active elements in the reverse order they were created
                         $.each(inlineElementsToClose.reverse(), function(i, element) {
@@ -3072,7 +3193,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         inlineElementsToClose = [];
 
                         // Find out which elements are no longer active
-                        $.each(annotationEnd[charNum], function(i, styleObj) {
+                        $.each(annotationEnd[charNum] || {}, function(i, styleObj) {
                             
                             // If any of the styles is "raw" mode, clear the raw flag
                             if (styleObj.raw) {
@@ -3083,15 +3204,19 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         });
 
                         // Re-open elements that are still active
-                        $.each(inlineActive, function(className, styleObj) {
-                            var element;
-                            if (!self.voidElements[ styleObj.element ]) {
-                                inlineElementsToClose.push(styleObj.element);
-                                html += openElement(styleObj);
-                            }
-                        });
-
-                    }
+                        // if we are still in the range
+                        if (charInRange) {
+                            
+                            $.each(inlineActive, function(className, styleObj) {
+                                var element;
+                                if (!self.voidElements[ styleObj.element ]) {
+                                    inlineElementsToClose.push(styleObj.element);
+                                    html += openElement(styleObj);
+                                }
+                            });
+                        }
+                        
+                    } // if annotationEnd
 
                     if (annotationStart[charNum]) {
                         
@@ -3107,16 +3232,20 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                 // Save this element on the list of active elements
                                 inlineActive[styleObj.className] = styleObj;
 
-                                // Also push it on a stack so we can close elements in reverse order
-                                if (!self.voidElements[ styleObj.element ]) {
-                                    inlineElementsToClose.push(styleObj.element);
-                                }
 
                                 // Open the new element
-                                html += openElement(styleObj);
+                                if (charInRange) {
+
+                                    // Also push it on a stack so we can close elements in reverse order
+                                    if (!self.voidElements[ styleObj.element ]) {
+                                        inlineElementsToClose.push(styleObj.element);
+                                    }
+
+                                    html += openElement(styleObj);
+                                }
                             }
                         });
-                    }
+                    } // if annotationStart
 
                     outputChar = line.text.charAt(charNum);
 
@@ -3148,34 +3277,42 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             rawLastChar = false;
                         }
                         
-                        html += outputChar;
+                        if (charInRange) {
+                            html += outputChar;
+                        }
+                    } // if outputchar
+                    
+                } // for char
+
+                
+                if (range.from.line <= lineNo && range.to.line >= lineNo) {
+                    
+                    // If we reached end of line, close all the open block elements
+                    if (blockElementsToClose.length) {
+                    
+                        $.each(blockElementsToClose.reverse(), function() {
+                            var element;
+                            element = this.element;
+                            if (element) {
+                                html += '</' + element + '>';
+                            }
+                        });
+                        blockElementsToClose = [];
+
+                    } else if (charInRange && rawLastChar && !self.rawBr) {
+                        html += '\n';
+                    } else if (charInRange) {
+                        // No block elements so add a line break
+                        html += '<br/>';
+                    }
+
+                    // Add any content that needs to go after the line
+                    // for example, enhancements that are positioned below the line.
+                    if (htmlEndOfLine) {
+                        html += htmlEndOfLine;
                     }
                 }
-
-                // If we reached end of line, close all the open block elements
-                if (blockElementsToClose.length) {
-                    
-                    $.each(blockElementsToClose.reverse(), function() {
-                        var element;
-                        element = this.element;
-                        if (element) {
-                            html += '</' + element + '>';
-                        }
-                    });
-                    blockElementsToClose = [];
-
-                } else if (rawLastChar && !self.rawBr) {
-                    html += '\n';
-                } else {
-                    // No block elements so add a line break
-                    html += '<br/>';
-                }
-
-                // Add any content that needs to go after the line
-                // for example, enhancements that are positioned below the line.
-                if (htmlEndOfLine) {
-                    html += htmlEndOfLine;
-                }
+                
             });
 
             // When we finish with the final line close any block elements that are still open
@@ -3360,16 +3497,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                                         
                                         // There were no attributes specified for this style so we might have a match just on the element
                                         matchStyleObj = styleObj;
-/***
-                                        // Check to verify the element doesn't have any unexpected attributes.
-                                        // For example, if we are looking for <b> we should not match <b class="foo">
-                                        if (!styleObj.elementAttrAny) {
-                                            $.each(elementAttributes, function(attr, value) {
-                                                matchStyleObj = false;
-                                                return false;
-                                            });
-                                        }
-***/
                                     }
 
                                     // Check if the element has other attributes that are unexpected
@@ -3402,7 +3529,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         };
 
                         // Special case - is this an enhancement?
-                        if (elementName === 'span' && $(next).hasClass('enhancement')) {
+                        if ((elementName === 'span' || elementName === 'button') && $(next).hasClass('enhancement')) {
 
                             enhancements.push({
                                 line: from.line,
