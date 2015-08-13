@@ -38,10 +38,8 @@ $.plugin2('sortable', {
 
                 data.originalStyle = $selected.attr('style');
 
-                $selected.css({
-                    'height': $selected.height(),
-                    'width': $selected.width()
-                });
+                $selected.height($selected.height());
+                $selected.width($selected.width());
 
                 data.$placeholder = $selected.clone().empty();
                 $selected.before(data.$placeholder);
