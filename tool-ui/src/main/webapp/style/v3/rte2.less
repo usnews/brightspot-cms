@@ -269,25 +269,41 @@
   }
 
   &.rte-fullscreen {
-    background-color: white;
+    background: @color-border;
     border-style: none;
     height: 100%;
     left: 0;
     overflow: auto;
     overflow-x: hidden;
+    padding: 0 40px;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 49;
 
-    padding:20px;
-    font-size:16px;
-    line-height:24px;
+    .rte2-toolbar {
+      background: white;
+      border-bottom: 1px solid @color-separator;
+      left: 0 !important;
+      padding-left: 5px;
+      padding-right: 5px;
+      right: 0 !important;
+      width: auto !important;
+    }
 
     .CodeMirror {
-      border:0;
-      background-color:white;
-      width:70em;
+      background: white;
+      border: 0;
+      box-shadow: 0 0 20px fade(black, 50%);
+      display: block;
+      font-size: 16px;
+      line-height: 24px;
+      margin: 0 auto;
+      width: 60em;
+
+      .CodeMirror-lines {
+        padding: 30px;
+      }
     }
   }
   
