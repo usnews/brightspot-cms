@@ -86,9 +86,12 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
       $.each($.parseJSON(oldValues), function(fieldName, oldValue) {
         if (JSON.stringify(oldValue) !== JSON.stringify(newValues[fieldName])) {
           var $container = $('.objectInputs[data-id="' + contentId + '"] > .inputContainer[data-field="' + fieldName + '"]');
+          var $form = $container.closest('form');
 
-          updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
-          $container.addClass('inputContainer-updated');
+          if ($form.length > 0 && !$.data($form[0], 'content-edit-submit')) {
+            updateStatus($container, userId, 'Updated by ' + userName + ' at ' + new Date(data.date));
+            $container.addClass('inputContainer-updated');
+          }
         }
       });
     }
@@ -132,5 +135,9 @@ define([ 'jquery', 'v3/rtc' ], function($, rtc) {
         update();
       }, 50);
     });
+
+    $form.on('submit', function() {
+      $.data($form[0], 'content-edit-submit', true);
+    })
   });
 });
