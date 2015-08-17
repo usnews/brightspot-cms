@@ -1,6 +1,6 @@
 package com.psddev.cms.tool.page.content;
 
-import com.psddev.cms.tool.page.RtcAction;
+import com.psddev.cms.rtc.RtcAction;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.TypeReference;

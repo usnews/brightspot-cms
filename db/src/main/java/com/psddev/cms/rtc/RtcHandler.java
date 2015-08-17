@@ -1,4 +1,4 @@
-package com.psddev.cms.tool.page;
+package com.psddev.cms.rtc;
 
 import com.google.common.collect.ImmutableMap;
 import com.psddev.cms.db.ToolUser;
