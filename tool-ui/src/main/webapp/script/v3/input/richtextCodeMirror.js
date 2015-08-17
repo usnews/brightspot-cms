@@ -657,10 +657,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * @param Object [options.includeTrack=false]
          * Set to true if you want to include the "track changes" classes.
          * Otherwise will ignore those classes.
-         *
-         * @param Boolean [deleteText=false]
-         * Set to true to also delete the text within the mark.
-         *
          */
         inlineRemoveStyle: function(styleKey, range, options) {
 
@@ -1410,7 +1406,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             
             // Get the start and end positions for this mark
             pos = mark.find();
-            if (!pos.from) {
+            if (!pos || !pos.from) {
                 return;
             }
             
@@ -2537,6 +2533,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             });
         },
 
+        
         //==================================================
         // Clipboard 
         //==================================================
@@ -2554,8 +2551,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 self.clipboardSet(e.originalEvent);
             });
 
-/*** // not ready yet
-
             $wrapper.on('paste', function(e){
                 var value;
                 value = self.clipboardGet(e.originalEvent);
@@ -2563,7 +2558,6 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     self.fromHTML(value, self.getRange());
                 }
             });
-***/
             
         },
 
@@ -2604,7 +2598,7 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
             range = self.getRange();
             text = editor.getRange(range.from, range.to);
             html = self.toHTML(range);
-
+            
             if (e && e.clipboardData && e.clipboardData.setData) {
                 
                 e.clipboardData.setData('text/plain', text);
@@ -2623,6 +2617,8 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // Don't let the actual cut/copy event occur
                 // (or it will overwrite the clipboard)
                 e.preventDefault();
+
+
             }
         },
 
@@ -2992,54 +2988,54 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                 // If lineNo is in range
                 if (range.from.line <= lineNo && range.to.line >= lineNo) {
 
-                // Get any line classes and determine which kind of line we are on (bullet, etc)
-                // Note this does not support nesting line elements (like a list within a list)
-                // From CodeMirror, the textClass property will contain multiple line styles separated by space
-                // like 'rte2-style-ol rte2-style-align-left'
-                if (line.textClass) {
-                    
-                    $.each(line.textClass.split(' '), function() {
+                    // Get any line classes and determine which kind of line we are on (bullet, etc)
+                    // Note this does not support nesting line elements (like a list within a list)
+                    // From CodeMirror, the textClass property will contain multiple line styles separated by space
+                    // like 'rte2-style-ol rte2-style-align-left'
+                    if (line.textClass) {
                         
-                        var container, styleObj;
-
-                        // From a line style (like "rte2-style-ul"), determine the style name it maps to (like "ul")
-                        styleObj = self.classes[this];
-                        if (!styleObj) {
-                            return;
-                        }
-
-                        // Get the "container" element for this style (for example: ul or ol)
-                        container = styleObj.elementContainer;
-                        if (container) {
-
-                            // Mark that we found this container, so later we can close off any containers that are not active any more.
-                            // For example this will set blockOnThisLine.ul to true.
-                            blockOnThisLine[container] = true;
+                        $.each(line.textClass.split(' '), function() {
                             
-                            // Check to see if we are already inside this container element
-                            if (blockActive[container]) {
+                            var container, styleObj;
 
-                                // We are currently inside this style so we don't need to open the container element
-                                
-                            } else {
-
-                                // We are not already inside this style, so create the container element
-                                // and remember that we created it
-                                blockActive[container] = true;
-                                htmlStartOfLine += '<' + container + '>';
+                            // From a line style (like "rte2-style-ul"), determine the style name it maps to (like "ul")
+                            styleObj = self.classes[this];
+                            if (!styleObj) {
+                                return;
                             }
-                        }
+
+                            // Get the "container" element for this style (for example: ul or ol)
+                            container = styleObj.elementContainer;
+                            if (container) {
+
+                                // Mark that we found this container, so later we can close off any containers that are not active any more.
+                                // For example this will set blockOnThisLine.ul to true.
+                                blockOnThisLine[container] = true;
+                                
+                                // Check to see if we are already inside this container element
+                                if (blockActive[container]) {
+
+                                    // We are currently inside this style so we don't need to open the container element
+                                    
+                                } else {
+
+                                    // We are not already inside this style, so create the container element
+                                    // and remember that we created it
+                                    blockActive[container] = true;
+                                    htmlStartOfLine += '<' + container + '>';
+                                }
+                            }
 
                             
-                        // Now determine which element to create for the line.
-                        // For example, if it is a list then we would create an 'LI' element.
-                        htmlStartOfLine += openElement(styleObj);
+                            // Now determine which element to create for the line.
+                            // For example, if it is a list then we would create an 'LI' element.
+                            htmlStartOfLine += openElement(styleObj);
 
-                        // Also push this style onto a stack so when we reach the end of the line we can close the element
-                        blockElementsToClose.push(styleObj);
-                        
-                    }); // .each
-                }// if line.textClass
+                            // Also push this style onto a stack so when we reach the end of the line we can close the element
+                            blockElementsToClose.push(styleObj);
+                            
+                        }); // .each
+                    }// if line.textClass
                     
                 } // if lineNo is in range
                 
@@ -3183,7 +3179,24 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                     }
                     charInRange = charInRange && (lineNo >= range.from.line) && (lineNo <= range.to.line);
 
+                    // Special case - first element in the range.
+                    // If previous characters from before the range opened any elements, include them now.
+                    // For example, if there is a set of italic characters and the range begins in the middle
+                    // of italicized text, then we must start by displaying <I> element.
+                    if (lineNo === range.from.line && charNum === range.from.ch) {
+
+                            $.each(inlineActive, function(className, styleObj) {
+                                var element;
+                                if (!self.voidElements[ styleObj.element ]) {
+                                    inlineElementsToClose.push(styleObj.element);
+                                    html += openElement(styleObj);
+                                }
+                            });
+                    }
+                    
                     // Do we need to end elements at this character?
+                    // Check if there is an annotation ending on this character,
+                    // or if we are at the end of our range we need to check all the remaining characters on the line.
                     if (annotationEnd[charNum] || 
                         ((lineNo === range.to.line) && (range.to.ch <= charNum))) {
 
@@ -3221,6 +3234,10 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                         
                     } // if annotationEnd
 
+                    // Check if there are any elements that start on this character
+                    // Note even if this character is not in our range, we still need
+                    // to remember which elements have opened, in case our range has characters
+                    // in the middle of an opened element.
                     if (annotationStart[charNum]) {
                         
                         $.each(annotationStart[charNum], function(i, styleObj) {
@@ -3229,17 +3246,17 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
                             if (styleObj.raw) {
                                 raw = true;
                             }
-                            
+
+                            // Make sure this element is not already opened
                             if (!inlineActive[styleObj.className]) {
 
                                 // Save this element on the list of active elements
                                 inlineActive[styleObj.className] = styleObj;
 
-
                                 // Open the new element
                                 if (charInRange) {
 
-                                    // Also push it on a stack so we can close elements in reverse order
+                                    // Also push it on a stack so we can close elements in reverse order.
                                     if (!self.voidElements[ styleObj.element ]) {
                                         inlineElementsToClose.push(styleObj.element);
                                     }
@@ -3343,14 +3360,16 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
          * Import HTML content into the editor.
          *
          * @param {String} html
+         *
+         * @param {Object} [range=complete document]
+         * A selected range where the HTML should be inserted.
          */
-        fromHTML: function(html) {
+        fromHTML: function(html, range) {
 
             var annotations, editor, enhancements, el, map, self, val;
 
             self = this;
 
-            self.empty();
             
             editor = self.codeMirror;
 
@@ -3689,15 +3708,76 @@ define(['jquery', 'codemirror/lib/codemirror'], function($, CodeMirror) {
 
             // Set the text in the editor
             val = val.replace(/[\n\r]+$/, '');
-            editor.setValue(val);
+
+            if (range) {
+
+                // Remove the styles from the range so for example we don't paste content
+                // into a bold region and make all the pasted content bold.
+                // There seems to be a problem if the range is a single cursor position
+                // and we can't remove the styles for that.
+                // So instead we'll replace the selected range with a single space
+                // or insert a space, then remove the styles from that space character,
+                // then replace that space with our new content.
+                editor.replaceRange(' ', range.from, range.to);
+                
+                // Make the new range one character long
+                range = {
+                    from: { line:range.from.line, ch:range.from.ch },
+                    to: { line:range.from.line, ch:range.from.ch + 1 }
+                };
+
+                // Remove styles from the character
+                self.removeStyles(range);
+                
+            } else {
+                
+                // Replace the entire document
+                self.empty();
+
+                // Set the range at the beginning of the document
+                range = {
+                    from: { line:0, ch:0 },
+                    to:{ line:0, ch:0 }
+                };
+            }
+
+            // Add the plain text into the selected range
+            editor.replaceRange(val, range.from, range.to);
 
             // Set up all the annotations
             $.each(annotations, function(i, annotation) {
 
-                var range, styleObj;
+                var styleObj;
 
                 styleObj = annotation.styleObj;
 
+                // Adjust the position of the annotation based on the range where we're inserting the text
+                if (range.from.line !== 0 || range.from.ch !== 0) {
+
+                    // Only if the annotation is on the first line of new content,
+                    // we should adjust the starting character in case the selected range
+                    // does not start at character zero.
+                    // For annotations on subsequent lines we don't need to adjust the starting character.
+                    if (annotation.from.line === 0) {
+                        
+                        annotation.from.ch += range.from.ch;
+
+                        // If the annotation also ends on this line, adjust the ending character.
+                        // For annotations on subsequent lines we don't need to adjust the ending character
+                        // because a new line will have been created.
+                        
+                        if (annotation.to.line === 0) {
+                            annotation.to.ch += range.from.ch;
+                        }
+                    }
+
+                    // Since we are replacing a range that is not at the start
+                    // of the document, the lines for all annotations should be adjusted
+                    annotation.from.line += range.from.line;
+                    annotation.to.line += range.from.line;
+
+                }
+                
                 if (styleObj.line) {
                     self.blockSetStyle(styleObj, annotation);
                 } else {
