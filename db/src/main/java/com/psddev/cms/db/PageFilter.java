@@ -31,8 +31,7 @@ import com.psddev.cms.tool.AuthenticationFilter;
 import com.psddev.cms.tool.CmsTool;
 import com.psddev.cms.tool.RemoteWidgetFilter;
 import com.psddev.cms.tool.ToolPageContext;
-import com.psddev.cms.view.ServletViewContext;
-import com.psddev.cms.view.ViewContext;
+import com.psddev.cms.view.ViewRequest;
 import com.psddev.cms.view.ViewMap;
 import com.psddev.cms.view.ViewRenderer;
 import com.psddev.cms.view.ViewResult;
@@ -1079,18 +1078,18 @@ public class PageFilter extends AbstractFilter {
         }
     };
 
-    public static boolean tryRenderView(HttpServletRequest request,
+    private static boolean tryRenderView(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Writer writer,
                                         Object object)
                                         throws IOException, ServletException {
 
-        ViewContext viewContext = new ServletViewContext(request);
+        ViewRequest viewRequest = new ServletViewRequest(request);
 
-        Class<?> layoutViewClass = viewContext.getLayoutViewClass(object);
+        Class<?> layoutViewClass = viewRequest.getLayoutViewClass(object);
         if (layoutViewClass != null) {
 
-            Object view = viewContext.createView(layoutViewClass, object);
+            Object view = viewRequest.createView(layoutViewClass, object);
             if (view != null) {
 
                 ViewRenderer renderer = ViewRenderer.createRenderer(view);

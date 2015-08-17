@@ -12,13 +12,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * A renderer of views.
  */
 public interface ViewRenderer {
+
+    static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
 
     /**
      * Renders a view, storing the result.
@@ -43,7 +44,7 @@ public interface ViewRenderer {
         // we expect a list of size 1
         List<ViewRenderer> renderers = new ArrayList<>();
 
-        for (Class<?> viewClass : Static.getAnnotatableClasses(view.getClass())) {
+        for (Class<?> viewClass : ViewUtils.getAnnotatableClasses(view.getClass())) {
 
             SetClass rendererAnnotation = viewClass.getAnnotation(SetClass.class);
             if (rendererAnnotation != null) {
@@ -59,8 +60,8 @@ public interface ViewRenderer {
                         }
 
                     } catch (Exception e) {
-                        Static.LOGGER.warn("Unable to create instance of renderer of type ["
-                                        + rendererClass.getName() + "]");
+                        LOGGER.warn("Unable to create instance of renderer of type ["
+                                + rendererClass.getName() + "]");
                     }
                 }
             }
@@ -99,7 +100,7 @@ public interface ViewRenderer {
                 return renderers.get(0);
 
             } else {
-                Static.LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
+                LOGGER.warn("Found multiple renderers for view of type [" + view.getClass().getName() + "]!");
                 return null;
             }
 
@@ -152,39 +153,5 @@ public interface ViewRenderer {
          * @return the ViewRenderer created based on the annotation.
          */
         ViewRenderer createRenderer(A annotation);
-    }
-
-    /**
-     * Private static utility methods
-     */
-    static final class Static {
-
-        private static final Logger LOGGER = LoggerFactory.getLogger(ViewRenderer.class);
-
-        private Static() {
-        }
-
-        private static List<Class<?>> getAnnotatableClasses(Class<?> viewClass) {
-
-            List<Class<?>> classesToCheck = new ArrayList<>();
-
-            classesToCheck.add(viewClass);
-
-            // check super classes
-            Class<?> superClass = viewClass.getSuperclass();
-
-            while (superClass != null) {
-                if (!Object.class.equals(superClass)) {
-                    classesToCheck.add(superClass);
-                }
-
-                superClass = superClass.getSuperclass();
-            }
-
-            // check interfaces
-            classesToCheck.addAll(Arrays.asList(viewClass.getInterfaces()));
-
-            return classesToCheck;
-        }
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * The context in which views are created while serving an HTTP request.
  */
-public interface ViewContext {
+public interface ViewRequest {
 
     /**
      * Creates a view of the specified {@code viewClass} based on the given

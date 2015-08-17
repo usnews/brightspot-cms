@@ -21,7 +21,7 @@ package com.psddev.cms.view;
  * they want to create.
  *
  * Sub-classes will have direct instance variable access to the model and view
- * context to implement the methods defined by the view interface.
+ * request to implement the methods defined by the view interface.
  *
  * @param <M> the model type from which the view creator can create views.
  */
@@ -29,12 +29,12 @@ public abstract class AbstractViewCreator<M> implements ViewCreator<M, Object> {
 
     protected M model;
 
-    protected ViewContext context;
+    protected ViewRequest request;
 
     @Override
-    public Object createView(M model, ViewContext context) {
+    public Object createView(M model, ViewRequest request) {
         this.model = model;
-        this.context = context;
+        this.request = request;
         return this;
     }
 }

@@ -1,6 +1,7 @@
-package com.psddev.cms.view;
+package com.psddev.cms.db;
 
-import com.psddev.cms.db.PageStage;
+import com.psddev.cms.view.ViewCreator;
+import com.psddev.cms.view.ViewRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +13,16 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * ViewContext implementation that uses the Java Servlet Spec for handling HTTP
+ * ViewRequest implementation that uses the Java Servlet Spec for handling HTTP
  * requests.
  */
-public class ServletViewContext implements ViewContext {
+class ServletViewRequest implements ViewRequest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServletViewContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServletViewRequest.class);
 
     private HttpServletRequest request;
 
-    public ServletViewContext(HttpServletRequest request) {
+    public ServletViewRequest(HttpServletRequest request) {
         this.request = request;
     }
 
