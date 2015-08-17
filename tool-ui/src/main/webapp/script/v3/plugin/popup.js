@@ -12,9 +12,9 @@
       parent: doc.body,
       
       'padding': {
-        'left': 35,
-        'right': 35,
-        'top': 20
+        'left': 10,
+        'right': 10,
+        'top': 10
       }
     },
 
@@ -160,7 +160,7 @@
           $marker = $('<div/>', { 'class': 'marker' });
           $content.append($marker);
         }
-        var markerLeft = (popupWidth  - $marker.outerWidth()) / 2 + markerDelta;
+        var markerLeft = (popupWidth  - 20) / 2 + markerDelta;
         $marker.css('left', markerLeft < 5 ? 5 : markerLeft);
 
         // Make sure top is within bounds.

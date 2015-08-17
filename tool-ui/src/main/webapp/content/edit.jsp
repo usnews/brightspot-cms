@@ -719,6 +719,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                             }
 
                                             wp.writeStart("div", "class", "widget-publishingWorkflowComment");
+                                                wp.writeStart("div", "class", "message message-warning");
                                                 wp.writeStart("span", "class", "visibilityLabel widget-publishingWorkflowState");
                                                     wp.writeHtml(workflowStateDisplayName);
                                                 wp.writeEnd();
@@ -745,6 +746,16 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                                         wp.writeHtml(wp.formatUserDateTime(log.getDate()));
                                                     wp.writeEnd();
                                                 }
+
+                                                wp.writeStart("div", "class", "actions");
+                                                    wp.writeStart("button",
+                                                            "class", "link icon icon-action-save",
+                                                            "name", "action-draft",
+                                                            "value", "true");
+                                                        wp.writeHtml("Save");
+                                                    wp.writeEnd();
+                                                wp.writeEnd();
+                                                wp.writeEnd();
                                             wp.writeEnd();
                                         }
 
@@ -878,7 +889,7 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
                                     "class", "link icon icon-object-draft",
                                     "name", "action-newDraft",
                                     "value", "true");
-                                wp.writeHtml("New Draft");
+                                wp.writeHtml(editingState.isNew() ? "Save Draft" : "New Draft");
                             wp.writeEnd();
                         wp.writeEnd();
                     }
@@ -953,33 +964,30 @@ wp.writeHeader(editingState.getType() != null ? editingState.getType().getLabel(
 
                     if (editingType != null) {
                         Renderer.TypeModification rendererData = editingType.as(Renderer.TypeModification.class);
+                        List<Object> refs = Query.
+                                fromAll().
+                                and("_any matches ?", editingState.getId()).
+                                and("_id != ?", editingState.getId()).
+                                and("_type != ?", Draft.class).
+                                select(0, 10).
+                                getItems();
 
-                        if (!ObjectUtils.isBlank(rendererData.getEmbedPath())) {
-                            List<Object> refs = Query.
-                                    fromAll().
-                                    and("_any matches ?", editingState.getId()).
-                                    and("_id != ?", editingState.getId()).
-                                    and("_type != ?", Draft.class).
-                                    select(0, 10).
-                                    getItems();
-
-                            if (!refs.isEmpty()) {
-                                wp.writeHtml(" ");
-                                wp.writeStart("select",
-                                        "name", "_mainObjectId",
-                                        "onchange", "$(this).closest('form').submit();",
-                                        "style", "width:200px;");
-                                    wp.writeStart("option", "value", "");
-                                        wp.writeTypeObjectLabel(editing);
-                                    wp.writeEnd();
-
-                                    for (Object ref : refs) {
-                                        wp.writeStart("option", "value", State.getInstance(ref).getId());
-                                            wp.writeTypeObjectLabel(ref);
-                                        wp.writeEnd();
-                                    }
+                        if (!refs.isEmpty()) {
+                            wp.writeHtml(" ");
+                            wp.writeStart("select",
+                                    "name", "_mainObjectId",
+                                    "onchange", "$(this).closest('form').submit();",
+                                    "style", "width:200px;");
+                                wp.writeStart("option", "value", "");
+                                    wp.writeTypeObjectLabel(editing);
                                 wp.writeEnd();
-                            }
+
+                                for (Object ref : refs) {
+                                    wp.writeStart("option", "value", State.getInstance(ref).getId());
+                                        wp.writeTypeObjectLabel(ref);
+                                    wp.writeEnd();
+                                }
+                            wp.writeEnd();
                         }
 
                         List<Context> contexts = new ArrayList<Context>();

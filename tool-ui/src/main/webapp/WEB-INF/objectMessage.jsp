@@ -59,8 +59,9 @@ if (wp.getUser().equals(contentData.getUpdateUser())) {
                 wp.writeHtml(wp.formatUserDateTime(updateDate));
 
             } else {
-                if (draft != null) {
+                if (draft != null || !state.isVisible()) {
                     wp.write("Saved ");
+
                 } else {
                     wp.write("Published ");
                 }
